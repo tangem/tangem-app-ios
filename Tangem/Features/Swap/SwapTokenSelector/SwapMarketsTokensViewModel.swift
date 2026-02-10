@@ -22,18 +22,25 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private let chartsProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
     private let marketCapFormatter: MarketCapFormatter
+    private let configuration: Configuration
 
     private var currentTask: Task<Void, Never>?
     private var searchCancellable: AnyCancellable?
+    private var activeCancellable: AnyCancellable?
 
     private weak var selectionHandler: SwapMarketsTokenSelectionHandler?
 
     private var currentSearchText: String = ""
+    private var isActive: Bool = true
 
     // MARK: - Init
 
-    init(searchProvider: SwapMarketsTokensProvider) {
+    init(
+        searchProvider: SwapMarketsTokensProvider,
+        configuration: Configuration = .withTrending
+    ) {
         self.searchProvider = searchProvider
+        self.configuration = configuration
 
         chartsProvider = MarketsListChartsHistoryProvider()
         filterProvider = MarketsListDataFilterProvider()
@@ -59,7 +66,29 @@ final class SwapMarketsTokensViewModel: ObservableObject {
         self.selectionHandler = selectionHandler
     }
 
+    func setup(isActivePublisher: some Publisher<Bool, Never>) {
+        activeCancellable = isActivePublisher
+            .removeDuplicates()
+            .sink { [weak self] isActive in
+                guard let self else { return }
+
+                self.isActive = isActive
+                if isActive {
+                    // When becoming active, trigger search if there's already text in the search field
+                    if !currentSearchText.isEmpty {
+                        handleSearchTextChange(currentSearchText)
+                    }
+                } else {
+                    currentTask?.cancel()
+                    state = .idle
+                }
+            }
+    }
+
     func onAppear() {
+        // Only withTrending mode loads trending on appear
+        guard configuration == .withTrending else { return }
+
         // Load trending on first appear if no search text
         if currentSearchText.isEmpty, case .idle = state {
             loadTrending()
@@ -71,14 +100,22 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private func handleSearchTextChange(_ text: String) {
         currentSearchText = text
 
-        if text.isEmpty {
-            loadTrending()
-        } else if text.count >= 2 {
-            performSearch(text: text)
-        } else {
-            // 1 character - show idle state
-            currentTask?.cancel()
+        // For searchOnlyOnDemand mode, check if active
+        if configuration == .searchOnlyOnDemand, !isActive {
             state = .idle
+            return
+        }
+
+        if text.isEmpty {
+            switch configuration {
+            case .withTrending:
+                loadTrending()
+            case .searchOnlyOnDemand:
+                currentTask?.cancel()
+                state = .idle
+            }
+        } else {
+            performSearch(text: text)
         }
     }
 
@@ -165,6 +202,24 @@ final class SwapMarketsTokensViewModel: ObservableObject {
 // MARK: - State
 
 extension SwapMarketsTokensViewModel {
+    /// Returns true if markets section has visible content (loading, trending, or search results)
+    /// Used to determine if the parent view should hide its "no results" empty state
+    var hasVisibleContent: Bool {
+        switch state {
+        case .idle, .noResults:
+            return false
+        case .loading, .loaded:
+            return true
+        }
+    }
+
+    enum Configuration {
+        /// Shows trending on appear + search
+        case withTrending
+        /// Only shows search results when actively searching
+        case searchOnlyOnDemand
+    }
+
     enum State: Equatable {
         case idle
         case loading(mode: Mode)

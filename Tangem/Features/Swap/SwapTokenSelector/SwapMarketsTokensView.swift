@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct SwapMarketsTokensView: View {
@@ -96,5 +97,40 @@ extension SwapMarketsTokensView {
         static let titleCountSpacing: CGFloat = 8
         static let cornerRadius: CGFloat = 14
         static let skeletonItemsCount: Int = 7
+    }
+}
+
+// MARK: - SwapTokenSelectorEmptyContentView
+
+/// A wrapper view that observes the markets view model state to conditionally show empty content.
+/// This is needed because the empty content view needs to react to markets state changes.
+struct SwapTokenSelectorEmptyContentView: View {
+    var marketsTokensViewModel: SwapMarketsTokensViewModel?
+    let message: String
+
+    var body: some View {
+        if let marketsViewModel = marketsTokensViewModel {
+            // Observe markets state and hide empty message when markets has content
+            SwapTokenSelectorEmptyContentViewObserver(
+                marketsTokensViewModel: marketsViewModel,
+                message: message
+            )
+        } else {
+            // No markets view model - always show empty message
+            AccountsAwareTokenSelectorEmptyContentView(message: message)
+        }
+    }
+}
+
+/// Internal view that observes the markets view model
+private struct SwapTokenSelectorEmptyContentViewObserver: View {
+    @ObservedObject var marketsTokensViewModel: SwapMarketsTokensViewModel
+    let message: String
+
+    var body: some View {
+        // Don't show empty message if markets are loading or have results
+        if !marketsTokensViewModel.hasVisibleContent {
+            AccountsAwareTokenSelectorEmptyContentView(message: message)
+        }
     }
 }
