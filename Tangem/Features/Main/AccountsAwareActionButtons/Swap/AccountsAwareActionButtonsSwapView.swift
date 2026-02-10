@@ -92,7 +92,15 @@ struct AccountsAwareActionButtonsSwapView: View {
 
         case .selector:
             AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                AccountsAwareTokenSelectorEmptyContentView(message: Localization.actionButtonsSwapEmptySearchMessage)
+                SwapTokenSelectorEmptyContentView(
+                    marketsTokensViewModel: viewModel.marketsTokensViewModel,
+                    message: Localization.expressTokenListEmptySearch
+                )
+            }
+            additionalContent: {
+                if viewModel.shouldShowMarketsSearch, let marketsViewModel = viewModel.marketsTokensViewModel {
+                    SwapMarketsTokensView(viewModel: marketsViewModel)
+                }
             }
             .searchType(.native)
             .transition(.opacity)
