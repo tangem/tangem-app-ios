@@ -108,8 +108,7 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
                     coinId: token.id,
                     coinName: token.name,
                     coinSymbol: token.symbol,
-                    networks: networks,
-                    swapDirection: swapDirection
+                    networks: networks
                 )
 
                 coordinator?.openAddTokenFlowForExpress(inputData: inputData)

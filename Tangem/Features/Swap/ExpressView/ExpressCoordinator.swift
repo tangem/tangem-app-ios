@@ -192,6 +192,7 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
 
+            // Add a small delay to avoid animation glitches
             try? await Task.sleep(for: .milliseconds(500))
 
             // Delegate to swapTokenSelectorViewModel to handle the selection

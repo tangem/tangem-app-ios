@@ -24,5 +24,4 @@ struct ExpressAddTokenInputData {
     let coinName: String
     let coinSymbol: String
     let networks: [NetworkModel]
-    let swapDirection: SwapTokenSelectorViewModel.SwapDirection
 }
