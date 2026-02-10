@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemPay
 
 public protocol VisaCardActivationStatusService {
     func getCardActivationStatus(

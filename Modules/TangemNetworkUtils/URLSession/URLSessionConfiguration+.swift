@@ -44,6 +44,13 @@ public extension URLSessionConfiguration {
         return configuration
     }()
 
+    static let tangemPayConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 30
+        return configuration
+    }()
+
     static let imageFetchingConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20

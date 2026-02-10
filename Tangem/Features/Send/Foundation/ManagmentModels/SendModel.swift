@@ -21,7 +21,7 @@ protocol SendModelRoutable: AnyObject {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
 }
 
-class SendModel {
+final class SendModel {
     // MARK: - Data
 
     private let _sendingToken: CurrentValueSubject<SendSourceToken, Never>
@@ -47,6 +47,7 @@ class SendModel {
 
     // MARK: - Private injections
 
+    private let userWalletId: UserWalletId
     private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
@@ -57,11 +58,13 @@ class SendModel {
     private let balanceConverter = BalanceConverter()
 
     private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    private var destinationTokenHeader: ExpressInteractorTokenHeader?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
     init(
+        userWalletId: UserWalletId,
         userToken: SendSourceToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
@@ -71,6 +74,7 @@ class SendModel {
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
+        self.userWalletId = userWalletId
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
         self.analyticsLogger = analyticsLogger
@@ -85,6 +89,10 @@ class SendModel {
         _amount = .init(predefinedValues.amount)
 
         bind()
+    }
+
+    deinit {
+        AppLogger.debug("SendModel deinit")
     }
 }
 
@@ -140,11 +148,14 @@ private extension SendModel {
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink {
-                $0.swapManager.update(
-                    destination: $1.0.receiveToken?.tokenItem,
-                    address: $1.1?.value.transactionAddress,
-                    accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
+            .sink { sendModel, pair in
+                let (receivedToken, destination) = pair
+                sendModel.swapManager.update(
+                    userWalletId: sendModel.userWalletId,
+                    destination: receivedToken.receiveToken?.tokenItem,
+                    address: destination?.value.transactionAddress,
+                    tokenHeader: sendModel.destinationTokenHeader,
+                    accountModelAnalyticsProvider: sendModel.destinationAccountAnalyticsProvider
                 )
             }
             .store(in: &bag)
@@ -287,7 +298,8 @@ private extension SendModel {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
+        let dispatcher = sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
         return result
     }
@@ -301,7 +313,8 @@ private extension SendModel {
             additionalField: _destinationAdditionalField.value,
             fee: sourceToken.tokenFeeProvidersManager.selectedTokenFee.option,
             signerType: result.signerType,
-            currentProviderHost: result.currentHost
+            currentProviderHost: result.currentHost,
+            tokenFee: sourceToken.tokenFeeProvidersManager.selectedTokenFee
         )
     }
 
@@ -464,7 +477,7 @@ extension SendModel: SendReceiveTokenAmountInput {
             try? await mapToHighPriceImpactCalculatorResult(
                 sourceTokenAmount: sourceAmount.value,
                 receiveTokenAmount: receiveAmount.value,
-                provider: swapManager.selectedProvider?.provider
+                provider: swapManager.state.context?.provider
             )
         }
     }
@@ -490,13 +503,16 @@ extension SendModel: SendReceiveTokenAmountInput {
 
     private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount, any Error> {
         switch state {
-        case .restriction(.requiredRefresh(let error), _):
+        case .requiredRefresh(let error, _):
             return .failure(error)
-        case .idle, .restriction:
+        case .idle, .preloadRestriction, .restriction(_, _, .none):
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
-        case .permissionRequired(_, let quote), .readyToSwap(_, let quote), .previewCEX(_, let quote):
+        case .restriction(_, _, .some(let quote)),
+             .permissionRequired(_, _, let quote),
+             .readyToSwap(_, _, let quote),
+             .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
@@ -551,7 +567,7 @@ extension SendModel: SendSwapProvidersInput {
     }
 
     var selectedExpressProvider: ExpressAvailableProvider? {
-        get async { await swapManager.selectedProvider }
+        swapManager.state.context?.availableProvider
     }
 
     var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
@@ -611,6 +627,25 @@ extension SendModel: SendFeeInput {
             .flatMapLatest { $0.supportFeeSelectionPublisher }
             .eraseToAnyPublisher()
     }
+
+    var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.shouldShowFeeSelectorRow(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func shouldShowFeeSelectorRow(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+        switch token {
+        case .same:
+            return .just(output: true)
+        case .swap:
+            return swapManager.statePublisher
+                .filter { !$0.isRefreshRates }
+                .map { $0.isFeeRowVisible }
+                .eraseToAnyPublisher()
+        }
+    }
 }
 
 // MARK: - SendSummaryInput, SendSummaryOutput
@@ -646,14 +681,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
             return swapManager.statePublisher
                 // Avoid button disable / non-disable state jumping
                 .filter { !$0.isRefreshRates }
-                .map { state in
-                    switch state {
-                    case .loading, .readyToSwap, .previewCEX:
-                        return true
-                    case .idle, .restriction, .permissionRequired:
-                        return false
-                    }
-                }
+                .map { $0.isAvailableToSendTransaction }
                 .eraseToAnyPublisher()
         }
     }
@@ -680,17 +708,35 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                 .withWeakCaptureOf(self)
                 .flatMap { model, state -> AnyPublisher<SendSummaryTransactionData?, Never> in
                     switch state {
-                    case .loading(.refreshRates, _), .loading(.fee, _):
+                    case .loading(.refreshRates), .loading(.fee):
                         return Empty().eraseToAnyPublisher()
-                    case .idle, .loading(.full, _), .restriction:
+                    case .idle, .loading(.full), .preloadRestriction, .restriction, .requiredRefresh:
                         return .just(output: .none)
-                    case .permissionRequired(let state, let quote):
+                    case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
-                        return .just(output: .swap(amount: quote.fromAmount, fee: fee, provider: state.provider))
-                    case .previewCEX(let state, let quote):
-                        return .just(output: .swap(amount: quote.fromAmount, fee: state.tokenFeeProvidersManager.selectedTokenFee, provider: state.provider))
-                    case .readyToSwap(let state, let quote):
-                        return .just(output: .swap(amount: quote.fromAmount, fee: state.tokenFeeProvidersManager.selectedTokenFee, provider: state.provider))
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: fee,
+                                provider: provider.provider
+                            )
+                        )
+                    case .previewCEX(_, let context, let quote):
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: context.tokenFeeProvidersManager.selectedTokenFee,
+                                provider: context.provider
+                            )
+                        )
+                    case .readyToSwap(_, let context, let quote):
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: context.tokenFeeProvidersManager.selectedTokenFee,
+                                provider: context.provider
+                            )
+                        )
                     }
                 }
                 .eraseToAnyPublisher()
@@ -798,7 +844,8 @@ extension SendModel: NotificationTapDelegate {
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
     }
@@ -851,9 +898,13 @@ extension SendModel: SendBaseDataBuilderInput {
 // MARK: - SendDestinationAccountOutput
 
 extension SendModel: SendDestinationAccountOutput {
-    func setDestinationAccountAnalyticsProvider(_ provider: (any AccountModelAnalyticsProviding)?) {
-        destinationAccountAnalyticsProvider = provider
-        analyticsLogger.setDestinationAnalyticsProvider(provider)
+    func setDestinationAccountInfo(
+        tokenHeader: ExpressInteractorTokenHeader?,
+        analyticsProvider: (any AccountModelAnalyticsProviding)?
+    ) {
+        destinationTokenHeader = tokenHeader
+        destinationAccountAnalyticsProvider = analyticsProvider
+        analyticsLogger.setDestinationAnalyticsProvider(analyticsProvider)
     }
 }
 

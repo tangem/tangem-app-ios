@@ -63,7 +63,9 @@ struct UserTokenListConverter {
             notifyStatus: notifyStatusValue,
             version: Constants.apiVersion,
             name: context["name"],
-            type: context["type"]
+            type: context["type"],
+            ref: context["ref"],
+            campaign: context["campaign"]
         )
     }
 
@@ -74,10 +76,13 @@ struct UserTokenListConverter {
 
         let contextBuilder = model.config.contextBuilder
         let context = contextBuilder
-            .enrich(withName: model.name)
-            .buildRaw()
+            .enrichReferral()
 
-        return context
+        if model.name.isNotEmpty {
+            _ = context.enrich(withName: model.name)
+        }
+
+        return context.buildRaw()
     }
 
     private func convertToGroupType(

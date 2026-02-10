@@ -33,9 +33,7 @@ class CommonOnrampSendAnalyticsLogger {
         ]
 
         if FeatureProvider.isAvailable(.accounts), let accountModelAnalyticsProvider {
-            let builder = SingleAccountAnalyticsBuilder()
-            let accountParams = accountModelAnalyticsProvider.analyticsParameters(with: builder)
-            analyticsParameters.merge(accountParams) { $1 }
+            analyticsParameters.enrich(with: accountModelAnalyticsProvider.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
         }
 
         Analytics.log(event: .onrampButtonBuy, params: analyticsParameters)
@@ -90,7 +88,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         Analytics.log(event: .onrampBuyScreenOpened, params: [
             .source: source.analytics.rawValue,
             .token: tokenItem.currencySymbol,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {
@@ -187,7 +185,7 @@ extension CommonOnrampSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .paymentMethod: provider.paymentMethod.name,
             .residence: request.pairItem.country.identity.name,
             .currency: request.pairItem.fiatCurrency.identity.code,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logShareButton() {}

@@ -47,6 +47,7 @@ struct TangemPayMainView: View {
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,
+                    exploreConfirmationDialog: nil,
                     exploreTransactionAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: false,
@@ -79,6 +80,7 @@ struct TangemPayMainView: View {
                             systemImage: "text.page.fill"
                         )
                     }
+                    .onAppear { viewModel.onToolbarClicked() }
 
                     Button(
                         action: viewModel.freezingState.isFrozen

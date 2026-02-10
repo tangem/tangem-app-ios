@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -66,6 +67,7 @@ struct MarketsCommonWidgetHeaderView: View {
                 cornerRadius: Layout.ButtonView.cornerRadius,
             )
         }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
     }
 }
 

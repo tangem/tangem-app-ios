@@ -9,6 +9,7 @@
 import Foundation
 import TangemVisa
 import TangemStaking
+import TangemPay
 
 // MARK: - Provider
 

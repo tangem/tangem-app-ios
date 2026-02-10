@@ -18,7 +18,7 @@ final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
     private let defaultAccountFactory: DefaultAccountFactory
     private let networkService: CryptoAccountsNetworkService & WalletsNetworkService
-    private let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
+    fileprivate let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
     fileprivate let persistentStorage: CryptoAccountsPersistentStorage
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
@@ -58,8 +58,8 @@ final class CommonCryptoAccountsRepository {
         storageController: CryptoAccountsPersistentStorageController,
         hasTokenSynchronization: Bool
     ) {
-        storageDidUpdateSubject = .init()
         stateHolder = .init()
+        storageDidUpdateSubject = .init()
         self.tokenItemsRepository = tokenItemsRepository
         self.defaultAccountFactory = defaultAccountFactory
         self.networkService = networkService
@@ -86,7 +86,7 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Legacy storage migration and initialization, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration and initialization, no accounts created, no wallets created, etc.
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
@@ -119,16 +119,23 @@ final class CommonCryptoAccountsRepository {
         try await walletCreationHelper.createWallet()
     }
 
-    private func addDefaultAccount(isWalletAlreadyCreated: Bool, additionalTokens: [StoredCryptoAccount.Token]) async throws {
+    private func addDefaultAccount(isWalletAlreadyCreated: Bool, legacyInfo: RemoteCryptoAccountsInfo?) async throws {
         if !isWalletAlreadyCreated {
             try await createWallet()
         }
 
-        // In some rare edge cases, when a wallet has already been created and used on a previous app version
-        // (w/o accounts support) and this wallet has an empty token list, default tokens from
-        // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
-        // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
-        let defaultAccount = defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: additionalTokens)
+        // `nilIfEmpty` is crucial for `legacyInfo?.legacyTokens` because here we handle two possible cases:
+        // - Migration from the old version w/o accounts support but with existing tokens from the plain tokens list:
+        // in this case, we want to preserve the existing tokens and assign them to the default account
+        // (only if they exist, otherwise we use default tokens from the factory)
+        //
+        // - Creation of a new wallet after an already completed POST `v1/user-wallets/wallets` call:
+        // in this case, we want to create a main account with default tokens, not with the empty tokens list from the server.
+        let defaultAccount = defaultAccountFactory.makeDefaultAccountPreferringExisting(
+            defaultTokensOverride: legacyInfo?.legacyTokens.nilIfEmpty,
+            defaultGroupingOverride: legacyInfo?.legacyGrouping,
+            defaultSortingOverride: legacyInfo?.legacySorting
+        )
         _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: .forceUpdate)
     }
 
@@ -143,8 +150,8 @@ final class CommonCryptoAccountsRepository {
         loadAccountsSubscription = runTask(in: self) { repository in
             let hasScheduledPendingUpdate = await repository.stateHolder.performIsolated { holder in
                 guard
-                    let pending = holder.cryptoAccountsToUpdate,
-                    !Task.isCancelled
+                    !Task.isCancelled,
+                    let pending = holder.cryptoAccountsToUpdate
                 else {
                     return false
                 }
@@ -178,7 +185,7 @@ final class CommonCryptoAccountsRepository {
 
             var updatedAccounts = remoteCryptoAccountsInfo.accounts
             if updatedAccounts.isEmpty {
-                throw InternalError.migrationNeeded(additionalTokens: remoteCryptoAccountsInfo.legacyTokens)
+                throw InternalError.migrationNeeded(legacyInfo: remoteCryptoAccountsInfo)
             }
 
             let shouldUpdateTokenListDueToTokensDistribution = StoredCryptoAccountsTokensDistributor.distributeTokens(
@@ -190,6 +197,7 @@ final class CommonCryptoAccountsRepository {
 
             // Updating the local storage first since it's the primary purpose of this method
             persistentStorage.replace(with: updatedAccounts)
+            auxiliaryDataStorage.hasSyncedWithRemote = true
             auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
 
             if shouldUpdateTokenListDueToTokensDistribution || shouldUpdateTokenListDueToCustomTokensMigration {
@@ -203,9 +211,9 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
             throw error
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
-            try await addDefaultAccount(isWalletAlreadyCreated: false, additionalTokens: [])
-        } catch InternalError.migrationNeeded(let additionalTokens) {
-            try await addDefaultAccount(isWalletAlreadyCreated: true, additionalTokens: additionalTokens)
+            try await addDefaultAccount(isWalletAlreadyCreated: false, legacyInfo: nil)
+        } catch InternalError.migrationNeeded(let legacyInfo) {
+            try await addDefaultAccount(isWalletAlreadyCreated: true, legacyInfo: legacyInfo)
         }
     }
 
@@ -252,7 +260,8 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             try await refreshInconsistentState()
             try Task.checkCancellation()
-            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions) // Schedules a retry after fixing the state
+            // Schedules a retry after fixing the state
+            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
             try await loadAccountsFromServerAsync() // Implicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
@@ -270,7 +279,12 @@ final class CommonCryptoAccountsRepository {
         }
 
         await stateHolder.performIsolated { holder in
-            guard !Task.isCancelled else {
+            guard
+                !Task.isCancelled,
+                // Pending state discarded until we are sure that local storage is in sync with the server
+                // to avoid overriding remote accounts with local ones that are not up-to-date
+                auxiliaryDataStorage.hasSyncedWithRemote
+            else {
                 return
             }
 
@@ -390,8 +404,8 @@ final class CommonCryptoAccountsRepository {
         }
 
         await stateHolder.performIsolated { $0.areCustomTokensMigrated = true }
-
         let migrator = StoredCryptoAccountsCustomTokensMigrator()
+
         return await migrator.migrateTokensIfNeeded(in: &storedCryptoAccounts)
     }
 }
@@ -399,6 +413,15 @@ final class CommonCryptoAccountsRepository {
 // MARK: - CryptoAccountsRepository protocol conformance
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        auxiliaryDataStorage
+            .didChangePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { $0.0.auxiliaryDataStorage.hasSyncedWithRemote }
+            .eraseToAnyPublisher()
+    }
+
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         storageDidUpdatePublisher
             .eraseToAnyPublisher()
@@ -429,10 +452,29 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             migrateStorage(forUserWalletWithId: userWalletId)
         } else if !hasTokenSynchronization {
             // Local-only storage initialization with a default account
-            initializeStorage(with: defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: []))
+            let defaultAccount = defaultAccountFactory.makeDefaultAccount(
+                defaultTokensOverride: nil,
+                defaultGroupingOverride: nil,
+                defaultSortingOverride: nil
+            )
+            initializeStorage(with: defaultAccount)
         } else {
-            // Last resort option: initialize storage with remote info from the server
-            loadAccountsFromServer()
+            // Last resort option: initialize storage with remote info from the server and
+            // fallback to an offline (local) default account in case of failure
+            loadAccountsFromServer { [weak self] result in
+                guard result.error != nil, let self else {
+                    return
+                }
+
+                let defaultAccount = defaultAccountFactory.makeDefaultAccount(
+                    // Temporary main account added here as an offline fallback must have an empty token list
+                    // so users can distinguish it from the main account created during new wallet onboarding
+                    defaultTokensOverride: [],
+                    defaultGroupingOverride: nil,
+                    defaultSortingOverride: nil
+                )
+                initializeStorage(with: defaultAccount)
+            }
         }
     }
 
@@ -496,7 +538,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: UserTokensPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {
-        updateAccountsOnServer(updateOptions: .tokens)
+        if auxiliaryDataStorage.hasSyncedWithRemote {
+            updateAccountsOnServer(updateOptions: .tokens)
+        }
     }
 }
 
@@ -516,20 +560,21 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     }
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> {
-        innerRepository
+        let index = derivationIndex
+
+        return innerRepository
             .cryptoAccountsPublisher
-            // [REDACTED_TODO_COMMENT]
-            .compactMap { [index = derivationIndex] cryptoAccounts in
-                return Self._cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
-            }
+            // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
+            // but in this case the account is already removed so we have to skip this value
+            .filter { $0.contains { $0.derivationIndex == index } }
+            .map { Self.cryptoAccount(forDerivationIndex: index, from: $0) }
             .eraseToAnyPublisher()
     }
 
     var cryptoAccount: StoredCryptoAccount {
         let cryptoAccounts = innerRepository.persistentStorage.getList()
 
-        // [REDACTED_TODO_COMMENT]
-        return Self._cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts) ?? cryptoAccounts[0].withTokens([])
+        return Self.cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts)
     }
 
     func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows {
@@ -564,7 +609,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
         }
 
-        if updates.isNotEmpty {
+        if updates.isNotEmpty, innerRepository.auxiliaryDataStorage.hasSyncedWithRemote {
             innerRepository.updateTokensOnServerDebouncer.debounce(withCompletion: { _ in })
         }
     }
@@ -581,18 +626,18 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         line: UInt = #line
     ) -> StoredCryptoAccount {
         guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
-            preconditionFailure("No crypto account found for derivation index \(derivationIndex)", file: file, line: line)
+            #if ALPHA || BETA || DEBUG
+            preconditionFailure(
+                "No crypto account found for derivation index '\(derivationIndex)' in crypto accounts: '\(cryptoAccounts)'",
+                file: file,
+                line: line
+            )
+            #else
+            return .dummy(withDerivationIndex: derivationIndex)
+            #endif // ALPHA || BETA || DEBUG
         }
 
         return cryptoAccount
-    }
-
-    @available(*, deprecated, message: "Temporary workaround until [REDACTED_INFO] is resolved")
-    private static func _cryptoAccount(
-        forDerivationIndex derivationIndex: Int,
-        from cryptoAccounts: [StoredCryptoAccount],
-    ) -> StoredCryptoAccount? {
-        return cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex })
     }
 }
 
@@ -628,7 +673,7 @@ private extension CommonCryptoAccountsRepository {
         /// Unlike `CryptoAccountsNetworkServiceError.noAccountsCreated`, this error indicates that the wallet
         /// has been created using an older version of the app (i.e. w/o accounts support) and exists,
         /// but no accounts have been created for this wallet yet.
-        case migrationNeeded(additionalTokens: [StoredCryptoAccount.Token])
+        case migrationNeeded(legacyInfo: RemoteCryptoAccountsInfo)
         /// No `UserWalletInfoProvider` has been configured for the repository, this is most likely a programming error.
         /// Check that `configure(with:)` method has been called before using the repository.
         case noUserWalletInfoProviderSet

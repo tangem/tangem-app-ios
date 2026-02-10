@@ -663,13 +663,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo)
+                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                logAnalytics(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
@@ -1044,7 +1043,7 @@ private extension WalletOnboardingViewModel {
             cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
         }
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(cardInteractors: cardInteractors)
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(cardInteractors: cardInteractors)
 
         resetUtil.alertPublisher
             .receiveOnMain()

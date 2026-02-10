@@ -20,11 +20,11 @@ enum NetworkSupportChecker {
         }
 
         // Native coins (no contract address or no decimal count) are always supported
-        guard network.contractAddress != nil, network.decimalCount != nil else {
+        guard let contractAddress = network.contractAddress, network.decimalCount != nil else {
             return true
         }
 
         // Tokens require blockchain to support token handling
-        return blockchain.canHandleTokens
+        return SupportedTokensFilter.canHandleToken(contractAddress: contractAddress, blockchain: blockchain)
     }
 }

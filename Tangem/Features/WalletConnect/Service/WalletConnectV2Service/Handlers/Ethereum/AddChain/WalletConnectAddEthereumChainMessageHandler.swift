@@ -198,20 +198,19 @@ private extension WalletConnectConnectedDApp {
             )
 
         case .v2(let dApp):
-            return .v2(
-                WalletConnectConnectedDAppV2(
-                    session: WalletConnectDAppSession(
-                        topic: dApp.session.topic,
-                        namespaces: updatedNamespaces,
-                        expiryDate: dApp.session.expiryDate
-                    ),
-                    accountId: dApp.accountId,
-                    dAppData: dApp.dAppData,
-                    verificationStatus: dApp.verificationStatus,
-                    dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
-                    connectionDate: dApp.connectionDate
-                )
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(
+                    topic: dApp.session.topic,
+                    namespaces: updatedNamespaces,
+                    expiryDate: dApp.session.expiryDate
+                ),
+                userWalletID: dApp.wrapped.userWalletID,
+                dAppData: dApp.dAppData,
+                verificationStatus: dApp.verificationStatus,
+                dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+                connectionDate: dApp.connectionDate
             )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
         }
     }
 }

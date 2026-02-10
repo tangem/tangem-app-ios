@@ -11,7 +11,6 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
-import struct TangemAccounts.AccountIconView
 
 struct ExpressCurrencyView<Content: View>: View {
     @ObservedObject private var viewModel: ExpressCurrencyViewModel
@@ -68,32 +67,10 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     var headerView: some View {
         switch (viewModel.headerType, viewModel.errorState) {
-        case (.action(let name), .none):
-            Text(name)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-        case (.wallet(let name), .none):
-            Text(name)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-        case (.account(let prefix, let name, let icon), .none):
-            HStack(spacing: 6) {
-                Text(prefix)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                HStack(spacing: 4) {
-                    AccountIconView(data: icon)
-                        .settings(.extraSmallSized)
-
-                    Text(name)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                }
-            }
-        case (_, .insufficientFunds):
-            Text(Localization.swappingInsufficientFunds)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
-        case (_, .error(let text)):
-            // Use for generic error
-            Text(text)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+        case (_, .none):
+            ExpressCurrencyDefaultHeaderView(headerType: viewModel.headerType)
+        case (_, .some(let errorState)):
+            ExpressCurrencyErrorHeaderView(errorState: errorState)
         }
     }
 

@@ -34,7 +34,6 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
     func selectCountry(_ countryName: String) -> OnrampSettingsScreen {
         XCTContext.runActivity(named: "Select country '\(countryName)'") { _ in
             let countryButton = app.buttons[OnrampAccessibilityIdentifiers.countryItem(code: countryName)]
-            XCTAssertTrue(countryButton.waitForExistence(timeout: .robustUIUpdate), "Country '\(countryName)' should exist in the list")
             countryButton.waitAndTap()
 
             return OnrampSettingsScreen(app)

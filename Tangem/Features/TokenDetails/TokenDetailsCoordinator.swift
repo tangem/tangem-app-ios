@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import UIKit
 
 class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -161,6 +162,16 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             floatingSheetPresenter.enqueue(sheet: factory.makeYieldModuleBalanceInfoViewModel())
         }
     }
+
+    func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: factory.makeCloreMigrationViewModel())
+        }
+    }
+
+    func openURLInSystemBrowser(url: URL) {
+        UIApplication.shared.open(url)
+    }
 }
 
 // MARK: - PendingExpressTxStatusRoutable
@@ -200,8 +211,8 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
                 with: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
                     keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
                     walletModel: walletModel
                 )
             )

@@ -23,8 +23,7 @@ struct FeeSelectorRowView: View {
             content
         }
         .buttonStyle(.plain)
-        .disabled(viewModel.availability != .available)
-        .opacity(viewModel.availability.isAvailable ? 1 : 0.5)
+        .disabled(viewModel.availability.isUnavailable)
     }
 
     // MARK: - Sub Views
@@ -34,7 +33,7 @@ struct FeeSelectorRowView: View {
             icon
             labels
             Spacer()
-            expandButton
+            expandIcon
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
@@ -55,17 +54,25 @@ struct FeeSelectorRowView: View {
                 LoadableTokenBalanceView(
                     state: state,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
-                    loader: .init(size: CGSize(width: 100, height: 20))
+                    loader: .init(size: CGSize(width: 100, height: 14))
                 )
             case .fee(let state):
                 LoadableTextView(
                     state: state,
                     font: Fonts.Regular.caption1,
-                    textColor: Colors.Text.tertiary,
-                    loaderSize: CGSize(width: 100, height: 16),
+                    textColor: feeSubtitleColor(),
+                    loaderSize: CGSize(width: 100, height: 14),
                     isSensitiveText: viewModel.rowType.isToken
                 )
             }
+        }
+    }
+
+    private func feeSubtitleColor() -> Color {
+        if case .available(true) = viewModel.availability {
+            return Colors.Text.warning
+        } else {
+            return Colors.Text.tertiary
         }
     }
 
@@ -103,15 +110,13 @@ struct FeeSelectorRowView: View {
     }
 
     @ViewBuilder
-    private var expandButton: some View {
-        if let action = viewModel.expandAction {
-            Button(action: action) {
-                Assets.Glyphs.selectIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(Colors.Text.tertiary)
-                    .frame(width: 18, height: 24)
-            }
+    private var expandIcon: some View {
+        if viewModel.expandAction != nil {
+            Assets.Glyphs.selectIcon.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Colors.Text.tertiary)
+                .frame(width: 18, height: 24)
         }
     }
 

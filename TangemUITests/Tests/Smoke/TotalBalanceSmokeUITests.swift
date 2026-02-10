@@ -242,11 +242,16 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             name: "quotes_api",
             initialState: "Ripple"
         )
+        let tokensScenario = ScenarioConfig(
+            name: "wallet_tokens_api",
+            initialState: "XRP"
+        )
         let expectedBalance = Decimal(3320.46)
 
         launchApp(
             tangemApiType: .mock,
-            clearStorage: true
+            clearStorage: true,
+            scenarios: [quotesScenario, tokensScenario]
         )
 
         let marketsScreen = CreateWalletSelectorScreen(app)
@@ -255,13 +260,13 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             .searchForToken("XRP")
             .tapTokenInSearchResults("XRP")
 
-        setupWireMockScenarios([quotesScenario])
+        setupWireMockScenarios([quotesScenario, tokensScenario])
 
         let mainScreen = marketsScreen
             .tapAddToPortfolioButton()
-            .toggleMainNetworkSwitch()
-            .tapContinueButton()
-            .tapBackButton()
+            .selectNetwork("XRP Ledger")
+            .tapAddTokenButton()
+            .tapGetTokenLaterButton()
             .closeMarketsSheetWithSwipe()
 
         let actualBalance = mainScreen.getTotalBalanceNumericValue()
@@ -322,7 +327,8 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertEqual(totalBalance, 0, "Total balance should equal 0, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
         for tokenName in tokenNames {
             if tokenName == customToken {
                 let balances = mainScreen.getAllTokenBalances(tokenName: tokenName)
@@ -364,7 +370,8 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertGreaterThan(totalBalance, 0, "Total balance should be positive, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
 
         for tokenName in tokenNames {
             if tokenName == customToken {

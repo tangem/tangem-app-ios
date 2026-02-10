@@ -60,8 +60,12 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }
+            .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
+                NewsPagerView(viewModel: viewModel)
+                    .navigationLinks(newsRelatedTokenDetailsLink)
+            }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
-                NavigationView {
+                NavigationStack {
                     YieldModulePromoCoordinatorView(coordinator: coordinator)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -71,7 +75,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 }
             }
             .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
-                NavigationView {
+                NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -90,6 +94,16 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             hPadding: Constants.backButtonHorizontalPadding,
             action: { UIApplication.dismissTop() }
         )
+    }
+
+    private var newsRelatedTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .if(tokenCoordinator.isMarketsSheetFlow) { view in
+                        view.ignoresSafeArea(.container, edges: .top)
+                    }
+            }
     }
 }
 

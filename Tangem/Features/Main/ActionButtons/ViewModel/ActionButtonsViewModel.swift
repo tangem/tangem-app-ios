@@ -41,6 +41,7 @@ final class ActionButtonsViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
     private let lastButtonTapped = PassthroughSubject<ActionButtonModel, Never>()
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
 
     private var lastSellInitializeState: SellServiceState?
 
@@ -75,6 +76,12 @@ final class ActionButtonsViewModel: ObservableObject {
             coordinator: coordinator,
             lastButtonTapped: lastButtonTapped,
             userWalletModel: userWalletModel
+        )
+
+        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
+            updatePublisher: userWalletModel.updatePublisher
         )
 
         bind()
@@ -132,7 +139,10 @@ private extension ActionButtonsViewModel {
 
     func restoreButtonsState() {
         let lastExpressUpdatingState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
-        updateSwapButtonState(lastExpressUpdatingState)
+        updateSwapButtonState(
+            expressUpdateState: lastExpressUpdatingState,
+            isActionButtonsAvailable: balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailable
+        )
         updateBuyButtonStateWithExpress(lastExpressUpdatingState)
 
         if let lastSellInitializeState {
@@ -178,7 +188,7 @@ private extension ActionButtonsViewModel {
         switch buyActionButtonViewModel.viewState {
         case .idle:
             buyActionButtonViewModel.updateState(to: .initial)
-        case .restricted, .loading, .initial, .disabled:
+        case .restricted, .loading, .initial, .disabled, .unavailable:
             break
         }
     }
@@ -195,11 +205,17 @@ private extension ActionButtonsViewModel {
 
 private extension ActionButtonsViewModel {
     func bindSwapAvailability() {
+        let isActionButtonsAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+
         expressAvailabilityProvider
             .expressAvailabilityUpdateState
-            .withWeakCaptureOf(self)
-            .sink { viewModel, expressUpdateState in
-                viewModel.updateSwapButtonState(expressUpdateState)
+            .combineLatest(isActionButtonsAvailablePublisher)
+            .sink { [weak self] expressUpdateState, isActionButtonsAvailable in
+                self?.updateSwapButtonState(
+                    expressUpdateState: expressUpdateState,
+                    isActionButtonsAvailable: isActionButtonsAvailable
+                )
             }
             .store(in: &bag)
     }
@@ -209,16 +225,23 @@ private extension ActionButtonsViewModel {
             .availableStoriesPublisher
             .combineLatest(swapActionButtonViewModel.$viewState)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, storyAvailabilityService] _, swapButtonViewState in
-                let swapStoryAvailable = storyAvailabilityService.checkStoryAvailability(storyId: .swap)
+            .withWeakCaptureOf(self)
+            .sink { input in
+                let (viewModel, (_, swapButtonViewState)) = input
+                let swapStoryAvailable = viewModel.storyAvailabilityService.checkStoryAvailability(storyId: .swap)
                 let buttonStateIsValid = swapButtonViewState == .idle || swapButtonViewState == .initial
-                self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && swapStoryAvailable
+                viewModel.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && swapStoryAvailable
             }
             .store(in: &bag)
     }
 
-    func updateSwapButtonState(_ expressUpdateState: ExpressAvailabilityUpdateState) {
+    func updateSwapButtonState(expressUpdateState: ExpressAvailabilityUpdateState, isActionButtonsAvailable: Bool) {
         runTask(in: self) { @MainActor viewModel in
+            guard isActionButtonsAvailable else {
+                viewModel.swapActionButtonViewModel.updateState(to: .unavailable)
+                return
+            }
+
             let hasCache = viewModel.expressAvailabilityProvider.hasCache
 
             switch (expressUpdateState, hasCache) {
@@ -241,7 +264,7 @@ private extension ActionButtonsViewModel {
         switch swapActionButtonViewModel.viewState {
         case .idle:
             swapActionButtonViewModel.updateState(to: .initial)
-        case .restricted, .loading, .initial, .disabled:
+        case .restricted, .loading, .initial, .disabled, .unavailable:
             break
         }
     }
@@ -293,7 +316,7 @@ private extension ActionButtonsViewModel {
         switch sellActionButtonViewModel.viewState {
         case .idle:
             sellActionButtonViewModel.updateState(to: .initial)
-        case .restricted, .loading, .initial, .disabled:
+        case .restricted, .loading, .initial, .disabled, .unavailable:
             break
         }
     }

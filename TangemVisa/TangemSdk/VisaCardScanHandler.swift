@@ -215,7 +215,7 @@ public extension VisaCardScanHandler {
     }
 }
 
-extension CardSessionRunnable {
+public extension CardSessionRunnable {
     func run(in session: CardSession) async throws -> Response {
         try await withCheckedThrowingContinuation { continuation in
             self.run(in: session) { result in

@@ -127,10 +127,8 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
     func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         builder
-            .setIsMainAccount(isMainAccount)
             .setDerivationIndex(derivationIndex)
-
-        return builder.build()
+            .build()
     }
 
     /// Edits the account model using the provided editor closure (external use by consumers).
@@ -172,6 +170,14 @@ extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
 
     var rateProvider: AccountRateProvider {
         accountRateProvider
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonCryptoAccountModel: DisposableEntity {
+    nonisolated func dispose() {
+        walletModelsManager.dispose()
     }
 }
 

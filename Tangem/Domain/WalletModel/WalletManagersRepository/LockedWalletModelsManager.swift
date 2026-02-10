@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class LockedWalletModelsManager: WalletModelsManager {
+final class LockedWalletModelsManager: WalletModelsManager {
     private(set) var isInitialized = false
     var walletModels: [any WalletModel] { [] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
@@ -19,4 +19,6 @@ class LockedWalletModelsManager: WalletModelsManager {
     func initialize() {
         isInitialized = true
     }
+
+    func dispose() {}
 }

@@ -35,9 +35,15 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
 
+    private var isExperimentEnabled: Bool {
+        FeatureProvider.isAvailable(.experimentService)
+    }
+
     // MARK: - Public Implementation
 
     func configure() {
+        guard !AppEnvironment.current.isDebug, isExperimentEnabled else { return }
+
         let config = ExperimentConfigBuilder()
             .automaticExposureTracking(true)
             .fetchOnStart(false)
@@ -49,6 +55,8 @@ final class CommonExperimentService {
     // MARK: - Private Implementation
 
     private func bind() {
+        guard isExperimentEnabled else { return }
+
         userWalletRepository
             .eventProvider
             .withWeakCaptureOf(self)
@@ -82,9 +90,14 @@ final class CommonExperimentService {
 
         let user = builder.build()
 
+        guard let client = _client else {
+            AppLogger.info("Experiment client is nil, skipping fetch for wallet")
+            return
+        }
+
         do {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                _client?.fetch(user: user) { client, error in
+                client.fetch(user: user) { _, error in
                     if let error {
                         continuation.resume(throwing: error)
                     } else {
