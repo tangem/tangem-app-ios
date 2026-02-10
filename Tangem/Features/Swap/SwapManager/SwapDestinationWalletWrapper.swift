@@ -19,11 +19,13 @@ struct SwapDestinationWalletWrapper: ExpressInteractorDestinationWallet {
 
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     let address: String?
+    let extraId: String?
 
     init(
         userWalletId: UserWalletId,
         tokenItem: TokenItem,
         address: String?,
+        extraId: String?,
         tokenHeader: ExpressInteractorTokenHeader?,
         accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     ) {
@@ -31,6 +33,7 @@ struct SwapDestinationWalletWrapper: ExpressInteractorDestinationWallet {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.address = address
+        self.extraId = extraId
         self.tokenHeader = tokenHeader
         self.accountModelAnalyticsProvider = accountModelAnalyticsProvider
     }
