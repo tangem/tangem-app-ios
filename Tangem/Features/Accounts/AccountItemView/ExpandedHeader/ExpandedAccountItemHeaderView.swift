@@ -127,7 +127,7 @@ struct ExpandedAccountItemHeaderView: View {
     }
 
     private var shouldShowBalance: Bool {
-        totalFiatBalance.isLoaded && totalFiatBalance != .empty
+        !totalFiatBalance.isFailed && totalFiatBalance != .empty
     }
 
     private var alignmentPoint: some View {

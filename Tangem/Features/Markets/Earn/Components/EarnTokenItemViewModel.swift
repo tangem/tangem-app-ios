@@ -11,7 +11,7 @@ import Foundation
 // MARK: - EarnTokenItemViewModel
 
 struct EarnTokenItemViewModel: Identifiable, Hashable {
-    let id: String
+    let tokenId: String
     let name: String
     let symbol: String
     let imageUrl: URL?
@@ -22,6 +22,10 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
     let earnType: EarnType
     let onTapAction: () -> Void
 
+    var id: String {
+        [tokenId, symbol, networkName, earnType.rawValue].joined(separator: "_")
+    }
+
     var rateText: String {
         let formatted = percentFormatter.format(rateValue, option: .staking)
         return "\(rateType.rawValue) \(formatted)"
@@ -30,7 +34,7 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
     private let percentFormatter = PercentFormatter()
 
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {
-        id = UUID().uuidString
+        tokenId = token.id
         name = token.name
         symbol = token.symbol
         imageUrl = token.imageUrl
