@@ -124,8 +124,11 @@ private extension CommonDeeplinkPresenter {
                 deeplinkString: deeplinkString,
             )
 
-        case .promo(let promoCode):
-            return constructPromoViewController(promoCode: promoCode)
+        case .promo(let promoCode, let refcode, let campaign):
+            return constructPromoViewController(promoCode: promoCode, refcode: refcode, campaign: campaign)
+
+        case .newsDetails(let newsId):
+            return constructNewsDetailsViewController(newsId: newsId)
 
         case .externalLink, .market:
             return nil
@@ -134,9 +137,9 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
-    private func constructPromoViewController(promoCode: String) -> UIViewController {
+    private func constructPromoViewController(promoCode: String, refcode: String?, campaign: String?) -> UIViewController {
         let viewController = makeDeeplinkViewController(
-            view: { PromocodeActivationView(promoCode: promoCode) },
+            view: { PromocodeActivationView(promoCode: promoCode, refcode: refcode, campaign: campaign) },
             embedInNavigationStack: false
         )
 
@@ -177,8 +180,8 @@ private extension CommonDeeplinkPresenter {
                 with: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
                     keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
                     walletModel: walletModel,
                     pendingTransactionDetails: pendingTransactionDetails
                 )
@@ -311,6 +314,22 @@ private extension CommonDeeplinkPresenter {
             },
             embedInNavigationStack: false,
             modalPresentationStyle: .overFullScreen
+        )
+    }
+
+    private func constructNewsDetailsViewController(newsId: Int) -> UIViewController {
+        var windowSize: CGSize?
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            windowSize = window.screen.bounds.size
+        }
+
+        return makeDeeplinkViewController(
+            view: {
+                NewsDeeplinkContainerView(newsId: newsId)
+                    .environment(\.mainWindowSize, windowSize ?? .zero)
+            },
+            embedInNavigationStack: true
         )
     }
 }

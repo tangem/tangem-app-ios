@@ -20,7 +20,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class MobileUpgradeViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     lazy var info = makeInfo()
@@ -86,7 +86,7 @@ extension MobileUpgradeViewModel {
         )
 
         let backupTrait = TraitItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.tangemUpgrade,
             title: Localization.hwUpgradeBackupTitle,
             subtitle: Localization.hwUpgradeBackupDescription
         )
@@ -263,7 +263,7 @@ private extension MobileUpgradeViewModel {
         let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
         let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .upgrade).build(
             backupCardsCount: backupCardsCount,
             cardInteractor: cardInteractor
         )
@@ -303,7 +303,7 @@ private extension MobileUpgradeViewModel {
             self?.scanCardRequestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

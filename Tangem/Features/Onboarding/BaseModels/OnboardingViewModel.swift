@@ -204,7 +204,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         bindAnalytics()
     }
 
-    func initializeUserWallet(from cardInfo: CardInfo) {
+    func initializeUserWallet(from cardInfo: CardInfo, walletCreationType: WalletOnboardingViewModel.WalletCreationType) {
         guard userWalletModel == nil else {
             return
         }
@@ -242,6 +242,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
+        var params = walletCreationType.params
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+        logAnalytics(event: .walletCreatedSuccessfully, params: params)
+
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
         userWalletModel = userWallet
@@ -277,6 +282,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
         } else {
             // add model
+            let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+
             if AppSettings.shared.saveUserWallets {
                 try? userWalletRepository.add(userWalletModel: userWalletModel)
             } else {
@@ -287,6 +294,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 if let currentUserWalletId {
                     userWalletRepository.delete(userWalletId: currentUserWalletId)
                 }
+            }
+
+            if hadSingleMobileWallet, userWalletRepository.models.count == 2 {
+                logColdWalletAddedAnalytics(contextData: userWalletModel.analyticsContextData)
             }
 
             DispatchQueue.main.async {
@@ -494,6 +505,19 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             // accounts_fixes_needed_none
             userTokensManager: userWalletModel.userTokensManager,
             walletModelsManager: userWalletModel.walletModelsManager
+        )
+    }
+}
+
+// MARK: - Analytics
+
+private extension OnboardingViewModel {
+    func logColdWalletAddedAnalytics(contextData: AnalyticsContextData) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.onboarding],
+            analyticsSystems: .all,
+            contextParams: .custom(contextData)
         )
     }
 }

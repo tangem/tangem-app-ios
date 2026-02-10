@@ -72,24 +72,18 @@ final class CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
-        let tokenItemsToAdd = try tokenItems.flatMap { tokenItem in
+        let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
+
+        for tokenItem in enrichedItems {
             try validateDerivation(for: tokenItem)
 
-            if tokenItem.isBlockchain {
-                return [tokenItem]
+            if tokenItem.isToken {
+                let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+                try validateDerivation(for: networkTokenItem)
             }
-
-            let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
-            try validateDerivation(for: networkTokenItem)
-
-            if !userTokens.contains(networkTokenItem), !tokenItems.contains(networkTokenItem) {
-                return [networkTokenItem, tokenItem]
-            }
-
-            return [tokenItem]
         }
 
-        userTokenListManager.update(.append(tokenItemsToAdd), shouldUpload: shouldUpload)
+        userTokenListManager.update(.append(enrichedItems), shouldUpload: shouldUpload)
     }
 
     private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
@@ -200,7 +194,7 @@ extension CommonUserTokensManager: UserTokensManager {
         )
     }
 
-    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {
         guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
@@ -208,7 +202,10 @@ extension CommonUserTokensManager: UserTokensManager {
         if !existingCurves.contains(tokenItem.blockchain.curve) {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
+    }
 
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+        try addTokenItemHardwarePrecondition(tokenItem)
         try validateDerivation(for: tokenItem)
     }
 

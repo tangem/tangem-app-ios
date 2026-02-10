@@ -40,15 +40,15 @@ extension Analytics {
         case blocks = "Blocks"
         case seedless = "Seedless"
         case seedphrase = "Seed phrase"
+        case addNew = "Add New"
 
         case card = "Card"
         case ring = "Ring"
         case sepa = "Sepa"
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
-        case visaWaitlist = "Visa Waitlist"
         case blackFriday = "Black Friday"
-        case onePlusOne = "One-Plus-One"
+        case yieldPromo = "Yield Promo"
 
         case main = "Main"
         case token = "Token"
@@ -58,6 +58,7 @@ extension Analytics {
         case details = "Details"
         case deviceSettings = "Device Settings"
         case settings = "Settings"
+        case account = "Account"
         case signIn = "Sign In"
         case receive = "Receive"
         case qr = "QR"
@@ -226,6 +227,12 @@ extension Analytics {
         case marketsErrorTypeTimeout = "Timeout"
         case marketsErrorTypeNetwork = "Network"
 
+        // MARK: - News
+
+        case newsSourceNewsList = "News List"
+        case newsSourceNewsPage = "News Page"
+        case newsSourceNewsLink = "News Link"
+
         // MARK: - Biometrics
 
         case biometricsSourceTransaction = "Transaction"
@@ -239,6 +246,10 @@ extension Analytics {
 
         case onramp = "Onramp"
         case markets = "Markets"
+
+        // MARK: - Markets
+
+        case marketPulse = "Market Pulse"
 
         // MARK: - Wallet Connect
 

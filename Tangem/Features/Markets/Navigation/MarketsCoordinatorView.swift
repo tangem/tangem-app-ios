@@ -46,13 +46,23 @@ struct MarketsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)
             }
+            .fullScreenCover(item: $coordinator.mainTokenDetailsCoordinator, content: { item in
+                NavigationView {
+                    TokenDetailsCoordinatorView(coordinator: item)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                backButton
+                            }
+                        }
+                }
+            })
     }
 
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
-                    .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
+                    .ignoresSafeArea(.container, edges: .top)
             }
             .navigation(item: $coordinator.marketsSearchCoordinator) {
                 MarketsSearchCoordinatorView(coordinator: $0)
@@ -61,5 +71,39 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.newsListCoordinator) {
                 NewsListCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.newsPagerViewModel) {
+                NewsPagerView(viewModel: $0)
+                    .navigationLinks(newsPagerTokenDetailsLink)
+            }
+            .navigation(item: $coordinator.earnListCoordinator) {
+                EarnDetailCoordinatorView(coordinator: $0)
+            }
+    }
+
+    private var newsPagerTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsPagerTokenDetailsCoordinator) {
+                MarketsTokenDetailsCoordinatorView(coordinator: $0)
+                    .ignoresSafeArea(.container, edges: .top)
+            }
+    }
+
+    private var backButton: some View {
+        BackButton(
+            height: Constants.backButtonHeight,
+            isVisible: true,
+            isEnabled: true,
+            hPadding: Constants.backButtonHorizontalPadding,
+            action: { UIApplication.dismissTop() }
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsCoordinatorView {
+    enum Constants {
+        static let backButtonHorizontalPadding: CGFloat = -6
+        static let backButtonHeight: CGFloat = 44.0
     }
 }

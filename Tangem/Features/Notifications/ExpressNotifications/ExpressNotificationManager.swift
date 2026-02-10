@@ -52,10 +52,10 @@ final class ExpressNotificationManager {
         case .idle:
             notificationInputsSubject.value = []
 
-        case .loading(.refreshRates, _), .loading(.fee, _):
+        case .loading(.refreshRates), .loading(.fee):
             break
 
-        case .loading(.full, _):
+        case .loading(.full):
             notificationInputsSubject.value = notificationInputsSubject.value.filter {
                 guard let event = $0.settings.event as? ExpressNotificationEvent else {
                     return false
@@ -64,7 +64,13 @@ final class ExpressNotificationManager {
                 return !event.removingOnFullLoadingState
             }
 
-        case .restriction(let restrictions, _):
+        case .requiredRefresh(let occurredError, _):
+            Task { await setupNotification(for: occurredError) }
+
+        case .preloadRestriction(let preloadRestrictionType):
+            Task { await setupNotification(for: preloadRestrictionType) }
+
+        case .restriction(let restrictions, _, _):
             runTask(in: self) { manager in
                 try await manager.setupNotification(for: restrictions)
             }
@@ -77,7 +83,7 @@ final class ExpressNotificationManager {
         case .readyToSwap:
             notificationInputsSubject.value = []
 
-        case .previewCEX(let preview, _):
+        case .previewCEX(let preview, _, _):
             var inputs: [NotificationViewInput] = []
 
             if let feeWillBeSubtractFromSendingAmount = setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
@@ -92,6 +98,65 @@ final class ExpressNotificationManager {
 
             notificationInputsSubject.value = inputs
         }
+    }
+
+    private func setupNotification(for restrictions: ExpressInteractor.PreloadRestrictionType) async {
+        let event: ExpressNotificationEvent
+
+        switch restrictions {
+        case .noSourceTokens(let destinationTokenItem):
+            event = .noDestinationTokens(tokenName: destinationTokenItem.name)
+        case .noDestinationTokens(let sourceTokenItem):
+            event = .noDestinationTokens(tokenName: sourceTokenItem.name)
+        }
+
+        let notificationsFactory = NotificationsFactory()
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotification(with: id, action: actionType)
+        }
+
+        await updateNotificationInputs([notification])
+    }
+
+    private func setupNotification(for error: Error) async {
+        let event: ExpressNotificationEvent
+
+        switch error {
+        case let occurredError as ExpressAPIError:
+            // For only a express error we use "Service temporary unavailable"
+            // or "Selected pair temporarily unavailable" depending on the error code.
+            var analyticsParams: [Analytics.ParameterKey: String] = [
+                .errorCode: "\(occurredError.errorCode.rawValue)",
+            ]
+
+            if let sender = expressInteractor?.getSource().value {
+                analyticsParams[.sendToken] = sender.tokenItem.currencySymbol
+            }
+
+            if let provider = expressInteractor?.getState().context?.provider.name {
+                analyticsParams[.provider] = provider
+            }
+
+            if let receiveToken = expressInteractor?.getDestination()?.tokenItem.currencySymbol {
+                analyticsParams[.receiveToken] = receiveToken
+            }
+
+            event = .refreshRequired(
+                title: occurredError.localizedTitle,
+                message: occurredError.localizedMessage,
+                expressErrorCode: occurredError.errorCode,
+                analyticsParams: analyticsParams
+            )
+        default:
+            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
+        }
+
+        let notificationsFactory = NotificationsFactory()
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotification(with: id, action: actionType)
+        }
+
+        await updateNotificationInputs([notification])
     }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) async throws {
@@ -118,7 +183,7 @@ final class ExpressNotificationManager {
             let sender = try interactor.getSourceWallet()
             setupNotification(source: sender, validationError: error, context: context)
             return
-        case .notEnoughAmountForFee(let isFeeCurrency), .notEnoughAmountForTxValue(_, let isFeeCurrency):
+        case .notEnoughAmountForFee(let isFeeCurrency, _), .notEnoughAmountForTxValue(_, let isFeeCurrency):
             guard !isFeeCurrency else {
                 await updateNotificationInputs([])
                 return
@@ -129,37 +194,6 @@ final class ExpressNotificationManager {
             event = notEnoughFeeForTokenTxEvent
         case .notEnoughReceivedAmount(let minAmount, let tokenSymbol):
             event = .notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")
-        case .requiredRefresh(let occurredError as ExpressAPIError):
-            // For only a express error we use "Service temporary unavailable"
-            // or "Selected pair temporarily unavailable" depending on the error code.
-            var analyticsParams: [Analytics.ParameterKey: String] = [
-                .errorCode: "\(occurredError.errorCode.rawValue)",
-            ]
-
-            if let sender = interactor.getSource().value {
-                analyticsParams[.sendToken] = sender.tokenItem.currencySymbol
-            }
-
-            if let provider = await interactor.getSelectedProvider()?.provider.name {
-                analyticsParams[.provider] = provider
-            }
-
-            if let receiveToken = interactor.getDestination()?.tokenItem.currencySymbol {
-                analyticsParams[.receiveToken] = receiveToken
-            }
-
-            event = .refreshRequired(
-                title: occurredError.localizedTitle,
-                message: occurredError.localizedMessage,
-                expressErrorCode: occurredError.errorCode,
-                analyticsParams: analyticsParams
-            )
-        case .requiredRefresh:
-            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
-        case .noSourceTokens(let destinationTokenItem):
-            event = .noDestinationTokens(tokenName: destinationTokenItem.name)
-        case .noDestinationTokens(let sourceTokenItem):
-            event = .noDestinationTokens(tokenName: sourceTokenItem.name)
         }
 
         let notificationsFactory = NotificationsFactory()
@@ -180,12 +214,12 @@ final class ExpressNotificationManager {
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
 
         case .insufficientBalance:
-            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
+            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
 
         case .insufficientBalanceForFee:
-            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
+            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
             notificationInputsSubject.value = []
             return
 
@@ -221,7 +255,7 @@ final class ExpressNotificationManager {
 
         let source = try interactor.getSourceWallet()
         let sourceTokenItem = source.tokenItem
-        let selectedProvider = await interactor.getSelectedProvider()?.provider
+        let selectedProvider = interactor.getState().context?.provider
 
         var analyticsParams: [Analytics.ParameterKey: String] = [:]
         analyticsParams[.sendToken] = sourceTokenItem.currencySymbol

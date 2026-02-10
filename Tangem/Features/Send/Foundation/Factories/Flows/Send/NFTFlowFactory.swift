@@ -26,7 +26,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
@@ -74,7 +74,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherFactory = TransactionDispatcherFactory(
+        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
         )
@@ -222,7 +222,7 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
-            sendingWalletData: .init(
+            sourceWalletData: .init(
                 walletAddresses: walletAddresses,
                 suggestedWallets: suggestedWallets,
                 destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(

@@ -65,8 +65,8 @@ final class CommonTokenFeeProvider {
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { availableTokenBalanceProvider.balanceType }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { availableTokenBalanceProvider.balanceTypePublisher }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
-
     var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
     var state: TokenFeeProviderState {
@@ -155,11 +155,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         }
 
         do {
-            if state.loadedFees.isEmpty {
-                updateState(state: .loading)
+            let task = runWithDelayedLoading { [weak self] in
+                self?.updateState(state: .loading)
+            } operation: { [weak self] in
+                try await self?.loadFees(input: input) ?? []
             }
 
-            let loadedFees = try await loadFees(input: input)
+            let loadedFees = try await task.value
             try Task.checkCancellation()
 
             let fees = mapToFeesDictionary(fees: loadedFees)
@@ -265,8 +267,6 @@ private extension CommonTokenFeeProvider {
         let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
             switch state {
             case .idle, .loading:
-                return .loading
-            case .unavailable(.noTokenBalance):
                 return .loading
             case .unavailable(.notSupported):
                 return .failure(TokenFeeProviderError.unsupportedByProvider)

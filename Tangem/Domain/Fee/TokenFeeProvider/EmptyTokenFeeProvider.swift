@@ -10,15 +10,27 @@ import Combine
 
 struct EmptyTokenFeeProvider: TokenFeeProvider {
     let feeTokenItem: TokenItem
+    let bsdkFee: BSDKFee?
+
+    init(feeTokenItem: TokenItem, bsdkFee: BSDKFee? = nil) {
+        self.feeTokenItem = feeTokenItem
+        self.bsdkFee = bsdkFee
+    }
+
     var balanceFeeTokenState: TokenBalanceType { .failure(.none) }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { .failure(.empty("")) }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { .just(output: .empty(.noData)) }
     var hasMultipleFeeOptions: Bool { false }
 
     var state: TokenFeeProviderState { .unavailable(.notSupported) }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { .just(output: state) }
 
     var selectedTokenFee: TokenFee {
-        .init(option: .market, tokenItem: feeTokenItem, value: .failure(TokenFeeProviderError.feeNotFound))
+        .init(
+            option: .market,
+            tokenItem: feeTokenItem,
+            value: bsdkFee.map { .success($0) } ?? .failure(TokenFeeProviderError.feeNotFound)
+        )
     }
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {

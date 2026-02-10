@@ -107,6 +107,7 @@ struct AddressTypesConfig {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return [.default]

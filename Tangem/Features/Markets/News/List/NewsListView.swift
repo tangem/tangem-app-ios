@@ -8,17 +8,20 @@
 
 import SwiftUI
 import TangemAssets
-import TangemUI
 import TangemLocalization
+import TangemUI
+import TangemFoundation
 
 struct NewsListView: View {
     @ObservedObject var viewModel: NewsListViewModel
 
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+
     var body: some View {
         VStack(spacing: 12) {
-            // Header
             NavigationBar(
                 title: Localization.commonNews,
+                settings: .init(backgroundColor: Color.Tangem.Surface.level3),
                 leftButtons: {
                     BackButton(
                         height: 44.0,
@@ -31,17 +34,23 @@ struct NewsListView: View {
             )
             .padding(.top, 12)
 
-            // Category filter chips
-            NewsCategoryChipsView(
-                categories: viewModel.categories,
-                selectedCategoryId: $viewModel.selectedCategoryId
-            )
+            Group {
+                NewsCategoryChipsView(
+                    categories: viewModel.categories,
+                    selectedCategoryId: $viewModel.selectedCategoryId
+                )
 
-            // Content
-            contentView
+                contentView
+            }
+            .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .onFirstAppear { viewModel.handleViewAction(.onFirstAppear) }
         .onAppear { viewModel.handleViewAction(.onAppear) }
+        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
+            viewModel?.onOverlayContentProgressChange(progress)
+        }
+        .injectMarketsNavigationConfigurator()
     }
 
     @ViewBuilder
@@ -60,7 +69,9 @@ struct NewsListView: View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.newsItems) { item in
-                    NewsItemView(viewModel: item)
+                    NewsItemView(viewModel: item) {
+                        viewModel.handleViewAction(.onNewsSelected(item.id))
+                    }
                 }
 
                 paginationFooter
@@ -74,7 +85,6 @@ struct NewsListView: View {
     private var paginationFooter: some View {
         switch viewModel.loadingState {
         case .loaded:
-            // Trigger pagination when this spacer appears
             Color.clear
                 .frame(height: 1)
                 .onAppear {
@@ -161,7 +171,7 @@ private struct NewsSkeletonItemView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Colors.Background.action)
+        .background(Color.Tangem.Surface.level4)
         .cornerRadius(14)
     }
 }

@@ -111,11 +111,13 @@ extension MobileCreateWalletViewModel {
                     throw UserWalletRepositoryError.cantUnlockWallet
                 }
 
+                AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
+                viewModel.logWalletCreatedAnalytics()
+
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.logWalletCreatedAnalytics()
                     viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
@@ -165,14 +167,19 @@ private extension MobileCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         [
             InfoItem(
-                icon: Assets.cog24,
+                icon: Assets.lock24,
                 title: Localization.hwCreateKeysTitle,
                 subtitle: Localization.hwCreateKeysDescription
             ),
             InfoItem(
-                icon: Assets.lock24,
+                icon: Assets.Glyphs.secureDocument,
                 title: Localization.hwCreateSeedTitle,
                 subtitle: Localization.hwCreateSeedDescription
+            ),
+            InfoItem(
+                icon: Assets.Glyphs.tangemGlyph,
+                title: Localization.hwCreateUpgradeTitle,
+                subtitle: Localization.hwCreateUpgradeDescription
             ),
         ]
     }
@@ -189,13 +196,7 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .onboardingCreateMobileScreenOpened,
             params: params,
-            contextParams: analyticsContextParams
-        )
-
-        Analytics.log(
-            event: .afWalletEntryScreen,
-            params: params,
-            analyticsSystems: [.appsFlyer],
+            analyticsSystems: .all,
             contextParams: analyticsContextParams
         )
     }
@@ -213,23 +214,19 @@ private extension MobileCreateWalletViewModel {
     }
 
     func logWalletCreatedAnalytics() {
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
             .source: source.analyticsParameterValue.rawValue,
         ]
 
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: analyticsContextParams
-        )
-
-        Analytics.log(
-            event: .afWalletCreatedSuccessfully,
-            params: params,
-            analyticsSystems: [.appsFlyer],
+            analyticsSystems: .all,
             contextParams: analyticsContextParams
         )
     }

@@ -21,19 +21,31 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
 
-        let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
+        let apiList = APIList(dictionaryLiteral: (wallet.blockchain.networkId, input.networkInput.apiInfo))
+
+        let serviceFactory = WalletNetworkServiceFactory(
+            blockchainSdkKeysConfig: input.networkInput.keysConfig,
+            tangemProviderConfig: input.networkInput.tangemProviderConfig,
+            apiList: apiList
+        )
+
+        let networkService: EthereumNetworkService = try serviceFactory.makeServiceWithType(for: wallet.blockchain)
+
         let txBuilder = CommonEthereumTransactionBuilder(
             chainId: chainId,
             sourceAddress: wallet.defaultAddress
         )
-        let networkService = EthereumNetworkService(
-            decimals: wallet.blockchain.decimalCount,
-            providers: providers,
-            abiEncoder: WalletCoreABIEncoder(),
-            blockchainName: wallet.blockchain.displayName
-        )
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
+
+        let pendingTransactionsManager = CommonEthereumPendingTransactionsManager(
+            walletAddress: wallet.address,
+            blockchain: wallet.blockchain,
+            networkService: networkService,
+            networkServiceFactory: serviceFactory,
+            dataStorage: input.blockchainSdkDependencies.dataStorage,
+            addressConverter: addressConverter
+        )
 
         let l1SmartContractAddress = EthereumOptimisticRollupConstants.scrollL1GasPriceOracleSmartContractAddress
         let l1FeeMultiplier = EthereumOptimisticRollupConstants.scrollL1GasFeeMultiplier
@@ -44,6 +56,7 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
+            pendingTransactionsManager: pendingTransactionsManager,
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection,
             l1SmartContractAddress: l1SmartContractAddress,
             l1FeeMultiplier: l1FeeMultiplier
