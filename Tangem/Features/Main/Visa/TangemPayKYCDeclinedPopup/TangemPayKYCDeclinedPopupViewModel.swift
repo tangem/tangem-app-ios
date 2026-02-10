@@ -6,29 +6,25 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 import TangemUI
+import TangemVisa
+import TangemFoundation
 import TangemLocalization
+import TangemAssets
+import TangemPay
 
-final class TangemPayKYCDeclinedPopupViewModel {
+final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenterViewModel)
     private var alertPresenterViewModel: AlertPresenterViewModel
 
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    let tangemPayAccount: TangemPayAccount
+    let tangemPayManager: TangemPayManager
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
-    init(
-        tangemPayAccount: TangemPayAccount,
-        coordinator: TangemPayKYCDeclinedRoutable
-    ) {
-        self.tangemPayAccount = tangemPayAccount
-        self.coordinator = coordinator
-    }
-
-    var openSupportButton: MainButton.Settings {
+    var primaryButton: MainButton.Settings {
         .init(
             title: Localization.tangempayGoToSupport,
             style: .primary,
@@ -36,7 +32,7 @@ final class TangemPayKYCDeclinedPopupViewModel {
         )
     }
 
-    var hideKYCButton: MainButton.Settings {
+    var secondaryButton: MainButton.Settings? {
         .init(
             title: Localization.tangempayCancelKyc,
             style: .secondary,
@@ -44,16 +40,52 @@ final class TangemPayKYCDeclinedPopupViewModel {
         )
     }
 
+    var title: AttributedString {
+        .init(Localization.tangempayKycRejected)
+    }
+
+    var description: AttributedString {
+        var start = AttributedString(Localization.tangempayKycRejectedDescription + " ")
+        start.foregroundColor = Colors.Text.secondary
+
+        var end = AttributedString(Localization.tangempayKycRejectedDescriptionSpan)
+        end.link = URL(string: "blank:url")
+        end.foregroundColor = Colors.Text.accent
+
+        return start + end
+    }
+
+    var icon: Image {
+        Assets.Visa.kycDeclinedBrokenHeart.image
+    }
+
+    init(
+        tangemPayManager: TangemPayManager,
+        coordinator: TangemPayKYCDeclinedRoutable
+    ) {
+        self.tangemPayManager = tangemPayManager
+        self.coordinator = coordinator
+    }
+
     func dismiss() {
         coordinator?.closeKYCDeclinedPopup()
+    }
+
+    func onHyperLinkTap(_ link: URL) {
+        coordinator?.closeKYCDeclinedPopup()
+        runTask(in: self) { viewModel in
+            do {
+                try await viewModel.tangemPayManager.launchKYC()
+            } catch {
+                VisaLogger.error("Failed to launch KYC from hyperlink", error: error)
+            }
+        }
     }
 
     private func openSupport() {
         dismiss()
         let logsComposer = LogsComposer(
-            infoProvider: TangemPayKYCDeclinedDataCollector(
-                customerId: tangemPayAccount.customerId
-            ),
+            infoProvider: TangemPayKYCDeclinedDataCollector(customerId: tangemPayManager.customerId),
             includeZipLogs: false
         )
         let mailViewModel = MailViewModel(
@@ -68,7 +100,7 @@ final class TangemPayKYCDeclinedPopupViewModel {
     }
 
     private func hideKYC() {
-        tangemPayAccount.cancelKYC { [weak self] succeeded in
+        tangemPayManager.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }
@@ -81,11 +113,5 @@ final class TangemPayKYCDeclinedPopupViewModel {
                     type: .temporary()
                 )
         }
-    }
-}
-
-extension TangemPayKYCDeclinedPopupViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: self)
     }
 }

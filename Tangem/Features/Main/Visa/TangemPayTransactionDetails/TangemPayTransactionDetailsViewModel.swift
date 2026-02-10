@@ -22,21 +22,24 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     @Published private(set) var state: TangemPayTransactionDetailsStateView.TransactionState?
     @Published private(set) var mainButtonAction: MainButtonAction
-    @Published private(set) var bottomInfo: String?
+    @Published private(set) var additionalInfo: TangemPayTransactionDetailsView.AdditionalInfo?
 
     // MARK: - Dependencies
 
     private let transaction: TangemPayTransactionRecord
     private let userWalletId: String
+    private let customerId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     init(
         transaction: TangemPayTransactionRecord,
         userWalletId: String,
+        customerId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.transaction = transaction
         self.userWalletId = userWalletId
+        self.customerId = customerId
         self.coordinator = coordinator
 
         let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
@@ -48,7 +51,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             isOutgoing: mapper.isOutgoing()
         )
         name = mapper.name()
-        category = mapper.categoryName()
+        category = mapper.categoryName(detailed: true)
         amount = TransactionViewAmountViewData(
             amount: mapper.amount(),
             type: mapper.type(),
@@ -58,7 +61,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         )
         localAmount = mapper.localAmount()
         state = mapper.state()
-        bottomInfo = mapper.additionalInfo()
+        additionalInfo = mapper.additionalInfo()
         mainButtonAction = mapper.mainButtonAction()
     }
 
@@ -67,6 +70,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default
@@ -74,7 +78,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         let dataCollector = TangemPaySupportDataCollector(
             source: .transactionDetails(transaction),
-            userWalletId: userWalletId
+            userWalletId: userWalletId,
+            customerId: customerId
         )
 
         coordinator?.transactionDetailsDidRequestDispute(dataCollector: dataCollector, subject: subject)

@@ -12,28 +12,28 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
-    case logs
     case mobileWallet
-    case wcSolanaALT
     case accounts
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
     case gaslessTransactions
+    case exchangeOnlyWithinSingleAddress
+    case experimentService
 
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
-        case .logs: return "Logs"
         case .mobileWallet: return "Mobile wallet"
-        case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
         case .gaslessTransactions: return "Gasless transactions"
+        case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
+        case .experimentService: return "Experiment service"
         }
     }
 
@@ -41,15 +41,15 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .visa: return .version("5.31")
-        case .logs: return .version("5.25")
+        case .visa: return .unspecified
         case .mobileWallet: return .version("5.32")
-        case .wcSolanaALT: return .version("5.28")
         case .accounts: return .version("5.33")
-        case .marketsAndNews: return .unspecified
+        case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
-        case .tangemPayPermanentEntryPoint: return .unspecified
-        case .gaslessTransactions: return .unspecified
+        case .tangemPayPermanentEntryPoint: return .version("5.33")
+        case .gaslessTransactions: return .version("5.33")
+        case .exchangeOnlyWithinSingleAddress: return .unspecified
+        case .experimentService: return .unspecified
         }
     }
 }

@@ -12,9 +12,14 @@ protocol WalletConnectDAppConnectionRequestAnalyticsLogger {
     func logSessionInitiated()
     func logSessionFailed(with error: WalletConnectDAppProposalLoadingError)
 
-    func logConnectionProposalReceived(_ connectionProposal: WalletConnectDAppConnectionProposal)
+    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    func logConnectionProposalReceived(
+        _ connectionProposal: WalletConnectDAppConnectionProposal,
+        accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
+    )
 
-    func logConnectButtonTapped()
+    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?)
     func logCancelButtonTapped()
 
     func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus)

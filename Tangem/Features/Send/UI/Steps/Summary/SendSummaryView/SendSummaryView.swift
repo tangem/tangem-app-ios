@@ -83,16 +83,10 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
-            Group {
-                if feeCompactViewModel.canEditFee {
-                    Button(action: viewModel.userDidTapFee) { SendFeeCompactView(viewModel: feeCompactViewModel) }
-                } else {
-                    SendFeeCompactView(viewModel: feeCompactViewModel)
-                }
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
+        if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
+            SendFeeCompactView(viewModel: sendFeeCompactViewModel, tapAction: viewModel.userDidTapFee)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
         }
     }
 

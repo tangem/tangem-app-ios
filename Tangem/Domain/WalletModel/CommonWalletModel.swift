@@ -552,8 +552,8 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldModuleStateRepository: yieldModuleStateRepository,
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
-            scheduleWalletUpdate: { [weak self] in
-                self?.startUpdatingTimer()
+            updateWallet: { [weak self] in
+                await self?.update(silent: false, features: .full)
             }
         )
     }
@@ -562,12 +562,17 @@ extension CommonWalletModel: WalletModelHelpers {
 // MARK: - WalletModelFeesProvider
 
 extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader {
-        TokenFeeLoaderBuilder.makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
-    }
-
     var customFeeProvider: (any CustomFeeProvider)? {
         CustomFeeProviderBuilder.makeCustomFeeProvider(walletModel: self, walletManager: walletManager)
+    }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
+        TokenFeeLoaderBuilder.makeTokenFeeLoader(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            walletManager: walletManager,
+            isDemo: isDemo
+        )
     }
 }
 
@@ -642,8 +647,8 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? GaslessTransactionFeeProvider
     }
 
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? {
-        walletManager as? EthereumGaslessTransactionBroadcaster
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        walletManager as? PendingTransactionRecordAdding
     }
 }
 
@@ -704,9 +709,10 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             return .just(output: .notSupported)
         }
 
-        return Publishers.Merge(
+        return Publishers.Merge3(
             _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
-            _transactionHistoryService.statePublisher
+            _transactionHistoryService.statePublisher,
+            pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
         .map { [weak self] state -> WalletModelTransactionHistoryState in
             switch state {

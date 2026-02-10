@@ -116,8 +116,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayWithdraw(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        openExpress(factory: factory)
+        Task { @MainActor in
+            let factory = CommonExpressModulesFactory(input: input)
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
+                Task { @MainActor in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    try? await Task.sleep(for: .seconds(0.2))
+                    self?.openExpress(factory: factory)
+                }
+            }
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemWithdrawInProgressSheet() {
@@ -137,20 +147,24 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void) {
-        let viewModel = TangemPayFreezeSheetViewModel(
-            coordinator: self,
-            freezeAction: freezeAction
-        )
-
         Task { @MainActor in
+            let viewModel = TangemPayFreezeSheetViewModel(
+                coordinator: self,
+                freezeAction: freezeAction
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord, userWalletId: String) {
+    func openTangemPayTransactionDetailsSheet(
+        transaction: TangemPayTransactionRecord,
+        userWalletId: String,
+        customerId: String
+    ) {
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
+            customerId: customerId,
             coordinator: self
         )
 
@@ -187,6 +201,16 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
 extension TangemPayMainCoordinator: TangemPayNoDepositAddressSheetRoutable {
     func closeNoDepositAddressSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayWithdrawNoteSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
+    func closeWithdrawNoteSheetPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }

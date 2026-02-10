@@ -24,7 +24,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
@@ -61,7 +61,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherFactory = TransactionDispatcherFactory(
+        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
         )
@@ -236,7 +236,7 @@ extension SendFlowFactory: SendDestinationStepBuildable {
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
-            sendingWalletData: .init(
+            sourceWalletData: .init(
                 walletAddresses: walletAddresses,
                 suggestedWallets: suggestedWallets,
                 destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
@@ -248,6 +248,10 @@ extension SendFlowFactory: SendDestinationStepBuildable {
                         isToken: tokenItem.isToken
                     )
                 ),
+                analyticsLogger: analyticsLogger
+            ),
+            receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider(
+                userWalletInfo: userWalletInfo,
                 analyticsLogger: analyticsLogger
             )
         )

@@ -16,28 +16,40 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     // MARK: - Properties
 
-    private let interactor: any FeeSelectorInteractor
+    var selectedFeeStateWithCoveragePublisher: AnyPublisher<(TokenFeeProviderState, FeeCoverage), Never> {
+        Publishers.CombineLatest(
+            interactor.selectedTokenFeeProviderPublisher.flatMapLatest { $0.statePublisher },
+            interactor.feeCoveragePublisher
+        )
+        .eraseToAnyPublisher()
+    }
 
     private let summaryViewModel: FeeSelectorSummaryViewModel
     private let tokensViewModel: FeeSelectorTokensViewModel
     private let feesViewModel: FeeSelectorFeesViewModel
+    private let analytics: FeeSelectorAnalytics
 
     // MARK: - Dependencies
 
+    private let interactor: any FeeSelectorInteractor
     private weak var router: FeeSelectorRoutable?
+
+    private var customFeeSelectionAnalyticsCancellable: AnyCancellable?
 
     init(
         interactor: any FeeSelectorInteractor,
         summaryViewModel: FeeSelectorSummaryViewModel,
         tokensViewModel: FeeSelectorTokensViewModel,
         feesViewModel: FeeSelectorFeesViewModel,
-        router: FeeSelectorRoutable
+        router: FeeSelectorRoutable,
+        analytics: FeeSelectorAnalytics,
     ) {
         self.interactor = interactor
         self.summaryViewModel = summaryViewModel
         self.tokensViewModel = tokensViewModel
         self.feesViewModel = feesViewModel
         self.router = router
+        self.analytics = analytics
 
         switch interactor.state {
         case .single:
@@ -46,9 +58,13 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
             viewState = .summary(summaryViewModel)
         }
 
+        bindAnalyticsEvents()
+
         summaryViewModel.setup(router: self)
         tokensViewModel.setup(router: self)
         feesViewModel.setup(router: self)
+
+        trackAnalyticsForStateChange(state: viewState)
     }
 
     func userDidTapDismissButton() {
@@ -68,6 +84,28 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
         Task { @MainActor in
             try await Task.sleep(for: .seconds(Constants.stateChangeDelay))
             viewState = newState
+            trackAnalyticsForStateChange(state: newState)
+        }
+    }
+
+    private func bindAnalyticsEvents() {
+        customFeeSelectionAnalyticsCancellable = interactor
+            .selectedTokenFeeOptionPublisher
+            .filter { $0.isCustom }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, feeOption in
+                viewModel.analytics.logCustomFeeClicked()
+            }
+    }
+
+    private func trackAnalyticsForStateChange(state: ViewState) {
+        switch state {
+        case .summary:
+            analytics.logFeeSummaryOpened()
+        case .tokens:
+            analytics.logFeeTokensOpened(availableTokenFees: interactor.supportedTokenFeeProviders.map(\.selectedTokenFee))
+        case .fees:
+            analytics.logFeeStepOpened()
         }
     }
 }
@@ -76,6 +114,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
 extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
     func userDidTapConfirmButton() {
+        analytics.logFeeSelected(tokenFee: interactor.selectedTokenFeeProvider.selectedTokenFee)
         interactor.completeSelection()
         router?.closeFeeSelector()
     }

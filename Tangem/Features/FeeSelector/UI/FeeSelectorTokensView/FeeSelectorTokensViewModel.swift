@@ -45,7 +45,6 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     init(tokensDataProvider: FeeSelectorTokensDataProvider) {
         self.tokensDataProvider = tokensDataProvider
-
         bind()
     }
 
@@ -77,7 +76,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
         .withWeakCaptureOf(self)
         .sink { viewModel, providers in
             let available = providers.filter { $0.availability.isAvailable }
-            let unavailable = providers.filter { !$0.availability.isAvailable }
+            let unavailable = providers.filter { $0.availability.isUnavailable }
 
             viewModel.availableFeeCurrencyTokens = available
             viewModel.unavailableFeeCurrencyTokens = unavailable
@@ -92,14 +91,13 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             textBuilder: Localization.commonBalance
         )
 
+        // In this view, we disable the row only when the token has no balance; all other states (including failures) remain interactive.
         var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
             switch tokenFeeProvider.state {
-            case .available, .idle, .loading:
-                .available
-            case .unavailable(let reason):
-                reason.asAvailability
-            case .error:
+            case .unavailable(let reason) where reason.isNoTokenBalance:
                 .unavailable
+            case .available, .idle, .loading, .unavailable, .error:
+                .available(isSubtitleHighlighted: false)
             }
         }
 
@@ -107,8 +105,8 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
             subtitle: .balance(subtitleBalanceState),
-            availability: feeTokenAvailability,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
+            availability: feeTokenAvailability,
             isSelected: isSelected,
             selectAction: { [weak self] in
                 if feeTokenAvailability.isAvailable {
@@ -116,20 +114,5 @@ final class FeeSelectorTokensViewModel: ObservableObject {
                 }
             }
         )
-    }
-}
-
-private extension TokenFeeProviderStateUnavailableReason {
-    var asAvailability: FeeSelectorRowViewModel.Availability {
-        switch self {
-        case .inputDataNotSet:
-            .unavailable
-        case .notSupported:
-            .notSupported
-        case .notEnoughFeeBalance:
-            .notEnoughBalance
-        case .noTokenBalance:
-            .noBalance
-        }
     }
 }

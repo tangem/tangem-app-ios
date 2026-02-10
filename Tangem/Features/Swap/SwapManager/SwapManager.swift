@@ -23,13 +23,20 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
     var providers: [ExpressAvailableProvider] { get async }
-    var selectedProvider: ExpressAvailableProvider? { get async }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
     func update(amount: Decimal?)
-    func update(destination: TokenItem?, address: String?, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?)
+
+    func update(
+        userWalletId: UserWalletId,
+        destination: TokenItem?,
+        address: String?,
+        tokenHeader: ExpressInteractorTokenHeader?,
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    )
+
     func update(provider: ExpressAvailableProvider)
 
     func update()

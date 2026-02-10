@@ -10,11 +10,13 @@ import Foundation
 
 struct KaspaExternalLinkProvider: ExternalLinkProvider {
     private let baseExplorerUrl: String
+    private let baseTokenExplorerUrl: String
 
     init(isTestnet: Bool) {
         baseExplorerUrl = isTestnet
             ? "https://explorer-tn10.kaspa.org"
-            : "https://kas.fyi"
+            : "https://explorer.kaspa.org"
+        baseTokenExplorerUrl = "https://kaspa.stream"
     }
 
     var testnetFaucetURL: URL? {
@@ -22,10 +24,18 @@ struct KaspaExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        URL(string: "\(baseExplorerUrl)/transaction/\(hash)")
+        return URL(string: "\(baseExplorerUrl)/transactions/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        URL(string: "\(baseExplorerUrl)/address/\(address)")
+        if contractAddress != nil {
+            return URL(string: "\(baseTokenExplorerUrl)/addresses/\(address)")
+        }
+
+        return URL(string: "\(baseExplorerUrl)/addresses/\(address)")
+    }
+
+    func tokenUrl(transaction hash: String) -> URL? {
+        return URL(string: "\(baseTokenExplorerUrl)/transactions/\(hash)")
     }
 }

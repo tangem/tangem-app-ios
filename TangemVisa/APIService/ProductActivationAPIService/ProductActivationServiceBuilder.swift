@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 struct ProductActivationServiceBuilder {
     private let apiType: VisaAPIType

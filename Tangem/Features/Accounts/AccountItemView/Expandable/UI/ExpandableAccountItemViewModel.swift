@@ -110,6 +110,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
         stateStorage
             .didUpdatePublisher
+            .prepend(()) // Triggers initial state update on bind
             .debounce(for: 0.3, scheduler: DispatchQueue.main) // Aggregating sequential changes to avoid redundant UI updates
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
