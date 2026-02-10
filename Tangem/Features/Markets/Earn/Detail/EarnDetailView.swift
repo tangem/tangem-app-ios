@@ -25,6 +25,7 @@ struct EarnDetailView: View {
                 .opacity(viewModel.overlayContentHidingProgress)
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
