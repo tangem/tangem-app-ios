@@ -109,6 +109,7 @@ extension ExpressDTO {
                 let providerId: Provider.Id
                 let rateType: Provider.RateType
                 let toAddress: String // address for receiving token
+                let toExtraId: String? // memo/destination tag for recipient
                 let refundAddress: String?
                 let refundExtraId: String? // typically it's a memo or tag
                 let partnerOperationType: String
