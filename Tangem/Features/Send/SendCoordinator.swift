@@ -167,7 +167,9 @@ extension SendCoordinator: SendRoutable {
             return
         }
 
-        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccounts
+import TangemAccessibilityIdentifiers
 
 struct AccountRowButtonView<Trailing: View>: View {
     @ObservedObject var viewModel: AccountRowButtonViewModel
@@ -37,6 +38,7 @@ struct AccountRowButtonView<Trailing: View>: View {
             )
         }
         .disabled(viewModel.isDisabled)
+        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: viewModel.name))
     }
 
     @ViewBuilder

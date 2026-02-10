@@ -17,7 +17,9 @@ protocol SendBaseDataBuilder: SendGenericBaseDataBuilder,
     SendApproveViewModelInputDataBuilder,
     SendFeeCurrencyProviderDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> MailData
-    func makeMailData(transactionData: Data, error: SendTxError) -> MailData
+    func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData
+    func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData
+
     func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
 }
 
@@ -40,7 +42,7 @@ protocol SendFeeCurrencyProviderDataBuilder {
 }
 
 protocol SendApproveViewModelInputDataBuilder: SendGenericBaseDataBuilder {
-    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input
 }
 
 protocol SendGenericBaseDataBuilder {

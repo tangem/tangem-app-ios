@@ -128,6 +128,14 @@ extension CryptoAccountModelMock: BalanceProvidingAccountModel {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CryptoAccountModelMock: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+    }
+}
+
 // MARK: - Auxiliary types
 
 private extension CryptoAccountModelMock {

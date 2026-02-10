@@ -7,8 +7,8 @@
 //
 
 import SwiftUI
-import TangemUI
 import TangemLocalization
+import TangemUI
 
 struct NewsCategoryChipsView: View {
     let categories: [NewsDTO.Categories.Item]
@@ -20,34 +20,27 @@ struct NewsCategoryChipsView: View {
         return result
     }
 
-    @State private var selectedId: String? = Constants.allCategoryId
+    private var selectedIdBinding: Binding<String?> {
+        Binding(
+            get: { selectedCategoryId.map { String($0) } ?? Constants.allCategoryId },
+            set: { newValue in
+                if newValue == Constants.allCategoryId {
+                    selectedCategoryId = nil
+                } else if let newValue {
+                    selectedCategoryId = Int(newValue)
+                } else {
+                    selectedCategoryId = nil
+                }
+            }
+        )
+    }
 
     var body: some View {
         HorizontalChipsView(
             chips: chips,
-            selectedId: $selectedId,
+            selectedId: selectedIdBinding,
             horizontalInset: Constants.horizontalChipsViewInset
         )
-        .onChange(of: selectedId) { newValue in
-            let newCategoryId: Int? = if newValue == Constants.allCategoryId {
-                nil
-            } else if let newValue {
-                Int(newValue)
-            } else {
-                nil
-            }
-
-            // Avoid triggering update if value is the same
-            guard selectedCategoryId != newCategoryId else { return }
-            selectedCategoryId = newCategoryId
-        }
-        .onChange(of: selectedCategoryId) { newValue in
-            let expectedSelectedId = newValue.map { String($0) } ?? Constants.allCategoryId
-
-            // Avoid triggering update if value is the same
-            guard selectedId != expectedSelectedId else { return }
-            selectedId = expectedSelectedId
-        }
     }
 }
 

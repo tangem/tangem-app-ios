@@ -34,7 +34,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
     func selectWalletFromList(name: CardMockAccessibilityIdentifiers) {
         // Find the mock wallet button in the alert
-        let walletButton = app.buttons[name.rawValue]
+        let walletButton = app.buttons[name.rawValue].firstMatch
 
         if !walletButton.isHittable {
             app.swipeUp()
@@ -93,7 +93,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
     @discardableResult
     func cancelScan() -> Self {
         XCTContext.runActivity(named: "Close scan alert") { _ in
-            app.buttons["Cancel"].waitAndTap()
+            app.buttons["Cancel"].waitAndTapWithScroll()
             return self
         }
     }

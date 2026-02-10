@@ -129,7 +129,7 @@ final class SingleTokenNotificationManager {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken:
+        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !walletModel.tokenItem.blockchain.isGaslessTransactionSupported:
             events.append(.notEnoughFeeForTransaction(configuration: configuration))
         default:
             break

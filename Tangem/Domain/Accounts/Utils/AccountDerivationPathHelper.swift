@@ -11,7 +11,6 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
-// [REDACTED_TODO_COMMENT]
 struct AccountDerivationPathHelper {
     private let blockchain: Blockchain
 
@@ -19,24 +18,21 @@ struct AccountDerivationPathHelper {
         self.blockchain = blockchain
     }
 
-    func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
-        guard let derivationPath else {
-            return nil
-        }
-
+    func extractAccountDerivationNode(from derivationPath: DerivationPath) throws(Error) -> DerivationNode {
         guard areAccountsAvailableForBlockchain() else {
-            AppLogger.warning("Attempting to extract account derivation node for unsupported blockchain: \(blockchain.displayName)")
-            return nil
+            let displayName = blockchain.displayName
+            AppLogger.warning("Attempting to extract account derivation node for unsupported blockchain: \(displayName)")
+            throw .accountsUnavailableForBlockchain(displayName)
         }
 
-        let accountDerivationNodeIndex = accountDerivationNodeIndex(for: derivationPath)
+        let accountDerivationNodeIndex = try accountDerivationNodeIndex(for: derivationPath)
 
         return derivationPath.nodes[accountDerivationNodeIndex]
     }
 
-    func makeDerivationPath(from derivationPath: DerivationPath, forAccountWithIndex accountIndex: Int) -> DerivationPath {
+    func makeDerivationPath(from derivationPath: DerivationPath, forAccountWithIndex accountIndex: Int) throws(Error) -> DerivationPath {
         let rawAccountIndex = UInt32(accountIndex)
-        let accountDerivationNodeIndex = accountDerivationNodeIndex(for: derivationPath)
+        let accountDerivationNodeIndex = try accountDerivationNodeIndex(for: derivationPath)
         var nodes = derivationPath.nodes
 
         nodes[accountDerivationNodeIndex] = nodes[accountDerivationNodeIndex].withRawIndex(rawAccountIndex)
@@ -44,8 +40,7 @@ struct AccountDerivationPathHelper {
         return DerivationPath(nodes: nodes)
     }
 
-    private func accountDerivationNodeIndex(for derivationPath: DerivationPath) -> Int {
-        let nodesCount = derivationPath.nodes.count
+    private func accountDerivationNodeIndex(for derivationPath: DerivationPath) throws(Error) -> Int {
         let nodeIndex: Int
 
         switch blockchain {
@@ -54,35 +49,29 @@ struct AccountDerivationPathHelper {
             // Some non-UTXO and non-EVM blockchains (like Tezos, Quai and so on) require special handling
             nodeIndex = Constants.accountNodeIndex
         case _ where blockchain.isEvm:
-            nodeIndex = evmAccountDerivationNodeIndex(for: derivationPath)
+            nodeIndex = try evmAccountDerivationNodeIndex(for: derivationPath)
         default:
             nodeIndex = Constants.accountNodeIndex
         }
 
-        guard nodesCount > nodeIndex else {
-            let message = "Unexpected derivation path nodes count: \(nodesCount) for the blockchain: \(blockchain.displayName)"
-
-            AppLogger.warning(message)
-            assertionFailure(message)
-
-            return max(0, nodesCount - 1)
+        let actualNodesCount = derivationPath.nodes.count
+        let requiredNodesCount = nodeIndex + 1
+        guard actualNodesCount >= requiredNodesCount else {
+            throw .insufficientNodes(required: requiredNodesCount, actual: actualNodesCount, blockchain: blockchain.displayName)
         }
 
         return nodeIndex
     }
 
     /// See Accounts-REQ-App-006 for details.
-    private func evmAccountDerivationNodeIndex(for derivationPath: DerivationPath) -> Int {
+    private func evmAccountDerivationNodeIndex(for derivationPath: DerivationPath) throws(Error) -> Int {
         guard
             let purposeNode = derivationPath.nodes[safe: Constants.purposeNodeIndex],
             let coinTypeNode = derivationPath.nodes[safe: Constants.coinTypeNodeIndex]
         else {
-            let message = "No `purpose` and/or `coin_type` node in the derivation path for the blockchain: \(blockchain.displayName), likely malformed derivation path"
-
-            AppLogger.warning(message)
-            assertionFailure(message)
-
-            return Constants.addressIndexNodeIndex
+            let actualNodesCount = derivationPath.nodes.count
+            let requiredNodesCount = Constants.coinTypeNodeIndex + 1
+            throw .insufficientNodes(required: requiredNodesCount, actual: actualNodesCount, blockchain: blockchain.displayName)
         }
 
         return purposeNode.rawIndex == Constants.evmPurposeNodeValue && coinTypeNode.rawIndex == Constants.evmCoinTypeNodeValue
@@ -184,6 +173,7 @@ struct AccountDerivationPathHelper {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return true
@@ -203,6 +193,24 @@ extension AccountDerivationPathHelper {
     static func filterBlockchainsSupportingAccounts(_ blockchains: Set<Blockchain>) -> Set<Blockchain> {
         blockchains.filter { blockchain in
             AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
+        }
+    }
+}
+
+// MARK: - Error
+
+extension AccountDerivationPathHelper {
+    enum Error: Swift.Error, LocalizedError {
+        case insufficientNodes(required: Int, actual: Int, blockchain: String)
+        case accountsUnavailableForBlockchain(_ blockchain: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .insufficientNodes(let required, let actual, let blockchain):
+                return "Derivation path for \(blockchain) has insufficient nodes: expected at least \(required), got \(actual)"
+            case .accountsUnavailableForBlockchain(let blockchain):
+                return "Blockchain \(blockchain) does not support custom derivation paths and accounts."
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     @Published var sourceData: AmountSummaryViewData?
     @Published var destinationData: AmountSummaryViewData?
     @Published var provider: ProviderRowViewModel?
-    @Published var expressFee: ExpressFeeRowData?
+    @Published var feeCompactViewModel: FeeCompactViewModel?
 
     var isStatusButtonVisible: Bool {
         data.expressTransactionData.externalTxUrl != nil
@@ -73,26 +73,31 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     private func logSwapInProgressScreenOpened() {
         var params: [Analytics.ParameterKey: String] = [
             .provider: data.provider.name,
-            .commission: data.feeOption.analyticsValue.rawValue,
+            .commission: data.fee.option.analyticsValue.rawValue,
             .sendToken: data.source.tokenItem.currencySymbol,
             .receiveToken: data.destination.tokenItem.currencySymbol,
             .sendBlockchain: data.source.tokenItem.blockchain.displayName,
             .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
         ]
 
         if FeatureProvider.isAvailable(.accounts) {
             if let sourceAccount = data.source.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .source)
-                params.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+                params.enrich(with: sourceAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .source)))
             }
 
             if let destAccount = data.destination.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .destination)
-                params.merge(destAccount.analyticsParameters(with: builder)) { $1 }
+                params.enrich(with: destAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .destination)))
             }
         }
 
-        Analytics.log(event: .swapSwapInProgressScreenOpened, params: params)
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
+        Analytics.log(
+            event: .swapSwapInProgressScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     func openExplore(exploreURL: URL) {
@@ -126,9 +131,9 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.swappingFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .send, tokenHeader: data.source.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
         )
 
@@ -137,9 +142,9 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.swappingToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .receive, tokenHeader: data.destination.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
         )
 
@@ -160,9 +165,19 @@ private extension ExpressSuccessSentViewModel {
             detailsType: .none
         )
 
-        if !data.source.isExemptFee {
-            let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
-            expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: .loaded(text: feeFormatted))
+        if !data.source.isExemptFee, let feeValue = data.fee.value.value {
+            let feeComponents = feeFormatter.formattedFeeComponents(
+                fee: feeValue.amount.value,
+                tokenItem: data.fee.tokenItem,
+                formattingOptions: .sendCryptoFeeFormattingOptions
+            )
+
+            feeCompactViewModel = FeeCompactViewModel(
+                selectedFeeTokenCurrencySymbol: data.fee.tokenItem.currencySymbol,
+                selectedFeeComponents: .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee),
+                canEditFee: false,
+                feeFormatter: feeFormatter
+            )
         }
     }
 }

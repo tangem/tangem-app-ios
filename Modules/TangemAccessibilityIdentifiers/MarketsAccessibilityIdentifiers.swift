@@ -26,7 +26,35 @@ public enum MarketsAccessibilityIdentifiers {
     public static let marketsTokensUnderCapExpandButton = "marketsTokensUnderCapExpandButton"
     public static let marketsSearchNoResultsLabel = "marketsSearchNoResultsLabel"
 
+    public static let marketsListTokenPriceChange = "marketsListTokenPriceChange"
+    public static let marketsListTokenChart = "marketsListTokenChart"
+    public static let marketsListTokenPrice = "marketsListTokenPrice"
+    public static let marketsListTokenRating = "marketsListTokenRating"
+    public static let marketsListTokenMarketCap = "marketsListTokenMarketCap"
+    public static let marketsListTokenIcon = "marketsListTokenIcon"
+
+    public static func marketsIntervalSegment(_ intervalId: String) -> String {
+        "marketsIntervalSegment_\(intervalId)"
+    }
+
     public static func marketsListTokenItem(uniqueId: String) -> String {
         return "marketsListTokenItem_\(uniqueId)"
     }
+
+    public static let marketsSortButton = "marketsSortButton"
+
+    public static func marketsSortOption(_ orderType: String) -> String {
+        "marketsSortOption_\(orderType)"
+    }
+
+    // MARK: - Security Score
+
+    public static let securityScoreBlock = "marketsTokenDetailsSecurityScoreBlock"
+    public static let securityScoreValue = "marketsTokenDetailsSecurityScoreValue"
+    public static let securityScoreRatingStars = "marketsTokenDetailsSecurityScoreRatingStars"
+    public static let securityScoreReviewsCount = "marketsTokenDetailsSecurityScoreReviewsCount"
+    public static let securityScoreInfoButton = "marketsTokenDetailsSecurityScoreInfoButton"
+    public static let securityScoreDetailsTitle = "marketsTokenDetailsSecurityScoreDetailsTitle"
+    public static let securityScoreDetailsProviderLink = "marketsTokenDetailsSecurityScoreDetailsProviderLink"
+    public static let marketsSeeAllButton = "marketsSeeAllButton"
 }

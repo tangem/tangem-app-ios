@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 final class NewsItemViewModel: Identifiable {
     // MARK: - Properties
@@ -19,6 +20,8 @@ final class NewsItemViewModel: Identifiable {
     let relativeTime: String
     let isTrending: Bool
     let newsUrl: String
+    let isRead: Bool
+    let chips: [InfoChipItem]
 
     // MARK: - Init
 
@@ -30,7 +33,8 @@ final class NewsItemViewModel: Identifiable {
         title: String,
         relativeTime: String,
         isTrending: Bool,
-        newsUrl: String
+        newsUrl: String,
+        isRead: Bool
     ) {
         self.id = id
         self.score = score
@@ -40,6 +44,32 @@ final class NewsItemViewModel: Identifiable {
         self.relativeTime = relativeTime
         self.isTrending = isTrending
         self.newsUrl = newsUrl
+        self.isRead = isRead
+
+        var chips: [InfoChipItem] = []
+        if !category.isEmpty {
+            chips.append(InfoChipItem(title: category))
+        }
+        chips += relatedTokens.map {
+            InfoChipItem(id: $0.id, title: $0.symbol, leadingIcon: .url($0.iconURL))
+        }
+        self.chips = chips
+    }
+
+    // MARK: - Methods
+
+    func withIsRead(_ isRead: Bool) -> NewsItemViewModel {
+        NewsItemViewModel(
+            id: id,
+            score: score,
+            category: category,
+            relatedTokens: relatedTokens,
+            title: title,
+            relativeTime: relativeTime,
+            isTrending: isTrending,
+            newsUrl: newsUrl,
+            isRead: isRead
+        )
     }
 
     // MARK: - Nested Types
@@ -47,9 +77,6 @@ final class NewsItemViewModel: Identifiable {
     struct RelatedToken: Identifiable {
         let id: String
         let symbol: String
-
-        var iconURL: URL {
-            IconURLBuilder().tokenIconURL(id: id, size: .small)
-        }
+        let iconURL: URL
     }
 }

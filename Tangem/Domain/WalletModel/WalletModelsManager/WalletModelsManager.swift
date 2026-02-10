@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol WalletModelsManager: Initializable, AnyObject {
+protocol WalletModelsManager: Initializable, DisposableEntity, AnyObject {
     var isInitialized: Bool { get }
 
     var walletModels: [any WalletModel] { get }

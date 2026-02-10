@@ -25,18 +25,51 @@ final class AmplitudeWrapper {
     }
 
     func configure() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         let config = Configuration(apiKey: keysManager.amplitudeApiKey)
         let amplitude = Amplitude(configuration: config)
         _amplitude = amplitude
     }
 
     func track(eventType: String, eventProperties: [String: Any]? = nil) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         _amplitude?.track(eventType: eventType, eventProperties: eventProperties)
     }
 
-    private func setUserId(userId: UserWalletId) {
-        let id = userId.value.sha256().hexString
-        _amplitude?.setUserId(userId: id)
+    func setUserIdIfOnboarding(userWalletId: UserWalletId) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        guard userWalletRepository.models.isEmpty else {
+            return
+        }
+
+        setUserId(userId: userWalletId.hashedStringValue)
+    }
+
+    private func setUserId(userId: String) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        let currentUserId = _amplitude?.getUserId()
+        if currentUserId == userId {
+            return
+        }
+
+        // Send all events before userId changes
+        if currentUserId != nil {
+            _amplitude?.flush()
+        }
+
+        _amplitude?.setUserId(userId: userId)
     }
 
     private func bind() {
@@ -46,7 +79,7 @@ final class AmplitudeWrapper {
             .sink { wrapper, event in
                 switch event {
                 case .selected(let userWalletId):
-                    wrapper.setUserId(userId: userWalletId)
+                    wrapper.setUserId(userId: userWalletId.hashedStringValue)
                 default:
                     break
                 }

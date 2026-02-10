@@ -25,6 +25,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let analyticsService: TopMarketWidgetAnalyticsProvider
 
     private let filterProvider = MarketsListDataFilterProvider()
     private let dataProvider = MarketsListDataProvider()
@@ -40,11 +41,13 @@ final class TopMarketWidgetViewModel: ObservableObject {
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        analyticsService: TopMarketWidgetAnalyticsProvider,
         coordinator: TopMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
+        self.analyticsService = analyticsService
         self.coordinator = coordinator
 
         marketCapFormatter = .init(
@@ -68,13 +71,13 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Public Implementation
 
     func tryLoadAgain() {
-        isFirstLoading = true
-        tokenViewModelsState = .loading
         dataProvider.reset()
         fetch(by: filterProvider.currentFilterValue)
     }
 
     func onSeeAllTapAction() {
+        analyticsService.logTopMarketTokenListOpened()
+
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openSeeAllTopMarketWidget()
         }
@@ -114,19 +117,16 @@ private extension TopMarketWidgetViewModel {
                 switch newEvent {
                 case .loading:
                     if case .failedToFetchData = oldEvent { return }
-                    viewModel.tokenViewModelsState = .loading
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
                 case .idle:
                     break
-                case .failedToFetchData(let error):
+                case .failedToFetchData:
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
                     }
 
-                    viewModel.tokenViewModelsState = .failure(error)
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: viewModel.widgetType)
                 case .startInitialFetch, .cleared:
-                    viewModel.tokenViewModelsState = .loading
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
 
@@ -169,13 +169,19 @@ private extension TopMarketWidgetViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                if case .readyForDisplay = state, viewModel.dataProvider.lastEvent.isAppendedItems {
-                    let items = viewModel.dataProvider.items.prefix(Constants.itemsOnListWidget)
-                    let tokenViewModelsToAppend = viewModel.mapToItemViewModel(Array(items), offset: 0)
-                    viewModel.tokenViewModelsState = .success(tokenViewModelsToAppend)
+                switch state {
+                case .loaded:
+                    viewModel.mapReadyForDisplay()
+                    viewModel.clearIsFirstLoadingFlag()
+                case .initialLoading:
+                    viewModel.tokenViewModelsState = .loading
+                case .reloading(let widgetTypes):
+                    if widgetTypes.contains(viewModel.widgetType) {
+                        viewModel.tokenViewModelsState = .loading
+                    }
+                case .allFailed:
+                    return
                 }
-
-                viewModel.clearIsFirstLoadingFlag()
             }
             .store(in: &bag)
     }
@@ -194,6 +200,24 @@ private extension TopMarketWidgetViewModel {
                 self?.onTokenTapAction(with: tokenItemModel)
             }
         )
+    }
+
+    // MARK: - Map Widget States
+
+    func mapReadyForDisplay() {
+        switch dataProvider.lastEvent {
+        case .appendedItems:
+            let items = dataProvider.items.prefix(Constants.itemsOnListWidget)
+            let tokenViewModelsToAppend = mapToItemViewModel(Array(items), offset: 0)
+            tokenViewModelsState = .success(tokenViewModelsToAppend)
+        case .failedToFetchData(let error):
+            tokenViewModelsState = .failure(error)
+            analyticsService.logTopMarketLoadError(error)
+        case .loading, .startInitialFetch, .cleared:
+            tokenViewModelsState = .loading
+        case .idle:
+            break
+        }
     }
 
     // MARK: - Actions

@@ -9,11 +9,13 @@
 import Combine
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 
 typealias ExpressInteractorTangemPayWallet = ExpressInteractorSourceWallet
 
 struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet {
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let tokenHeader: ExpressInteractorTokenHeader? = nil
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -27,26 +29,28 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let transactionValidator: any ExpressTransactionValidator
 
     let expressTokenFeeProvidersManager: any ExpressTokenFeeProvidersManager
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
+
     let sendingRestrictions: SendingRestrictions? = .none
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
-    private let _cexTransactionProcessor: any ExpressCEXTransactionProcessor
     private var _balanceProvider: any ExpressBalanceProvider
     private var _feeProvider: any ExpressFeeProvider
 
     init(
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         defaultAddressString: String,
         availableBalanceProvider: any TokenBalanceProvider,
-        cexTransactionProcessor: any ExpressCEXTransactionProcessor,
+        cexTransactionDispatcher: any TransactionDispatcher,
         transactionValidator: any ExpressTransactionValidator
     ) {
         id = .init(tokenItem: tokenItem)
-
+        self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.defaultAddressString = defaultAddressString
@@ -54,11 +58,12 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         self.transactionValidator = transactionValidator
 
         interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: tokenItem
+            tokenItem: tokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: false)
         )
 
         expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
-        _cexTransactionProcessor = cexTransactionProcessor
+        transactionDispatcherProvider = TangemPayTransactionDispatcherProvider(cexTransactionDispatcher: cexTransactionDispatcher)
 
         _balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider,
@@ -67,16 +72,6 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         _feeProvider = TangemPayWithdrawExpressFeeProvider(
             feeTokenItem: feeTokenItem
         )
-    }
-}
-
-extension ExpressInteractorTangemPayWalletWrapper {
-    func cexTransactionProcessor() throws -> any ExpressCEXTransactionProcessor {
-        _cexTransactionProcessor
-    }
-
-    func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
-        throw ExpressTransactionProcessorFactory.Error.dexNotSupported(blockchain: "Visa")
     }
 }
 

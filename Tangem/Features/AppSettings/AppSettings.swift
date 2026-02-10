@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 final class AppSettings {
     @AppStorageCompat(StorageType.twinCardOnboardingDisplayed)
@@ -137,6 +138,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
+    var tangemPayIsEligibilityAvailable: Bool = false
+
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
 
@@ -146,11 +150,59 @@ final class AppSettings {
     @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
     var showMarketsYieldModeNotification = true
 
+    @AppStorageCompat(StorageType.referralRefcode)
+    var referralRefcode: String? = nil
+
+    @AppStorageCompat(StorageType.referralCampaign)
+    var referralCampaign: String? = nil
+
+    @AppStorageCompat(StorageType.hasReferralBindingRequest)
+    var hasReferralBindingRequest: Bool = false
+
+    @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
+    var shouldShowMobilePromoWalletSelector: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
 
     deinit {
         AppLogger.debug(self)
+    }
+}
+
+extension AppSettings: TangemPayOrderIdStorage {
+    func cardIssuingOrderId(customerWalletId: String) -> String? {
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
+    }
+
+    func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
+    }
+
+    func deleteCardIssuingOrderId(customerWalletId: String) {
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
+    }
+}
+
+extension AppSettings: TangemPayPaeraCustomerFlagRepository {
+    func isPaeraCustomer(customerWalletId: String) -> Bool {
+        tangemPayIsPaeraCustomer[customerWalletId, default: false]
+    }
+
+    func isKYCHidden(customerWalletId: String) -> Bool {
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId, default: false]
+    }
+
+    func setIsPaeraCustomer(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsPaeraCustomer[customerWalletId] = value
+    }
+
+    func setIsKYCHidden(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = value
+    }
+
+    func setShouldShowGetBanner(_ value: Bool) {
+        tangemPayShouldShowGetBanner = value
     }
 }

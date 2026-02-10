@@ -41,7 +41,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%1$liトークン</string>
+        <string>%liトークン</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -204,7 +204,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>これらの %li 単語を以下の順番通りに書き留め、安全かつ秘密の場所に保管してください。</string>
+        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られない場所に保管してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -218,7 +218,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li 単語</string>
+        <string>%li個の単語</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>

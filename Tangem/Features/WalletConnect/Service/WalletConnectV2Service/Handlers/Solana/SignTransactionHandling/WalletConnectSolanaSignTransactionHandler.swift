@@ -39,6 +39,9 @@ final class WalletConnectSolanaSignTransactionHandler {
 
             self.walletModel = walletModel
             transaction = parameters.transaction
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
@@ -73,6 +76,9 @@ final class WalletConnectSolanaSignTransactionHandler {
 
             self.walletModel = walletModel
             transaction = parameters.transaction
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
@@ -161,10 +167,6 @@ private extension WalletConnectSolanaSignTransactionHandler {
         let transactionData = try Data(transaction.base64Decoded())
         let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
         let unsignedHash = withoutSignaturePlaceholders.transaction
-
-        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
-            return (true, unsignedHash, withoutSignaturePlaceholders.signatureCount)
-        }
 
         let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
             walletModel.tokenItem,

@@ -22,6 +22,8 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
+        case .newPromotion:
+            AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -50,7 +52,7 @@ struct TangemApiTarget: TargetType {
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
             return "/referral"
-        case .promotion:
+        case .promotion, .newPromotion:
             return "/promotion"
         case .validateNewUserPromotionEligibility:
             return "/promotion/code/validate"
@@ -80,6 +82,10 @@ struct TangemApiTarget: TargetType {
             return "/coins/\(requestModel.tokenId)/history"
         case .tokenExchangesList(let requestModel):
             return "/coins/\(requestModel.tokenId)/exchanges"
+
+        // MARK: - Earn paths
+        case .earnYieldMarkets:
+            return "/api/v1/earn/yield/markets"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -123,10 +129,16 @@ struct TangemApiTarget: TargetType {
         // MARK: - News
         case .newsList:
             return "/news"
+        case .newsDetails(let requestModel):
+            return "/news/\(requestModel.newsId)"
         case .newsCategories:
             return "/news/categories"
         case .trendingNews:
             return "/news/trending"
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode:
+            return "/referral/bind-wallets-by-code"
         }
     }
 
@@ -140,6 +152,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .newPromotion,
              .apiList,
              .features,
              .coinsList,
@@ -148,6 +161,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
              .story,
@@ -157,6 +171,7 @@ struct TangemApiTarget: TargetType {
              .getUserWallets,
              .getUserWallet,
              .newsList,
+             .newsDetails,
              .newsCategories,
              .trendingNews:
             return .get
@@ -175,7 +190,8 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
-             .createWallet:
+             .createWallet,
+             .bindWalletsByCode:
             return .post
         case .resetAward:
             return .delete
@@ -208,6 +224,8 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram(let requestData):
             return .requestParameters(requestData)
         case .promotion(let request):
+            return .requestParameters(request)
+        case .newPromotion(let request):
             return .requestParameters(request)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
@@ -266,6 +284,10 @@ struct TangemApiTarget: TargetType {
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
 
+        // MARK: - Earn tasks
+        case .earnYieldMarkets(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+
         // MARK: - News tasks
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
@@ -314,6 +336,15 @@ struct TangemApiTarget: TargetType {
                 parameters: parameters,
                 encoding: URLEncoding.default
             )
+        case .newsDetails(let requestModel):
+            if let lang = requestModel.lang {
+                return .requestParameters(parameters: ["lang": lang], encoding: URLEncoding.default)
+            }
+            return .requestPlain
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode(let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -337,6 +368,7 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .newPromotion,
              .validateNewUserPromotionEligibility,
              .validateOldUserPromotionEligibility,
              .awardNewUser,
@@ -350,6 +382,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .apiList,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
@@ -367,7 +400,9 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .trendingNews,
              .newsList,
-             .newsCategories:
+             .newsDetails,
+             .newsCategories,
+             .bindWalletsByCode:
             return nil
         }
     }
@@ -392,6 +427,7 @@ extension TangemApiTarget {
 
         // Promotion
         case promotion(request: ExpressPromotion.Request)
+        case newPromotion(request: ExpressPromotion.NewRequest)
         case validateNewUserPromotionEligibility(walletId: String, code: String)
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
@@ -408,6 +444,10 @@ extension TangemApiTarget {
         case tokenMarketsDetails(_ requestModel: MarketsDTO.Coins.Request)
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
         case tokenExchangesList(_ requestModel: MarketsDTO.ExchangesList.Request)
+
+        // MARK: - Earn Targets
+
+        case earnYieldMarkets(_ requestModel: EarnDTO.List.Request)
 
         // MARK: - Action Buttons
 
@@ -441,18 +481,20 @@ extension TangemApiTarget {
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
 
-        // MARK: - News
+        // MARK: - News Targets
 
         case trendingNews(limit: Int?, lang: String?)
         case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsDetails(_ requestModel: NewsDTO.Details.Request)
         case newsCategories
+        case bindWalletsByCode(_ requestModel: ReferralDTO.Request)
     }
 }
 
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -476,6 +518,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .historyChart,
              .tokenMarketsDetails,
              .tokenExchangesList,
+             .earnYieldMarkets,
              .story,
              .rawData,
              .hotCrypto,
@@ -488,7 +531,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createWallet,
              .newsList,
              .newsCategories,
-             .trendingNews:
+             .newsDetails,
+             .trendingNews,
+             .bindWalletsByCode:
             return false
         case .geo,
              .features,
@@ -499,6 +544,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .newPromotion,
              .validateNewUserPromotionEligibility,
              .validateOldUserPromotionEligibility,
              .awardNewUser,

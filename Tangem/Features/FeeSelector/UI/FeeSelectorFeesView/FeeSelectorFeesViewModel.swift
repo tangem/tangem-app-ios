@@ -13,6 +13,7 @@ import TangemFoundation
 protocol FeeSelectorFeesDataProvider {
     var selectedTokenFeeOption: FeeOption { get }
     var selectedTokenFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
+    var feeCoveragePublisher: AnyPublisher<FeeCoverage, Never> { get }
 
     var selectorFees: [TokenFee] { get }
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
@@ -51,7 +52,6 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     private let provider: FeeSelectorFeesDataProvider
     private let customFeeDataProvider: FeeSelectorCustomFeeDataProviding
     private let feeFormatter: FeeFormatter
-    private let analytics: FeeSelectorAnalytics
 
     private weak var router: FeeSelectorFeesRoutable?
 
@@ -63,12 +63,10 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         provider: FeeSelectorFeesDataProvider,
         customFeeDataProvider: FeeSelectorCustomFeeDataProviding,
         feeFormatter: FeeFormatter,
-        analytics: FeeSelectorAnalytics,
     ) {
         self.provider = provider
         self.customFeeDataProvider = customFeeDataProvider
         self.feeFormatter = feeFormatter
-        self.analytics = analytics
 
         selectedFeeOption = provider.selectedTokenFeeOption
         customFeeManualSaveIsRequired = provider.selectedTokenFeeOption == .custom
@@ -94,8 +92,6 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     }
 
     func onAppear() {
-        analytics.logFeeStepOpened()
-
         customFeeDataProvider.customFeeProvider?.captureCustomFeeFieldsValue()
         customFeeDataProvider.customFeeProvider?
             .customFeeIsValidPublisher
@@ -141,8 +137,6 @@ private extension FeeSelectorFeesViewModel {
 
     func userDidSelect(fee: TokenFee) {
         selectedFeeOption = fee.option
-        analytics.logSendFeeSelected(fee.option)
-
         router?.userDidTapConfirmSelection(selectedFee: fee)
     }
 }

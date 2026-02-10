@@ -78,7 +78,7 @@ struct MarketsMainView: View {
         // `navigationControllerConfigurator` won't hide the navigation bar on that page (`Markets Token Details`)
         .navigationTitle("MarketsMainView")
         .navigationBarTitleDisplayMode(.inline)
-        .injectMarketsNavigationControllerConfigurator()
+        .injectMarketsNavigationConfigurator()
     }
 
     private var navigationBarBackground: some View {
@@ -242,6 +242,8 @@ struct MarketsMainView: View {
             PulseMarketWidgetView(viewModel: viewModel)
         case .news(let viewModel):
             NewsWidgetView(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnWidgetView(viewModel: viewModel)
         }
     }
 }

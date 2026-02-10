@@ -14,7 +14,7 @@ import TangemLocalization
 
 protocol SendApproveDataBuilderInput {
     var selectedPolicy: ApprovePolicy? { get }
-    var selectedExpressProvider: ExpressProvider? { get async }
+    var selectedExpressProvider: ExpressProvider? { get }
     var approveViewModelInput: ApproveViewModelInput? { get }
 }
 
@@ -71,12 +71,51 @@ extension CommonSendBaseDataBuilder: SendBaseDataBuilder {
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
 
-    func makeMailData(transactionData: Data, error: SendTxError) -> MailData {
-        let emailDataCollector = CompiledExpressDataCollector(
+    func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData {
+        guard let fee = baseDataInput.bsdkFee?.amount else {
+            throw SendBaseDataBuilderError.notFound("Fee")
+        }
+
+        guard let amount = baseDataInput.bsdkAmount else {
+            throw SendBaseDataBuilderError.notFound("Amount")
+        }
+
+        let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
-            transactionHex: transactionData.hexString,
-            lastError: error
+            fee: fee,
+            destination: approveTransaction.toContractAddress,
+            amount: amount,
+            isFeeIncluded: baseDataInput.isFeeIncluded,
+            lastError: .init(error: error),
+            stakingAction: nil,
+            stakingTarget: nil
+        )
+
+        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
+
+        return (dataCollector: emailDataCollector, recipient: recipient)
+    }
+
+    func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData {
+        guard let fee = baseDataInput.bsdkFee?.amount else {
+            throw SendBaseDataBuilderError.notFound("Fee")
+        }
+
+        guard let amount = baseDataInput.bsdkAmount else {
+            throw SendBaseDataBuilderError.notFound("Amount")
+        }
+
+        let emailDataCollector = SendScreenDataCollector(
+            userWalletEmailData: emailDataProvider.emailData,
+            walletModel: walletModel,
+            fee: fee,
+            destination: expressTransaction.destinationAddress,
+            amount: amount,
+            isFeeIncluded: baseDataInput.isFeeIncluded,
+            lastError: .init(error: error),
+            stakingAction: nil,
+            stakingTarget: nil
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
@@ -100,12 +139,12 @@ extension CommonSendBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
 // MARK: - SendApproveViewModelInputDataBuilder
 
 extension CommonSendBaseDataBuilder: SendApproveViewModelInputDataBuilder {
-    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input {
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
         guard let selectedPolicy = approveDataInput.selectedPolicy else {
             throw SendBaseDataBuilderError.notFound("Selected approve policy")
         }
 
-        guard let selectedProvider = await approveDataInput.selectedExpressProvider else {
+        guard let selectedProvider = approveDataInput.selectedExpressProvider else {
             throw SendBaseDataBuilderError.notFound("Selected provider")
         }
 

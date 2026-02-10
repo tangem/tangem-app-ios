@@ -101,8 +101,10 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelFeesProvider
 
-    var tokenFeeLoader: any TokenFeeLoader { TokenFeeLoaderMock() }
     var customFeeProvider: (any CustomFeeProvider)? { .none }
+    func makeTokenFeeLoader(for tokenItem: Tangem.TokenItem) -> any Tangem.TokenFeeLoader {
+        TokenFeeLoaderMock()
+    }
 
     // MARK: - TransactionHistoryFetcher
 
@@ -174,7 +176,7 @@ final class WalletModelTestsMock: WalletModel {
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible
 

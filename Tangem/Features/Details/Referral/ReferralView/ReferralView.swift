@@ -85,6 +85,9 @@ struct ReferralView: View {
 
         case .loaded(let loadedState):
             makeReferralContent(loadedState: loadedState)
+
+        case .failed:
+            loaderContent
         }
     }
 
@@ -147,7 +150,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomParticipantDisplayMode) -> some View {
+    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomeParticipantDisplayMode) -> some View {
         switch displayMode {
         case .simple:
             simpleReadyToBecomeParticipantView
@@ -189,15 +192,17 @@ struct ReferralView: View {
                 if let accountData {
                     Divider()
 
-                    BaseOneLineRow(icon: nil, title: Localization.accountForRewards, trailingView: {
-                        HStack(spacing: 4) {
-                            AccountIconView(data: accountData.iconViewData)
-                                .settings(.smallSized)
-
-                            Text(accountData.name)
-                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                    BaseOneLineRow(
+                        icon: nil,
+                        title: Localization.accountForRewards,
+                        trailingView: {
+                            AccountInlineHeaderView(
+                                iconData: accountData.iconViewData,
+                                name: accountData.name
+                            )
+                            .rowTrailingStyle()
                         }
-                    })
+                    )
                     .shouldShowTrailingIcon(false)
                 }
             }
@@ -365,7 +370,8 @@ struct ReferralView_Previews: PreviewProvider {
                         userWalletId: Data(),
                         supportedBlockchains: SupportedBlockchains.all,
                         workMode: .plainUserTokensManager(UserTokensManagerMock()),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder()
+                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                        userWalletModel: UserWalletModelMock()
                     ),
                     coordinator: ReferralCoordinator()
                 )
@@ -380,7 +386,8 @@ struct ReferralView_Previews: PreviewProvider {
                         userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
                         supportedBlockchains: SupportedBlockchains.all,
                         workMode: .plainUserTokensManager(UserTokensManagerMock()),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder()
+                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                        userWalletModel: UserWalletModelMock()
                     ),
                     coordinator: ReferralCoordinator()
                 )

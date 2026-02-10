@@ -11,6 +11,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendFeeSelectorView: View {
     // MARK: - View Model
@@ -38,7 +39,14 @@ struct SendFeeSelectorView: View {
 
     private var button: MainButton? {
         if case .summary = viewModel.state {
-            return MainButton(settings: .init(title: Localization.commonApply, style: .primary, action: viewModel.userDidTapConfirmButton))
+            return MainButton(
+                settings: .init(
+                    title: Localization.commonApply,
+                    style: .primary,
+                    isDisabled: !viewModel.isMainButtonEnabled,
+                    action: viewModel.userDidTapConfirmButton
+                )
+            )
         }
 
         return nil
@@ -47,6 +55,7 @@ struct SendFeeSelectorView: View {
     private var header: some View {
         BottomSheetHeaderView(
             title: viewModel.state.content.title,
+            titleAccessibilityIdentifier: viewModel.state.titleAccessibilityIdentifier,
             leading: { leadingHeaderButton },
             trailing: { trailingHeaderButton }
         )

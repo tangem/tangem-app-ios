@@ -9,36 +9,51 @@
 import Foundation
 import Moya
 
+enum GaslessApiTargetConstants {
+    // Base URLs
+    static let prodBaseURL = URL(string: "https://gasless.tangem.org")!
+    static let devBaseURL = URL(string: "https://gasless.tests-d.com")!
+    static let stageBaseURL = URL(string: "https://gasless.tests-d.com")!
+
+    // Paths
+    static let tokensPath = "/tokens"
+    static let signTransactionPath = "/transaction/sign"
+    static let feeRecipientPath = "/config/fee-recipient"
+}
+
 struct GaslessTransactionsAPITarget: TargetType {
     let apiType: GaslessTransactionsAPIType
     let target: TargetType
 
     enum TargetType: Equatable {
         case availableTokens
-        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
+        case sendGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
         case feeRecipient
     }
 
-    // [REDACTED_TODO_COMMENT]
     var baseURL: URL {
+        let baseUrl: URL
+
         switch apiType {
         case .prod:
-            return URL(string: "https://gasless.tangem.org/api/v1")!
+            baseUrl = GaslessApiTargetConstants.prodBaseURL
         case .dev:
-            return URL(string: "https://gasless.tests-d.com/api/v1")!
+            baseUrl = GaslessApiTargetConstants.devBaseURL
         case .stage:
-            return URL(string: "https://gasless.tests-d.com/api/v1")!
+            baseUrl = GaslessApiTargetConstants.stageBaseURL
         }
+
+        return baseUrl.appendingPathComponent("api").appendingPathComponent("v1")
     }
 
     var path: String {
         switch target {
         case .availableTokens:
-            "/tokens"
-        case .signGaslessTransaction:
-            "/transaction/sign"
+            return GaslessApiTargetConstants.tokensPath
+        case .sendGaslessTransaction:
+            return GaslessApiTargetConstants.signTransactionPath
         case .feeRecipient:
-            "/config/fee-recipient"
+            return GaslessApiTargetConstants.feeRecipientPath
         }
     }
 
@@ -46,14 +61,14 @@ struct GaslessTransactionsAPITarget: TargetType {
         switch target {
         case .availableTokens, .feeRecipient:
             return .get
-        case .signGaslessTransaction:
+        case .sendGaslessTransaction:
             return .post
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .signGaslessTransaction(let transaction):
+        case .sendGaslessTransaction(let transaction):
             return .requestJSONEncodable(transaction)
         case .availableTokens, .feeRecipient:
             return .requestPlain
