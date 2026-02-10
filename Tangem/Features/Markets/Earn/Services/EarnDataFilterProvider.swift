@@ -120,13 +120,12 @@ final class EarnDataFilterProvider {
         _networkFilterValue.send(.all)
     }
 
-    func fetchAvailableNetworks() {
+    func fetchAvailableNetworks() async {
         fetchNetworksTask?.cancel()
         _stateSubject.send(.loading)
 
         fetchNetworksTask = Task { @MainActor [weak self] in
             guard let self else { return }
-
             updateMyNetworkIds()
             await loadAvailableNetworks()
         }
