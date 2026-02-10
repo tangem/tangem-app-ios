@@ -468,6 +468,18 @@ extension Analytics {
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
 
+        // MARK: - Earn
+
+        case earnPageOpened = "[Earn] Page Opened"
+        case earnMostlyUsedCarouselScrolled = "[Earn] Mostly Used Carousel Scrolled"
+        case earnBestOpportunitiesFilterNetworkApplied = "[Earn] Best Opportunities Filter Network Applied"
+        case earnBestOpportunitiesFilterTypeApplied = "[Earn] Best Opportunities Filter Type Applied"
+        case earnOpportunitySelected = "[Earn] Opportunity selected"
+        case earnAddTokenScreenOpened = "[Earn] Add Token Screen Opened"
+        case earnTokenAdded = "[Earn] Token Added"
+        case earnPageLoadError = "[Earn] Page Load Error"
+        case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
+
         // MARK: - Markets / Chart
 
         case marketsChartScreenOpened = "[Markets / Chart] Token Chart Screen Opened"
