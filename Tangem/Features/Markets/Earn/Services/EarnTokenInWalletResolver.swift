@@ -59,21 +59,14 @@ struct EarnTokenInWalletResolver {
             return .toAdd(token: earnToken, userWalletModels: [userWalletModel])
         }
 
-        let walletModels = cryptoAccountModel.walletModelsManager.walletModels
-        let matchingModels = walletModels.filter { isMatch($0, tokenItem: tokenItem, derivationPath: nil) }
-
-        guard let walletModel = matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first else {
+        guard let walletModel = EarnWalletModelFinder.findWalletModel(
+            for: tokenItem,
+            in: cryptoAccountModel
+        ) else {
             return .toAdd(token: earnToken, userWalletModels: [userWalletModel])
         }
 
         return .alreadyAdded(walletModel: walletModel, userWalletModel: userWalletModel)
-    }
-
-    private func isMatch(_ model: any WalletModel, tokenItem: TokenItem, derivationPath: String?) -> Bool {
-        let idMatch = model.tokenItem.id == tokenItem.id
-        let networkMatch = model.tokenItem.blockchain.networkId == tokenItem.blockchain.networkId
-        let derivationPathMatch = derivationPath.map { $0 == model.tokenItem.blockchainNetwork.derivationPath?.rawPath } ?? true
-        return idMatch && networkMatch && derivationPathMatch
     }
 
     private func mapEarnTokenToTokenItem(
