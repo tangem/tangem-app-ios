@@ -39,7 +39,7 @@ struct HotCryptoAddToPortfolioBottomSheetView: View {
 
             MainButton(
                 title: Localization.commonAddToPortfolio,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.mainButtonIcon,
                 action: viewModel.action
             )
         }

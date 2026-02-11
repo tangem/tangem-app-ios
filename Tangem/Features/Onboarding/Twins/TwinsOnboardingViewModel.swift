@@ -317,7 +317,7 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
                     if case .done(let cardInfo) = newStep {
                         if !viewModel.retwinMode {
                             // userwallet remains deleted after retwin
-                            viewModel.initializeUserWallet(from: cardInfo)
+                            viewModel.initializeUserWallet(from: cardInfo, walletCreationType: .privateKey)
                         }
                         if viewModel.input.isStandalone {
                             viewModel.fireConfetti()
