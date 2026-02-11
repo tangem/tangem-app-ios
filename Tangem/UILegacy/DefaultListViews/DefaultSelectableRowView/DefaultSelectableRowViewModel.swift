@@ -12,10 +12,12 @@ struct DefaultSelectableRowViewModel<ID: Hashable>: Hashable, Identifiable {
     let id: ID
     let title: String
     let subtitle: String?
+    let iconURL: URL?
 
-    init(id: ID, title: String, subtitle: String?) {
+    init(id: ID, title: String, subtitle: String?, iconURL: URL? = nil) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
+        self.iconURL = iconURL
     }
 }
