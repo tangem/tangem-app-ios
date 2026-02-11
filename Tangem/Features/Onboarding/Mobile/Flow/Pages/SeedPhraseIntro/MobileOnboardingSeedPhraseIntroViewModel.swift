@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 
 final class MobileOnboardingSeedPhraseIntroViewModel {
+    let navigationTitle = Localization.commonBackup
     let continueButtonTitle = Localization.commonContinue
 
     lazy var commonItem: CommonItem = makeCommonItem()
@@ -48,6 +49,10 @@ extension MobileOnboardingSeedPhraseIntroViewModel {
 
     func onContinueTap() {
         delegate?.seedPhraseIntroContinue()
+    }
+
+    func onCloseTap() {
+        delegate?.seedPhraseIntroClose()
     }
 }
 

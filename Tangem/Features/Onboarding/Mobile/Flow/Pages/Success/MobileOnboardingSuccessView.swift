@@ -26,6 +26,7 @@ struct MobileOnboardingSuccessView: View {
         .onAppear(perform: viewModel.onWillAppear)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
+        .stepsFlowNavBar(title: viewModel.navigationTitle)
     }
 }
 

@@ -18,6 +18,10 @@ struct MobileOnboardingSeedPhraseIntroView: View {
     var body: some View {
         content
             .padding(.horizontal, 16)
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(leading: {
+                MobileOnboardingFlowNavBarAction.close(handler: viewModel.onCloseTap).view()
+            })
             .onAppear(perform: viewModel.onFirstAppear)
     }
 }
