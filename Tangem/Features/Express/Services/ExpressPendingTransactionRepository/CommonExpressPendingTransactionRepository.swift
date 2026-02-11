@@ -75,7 +75,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
                 amountString: txData.expressTransactionData.toAmount.stringValue,
                 isCustom: txData.destination.isCustom
             ),
-            feeString: txData.fee.stringValue,
+            feeString: txData.fee.value.value?.amount.value.stringValue ?? "",
             provider: .init(provider: txData.provider),
             date: txData.date,
             externalTxId: txData.expressTransactionData.externalTxId,

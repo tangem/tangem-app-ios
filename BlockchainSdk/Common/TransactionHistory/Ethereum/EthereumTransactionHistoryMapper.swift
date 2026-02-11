@@ -202,7 +202,7 @@ private extension EthereumTransactionHistoryMapper {
                     return nil
                 }
 
-                let decimalValue = pow(10, transfer.decimals)
+                let decimalValue = transfer.decimals.map { pow(10, $0) } ?? decimalValue
                 let transactionAmount = value / decimalValue
 
                 let source = TransactionRecord.Source(
@@ -229,6 +229,11 @@ private extension EthereumTransactionHistoryMapper {
         let methodId = ethereumSpecific?.parsedData?.methodId ?? methodIdFromRawData(ethereumSpecific?.data)
 
         guard let methodId = methodId else {
+            return .transfer
+        }
+
+        // ERC-20 transfer method id
+        if methodId == Constants.tokenTransferMethodId {
             return .transfer
         }
 
@@ -313,5 +318,11 @@ private extension EthereumTransactionHistoryMapper {
         let source: TransactionRecord.Source
         let destination: TransactionRecord.Destination
         let isOutgoing: Bool
+    }
+}
+
+private extension EthereumTransactionHistoryMapper {
+    enum Constants {
+        static let tokenTransferMethodId: String = "0xa9059cbb"
     }
 }

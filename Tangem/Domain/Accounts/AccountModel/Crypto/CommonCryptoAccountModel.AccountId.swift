@@ -44,3 +44,11 @@ extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierCo
         return derivationIndex
     }
 }
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonCryptoAccountModel.AccountId: CustomStringConvertible {
+    var description: String {
+        userWalletId.stringValue + "/\(derivationIndex)"
+    }
+}

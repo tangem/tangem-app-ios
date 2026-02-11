@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct AweStoryPage: View {
     var progress: Double
@@ -16,6 +17,7 @@ struct AweStoryPage: View {
     let createWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
+    let scanTroubleshootingDialog: Binding<ConfirmationDialogViewModel?>
 
     var body: some View {
         VStack {
@@ -63,7 +65,8 @@ struct AweStoryPage: View {
                     isScanning: isScanning,
                     createWallet: createWallet,
                     scanCard: scanCard,
-                    orderCard: orderCard
+                    orderCard: orderCard,
+                    scanTroubleShootingDialog: scanTroubleshootingDialog
                 )
                 .padding(.horizontal, 16)
                 .padding(.bottom, 6)
@@ -81,7 +84,8 @@ struct AweStoryPage_Previews: PreviewProvider {
             isScanning: false,
             createWallet: {},
             scanCard: {},
-            orderCard: {}
+            orderCard: {},
+            scanTroubleshootingDialog: .constant(nil)
         )
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
         .environment(\.colorScheme, .dark)

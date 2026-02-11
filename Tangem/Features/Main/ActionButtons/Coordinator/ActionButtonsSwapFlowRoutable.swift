@@ -8,4 +8,5 @@
 
 protocol ActionButtonsSwapFlowRoutable: AnyObject {
     func openSwap(userWalletModel: some UserWalletModel)
+    func openSwap(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
 }

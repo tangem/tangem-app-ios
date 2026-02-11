@@ -59,7 +59,7 @@ struct YieldModuleActiveContentView: View {
     }
 
     private var navTitleView: some View {
-        BottomSheetHeaderView(title: Localization.commonYieldMode, trailing: { CircleButton.close { viewModel.onBackButtonTap() } })
+        BottomSheetHeaderView(title: Localization.commonYieldMode, trailing: { NavigationBarButton.close(action: viewModel.onBackButtonTap) })
     }
 
     private var button: MainButton {
