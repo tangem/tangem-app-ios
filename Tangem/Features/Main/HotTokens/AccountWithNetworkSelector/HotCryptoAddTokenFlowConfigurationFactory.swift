@@ -20,7 +20,7 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
             getAvailableTokenItems: { _ in
                 // HotTokens always have single network
                 // Additionally, availability to add hot token is controlled by parent.
-                // Those that are already added wont show up in the list thus
+                // Those that are already added won't show up in the list thus
                 // Will not get to this method at all
                 guard let tokenItem = hotToken.tokenItem else {
                     return []
