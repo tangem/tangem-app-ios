@@ -21,6 +21,10 @@ protocol TokenQuotesRepository: AnyObject {
     /// For get updates make a subscribe to quotesPublisher
     @discardableResult
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<Quotes, Never>
+
+    /// Fetches a fresh quote from the network.
+    /// Optionally updates the cache with the fetched value
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote
 }
 
 extension TokenQuotesRepository {
@@ -36,8 +40,10 @@ extension TokenQuotesRepository {
         return quote(for: item.currencyId)
     }
 
-    func loadQuotes(currencyIds: [String]) async {
-        _ = try? await loadQuotes(currencyIds: currencyIds).async()
+    @discardableResult
+    func loadQuotes(currencyIds: [String]) async -> Quotes {
+        let loadedQuotes = try? await loadQuotes(currencyIds: currencyIds).async()
+        return loadedQuotes ?? quotes
     }
 }
 

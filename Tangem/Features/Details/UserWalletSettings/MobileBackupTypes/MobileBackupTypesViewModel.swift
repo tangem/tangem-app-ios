@@ -78,7 +78,7 @@ private extension MobileBackupTypesViewModel {
         switch result {
         case .configurationChanged:
             setup()
-        case .nameDidChange, .tangemPayOfferAccepted, .tangemPayKYCDeclined:
+        case .nameDidChange:
             break
         }
     }

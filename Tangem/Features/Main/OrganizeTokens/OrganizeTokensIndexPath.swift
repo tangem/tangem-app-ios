@@ -11,13 +11,13 @@ import Foundation
 struct OrganizeTokensIndexPath: Hashable {
     let outerSection: Int
     let innerSection: Int
-    // [REDACTED_TODO_COMMENT]
-    let _item: Int
+    let item: Int
+}
 
-    // [REDACTED_TODO_COMMENT]
-    init(outerSection: Int, innerSection: Int, item: Int) {
-        self.outerSection = outerSection
-        self.innerSection = innerSection
-        _item = item
+// MARK: - CustomStringConvertible protocol conformance
+
+extension OrganizeTokensIndexPath: CustomStringConvertible {
+    var description: String {
+        "<OrganizeTokensIndexPath; [\(outerSection), \(innerSection), \(item)]>"
     }
 }
