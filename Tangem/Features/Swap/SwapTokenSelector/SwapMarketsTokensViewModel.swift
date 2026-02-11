@@ -14,33 +14,36 @@ import TangemLocalization
 final class SwapMarketsTokensViewModel: ObservableObject {
     // MARK: - Published
 
-    @Published private(set) var state: State = .idle
+    @Published private(set) var state: State = .loading
 
     // MARK: - Dependencies
 
-    private let searchProvider: SwapMarketsTokensProvider
+    private let dataProvider: MarketsListDataProvider
     private let chartsProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
     private let marketCapFormatter: MarketCapFormatter
-    private let configuration: Configuration
 
-    private var currentTask: Task<Void, Never>?
+    private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: nil)
+
+    private var bag = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable?
-    private var activeCancellable: AnyCancellable?
 
     private weak var selectionHandler: SwapMarketsTokenSelectionHandler?
 
     private var currentSearchText: String = ""
-    private var isActive: Bool = true
+    private var tokenViewModels: [MarketsItemViewModel] = []
+    private var hasLoadedInitially = false
+
+    // MARK: - Computed
+
+    var isSearching: Bool {
+        !currentSearchText.isEmpty
+    }
 
     // MARK: - Init
 
-    init(
-        searchProvider: SwapMarketsTokensProvider,
-        configuration: Configuration = .withTrending
-    ) {
-        self.searchProvider = searchProvider
-        self.configuration = configuration
+    init(dataProvider: MarketsListDataProvider = MarketsListDataProvider(loadNetworks: true)) {
+        self.dataProvider = dataProvider
 
         chartsProvider = MarketsListChartsHistoryProvider()
         filterProvider = MarketsListDataFilterProvider()
@@ -49,6 +52,8 @@ final class SwapMarketsTokensViewModel: ObservableObject {
             baseCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             notationFormatter: .init()
         )
+
+        bindToDataProvider()
     }
 
     // MARK: - Setup
@@ -66,130 +71,116 @@ final class SwapMarketsTokensViewModel: ObservableObject {
         self.selectionHandler = selectionHandler
     }
 
-    func setup(isActivePublisher: some Publisher<Bool, Never>) {
-        activeCancellable = isActivePublisher
-            .removeDuplicates()
-            .sink { [weak self] isActive in
-                guard let self else { return }
+    func onAppear() {
+        // Load initial list on first appear if no search text and not already loaded
+        guard !hasLoadedInitially, currentSearchText.isEmpty else { return }
 
-                self.isActive = isActive
-                if isActive {
-                    // When becoming active, trigger search if there's already text in the search field
-                    if !currentSearchText.isEmpty {
-                        handleSearchTextChange(currentSearchText)
-                    }
-                } else {
-                    currentTask?.cancel()
-                    state = .idle
-                }
-            }
+        hasLoadedInitially = true
+        loadInitial()
     }
 
-    func onAppear() {
-        // Only withTrending mode loads trending on appear
-        guard configuration == .withTrending else { return }
-
-        // Load trending on first appear if no search text
-        if currentSearchText.isEmpty, case .idle = state {
-            loadTrending()
+    func onRetry() {
+        state = .loading
+        if currentSearchText.isEmpty {
+            loadInitial()
+        } else {
+            performSearch(text: currentSearchText)
         }
     }
 
     // MARK: - Private
 
+    private func bindToDataProvider() {
+        dataProvider.$lastEvent
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                viewModel.handleDataProviderEvent(event)
+            }
+            .store(in: &bag)
+    }
+
+    private func handleDataProviderEvent(_ event: MarketsListDataProvider.Event) {
+        switch event {
+        case .loading:
+            if tokenViewModels.isEmpty {
+                state = .loading
+            } else {
+                // Loading more - show isLoadingMore indicator
+                state = .loaded(tokens: tokenViewModels, isSearching: isSearching, isLoadingMore: true)
+            }
+        case .startInitialFetch, .cleared:
+            tokenViewModels = []
+            state = .loading
+        case .appendedItems(let items, _):
+            let offset = tokenViewModels.count
+
+            let availableItems = items.filter { $0.networks != nil }
+
+            let newViewModels = availableItems.enumerated().compactMap { index, token in
+                makeItemViewModel(token: token, index: offset + index)
+            }
+            tokenViewModels.append(contentsOf: newViewModels)
+
+            // Fetch charts for new items
+            let tokenIds = availableItems.map(\.id)
+            chartsProvider.fetch(for: tokenIds, with: filterProvider.currentFilterValue.interval)
+
+            if tokenViewModels.isEmpty {
+                state = .noResults
+            } else {
+                state = .loaded(tokens: tokenViewModels, isSearching: isSearching, isLoadingMore: false)
+            }
+        case .failedToFetchData:
+            if tokenViewModels.isEmpty {
+                state = .error
+            } else {
+                // Keep showing current tokens, stop loading indicator
+                state = .loaded(tokens: tokenViewModels, isSearching: isSearching, isLoadingMore: false)
+            }
+        case .idle:
+            break
+        }
+    }
+
     private func handleSearchTextChange(_ text: String) {
+        let previousSearchText = currentSearchText
         currentSearchText = text
 
-        // For searchOnlyOnDemand mode, check if active
-        if configuration == .searchOnlyOnDemand, !isActive {
-            state = .idle
-            return
+        // If search text changed, reset the list
+        if previousSearchText != text {
+            dataProvider.reset()
+            tokenViewModels = []
         }
 
         if text.isEmpty {
-            switch configuration {
-            case .withTrending:
-                loadTrending()
-            case .searchOnlyOnDemand:
-                currentTask?.cancel()
-                state = .idle
-            }
+            loadInitial()
         } else {
             performSearch(text: text)
         }
     }
 
-    private func loadTrending() {
-        currentTask?.cancel()
-        state = .loading(mode: .trending)
-
-        currentTask = Task { [weak self] in
-            guard let self else { return }
-
-            do {
-                let trendingTokens = try await searchProvider.loadTrending()
-
-                guard !Task.isCancelled else { return }
-
-                await MainActor.run {
-                    let tokenIds = trendingTokens.map(\.id)
-                    self.chartsProvider.fetch(for: tokenIds, with: self.filterProvider.currentFilterValue.interval)
-
-                    let viewModels = trendingTokens.map { token in
-                        self.makeItemViewModel(token: token)
-                    }
-                    self.state = .loaded(tokens: viewModels, mode: .trending)
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-
-                await MainActor.run {
-                    self.state = .idle
-                }
-            }
-        }
+    private func loadInitial() {
+        let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
+        dataProvider.fetch("", with: filter)
     }
 
     private func performSearch(text: String) {
-        currentTask?.cancel()
-        state = .loading(mode: .search)
-
-        currentTask = Task { [weak self] in
-            guard let self else { return }
-
-            do {
-                let searchResults = try await searchProvider.search(text: text)
-
-                guard !Task.isCancelled else { return }
-
-                await MainActor.run {
-                    let tokenIds = searchResults.map(\.id)
-                    self.chartsProvider.fetch(for: tokenIds, with: self.filterProvider.currentFilterValue.interval)
-
-                    let viewModels = searchResults.map { token in
-                        self.makeItemViewModel(token: token)
-                    }
-
-                    if viewModels.isEmpty {
-                        self.state = .noResults
-                    } else {
-                        self.state = .loaded(tokens: viewModels, mode: .search)
-                    }
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-
-                await MainActor.run {
-                    self.state = .idle
-                }
-            }
-        }
+        let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
+        dataProvider.fetch(text, with: filter)
     }
 
-    private func makeItemViewModel(token: MarketsTokenModel) -> MarketTokenItemViewModel {
-        MarketTokenItemViewModel(
+    private func makeItemViewModel(token: MarketsTokenModel, index: Int) -> MarketsItemViewModel? {
+        guard let networks = token.networks,
+              !networks.filter({ $0.contractAddress != nil && $0.decimalCount != nil }).isEmpty else {
+            return nil
+        }
+
+        return MarketsItemViewModel(
+            index: index,
             tokenModel: token,
             marketCapFormatter: marketCapFormatter,
+            prefetchDataSource: listDataController,
             chartsProvider: chartsProvider,
             filterProvider: filterProvider,
             onTapAction: { [weak self] in
@@ -199,66 +190,55 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     }
 }
 
+// MARK: - MarketsListDataFetcher
+
+extension SwapMarketsTokensViewModel: MarketsListDataFetcher {
+    var canFetchMore: Bool {
+        dataProvider.canFetchMore
+    }
+
+    var totalItems: Int {
+        tokenViewModels.count
+    }
+
+    func fetchMore() {
+        dataProvider.fetchMore()
+    }
+}
+
 // MARK: - State
 
 extension SwapMarketsTokensViewModel {
-    /// Returns true if markets section has visible content (loading, trending, or search results)
+    /// Returns true if markets section has visible content (loading or loaded with results)
     /// Used to determine if the parent view should hide its "no results" empty state
     var hasVisibleContent: Bool {
         switch state {
-        case .idle, .noResults:
+        case .noResults:
             return false
-        case .loading, .loaded:
+        case .loading, .loaded, .error:
             return true
         }
     }
 
-    enum Configuration {
-        /// Shows trending on appear + search
-        case withTrending
-        /// Only shows search results when actively searching
-        case searchOnlyOnDemand
-    }
-
     enum State: Equatable {
-        case idle
-        case loading(mode: Mode)
-        case loaded(tokens: [MarketTokenItemViewModel], mode: Mode)
+        case loading
+        case loaded(tokens: [MarketsItemViewModel], isSearching: Bool, isLoadingMore: Bool)
         case noResults
+        case error
 
         static func == (lhs: State, rhs: State) -> Bool {
             switch (lhs, rhs) {
-            case (.idle, .idle), (.noResults, .noResults):
+            case (.noResults, .noResults), (.loading, .loading), (.error, .error):
                 return true
-            case (.loading(let lhsMode), .loading(let rhsMode)):
-                return lhsMode == rhsMode
-            case (.loaded(let lhsTokens, let lhsMode), .loaded(let rhsTokens, let rhsMode)):
-                return lhsTokens.map(\.id) == rhsTokens.map(\.id) && lhsMode == rhsMode
+            case (
+                .loaded(let lhsTokens, let lhsSearching, let lhsLoadingMore),
+                .loaded(let rhsTokens, let rhsSearching, let rhsLoadingMore)
+            ):
+                return lhsTokens.map(\.tokenId) == rhsTokens.map(\.tokenId)
+                    && lhsSearching == rhsSearching
+                    && lhsLoadingMore == rhsLoadingMore
             default:
                 return false
-            }
-        }
-    }
-
-    enum Mode: Equatable {
-        case trending
-        case search
-
-        var title: String {
-            switch self {
-            case .trending:
-                return Localization.marketsSortByTrendingTitle
-            case .search:
-                return Localization.commonFeeSelectorOptionMarket
-            }
-        }
-
-        var showsTokenCount: Bool {
-            switch self {
-            case .trending:
-                return false
-            case .search:
-                return true
             }
         }
     }

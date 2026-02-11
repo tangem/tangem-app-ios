@@ -195,8 +195,8 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
             // Add a small delay to avoid animation glitches
             try? await Task.sleep(for: .milliseconds(500))
 
-            // Delegate to swapTokenSelectorViewModel to handle the selection
-            swapTokenSelectorViewModel?.usedDidSelect(item: item)
+            // Delegate to swapTokenSelectorViewModel to handle the selection with newly added flag
+            swapTokenSelectorViewModel?.userDidSelectNewlyAddedToken(item: item)
         }
     }
 }
