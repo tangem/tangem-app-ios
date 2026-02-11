@@ -11,18 +11,37 @@ import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
+import TangemLocalization
 
 struct EarnBestOpportunitiesListView: View {
-    let resultState: LoadingResult<[EarnTokenItemViewModel], Error>
+    let loadingState: LoadingState
+    let tokenViewModels: [EarnTokenItemViewModel]
     let retryAction: () -> Void
+    let fetchMoreAction: () -> Void
+    let hasActiveFilters: Bool
+    let clearFilterAction: (() -> Void)?
 
     var body: some View {
-        switch resultState {
+        rootView
+            .transition(.opacity.animation(.easeInOut))
+            .defaultRoundedBackground(
+                with: Color.Tangem.Surface.level4,
+                verticalPadding: Layout.innerContentPadding,
+                horizontalPadding: Layout.innerContentPadding
+            )
+            .padding(.horizontal, Layout.horizontalPadding)
+    }
+
+    @ViewBuilder
+    private var rootView: some View {
+        switch loadingState {
         case .loading:
             loadingSkeletons
-        case .success(let viewModels):
-            opportunitiesList(viewModels: viewModels)
-        case .failure:
+        case .idle, .allDataLoaded:
+            opportunitiesList
+        case .noResults:
+            emptyView
+        case .error:
             errorView
         }
     }
@@ -36,13 +55,50 @@ struct EarnBestOpportunitiesListView: View {
         .padding(.horizontal, Layout.horizontalPadding)
     }
 
-    private func opportunitiesList(viewModels: [EarnTokenItemViewModel]) -> some View {
+    private var opportunitiesList: some View {
         LazyVStack(spacing: Layout.itemSpacing) {
-            ForEach(viewModels) { viewModel in
+            ForEach(tokenViewModels) { viewModel in
                 EarnTokenItemView(viewModel: viewModel)
             }
+
+            paginationFooter
         }
-        .padding(.horizontal, Layout.horizontalPadding)
+    }
+
+    @ViewBuilder
+    private var paginationFooter: some View {
+        switch loadingState {
+        case .idle:
+            Color.clear
+                .frame(height: 1)
+                .onAppear {
+                    fetchMoreAction()
+                }
+        case .allDataLoaded, .loading, .noResults, .error:
+            EmptyView()
+        }
+    }
+
+    private var emptyView: some View {
+        VStack(spacing: Layout.emptyViewSpacing) {
+            Text(Localization.earnNoResults)
+                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+
+            if hasActiveFilters, let clearFilterAction {
+                Button(action: clearFilterAction) {
+                    Text(Localization.earnClearFilter)
+                        .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
+                }
+                .roundedBackground(
+                    with: Colors.Button.secondary,
+                    verticalPadding: Layout.ClearFilterButton.verticalPadding,
+                    horizontalPadding: Layout.ClearFilterButton.horizontalPadding,
+                    radius: Layout.ClearFilterButton.radius
+                )
+            }
+        }
+        .infinityFrame(axis: .horizontal, alignment: .center)
+        .frame(height: Layout.defaultMaxHeight)
     }
 
     private var errorView: some View {
@@ -51,13 +107,36 @@ struct EarnBestOpportunitiesListView: View {
             retryButtonAction: retryAction
         )
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .padding(.horizontal, Layout.horizontalPadding)
+        .frame(height: Layout.defaultMaxHeight)
     }
 }
+
+// MARK: - Layout
 
 private extension EarnBestOpportunitiesListView {
     enum Layout {
         static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
+        static let innerContentPadding: CGFloat = 0.0
+        static let defaultMaxHeight: CGFloat = 180
+        static let emptyViewSpacing: CGFloat = 12
+
+        enum ClearFilterButton {
+            static let verticalPadding: CGFloat = 8
+            static let horizontalPadding: CGFloat = 12
+            static let radius: CGFloat = 100
+        }
+    }
+}
+
+// MARK: - LoadingState
+
+extension EarnBestOpportunitiesListView {
+    enum LoadingState {
+        case loading
+        case idle
+        case noResults
+        case allDataLoaded
+        case error
     }
 }
