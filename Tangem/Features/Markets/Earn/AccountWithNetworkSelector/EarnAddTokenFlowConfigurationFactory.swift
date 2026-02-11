@@ -74,11 +74,11 @@ private extension EarnAddTokenFlowConfigurationFactory {
     ) {
         guard let coordinator else { return }
 
-        let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
-            $0.tokenItem == tokenItem
-        }
-
-        guard let walletModel else {
+        let account = accountSelectorCell.cryptoAccountModel
+        guard let walletModel = EarnWalletModelFinder.findWalletModel(
+            for: tokenItem,
+            in: account
+        ) else {
             coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
             coordinator.close()
             return
