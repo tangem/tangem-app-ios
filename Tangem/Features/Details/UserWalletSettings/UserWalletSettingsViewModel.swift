@@ -48,7 +48,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var forgetWalletConfirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -57,11 +57,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    /// Alert that needs to be shown after a modal sheet is dismissed.
-    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
-    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
     /// See `UserWalletSettingsCoordinatorView` for the trigger.
-    private var pendingAlert: AlertBinder?
+    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -103,7 +101,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     deinit {
-        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
+        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -145,7 +143,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            pendingAlert = AlertBuilder.makeAlert(
+            accountsPendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
@@ -153,11 +151,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         }
     }
 
-    func showPendingAlertIfNeeded() {
-        guard let pendingAlert else { return }
+    func showAccountsPendingAlertIfNeeded() {
+        guard let pendingAlert = accountsPendingAlert else { return }
 
         alert = pendingAlert
-        self.pendingAlert = nil
+        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -449,7 +447,7 @@ private extension UserWalletSettingsViewModel {
             }
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        forgetWalletConfirmationDialog = ConfirmationDialogViewModel(
             title: Localization.userWalletListDeletePrompt,
             buttons: [
                 deleteButton,
@@ -474,6 +472,7 @@ private extension UserWalletSettingsViewModel {
     func makeManageTokensRowViewModel() -> DefaultRowViewModel {
         DefaultRowViewModel(
             title: Localization.mainManageTokens,
+            accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
         )
     }
@@ -556,15 +555,16 @@ private extension UserWalletSettingsViewModel {
         }
 
         // accounts_fixes_needed_none
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-            .accounts(userWalletModel.accountModelsManager) :
-            .plainUserTokensManager(userWalletModel.userTokensManager)
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts)
+            ? .accounts(userWalletModel.accountModelsManager)
+            : .plainUserTokensManager(userWalletModel.userTokensManager)
 
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
             workMode: workMode,
-            tokenIconInfoBuilder: TokenIconInfoBuilder()
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: userWalletModel
         )
 
         coordinator?.openReferral(input: input)
@@ -682,11 +682,13 @@ private extension UserWalletSettingsViewModel {
 
         private func setupDependencies() {
             if FeatureProvider.isAvailable(.accounts) {
-                userWalletModel.accountModelsManager
+                userWalletModel
+                    .accountModelsManager
                     .accountModelsPublisher
                     .receiveOnMain()
-                    .sink { [weak self] accountModels in
-                        self?.updateManagersForAccountMode(accountModels: accountModels)
+                    .withWeakCaptureOf(self)
+                    .sink { viewModel, accountModels in
+                        viewModel.updateManagersForAccountMode(accountModels: accountModels)
                     }
                     .store(in: &bag)
             } else {
@@ -699,20 +701,29 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
-            guard let accountModel = accountModels.first else {
-                updateManagers(walletModelsManager: nil, userTokensManager: nil)
-                return
-            }
+            let canAddCryptoAccounts = userWalletModel.accountModelsManager.canAddCryptoAccounts
 
-            switch accountModel {
+            switch accountModels.firstStandard() {
             case .standard(.single(let cryptoAccountModel)):
+                // In single account mode we support managing tokens from this screen, so we inject required dependencies
                 updateManagers(
                     walletModelsManager: cryptoAccountModel.walletModelsManager,
                     userTokensManager: cryptoAccountModel.userTokensManager
                 )
-
+            case .standard(.multiple(let cryptoAccountModels)) where !canAddCryptoAccounts && cryptoAccountModels.count == 1:
+                // In multiple accounts mode but on wallets w/o derivation support we support managing tokens from this screen,
+                // so we inject required dependencies from the first account model (main account)
+                updateManagers(
+                    walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
+                    userTokensManager: cryptoAccountModels.first?.userTokensManager
+                )
             case .standard(.multiple):
-                // In multiple accounts case we don't support managing tokens from this screen
+                // In multiple accounts case we don't support managing tokens from this screen,
+                // instead users should manage tokens from respective account details screens
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+            case .none:
+                // Unreachable state, because account models manager should always contain at least one account model (main account)
+                assertionFailure("Unexpected state: no account models found, unable to update dependencies for user wallet")
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             }
         }

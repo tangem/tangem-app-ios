@@ -20,7 +20,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
-        shouldShowTangemIcon: false,
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: false),
         delegate: self
     )
 
@@ -102,14 +102,17 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     throw UserWalletRepositoryError.cantUnlockWallet
                 }
 
+                AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+
+                viewModel.logWalletImportedAnalytics(
+                    seedLength: mnemonic.mnemonicComponents.count,
+                    isPassphraseEmpty: passphrase.isEmpty
+                )
+
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.logWalletImportedAnalytics(
-                        seedLength: mnemonic.mnemonicComponents.count,
-                        isPassphraseEmpty: passphrase.isEmpty
-                    )
                     viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.didImportSeedPhrase(userWalletModel: userWalletModel)
                 }
