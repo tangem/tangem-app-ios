@@ -99,7 +99,6 @@ struct EarnBestOpportunitiesListView: View {
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
         .frame(height: Layout.defaultMaxHeight)
-        .padding()
     }
 
     private var errorView: some View {
@@ -108,7 +107,7 @@ struct EarnBestOpportunitiesListView: View {
             retryButtonAction: retryAction
         )
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .frame(maxHeight: Layout.defaultMaxHeight)
+        .frame(height: Layout.defaultMaxHeight)
     }
 }
 
