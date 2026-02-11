@@ -13,6 +13,9 @@
     "allow": [
       "Bash(grep:*)",
       "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(xxd:*)",
       "Bash(find:*)",
       "Bash(xcodebuild:*)",
       "Bash(git add:*)",
@@ -22,6 +25,7 @@
       "Bash(git rev-parse:*)",
       "Bash(gh pr:*)",
       "Bash(gh api:*)",
+      "Bash(bundle exec fastlane test:*)",
       "mcp__github__get_me",
       "mcp__github__create_pull_request",
       "mcp__github__request_copilot_review",
