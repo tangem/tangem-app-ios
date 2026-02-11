@@ -13,11 +13,13 @@ final class MobileOnboardingSuccessStep: MobileOnboardingFlowStep {
 
     init(
         type: MobileOnboardingSuccessViewModel.SuccessType,
+        navigationTitle: String,
         onAppear: @escaping () -> Void,
         onComplete: @escaping () -> Void
     ) {
         viewModel = MobileOnboardingSuccessViewModel(
             type: type,
+            navigationTitle: navigationTitle,
             onAppear: onAppear,
             onComplete: onComplete
         )

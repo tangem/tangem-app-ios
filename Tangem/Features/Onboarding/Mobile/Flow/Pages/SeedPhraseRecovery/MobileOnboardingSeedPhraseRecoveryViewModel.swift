@@ -18,6 +18,7 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
 
+    let navigationTitle = Localization.commonBackup
     let continueButtonTitle = Localization.commonContinue
     let responsibilityDescription = Localization.backupSeedResponsibility
 
@@ -56,6 +57,10 @@ extension MobileOnboardingSeedPhraseRecoveryViewModel {
 
     func onContinueTap() {
         delegate?.seedPhraseRecoveryContinue()
+    }
+
+    func onBackTap() {
+        delegate?.onSeedPhraseRecoveryBack()
     }
 }
 
