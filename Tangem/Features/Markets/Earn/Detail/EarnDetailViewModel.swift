@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 @MainActor
-final class EarnDetailViewModel: ObservableObject {
+final class EarnDetailViewModel: MarketsBaseViewModel {
     // MARK: - Injected & Published Properties
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -18,9 +19,13 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
-    @Published private(set) var bestOpportunitiesResultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
+    @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
+    @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
 
     // MARK: - Private Properties
+
+    private let filterProvider: EarnDataFilterProvider
+    private let dataProvider: EarnDataProvider
 
     private weak var coordinator: EarnDetailRoutable?
 
@@ -28,18 +33,51 @@ final class EarnDetailViewModel: ObservableObject {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }
     }
 
-    // Services & states will be implement in [REDACTED_INFO]
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
     init(
+        dataProvider: EarnDataProvider,
+        filterProvider: EarnDataFilterProvider,
         mostlyUsedTokens: [EarnTokenModel],
 
         coordinator: EarnDetailRoutable? = nil
     ) {
+        self.dataProvider = dataProvider
+        self.filterProvider = filterProvider
         self.coordinator = coordinator
+
+        super.init(overlayContentProgressInitialValue: 1.0)
+
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
-        loadBestOpportunities()
+        bind()
+
+        fetch(with: filterProvider.currentFilter)
+    }
+
+    func onFirstAppear() {
+        Task { @MainActor in
+            await filterProvider.fetchAvailableNetworks()
+        }
+    }
+
+    // MARK: - Public Methods
+
+    func onRetry() {
+        fetch(with: filterProvider.currentFilter)
+    }
+
+    func clearFilters() {
+        filterProvider.clear()
+    }
+
+    var canFetchMore: Bool {
+        dataProvider.canFetchMore
+    }
+
+    func fetchMore() {
+        dataProvider.fetchMore()
     }
 
     // MARK: - Private Implementation
@@ -47,29 +85,103 @@ final class EarnDetailViewModel: ObservableObject {
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
         mostlyUsedViewModels = tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                guard let self else { return }
-                coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+                self?.handleTokenTap(token)
             }
         }
     }
 
-    func loadBestOpportunities() {
-        // Will be remove in [REDACTED_INFO]
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            // For now, set to error to demonstrate error state
-            // In real implementation, this would fetch data and set to .success or .failure
-            let error = NSError(
-                domain: "EarnDetailViewModel",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "Failed to load best opportunities"]
-            )
-            bestOpportunitiesResultState = .failure(error)
+    private func handleTokenTap(_ token: EarnTokenModel) {
+        let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: userWalletModels)
+        coordinator?.routeOnTokenResolved(resolution)
+    }
+
+    private func bind() {
+        filterProvider.filterPublisher
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, filter in
+                viewModel.fetch(with: filter)
+            }
+            .store(in: &bag)
+
+        let loadedFilterStatePublisher = filterProvider.statePublisher
+            .filter { $0 != .idle }
+            .filter { $0 != .loading }
+            .first()
+
+        dataProvider.eventPublisher
+            .combineLatest(loadedFilterStatePublisher)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, args in
+                let (event, _) = args
+                viewModel.handleDataProviderEvent(event)
+            }
+            .store(in: &bag)
+    }
+
+    private func fetch(with filter: EarnDataFilter) {
+        dataProvider.fetch(with: filter)
+    }
+
+    private func appendTokenViewModels(from models: [EarnTokenModel], lastPage: Bool) {
+        let newViewModels = models.map { token in
+            EarnTokenItemViewModel(token: token) { [weak self] in
+                self?.handleTokenTap(token)
+            }
+        }
+        tokenViewModels.append(contentsOf: newViewModels)
+
+        if tokenViewModels.isEmpty {
+            listLoadingState = .noResults
+        } else {
+            listLoadingState = lastPage ? .allDataLoaded : .idle
         }
     }
 
-    func retryBestOpportunities() {
-        loadBestOpportunities()
+    private func handleDataProviderEvent(_ event: EarnDataProvider.Event) {
+        switch event {
+        case .loading:
+            if tokenViewModels.isEmpty {
+                listLoadingState = .loading
+            }
+        case .idle:
+            break
+        case .failedToFetchData:
+            if tokenViewModels.isEmpty {
+                listLoadingState = .error
+            }
+        case .appendedItems(let models, let lastPage):
+            appendTokenViewModels(from: models, lastPage: lastPage)
+        case .startInitialFetch, .cleared:
+            tokenViewModels = []
+            listLoadingState = .loading
+        }
+    }
+}
+
+// MARK: - Filter State
+
+extension EarnDetailViewModel {
+    var isFilterInteractionEnabled: Bool {
+        filterProvider.state == .loaded
+    }
+
+    var isFilterLoading: Bool {
+        filterProvider.state == .loading
+    }
+
+    var selectedNetworkFilterTitle: String {
+        filterProvider.selectedNetworkFilter.displayTitle
+    }
+
+    var selectedFilterTypeTitle: String {
+        filterProvider.selectedFilterType.description
+    }
+
+    var hasActiveFilters: Bool {
+        filterProvider.hasActiveFilters
     }
 }
 
