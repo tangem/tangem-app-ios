@@ -12,8 +12,11 @@ import TangemMobileWalletSdk
 final class MobileOnboardingSeedPhraseRevealStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingSeedPhraseRevealViewModel
 
-    init(context: MobileWalletContext) {
-        viewModel = MobileOnboardingSeedPhraseRevealViewModel(context: context)
+    init(context: MobileWalletContext, delegate: MobileOnboardingSeedPhraseRevealDelegate) {
+        viewModel = MobileOnboardingSeedPhraseRevealViewModel(
+            context: context,
+            delegate: delegate
+        )
     }
 
     override func makeView() -> any View {

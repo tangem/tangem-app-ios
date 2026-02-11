@@ -8,10 +8,13 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletSdk
 
 final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
     @Published var state: State?
+
+    let navigationTitle = Localization.commonBackup
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
     private var isFirstAppeared: Bool = true
@@ -47,6 +50,10 @@ extension MobileOnboardingSeedPhraseValidationViewModel {
 
     func onCreateWallet() {
         delegate?.didValidateSeedPhrase()
+    }
+
+    func onBackTap() {
+        delegate?.onSeedPhraseValidationBack()
     }
 }
 
