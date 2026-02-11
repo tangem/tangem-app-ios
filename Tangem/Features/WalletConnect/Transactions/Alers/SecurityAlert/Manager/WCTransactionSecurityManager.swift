@@ -64,7 +64,14 @@ final class CommonWCTransactionSecurityManager: WCTransactionSecurityManager {
         for topic: String,
         connectedDAppRepository: any WalletConnectConnectedDAppRepository
     ) async throws -> Bool {
-        let dApp = try await connectedDAppRepository.getDApp(with: topic)
-        return dApp.verificationStatus.isVerified
+        let matchingDApps = try await connectedDAppRepository
+            .getAllDApps()
+            .filter { $0.session.topic == topic }
+
+        guard matchingDApps.isNotEmpty else {
+            throw WalletConnectDAppPersistenceError.notFound
+        }
+
+        return matchingDApps.allSatisfy { $0.verificationStatus.isVerified }
     }
 }

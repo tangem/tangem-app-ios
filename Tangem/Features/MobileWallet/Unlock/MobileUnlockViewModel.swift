@@ -123,7 +123,7 @@ private extension MobileUnlockViewModel {
         }
 
         unlockItem = UnlockItem(
-            title: Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name),
+            title: Localization.welcomeUnlock(BiometricsUtil.biometryType.name),
             action: weakify(self, forFunction: MobileUnlockViewModel.unlockWithBiometry)
         )
     }

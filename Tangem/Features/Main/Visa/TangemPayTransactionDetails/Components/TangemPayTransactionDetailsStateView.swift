@@ -28,18 +28,20 @@ extension TangemPayTransactionDetailsStateView {
         case pending
         case declined
         case completed
+        case reversed
 
         var title: String {
             switch self {
             case .pending: Localization.tangemPayStatusPending
             case .declined: Localization.tangemPayStatusDeclined
             case .completed: Localization.tangemPayStatusCompleted
+            case .reversed: Localization.tangemPayStatusReversed
             }
         }
 
         var color: Color {
             switch self {
-            case .pending: Colors.Text.secondary
+            case .pending, .reversed: Colors.Text.secondary
             case .declined: Colors.Text.warning
             case .completed: Colors.Text.accent
             }

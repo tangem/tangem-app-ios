@@ -94,7 +94,10 @@ final class UserWalletNotificationManager {
         if numberOfPendingDerivations > 0 {
             inputs.append(
                 factory.buildNotificationInput(
-                    for: .missingDerivation(numberOfNetworks: numberOfPendingDerivations),
+                    for: .missingDerivation(
+                        numberOfNetworks: numberOfPendingDerivations,
+                        icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+                    ),
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
@@ -135,10 +138,6 @@ final class UserWalletNotificationManager {
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
-        guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
-            return
-        }
-
         pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 
@@ -280,7 +279,7 @@ final class UserWalletNotificationManager {
                 switch value {
                 case .configurationChanged:
                     return true
-                case .nameDidChange, .tangemPayOfferAccepted, .tangemPayKYCDeclined:
+                case .nameDidChange:
                     return false
                 }
             }

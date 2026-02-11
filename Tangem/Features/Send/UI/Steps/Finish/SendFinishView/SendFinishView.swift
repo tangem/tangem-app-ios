@@ -65,7 +65,7 @@ struct SendFinishView: View {
                 .frame(width: 56, height: 56)
 
             VStack(spacing: 4) {
-                Text(Localization.sentTransactionSentTitle)
+                Text(viewModel.headerTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
                 Text(transactionTime)
@@ -96,7 +96,7 @@ struct SendFinishView: View {
                 action: { viewModel.share(url: url) }
             )
         }
-        .padding(.bottom, 8)
+        .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .transition(
             .opacity.animation(SendTransitions.animation)

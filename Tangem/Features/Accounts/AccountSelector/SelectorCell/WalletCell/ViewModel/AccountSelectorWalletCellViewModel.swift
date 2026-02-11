@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import CombineExt
 
 @MainActor
 final class AccountSelectorWalletCellViewModel: ObservableObject {
@@ -16,12 +17,8 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
 
     let walletModel: AccountSelectorWalletItem
 
-    var isLocked: Bool {
-        if case .locked = walletModel.wallet {
-            return true
-        }
-
-        return false
+    var isDisabled: Bool {
+        isLocked || isUnavailable
     }
 
     // MARK: Published Properties
@@ -52,11 +49,17 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
     private func bind() {
         if case .active(let wallet) = walletModel.wallet {
             wallet.formattedBalanceTypePublisher
-                .withWeakCaptureOf(self)
-                .sink { viewModel, balanceState in
-                    viewModel.fiatBalanceState = balanceState
-                }
+                .receiveOnMain()
+                .assign(to: \.fiatBalanceState, on: self, ownership: .weak)
                 .store(in: &bag)
         }
+    }
+
+    private var isUnavailable: Bool {
+        walletModel.accountAvailability != .available
+    }
+
+    private var isLocked: Bool {
+        walletModel.wallet.isLocked
     }
 }

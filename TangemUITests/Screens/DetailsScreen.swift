@@ -69,6 +69,16 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
             return MainScreen(app)
         }
     }
+
+    @discardableResult
+    func openEnvironmentSetup() -> EnvironmentSetupScreen {
+        XCTContext.runActivity(named: "Open Environment Setup") { _ in
+            let environmentSetupButton = app.buttons["Environment setup"]
+            waitAndAssertTrue(environmentSetupButton, "Environment setup button should exist")
+            environmentSetupButton.waitAndTap()
+            return EnvironmentSetupScreen(app)
+        }
+    }
 }
 
 enum DetailsScreenElement: UIElement {

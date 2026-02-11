@@ -24,10 +24,7 @@ struct TangemPayOnboardingView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    CircleButton.close(action: viewModel.closeOfferScreen)
-                        .size(.medium)
-                }
+                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.closeOfferScreen)
             }
         }
     }

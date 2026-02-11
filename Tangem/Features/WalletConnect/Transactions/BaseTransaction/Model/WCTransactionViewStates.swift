@@ -24,7 +24,7 @@ extension WCTransactionViewModel {
         case signing
         case transactionDetails
         case requestData(WCRequestDetailsInput)
-        case feeSelector(FeeSelectorContentViewModel)
+        case feeSelector(WCFeeSelectorContentViewModel)
         case customAllowance(WCCustomAllowanceViewModel)
         case securityAlert(WCTransactionSecurityAlertViewModel)
         case multipleTransactionsAlert(WCMultipleTransactionAlertViewModel)

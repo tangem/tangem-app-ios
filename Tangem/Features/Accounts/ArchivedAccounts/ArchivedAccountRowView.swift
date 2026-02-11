@@ -21,7 +21,7 @@ struct ArchivedAccountRowView: View {
             name: viewData.name,
             subtitle: { Text(viewData.subtitle) },
             trailing: {
-                CircleButton(title: Localization.accountArchivedRecover, action: viewData.onRecover)
+                CapsuleButton(title: Localization.accountArchivedRecover, action: viewData.onRecover)
                     .loading(viewData.isRecovering)
                     .disabled(viewData.isRecoverDisabled)
                     .lineLimit(1)

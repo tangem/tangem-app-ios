@@ -43,12 +43,10 @@ class FakeTokenItemInfoProvider: ObservableObject {
             return
         }
         AppLogger.debug("Tapped wallet model: \(tappedWalletManager)")
-        var updateSubscription: AnyCancellable?
-        updateSubscription = tappedWalletManager.update(silent: true)
-            .sink { newState in
-                AppLogger.debug("Receive new state \(newState) for \(tappedWalletManager)")
-                withExtendedLifetime(updateSubscription) {}
-            }
+        Task {
+            await tappedWalletManager.update(silent: true, features: .balances)
+            AppLogger.debug("Receive new state \(tappedWalletManager.state) for \(tappedWalletManager)")
+        }
     }
 }
 

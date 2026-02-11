@@ -17,7 +17,6 @@ class ManageTokensCoordinator: CoordinatorObject {
     @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator? = nil
 
     private var options: Options?
-    private let analyticsSourceRawValue = Analytics.ParameterValue.settings.rawValue
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -30,7 +29,7 @@ class ManageTokensCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
 
-        let analyticsParams: [Analytics.ParameterKey: String] = [.source: analyticsSourceRawValue]
+        let analyticsParams: [Analytics.ParameterKey: String] = [.source: options.analyticsSourceRawValue]
         Analytics.log(event: .manageTokensScreenOpened, params: analyticsParams)
 
         let config = options.userWalletConfig
@@ -41,7 +40,7 @@ class ManageTokensCoordinator: CoordinatorObject {
                 existingCurves: config.existingCurves,
                 supportedBlockchains: Set(config.supportedBlockchains),
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: config),
-                analyticsSourceRawValue: analyticsSourceRawValue,
+                analyticsSourceRawValue: options.analyticsSourceRawValue,
                 context: context
             )
         )
@@ -58,6 +57,7 @@ extension ManageTokensCoordinator {
     struct Options {
         let context: ManageTokensContext
         let userWalletConfig: UserWalletConfig
+        let analyticsSourceRawValue: String
     }
 }
 
@@ -71,14 +71,14 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
             self?.addCustomTokenCoordinator = nil
         }
 
-        let analyticsParams: [Analytics.ParameterKey: String] = [.source: analyticsSourceRawValue]
+        let analyticsParams: [Analytics.ParameterKey: String] = [.source: options.analyticsSourceRawValue]
         Analytics.log(event: .manageTokensButtonCustomToken, params: analyticsParams)
 
         let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction)
         addCustomTokenCoordinator.start(
             with: .init(
                 userWalletConfig: options.userWalletConfig,
-                analyticsSourceRawValue: analyticsSourceRawValue,
+                analyticsSourceRawValue: options.analyticsSourceRawValue,
                 context: options.context
             )
         )

@@ -35,14 +35,6 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
                     )
                     return mapper.mapToBalancesInfo(from: response)
                 }
-                group.addTask {
-                    let response = try await service.getRewardsHistory(
-                        delegatorAddress: walletAddress,
-                        vaultAddress: vault
-                    )
-
-                    return mapper.mapToBalancesInfo(from: response)
-                }
             }
 
             for try await result in group {
