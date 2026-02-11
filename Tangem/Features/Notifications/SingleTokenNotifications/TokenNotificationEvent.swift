@@ -12,6 +12,7 @@ import SwiftUI
 import TangemAssets
 import struct TangemUI.TokenIconInfo
 import TangemAccessibilityIdentifiers
+import TangemUI
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable(currencySymbol: String)
@@ -21,7 +22,7 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case bnbBeaconChainRetirement
-    case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration)
+    case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration, icon: MainButton.Icon?)
     case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
@@ -45,11 +46,11 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .bnbBeaconChainRetirement:
             return .string(Localization.warningBeaconChainRetirementTitle)
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
+        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
             return .string(Localization.warningTokenTrustlineTitle)
         case .staking:
             return .string(Localization.tokenDetailsStakingBlockTitle)
@@ -87,7 +88,7 @@ extension TokenNotificationEvent: NotificationEvent {
             )
         case .bnbBeaconChainRetirement:
             return Localization.warningBeaconChainRetirementContent
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
+        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee), _):
             guard let associationFee else {
                 return Localization.warningHederaMissingTokenAssociationMessageBrief
             }
@@ -96,12 +97,12 @@ extension TokenNotificationEvent: NotificationEvent {
                 associationFee.formattedValue,
                 associationFee.currencySymbol
             )
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction)):
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction), _):
             return Localization.warningKaspaUnfinishedTokenTransactionMessage(
                 revealTransaction.formattedValue,
                 revealTransaction.currencySymbol
             )
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
             return Localization.warningTokenTrustlineSubtitle(trustlineInfo.reserveCurrencySymbol, trustlineInfo.reserveAmount)
         case .staking:
             return Localization.stakingNotificationEarnRewardsText
@@ -127,9 +128,9 @@ extension TokenNotificationEvent: NotificationEvent {
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
+             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
              .staking,
              .cloreMigration:
             return .primary
@@ -148,12 +149,12 @@ extension TokenNotificationEvent: NotificationEvent {
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
-            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
+            return .init(iconType: .icon(configuration.feeTokenIconInfo))
+        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):
             return .init(iconType: .image(Tokens.hederaFill.image))
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
             return .init(iconType: .image(trustlineInfo.icon.image))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
@@ -174,9 +175,9 @@ extension TokenNotificationEvent: NotificationEvent {
              .networkNotUpdated,
              .notEnoughFeeForTransaction,
              .bnbBeaconChainRetirement,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
+             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
             return .warning
         }
     }
@@ -184,7 +185,7 @@ extension TokenNotificationEvent: NotificationEvent {
     var isDismissable: Bool {
         switch self {
         case .rentFee,
-             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
+             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
             return true
         case .networkUnreachable,
              .networkNotUpdated,
@@ -192,8 +193,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .notEnoughFeeForTransaction,
              .noAccount,
              .bnbBeaconChainRetirement,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
              .staking,
              .manaLevel,
              .maticMigration,
@@ -221,11 +222,11 @@ extension TokenNotificationEvent: NotificationEvent {
             }
 
             return nil
-        case .hasUnfulfilledRequirements(.missingHederaTokenAssociation):
+        case .hasUnfulfilledRequirements(.missingHederaTokenAssociation, _):
             return .init(.addHederaTokenAssociation)
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
-            return .init(.retryKaspaTokenTransaction)
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config)):
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, let icon):
+            return .init(.retryKaspaTokenTransaction(icon: icon))
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config), _):
             if config.canPerformAction {
                 return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
             }
@@ -301,9 +302,9 @@ extension TokenNotificationEvent {
         case .existentialDepositWarning: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .bnbBeaconChainRetirement: return nil
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation): return nil
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction): return .tokenNoticeRevealTransaction
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline): return nil
+        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _): return nil
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _): return .tokenNoticeRevealTransaction
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _): return nil
         case .staking: return nil
         case .manaLevel: return nil
         case .maticMigration: return nil
@@ -320,14 +321,14 @@ extension TokenNotificationEvent {
                 .token: configuration.amountCurrencySymbol,
                 .blockchain: configuration.amountCurrencyBlockchainName,
             ]
-        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction)):
+        case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction), _):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]
         case .rentFee,
              .noAccount,
              .existentialDepositWarning,
              .bnbBeaconChainRetirement,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
              .staking,
              .manaLevel,
              .maticMigration,

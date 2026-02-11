@@ -11,6 +11,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct ManageTokensItemNetworkSelectorView: View {
     @ObservedObject var viewModel: ManageTokensItemNetworkSelectorViewModel
@@ -56,6 +57,9 @@ struct ManageTokensItemNetworkSelectorView: View {
                         .tint(Colors.Control.checked)
                         .offset(x: 2)
                         .scaleEffect(0.8)
+                        .accessibilityIdentifier(
+                            ManageTokensAccessibilityIdentifiers.networkToggle(viewModel.networkName)
+                        )
                 }
             }
             .padding(.vertical, 16)

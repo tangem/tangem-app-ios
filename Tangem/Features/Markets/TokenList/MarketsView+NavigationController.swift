@@ -10,12 +10,22 @@ import SwiftUI
 import TangemUIUtils
 
 extension View {
-    func injectMarketsNavigationControllerConfigurator() -> some View {
-        modifier(MarketsNavigationControllerConfiguratorViewModifier())
+    /// Configures the navigation controller for Markets-style presentation.
+    ///
+    /// This modifier hides the system navigation bar (while preserving swipe-to-pop gesture)
+    /// and optionally sets up a multicast delegate for rounded corners on pushed screens.
+    ///
+    /// - Parameter isSimplified: When `true`, only hides the navigation bar without delegate setup.
+    ///   Use this for deeplink flows where the navigation controller doesn't have pre-configured delegates.
+    ///   When `false`, applies the full configuration including multicast delegate for rounded corners.
+    func injectMarketsNavigationConfigurator(isSimplified: Bool = false) -> some View {
+        modifier(MarketsNavigationConfiguratorViewModifier(isSimplified: isSimplified))
     }
 }
 
-private struct MarketsNavigationControllerConfiguratorViewModifier: ViewModifier {
+private struct MarketsNavigationConfiguratorViewModifier: ViewModifier {
+    let isSimplified: Bool
+
     @StateObject private var navigationControllerDelegate = UINavigationControllerMulticastDelegate(
         customDelegate: MarketsViewNavigationControllerConfigurator()
     )
@@ -33,8 +43,10 @@ private struct MarketsNavigationControllerConfiguratorViewModifier: ViewModifier
             .introspectResponderChain(
                 introspectedType: UINavigationController.self,
                 updateOnChangeOf: responderChainIntrospectionTrigger,
-                action: { [weak navigationControllerDelegate] navigationController in
+                action: { [weak navigationControllerDelegate, isSimplified] navigationController in
                     navigationController.setNavigationBarAlwaysHidden()
+
+                    guard !isSimplified else { return }
 
                     // [REDACTED_USERNAME], dispatching for the next runloop iteration is required, due to onWillAppear usage.
                     // Installing the delegate immediately may interfere with in-flight navigation transitions and animations.

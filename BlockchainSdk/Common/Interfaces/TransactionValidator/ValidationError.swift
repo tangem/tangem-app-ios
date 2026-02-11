@@ -13,7 +13,7 @@ public enum ValidationError: Error, Equatable {
     case invalidAmount
     case amountExceedsBalance
     case invalidFee
-    case feeExceedsBalance
+    case feeExceedsBalance(_ fee: Fee, blockchain: Blockchain, isFeeCurrency: Bool)
     case totalExceedsBalance
 
     case dustAmount(minimumAmount: Amount)
