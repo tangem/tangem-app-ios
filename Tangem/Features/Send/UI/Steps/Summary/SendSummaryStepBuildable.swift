@@ -18,7 +18,7 @@ extension SendSummaryStepBuildable {
         sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel? = nil
+        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil
     ) -> SendSummaryStepBuilder.ReturnValue {
         SendSummaryStepBuilder.make(
             io: summaryIO,
@@ -55,7 +55,7 @@ enum SendSummaryStepBuilder {
     }
 
     struct Dependencies {
-        let sendFeeProvider: any SendFeeProvider
+        let sendFeeProvider: any SendFeeUpdater
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
@@ -73,7 +73,7 @@ enum SendSummaryStepBuilder {
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,

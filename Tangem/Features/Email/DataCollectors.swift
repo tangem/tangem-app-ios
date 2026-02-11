@@ -424,6 +424,7 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
 
     let source: Source
     let userWalletId: String
+    let customerId: String?
 
     var logData: Data? {
         var stringBuilder = DeviceInfoProvider.Subject.allCases
@@ -466,7 +467,35 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
             stringBuilder.append("\n--------\n")
         }
 
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)\n")
+        }
+
         stringBuilder.append("User Wallet ID: \(userWalletId)")
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
+
+// MARK: - Paera
+
+struct TangemPayKYCDeclinedDataCollector: EmailDataCollector {
+    private let customerId: String?
+
+    init(customerId: String?) {
+        self.customerId = customerId
+    }
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        stringBuilder.append("\n--------\n")
+
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)")
+        }
 
         return stringBuilder.data(using: .utf8)
     }

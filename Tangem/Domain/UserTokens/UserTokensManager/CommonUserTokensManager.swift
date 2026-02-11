@@ -72,24 +72,18 @@ final class CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
-        let tokenItemsToAdd = try tokenItems.flatMap { tokenItem in
+        let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
+
+        for tokenItem in enrichedItems {
             try validateDerivation(for: tokenItem)
 
-            if tokenItem.isBlockchain {
-                return [tokenItem]
+            if tokenItem.isToken {
+                let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+                try validateDerivation(for: networkTokenItem)
             }
-
-            let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
-            try validateDerivation(for: networkTokenItem)
-
-            if !userTokens.contains(networkTokenItem), !tokenItems.contains(networkTokenItem) {
-                return [networkTokenItem, tokenItem]
-            }
-
-            return [tokenItem]
         }
 
-        userTokenListManager.update(.append(tokenItemsToAdd), shouldUpload: shouldUpload)
+        userTokenListManager.update(.append(enrichedItems), shouldUpload: shouldUpload)
     }
 
     private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
@@ -125,7 +119,8 @@ final class CommonUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
@@ -199,7 +194,7 @@ extension CommonUserTokensManager: UserTokensManager {
         )
     }
 
-    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {
         guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
@@ -207,23 +202,31 @@ extension CommonUserTokensManager: UserTokensManager {
         if !existingCurves.contains(tokenItem.blockchain.curve) {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
+    }
 
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+        try addTokenItemHardwarePrecondition(tokenItem)
         try validateDerivation(for: tokenItem)
     }
 
     func add(_ tokenItem: TokenItem) async throws -> String {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        try await withCheckedThrowingContinuation { continuation in
+        let addedToken = try await withCheckedThrowingContinuation { continuation in
             add(tokenItem) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let addedTokenItem):
+                    continuation.resume(returning: addedTokenItem)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
 
         // wait for walletModelsManager to be updated
         try await Task.sleep(for: .seconds(0.1))
 
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
@@ -232,7 +235,7 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
@@ -242,7 +245,14 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                completion(.success(tokenItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -279,7 +289,11 @@ extension CommonUserTokensManager: UserTokensManager {
         removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Swift.Error>) -> Void
+    ) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
@@ -290,7 +304,16 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+                completion(.success(updatedItems))
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
@@ -332,7 +355,17 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.grouping)
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.sorting)
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
@@ -340,7 +373,7 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher

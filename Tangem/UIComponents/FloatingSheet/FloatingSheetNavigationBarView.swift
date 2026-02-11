@@ -23,6 +23,7 @@ struct FloatingSheetNavigationBarView: View {
     var body: some View {
         ZStack {
             buttons
+                .padding(16)
 
             VStack(spacing: .zero) {
                 if let title {
@@ -38,11 +39,9 @@ struct FloatingSheetNavigationBarView: View {
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
-            .padding(.horizontal, 32)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 48)
         }
-        .frame(height: Layout.height)
-        .padding(.top, Layout.topPadding)
-        .padding(.horizontal, 16)
         .background(backgroundColor)
         .overlay(alignment: .bottom) {
             Divider()
@@ -56,28 +55,14 @@ struct FloatingSheetNavigationBarView: View {
     private var buttons: some View {
         HStack(spacing: .zero) {
             if let backButtonAction {
-                CircleButton.back(action: backButtonAction)
+                NavigationBarButton.back(action: backButtonAction)
             }
 
             Spacer()
 
             if let closeButtonAction {
-                CircleButton.close(action: closeButtonAction)
+                NavigationBarButton.close(action: closeButtonAction)
             }
         }
-    }
-}
-
-extension FloatingSheetNavigationBarView {
-    enum Layout {
-        /// 8
-        static let topPadding: CGFloat = 8
-        /// 44
-        static let height: CGFloat = 44
-    }
-
-    /// 52
-    public static var height: CGFloat {
-        FloatingSheetNavigationBarView.Layout.topPadding + FloatingSheetNavigationBarView.Layout.height
     }
 }

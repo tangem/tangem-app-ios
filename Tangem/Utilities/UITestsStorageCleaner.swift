@@ -52,6 +52,9 @@ enum UITestsStorageCleaner {
         // Clear WalletConnect encrypted files
         clearWalletConnectFiles()
 
+        // Clear PersistentStorage encrypted files (accounts, wallets, etc.)
+        clearPersistentStorageFiles()
+
         // Clear all Keychain data (including encryption keys stored in BiometricsStorage)
         KeychainCleaner.cleanAllData()
 
@@ -81,6 +84,49 @@ enum UITestsStorageCleaner {
                     AppLogger.error(error: "Failed to clear WalletConnect file \(fileName): \(error)")
                 }
             }
+        }
+        #endif
+    }
+
+    /// Clears PersistentStorage encrypted files from Documents directory
+    private static func clearPersistentStorageFiles() {
+        #if DEBUG
+        let fileManager = FileManager.default
+        let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+        do {
+            let files = try fileManager.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
+
+            // Patterns for PersistentStorage encrypted files
+            let patternsToClear = [
+                "accounts_", // accounts_<cid>.json
+                "wallets_", // wallets_<cid>.json (old format)
+                "express_pending_transactions.json",
+                "onramp_pending_transactions.json",
+                "staking_pending_transactions.json",
+                "onramp_preference.json",
+            ]
+
+            for fileURL in files {
+                let fileName = fileURL.lastPathComponent
+
+                if fileURL.pathExtension == "json" {
+                    let shouldClear = patternsToClear.contains { pattern in
+                        fileName.hasPrefix(pattern) || fileName == pattern
+                    }
+
+                    if shouldClear {
+                        do {
+                            try fileManager.removeItem(at: fileURL)
+                            AppLogger.info("Cleared PersistentStorage file: \(fileName)")
+                        } catch {
+                            AppLogger.error(error: "Failed to clear PersistentStorage file \(fileName): \(error)")
+                        }
+                    }
+                }
+            }
+        } catch {
+            AppLogger.error(error: "Failed to list Documents directory: \(error)")
         }
         #endif
     }

@@ -9,15 +9,13 @@
 import Foundation
 import Combine
 import TangemExpress
-import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
-import struct TangemAccounts.AccountIconView
 
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
-    @Published private(set) var viewType: ViewType
-    @Published private(set) var headerType: HeaderType
+    @Published private(set) var viewType: ExpressCurrencyViewType
+    @Published private(set) var headerType: ExpressCurrencyHeaderType
     @Published private(set) var errorState: ErrorState?
     @Published private(set) var balanceState: BalanceState
 
@@ -35,8 +33,8 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     private var balanceConvertTask: Task<Void, Error>?
 
     init(
-        viewType: ViewType,
-        headerType: HeaderType,
+        viewType: ExpressCurrencyViewType,
+        headerType: ExpressCurrencyHeaderType,
         balanceState: BalanceState = .idle,
         fiatAmountState: LoadableTextView.State = .initialized,
         priceChangeState: PriceChangeState? = nil,
@@ -63,12 +61,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             balanceState = .loading
 
         case .success(let wallet as ExpressInteractorSourceWallet):
-            headerType = switch wallet.tokenHeader {
-            case .none: .action(name: viewType.actionName())
-            case .wallet(let name): .wallet(name: viewType.prefix(wallet: name))
-            case .account(let name, let icon): .account(name: name, icon: icon)
-            }
-
+            headerType = ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: wallet.tokenHeader)
             canChangeCurrency = wallet.id != initialWalletId
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
             tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
@@ -190,31 +183,6 @@ extension ExpressCurrencyViewModel {
             case .percent(_, let message): message
             }
         }
-    }
-
-    enum ViewType: Hashable {
-        case send
-        case receive
-
-        func actionName() -> String {
-            switch self {
-            case .send: Localization.swappingFromTitle
-            case .receive: Localization.swappingToTitle
-            }
-        }
-
-        func prefix(wallet: String) -> String {
-            switch self {
-            case .send: Localization.commonFromWalletName(wallet)
-            case .receive: Localization.commonToWalletName(wallet)
-            }
-        }
-    }
-
-    enum HeaderType: Hashable {
-        case action(name: String)
-        case wallet(name: String)
-        case account(name: String, icon: AccountIconView.ViewData)
     }
 
     enum ErrorState: Hashable {

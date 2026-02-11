@@ -18,6 +18,6 @@ enum ReferralAccountFinder {
             }
         }
 
-        return accounts.first { $0.isMainAccount }
+        return nil
     }
 }

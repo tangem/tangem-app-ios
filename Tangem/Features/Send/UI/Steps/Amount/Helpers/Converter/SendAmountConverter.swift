@@ -14,7 +14,7 @@ struct SendAmountConverter {
     func convertToCrypto(_ fiatValue: Decimal?, tokenItem: TokenItem) -> Decimal? {
         guard let fiatValue,
               let currencyId = tokenItem.currencyId,
-              let cryptoValue = converter.convertFromFiat(fiatValue, currencyId: currencyId) else {
+              let cryptoValue = converter.convertToCryptoFrom(fiatValue: fiatValue, currencyId: currencyId) else {
             return nil
         }
 

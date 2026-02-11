@@ -15,13 +15,14 @@ public extension View {
         action: @escaping () -> Void
     ) -> some View {
         toolbar {
-            ToolbarItem(placement: placement) {
-                switch style {
-                case .text:
-                    CloseButton(dismiss: action)
-                case .crossImage:
-                    CircleButton.close(action: action)
+            switch style {
+            case .text:
+                ToolbarItem(placement: placement) {
+                    CloseTextButton(action: action)
                 }
+
+            case .icon:
+                NavigationToolbarButton.close(placement: placement, action: action)
             }
         }
     }
@@ -29,5 +30,5 @@ public extension View {
 
 public enum CloseButtonStyle {
     case text
-    case crossImage
+    case icon
 }

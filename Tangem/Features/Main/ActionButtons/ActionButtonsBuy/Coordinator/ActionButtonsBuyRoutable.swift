@@ -12,6 +12,9 @@ protocol ActionButtonsBuyRoutable: AnyObject {
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
 
     func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel)
+
+    func openAddHotToken(hotToken: HotCryptoToken, userWalletModels: [UserWalletModel])
+
     func closeAddToPortfolio()
 
     func dismiss()

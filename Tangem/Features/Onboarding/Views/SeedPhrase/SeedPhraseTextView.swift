@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct SeedPhraseTextView: UIViewRepresentable {
     private unowned var inputProcessor: SeedPhraseInputProcessor
@@ -43,6 +44,7 @@ struct SeedPhraseTextView: UIViewRepresentable {
         textView.textColor = inputProcessor.defaultTextColor
         textView.font = inputProcessor.defaultTextFont
         textView.keyboardType = .asciiCapable // We currently only support the BIP39 English word list
+        textView.accessibilityIdentifier = OnboardingAccessibilityIdentifiers.seedPhraseImportTextField
         context.coordinator.setupTextView(textView)
 
         var toolbarItems = [UIBarButtonItem]()

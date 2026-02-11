@@ -24,9 +24,15 @@ final class WCServiceV2 {
     private var bag = Set<AnyCancellable>()
     private var walletModelsCancellables = [UserWalletId: AnyCancellable]()
     private var walletModelsSnapshots = [String: Set<Blockchain>]()
+    private var accountsMigrationTask: Task<Void, Never>?
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
+    private lazy var savedSessionToAccountsMigrationService = WalletConnectAccountMigrationService(
+        userWalletRepository: userWalletRepository,
+        connectedDAppRepository: connectedDAppRepository,
+        appSettings: AppSettings.shared
+    )
 
     var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         transactionRequestSubject.eraseToAnyPublisher()
@@ -56,11 +62,11 @@ private extension WCServiceV2 {
             .withWeakCaptureOf(self)
             .sink { wcService, event in
                 switch event {
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, _):
                     userWalletIds.forEach {
                         wcService.walletModelsSnapshots[$0.stringValue] = nil
                         wcService.disconnectAllSessionsForUserWallet(with: $0.stringValue)
-                        wcService.cancelWalletModelsSubscription(for: $0)
+                        wcService.cancelModelSubscriptions(for: $0)
                     }
 
                 case .selected(let userWalletId), .unlockedWallet(let userWalletId):
@@ -151,7 +157,7 @@ private extension WCServiceV2 {
                     let connectedDApp: WalletConnectConnectedDApp
 
                     do {
-                        connectedDApp = try await self.connectedDAppRepository.getDApp(with: request.topic)
+                        connectedDApp = try await self.resolveConnectedDApp(for: request)
                     } catch {
                         let errorMessage = "Session for topic \(request.topic) not found."
                         WCLogger.error(error: errorMessage)
@@ -194,6 +200,198 @@ private extension WCServiceV2 {
         return methodIsNotSupported && methodHasWalletPrefix
     }
 
+    private func resolveConnectedDApp(for request: Request) async throws -> WalletConnectConnectedDApp {
+        let dApps = try await connectedDAppRepository.getDApps(with: request.topic)
+
+        guard dApps.isNotEmpty else {
+            throw WalletConnectDAppPersistenceError.notFound
+        }
+
+        guard let requestedAddress = extractRequestedAddress(from: request).map(normalizeAddress) else {
+            return dApps[0]
+        }
+
+        guard dApps.count > 1 else {
+            return resolveByAddressOrFallback(
+                in: dApps[0],
+                requestedAddress: requestedAddress,
+                request: request
+            )
+        }
+
+        return resolveAmongTopicDApps(
+            dApps,
+            requestedAddress: requestedAddress,
+            request: request
+        )
+    }
+
+    private func resolveAmongTopicDApps(
+        _ dApps: [WalletConnectConnectedDApp],
+        requestedAddress: String,
+        request: Request
+    ) -> WalletConnectConnectedDApp {
+        if let matchedDApp = dApps.first(where: { sessionContainsAddress(requestedAddress, in: $0) }) {
+            return matchedDApp
+        }
+
+        if let fallbackMatched = dApps.first(where: { canHandleAddressInAccountScope($0, requestedAddress: requestedAddress, request: request) }) {
+            return fallbackMatched
+        }
+
+        return dApps[0]
+    }
+
+    private func sessionContainsAddress(_ requestedAddress: String, in dApp: WalletConnectConnectedDApp) -> Bool {
+        dApp.session.namespaces
+            .flatMap { $0.value.accounts }
+            .contains(where: { normalizeAddress($0.address) == requestedAddress })
+    }
+
+    private func canHandleAddressInAccountScope(
+        _ dApp: WalletConnectConnectedDApp,
+        requestedAddress: String,
+        request: Request
+    ) -> Bool {
+        guard case .v2(let dAppV2) = dApp else {
+            return false
+        }
+
+        return accountCanHandleAddress(
+            accountId: dAppV2.accountId,
+            userWalletId: dAppV2.wrapped.userWalletID,
+            requestedAddress: requestedAddress,
+            request: request
+        )
+    }
+
+    private func resolveByAddressOrFallback(
+        in dApp: WalletConnectConnectedDApp,
+        requestedAddress: String,
+        request: Request
+    ) -> WalletConnectConnectedDApp {
+        let inSession = dApp.session.namespaces
+            .flatMap { $0.value.accounts }
+            .contains(where: { normalizeAddress($0.address) == requestedAddress })
+
+        if inSession {
+            return dApp
+        }
+
+        guard case .v2(let dAppV2) = dApp else {
+            return dApp
+        }
+
+        if accountCanHandleAddress(
+            accountId: dAppV2.accountId,
+            userWalletId: dAppV2.wrapped.userWalletID,
+            requestedAddress: requestedAddress,
+            request: request
+        ) {
+            return dApp
+        }
+
+        guard
+            let resolvedAccountId = resolveAccountIdForAddress(
+                requestedAddress: requestedAddress,
+                userWalletId: dAppV2.wrapped.userWalletID,
+                request: request
+            ),
+            resolvedAccountId != dAppV2.accountId
+        else {
+            return dApp
+        }
+
+        return .v2(WalletConnectConnectedDAppV2(accountId: resolvedAccountId, wrapped: dAppV2.wrapped))
+    }
+
+    private func accountCanHandleAddress(
+        accountId: String,
+        userWalletId: String,
+        requestedAddress: String,
+        request: Request
+    ) -> Bool {
+        guard
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletId })
+        else {
+            return false
+        }
+
+        let blockchainNetworkId = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.networkId
+
+        guard
+            let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { account in
+                account.id.walletConnectIdentifierString == accountId
+            })
+        else {
+            return false
+        }
+
+        return cryptoAccount.walletModelsManager.walletModels.contains { walletModel in
+            let blockchainMatches = blockchainNetworkId.map { walletModel.tokenItem.blockchain.networkId == $0 } ?? true
+            let addressMatches = normalizeAddress(walletModel.walletConnectAddress) == requestedAddress
+
+            return blockchainMatches && addressMatches
+        }
+    }
+
+    private func resolveAccountIdForAddress(
+        requestedAddress: String,
+        userWalletId: String,
+        request: Request
+    ) -> String? {
+        guard
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletId })
+        else {
+            return nil
+        }
+
+        let blockchainNetworkId = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.networkId
+
+        return userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { account in
+            account.walletModelsManager.walletModels.contains { walletModel in
+                let blockchainMatches = blockchainNetworkId.map { walletModel.tokenItem.blockchain.networkId == $0 } ?? true
+                let addressMatches = normalizeAddress(walletModel.walletConnectAddress) == requestedAddress
+                return blockchainMatches && addressMatches
+            }
+        })?.id.walletConnectIdentifierString
+    }
+
+    private func extractRequestedAddress(from request: Request) -> String? {
+        guard let method = WalletConnectMethod(rawValue: request.method) else {
+            return nil
+        }
+
+        switch method {
+        case .sendTransaction, .signTransaction:
+            if let params = try? request.params.get([WalletConnectEthTransaction].self) {
+                return params.first?.from
+            }
+
+            let transaction = try? request.params.get(WalletConnectEthTransaction.self)
+            return transaction?.from
+        case .personalSign:
+            let params = try? request.params.get([String].self)
+            guard let params, params.count > 1 else { return nil }
+            return params[1]
+        case .signTypedData, .signTypedDataV4:
+            let params = try? request.params.get([String].self)
+            guard let params, !params.isEmpty else { return nil }
+            return params[0]
+        default:
+            return nil
+        }
+    }
+
+    private func normalizeAddress(_ address: String) -> String {
+        let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isEvmAddress = trimmedAddress.hasHexPrefix()
+            && trimmedAddress.count == 42
+            && trimmedAddress.dropFirst(2).allSatisfy(\.isHexDigit)
+
+        return isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
+    }
+
     private func reject(transactionRequest: Request) async {
         do {
             try await walletKitClient.respond(
@@ -208,7 +406,7 @@ private extension WCServiceV2 {
     }
 
     func subscribeToWalletModels(for userWalletId: UserWalletId) {
-        cancelWalletModelsSubscription(for: userWalletId)
+        cancelModelSubscriptions(for: userWalletId)
 
         guard let userWalletModel = userWalletRepository.models[userWalletId] else {
             return
@@ -217,22 +415,26 @@ private extension WCServiceV2 {
         walletModelsCancellables[userWalletId] = AccountsFeatureAwareWalletModelsResolver
             .walletModelsPublisher(for: userWalletModel)
             .map { walletModels in
-                walletModels.compactMap { walletModel -> Blockchain? in
-                    guard walletModel.tokenItem.isBlockchain else {
-                        return nil
-                    }
+                WalletModelsUpdate(
+                    blockchains: walletModels.compactMap { walletModel -> Blockchain? in
+                        guard walletModel.tokenItem.isBlockchain else {
+                            return nil
+                        }
 
-                    return walletModel.tokenItem.blockchain
-                }
+                        return walletModel.tokenItem.blockchain
+                    },
+                    hasWalletModels: walletModels.isNotEmpty
+                )
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { wcService, blockchains in
-                wcService.handleWalletModelsUpdate(blockchains: blockchains, for: userWalletId.stringValue)
+            .sink { wcService, update in
+                wcService.handleWalletModelsUpdate(blockchains: update.blockchains, for: userWalletId.stringValue)
+                wcService.maybeTriggerAccountsMigration(hasWalletModels: update.hasWalletModels)
             }
     }
 
-    func cancelWalletModelsSubscription(for userWalletId: UserWalletId) {
+    func cancelModelSubscriptions(for userWalletId: UserWalletId) {
         walletModelsCancellables[userWalletId]?.cancel()
         walletModelsCancellables[userWalletId] = nil
     }
@@ -253,6 +455,62 @@ private extension WCServiceV2 {
         removedBlockchains.forEach {
             handleHiddenBlockchainFromCurrentUserWallet($0)
         }
+    }
+
+    func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
+        guard FeatureProvider.isAvailable(.accounts), hasWalletModels else {
+            return
+        }
+
+        guard accountsMigrationTask == nil else {
+            return
+        }
+
+        accountsMigrationTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            defer {
+                self.accountsMigrationTask = nil
+            }
+
+            do {
+                _ = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts()
+            } catch {
+                WCLogger.error("WalletConnect account migration failed", error: error)
+                await forceDisconnectAllSessionsAfterMigrationFailure()
+            }
+        }
+    }
+
+    private func forceDisconnectAllSessionsAfterMigrationFailure() async {
+        guard let dApps = try? await connectedDAppRepository.getAllDApps(), dApps.isNotEmpty else {
+            return
+        }
+
+        do {
+            try await connectedDAppRepository.delete(dApps: dApps)
+        } catch {
+            WCLogger.error("Failed to remove WalletConnect sessions after migration failure", error: error)
+        }
+
+        await withTaskGroup(of: Void.self) { taskGroup in
+            for dApp in dApps {
+                taskGroup.addTask {
+                    do {
+                        try await self.walletKitClient.disconnect(topic: dApp.session.topic)
+                    } catch {
+                        WCLogger.error(LoggerStrings.failedToDisconnectSession(dApp.session.topic), error: error)
+                    }
+                }
+            }
+        }
+    }
+
+    private struct WalletModelsUpdate {
+        let blockchains: [Blockchain]
+        let hasWalletModels: Bool
     }
 }
 

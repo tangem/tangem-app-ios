@@ -16,17 +16,15 @@ struct SwapTokenSelectorView: View {
 
     var body: some View {
         NavigationStack {
-            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                NewTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
+            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+                AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
             }
             .searchType(.native)
             .background(Colors.Background.tertiary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    CircleButton.close(action: viewModel.close)
-                }
+                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
             }
         }
         .onDisappear(perform: viewModel.onDisappear)

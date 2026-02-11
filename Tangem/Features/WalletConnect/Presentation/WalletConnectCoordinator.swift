@@ -60,10 +60,15 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
     func openQRScanner(completion: @escaping (WalletConnectQRScanResult) -> Void) {
         let (coordinator, options) = WalletConnectModuleFactory.makeQRScanFlow(
             dismissAction: { [weak self] qrScanResult in
-                if let qrScanResult {
-                    completion(qrScanResult)
+                guard let qrScanResult else {
+                    // [REDACTED_USERNAME], next runloop cycle is required to avoid 'Publishing changes from within view updates is not allowed'.
+                    DispatchQueue.main.async {
+                        self?.qrScanCoordinator = nil
+                    }
+                    return
                 }
 
+                completion(qrScanResult)
                 self?.qrScanCoordinator = nil
             }
         )

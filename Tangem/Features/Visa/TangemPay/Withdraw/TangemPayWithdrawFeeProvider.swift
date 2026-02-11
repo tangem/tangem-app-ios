@@ -13,8 +13,8 @@ import TangemExpress
 struct TangemPayWithdrawExpressFeeProvider {
     let feeTokenItem: TokenItem
 
-    private var constantFee: Fee {
-        Fee(BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
+    private var constantFee: BSDKFee {
+        BSDKFee(BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
     }
 
     init(feeTokenItem: TokenItem) {
@@ -25,15 +25,9 @@ struct TangemPayWithdrawExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension TangemPayWithdrawExpressFeeProvider: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
-        .single(constantFee)
-    }
-
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee {
-        constantFee
-    }
-
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
-        .single(constantFee)
-    }
+    func feeCurrency(providerId: ExpressProvider.Id) -> ExpressWalletCurrency { feeTokenItem.expressCurrency }
+    func feeCurrencyBalance(providerId: ExpressProvider.Id) throws -> Decimal { .greatestFiniteMagnitude }
+    func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee { constantFee }
+    func estimatedFee(request: FeeRequest, estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { constantFee }
+    func transactionFee(request: FeeRequest, data: ExpressTransactionDataType) async throws -> BSDKFee { constantFee }
 }

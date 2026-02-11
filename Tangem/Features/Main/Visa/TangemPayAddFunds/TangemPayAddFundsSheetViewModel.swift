@@ -9,6 +9,7 @@
 import Combine
 import TangemUI
 import TangemVisa
+import TangemPay
 
 final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published private(set) var options: [TangemPayAddFundsSheetOptionView.Option] = [.swap, .receive]

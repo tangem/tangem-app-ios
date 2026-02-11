@@ -27,6 +27,9 @@ struct OnrampCountrySelectorView: View {
                 style: .translucent,
                 clearButtonAction: {
                     viewModel.searchText = ""
+                },
+                cancelButtonAction: {
+                    viewModel.searchText = ""
                 }
             )
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.residenceSearchField)

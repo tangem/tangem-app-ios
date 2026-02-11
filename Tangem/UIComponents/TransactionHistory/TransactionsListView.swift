@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
+import TangemLocalization
+import TangemUIUtils
 
 struct TransactionsListView: View {
     let state: State
     let exploreAction: (() -> Void)?
+    let exploreConfirmationDialog: Binding<ConfirmationDialogViewModel?>?
     let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
@@ -25,7 +27,6 @@ struct TransactionsListView: View {
             .cornerRadiusContinuous(14)
     }
 
-    @ViewBuilder
     private var header: some View {
         HStack {
             Text(Localization.commonTransactions)
@@ -43,6 +44,9 @@ struct TransactionsListView: View {
                         Text(Localization.commonExplorer)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
+                }
+                .ifLet(exploreConfirmationDialog) { view, exploreConfirmationDialogViewModel in
+                    view.confirmationDialog(viewModel: exploreConfirmationDialogViewModel)
                 }
             }
         }
@@ -63,7 +67,6 @@ struct TransactionsListView: View {
         }
     }
 
-    @ViewBuilder
     private var notSupportedContent: some View {
         VStack(spacing: 20) {
             Assets.compassBig.image
@@ -87,7 +90,6 @@ struct TransactionsListView: View {
         .padding(.vertical, 28)
     }
 
-    @ViewBuilder
     private var loadingContent: some View {
         VStack(spacing: 12) {
             header
@@ -100,7 +102,6 @@ struct TransactionsListView: View {
         .padding(.bottom, 16)
     }
 
-    @ViewBuilder
     private var noTransactionsContent: some View {
         VStack(spacing: 22) {
             Assets.emptyHistory.image
@@ -123,7 +124,6 @@ struct TransactionsListView: View {
         .padding(.vertical, 28)
     }
 
-    @ViewBuilder
     private var errorContent: some View {
         VStack(spacing: 20) {
             Assets.fileExclamationMark.image
@@ -207,31 +207,34 @@ struct TransactionsListView: View {
         .padding(.vertical, useVerticalPadding ? 14 : 0)
     }
 
-    @ViewBuilder
     private func makeExploreTransactionHistoryButton(
         withTitle title: String,
         hasFixedSize: Bool,
         exploreAction: @escaping () -> Void
     ) -> some View {
-        if hasFixedSize {
-            FixedSizeButtonWithLeadingIcon(
-                title: title,
-                icon: Assets.arrowRightUpMini.image,
-                style: .default,
-                action: exploreAction
-            )
-            .overrideBackgroundColor(Constants.buttonBackgroundColor)
-        } else {
-            FlexySizeButtonWithLeadingIcon(
-                title: title,
-                icon: Assets.arrowRightUpMini.image,
-                action: exploreAction
-            )
-            .overrideBackgroundColor(Constants.buttonBackgroundColor)
+        Group {
+            if hasFixedSize {
+                FixedSizeButtonWithLeadingIcon(
+                    title: title,
+                    icon: Assets.arrowRightUpMini.image,
+                    style: .default,
+                    action: exploreAction
+                )
+                .overrideBackgroundColor(Constants.buttonBackgroundColor)
+            } else {
+                FlexySizeButtonWithLeadingIcon(
+                    title: title,
+                    icon: Assets.arrowRightUpMini.image,
+                    action: exploreAction
+                )
+                .overrideBackgroundColor(Constants.buttonBackgroundColor)
+            }
+        }
+        .ifLet(exploreConfirmationDialog) { view, exploreConfirmationDialogViewModel in
+            view.confirmationDialog(viewModel: exploreConfirmationDialogViewModel)
         }
     }
 
-    @ViewBuilder
     private func makeReloadTransactionHistoryButton() -> some View {
         FlexySizeButtonWithLeadingIcon(
             title: Localization.commonReload,
@@ -345,6 +348,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     TransactionsListView(
                         state: model.state,
                         exploreAction: {},
+                        exploreConfirmationDialog: nil,
                         exploreTransactionAction: { _ in },
                         reloadButtonAction: {},
                         isReloadButtonBusy: false,

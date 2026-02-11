@@ -10,20 +10,20 @@ import Foundation
 import BlockchainSdk
 
 class YieldModuleTransactionDispatcher {
-    private let blockchain: Blockchain
+    private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
     private let transactionsSender: MultipleTransactionsSender
     private let logger: YieldAnalyticsLogger
 
     init(
-        blockchain: Blockchain,
+        tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater,
         transactionsSender: MultipleTransactionsSender,
         transactionSigner: TangemSigner,
         logger: YieldAnalyticsLogger
     ) {
-        self.blockchain = blockchain
+        self.tokenItem = tokenItem
         self.walletModelUpdater = walletModelUpdater
         self.transactionsSender = transactionsSender
         self.transactionSigner = transactionSigner
@@ -34,6 +34,10 @@ class YieldModuleTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension YieldModuleTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         let results = try await send(transactions: [transaction])
         guard let result = results.first else {
@@ -63,13 +67,12 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
                 signer: transactionSigner
             ).async()
 
-            walletModelUpdater.updateAfterSendingTransaction()
-
             let sentTransactionResults = hashes.map { hash in
                 mapper.mapResult(
                     hash,
-                    blockchain: blockchain,
-                    signer: transactionSigner.latestSignerType
+                    blockchain: tokenItem.blockchain,
+                    signer: transactionSigner.latestSignerType,
+                    isToken: tokenItem.isToken
                 )
             }
 

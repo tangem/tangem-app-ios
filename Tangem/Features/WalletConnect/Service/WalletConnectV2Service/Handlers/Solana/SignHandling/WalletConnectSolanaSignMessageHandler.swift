@@ -32,6 +32,9 @@ struct WalletConnectSolanaSignMessageHandler {
 
             message = parameters.message
             self.walletModel = walletModel
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
@@ -60,6 +63,9 @@ struct WalletConnectSolanaSignMessageHandler {
 
             message = parameters.message
             self.walletModel = walletModel
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)

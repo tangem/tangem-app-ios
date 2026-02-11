@@ -27,7 +27,8 @@ struct PendingTransactionRecordMapper {
         transaction: Transaction,
         hash: String,
         date: Date = Date(),
-        isIncoming: Bool = false
+        isIncoming: Bool = false,
+        networkProviderType: NetworkProviderType? = nil
     ) -> PendingTransactionRecord {
         PendingTransactionRecord(
             hash: hash,
@@ -37,6 +38,7 @@ struct PendingTransactionRecordMapper {
             fee: transaction.fee,
             date: date,
             isIncoming: isIncoming,
+            networkProviderType: networkProviderType,
             transactionType: .transfer,
             transactionParams: transaction.params
         )
