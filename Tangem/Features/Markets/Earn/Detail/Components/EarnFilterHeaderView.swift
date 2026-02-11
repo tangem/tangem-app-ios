@@ -12,28 +12,34 @@ import TangemUI
 import TangemLocalization
 
 struct EarnFilterHeaderView: View {
+    let isFilterInteractionEnabled: Bool
+    let isLoading: Bool
+    let networkFilterTitle: String
+    let typesFilterTitle: String
     let onNetworksTap: () -> Void
     let onTypesTap: () -> Void
 
     var body: some View {
         HStack(spacing: Layout.filterSpacing) {
             filterButton(
-                title: Localization.earnFilterAllNetworks,
-                action: onNetworksTap
+                title: networkFilterTitle,
+                action: onNetworksTap,
+                isEnabled: isFilterInteractionEnabled
             )
 
             Spacer()
 
             filterButton(
-                title: Localization.earnFilterAllTypes,
-                action: onTypesTap
+                title: typesFilterTitle,
+                action: onTypesTap,
+                isEnabled: isFilterInteractionEnabled
             )
         }
         .padding(.horizontal, Layout.horizontalPadding)
         .padding(.vertical, Layout.verticalPadding)
     }
 
-    private func filterButton(title: String, action: @escaping () -> Void) -> some View {
+    private func filterButton(title: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
         Button {
             action()
         } label: {
@@ -49,7 +55,11 @@ struct EarnFilterHeaderView: View {
                 RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
                     .fill(Colors.Button.secondary)
             )
+            .skeletonable(isShown: isLoading, radius: Layout.buttonCornerRadius)
         }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
     }
 }
 
@@ -62,5 +72,7 @@ private extension EarnFilterHeaderView {
         static let buttonHorizontalPadding: CGFloat = 10.0
         static let buttonVerticalPadding: CGFloat = 6.0
         static let buttonCornerRadius: CGFloat = 8.0
+        static let enabledOpacity = 1.0
+        static let disabledOpacity = 0.7
     }
 }
