@@ -12,7 +12,7 @@ import enum BlockchainSdk.Blockchain
 struct WalletConnectConnectedDAppPersistentDTOV1: Codable {
     let sessionTopic: String
     let namespaces: [String: WalletConnectConnectedDAppPersistentDTO.SessionNamespace]
-    let userWalletID: String
+    let userWalletID: WalletConnectConnectedDAppPersistentDTO.IdentifierV1
     let dAppName: String
     let dAppDomainURL: URL
     let dAppIconURL: URL?
@@ -25,7 +25,7 @@ struct WalletConnectConnectedDAppPersistentDTOV1: Codable {
 struct WalletConnectConnectedDAppPersistentDTOV2: Codable {
     let sessionTopic: String
     let namespaces: [String: WalletConnectConnectedDAppPersistentDTO.SessionNamespace]
-    let accountID: String
+    let identifier: WalletConnectConnectedDAppPersistentDTO.IdentifierV2
     let dAppName: String
     let dAppDomainURL: URL
     let dAppIconURL: URL?
@@ -101,20 +101,6 @@ enum WalletConnectConnectedDAppPersistentDTO {
         case .v2(let dto): return dto.connectionDate
         }
     }
-
-    var userWalletID: String? {
-        switch self {
-        case .v1(let dto): return dto.userWalletID
-        case .v2: return nil
-        }
-    }
-
-    var accountID: String? {
-        switch self {
-        case .v1: return nil
-        case .v2(let dto): return dto.accountID
-        }
-    }
 }
 
 extension WalletConnectConnectedDAppPersistentDTO {
@@ -122,6 +108,13 @@ extension WalletConnectConnectedDAppPersistentDTO {
         case verified
         case unknownDomain
         case malicious
+    }
+
+    typealias IdentifierV1 = String
+
+    struct IdentifierV2: Codable {
+        let userWalletID: String
+        let accountID: String
     }
 
     struct DAppBlockchain: Codable {

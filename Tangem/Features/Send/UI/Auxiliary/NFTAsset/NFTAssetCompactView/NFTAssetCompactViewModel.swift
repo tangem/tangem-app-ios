@@ -10,22 +10,21 @@ import TangemNFT
 import TangemLocalization
 
 struct NFTAssetCompactViewModel {
-    var walletTitle: String { Localization.commonFromWalletName(wallet) }
     var assetTitle: String { asset.name }
     var assetSubtitle: String { collection.name }
 
-    let wallet: String
+    let header: SendTokenHeader
     let asset: NFTAsset
     let nftChainIconProvider: NFTChainIconProvider
     let collection: NFTCollection
 
     init(
-        wallet: String,
+        header: SendTokenHeader,
         asset: NFTAsset,
         collection: NFTCollection,
         nftChainIconProvider: NFTChainIconProvider
     ) {
-        self.wallet = wallet
+        self.header = header
         self.asset = asset
         self.collection = collection
         self.nftChainIconProvider = nftChainIconProvider

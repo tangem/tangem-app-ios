@@ -98,14 +98,14 @@ struct CloreMigrationView: View {
     }
 
     private var signButton: some View {
-        CircleButton(title: Localization.warningCloreMigrationSignButton) {
+        CapsuleButton(title: Localization.warningCloreMigrationSignButton) {
             viewModel.sign()
         }
         .disabled(viewModel.message.isEmpty)
     }
 
     private var copyButton: some View {
-        CircleButton(title: Localization.warningCloreMigrationCopyButton) {
+        CapsuleButton(title: Localization.warningCloreMigrationCopyButton) {
             viewModel.copySignature()
         }
         .disabled(viewModel.signature.isEmpty)

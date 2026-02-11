@@ -11,20 +11,14 @@ enum WCUserWalletModelFinder {
         connectedDApp: WalletConnectConnectedDApp,
         userWalletModels: [any UserWalletModel]
     ) throws(WalletConnectTransactionRequestProcessingError) -> any UserWalletModel {
-        let userWalletId = connectedDApp.userWalletID
-        let accountId = connectedDApp.accountId
-
-        return switch (userWalletId, accountId) {
-        case (let userWalletId?, _):
-            try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == userWalletId })
-        case (_, let accountId?):
-            try firstUserWallet(from: userWalletModels) {
-                let account = WCAccountFinder.findCryptoAccountModel(by: accountId, accountModelsManager: $0.accountModelsManager)
-
-                return account != nil
+        switch connectedDApp {
+        case .v1(let dAppV1):
+            try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == dAppV1.userWalletID })
+        case .v2(let dAppV2):
+            try firstUserWallet(from: userWalletModels) { userWalletModel in
+                userWalletModel.userWalletId.stringValue == dAppV2.userWalletID
+                    && findCryptoAccountModel(dAppV2: dAppV2, userWalletModel: userWalletModel) != nil
             }
-        default:
-            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
     }
 
@@ -37,5 +31,12 @@ enum WCUserWalletModelFinder {
         }
 
         return userWalletModel
+    }
+
+    private static func findCryptoAccountModel(
+        dAppV2: WalletConnectConnectedDAppV2,
+        userWalletModel: any UserWalletModel
+    ) -> (any CryptoAccountModel)? {
+        return WCAccountFinder.findCryptoAccountModel(by: dAppV2.accountId, accountModelsManager: userWalletModel.accountModelsManager)
     }
 }
