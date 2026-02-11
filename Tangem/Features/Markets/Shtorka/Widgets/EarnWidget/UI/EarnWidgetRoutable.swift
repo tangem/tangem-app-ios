@@ -11,5 +11,5 @@ import Foundation
 @MainActor
 protocol EarnWidgetRoutable: AnyObject {
     func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel])
-    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel])
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution)
 }
