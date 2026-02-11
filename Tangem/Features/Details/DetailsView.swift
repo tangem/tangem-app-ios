@@ -38,7 +38,6 @@ struct DetailsView: View {
         .interContentPadding(8)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .navigationTitle(Localization.detailsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: viewModel.onAppear)
@@ -59,16 +58,14 @@ struct DetailsView: View {
                     SettingsUserWalletRowView(viewModel: viewModel)
                 case .addOrScanNewUserWalletButton(let viewModel):
                     DefaultRowView(viewModel: viewModel)
-                        .appearance(.accentButton)
-                case .addNewUserWalletButton(let viewModel):
-                    DefaultRowView(viewModel: viewModel)
-                        .appearance(.accentButton)
+                        .appearance(.addButton)
                 }
             },
             footer: {
                 viewModel.userWalletsSectionFooterString.map { DefaultFooterView($0) }
             }
         )
+        .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
     }
 
     private var buyWalletSection: some View {
@@ -88,6 +85,7 @@ struct DetailsView: View {
         GroupedSection(viewModel.supportSectionModels) {
             DefaultRowView(viewModel: $0)
         }
+        .confirmationDialog(viewModel: $viewModel.chooseSupportTypeDialog)
     }
 
     private var socialNetworks: some View {

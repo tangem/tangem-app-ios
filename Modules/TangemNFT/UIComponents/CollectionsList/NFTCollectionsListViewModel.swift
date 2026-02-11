@@ -57,20 +57,20 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Dependencies
 
     private let nftManager: NFTManager
-    private let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
+    private let accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
     private weak var coordinator: NFTCollectionsListRoutable?
 
     public init(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: AccountForNFTCollectionProviding,
+        accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding,
         dependencies: NFTCollectionsListDependencies,
         assetSendPublisher: AnyPublisher<NFTAsset, Never>,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
-        self.accounForNFTCollectionsProvider = accounForNFTCollectionsProvider
+        self.accountForNFTCollectionsProvider = accountForNFTCollectionsProvider
         self.coordinator = coordinator
         self.dependencies = dependencies
         self.assetSendPublisher = assetSendPublisher
@@ -215,11 +215,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
         case .success(let collectionsResult):
             let loadingTroublesViewData = collectionsResult.hasErrors ? makeNotificationViewData() : nil
-            let state = accounForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
+            let state = accountForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
 
             let viewState: NFTCollectionsListViewModel.ViewState = switch state {
-            case .singleAccount:
-                .success(.flattenedList(buildCollections(from: collectionsResult.value)))
+            case .singleAccount(let navigationContext):
+                .success(.flattenedList(buildCollections(from: collectionsResult.value, navigationContext: navigationContext)))
 
             case .multipleAccounts(let accountsWithCollections):
                 .success(.groupedList(buildAccountsWithCollectionViewModels(from: accountsWithCollections)))
@@ -232,7 +232,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func buildCollections(from collections: [NFTCollection]) -> [NFTCollectionDisclosureGroupViewModel] {
+    private func buildCollections(
+        from collections: [NFTCollection],
+        navigationContext: NFTNavigationContext
+    ) -> [NFTCollectionDisclosureGroupViewModel] {
         collections
             .sorted { lhs, rhs in
                 if lhs.id.chain.id.caseInsensitiveEquals(to: rhs.id.chain.id) {
@@ -256,7 +259,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     assetsState: assetsState,
                     dependencies: dependencies,
                     openAssetDetailsAction: { [weak self] asset in
-                        self?.openAssetDetails(for: asset, in: collection)
+                        self?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
                     },
                     onCollectionTap: { [weak self] collection, isExpanded in
                         self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
@@ -275,7 +278,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     name: accountWithCollectionsData.accountData.name,
                     iconData: accountWithCollectionsData.accountData.iconData
                 ),
-                collectionsViewModels: buildCollections(from: accountWithCollectionsData.collections)
+                collectionsViewModels: buildCollections(
+                    from: accountWithCollectionsData.collections,
+                    navigationContext: accountWithCollectionsData.navigationContext
+                )
             )
         }
     }
@@ -344,8 +350,12 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
-        coordinator?.openAssetDetails(for: asset, in: collection)
+    private func openAssetDetails(
+        for asset: NFTAsset,
+        in collection: NFTCollection,
+        navigationContext: NFTNavigationContext?
+    ) {
+        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
         dependencies.analytics.logDetailsOpen(
             dependencies.nftChainNameProviding.provide(for: asset.id.chain),
             asset.id.contractType.description

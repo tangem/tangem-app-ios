@@ -9,6 +9,7 @@
 import UIKit
 import TangemLocalization
 import TangemAssets
+import TangemMacro
 
 struct ProviderRowViewModel: Identifiable {
     var id: Int { provider.hashValue }
@@ -94,6 +95,7 @@ extension ProviderRowViewModel {
         case percent(String, signType: ChangeSignType)
     }
 
+    @CaseFlagable
     enum DetailsType: Hashable {
         case selected
         case chevron

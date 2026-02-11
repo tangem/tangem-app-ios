@@ -68,7 +68,11 @@ class MarketsWalletDataProvider {
                     dataProvider.clearUserWalletModels()
                 case .inserted, .unlockedWallet:
                     dataProvider.setupUserWalletModels()
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, let isEmpty):
+                    if isEmpty {
+                        return
+                    }
+
                     if let selectedUserWalletModel = dataProvider.selectedUserWalletModel, userWalletIds.contains(where: { $0 == selectedUserWalletModel.userWalletId }) {
                         dataProvider._selectedUserWalletModel.send(nil)
                     }

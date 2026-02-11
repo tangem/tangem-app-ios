@@ -21,7 +21,6 @@ struct MobileRemoveWalletView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
             .background(Colors.Background.primary)
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 
@@ -75,6 +74,7 @@ private extension MobileRemoveWalletView {
             isDisabled: !viewModel.isActionEnabled,
             action: item.action
         )
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 

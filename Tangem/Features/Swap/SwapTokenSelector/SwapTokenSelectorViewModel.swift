@@ -14,12 +14,11 @@ import TangemFoundation
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
-    let tokenSelectorViewModel: NewTokenSelectorViewModel
+    let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
 
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
-    private let expressPairsRepository: ExpressPairsRepository
     private let expressInteractor: ExpressInteractor
     private weak var coordinator: SwapTokenSelectorRoutable?
 
@@ -27,22 +26,16 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     init(
         swapDirection: SwapDirection,
-        expressPairsRepository: ExpressPairsRepository,
+        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         expressInteractor: ExpressInteractor,
         coordinator: SwapTokenSelectorRoutable
     ) {
         self.swapDirection = swapDirection
-        self.expressPairsRepository = expressPairsRepository
+        self.tokenSelectorViewModel = tokenSelectorViewModel
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        let walletsProvider = SwapNewTokenSelectorWalletsProvider(
-            selectedItem: .just(output: swapDirection.tokenItem),
-            availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
-                directionPublisher: .just(output: swapDirection)
-            )
-        )
-        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
     }
 
@@ -68,13 +61,14 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     }
 }
 
-// MARK: - NewTokenSelectorViewModelOutput
+// MARK: - AccountsAwareTokenSelectorViewModelOutput
 
-extension SwapTokenSelectorViewModel: NewTokenSelectorViewModelOutput {
-    func usedDidSelect(item: NewTokenSelectorItem) {
+extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
+    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel
+            walletModel: item.walletModel,
+            expressOperationType: .swap
         )
 
         switch swapDirection {
@@ -90,7 +84,7 @@ extension SwapTokenSelectorViewModel: NewTokenSelectorViewModelOutput {
 }
 
 extension SwapTokenSelectorViewModel {
-    typealias SwapDirection = NewTokenSelectorItemSwapAvailabilityProviderFactory.SwapDirection
+    typealias SwapDirection = AccountsAwareTokenSelectorItemSwapAvailabilityProvider.SwapDirection
 }
 
 extension SwapTokenSelectorViewModel.SwapDirection {
