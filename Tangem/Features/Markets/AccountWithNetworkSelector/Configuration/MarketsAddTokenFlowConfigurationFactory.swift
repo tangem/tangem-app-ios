@@ -34,23 +34,7 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     coordinator: coordinator
                 )
             ),
-            accountFilter: { context in
-                let networkIds = inputData.networks.map(\.networkId)
-                let cryptoAccount = context.account
-                let supportedBlockchains = context.supportedBlockchains
-
-                let hasManageableNetworks = networkIds.contains { networkId in
-                    AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: cryptoAccount, in: supportedBlockchains)
-                }
-
-                let tokenItems = tokenItems(
-                    inputData: inputData,
-                    supportedBlockchains: supportedBlockchains,
-                    cryptoAccount: cryptoAccount
-                )
-
-                return hasManageableNetworks && tokenItems.isNotEmpty
-            },
+            accountFilter: makeAccountFilter(inputData: inputData),
             accountAvailabilityProvider: makeAccountAvailabilityProvider(inputData: inputData),
             analyticsLogger: analyticsLogger
         )
@@ -161,6 +145,32 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
+    }
+
+    static func makeAccountFilter(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool)? {
+        { context in
+            let networkIds = inputData.networks.map(\.networkId)
+            let cryptoAccount = context.account
+            let supportedBlockchains = context.supportedBlockchains
+
+            let hasManageableNetworks = networkIds.contains { networkId in
+                AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: cryptoAccount, in: supportedBlockchains)
+            }
+
+            if hasManageableNetworks {
+                return true
+            }
+
+            let tokenItems = tokenItems(
+                inputData: inputData,
+                supportedBlockchains: supportedBlockchains,
+                cryptoAccount: cryptoAccount
+            )
+
+            return tokenItems.isNotEmpty
+        }
     }
 
     static func makeAccountAvailabilityProvider(
