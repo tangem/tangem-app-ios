@@ -17,6 +17,7 @@ struct Web3StoryPage: View {
     let createWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
+    let scanTroubleshootingDialog: Binding<ConfirmationDialogViewModel?>
 
     private let numberOfRows = 6
     private let rowImages = [
@@ -77,7 +78,8 @@ struct Web3StoryPage: View {
                 isScanning: isScanning,
                 createWallet: createWallet,
                 scanCard: scanCard,
-                orderCard: orderCard
+                orderCard: orderCard,
+                scanTroubleShootingDialog: scanTroubleshootingDialog
             )
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
@@ -104,7 +106,8 @@ struct Web3StoryPage_Previews: PreviewProvider {
             isScanning: false,
             createWallet: {},
             scanCard: {},
-            orderCard: {}
+            orderCard: {},
+            scanTroubleshootingDialog: .constant(nil)
         )
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }

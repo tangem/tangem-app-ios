@@ -14,8 +14,8 @@ struct CommonFeeFormatter {
     private let balanceConverter: BalanceConverter
 
     init(
-        balanceFormatter: BalanceFormatter,
-        balanceConverter: BalanceConverter
+        balanceFormatter: BalanceFormatter = .init(),
+        balanceConverter: BalanceConverter = .init()
     ) {
         self.balanceFormatter = balanceFormatter
         self.balanceConverter = balanceConverter
