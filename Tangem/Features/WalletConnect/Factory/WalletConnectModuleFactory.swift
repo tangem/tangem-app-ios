@@ -73,9 +73,13 @@ enum WalletConnectModuleFactory {
             disconnectDApp: disconnectDAppUseCase
         )
 
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
         return WalletConnectViewModel(
             interactor: interactor,
             userWalletRepository: userWalletRepository,
+            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger,
             coordinator: coordinator,
@@ -113,10 +117,14 @@ enum WalletConnectModuleFactory {
             uri: uri
         )
 
-        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
-            connectedDAppRepository: connectedDAppRepository,
+        let migrationService = WalletConnectAccountMigrationService(
             userWalletRepository: userWalletRepository,
-            appSettings: AppSettings.shared,
+            connectedDAppRepository: connectedDAppRepository,
+            appSettings: AppSettings.shared
+        )
+
+        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
+            migrationService: migrationService,
             logger: WCLogger
         )
 
@@ -132,7 +140,10 @@ enum WalletConnectModuleFactory {
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet),
+            state: .loading(
+                selectedUserWalletName: selectedUserWallet.name,
+                targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet
+            ),
             interactor: interactor,
             analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
             logger: WCLogger,
@@ -202,7 +213,7 @@ enum WalletConnectModuleFactory {
         let errorMessage: String
 
         switch proposalLoadingError {
-        case .pairingFailed:
+        case .pairingFailed, .selectedAccountRetrievalFailed:
             errorMessage = Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: proposalLoadingError))
 
         case .uriAlreadyUsed,
@@ -302,7 +313,7 @@ enum WalletConnectModuleFactory {
                 buttonStyle: .primary
             )
 
-        case .pairingFailed, .cancelledByUser:
+        case .pairingFailed, .cancelledByUser, .selectedAccountRetrievalFailed:
             return nil
         }
 

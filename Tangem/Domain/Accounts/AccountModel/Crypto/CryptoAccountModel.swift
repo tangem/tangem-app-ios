@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, AnyObject {
+protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, DisposableEntity, AnyObject {
     var isMainAccount: Bool { get }
 
     var descriptionString: String { get }
@@ -19,4 +19,12 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Any
     var userTokensManager: UserTokensManager { get }
 
     func archive() async throws(AccountArchivationError)
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CryptoAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
 }
