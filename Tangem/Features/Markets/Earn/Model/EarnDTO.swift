@@ -10,6 +10,7 @@ import Foundation
 
 enum EarnDTO {
     enum List {}
+    enum Networks {}
 }
 
 // MARK: - List
@@ -20,13 +21,13 @@ extension EarnDTO.List {
         let page: Int?
         let limit: Int?
         let type: EarnType?
-        let network: [String]?
+        let networkIds: [String]?
 
         var parameters: [String: Any] {
             var params: [String: Any] = [:]
 
             if let isForEarn {
-                params["isForEarn"] = isForEarn
+                params["isForEarn"] = isForEarn ? "true" : "false"
             }
             if let page {
                 params["page"] = page
@@ -37,8 +38,8 @@ extension EarnDTO.List {
             if let type {
                 params["type"] = type.rawValue
             }
-            if let network, !network.isEmpty {
-                params["network"] = network.joined(separator: ",")
+            if let networkIds, !networkIds.isEmpty {
+                params["networkIds"] = networkIds.joined(separator: ",")
             }
 
             return params
@@ -58,6 +59,8 @@ extension EarnDTO.List {
     struct Meta: Decodable {
         let page: Int
         let limit: Int
+        let total: Int
+        let hasNext: Bool
     }
 
     struct Item: Decodable {
@@ -74,5 +77,31 @@ extension EarnDTO.List {
         let name: String
         let address: String?
         let decimalCount: Int?
+    }
+}
+
+// MARK: - Networks
+
+extension EarnDTO.Networks {
+    struct Request: Encodable {
+        let type: EarnDTO.List.EarnType?
+
+        var parameters: [String: Any] {
+            var params: [String: Any] = [:]
+
+            if let type {
+                params["type"] = type.rawValue
+            }
+
+            return params
+        }
+    }
+
+    struct Response: Decodable {
+        let items: [Item]
+
+        struct Item: Decodable {
+            let networkId: String
+        }
     }
 }
