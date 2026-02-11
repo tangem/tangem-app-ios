@@ -11,6 +11,7 @@ import TangemAssets
 
 struct EarnMostlyUsedView: View {
     let viewModels: [EarnTokenItemViewModel]
+    var fourthItemAppearIndex: Int = Constants.defaultFourthItemAppearIndex
     var onFourthItemAppeared: (() -> Void)?
 
     var body: some View {
@@ -19,7 +20,7 @@ struct EarnMostlyUsedView: View {
                 ForEach(Array(viewModels.enumerated()), id: \.element.id) { index, viewModel in
                     EarnMostlyUsedTileView(viewModel: viewModel)
                         .onAppear {
-                            if index == 3 {
+                            if index == fourthItemAppearIndex {
                                 onFourthItemAppeared?()
                             }
                         }
@@ -29,6 +30,12 @@ struct EarnMostlyUsedView: View {
         }
         .scrollIndicators(.hidden)
         .frame(height: Layout.height)
+    }
+}
+
+extension EarnMostlyUsedView {
+    enum Constants {
+        static let defaultFourthItemAppearIndex = 3
     }
 }
 
