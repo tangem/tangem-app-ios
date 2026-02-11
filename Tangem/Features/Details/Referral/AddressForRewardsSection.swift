@@ -13,7 +13,7 @@ import TangemAssets
 import TangemLocalization
 
 struct AddressForRewardsSection: View {
-    let tokenType: ReferralViewModel.ReadyToBecomParticipantDisplayMode.TokenType
+    let tokenType: ReferralViewModel.ReadyToBecomeParticipantDisplayMode.TokenType
     let account: ReferralViewModel.SelectedAccountViewData
     let openAccountSelector: () -> Void
 
@@ -33,13 +33,12 @@ struct AddressForRewardsSection: View {
                 shouldShowTrailingIcon: true,
                 action: openAccountSelector,
                 trailingView: {
-                    HStack(spacing: 4) {
-                        AccountIconView(data: account.iconViewData)
-                            .settings(.smallSized)
-
-                        Text(account.name)
-                            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                    }
+                    AccountInlineHeaderView(
+                        iconData: account.iconViewData,
+                        name: account.name
+                    )
+                    .rowTrailingStyle()
+                    .id(account.id)
                 }
             )
             .padding(.top, 12)
@@ -66,6 +65,15 @@ struct AddressForRewardsSection: View {
         case .tokenItem(let tokenItemViewModel):
             ExpressTokenItemView(viewModel: tokenItemViewModel)
         }
+    }
+}
+
+// MARK: - AccountInlineHeaderView+
+
+extension AccountInlineHeaderView {
+    func rowTrailingStyle() -> Self {
+        iconSettings(.smallSized)
+            .nameStyle(Fonts.Regular.body, color: Color.Tangem.Graphic.Neutral.tertiary)
     }
 }
 

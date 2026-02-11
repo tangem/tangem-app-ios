@@ -10,13 +10,33 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-struct SimpleAnalytics: FeeSelectorContentViewModelAnalytics {
+struct SimpleAnalytics: FeeSelectorAnalytics {
+    func logCustomFeeClicked() {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
+    func logFeeSelected(tokenFee: TokenFee) {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
+    func logFeeSummaryOpened() {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
+    func logFeeTokensOpened(availableTokenFees: [TokenFee]) {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
     func logFeeStepOpened() {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
     }
 
-    func logSendFeeSelected(_ feeOption: FeeOption) {
+    func logFeeSelected(_ feeOption: FeeOption) {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
     }
@@ -33,12 +53,13 @@ final class WCFeeSelectorFactory {
         customFeeService: WCCustomEvmFeeService,
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor
-    ) -> FeeSelectorContentViewModel {
-        FeeSelectorContentViewModel(
+    ) -> WCFeeSelectorContentViewModel {
+        WCFeeSelectorContentViewModel(
             input: feeInteractor,
             output: feeInteractor,
             analytics: SimpleAnalytics(),
             customFieldsBuilder: customFeeService,
+            customAvailabilityProvider: customFeeService,
             feeTokenItem: walletModel.feeTokenItem,
             dismissButtonType: .back,
             savingType: .doneButton

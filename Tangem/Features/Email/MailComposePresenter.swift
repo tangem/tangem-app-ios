@@ -69,7 +69,7 @@ extension MailComposePresenter {
 
         viewController.setMessageBody(messageBody, isHTML: false)
 
-        if FeatureProvider.isAvailable(.logs), let (data, file) = viewModel.logsComposer.getZipLogsData() {
+        if let (data, file) = viewModel.logsComposer.getZipLogsData() {
             viewController.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
         }
 

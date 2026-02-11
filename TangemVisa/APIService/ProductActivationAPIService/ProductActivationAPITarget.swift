@@ -9,6 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 import Moya
+import TangemPay
 
 struct ProductActivationAPITarget: TargetType {
     let target: Target

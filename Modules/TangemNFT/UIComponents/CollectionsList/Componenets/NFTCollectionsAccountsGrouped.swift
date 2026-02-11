@@ -29,6 +29,7 @@ struct NFTCollectionsAccountsGrouped: View {
                     Text(accountWithCollectionViewModels.accountData.name)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 }
+                .padding(.top, 14)
             }
         )
     }
@@ -36,22 +37,26 @@ struct NFTCollectionsAccountsGrouped: View {
 
 #if DEBUG
 #Preview {
-    NFTCollectionsAccountsGrouped(
-        accountWithCollectionViewModels: AccountWithCollectionViewModels(
-            accountData: AccountWithCollectionViewModels.AccountData(
-                id: "ID",
-                name: "Portfolio",
-                iconData: AccountIconView.ViewData(
-                    backgroundColor: .red,
-                    nameMode: .letter("P")
-                )
-            ),
-            collectionsViewModels: [
-                .mock(name: "Collection 1"),
-                .mock(name: "Collection 2"),
-                .mock(name: "Collection 3"),
-            ]
+    ZStack {
+        Color.gray
+
+        NFTCollectionsAccountsGrouped(
+            accountWithCollectionViewModels: AccountWithCollectionViewModels(
+                accountData: AccountWithCollectionViewModels.AccountData(
+                    id: "ID",
+                    name: "Portfolio",
+                    iconData: AccountIconView.ViewData(
+                        backgroundColor: .red,
+                        nameMode: .letter("P")
+                    )
+                ),
+                collectionsViewModels: [
+                    .mock(name: "Collection 1"),
+                    .mock(name: "Collection 2"),
+                    .mock(name: "Collection 3"),
+                ]
+            )
         )
-    )
+    }
 }
 #endif

@@ -62,7 +62,7 @@ final class NFTCollectionsCoordinator: CoordinatorObject {
         )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
-            accounForNFTCollectionsProvider: options.accounForNFTCollectionsProvider,
+            accountForNFTCollectionsProvider: options.accountForNFTCollectionsProvider,
             dependencies: dependencies,
             assetSendPublisher: assetSendSubject.eraseToAnyPublisher(),
             coordinator: self
@@ -124,7 +124,7 @@ final class NFTCollectionsCoordinator: CoordinatorObject {
 extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
-        let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
+        let accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding
         let navigationContext: NFTNavigationContext
         let nftChainIconProvider: NFTChainIconProvider
         let nftChainNameProvider: NFTChainNameProviding
@@ -154,10 +154,10 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
         }
     }
 
-    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
+    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext?) {
         guard
             let options,
-            let input = options.navigationContext as? NFTNavigationInput
+            let input = (navigationContext ?? options.navigationContext) as? NFTNavigationInput
         else {
             return
         }

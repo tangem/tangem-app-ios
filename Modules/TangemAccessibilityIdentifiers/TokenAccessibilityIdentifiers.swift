@@ -36,4 +36,11 @@ public enum TokenAccessibilityIdentifiers {
     public static func networkSwitch(for networkName: String) -> String {
         return "tokenNetworkSwitch_\(networkName)"
     }
+
+    public static func networkCell(for networkName: String) -> String {
+        return "tokenNetworkCell_\(networkName)"
+    }
+
+    public static let addTokenButton = "tokenAddTokenButton"
+    public static let getTokenLaterButton = "tokenGetTokenLaterButton"
 }

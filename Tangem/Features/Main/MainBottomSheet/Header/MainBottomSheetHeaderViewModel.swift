@@ -49,6 +49,13 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         enteredSearchText = ""
     }
 
+    func cancelSearchBarAction() {
+        searchInputSubject.send(.cancelInput)
+        shouldSkipNextTextInput = true
+        enteredSearchText = ""
+        inputShouldBecomeFocused = false
+    }
+
     private func bind() {
         inputSubscription = $enteredSearchText
             .removeDuplicates()
@@ -70,11 +77,13 @@ extension MainBottomSheetHeaderViewModel {
     enum SearchInput: Equatable {
         case textInput(String)
         case clearInput
+        case cancelInput
 
         var textValue: String? {
             switch self {
             case .textInput(let textInput): return textInput
             case .clearInput: return nil
+            case .cancelInput: return nil
             }
         }
 
@@ -83,6 +92,8 @@ extension MainBottomSheetHeaderViewModel {
             case (.textInput(let lhsText), .textInput(let rhsText)):
                 return lhsText.compare(rhsText) == .orderedSame
             case (.clearInput, .clearInput):
+                return true
+            case (.cancelInput, .cancelInput):
                 return true
             default:
                 return false

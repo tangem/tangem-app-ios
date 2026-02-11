@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 @MainActor
@@ -57,8 +58,8 @@ final class PromocodeActivationViewModel: ObservableObject {
         do {
             // Delay added to handle cold start, since getWalletAddress may fail before wallet models are fully loaded
             try await Task.sleep(for: .seconds(1))
-            let address = try getWalletAddress()
-            let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode)
+            let (address, userWalletId) = try getWalletInfo()
+            let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode, walletId: userWalletId.stringValue)
             _ = try await tangemApiService.activatePromoCode(request: request).async()
             Analytics.log(event: .bitcoinPromoActivation, params: [.status: "Activated"])
             displaySuccessAlert()
@@ -78,7 +79,7 @@ final class PromocodeActivationViewModel: ObservableObject {
         displayErrorAlert(error: error)
     }
 
-    private func getWalletAddress() throws -> String {
+    private func getWalletInfo() throws -> (String, UserWalletId) {
         guard let userWalletModel = userWalletRepository.selectedModel else {
             throw PromocodeActivationError.noAddress
         }
@@ -98,7 +99,7 @@ final class PromocodeActivationViewModel: ObservableObject {
             throw PromocodeActivationError.noAddress
         }
 
-        return walletModel.defaultAddressString
+        return (walletModel.defaultAddressString, userWalletModel.userWalletId)
     }
 }
 

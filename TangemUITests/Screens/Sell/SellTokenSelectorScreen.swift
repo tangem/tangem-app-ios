@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class SellTokenSelectorScreen: ScreenBase<SellTokenSelectorScreenElement> {
     private lazy var titleLabel = app.navigationBars.staticTexts["Sell"]
     private lazy var closeButton = button(.closeButton)
-    private lazy var searchField = textField(.searchField)
+    private lazy var searchField = searchField(.searchField)
 
     @discardableResult
     func waitSellTokenSelectorDisplayed() -> Self {
@@ -41,7 +41,7 @@ enum SellTokenSelectorScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .closeButton:
-            return "Close"
+            return CommonUIAccessibilityIdentifiers.closeButton
         case .searchField:
             return "Search"
         }
