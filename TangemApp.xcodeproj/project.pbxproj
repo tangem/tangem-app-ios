@@ -11433,6 +11433,7 @@
 				2D9DD0FF2F33B96000C86A9E /* EarnDataFilterProvider.swift */,
 				2D9DD1002F33B96000C86A9E /* EarnDataProvider.swift */,
 				2D9DD1242F33B96000C86A9E /* EarnTokenInWalletResolver.swift */,
+				2DE6AC482F3B604100E51330 /* Analytics */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -12086,7 +12087,6 @@
 			isa = PBXGroup;
 			children = (
 				2D9DD0E32F33B96000C86A9E /* AccountWithNetworkSelector */,
-				2DE6AC482F3B604100E51330 /* Analytics */,
 				2DE2A3A92F2A2BC30097CA73 /* Components */,
 				2D9DD0E72F33B96000C86A9E /* Coordinator */,
 				2D9DD0F02F33B96000C86A9E /* Detail */,
@@ -12154,9 +12154,9 @@
 		2DE6AC482F3B604100E51330 /* Analytics */ = {
 			isa = PBXGroup;
 			children = (
-				2DE6AC462F3B604100E51330 /* CommonEarnAnalyticsProvider.swift */,
 				2DE6AC472F3B604100E51330 /* EarnAnalyticsProvider.swift */,
 				2DE6AC4B2F3B606100E51330 /* EarnOpportunitySource.swift */,
+				2DE6AC462F3B604100E51330 /* CommonEarnAnalyticsProvider.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
