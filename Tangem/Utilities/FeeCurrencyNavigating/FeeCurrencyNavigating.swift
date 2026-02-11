@@ -30,7 +30,7 @@ protocol FeeCurrencyNavigating where Self: AnyObject, Self: CoordinatorObject {
 
     var tokenDetailsCoordinator: TokenDetailsCoordinator? { get set }
 
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel)
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel)
 }
 
 // MARK: - Default implementation
@@ -58,13 +58,42 @@ extension FeeCurrencyNavigating {
         }
     }
 
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
+
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel
+                )
+            )
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
+                    walletModel: walletModel
+                )
+            )
+        }
 
         tokenDetailsCoordinator = coordinator
     }

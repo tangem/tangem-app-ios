@@ -104,8 +104,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 guard let self else { return }
 
                 switch result {
-                case .success:
-                    logSuccess(tokenItem: tokenItem)
+                case .success(let enrichedTokenItem):
+                    logSuccess(tokenItem: enrichedTokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
                     if error.isCancellationError {
@@ -259,7 +259,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleCustomTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation
+            || !SupportedTokensFilter.canHandleCustomToken(contractAddress: contractAddress, blockchain: blockchain) {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)

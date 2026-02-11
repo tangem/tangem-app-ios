@@ -115,6 +115,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
+            let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
+
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
                 yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
@@ -129,6 +131,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
@@ -153,7 +156,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
             walletModel: dependencies.walletModel,
-            walletModelsManager: dependencies.walletModelsManager
+            walletModelsManager: dependencies.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
