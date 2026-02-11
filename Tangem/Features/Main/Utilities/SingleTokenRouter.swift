@@ -76,7 +76,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
     func openExchange(walletModel: any WalletModel) {
         let input = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: ExpressInteractorWalletModelWrapper(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                expressOperationType: .swap
+            ),
             destination: .loadingAndSet
         )
 

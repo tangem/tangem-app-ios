@@ -68,9 +68,11 @@ final class CommonYieldModuleManager {
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
+    private var nextExpectedState: NextExpectedState?
+
     private var bag = Set<AnyCancellable>()
 
-    private let scheduleWalletUpdate: () -> Void
+    private let updateWallet: () async -> Void
 
     init?(
         walletAddress: String,
@@ -85,7 +87,7 @@ final class CommonYieldModuleManager {
         yieldModuleStateRepository: YieldModuleStateRepository,
         yieldModuleMarketsRepository: YieldModuleMarketsRepository,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>,
-        scheduleWalletUpdate: @escaping () -> Void
+        updateWallet: @escaping () async -> Void
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
               let chainId = blockchain.chainId,
@@ -104,7 +106,7 @@ final class CommonYieldModuleManager {
         self.yieldModuleStateRepository = yieldModuleStateRepository
         self.yieldModuleMarketsRepository = yieldModuleMarketsRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
-        self.scheduleWalletUpdate = scheduleWalletUpdate
+        self.updateWallet = updateWallet
 
         transactionProvider = YieldTransactionProvider(
             token: token,
@@ -239,6 +241,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
+        nextExpectedState = .active
+
         await activate()
 
         if hasEnterTransaction(in: transactions), let enterHash = result.last {
@@ -275,6 +279,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         let result = try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+
+        nextExpectedState = .notActive
 
         await deactivate()
 
@@ -354,12 +360,21 @@ private extension CommonYieldModuleManager {
             }
             .store(in: &bag)
 
-        initialStatePublisher
-            .map(\.state)
-            .sink { [weak self] state in
-                guard case .processing = state else { return }
-                self?.scheduleWalletUpdate()
+        pendingTransactionsPublisher
+            .withPrevious()
+            .withWeakCaptureOf(self)
+            .asyncMap { result in
+                let (moduleManager, (previous, current)) = result
+                guard let previous else { return }
+
+                if !previous.isEmpty, current.isEmpty {
+                    await moduleManager.updateWalletState(
+                        iteration: 0,
+                        maxIterations: Constants.maxUpdateIterations
+                    )
+                }
             }
+            .sink { _ in }
             .store(in: &bag)
     }
 
@@ -548,6 +563,33 @@ private extension CommonYieldModuleManager {
         default: break
         }
     }
+
+    func updateWalletState(iteration: Int, maxIterations: Int) async {
+        guard iteration < maxIterations else {
+            nextExpectedState = nil
+            AppLogger.debug("Max iterations reached. Stopping yield module state update.")
+            return
+        }
+
+        AppLogger.debug("Update yield module state")
+
+        await updateWallet()
+
+        if isInExpectedState {
+            nextExpectedState = nil
+        } else {
+            // delay only if the next update is necessary
+            try? await Task.sleep(for: .seconds(Constants.updateTimeInterval))
+            await updateWalletState(iteration: iteration + 1, maxIterations: maxIterations)
+        }
+    }
+
+    var isInExpectedState: Bool {
+        switch (state?.state, nextExpectedState) {
+        case (.active, .active), (.notActive, .notActive), (_, .none): true
+        default: false
+        }
+    }
 }
 
 private extension CommonYieldModuleManager {
@@ -619,6 +661,13 @@ private extension CommonYieldModuleManager {
     }
 }
 
+extension CommonYieldModuleManager {
+    enum NextExpectedState {
+        case active
+        case notActive
+    }
+}
+
 struct WalletModelData {
     let state: WalletModelState
     let balance: Amount?
@@ -652,5 +701,7 @@ private extension PendingTransactionRecord {
 private extension CommonYieldModuleManager {
     enum Constants {
         static let yieldContractRetryCount = 5
+        static let updateTimeInterval: TimeInterval = 10
+        static let maxUpdateIterations = 3
     }
 }

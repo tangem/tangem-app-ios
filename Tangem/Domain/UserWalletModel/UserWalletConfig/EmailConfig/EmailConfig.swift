@@ -24,6 +24,22 @@ struct EmailConfig {
         let recipient = "pay@tangem.com"
         return .init(recipient: recipient, subject: subject.prefix)
     }
+
+    static func paeraDefault(subject: PaeraEmailSubject) -> EmailConfig {
+        let recipient = "support@paera.com"
+        return .init(recipient: recipient, subject: subject.prefix)
+    }
+}
+
+enum PaeraEmailSubject {
+    case KYCRejected
+
+    var prefix: String {
+        switch self {
+        case .KYCRejected:
+            return "Tangem Pay - KYC rejected"
+        }
+    }
 }
 
 enum VisaEmailSubject {

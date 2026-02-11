@@ -138,60 +138,11 @@ final class WCFeeInteractor: WCFeeInteractorType {
         }
     }
 
-    private func getFeeForOption(_ option: FeeOption, from fees: [WCFee]) -> WCFee? {
-        switch option {
-        case .custom:
-            return nil
-        default:
-            return fees.first { $0.option == option }
-        }
-    }
-
     private func updateCustomFeeWithNetworkData(fees: [Fee]) {
         guard fees.count >= 3 else { return }
 
         let defaultFee = fees[1]
         customFeeService.initialSetupCustomFee(defaultFee)
-    }
-
-    private func getGasLimitFromTransaction() -> BigUInt {
-        if let gasString = transaction.gas, let gasValue = BigUInt(gasString.removeHexPrefix(), radix: 16) {
-            return gasValue
-        }
-        return BigUInt(21000)
-    }
-
-    private func getGasPriceFromTransaction() -> BigUInt {
-        if let gasPrice = transaction.gasPrice, let gasPriceValue = BigUInt(gasPrice.removeHexPrefix(), radix: 16) {
-            return gasPriceValue
-        }
-
-        return BigUInt(20000000000)
-    }
-
-    private func createEIP1559Fee(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, blockchain: Blockchain) -> Fee {
-        let parameters = EthereumEIP1559FeeParameters(
-            gasLimit: gasLimit,
-            maxFeePerGas: maxFeePerGas,
-            priorityFee: priorityFee
-        )
-
-        let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
-        let amount = Amount(with: blockchain, value: feeValue)
-
-        return Fee(amount, parameters: parameters)
-    }
-
-    private func createLegacyFee(gasLimit: BigUInt, gasPrice: BigUInt, blockchain: Blockchain) -> Fee {
-        let parameters = EthereumLegacyFeeParameters(
-            gasLimit: gasLimit,
-            gasPrice: gasPrice
-        )
-
-        let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
-        let amount = Amount(with: blockchain, value: feeValue)
-
-        return Fee(amount, parameters: parameters)
     }
 
     private func makeFeeOptions() -> [FeeOption] {
@@ -245,12 +196,12 @@ final class WCFeeInteractor: WCFeeInteractorType {
 
     // MARK: - Helper Methods
 
-    private func mapToFeeSelectorFee(fee: WCFee) -> FeeSelectorFee? {
+    private func mapToFeeSelectorFee(fee: WCFee) -> WCFeeSelectorFee? {
         guard case .success(let feeValue) = fee.value else {
             return nil
         }
 
-        return FeeSelectorFee(
+        return WCFeeSelectorFee(
             option: fee.option,
             value: feeValue.amount.value
         )
@@ -318,7 +269,7 @@ enum WCFeeInteractorError: Error {
     case feeLoadingFailed
 }
 
-extension WCFeeInteractor: FeeSelectorContentViewModelInput {
+extension WCFeeInteractor: WCFeeSelectorContentViewModelInput {
     var feesPublisher: AnyPublisher<[WCFee], Never> {
         Publishers.CombineLatest(networkFeesSubject, customFeeSubject)
             .withWeakCaptureOf(self)
@@ -329,7 +280,7 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> {
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[WCFeeSelectorFee], Never>, Never> {
         feesPublisher
             .withWeakCaptureOf(self)
             .compactMap { interactor, fees in
@@ -343,12 +294,12 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var selectedSelectorFee: FeeSelectorFee? {
+    var selectedSelectorFee: WCFeeSelectorFee? {
         let fee = mapToFeeSelectorFee(fee: selectedFee)
         return fee
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<WCFeeSelectorFee, Never> {
         selectedFeePublisher
             .withWeakCaptureOf(self)
             .compactMap { interactor, wcFee in
@@ -357,14 +308,14 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var selectorFees: [FeeSelectorFee] {
+    var selectorFees: [WCFeeSelectorFee] {
         let wcFees = fees
         let selectorFees = wcFees.compactMap { mapToFeeSelectorFee(fee: $0) }
         return selectorFees
     }
 }
 
-extension WCFeeInteractor: FeeSelectorContentViewModelOutput {
+extension WCFeeInteractor: WCFeeSelectorContentViewModelOutput {
     func update(selectedFeeOption: FeeOption) {
         guard let wcFee = fees.first(where: { $0.option == selectedFeeOption }) else {
             return

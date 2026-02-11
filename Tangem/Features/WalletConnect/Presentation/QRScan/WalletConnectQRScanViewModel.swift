@@ -7,12 +7,14 @@
 //
 
 import Combine
+import TangemLocalization
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 @MainActor
 final class WalletConnectQRScanViewModel: ObservableObject {
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
     private let openSystemSettingsAction: () -> Void
-    private let coordinator: any WalletConnectQRScanRoutable
+    private weak var coordinator: (any WalletConnectQRScanRoutable)?
     private let uriParser = WalletConnectURLParser()
     private let feedbackGenerator = WalletConnectUIFeedbackGenerator()
 
@@ -84,16 +86,16 @@ extension WalletConnectQRScanViewModel {
     }
 
     private func handleNavigationCloseButtonTapped() {
-        coordinator.dismiss(with: nil)
+        coordinator?.dismiss(with: nil)
     }
 
     private func handleQRCodeParsed(_ rawQRCode: String) {
         do {
             let qrURI = try uriParser.parse(uriString: rawQRCode)
-            coordinator.dismiss(with: .fromQRCode(qrURI))
+            coordinator?.dismiss(with: .fromQRCode(qrURI))
         } catch {
             feedbackGenerator.errorNotificationOccurred()
-            coordinator.display(error: error)
+            coordinator?.display(error: error)
         }
     }
 
@@ -102,10 +104,10 @@ extension WalletConnectQRScanViewModel {
 
         do {
             let clipboardURI = try uriParser.parse(uriString: rawClipboardString)
-            coordinator.dismiss(with: .fromClipboard(clipboardURI))
+            coordinator?.dismiss(with: .fromClipboard(clipboardURI))
         } catch {
             feedbackGenerator.errorNotificationOccurred()
-            coordinator.display(error: error)
+            coordinator?.display(error: error)
         }
     }
 
@@ -114,10 +116,16 @@ extension WalletConnectQRScanViewModel {
 
         guard !accessGranted else { return }
 
-        state.confirmationDialog = .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
+        state.confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.commonCameraDeniedAlertTitle,
+            subtitle: Localization.commonCameraDeniedAlertMessage,
+            buttons: [
+                ConfirmationDialogViewModel.Button(title: Localization.commonCameraAlertButtonSettings, action: openSystemSettingsAction),
+            ]
+        )
     }
 
     private func handleCloseDialogButtonTapped() {
-        coordinator.dismiss(with: nil)
+        coordinator?.dismiss(with: nil)
     }
 }

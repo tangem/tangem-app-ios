@@ -15,7 +15,7 @@ public final class Debouncer<T> {
 
     private let interval: TimeInterval
     private let work: Work
-    private let criticalSection = Lock(isRecursive: false)
+    private let criticalSection = OSAllocatedUnfairLock()
     private var unsafeCompletionBlocks: [Completion] = []
     private var unsafeTimer: Timer?
 

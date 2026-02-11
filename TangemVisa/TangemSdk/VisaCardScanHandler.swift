@@ -94,7 +94,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
                 cardId: card.cardId,
                 walletPublicKey: wallet.publicKey
             )
-        } catch let error as VisaAPIError where [110206, 110208].contains(error.code) {
+        } catch {
             VisaLogger.info("Started handling visa card scan async")
             let walletAddress = try VisaUtilities.makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet).value
             return try await handleCardAuthorization(
@@ -215,7 +215,7 @@ public extension VisaCardScanHandler {
     }
 }
 
-extension CardSessionRunnable {
+public extension CardSessionRunnable {
     func run(in session: CardSession) async throws -> Response {
         try await withCheckedThrowingContinuation { continuation in
             self.run(in: session) { result in

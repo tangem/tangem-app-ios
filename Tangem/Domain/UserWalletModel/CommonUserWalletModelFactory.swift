@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemPay
 
 struct CommonUserWalletModelFactory {
     func makeModel(publicData: StoredUserWallet, sensitiveData: StoredUserWallet.SensitiveInfo) -> UserWalletModel? {
@@ -63,9 +64,9 @@ struct CommonUserWalletModelFactory {
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            tangemPayAccountProvider: dependencies.tangemPayAccountProvider,
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
-            accountModelsManager: dependencies.accountModelsManager
+            accountModelsManager: dependencies.accountModelsManager,
+            tangemPayManager: dependencies.tangemPayManager
         )
 
         dependencies.update(from: commonModel)

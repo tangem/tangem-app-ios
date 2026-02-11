@@ -6,24 +6,21 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import TangemLocalization
+import TangemAssets
 import TangemUI
 
-struct TangemPayFailedToIssueCardSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
-
-    let userWalletModel: UserWalletModel
-
-    let title = Localization.tangempayFailedToIssueCard
-    let subtitle = Localization.tangempayFailedToIssueCardSupportDescription
-
-    weak var coordinator: TangemPayFailedToIssueCardRoutable?
-
-    func close() {
-        coordinator?.closeFailedToIssueCardSheet()
+final class TangemPayFailedToIssueCardSheetViewModel: TangemPayPopupViewModel {
+    var title: AttributedString {
+        .init(Localization.tangempayFailedToIssueCard)
     }
 
-    var primaryButtonSettings: MainButton.Settings {
+    var description: AttributedString {
+        .init(Localization.tangempayFailedToIssueCardSupportDescription)
+    }
+
+    var primaryButton: MainButton.Settings {
         MainButton.Settings(
             title: Localization.tangempayGoToSupport,
             style: .primary,
@@ -32,10 +29,30 @@ struct TangemPayFailedToIssueCardSheetViewModel: FloatingSheetContentViewModel {
         )
     }
 
-    func goToSupport() {
+    var icon: Image {
+        Assets.Visa.warningCircle.image
+    }
+
+    let userWalletModel: UserWalletModel
+    weak var coordinator: TangemPayFailedToIssueCardRoutable?
+
+    init(
+        userWalletModel: UserWalletModel,
+        coordinator: TangemPayFailedToIssueCardRoutable?
+    ) {
+        self.userWalletModel = userWalletModel
+        self.coordinator = coordinator
+    }
+
+    func dismiss() {
+        coordinator?.closeFailedToIssueCardSheet()
+    }
+
+    private func goToSupport() {
         let dataCollector = TangemPaySupportDataCollector(
             source: .failedToIssueCardSheet,
-            userWalletId: userWalletModel.userWalletId.stringValue
+            userWalletId: userWalletModel.userWalletId.stringValue,
+            customerId: userWalletModel.tangemPayManager.customerId
         )
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
         let mailViewModel = MailViewModel(

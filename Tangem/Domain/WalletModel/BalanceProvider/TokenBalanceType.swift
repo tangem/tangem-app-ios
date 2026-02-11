@@ -36,6 +36,13 @@ extension TokenBalanceType {
         }
     }
 
+    var loaded: Decimal? {
+        switch self {
+        case .empty, .loading, .failure: nil
+        case .loaded(let value): value
+        }
+    }
+
     var cached: TokenBalanceType.Cached? {
         switch self {
         case .empty: nil

@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 struct TransactionDispatcherResultMapper {
     func mapResult(
@@ -30,22 +31,32 @@ struct TransactionDispatcherResultMapper {
     }
 
     func mapResult(
+        _ result: GaslessTransactionSendResult,
+        blockchain: Blockchain,
+        signer: TangemSignerType?,
+        isToken: Bool
+    ) -> TransactionDispatcherResult {
+        return mapCommonSendResult(
+            hash: result.hash,
+            currentProviderHost: result.currentProviderHost,
+            blockchain: blockchain,
+            signer: signer,
+            isToken: isToken
+        )
+    }
+
+    func mapResult(
         _ result: TransactionSendResult,
         blockchain: Blockchain,
-        signer: TangemSignerType?
+        signer: TangemSignerType?,
+        isToken: Bool
     ) -> TransactionDispatcherResult {
-        let factory = ExternalLinkProviderFactory()
-        let provider = factory.makeProvider(for: blockchain)
-        let explorerUrl = provider.url(transaction: result.hash)
-
-        let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
-        let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: result.currentProviderHost)
-
-        return TransactionDispatcherResult(
+        return mapCommonSendResult(
             hash: result.hash,
-            url: explorerUrl,
-            signerType: signerType.rawValue,
-            currentHost: currentHost
+            currentProviderHost: result.currentProviderHost,
+            blockchain: blockchain,
+            signer: signer,
+            isToken: isToken
         )
     }
 
@@ -58,5 +69,31 @@ struct TransactionDispatcherResultMapper {
         }
 
         return .sendTxError(transaction: transaction, error: sendError)
+    }
+
+    // MARK: - Private Implementation
+
+    private func mapCommonSendResult(
+        hash: String,
+        currentProviderHost: String,
+        blockchain: Blockchain,
+        signer: TangemSignerType?,
+        isToken: Bool
+    ) -> TransactionDispatcherResult {
+        let factory = ExternalLinkProviderFactory()
+        let provider = factory.makeProvider(for: blockchain)
+        let explorerUrl = isToken
+            ? provider.tokenUrl(transaction: hash)
+            : provider.url(transaction: hash)
+
+        let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
+        let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: currentProviderHost)
+
+        return TransactionDispatcherResult(
+            hash: hash,
+            url: explorerUrl,
+            signerType: signerType.rawValue,
+            currentHost: currentHost
+        )
     }
 }

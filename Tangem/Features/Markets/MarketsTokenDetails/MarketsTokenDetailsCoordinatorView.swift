@@ -29,10 +29,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
-            .iOS16UIKitSheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
+            .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
             }
@@ -51,14 +51,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
-
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
     }
 
     private var links: some View {
@@ -68,8 +60,12 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }
+            .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
+                NewsPagerView(viewModel: viewModel)
+                    .navigationLinks(newsRelatedTokenDetailsLink)
+            }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
-                NavigationView {
+                NavigationStack {
                     YieldModulePromoCoordinatorView(coordinator: coordinator)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -79,7 +75,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 }
             }
             .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
-                NavigationView {
+                NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -98,6 +94,16 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             hPadding: Constants.backButtonHorizontalPadding,
             action: { UIApplication.dismissTop() }
         )
+    }
+
+    private var newsRelatedTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .if(tokenCoordinator.isMarketsSheetFlow) { view in
+                        view.ignoresSafeArea(.container, edges: .top)
+                    }
+            }
     }
 }
 
