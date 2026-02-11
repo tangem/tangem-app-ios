@@ -25,6 +25,17 @@ class BranchAndBoundPreImageTransactionBuilderTests {
             script: script
         ),
     ]
+    private lazy var singleOutput: [ScriptUnspentOutput] = [
+        .init(
+            output: .init(
+                blockId: 1,
+                txId: "",
+                index: 0,
+                amount: 12_157_434_110
+            ),
+            script: script
+        ),
+    ]
 
     @Test
     func testTaskCancel() async throws {
@@ -167,6 +178,47 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         #expect(selected.fee == expectedFee)
         #expect(selected.destination == 400_000) // 500_000(full unspent) - fee
         #expect(selected.change == 150_000) // 500_000 - 400_000 - 100_000 (output - amount - fee)
+    }
+
+    @Test
+    func testCalculationFeeSingleInputNearFullAmountReturnsValidPreImage() async throws {
+        // given
+        let calculator = TestCalculator(dust: 546, size: 192)
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+
+        // when
+        let selected = try await selector.preImage(
+            outputs: singleOutput,
+            changeScript: .p2pkh,
+            destination: .init(amount: 12_157_300_000, script: .p2pkh),
+            fee: .calculate(feeRate: 977)
+        )
+
+        // then
+        #expect(selected.outputs.count == 1)
+        #expect(selected.destination == 12_157_300_000)
+    }
+
+    @Test
+    func testCalculationFeeMultipleInputsNearFullAmountReturnsValidPreImage() async throws {
+        // given
+        let calculator = TestCalculator(dust: 546, size: 192)
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+        let expectedFee = 192 * 100
+
+        // when
+        let selected = try await selector.preImage(
+            outputs: outputs,
+            changeScript: .p2pkh,
+            destination: .init(amount: 790_000, script: .p2pkh),
+            fee: .calculate(feeRate: 100)
+        )
+
+        // then
+        #expect(selected.outputs.count == 3)
+        #expect(selected.destination == 790_000)
+        #expect(selected.fee == expectedFee)
+        #expect(selected.change == (100_000 + 200_000 + 500_000) - 790_000 - expectedFee)
     }
 
     @Test
