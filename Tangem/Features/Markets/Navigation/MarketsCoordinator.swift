@@ -140,17 +140,28 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     // MARK: - Earn
 
-    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel]) {
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution) {
+        switch resolution {
+        case .toAdd(let token, let userWalletModels):
+            openAddEarnToken(for: token, userWalletModels: userWalletModels)
+        case .alreadyAdded(let walletModel, let userWalletModel):
+            openMainTokenDetails(walletModel: walletModel, with: userWalletModel)
+        }
+    }
+
+    private func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
         let configuration = EarnAddTokenFlowConfigurationFactory.make(
             earnToken: token,
             coordinator: self
         )
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
-            userWalletModels: userWalletModels,
-            configuration: configuration,
-            coordinator: self
-        )
+
         Task { @MainActor in
+            let viewModel = AccountsAwareAddTokenFlowViewModel(
+                userWalletModels: userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -160,8 +171,8 @@ extension MarketsCoordinator: MarketsMainRoutable {
             dismissAction: { [weak self] in
                 self?.earnListCoordinator = nil
             },
-            openEarnTokenDetailsAction: { [weak self] token, userWalletModels in
-                self?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+            routeOnEarnTokenResolvedAction: { [weak self] resolution in
+                self?.routeOnTokenResolved(resolution)
             }
         )
 
@@ -219,7 +230,7 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
             )
     }
 
-    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.mainTokenDetailsCoordinator = nil
         }

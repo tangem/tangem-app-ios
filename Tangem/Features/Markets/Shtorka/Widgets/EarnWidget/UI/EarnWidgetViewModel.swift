@@ -145,7 +145,8 @@ private extension EarnWidgetViewModel {
         Task { @MainActor [weak self] in
             guard let self else { return }
             let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-            coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+            let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: userWalletModels)
+            coordinator?.routeOnTokenResolved(resolution)
         }
     }
 
