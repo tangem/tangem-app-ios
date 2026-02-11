@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "networkId": "ethereum"
+    },
+    {
+      "networkId": "cosmos"
+    },
+    {
+      "networkId": "solana"
+    },
+    {
+      "networkId": "polygon"
+    },
+    {
+      "networkId": "avalanche"
+    },
+    {
+      "networkId": "binance-smart-chain"
+    },
+    {
+      "networkId": "arbitrum-one"
+    },
+    {
+      "networkId": "optimistic-ethereum"
+    }
+  ]
+}
