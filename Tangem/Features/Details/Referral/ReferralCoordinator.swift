@@ -59,7 +59,9 @@ extension ReferralCoordinator: ReferralRoutable {
                 sheet: AccountSelectorViewModel(
                     selectedItem: selectedAccount,
                     userWalletModel: userWalletModel,
-                    cryptoAccountModelsFilter: cryptoAccountModelsFilter,
+                    cryptoAccountModelsFilter: { accountSelectorItem in
+                        cryptoAccountModelsFilter(accountSelectorItem.cryptoAccountModel)
+                    },
                     onSelect: { [weak self] result in
                         onSelect(result.cryptoAccountModel)
                         self?.closeSheet()
