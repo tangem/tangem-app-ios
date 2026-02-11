@@ -37,6 +37,7 @@ enum EarnAddTokenFlowConfigurationFactory {
             isTokenAdded: { tokenItem, account in
                 account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
             },
+            accountSelectionBehavior: makeCompleteIfTokenIsAddedBehavior(coordinator: coordinator),
             postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
                 handleTokenAddedSuccessfully(
                     addedToken: tokenItem,
@@ -45,7 +46,7 @@ enum EarnAddTokenFlowConfigurationFactory {
                 )
             },
             accountFilter: makeAccountFilter(earnToken: earnToken),
-            accountAvailabilityProvider: makeAccountAvailabilityProvider(earnToken: earnToken),
+            accountAvailabilityProvider: nil,
             analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
         )
     }
@@ -54,18 +55,27 @@ enum EarnAddTokenFlowConfigurationFactory {
 // MARK: - Private
 
 private extension EarnAddTokenFlowConfigurationFactory {
-    static func handleTokenAddedSuccessfully(
-        addedToken: TokenItem,
+    static func makeCompleteIfTokenIsAddedBehavior(
+        coordinator: EarnAddTokenRoutable
+    ) -> AccountsAwareAddTokenFlowConfiguration.AccountSelectionBehavior {
+        .completeIfTokenIsAdded(executeAction: { [weak coordinator] tokenItem, accountSelectorCell in
+            navigateToToken(
+                tokenItem: tokenItem,
+                accountSelectorCell: accountSelectorCell,
+                coordinator: coordinator
+            )
+        })
+    }
+
+    static func navigateToToken(
+        tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         coordinator: EarnAddTokenRoutable?
     ) {
         guard let coordinator else { return }
 
-        FeedbackGenerator.success()
-
-        // Find the wallet model for the added token
         let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
-            $0.tokenItem == addedToken
+            $0.tokenItem == tokenItem
         }
 
         guard let walletModel else {
@@ -79,39 +89,25 @@ private extension EarnAddTokenFlowConfigurationFactory {
         coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
     }
 
+    static func handleTokenAddedSuccessfully(
+        addedToken: TokenItem,
+        accountSelectorCell: AccountSelectorCellModel,
+        coordinator: EarnAddTokenRoutable?
+    ) {
+        FeedbackGenerator.success()
+        navigateToToken(
+            tokenItem: addedToken,
+            accountSelectorCell: accountSelectorCell,
+            coordinator: coordinator
+        )
+    }
+
     static func makeAccountFilter(
         earnToken: EarnTokenModel
     ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
         let networkId = earnToken.networkId
         return { account, supportedBlockchains in
             AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
-        }
-    }
-
-    static func makeAccountAvailabilityProvider(
-        earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability)? {
-        let networkModel = NetworkModel(
-            networkId: earnToken.networkId,
-            contractAddress: earnToken.contractAddress,
-            decimalCount: earnToken.decimalCount
-        )
-
-        return { context in
-            let tokenItemMapper = TokenItemMapper(supportedBlockchains: context.supportedBlockchains)
-            guard let tokenItem = tokenItemMapper.mapToTokenItem(
-                id: earnToken.id,
-                name: earnToken.name,
-                symbol: earnToken.symbol,
-                network: networkModel
-            ) else {
-                return .unavailable(reason: nil)
-            }
-
-            let alreadyAdded = context.account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
-            return alreadyAdded
-                ? .unavailable(reason: Localization.marketsTokenAdded)
-                : .available
         }
     }
 }
