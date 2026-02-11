@@ -81,7 +81,7 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool)? {
         let networkId = earnToken.networkId
         return { context in
             AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: context.account, in: context.supportedBlockchains)
@@ -90,7 +90,7 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountAvailabilityProvider(
         earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> AccountAvailability)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> AccountAvailability)? {
         let networkModel = NetworkModel(
             networkId: earnToken.networkId,
             contractAddress: earnToken.contractAddress,

@@ -78,7 +78,7 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         hotToken: HotCryptoToken
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool)? {
         guard let tokenItem = hotToken.tokenItem else {
             return { _ in false }
         }
@@ -91,7 +91,7 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
     static func makeAccountAvailabilityProvider(
         hotToken: HotCryptoToken
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> AccountAvailability)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> AccountAvailability)? {
         guard let tokenItem = hotToken.tokenItem else {
             return { _ in .unavailable(reason: nil) }
         }
