@@ -119,6 +119,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldSend: Localization.yieldModuleTransactionWithdraw
         case .yieldTopup: Localization.yieldModuleTransactionTopup
         case .yieldWithdraw, .yieldWithdrawCoin: Localization.yieldModuleTransactionExit
+        case .gaslessTransactionFee: Localization.gaslessTransactionFee
+        case .gaslessTransfer: Localization.transactionHistoryOperation
         }
     }
 
@@ -142,7 +144,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool
     ) {
-        id = ViewModelId(hash: hash, index: index)
+        id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
         self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
@@ -167,6 +169,7 @@ extension TransactionViewModel {
     struct ViewModelId: Hashable {
         fileprivate let hash: String
         fileprivate let index: Int
+        fileprivate let statusRawValue: String
     }
 
     enum InteractionAddressType: Hashable {
@@ -201,13 +204,15 @@ extension TransactionViewModel {
         case yieldTopup
         case yieldWithdraw
         case yieldWithdrawCoin
+        case gaslessTransactionFee
+        case gaslessTransfer
 
         case tangemPay(TangemPayTransactionType)
     }
 
     enum TangemPayTransactionType: Hashable {
         /// Spend fiat value
-        case spend(name: String, icon: URL?, isDeclined: Bool)
+        case spend(name: String, icon: URL?, isDeclined: Bool, isNegativeAmount: Bool)
 
         /// Crypto transfers
         case transfer(name: String)
@@ -217,14 +222,14 @@ extension TransactionViewModel {
 
         var name: String {
             switch self {
-            case .spend(let name, _, _): name
+            case .spend(let name, _, _, _): name
             case .transfer(let name): name
             case .fee(let name): name
             }
         }
     }
 
-    enum Status {
+    enum Status: String {
         case inProgress
         case failed
         case confirmed

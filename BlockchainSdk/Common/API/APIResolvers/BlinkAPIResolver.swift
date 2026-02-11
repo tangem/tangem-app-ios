@@ -22,11 +22,6 @@ struct BlinkAPIResolver {
             return nil
         }
 
-        // Temporary disable for EVM blockchains, will be removed later
-        guard !blockchain.isEvm else {
-            return nil
-        }
-
         guard let url = URL(string: "https://\(subdomain).blinklabs.xyz/v1/\(keysConfig.blinkApiKey)") else {
             return nil
         }

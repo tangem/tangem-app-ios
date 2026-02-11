@@ -429,9 +429,15 @@
 "domain_receive_assets_onboarding_network_name" = "%@ мережа";
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
 "earn_best_opportunities" = "Best opportunities";
+"earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "All networks";
 "earn_filter_all_types" = "All types";
+"earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
+"earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
+"earn_no_results" = "No results";
 "earn_title" = "Earn";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
@@ -767,6 +773,7 @@
 "markets_token_details_volume" = "Обсяг";
 "markets_tooltip_message" = "Потягніть вгору або торкніться панелі пошуку, щоб додати токени безпосередньо з маркету";
 "markets_tooltip_title" = "Додати токени";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "Збільшуйте дохід з активів, зберігаючи миттєвий доступ до них. %@";
 "markets_yield_supply_banner_title" = "Активувати режим дохідності";
 "mobile_wallet_requires_min_os_warning_body" = "Оновіться до версії %1$@, щоб створити мобільний гаманець";
@@ -774,7 +781,7 @@
 "news_all_news" = "Всі новини";
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
-"news_related_news" = "Related News";
+"news_related_news" = "News";
 "news_related_tokens" = "Пов'язані токени";
 "news_sources" = "Related news";
 "news_stay_in_the_loop" = "Залишайтеся в курсі подій";
@@ -1357,10 +1364,12 @@
 "tangem_pay_status_completed" = "Завершено";
 "tangem_pay_status_declined" = "Відхилено";
 "tangem_pay_status_pending" = "В очікуванні";
+"tangem_pay_status_reversed" = "Скасовано";
 "tangem_pay_terms_fees_limits" = "Умови, комісії та ліміти";
 "tangem_pay_terms_limits" = "Умови та обмеження";
 "tangem_pay_transaction_declined_notification_text" = "Банк відхилив цей запит на транзакцію.";
 "tangem_pay_transaction_fee_notification_text" = "Ця комісія покриває витрати на обробку вашого переказу.";
+"tangem_pay_transaction_reversed_notification_text" = "Транзакцію було частково або повністю скасовано продавцем";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
 "tangem_pay_unfreeze_card_alert_title" = "Розморозити картку?";
 "tangem_pay_unfreeze_card_failed" = "Не вдалося розморозити картку. Спробуйте пізніше.";
@@ -1731,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "Цей токен повинен бути асоційований з вашим обліковим записом Hedera, перш ніж ви зможете його прийняти. Вартість асоціації ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Асоціюйте свій токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостатньо %@. Поповніть ваш обліковий запис Hedera для асоціації цього токена";
+"warning_ios_deprecation_message" = "Підтримка iOS %1$@ завершиться %2$@. Щоб і надалі отримувати оновлення застосунку та забезпечити повну функціональність, оновіть iOS до останньої версії.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Ви впевнені, що хочете скасувати цю транзакцію? Ви не зможете відправити її ще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакція %1$@ %2$@ не була завершена. Ви можете спробувати відправити її ще раз.";
 "warning_kaspa_unfinished_token_transaction_title" = "У вас є незавершена транзакція";

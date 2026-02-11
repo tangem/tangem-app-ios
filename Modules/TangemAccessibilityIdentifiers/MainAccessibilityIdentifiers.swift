@@ -27,6 +27,7 @@ public enum MainAccessibilityIdentifiers {
     public static let refreshStateIdle = "mainRefreshStateIdle"
     public static let missingDerivationNotification = "mainMissingDerivationNotification"
     public static let searchThroughMarketField = "mainSearchThroughMarketField"
+    public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
 
     /// Token-specific identifiers

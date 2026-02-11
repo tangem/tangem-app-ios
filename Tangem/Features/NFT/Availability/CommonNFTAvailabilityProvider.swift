@@ -51,6 +51,10 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
 
         let userWalletIdString = userWalletId.stringValue
 
+        guard isNFTEnabled(forUserWalletWithId: userWalletId) != enabled else {
+            return
+        }
+
         if enabled {
             userWalletIdsWithNFTEnabled.value.insert(userWalletIdString)
             appSettings.userWalletIdsWithNFTEnabled.append(userWalletIdString)

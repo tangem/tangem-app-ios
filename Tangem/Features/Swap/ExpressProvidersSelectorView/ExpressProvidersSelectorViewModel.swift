@@ -171,23 +171,3 @@ extension ExpressProvidersSelectorViewModel {
         return .percent(result.formattedText, signType: result.signType)
     }
 }
-
-private extension ExpressProviderManagerState {
-    var isPermissionRequired: Bool {
-        switch self {
-        case .permissionRequired:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isAvailableToShow: Bool {
-        switch self {
-        case .error:
-            return false
-        default:
-            return true
-        }
-    }
-}

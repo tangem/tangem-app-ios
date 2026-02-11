@@ -1,13 +1,13 @@
 {
-  "originHash" : "aa91990580b9a06d9fdc61424619e7b150b3dd7dcc3d3c79349ed7cbe33ac838",
+  "originHash" : "99b7e2a7881d61d0a0ab98fe5797ea0337c0aa8f3c2dfadb51f1740ea57fd6a8",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
-        "version" : "5.10.2"
+        "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
+        "version" : "5.11.0"
       }
     },
     {
@@ -38,12 +38,21 @@
       }
     },
     {
+      "identity" : "idensicmobilesdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
+      "state" : {
+        "revision" : "d5cf86061be9515d37552551443fc8b955ad49a2",
+        "version" : "1.39.0"
+      }
+    },
+    {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "010a06c4387cea2d13606222b6c08e0454e6dd2d",
-        "version" : "8.3.3"
+        "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
+        "version" : "8.6.2"
       }
     },
     {
@@ -62,6 +71,15 @@
       "state" : {
         "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
         "version" : "15.0.3"
+      }
+    },
+    {
+      "identity" : "openssl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/OpenSSL",
+      "state" : {
+        "revision" : "e7d34385da795aaaeb2212e38c7401e5c333f792",
+        "version" : "3.6.1"
       }
     },
     {
@@ -96,8 +114,17 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "cc0b0c3fdef9076a04aa1f66cee3b916c02be2d4",
-        "version" : "4.0.6"
+        "revision" : "449dcf6bfd42e986a25b6a67ad9f84f683bcf967",
+        "version" : "4.0.10"
+      }
+    },
+    {
+      "identity" : "twilio-video-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/twilio/twilio-video-ios",
+      "state" : {
+        "revision" : "b2c7eb4b43e48d96500d6ae14fa67ac069431acd",
+        "version" : "5.11.1"
       }
     },
     {

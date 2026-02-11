@@ -12,6 +12,7 @@ import TangemVisa
 import TangemFoundation
 import UIKit
 import TangemLocalization
+import TangemPay
 
 protocol TangemPayPinRoutable: AnyObject {
     func closeTangemPayPin()
@@ -54,7 +55,9 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     func close() {
         switch state {
         case .created:
-            tangemPayAccount.loadCustomerInfo()
+            runTask { [tangemPayAccount] in
+                await tangemPayAccount.loadCustomerInfo()
+            }
 
         case .enterPin:
             break
@@ -72,7 +75,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
-                let response = try await viewModel.tangemPayAccount.customerInfoManagementService.setPin(
+                let response = try await viewModel.tangemPayAccount.customerService.setPin(
                     pin: encryptedPin,
                     sessionId: sessionId,
                     iv: iv

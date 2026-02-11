@@ -84,7 +84,7 @@ struct SendAmountTokenView: View {
         case .none:
             EmptyView()
         case .max(let action):
-            CircleButton(title: Localization.sendMaxAmount, action: action)
+            CapsuleButton(title: Localization.sendMaxAmount, action: action)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.maxAmountButton)
         case .select(.none):
             Assets.Glyphs.selectIcon.image

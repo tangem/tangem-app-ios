@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
 import TangemUIUtils
+import TangemMacro
 
 struct LoadableTokenBalanceView: View {
     let state: State
@@ -87,6 +88,7 @@ struct LoadableTokenBalanceView: View {
 extension LoadableTokenBalanceView {
     typealias Text = SensitiveText.TextType
 
+    @CaseFlagable
     enum State: Hashable {
         case loading(cached: Text? = nil)
         case failed(cached: Text, icon: Icon? = nil)
@@ -125,7 +127,6 @@ extension LoadableTokenBalanceView {
     enum ContentTransitionType {
         case numeric(isCountdown: Bool)
 
-        @available(iOS 16.0, *)
         var contentTransition: ContentTransition? {
             switch self {
             case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
@@ -157,11 +158,7 @@ private extension View {
 
 extension LoadableTokenBalanceView: Setupable {
     func setContentTransition(_ transitionType: ContentTransitionType?) -> Self {
-        if #available(iOS 16.0, *) {
-            return map { $0.contentTransitionType = transitionType }
-        } else {
-            return self
-        }
+        map { $0.contentTransitionType = transitionType }
     }
 }
 
