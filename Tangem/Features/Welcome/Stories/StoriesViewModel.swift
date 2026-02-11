@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class StoriesViewModel: ObservableObject {
+final class StoriesViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
     @Injected(\.ukGeoDefiner) var ukGeoDefiner: UKGeoDefiner
 

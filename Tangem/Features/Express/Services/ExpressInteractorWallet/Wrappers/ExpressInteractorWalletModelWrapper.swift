@@ -7,10 +7,12 @@
 //
 
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 struct ExpressInteractorWalletModelWrapper {
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let isCustom: Bool
     let isMainToken: Bool
     let isExemptFee: Bool = false
@@ -20,28 +22,39 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
+    var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { _tokenFeeManager }
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private let walletModel: any WalletModel
+    private let expressOperationType: ExpressOperationType
 
     private let transactionProcessorFactory: ExpressTransactionProcessorFactory
     private let allowanceServiceFactory: AllowanceServiceFactory
 
     private let _allowanceService: (any AllowanceService)?
-    private let _feeProvider: any ExpressFeeProvider
     private let _balanceProvider: any ExpressBalanceProvider
+    private let _tokenFeeManager: CommonExpressTokenFeeProvidersManager
 
-    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+    init(
+        userWalletInfo: UserWalletInfo,
+        walletModel: any WalletModel,
+        expressOperationType: ExpressOperationType
+    ) {
         self.walletModel = walletModel
+        self.expressOperationType = expressOperationType
 
         id = walletModel.id
+        userWalletId = userWalletInfo.id
         isCustom = walletModel.isCustom
         isMainToken = walletModel.isMainToken
 
-        let headerProvider = ExpressInteractorTokenHeaderProvider(userWalletInfo: userWalletInfo, account: walletModel.account)
+        let headerProvider = ExpressInteractorTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account
+        )
         tokenHeader = headerProvider.makeHeader()
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
@@ -50,7 +63,10 @@ struct ExpressInteractorWalletModelWrapper {
         availableBalanceProvider = walletModel.availableBalanceProvider
         transactionValidator = BSDKExpressTransactionValidator(transactionValidator: walletModel.transactionValidator)
         withdrawalNotificationProvider = walletModel.withdrawalNotificationProvider
-        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
+        )
 
         let transactionDispatcher = TransactionDispatcherFactory(
             walletModel: walletModel,
@@ -69,16 +85,14 @@ struct ExpressInteractorWalletModelWrapper {
 
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
 
-        _feeProvider = CommonExpressFeeProvider(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeProvider: walletModel,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider
-        )
-
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
             feeProvider: walletModel
+        )
+
+        _tokenFeeManager = CommonExpressTokenFeeProvidersManager(
+            tokenItem: tokenItem,
+            tokenFeeManagerBuilder: TokenFeeProvidersManagerBuilder(walletModel: walletModel, supportingOptions: .swap)
         )
     }
 }
@@ -86,10 +100,25 @@ struct ExpressInteractorWalletModelWrapper {
 // MARK: - ExpressInteractorSourceWallet
 
 extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
-    var supportedProviders: [ExpressProviderType] {
-        switch walletModel.yieldModuleManager?.state?.state {
-        case .active: .yieldActive
-        default: .swap
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? {
+        walletModel.account
+    }
+
+    var supportedProvidersFilter: SupportedProvidersFilter {
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isActive == true
+
+        switch expressOperationType {
+        case .onramp:
+            return .onramp
+        case .swapAndSend where isYieldModuleActive,
+             .swap where isYieldModuleActive:
+            return .cex
+        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress):
+            return .byDifferentAddressExchangeSupport
+        case .swapAndSend:
+            return .cex
+        case .swap:
+            return .swap
         }
     }
 
@@ -119,6 +148,7 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 // MARK: - ExpressSourceWallet
 
 extension ExpressInteractorWalletModelWrapper {
-    var feeProvider: any ExpressFeeProvider { _feeProvider }
+    var feeProvider: any ExpressFeeProvider { _tokenFeeManager }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
+    var operationType: ExpressOperationType { expressOperationType }
 }

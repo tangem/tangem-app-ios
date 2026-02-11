@@ -33,6 +33,9 @@ final class WCSolanaSignAllTransactionsHandler {
 
             self.walletModel = walletModel
             hashesToSign = parameters.transactions
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
@@ -61,6 +64,9 @@ final class WCSolanaSignAllTransactionsHandler {
 
             self.walletModel = walletModel
             hashesToSign = parameters.transactions
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")

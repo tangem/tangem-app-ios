@@ -23,15 +23,21 @@ public struct AccountForNFTData {
 
 public struct AccountWithCollectionsData {
     let accountData: AccountForNFTData
+    let navigationContext: NFTNavigationContext
     let collections: [NFTCollection]
 
-    public init(accountData: AccountForNFTData, collections: [NFTCollection]) {
+    public init(
+        accountData: AccountForNFTData,
+        collections: [NFTCollection],
+        navigationContext: NFTNavigationContext
+    ) {
         self.accountData = accountData
         self.collections = collections
+        self.navigationContext = navigationContext
     }
 }
 
 public enum AccountsWithCollectionsState {
-    case singleAccount
+    case singleAccount(NFTNavigationContext)
     case multipleAccounts([AccountWithCollectionsData])
 }
