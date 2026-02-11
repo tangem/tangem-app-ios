@@ -81,10 +81,10 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         earnToken: EarnTokenModel
-    ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> Bool)? {
         let networkId = earnToken.networkId
-        return { account, supportedBlockchains in
-            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+        return { context in
+            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: context.account, in: context.supportedBlockchains)
         }
     }
 
