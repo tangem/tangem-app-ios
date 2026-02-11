@@ -14,6 +14,19 @@ struct MobileOnboardingSeedPhraseValidationView: View {
     @ObservedObject var viewModel: ViewModel
 
     var body: some View {
+        content
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(leading: {
+                MobileOnboardingFlowNavBarAction.back(handler: viewModel.onBackTap).view()
+            })
+    }
+}
+
+// MARK: - Subviews
+
+private extension MobileOnboardingSeedPhraseValidationView {
+    @ViewBuilder
+    var content: some View {
         switch viewModel.state {
         case .item(let item):
             state(item: item)
@@ -21,11 +34,7 @@ struct MobileOnboardingSeedPhraseValidationView: View {
             EmptyView()
         }
     }
-}
 
-// MARK: - Subviews
-
-private extension MobileOnboardingSeedPhraseValidationView {
     func state(item: ViewModel.StateItem) -> some View {
         OnboardingSeedPhraseUserValidationView(viewModel: OnboardingSeedPhraseUserValidationViewModel(
             mode: .mobile,

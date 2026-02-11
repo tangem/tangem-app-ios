@@ -12,6 +12,8 @@ import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 final class MobileOnboardingSuccessViewModel {
+    let navigationTitle: String
+
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
 
@@ -23,10 +25,12 @@ final class MobileOnboardingSuccessViewModel {
 
     init(
         type: SuccessType,
+        navigationTitle: String,
         onAppear: @escaping () -> Void,
         onComplete: @escaping () -> Void
     ) {
         self.type = type
+        self.navigationTitle = navigationTitle
         self.onAppear = onAppear
         self.onComplete = onComplete
     }
