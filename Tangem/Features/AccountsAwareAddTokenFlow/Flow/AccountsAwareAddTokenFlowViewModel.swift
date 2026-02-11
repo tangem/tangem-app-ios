@@ -337,7 +337,7 @@ private extension AccountsAwareAddTokenFlowViewModel {
 
         return { [weak self] accountSelectorItem in
             let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
-            let context = AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext(
+            let context = AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext(
                 account: accountSelectorItem.cryptoAccountModel,
                 supportedBlockchains: supportedBlockchains
             )
@@ -354,7 +354,7 @@ private extension AccountsAwareAddTokenFlowViewModel {
 
         return { [weak self] accountSelectorItem in
             let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
-            let context = AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext(
+            let context = AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext(
                 account: accountSelectorItem.cryptoAccountModel,
                 supportedBlockchains: supportedBlockchains
             )

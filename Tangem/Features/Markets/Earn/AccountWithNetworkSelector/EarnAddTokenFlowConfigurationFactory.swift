@@ -90,7 +90,7 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountAvailabilityProvider(
         earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> AccountAvailability)? {
         let networkModel = NetworkModel(
             networkId: earnToken.networkId,
             contractAddress: earnToken.contractAddress,

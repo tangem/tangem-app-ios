@@ -21,10 +21,10 @@ struct AccountsAwareAddTokenFlowConfiguration {
     let postAddBehavior: PostAddBehavior
 
     /// Filter which accounts to show (based on supported blockchains)
-    let accountFilter: ((AccountAvailabilityContext) -> Bool)?
+    let accountFilter: ((AccountFiltrationContext) -> Bool)?
 
     /// Check if account is available (or already has token on all networks)
-    let accountAvailabilityProvider: ((AccountAvailabilityContext) -> AccountAvailability)?
+    let accountAvailabilityProvider: ((AccountFiltrationContext) -> AccountAvailability)?
 
     let analyticsLogger: AddTokenFlowAnalyticsLogger
 
@@ -32,8 +32,8 @@ struct AccountsAwareAddTokenFlowConfiguration {
         getAvailableTokenItems: @escaping (AccountSelectorCellModel) -> [TokenItem],
         isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool,
         postAddBehavior: PostAddBehavior,
-        accountFilter: ((AccountAvailabilityContext) -> Bool)? = nil,
-        accountAvailabilityProvider: ((AccountAvailabilityContext) -> AccountAvailability)? = nil,
+        accountFilter: ((AccountFiltrationContext) -> Bool)? = nil,
+        accountAvailabilityProvider: ((AccountFiltrationContext) -> AccountAvailability)? = nil,
         analyticsLogger: AddTokenFlowAnalyticsLogger
     ) {
         self.getAvailableTokenItems = getAvailableTokenItems
@@ -54,10 +54,10 @@ extension AccountsAwareAddTokenFlowConfiguration {
     }
 }
 
-// MARK: - AccountAvailabilityContext
+// MARK: - AccountFiltrationContext
 
 extension AccountsAwareAddTokenFlowConfiguration {
-    struct AccountAvailabilityContext {
+    struct AccountFiltrationContext {
         let account: any CryptoAccountModel
         let supportedBlockchains: Set<Blockchain>
     }

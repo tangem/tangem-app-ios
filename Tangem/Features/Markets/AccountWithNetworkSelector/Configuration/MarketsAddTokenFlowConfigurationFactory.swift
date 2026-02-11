@@ -165,7 +165,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
     static func makeAccountAvailabilityProvider(
         inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
+    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> AccountAvailability {
         { context in
             let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworks(
                 account: context.account,
