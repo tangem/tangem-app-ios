@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUIUtils
 
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel

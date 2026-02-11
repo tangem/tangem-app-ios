@@ -20,6 +20,7 @@ final class SingleTokenNotificationManager {
 
     private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
+    private let tangemIconProvider: TangemIconProvider
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -33,10 +34,12 @@ final class SingleTokenNotificationManager {
     init(
         userWalletId: UserWalletId,
         walletModel: any WalletModel,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
+        self.tangemIconProvider = tangemIconProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
     }
@@ -126,7 +129,7 @@ final class SingleTokenNotificationManager {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken:
+        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !walletModel.tokenItem.blockchain.isGaslessTransactionSupported:
             events.append(.notEnoughFeeForTransaction(configuration: configuration))
         default:
             break
@@ -274,7 +277,7 @@ final class SingleTokenNotificationManager {
                 canPerformAction: isTotalStateLoaded
             )
 
-            return [.hasUnfulfilledRequirements(configuration: configuration)]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
 
         case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount) where isTotalStateLoaded:
             let configuration = makeUnfulfilledRequirementsConfiguration(
@@ -282,7 +285,7 @@ final class SingleTokenNotificationManager {
                 transactionAmount: transactionAmount,
                 feeAmount: feeAmount
             )
-            return [.hasUnfulfilledRequirements(configuration: configuration)]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
 
         case .none, .paidTransactionWithFee:
             return []
@@ -393,7 +396,7 @@ extension SingleTokenNotificationManager: NotificationManager {
 
         if let event = notification.settings.event as? TokenNotificationEvent {
             switch event {
-            case .hasUnfulfilledRequirements(.incompleteKaspaTokenTransaction(let revealTransaction)):
+            case .hasUnfulfilledRequirements(.incompleteKaspaTokenTransaction(let revealTransaction), _):
                 Analytics.log(event: .tokenButtonRevealCancel, params: event.analyticsParams)
 
                 interactionDelegate?.confirmDiscardingUnfulfilledAssetRequirements(

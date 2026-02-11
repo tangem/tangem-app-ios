@@ -9,6 +9,7 @@
 import TangemSdk
 import TangemVisa
 import TangemLocalization
+import TangemPay
 
 final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
     var syncNeededTitle: String {

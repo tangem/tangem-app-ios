@@ -70,17 +70,16 @@ final class ArchivedAccountsViewModel: ObservableObject {
             viewState = .loading
             let archivedAccounts = try await accountModelsManager.archivedCryptoAccountInfos()
             viewState = .success(archivedAccounts)
+            logScreenOpenedAnalytics(accountsCount: archivedAccounts.count)
         } catch {
             viewState = .failure(error)
         }
     }
 
-    func onAppear() {
-        Analytics.log(.walletSettingsArchivedAccountsScreenOpened)
-    }
-
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
-        Analytics.log(.walletSettingsButtonRecoverAccount)
+        let analyticsParams = accountInfo.analyticsParameters(with: SingleAccountAnalyticsBuilder())
+        Analytics.log(event: .walletSettingsButtonRecoverAccount, params: analyticsParams)
+
         recoverAccountTask?.cancel()
         recoveringAccountId = accountInfo.id
 
@@ -99,6 +98,13 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - Private implementation
 
+    private func logScreenOpenedAnalytics(accountsCount: Int) {
+        Analytics.log(
+            event: .walletSettingsArchivedAccountsScreenOpened,
+            params: [.accountsCount: String(accountsCount)]
+        )
+    }
+
     @MainActor
     private func handleAccountRecoverySuccess(result: AccountOperationResult) {
         recoveringAccountId = nil
@@ -114,23 +120,27 @@ final class ArchivedAccountsViewModel: ObservableObject {
     private func handleAccountRecoveryFailure(accountInfo: ArchivedCryptoAccountInfo, error: AccountRecoveryError) {
         recoveringAccountId = nil
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .tooManyAccounts:
+            title = Localization.accountArchivedRecoverErrorTitle
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonText = Localization.commonGotIt
         case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )

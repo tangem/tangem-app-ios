@@ -18,7 +18,7 @@ struct TangemPayTransactionDetailsView: View {
     var body: some View {
         VStack(spacing: 24) {
             BottomSheetHeaderView(title: viewModel.title, trailing: {
-                CircleButton.close(action: viewModel.userDidTapClose)
+                NavigationBarButton.close(action: viewModel.userDidTapClose)
             })
             .verticalPadding(8)
 
@@ -82,22 +82,32 @@ struct TangemPayTransactionDetailsView: View {
 
     @ViewBuilder
     private var bottomInfoView: some View {
-        if let bottomInfo = viewModel.bottomInfo {
+        if let additionalInfo = viewModel.additionalInfo {
             HStack(spacing: 8) {
-                Assets.infoCircle20.image
+                additionalInfo.icon
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.secondary)
+                    .foregroundStyle(additionalInfo.iconColor)
 
-                Text(bottomInfo)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                Text(additionalInfo.text)
+                    .style(Fonts.Regular.footnote, color: additionalInfo.textColor)
             }
             .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Colors.Button.disabled)
+                    .fill(additionalInfo.backgroundColor)
             )
         }
+    }
+}
+
+extension TangemPayTransactionDetailsView {
+    struct AdditionalInfo {
+        let text: String
+        let textColor: Color
+        let icon: Image
+        let iconColor: Color
+        let backgroundColor: Color
     }
 }

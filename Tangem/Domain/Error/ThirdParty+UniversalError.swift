@@ -35,7 +35,7 @@ extension MoyaError: @retroactive UniversalError {
         case .objectMapping: 108000003
         case .parameterEncoding: 108000004
         case .requestMapping: 108000005
-        case .statusCode: 108000006
+        case .statusCode: 108000006 // Do not change this code
         case .stringMapping: 108000007
         case .underlying: 108000008
         }

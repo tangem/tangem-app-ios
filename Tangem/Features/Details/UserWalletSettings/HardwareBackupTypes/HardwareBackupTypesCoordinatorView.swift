@@ -45,7 +45,7 @@ private extension HardwareBackupTypesCoordinatorView {
             HardwareCreateWalletCoordinatorView(coordinator: coordinator)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        CloseButton(dismiss: self.coordinator.onHardwareCreateWalletCloseTap)
+                        CloseTextButton(action: self.coordinator.onHardwareCreateWalletCloseTap)
                     }
                 }
         }

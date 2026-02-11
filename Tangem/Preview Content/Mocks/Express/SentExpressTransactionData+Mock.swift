@@ -14,18 +14,20 @@ extension SentExpressTransactionData {
         result: .init(hash: UUID().uuidString, url: URL(string: "https://google.com"), signerType: "card", currentHost: ""),
         source: ExpressInteractorWalletModelWrapper(
             userWalletInfo: UserWalletModelMock().userWalletInfo,
-            walletModel: CommonWalletModel.mockETH
+            walletModel: CommonWalletModel.mockETH,
+            expressOperationType: .swap
         ),
         destination: ExpressInteractorWalletModelWrapper(
             userWalletInfo: UserWalletModelMock().userWalletInfo,
-            walletModel: CommonWalletModel.mockETH
+            walletModel: CommonWalletModel.mockETH,
+            expressOperationType: .swap
         ),
-        fee: 0.032,
-        feeOption: .market,
+        fee: .init(option: .market, tokenItem: CommonWalletModel.mockETH.feeTokenItem, value: .loading),
         provider: ExpressProvider(
             id: "1inch",
             name: "1inch",
             type: .dex,
+            exchangeOnlyWithinSingleAddress: false,
             imageURL: nil,
             termsOfUse: nil,
             privacyPolicy: nil,

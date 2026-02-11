@@ -15,6 +15,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     private let subtitle: String?
     private let leading: Leading
     private let trailing: Trailing
+    private let titleAccessibilityIdentifier: String?
 
     private var subtitleSpacing: CGFloat = 12
     private var verticalPadding: CGFloat = 12
@@ -22,11 +23,13 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     public init(
         title: String,
         subtitle: String? = nil,
+        titleAccessibilityIdentifier: String? = nil,
         @ViewBuilder leading: @escaping (() -> Leading) = { EmptyView() },
         @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }
     ) {
         self.title = title
         self.subtitle = subtitle
+        self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         self.leading = leading()
         self.trailing = trailing()
     }
@@ -37,6 +40,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
             VStack(spacing: subtitleSpacing) {
                 Text(title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(titleAccessibilityIdentifier)
 
                 if let subtitle {
                     Text(subtitle)

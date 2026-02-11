@@ -44,11 +44,9 @@ struct ExpressSuccessSentView: View {
                     .innerContentPadding(12)
                     .backgroundColor(Colors.Background.action)
 
-                    GroupedSection(viewModel.expressFee) {
-                        ExpressFeeRowView(viewModel: $0)
+                    if let feeCompactViewModel = viewModel.feeCompactViewModel {
+                        FeeCompactView(viewModel: feeCompactViewModel, tapAction: nil)
                     }
-                    .innerContentPadding(12)
-                    .backgroundColor(Colors.Background.action)
                 }
             }
             .padding(.horizontal, 14)
@@ -113,6 +111,9 @@ struct ExpressSuccessSentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct ExpressSuccessSentView_Preview: PreviewProvider {
     static let viewModel = ExpressModulesFactoryMock().makeExpressSuccessSentViewModel(
         data: .mock,
@@ -126,3 +127,4 @@ struct ExpressSuccessSentView_Preview: PreviewProvider {
             }
     }
 }
+#endif // DEBUG

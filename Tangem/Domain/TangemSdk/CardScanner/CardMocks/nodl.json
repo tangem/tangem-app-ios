@@ -1,0 +1,74 @@
+{
+    "supportedCurves" : [
+        "ed25519"
+    ],
+    "wallets" : [
+        {
+            "curve" : "ed25519",
+            "hasBackup" : false,
+            "totalSignedHashes" : 5,
+            "index" : 0,
+            "publicKey" : "067F634F228754E9BE7C48889FF385739EBDB2E17C968C4D6D2ED0A7F1341932",
+            "derivedKeys" : {
+
+            },
+            "settings" : {
+                "isPermanent" : false
+            },
+            "isImported" : false,
+            "remainingSignatures" : 95
+        }
+    ],
+    "attestation" : {
+        "cardKeyAttestation" : "failed",
+        "firmwareAttestation" : "skipped",
+        "walletKeysAttestation" : "skipped",
+        "cardUniquenessAttestation" : "skipped"
+    },
+    "linkedTerminalStatus" : "none",
+    "cardId" : "BB00000000000000",
+    "isPasscodeSet" : false,
+    "issuer" : {
+        "publicKey" : "0000",
+        "name" : "TANGEM SDK"
+    },
+    "isAccessCodeSet" : false,
+    "firmwareVersion" : {
+        "major" : 2,
+        "stringValue" : "2.42d SDK",
+        "type" : "d SDK",
+        "minor" : 42,
+        "patch" : 0
+    },
+    "manufacturer" : {
+        "manufactureDate" : "2019-11-13",
+        "signature" : "0000",
+        "name" : "TANGEM"
+    },
+    "batchId" : "FFFF",
+    "settings" : {
+        "maxWalletsCount" : 1,
+        "supportedEncryptionModes" : [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "securityDelay" : 15000,
+        "isFilesAllowed" : false,
+        "isBackupAllowed" : false,
+        "isHDWalletAllowed" : false,
+        "isRemovingUserCodesAllowed" : true,
+        "isKeysImportAllowed" : false,
+        "isLinkedTerminalEnabled" : true,
+        "isSettingAccessCodeAllowed" : true,
+        "isSettingPasscodeAllowed" : true,
+        "isPermanentWallet": false,
+        "isOverwritingIssuerExtraDataRestricted": true,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": false
+    },
+    "userSettings" : {
+        "isUserCodeRecoveryAllowed" : false
+    },
+    "cardPublicKey" : "0000"
+}

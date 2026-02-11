@@ -13,6 +13,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
     private lazy var scanButton = button(.scanButton)
     private lazy var tosAcceptButton = button(.tosAcceptButton)
     private lazy var getStartedButton = button(.getStartedButton)
+    private lazy var startWithMobileWalletButton = button(.startWithMobileWalletButton)
 
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
@@ -33,7 +34,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
     func selectWalletFromList(name: CardMockAccessibilityIdentifiers) {
         // Find the mock wallet button in the alert
-        let walletButton = app.buttons[name.rawValue]
+        let walletButton = app.buttons[name.rawValue].firstMatch
 
         if !walletButton.isHittable {
             app.swipeUp()
@@ -97,6 +98,14 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         }
     }
 
+    @discardableResult
+    func startWithMobileWallet() -> MobileCreateWalletScreen {
+        XCTContext.runActivity(named: "Open mobile wallet creation") { _ in
+            startWithMobileWalletButton.waitAndTap()
+            return MobileCreateWalletScreen(app)
+        }
+    }
+
     private func handleTwinOnboarding() -> MainScreen {
         XCTContext.runActivity(named: "Handle Twin onboarding screen") { _ in
             let onboardingScreen = TwinOnboardingScreen(app)
@@ -117,6 +126,7 @@ enum CreateWalletSelectorScreenElement: String, UIElement {
     case scanButton
     case tosAcceptButton
     case getStartedButton
+    case startWithMobileWalletButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -126,6 +136,8 @@ enum CreateWalletSelectorScreenElement: String, UIElement {
             TOSAccessibilityIdentifiers.acceptButton
         case .getStartedButton:
             StoriesAccessibilityIdentifiers.getStartedButton
+        case .startWithMobileWalletButton:
+            OnboardingAccessibilityIdentifiers.mobileWalletButton
         }
     }
 }

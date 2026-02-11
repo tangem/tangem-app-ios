@@ -18,7 +18,7 @@ final class WelcomeViewModel: ObservableObject {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var error: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     let storiesModel: StoriesViewModel
 
@@ -199,7 +199,7 @@ extension WelcomeViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

@@ -37,7 +37,6 @@ enum StakingTargetsStepBuilder {
 
     struct Dependencies {
         let manager: any StakingManager
-        let sendFeeProvider: any SendFeeProvider
         let analyticsLogger: any SendTargetsAnalyticsLogger
     }
 
@@ -62,7 +61,7 @@ enum StakingTargetsStepBuilder {
 
         let viewModel = StakingTargetsViewModel(interactor: interactor, analyticsLogger: dependencies.analyticsLogger)
         let preferredTargetsCount = dependencies.manager.state.yieldInfo?.preferredTargets.count ?? 0
-        let step = StakingTargetsStep(viewModel: viewModel, interactor: interactor, sendFeeProvider: dependencies.sendFeeProvider)
+        let step = StakingTargetsStep(viewModel: viewModel, interactor: interactor)
         let compact = StakingTargetsCompactViewModel(input: io.input, preferredTargetsCount: preferredTargetsCount)
 
         return (step: step, interactor: interactor, compact: compact)

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemVisa
+import TangemPay
 
 final class TangemPayCardDetailsRepository {
     let lastFourDigits: String

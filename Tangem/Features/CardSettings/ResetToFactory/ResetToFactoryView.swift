@@ -39,7 +39,6 @@ struct ResetToFactoryView: View {
         .padding(.bottom, max(10, UIApplication.safeAreaInsets.bottom))
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarTitle(Text(Localization.cardSettingsResetCardToFactory), displayMode: .inline)
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .alert(item: $viewModel.alert) { $0.alert }
     }
 
@@ -102,6 +101,7 @@ struct ResetToFactoryView: View {
             action: viewModel.didTapMainButton
         )
         .padding(.horizontal, 16)
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .accessibilityIdentifier(CardSettingsAccessibilityIdentifiers.resetCardButton)
     }
 

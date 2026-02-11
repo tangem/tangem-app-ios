@@ -8,15 +8,20 @@
 import SwiftUI
 import TangemAssets
 
-struct PageIndicatorView: View {
+public struct PageIndicatorView: View {
     let totalPages: Int
     let currentIndex: Int
+
+    public init(totalPages: Int, currentIndex: Int) {
+        self.totalPages = totalPages
+        self.currentIndex = currentIndex
+    }
 
     private let backgroundSize = CGSize(width: 92, height: 32)
     private let maxVisibleDots = 5
     private let spacing: CGFloat = 6
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: spacing) {
             ForEach(visibleIndices, id: \.self) { index in
                 dot(for: index)
@@ -32,9 +37,13 @@ struct PageIndicatorView: View {
 
     private func dot(for index: Int) -> some View {
         let size = dotSize(for: index)
+        let isActive = index == currentIndex
+        let color = isActive
+            ? Color.Tangem.Graphic.Neutral.primaryInvertedConstant
+            : Color.Tangem.Text.Neutral.tertiary
 
         return RoundedRectangle(cornerRadius: size.height / 2, style: .continuous)
-            .fill(Color.Tangem.Text.Neutral.primaryInvertedConstant)
+            .fill(color)
             .frame(width: size.width, height: size.height)
     }
 

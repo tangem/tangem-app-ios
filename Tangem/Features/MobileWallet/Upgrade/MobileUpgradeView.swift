@@ -21,7 +21,6 @@ struct MobileUpgradeView: View {
             .padding(.top, 16)
             .padding(.horizontal, 16)
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 
@@ -30,7 +29,7 @@ struct MobileUpgradeView: View {
 private extension MobileUpgradeView {
     var content: some View {
         VStack(spacing: 6) {
-            CloseButton(dismiss: viewModel.onCloseTap)
+            CloseTextButton(action: viewModel.onCloseTap)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             info(item: viewModel.info)
@@ -122,6 +121,7 @@ private extension MobileUpgradeView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onUpgradeTap
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
         }
     }
 }

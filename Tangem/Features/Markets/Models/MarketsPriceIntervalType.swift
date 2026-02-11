@@ -84,3 +84,11 @@ extension MarketsPriceIntervalType {
         }
     }
 }
+
+// MARK: - Accessibility
+
+extension MarketsPriceIntervalType {
+    var marketsAccessibilityId: String {
+        rawValue
+    }
+}

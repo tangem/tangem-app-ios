@@ -14,38 +14,42 @@ import TangemAssets
 
 struct BlockchainSDKNotificationMapper {
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
-
     private var tokenItemSymbol: String { tokenItem.currencySymbol }
-    private var isFeeCurrency: Bool { tokenItem == feeTokenItem }
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
+    init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
     }
 
-    func mapToValidationErrorEvent(
-        _ validationError: ValidationError,
-        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
-    ) -> ValidationErrorEvent {
+    func mapToValidationErrorEvent(_ validationError: ValidationError) -> ValidationErrorEvent {
         switch validationError {
         case .balanceNotFound, .invalidAmount, .invalidFee:
             return .invalidNumber
         case .amountExceedsBalance, .totalExceedsBalance:
             return .insufficientBalance
-        case .feeExceedsBalance where isFeeCurrency:
+        case .feeExceedsBalance(_, _, let isFeeCurrency) where isFeeCurrency:
             // If the fee more than the fee/coin balance and we try to send feeCurrency e.g. coin
             // We have to show just `insufficientBalance` without `openFeeCurrency` button
             return .insufficientBalance
-        case .feeExceedsBalance:
+        case .feeExceedsBalance(let fee, let blockchain, _):
+            let name: String = switch fee.amount.type {
+            case .token(let token): token.name
+            default: blockchain.coinDisplayName
+            }
+
+            let tokenIconInfo = TokenIconInfoBuilder().build(
+                for: fee.amount.type,
+                in: blockchain,
+                isCustom: false
+            )
+
             return .insufficientBalanceForFee(
                 configuration: .init(
                     amountCurrencySymbol: tokenItem.currencySymbol,
                     amountCurrencyBlockchainName: tokenItem.blockchain.displayName,
                     transactionAmountTypeName: tokenItem.name,
-                    feeAmountTypeName: feeTokenItem.name,
-                    feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
-                    feeAmountTypeIconAsset: blockchainIconProvider.provide(by: feeTokenItem.blockchain, filled: true),
+                    feeAmountTypeName: name,
+                    feeAmountTypeCurrencySymbol: fee.amount.currencySymbol,
+                    feeTokenIconInfo: tokenIconInfo,
                     networkName: tokenItem.networkName,
                     currencyButtonTitle: nil,
                     // We set true here because we have to show "Go to \(coin)" button

@@ -21,6 +21,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let tokenIconInfo: TokenIconInfo
     let defaultAddressString: String
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -28,6 +29,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     lazy var dependencies = makeOnrampDependencies(
         preferredValues: parameters.preferredValues
@@ -78,6 +80,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         defaultAddressString = walletModel.defaultAddressString
 
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -94,17 +97,16 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             tokenItem: walletModel.tokenItem,
         )
 
-        let expressDependenciesInput = ExpressDependenciesInput(
+        let source = ExpressInteractorWalletModelWrapper(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            destination: .none
+            walletModel: walletModel,
+            expressOperationType: .onramp
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            supportedProviderTypes: [.onramp],
-            operationType: .onramp
-        )
+        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+
+        accountModelAnalyticsProvider = walletModel.account
     }
 }
 
@@ -176,7 +178,8 @@ extension OnrampFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
