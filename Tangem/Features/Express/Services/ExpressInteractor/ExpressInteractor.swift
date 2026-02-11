@@ -650,8 +650,18 @@ private extension ExpressInteractor {
                     await logExpressError(error)
                 case let error as ExpressProviderError where error == .transactionSizeNotSupported:
                     await logExpressError(error)
+                case let error as ExpressRepositoryError where error == .availableProvidersDoesNotFound:
+                    guard let destination = getDestination() else { break }
+                    updateState(.preloadRestriction(.tokenNotSupportedForSwap(tokenItem: destination.tokenItem)))
                 default:
                     break
+                }
+
+                // Check if a newly added destination token from markets is not supported for swap
+                if let destination = getDestination(),
+                   destination.isNewlyAddedFromMarkets {
+                    updateState(.preloadRestriction(.tokenNotSupportedForSwap(tokenItem: destination.tokenItem)))
+                    return
                 }
 
                 let quote = getState().quote
@@ -924,6 +934,7 @@ extension ExpressInteractor {
     enum PreloadRestrictionType {
         case noSourceTokens(destination: TokenItem)
         case noDestinationTokens(source: TokenItem)
+        case tokenNotSupportedForSwap(tokenItem: TokenItem)
     }
 
     enum RestrictionType {

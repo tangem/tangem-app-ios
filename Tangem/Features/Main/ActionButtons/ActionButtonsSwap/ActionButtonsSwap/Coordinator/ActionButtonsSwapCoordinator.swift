@@ -60,17 +60,19 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
                 sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
             ))
         case .new(let tokenSelectorViewModel):
-            let marketsTokensViewModel = SwapMarketsTokensViewModel(
-                searchProvider: CommonSwapMarketsSearchTokensProvider(tangemApiService: tangemApiService),
-                configuration: .searchOnlyOnDemand
-            )
+            // Create external search view model if feature toggle is enabled
+            let marketsTokensViewModel: SwapMarketsTokensViewModel?
+            if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+                marketsTokensViewModel = SwapMarketsTokensViewModel()
+            } else {
+                marketsTokensViewModel = nil
+            }
 
             viewType = .new(
                 AccountsAwareActionButtonsSwapViewModel(
                     tokenSelectorViewModel: tokenSelectorViewModel,
                     marketsTokensViewModel: marketsTokensViewModel,
                     coordinator: self,
-                    tangemApiService: tangemApiService
                 )
             )
         }
@@ -160,9 +162,9 @@ extension ActionButtonsSwapCoordinator: SwapTokenSelectorRoutable {
             // Add a small delay to avoid animation glitches
             try? await Task.sleep(for: .milliseconds(500))
 
-            // Extract the view model from viewType and delegate selection
+            // Extract the view model from viewType and delegate selection with newly added flag
             if case .new(let swapViewModel) = viewType {
-                swapViewModel.usedDidSelect(item: item)
+                swapViewModel.userDidSelectNewlyAddedToken(item: item)
             } else {
                 AppLogger.error("onTokenAdded called with unexpected viewType: \(String(describing: viewType))", error: ExpressInteractorError.destinationNotFound)
             }
