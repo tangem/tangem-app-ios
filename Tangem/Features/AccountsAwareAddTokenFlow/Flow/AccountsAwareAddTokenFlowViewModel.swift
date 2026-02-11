@@ -325,18 +325,31 @@ private extension AccountsAwareAddTokenFlowViewModel {
 // MARK: - Helpers
 
 private extension AccountsAwareAddTokenFlowViewModel {
-    func supportedBlockchains(for accountSelectorItem: AccountSelectorViewModel.AccountSelectorItem) -> Set<Blockchain>? {
-        userWalletModelsKeyedById[accountSelectorItem.userWalletId]?.config.supportedBlockchains
+    func userWalletConfig(for accountSelectorItem: AccountSelectorViewModel.AccountSelectorItem) -> UserWalletConfig? {
+        userWalletModelsKeyedById[accountSelectorItem.userWalletId]?.config
     }
 
     func makeCryptoAccountModelsFilter() -> (AccountSelectorViewModel.AccountSelectorItem) -> Bool {
         guard let customFilter = configuration.accountFilter else {
-            // Default: return all accounts
-            return { _ in true }
+            return { [weak self] accountSelectorItem in
+                let config = self?.userWalletConfig(for: accountSelectorItem)
+                let hasMultiCurrencySupport = config?.hasFeature(.multiCurrency) ?? false
+
+                // By definition, it is impossible to add tokens to accounts/wallets without multi-currency support
+                return hasMultiCurrencySupport
+            }
         }
 
         return { [weak self] accountSelectorItem in
-            let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
+            let config = self?.userWalletConfig(for: accountSelectorItem)
+            let hasMultiCurrencySupport = config?.hasFeature(.multiCurrency) ?? false
+
+            if !hasMultiCurrencySupport {
+                // By definition, it is impossible to add tokens to accounts/wallets without multi-currency support
+                return false
+            }
+
+            let supportedBlockchains = config?.supportedBlockchains ?? []
             let context = AccountsAwareAddTokenFlowConfiguration.AccountContext(
                 account: accountSelectorItem.cryptoAccountModel,
                 supportedBlockchains: supportedBlockchains
@@ -353,7 +366,8 @@ private extension AccountsAwareAddTokenFlowViewModel {
         }
 
         return { [weak self] accountSelectorItem in
-            let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
+            let config = self?.userWalletConfig(for: accountSelectorItem)
+            let supportedBlockchains = config?.supportedBlockchains ?? []
             let context = AccountsAwareAddTokenFlowConfiguration.AccountContext(
                 account: accountSelectorItem.cryptoAccountModel,
                 supportedBlockchains: supportedBlockchains
