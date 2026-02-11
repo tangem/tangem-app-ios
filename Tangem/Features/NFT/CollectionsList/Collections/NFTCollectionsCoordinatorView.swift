@@ -34,9 +34,17 @@ struct NFTCollectionsCoordinatorView: View {
             .sheet(item: $coordinator.assetDetailsCoordinator) {
                 NFTAssetDetailsCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
+            // Floating sheets are controlled by the global `FloatingSheetRegistry` singleton instance, therefore
+            // weakly capture is required here to avoid retaining the `coordinator` instance forever
+            .floatingSheetContent(for: AccountSelectorViewModel.self) { [weak coordinator] viewModel in
                 FloatingSheetContentWithHeader(
-                    headerConfig: .init(title: Localization.commonChooseAccount, backAction: nil, closeAction: coordinator.closeSheet),
+                    headerConfig: .init(
+                        title: viewModel.state.navigationBarTitle,
+                        backAction: nil,
+                        closeAction: {
+                            coordinator?.closeSheet()
+                        }
+                    ),
                     content: {
                         AccountSelectorView(viewModel: viewModel)
                     }

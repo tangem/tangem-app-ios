@@ -18,7 +18,7 @@ struct SendSuggestedWalletsFactory {
         let targetNetworkId = walletModel.tokenItem.blockchain.networkId
         let shouldShowAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
-        return userWalletRepository.models.flatMap { userWalletModel in
+        let wallets = userWalletRepository.models.flatMap { userWalletModel in
             let walletModels = if FeatureProvider.isAvailable(.accounts) {
                 AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             } else {
@@ -40,12 +40,21 @@ struct SendSuggestedWalletsFactory {
                     return .init(icon: icon, name: accountModel.name)
                 }
 
+                let tokenHeaderProvider = ExpressInteractorTokenHeaderProvider(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    account: walletModel.account
+                )
+
                 return SendDestinationSuggestedWallet(
                     name: userWalletModel.name,
                     address: walletModel.defaultAddressString,
-                    account: shouldShowAccounts ? account : .none
+                    account: shouldShowAccounts ? account : .none,
+                    tokenHeader: tokenHeaderProvider.makeHeader(),
+                    accountModelAnalyticsProvider: walletModel.account
                 )
             }
         }
+
+        return wallets
     }
 }

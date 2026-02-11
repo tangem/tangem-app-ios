@@ -21,7 +21,7 @@ struct TangemLoggerConfigurator: Initializable {
 
     func initialize() {
         LegacyFileLogger().remove()
-        Logger.configuration = TangemLoggerConfiguration()
+        TangemLogger.Logger.configuration = TangemLoggerConfiguration()
         // TangemSDK logger
         Log.config = tangemSDKLogConfig
     }
@@ -29,7 +29,7 @@ struct TangemLoggerConfigurator: Initializable {
 
 // MARK: - TangemLogger.Configuration
 
-struct TangemLoggerConfiguration: Logger.Configuration {
+struct TangemLoggerConfiguration: TangemLogger.Logger.Configuration {
     /// Write to console
     func isLoggable() -> Bool {
         AppEnvironment.current.isDebug
@@ -37,7 +37,7 @@ struct TangemLoggerConfiguration: Logger.Configuration {
 
     /// Write to file
     func isWritable() -> Bool {
-        FeatureProvider.isAvailable(.logs)
+        true
     }
 }
 

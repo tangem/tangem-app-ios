@@ -28,12 +28,16 @@ struct ReferralCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tosViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
+            // Floating sheets are controlled by the global `FloatingSheetRegistry` singleton instance, therefore
+            // weakly capture is required here to avoid retaining the `coordinator` instance forever
+            .floatingSheetContent(for: AccountSelectorViewModel.self) { [weak coordinator] viewModel in
                 VStack(spacing: 0) {
                     BottomSheetHeaderView(
-                        title: Localization.commonChooseAccount,
+                        title: viewModel.state.navigationBarTitle,
                         trailing: {
-                            CircleButton.close(action: coordinator.closeSheet)
+                            NavigationBarButton.close {
+                                coordinator?.closeSheet()
+                            }
                         }
                     )
                     .padding(.horizontal, 16)

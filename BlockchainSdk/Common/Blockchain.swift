@@ -899,6 +899,19 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
+    var isGaslessTransactionSupported: Bool {
+        switch self {
+        case .ethereum: true
+        case .bsc: true
+        case .base: true
+        case .arbitrum: true
+        case .polygon: true
+        case .xdc: true
+        case .optimism: true
+        default: false
+        }
+    }
+
     /// Only for Ethereum compatible blockchains
     /// https://chainlist.org
     var chainId: Int? {
@@ -1055,7 +1068,6 @@ public extension Blockchain {
 public extension Blockchain {
     func derivationPath(for style: DerivationStyle) -> DerivationPath? {
         guard curve.supportsDerivation else {
-            BSDKLogger.error(error: "Wrong attempt to get a `DerivationPath` for a unsupported derivation curve")
             return nil
         }
 
@@ -1682,7 +1694,6 @@ extension Blockchain {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll,
              .linea,
              .arbitrumNova,
              .plasma:
@@ -1693,6 +1704,8 @@ extension Blockchain {
              .cyber,
              .blast:
             return EthereumOptimisticRollupWalletAssembly()
+        case .scroll:
+            return ScrollWalletAssembly()
         case .bitcoinCash:
             return BitcoinCashWalletAssembly()
         case .binance:

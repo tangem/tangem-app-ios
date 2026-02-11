@@ -17,6 +17,25 @@ struct MarketsPickerView: View {
     let isDisabled: Bool
     let style: SegmentedPicker<MarketsPriceIntervalType>.Style
     let titleFactory: (MarketsPriceIntervalType) -> String
+    let accessibilityIdentifierFactory: ((MarketsPriceIntervalType) -> String)?
+
+    init(
+        marketPriceIntervalType: Binding<MarketsPriceIntervalType>,
+        options: [MarketsPriceIntervalType],
+        shouldStretchToFill: Bool,
+        isDisabled: Bool,
+        style: SegmentedPicker<MarketsPriceIntervalType>.Style,
+        titleFactory: @escaping (MarketsPriceIntervalType) -> String,
+        accessibilityIdentifierFactory: ((MarketsPriceIntervalType) -> String)? = nil
+    ) {
+        _marketPriceIntervalType = marketPriceIntervalType
+        self.options = options
+        self.shouldStretchToFill = shouldStretchToFill
+        self.isDisabled = isDisabled
+        self.style = style
+        self.titleFactory = titleFactory
+        self.accessibilityIdentifierFactory = accessibilityIdentifierFactory
+    }
 
     var body: some View {
         SegmentedPicker(
@@ -25,7 +44,8 @@ struct MarketsPickerView: View {
             shouldStretchToFill: shouldStretchToFill,
             isDisabled: isDisabled,
             style: style,
-            titleFactory: titleFactory
+            titleFactory: titleFactory,
+            segmentAccessibilityIdentifier: accessibilityIdentifierFactory
         )
     }
 }

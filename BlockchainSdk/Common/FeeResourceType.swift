@@ -8,6 +8,6 @@
 
 import Foundation
 
-public enum FeeResourceType: String {
+public enum FeeResourceType: String, Codable {
     case mana = "Mana"
 }

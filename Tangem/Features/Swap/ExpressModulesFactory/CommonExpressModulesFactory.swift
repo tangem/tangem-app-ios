@@ -41,22 +41,14 @@ class CommonExpressModulesFactory {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.source.tokenItem
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: input,
-            supportedProviderTypes: .swap,
-            operationType: .swap
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
     }
 
     init(input: ExpressDependenciesDestinationInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.destination.tokenItem
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: input,
-            supportedProviderTypes: .swap,
-            operationType: .swap
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
     }
 }
 
@@ -104,18 +96,24 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            expressPairsRepository: expressPairsRepository,
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
-        ExpressFeeSelectorViewModel(
-            feeFormatter: feeFormatter,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
-            coordinator: coordinator
+    func makeFeeSelectorViewModel(coordinator: SendFeeSelectorRoutable) -> SendFeeSelectorViewModel? {
+        guard let source = expressDependenciesFactory.expressInteractor.getSource().value else {
+            return nil
+        }
+
+        let builder = SendFeeSelectorBuilder(
+            tokenFeeManagerProviding: expressDependenciesFactory.expressInteractor,
+            feeSelectorOutput: expressDependenciesFactory.expressInteractor,
+            analyticsLogger: source.interactorAnalyticsLogger,
         )
+
+        return builder.makeSendFeeSelector(router: coordinator)
     }
 
     func makeExpressApproveViewModel(
@@ -125,18 +123,19 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         let tokenItem = source.tokenItem
-        let feeTokenItem = source.feeTokenItem
 
         return ExpressApproveViewModel(
-            settings: .init(
-                subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
-                feeFooterText: Localization.swapGivePermissionFeeFooter,
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem,
-                selectedPolicy: selectedPolicy
+            input: .init(
+                settings: .init(
+                    subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
+                    feeFooterText: Localization.swapGivePermissionFeeFooter,
+                    tokenItem: tokenItem,
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+                ),
+                feeFormatter: feeFormatter,
+                approveViewModelInput: expressDependenciesFactory.expressInteractor,
             ),
-            feeFormatter: feeFormatter,
-            approveViewModelInput: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
