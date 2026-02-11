@@ -19,11 +19,8 @@ enum MarketsAddTokenFlowConfigurationFactory {
 
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
-                MarketsTokenItemsProvider.calculateTokenItems(
-                    coinId: inputData.coinId,
-                    coinName: inputData.coinName,
-                    coinSymbol: inputData.coinSymbol,
-                    networks: inputData.networks,
+                tokenItems(
+                    inputData: inputData,
                     supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
                     cryptoAccount: accountSelectorCell.cryptoAccountModel
                 )
@@ -37,11 +34,22 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     coordinator: coordinator
                 )
             ),
-            accountFilter: { account, supportedBlockchains in
+            accountFilter: { context in
                 let networkIds = inputData.networks.map(\.networkId)
-                return networkIds.contains { networkId in
-                    AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+                let cryptoAccount = context.account
+                let supportedBlockchains = context.supportedBlockchains
+
+                let hasManageableNetworks = networkIds.contains { networkId in
+                    AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: cryptoAccount, in: supportedBlockchains)
                 }
+
+                let tokenItems = tokenItems(
+                    inputData: inputData,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: cryptoAccount
+                )
+
+                return hasManageableNetworks && tokenItems.isNotEmpty
             },
             accountAvailabilityProvider: makeAccountAvailabilityProvider(inputData: inputData),
             analyticsLogger: analyticsLogger
@@ -170,5 +178,20 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 ? .unavailable(reason: Localization.marketsTokenAdded)
                 : .available
         }
+    }
+
+    static func tokenItems(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        supportedBlockchains: Set<Blockchain>,
+        cryptoAccount: any CryptoAccountModel
+    ) -> [TokenItem] {
+        MarketsTokenItemsProvider.calculateTokenItems(
+            coinId: inputData.coinId,
+            coinName: inputData.coinName,
+            coinSymbol: inputData.coinSymbol,
+            networks: inputData.networks,
+            supportedBlockchains: supportedBlockchains,
+            cryptoAccount: cryptoAccount
+        )
     }
 }

@@ -19,6 +19,9 @@ final class AccountsAwareAddTokenFlowViewModel: ObservableObject, FloatingSheetC
     @Published var viewState: ViewState
 
     private let userWalletModels: [UserWalletModel]
+    /// - Note: `OrderedDictionary` from `OrderedCollections` has quite inconvenient API for this use case
+    /// (especially its `values` accessor), so we use a regular dictionary here.
+    private let userWalletModelsKeyedById: [UserWalletId: UserWalletModel]
     private let configuration: AccountsAwareAddTokenFlowConfiguration
     private weak var coordinator: AccountsAwareAddTokenFlowRoutable?
 
@@ -31,6 +34,7 @@ final class AccountsAwareAddTokenFlowViewModel: ObservableObject, FloatingSheetC
         coordinator: AccountsAwareAddTokenFlowRoutable?
     ) {
         self.userWalletModels = userWalletModels
+        userWalletModelsKeyedById = userWalletModels.toDictionary(keyedBy: \.userWalletId)
         self.configuration = configuration
         self.coordinator = coordinator
 
@@ -62,12 +66,8 @@ private extension AccountsAwareAddTokenFlowViewModel {
                 context: .root
             )
         } else {
-            // Use union of all supported blockchains from all wallets
-            let allSupportedBlockchains = Set(userWalletModels.flatMap { $0.config.supportedBlockchains })
-
             openAccountSelector(
                 selectedItem: nil,
-                supportedBlockchains: allSupportedBlockchains,
                 context: .root,
                 onSelectAccount: { [weak self] result in
                     self?.openNetworkSelectionOrAddToken(
@@ -151,7 +151,6 @@ private extension AccountsAwareAddTokenFlowViewModel {
 
     func openAccountSelector(
         selectedItem: (any CryptoAccountModel)?,
-        supportedBlockchains: Set<Blockchain>,
         context: NavigationContext,
         onSelectAccount: @escaping (AccountSelectorCellModel) -> Void
     ) {
@@ -163,15 +162,12 @@ private extension AccountsAwareAddTokenFlowViewModel {
 
         configuration.analyticsLogger.logAccountSelectorOpened()
 
-        let filter = makeCryptoAccountModelsFilter(with: supportedBlockchains)
-        let availabilityProvider = makeAccountAvailabilityProvider(supportedBlockchains: supportedBlockchains)
-
         viewState = .accountSelector(
             viewModel: AccountSelectorViewModel(
                 selectedItem: selectedItem,
                 userWalletModels: userWalletModels,
-                cryptoAccountModelsFilter: filter,
-                availabilityProvider: availabilityProvider,
+                cryptoAccountModelsFilter: makeCryptoAccountModelsFilter(),
+                availabilityProvider: makeAccountAvailabilityProvider(),
                 onSelect: onSelectAccount
             ),
             context: context
@@ -308,7 +304,6 @@ private extension AccountsAwareAddTokenFlowViewModel {
     ) {
         openAccountSelector(
             selectedItem: accountSelectorCell.cryptoAccountModel,
-            supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
             context: .fromAddToken,
             onSelectAccount: { [weak self] result in
                 self?.openAddToken(
@@ -330,30 +325,40 @@ private extension AccountsAwareAddTokenFlowViewModel {
 // MARK: - Helpers
 
 private extension AccountsAwareAddTokenFlowViewModel {
-    func makeCryptoAccountModelsFilter(with supportedBlockchains: Set<Blockchain>) -> (any CryptoAccountModel) -> Bool {
+    func supportedBlockchains(for accountSelectorItem: AccountSelectorViewModel.AccountSelectorItem) -> Set<Blockchain>? {
+        userWalletModelsKeyedById[accountSelectorItem.userWalletId]?.config.supportedBlockchains
+    }
+
+    func makeCryptoAccountModelsFilter() -> (AccountSelectorViewModel.AccountSelectorItem) -> Bool {
         guard let customFilter = configuration.accountFilter else {
             // Default: return all accounts
             return { _ in true }
         }
 
-        return { account in
-            customFilter(account, supportedBlockchains)
+        return { [weak self] accountSelectorItem in
+            let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
+            let context = AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext(
+                account: accountSelectorItem.cryptoAccountModel,
+                supportedBlockchains: supportedBlockchains
+            )
+
+            return customFilter(context)
         }
     }
 
-    func makeAccountAvailabilityProvider(
-        supportedBlockchains: Set<Blockchain>
-    ) -> (any CryptoAccountModel) -> AccountAvailability {
+    func makeAccountAvailabilityProvider() -> (AccountSelectorViewModel.AccountSelectorItem) -> AccountAvailability {
         guard let customProvider = configuration.accountAvailabilityProvider else {
             // Default: all accounts available
             return { _ in .available }
         }
 
-        return { account in
+        return { [weak self] accountSelectorItem in
+            let supportedBlockchains = self?.supportedBlockchains(for: accountSelectorItem) ?? []
             let context = AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext(
-                account: account,
+                account: accountSelectorItem.cryptoAccountModel,
                 supportedBlockchains: supportedBlockchains
             )
+
             return customProvider(context)
         }
     }
