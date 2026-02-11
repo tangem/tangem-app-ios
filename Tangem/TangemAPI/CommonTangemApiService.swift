@@ -346,6 +346,10 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .earnYieldMarkets(requestModel), decoder: decoder)
     }
 
+    func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
+        return try await request(for: .earnNetworks(requestModel), decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
