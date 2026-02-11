@@ -16,6 +16,13 @@ public extension URLSessionConfiguration {
         return configuration
     }()
 
+    static let gaslessConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 60
+        configuration.timeoutIntervalForResource = 30
+        return configuration
+    }()
+
     static let stakingConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 60
@@ -31,6 +38,13 @@ public extension URLSessionConfiguration {
     }()
 
     static let visaConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 30
+        return configuration
+    }()
+
+    static let tangemPayConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 30

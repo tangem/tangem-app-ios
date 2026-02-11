@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -14,7 +15,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
-    @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Published property
 
@@ -47,9 +48,14 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
                     userWalletModel: options.userWalletModel
                 )
             )
-        case .new:
+        case .new(let options):
+            let tokenSelectorViewModel = makeAccountsAwareTokenSelectorViewModel()
             viewState = .newTokenList(
-                NewActionButtonsBuyViewModel(coordinator: self)
+                AccountsAwareActionButtonsBuyViewModel(
+                    userWalletModels: options.userWalletModels,
+                    tokenSelectorViewModel: tokenSelectorViewModel,
+                    coordinator: self
+                )
             )
         }
     }
@@ -80,6 +86,49 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
     func closeAddToPortfolio() {
         addToPortfolioBottomSheetInfo = nil
     }
+
+    func openAddHotToken(hotToken: HotCryptoToken, userWalletModels: [UserWalletModel]) {
+        Task { @MainActor in
+            let configuration = HotCryptoAddTokenFlowConfigurationFactory.make(
+                hotToken: hotToken,
+                coordinator: self
+            )
+
+            let viewModel = AccountsAwareAddTokenFlowViewModel(
+                userWalletModels: userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+
+extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable {
+    func close() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func presentSuccessToast(with text: String) {
+        Toast(view: SuccessToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
+
+    func presentErrorToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
 }
 
 // MARK: - Options
@@ -87,18 +136,22 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 extension ActionButtonsBuyCoordinator {
     enum Options {
         case `default`(options: DefaultActionButtonBuyCoordinatorOptions)
-        case new
+        case new(options: AccountsAwareActionButtonBuyCoordinatorOptions)
 
         struct DefaultActionButtonBuyCoordinatorOptions {
             let userWalletModel: UserWalletModel
             let expressTokensListAdapter: ExpressTokensListAdapter
             let tokenSorter: TokenAvailabilitySorter
         }
+
+        struct AccountsAwareActionButtonBuyCoordinatorOptions {
+            let userWalletModels: [UserWalletModel]
+        }
     }
 
     enum RootViewState: Equatable {
         case tokenList(ActionButtonsBuyViewModel)
-        case newTokenList(NewActionButtonsBuyViewModel)
+        case newTokenList(AccountsAwareActionButtonsBuyViewModel)
         case onramp(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
@@ -122,5 +175,20 @@ private extension ActionButtonsBuyCoordinator {
             expressTokensListAdapter: expressTokensListAdapter,
             tokenSorter: tokenSorter
         )
+    }
+
+    func makeAccountsAwareTokenSelectorViewModel() -> AccountsAwareTokenSelectorViewModel {
+        AccountsAwareTokenSelectorViewModel(
+            walletsProvider: .common(),
+            availabilityProvider: .buy()
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension ActionButtonsBuyCoordinator {
+    enum ToastConstants {
+        static let topPadding: CGFloat = 52
     }
 }

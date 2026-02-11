@@ -23,6 +23,8 @@ final class MobileWalletSigner {
 }
 
 extension MobileWalletSigner: TangemSigner {
+    var hasNFCInteraction: Bool { false }
+
     var latestSignerType: TangemSignerType? {
         .mobileWallet
     }

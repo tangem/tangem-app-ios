@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> {
     private lazy var titleLabel = app.navigationBars.staticTexts["Swap"]
     private lazy var closeButton = button(.closeButton)
-    private lazy var searchField = textField(.searchField)
+    private lazy var searchField = searchField(.searchField)
 
     @discardableResult
     func waitSwapTokenSelectorDisplayed() -> Self {
@@ -41,7 +41,7 @@ enum SwapTokenSelectorScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .closeButton:
-            return "Close"
+            return CommonUIAccessibilityIdentifiers.closeButton
         case .searchField:
             return "Search"
         }
