@@ -17,6 +17,9 @@ struct AccountsAwareAddTokenFlowConfiguration {
     /// Check if token is already added to account (for readonly marking in network list)
     let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool
 
+    /// What happens after account is selected
+    let accountSelectionBehavior: AccountSelectionBehavior
+
     /// What happens after token is added
     let postAddBehavior: PostAddBehavior
 
@@ -31,6 +34,7 @@ struct AccountsAwareAddTokenFlowConfiguration {
     init(
         getAvailableTokenItems: @escaping (AccountSelectorCellModel) -> [TokenItem],
         isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool,
+        accountSelectionBehavior: AccountSelectionBehavior = .executeAccountSelection,
         postAddBehavior: PostAddBehavior,
         accountFilter: ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? = nil,
         accountAvailabilityProvider: ((AccountAvailabilityContext) -> AccountAvailability)? = nil,
@@ -38,6 +42,7 @@ struct AccountsAwareAddTokenFlowConfiguration {
     ) {
         self.getAvailableTokenItems = getAvailableTokenItems
         self.isTokenAdded = isTokenAdded
+        self.accountSelectionBehavior = accountSelectionBehavior
         self.postAddBehavior = postAddBehavior
         self.accountFilter = accountFilter
         self.accountAvailabilityProvider = accountAvailabilityProvider
@@ -48,6 +53,11 @@ struct AccountsAwareAddTokenFlowConfiguration {
 // MARK: - PostAddBehavior
 
 extension AccountsAwareAddTokenFlowConfiguration {
+    enum AccountSelectionBehavior {
+        case executeAccountSelection
+        case completeIfTokenIsAdded(executeAction: (TokenItem, AccountSelectorCellModel) -> Void)
+    }
+
     enum PostAddBehavior {
         case showGetToken(GetTokenConfiguration)
         case executeAction((TokenItem, AccountSelectorCellModel) -> Void)
