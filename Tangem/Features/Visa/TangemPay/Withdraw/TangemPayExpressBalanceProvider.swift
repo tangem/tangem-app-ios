@@ -19,9 +19,9 @@ struct TangemPayExpressBalanceProvider: ExpressBalanceProvider {
         return balanceValue
     }
 
-    func getFeeCurrencyBalance() -> Decimal {
+    func getCoinBalance() throws -> Decimal {
         // Basically the `TangemPay` don't have the crypto fee on the user side
         // Then all available balance can be consider as fee currency balance
-        return availableBalanceProvider.balanceType.value ?? 0
+        return try getBalance()
     }
 }

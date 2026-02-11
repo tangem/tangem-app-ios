@@ -12,7 +12,7 @@ struct PepecoinExternalLinkProvider: ExternalLinkProvider {
     private let baseExplorerUrl: String
 
     init(isTestnet: Bool) {
-        baseExplorerUrl = isTestnet ? "https://testnet.pepeblocks.com" : "https://pepecoinexplorer.com"
+        baseExplorerUrl = isTestnet ? "https://testnet.pepeblocks.com" : "https://pepeblocks.com"
     }
 
     var testnetFaucetURL: URL? {
@@ -24,6 +24,6 @@ struct PepecoinExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        URL(string: "\(baseExplorerUrl)/transaction/\(hash)")
+        URL(string: "\(baseExplorerUrl)/tx/\(hash)")
     }
 }

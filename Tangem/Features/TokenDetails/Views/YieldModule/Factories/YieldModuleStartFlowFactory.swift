@@ -10,6 +10,7 @@ final class YieldStartFlowFactory {
     private let walletModel: any WalletModel
     private let yieldManagerInteractor: YieldManagerInteractor
     private let logger: YieldAnalyticsLogger
+    private let tangemIconProvider: TangemIconProvider
     private weak var coordinator: YieldModulePromoCoordinator?
 
     // MARK: - Init
@@ -18,12 +19,14 @@ final class YieldStartFlowFactory {
         walletModel: any WalletModel,
         yieldManagerInteractor: YieldManagerInteractor,
         coordinator: YieldModulePromoCoordinator?,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
         self.coordinator = coordinator
         self.logger = logger
+        self.tangemIconProvider = tangemIconProvider
     }
 
     // MARK: - Public Implementation
@@ -34,7 +37,8 @@ final class YieldStartFlowFactory {
             viewState: .startEarning,
             coordinator: coordinator,
             yieldManagerInteractor: yieldManagerInteractor,
-            logger: logger
+            logger: logger,
+            tangemIconProvider: tangemIconProvider
         )
     }
 
@@ -44,7 +48,8 @@ final class YieldStartFlowFactory {
             viewState: .rateInfo,
             coordinator: nil,
             yieldManagerInteractor: yieldManagerInteractor,
-            logger: logger
+            logger: logger,
+            tangemIconProvider: tangemIconProvider
         )
     }
 }

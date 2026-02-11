@@ -32,6 +32,22 @@ enum AccountModelUtils {
         derivationIndex == Constants.mainAccountDerivationIndex
     }
 
+    static func isAccountNameValid(_ accountName: String) -> Bool {
+        let trimmedAccountName = accountName.trimmed()
+
+        if trimmedAccountName.isEmpty {
+            AccountsLogger.warning("Account name is too short")
+            return false
+        }
+
+        if trimmedAccountName.count > maxAccountNameLength {
+            AccountsLogger.warning("Account name is too long")
+            return false
+        }
+
+        return true
+    }
+
     /// A standard Java hash function.
     private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.Icon.Color {
         let colors = AccountModel.Icon.Color.allCases

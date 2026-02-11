@@ -16,11 +16,15 @@ struct TangemPayWalletSelectorViewModel {
     let onClose: () -> Void
 
     init(
+        userWalletModels: [UserWalletModel],
         onSelect: @escaping (UserWalletModel) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.onClose = onClose
-        dataSource = .init(onSelect: onSelect)
+        dataSource = .init(
+            userWalletModels: userWalletModels,
+            onSelect: onSelect
+        )
         walletSelectorViewModel = .init(dataSource: dataSource)
     }
 
