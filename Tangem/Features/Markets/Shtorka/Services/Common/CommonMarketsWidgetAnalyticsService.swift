@@ -8,12 +8,11 @@
 
 import Foundation
 
-final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider,
-    PulseMarketWidgetAnalyticsProvider,
-    NewsWidgetAnalyticsProvider,
-    EarnWidgetAnalyticsProvider {
-    // MARK: - TopMarketWidgetAnalyticsProvider
+final class CommonMarketsWidgetAnalyticsService {}
 
+// MARK: - TopMarketWidgetAnalyticsProvider
+
+extension CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider {
     func logTopMarketLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -34,9 +33,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - PulseMarketWidgetAnalyticsProvider
+// MARK: - PulseMarketWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: PulseMarketWidgetAnalyticsProvider {
     func logPulseMarketLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -67,9 +68,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - NewsWidgetAnalyticsProvider
+// MARK: - NewsWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: NewsWidgetAnalyticsProvider {
     func logNewsLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -110,9 +113,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - EarnWidgetAnalyticsProvider
+// MARK: - EarnWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: EarnWidgetAnalyticsProvider {
     func logEarnLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
