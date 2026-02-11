@@ -1,63 +1,30 @@
 //
 //  SendFeeCompactViewModel.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-import BlockchainSdk
 
 class SendFeeCompactViewModel: ObservableObject, Identifiable {
-    @Published var selectedFeeRowViewModel: FeeRowViewModel?
-    @Published var canEditFee: Bool = false
+    @Published var feeCompactViewModel: FeeCompactViewModel
+    @Published var feeCompactViewIsVisible: Bool
 
-    private let feeTokenItem: TokenItem
-    private let isFeeApproximate: Bool
-    private var selectedFeeSubscription: AnyCancellable?
-    private var canEditFeeSubscription: AnyCancellable?
-
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter(
-        balanceFormatter: BalanceFormatter(),
-        balanceConverter: BalanceConverter()
-    )
-
-    init(
-        input: SendFeeInput,
-        feeTokenItem: TokenItem,
-        isFeeApproximate: Bool
-    ) {
-        self.feeTokenItem = feeTokenItem
-        self.isFeeApproximate = isFeeApproximate
+    init(feeCompactViewModel: FeeCompactViewModel = .init(), feeCompactViewIsVisible: Bool = true) {
+        self.feeCompactViewModel = feeCompactViewModel
+        self.feeCompactViewIsVisible = feeCompactViewIsVisible
     }
 
     func bind(input: SendFeeInput) {
-        selectedFeeSubscription = input.selectedFeePublisher
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, selectedFee in
-                viewModel.selectedFeeRowViewModel = viewModel.mapToFeeRowViewModel(fee: selectedFee)
-            }
+        feeCompactViewModel.bind(
+            selectedFeePublisher: input.selectedFeePublisher,
+            supportFeeSelectionPublisher: input.supportFeeSelectionPublisher
+        )
 
-        canEditFeeSubscription = input
-            .canChooseFeeOption
+        input.shouldShowFeeSelectorRow
             .receiveOnMain()
-            .assign(to: \.canEditFee, on: self, ownership: .weak)
-    }
-
-    private func mapToFeeRowViewModel(fee: SendFee) -> FeeRowViewModel {
-        let feeComponents = fee.value.mapValue {
-            feeFormatter.formattedFeeComponents(
-                fee: $0.amount.value,
-                currencySymbol: feeTokenItem.currencySymbol,
-                currencyId: feeTokenItem.currencyId,
-                isFeeApproximate: isFeeApproximate,
-                formattingOptions: .sendCryptoFeeFormattingOptions
-            )
-        }
-
-        return FeeRowViewModel(option: fee.option, components: feeComponents, style: .plain)
+            .assign(to: &$feeCompactViewIsVisible)
     }
 }

@@ -10,24 +10,30 @@ import SwiftUI
 import TangemFoundation
 import TangemUI
 import TangemLocalization
+import TangemAssets
 import let TangemVisa.VisaLogger
+import TangemPay
 
-final class TangemPayKYCStatusPopupViewModel {
+final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenterViewModel)
     private var alertPresenterViewModel: AlertPresenterViewModel
 
-    let tangemPayAccount: TangemPayAccount
+    let tangemPayManager: TangemPayManager
     weak var coordinator: TangemPayKYCStatusRoutable?
 
-    init(
-        tangemPayAccount: TangemPayAccount,
-        coordinator: TangemPayKYCStatusRoutable?
-    ) {
-        self.tangemPayAccount = tangemPayAccount
-        self.coordinator = coordinator
+    var title: AttributedString {
+        .init(Localization.tangempayKycInProgress)
     }
 
-    var viewStatusSettings: MainButton.Settings {
+    var description: AttributedString {
+        .init(Localization.tangempayKycInProgressPopupDescription)
+    }
+
+    var icon: Image {
+        Assets.Visa.promo.image
+    }
+
+    var primaryButton: MainButton.Settings {
         .init(
             title: Localization.tangempayKycInProgressNotificationButton,
             style: .primary,
@@ -35,12 +41,20 @@ final class TangemPayKYCStatusPopupViewModel {
         )
     }
 
-    var cancelKYCSettings: MainButton.Settings {
+    var secondaryButton: MainButton.Settings? {
         .init(
             title: Localization.tangempayCancelKyc,
             style: .secondary,
             action: showAlert
         )
+    }
+
+    init(
+        tangemPayManager: TangemPayManager,
+        coordinator: TangemPayKYCStatusRoutable?
+    ) {
+        self.tangemPayManager = tangemPayManager
+        self.coordinator = coordinator
     }
 
     func dismiss() {
@@ -49,11 +63,9 @@ final class TangemPayKYCStatusPopupViewModel {
 
     private func viewStatus() {
         coordinator?.closeKYCStatusPopup()
-        runTask(in: tangemPayAccount) { tangemPayAccount in
+        runTask { [tangemPayManager] in
             do {
-                try await tangemPayAccount.launchKYC {
-                    tangemPayAccount.loadCustomerInfo()
-                }
+                try await tangemPayManager.launchKYC()
             } catch {
                 VisaLogger.error("Failed to launch KYC", error: error)
             }
@@ -75,7 +87,7 @@ final class TangemPayKYCStatusPopupViewModel {
     }
 
     private func cancelKYC() {
-        tangemPayAccount.cancelKYC { [weak self] succeeded in
+        tangemPayManager.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }
@@ -88,11 +100,5 @@ final class TangemPayKYCStatusPopupViewModel {
                     type: .temporary()
                 )
         }
-    }
-}
-
-extension TangemPayKYCStatusPopupViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: self)
     }
 }

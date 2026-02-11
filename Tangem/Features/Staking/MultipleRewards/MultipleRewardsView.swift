@@ -32,7 +32,7 @@ struct MultipleRewardsView: View {
             .background(Colors.Background.tertiary)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: viewModel.dismiss)
+                    CloseTextButton(action: viewModel.dismiss)
                 }
             }
         }

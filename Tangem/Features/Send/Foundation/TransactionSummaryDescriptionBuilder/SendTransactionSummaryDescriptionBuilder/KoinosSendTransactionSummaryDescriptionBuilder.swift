@@ -11,18 +11,16 @@ import TangemLocalization
 
 struct KoinosSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
+    init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
     }
 }
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString? {
+    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
 
         let formattingOptions = BalanceFormattingOptions(
@@ -36,9 +34,12 @@ extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
         let feeFormatter = CommonFeeFormatter(balanceFormatter: formatter, balanceConverter: .init())
 
         let totalInFiatFormatted = formatter.formatFiatBalance(amountInFiat, formattingOptions: formattingOptions)
-        let feeInFiatFormatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
+        let feeInFiatFormatted = fee.value.value.map {
+            feeFormatter.format(fee: $0.amount.value, tokenItem: fee.tokenItem)
+        }
+
         let attributedString = makeAttributedString(
-            Localization.sendSummaryTransactionDescriptionNoFiatFee(totalInFiatFormatted, feeInFiatFormatted),
+            Localization.sendSummaryTransactionDescriptionNoFiatFee(totalInFiatFormatted, feeInFiatFormatted ?? ""),
             richTexts: [totalInFiatFormatted]
         )
 

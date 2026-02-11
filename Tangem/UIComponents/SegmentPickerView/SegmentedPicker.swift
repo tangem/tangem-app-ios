@@ -17,6 +17,25 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
     let isDisabled: Bool
     let style: Style
     let titleFactory: (Option) -> String
+    let segmentAccessibilityIdentifier: ((Option) -> String)?
+
+    init(
+        selectedOption: Binding<Option>,
+        options: [Option],
+        shouldStretchToFill: Bool,
+        isDisabled: Bool,
+        style: Style,
+        titleFactory: @escaping (Option) -> String,
+        segmentAccessibilityIdentifier: ((Option) -> String)? = nil
+    ) {
+        _selectedOption = selectedOption
+        self.options = options
+        self.shouldStretchToFill = shouldStretchToFill
+        self.isDisabled = isDisabled
+        self.style = style
+        self.titleFactory = titleFactory
+        self.segmentAccessibilityIdentifier = segmentAccessibilityIdentifier
+    }
 
     var body: some View {
         SegmentedPickerView(
@@ -25,6 +44,7 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
             shouldStretchToFill: shouldStretchToFill,
             isDisabled: isDisabled,
             selectionView: selectionView,
+            segmentAccessibilityIdentifier: segmentAccessibilityIdentifier,
             segmentContent: { option, _ in
                 segmentView(title: titleFactory(option), isSelected: selectedOption == option)
             }

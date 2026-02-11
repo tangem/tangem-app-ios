@@ -24,7 +24,7 @@ struct NotificationButtonAction {
 }
 
 enum NotificationButtonActionType: Identifiable {
-    case generateAddresses
+    case generateAddresses(icon: MainButton.Icon?)
     case backupCard
     case openFeeCurrency(currencySymbol: String)
     case refresh
@@ -37,7 +37,7 @@ enum NotificationButtonActionType: Identifiable {
     case swap
     case addHederaTokenAssociation
     case addTokenTrustline
-    case retryKaspaTokenTransaction
+    case retryKaspaTokenTransaction(icon: MainButton.Icon?)
     case stake
     case openCloreMigration
     /// Rate the app
@@ -52,10 +52,10 @@ enum NotificationButtonActionType: Identifiable {
     case seedSupportNo
     case seedSupport2Yes
     case seedSupport2No
-    case unlock
+    case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case tangemPaySync(title: String)
+    case tangemPaySync(title: String, icon: MainButton.Icon?)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -151,7 +151,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .tangemPaySync(let title):
+        case .tangemPaySync(let title, _):
             return title
         case .allowPushPermissionRequest:
             return Localization.commonEnable
@@ -168,11 +168,11 @@ enum NotificationButtonActionType: Identifiable {
 
     var icon: MainButton.Icon? {
         switch self {
-        case .generateAddresses,
-             .retryKaspaTokenTransaction,
-             .unlock,
-             .tangemPaySync:
-            return .trailing(Assets.tangemIcon)
+        case .generateAddresses(let icon),
+             .retryKaspaTokenTransaction(let icon),
+             .unlock(let icon),
+             .tangemPaySync(_, let icon):
+            return icon
         case .swap:
             return .leading(Assets.exchangeMini)
         case .backupCard,

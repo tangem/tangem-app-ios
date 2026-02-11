@@ -11,5 +11,5 @@ import Foundation
 @MainActor
 protocol PulseMarketWidgetRoutable: AnyObject {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
-    func openSeeAll(with widgetType: MarketsWidgetType)
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType)
 }
