@@ -47,7 +47,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                 YieldNoticeView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.mainTokenDetailsCoordinator, content: { item in
-                NavigationView {
+                NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -55,6 +55,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                             }
                         }
                 }
+                .tint(Colors.Text.primary1)
             })
     }
 
