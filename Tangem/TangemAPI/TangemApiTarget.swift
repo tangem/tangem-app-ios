@@ -44,9 +44,10 @@ struct TangemApiTarget: TargetType {
         case .features:
             return "/features"
         case .getUserWalletTokens(let key),
-             .saveUserWalletTokensLegacy(let key, _),
-             .saveUserWalletTokens(let key, _):
+             .saveUserWalletTokensLegacy(let key, _):
             return "/user-tokens/\(key)"
+        case .saveUserWalletTokens(let key, _):
+            return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
@@ -81,6 +82,10 @@ struct TangemApiTarget: TargetType {
             return "/coins/\(requestModel.tokenId)/history"
         case .tokenExchangesList(let requestModel):
             return "/coins/\(requestModel.tokenId)/exchanges"
+
+        // MARK: - Earn paths
+        case .earnYieldMarkets:
+            return "/api/v1/earn/yield/markets"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -121,6 +126,16 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
 
+        // MARK: - News
+        case .newsList:
+            return "/news"
+        case .newsDetails(let requestModel):
+            return "/news/\(requestModel.newsId)"
+        case .newsCategories:
+            return "/news/categories"
+        case .trendingNews:
+            return "/news/trending"
+
         // MARK: - Referral 2.0
         case .bindWalletsByCode:
             return "/referral/bind-wallets-by-code"
@@ -146,6 +161,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
              .story,
@@ -153,7 +169,11 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getUserWallets,
-             .getUserWallet:
+             .getUserWallet,
+             .newsList,
+             .newsDetails,
+             .newsCategories,
+             .trendingNews:
             return .get
         case .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
@@ -263,6 +283,12 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestModel, encoding: URLEncoding.default)
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
+
+        // MARK: - Earn tasks
+        case .earnYieldMarkets(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+
+        // MARK: - News tasks
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
         case .pushNotificationsEligible:
@@ -290,6 +316,30 @@ struct TangemApiTarget: TargetType {
         case .saveUserAccounts(_, _, let accounts):
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
+            return .requestPlain
+
+        // MARK: - News
+        case .newsList(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+        case .newsCategories:
+            return .requestPlain
+        case .trendingNews(let limit, let lang):
+            var parameters = [String: Any]()
+            if let lang {
+                parameters["lang"] = lang
+            }
+
+            if let limit {
+                parameters["limit"] = limit
+            }
+            return .requestParameters(
+                parameters: parameters,
+                encoding: URLEncoding.default
+            )
+        case .newsDetails(let requestModel):
+            if let lang = requestModel.lang {
+                return .requestParameters(parameters: ["lang": lang], encoding: URLEncoding.default)
+            }
             return .requestPlain
 
         // MARK: - Referral 2.0
@@ -332,6 +382,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .apiList,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
@@ -347,6 +398,10 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createWallet,
+             .trendingNews,
+             .newsList,
+             .newsDetails,
+             .newsCategories,
              .bindWalletsByCode:
             return nil
         }
@@ -390,6 +445,10 @@ extension TangemApiTarget {
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
         case tokenExchangesList(_ requestModel: MarketsDTO.ExchangesList.Request)
 
+        // MARK: - Earn Targets
+
+        case earnYieldMarkets(_ requestModel: EarnDTO.List.Request)
+
         // MARK: - Action Buttons
 
         case hotCrypto(_ requestModel: HotCryptoDTO.Request)
@@ -422,7 +481,12 @@ extension TangemApiTarget {
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
 
-        /// Referral 2.0
+        // MARK: - News Targets
+
+        case trendingNews(limit: Int?, lang: String?)
+        case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsDetails(_ requestModel: NewsDTO.Details.Request)
+        case newsCategories
         case bindWalletsByCode(_ requestModel: ReferralDTO.Request)
     }
 }
@@ -430,7 +494,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -454,6 +518,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .historyChart,
              .tokenMarketsDetails,
              .tokenExchangesList,
+             .earnYieldMarkets,
              .story,
              .rawData,
              .hotCrypto,
@@ -464,6 +529,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .updateWallet,
              .connectUserWallets,
              .createWallet,
+             .newsList,
+             .newsCategories,
+             .newsDetails,
+             .trendingNews,
              .bindWalletsByCode:
             return false
         case .geo,

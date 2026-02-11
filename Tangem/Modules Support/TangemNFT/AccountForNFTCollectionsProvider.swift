@@ -1,0 +1,164 @@
+//
+//  AccountForNFTCollectionsProvider.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import TangemNFT
+import Combine
+
+final class AccountForNFTCollectionsProvider {
+    private let userWalletModel: UserWalletModel
+    // [REDACTED_TODO_COMMENT]
+    private var cryptoAccounts: CryptoAccounts?
+
+    /// Cached mapping:  address -> crypto account
+    /// Built lazily on first call to provideAccountsWithCollectionsState
+    private var addressToAccountMap: [String: any CryptoAccountModel]?
+    private var bag = Set<AnyCancellable>()
+
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
+
+        bind()
+    }
+
+    private func bind() {
+        userWalletModel
+            .accountModelsManager
+            .accountModelsPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, accountModels in
+                if let cryptoAccounts = accountModels.cryptoAccounts().first {
+                    viewModel.cryptoAccounts = cryptoAccounts
+                    // Invalidate cache when accounts change
+                    viewModel.addressToAccountMap = nil
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func buildAddressToAccountMap(for accounts: [any CryptoAccountModel]) -> [String: any CryptoAccountModel] {
+        var map: [String: any CryptoAccountModel] = [:]
+
+        for account in accounts {
+            let walletModels = account.walletModelsManager.walletModels
+
+            for walletModel in walletModels {
+                for address in walletModel.addresses {
+                    map[address.value] = account
+                }
+            }
+        }
+
+        return map
+    }
+
+    private func groupCollectionsByAccount(
+        collections: [NFTCollection],
+        addressMap: [String: any CryptoAccountModel]
+    ) -> [AnyHashable: (account: any CryptoAccountModel, collections: [NFTCollection])] {
+        var accountToCollections: [AnyHashable: (account: any CryptoAccountModel, collections: [NFTCollection])] = [:]
+
+        for collection in collections {
+            guard let account = addressMap[collection.id.ownerAddress] else {
+                continue
+            }
+
+            let accountId = account.id.toAnyHashable()
+
+            if accountToCollections[accountId] != nil {
+                accountToCollections[accountId]?.collections.append(collection)
+            } else {
+                accountToCollections[accountId] = (account: account, collections: [collection])
+            }
+        }
+
+        return accountToCollections
+    }
+
+    private func buildAccountsWithCollectionsData(
+        accountIDs: [AnyHashable],
+        accountToCollections: [AnyHashable: (account: any CryptoAccountModel, collections: [NFTCollection])]
+    ) -> [AccountWithCollectionsData] {
+        accountIDs.compactMap { accountId in
+            guard let tuple = accountToCollections[accountId] else {
+                return nil
+            }
+
+            let iconData = AccountModelUtils.UI.iconViewData(accountModel: tuple.account)
+            let accountData = AccountForNFTData(
+                id: accountId,
+                iconData: iconData,
+                name: tuple.account.name
+            )
+
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: tuple.account.name,
+                walletModelsManager: tuple.account.walletModelsManager
+            )
+
+            return AccountWithCollectionsData(
+                accountData: accountData,
+                collections: tuple.collections,
+                navigationContext: navigationContext
+            )
+        }
+    }
+}
+
+extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
+    func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
+        switch cryptoAccounts {
+        case .none:
+            // Legacy mode w/o accounts support, wallets only
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: userWalletModel.name,
+                walletModelsManager: userWalletModel.walletModelsManager
+            )
+            return .singleAccount(navigationContext)
+
+        case .single(let account):
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: account.name,
+                walletModelsManager: account.walletModelsManager
+            )
+            return .singleAccount(navigationContext)
+
+        case .multiple(let accounts):
+            // Build address lookup map if needed
+            if addressToAccountMap == nil {
+                addressToAccountMap = buildAddressToAccountMap(for: accounts)
+            }
+
+            guard let addressMap = addressToAccountMap else {
+                let navigationContext = NFTNavigationInput(
+                    userWalletModel: userWalletModel,
+                    name: userWalletModel.name,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+                return .singleAccount(navigationContext)
+            }
+
+            // Group collections by their owner accounts
+            let accountToCollections = groupCollectionsByAccount(
+                collections: collections,
+                addressMap: addressMap
+            )
+
+            // Build result maintaining original account order
+            let accountIDs = accounts.map { $0.id.toAnyHashable() }
+            let accountsWithCollections = buildAccountsWithCollectionsData(
+                accountIDs: accountIDs,
+                accountToCollections: accountToCollections
+            )
+
+            return .multipleAccounts(accountsWithCollections)
+        }
+    }
+}

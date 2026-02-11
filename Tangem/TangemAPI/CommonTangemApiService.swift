@@ -340,6 +340,12 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
     }
 
+    // MARK: - Earn Implementation
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        return try await request(for: .earnYieldMarkets(requestModel), decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
@@ -460,6 +466,24 @@ extension CommonTangemApiService: TangemApiService {
             let response = try await provider.asyncRequest(target)
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
         }
+    }
+
+    // MARK: - News Implementation
+
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        return try await request(for: .trendingNews(limit: limit, lang: lang), decoder: decoder)
+    }
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        return try await request(for: .newsList(requestModel), decoder: decoder)
+    }
+
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        return try await request(for: .newsDetails(requestModel), decoder: decoder)
+    }
+
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        return try await request(for: .newsCategories, decoder: decoder)
     }
 }
 

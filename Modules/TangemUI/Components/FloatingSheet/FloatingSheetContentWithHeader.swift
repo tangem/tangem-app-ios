@@ -21,21 +21,23 @@ public struct FloatingSheetContentWithHeader<Content: View>: View {
     }
 
     public var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             BottomSheetHeaderView(
                 title: headerConfig.title,
                 leading: {
                     if let backAction = headerConfig.backAction {
-                        CircleButton.back(action: backAction)
+                        NavigationBarButton.back(action: backAction)
                     }
                 },
                 trailing: {
                     if let closeAction = headerConfig.closeAction {
-                        CircleButton.close(action: closeAction)
+                        NavigationBarButton.close(action: closeAction)
                     }
                 }
             )
             .verticalPadding(8)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
 
             content
         }

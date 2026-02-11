@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 
 protocol CryptoAccountsRepository {
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { get }
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
     var auxiliaryDataPublisher: AnyPublisher<CryptoAccountsAuxiliaryData, Never> { get }
 

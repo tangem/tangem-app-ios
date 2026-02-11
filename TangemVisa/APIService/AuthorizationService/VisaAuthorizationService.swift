@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemPay
 
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse
@@ -39,7 +40,7 @@ public protocol VisaAuthorizationTokenRefreshService {
 }
 
 struct CommonVisaAuthorizationService {
-    typealias AuthorizationAPIService = APIService<AuthorizationAPITarget>
+    typealias AuthorizationAPIService = TangemPayAPIService<AuthorizationAPITarget>
     private let apiService: AuthorizationAPIService
 
     private let apiType: VisaAPIType

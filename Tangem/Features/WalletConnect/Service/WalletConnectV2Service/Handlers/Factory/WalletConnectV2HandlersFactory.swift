@@ -44,27 +44,32 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
+        let walletScope = resolveWalletScope(for: connectedDApp)
+
         switch action {
             // MARK: - ETH
 
         case .personalSign:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectV2PersonalSignHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: CommonWalletConnectSigner(signer: signer),
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectV2PersonalSignHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: CommonWalletConnectSigner(signer: signer),
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectV2PersonalSignHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: CommonWalletConnectSigner(signer: signer),
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectV2PersonalSignHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: CommonWalletConnectSigner(signer: signer),
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         case .addChain:
             return try WalletConnectAddEthereumChainMessageHandler(
@@ -79,130 +84,148 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             return try WalletConnectSwitchEthereumChainMessageHandler(requestParams: params, connectedDApp: connectedDApp)
 
         case .signTypedData, .signTypedDataV4:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectV2SignTypedDataHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: CommonWalletConnectSigner(signer: signer),
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectV2SignTypedDataHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: CommonWalletConnectSigner(signer: signer),
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectV2SignTypedDataHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: CommonWalletConnectSigner(signer: signer),
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectV2SignTypedDataHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: CommonWalletConnectSigner(signer: signer),
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         case .signTransaction:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectV2SignTransactionHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    transactionBuilder: ethTransactionBuilder,
-                    signer: signer,
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectV2SignTransactionHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    transactionBuilder: ethTransactionBuilder,
-                    signer: signer,
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectV2SignTransactionHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        transactionBuilder: ethTransactionBuilder,
+                        signer: signer,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectV2SignTransactionHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        transactionBuilder: ethTransactionBuilder,
+                        signer: signer,
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         case .sendTransaction:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectV2SendTransactionHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    transactionBuilder: ethTransactionBuilder,
-                    signer: signer,
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectV2SendTransactionHandler(
-                    requestParams: params,
-                    blockchainId: blockchainNetworkID,
-                    transactionBuilder: ethTransactionBuilder,
-                    signer: signer,
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectV2SendTransactionHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        transactionBuilder: ethTransactionBuilder,
+                        signer: signer,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectV2SendTransactionHandler(
+                        requestParams: params,
+                        blockchainId: blockchainNetworkID,
+                        transactionBuilder: ethTransactionBuilder,
+                        signer: signer,
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         // MARK: - Solana
 
         case .solanaSignMessage:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectSolanaSignMessageHandler(
-                    request: params,
-                    signer: SolanaWalletConnectSigner(signer: signer),
-                    blockchainId: blockchainNetworkID,
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectSolanaSignMessageHandler(
-                    request: params,
-                    signer: SolanaWalletConnectSigner(signer: signer),
-                    blockchainId: blockchainNetworkID,
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectSolanaSignMessageHandler(
+                        request: params,
+                        signer: SolanaWalletConnectSigner(signer: signer),
+                        blockchainId: blockchainNetworkID,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectSolanaSignMessageHandler(
+                        request: params,
+                        signer: SolanaWalletConnectSigner(signer: signer),
+                        blockchainId: blockchainNetworkID,
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         case .solanaSignTransaction:
-            switch connectedDApp {
-            case .v1:
-                return try WalletConnectSolanaSignTransactionHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: signer,
-                    hardwareLimitationsUtil: hardwareLimitationsUtil,
-                    walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
-                    walletModelProvider: walletModelProvider,
-                    analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WalletConnectSolanaSignTransactionHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: signer,
-                    hardwareLimitationsUtil: hardwareLimitationsUtil,
-                    walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId,
-                    analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WalletConnectSolanaSignTransactionHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: signer,
+                        hardwareLimitationsUtil: hardwareLimitationsUtil,
+                        walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId,
+                        analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
+                    )
+                },
+                walletBuilder: {
+                    try WalletConnectSolanaSignTransactionHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: signer,
+                        hardwareLimitationsUtil: hardwareLimitationsUtil,
+                        walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
+                        walletModelProvider: walletModelProvider,
+                        analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
+                    )
+                }
+            )
 
         case .solanaSignAllTransactions:
-            switch connectedDApp {
-            case .v1:
-                return try WCSolanaSignAllTransactionsHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: SolanaWalletConnectSigner(signer: signer),
-                    walletModelProvider: walletModelProvider
-                )
-            case .v2(let walletConnectConnectedDAppV2):
-                return try WCSolanaSignAllTransactionsHandler(
-                    request: params,
-                    blockchainId: blockchainNetworkID,
-                    signer: SolanaWalletConnectSigner(signer: signer),
-                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                    accountId: walletConnectConnectedDAppV2.accountId
-                )
-            }
+            return try makeHandler(
+                for: walletScope,
+                accountBuilder: { accountId in
+                    try WCSolanaSignAllTransactionsHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: SolanaWalletConnectSigner(signer: signer),
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        accountId: accountId
+                    )
+                },
+                walletBuilder: {
+                    try WCSolanaSignAllTransactionsHandler(
+                        request: params,
+                        blockchainId: blockchainNetworkID,
+                        signer: SolanaWalletConnectSigner(signer: signer),
+                        walletModelProvider: walletModelProvider
+                    )
+                }
+            )
 
         // MARK: - BNB
 
@@ -217,7 +240,40 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
 
     // MARK: - Private Implementation
 
+    private func resolveWalletScope(for connectedDApp: WalletConnectConnectedDApp) -> WalletScope {
+        switch connectedDApp {
+        case .v1:
+            if FeatureProvider.isAvailable(.accounts) {
+                return .account(accountId: connectedDApp.accountId ?? "")
+            } else {
+                return .wallet
+            }
+        case .v2(let walletConnectConnectedDAppV2):
+            return .account(accountId: walletConnectConnectedDAppV2.accountId)
+        }
+    }
+
+    private func makeHandler(
+        for scope: WalletScope,
+        accountBuilder: (String) throws -> WalletConnectMessageHandler,
+        walletBuilder: () throws -> WalletConnectMessageHandler
+    ) throws -> WalletConnectMessageHandler {
+        switch scope {
+        case .account(let accountId):
+            return try accountBuilder(accountId)
+        case .wallet:
+            return try walletBuilder()
+        }
+    }
+
     private func makeAnalyticsProvider(with dAppData: WalletConnectDAppData?) -> WalletConnectServiceAnalyticsProvider {
         CommonWalletConnectServiceAnalyticsProvider(dAppData: dAppData)
+    }
+}
+
+private extension WalletConnectHandlersFactory {
+    enum WalletScope {
+        case account(accountId: String)
+        case wallet
     }
 }

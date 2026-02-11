@@ -13,6 +13,7 @@ enum IncomingActionConstants {
     static let appTangemHost = "app.tangem.com"
     static let appTangemDomain = "https://app.tangem.com"
     static let tangemDomain = "https://tangem.com"
+    static let newsPath = "/news/"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
     static let externalRedirectURL = "\(tangemDomain)/redirect"
@@ -49,6 +50,7 @@ enum IncomingActionConstants {
         case onboardVisa = "onboard-visa"
         case promo
         case payApp = "pay-app"
+        case news
     }
 
     enum DeeplinkType: String {

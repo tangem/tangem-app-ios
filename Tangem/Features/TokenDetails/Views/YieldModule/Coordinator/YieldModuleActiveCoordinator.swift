@@ -80,11 +80,6 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     // MARK: - Private Implementation
 
     @MainActor
-    private func pauseBottomSheet() {
-        floatingSheetPresenter.pauseSheetsDisplaying()
-    }
-
-    @MainActor
     private func resumeBottomSheet() {
         floatingSheetPresenter.resumeSheetsDisplaying()
     }

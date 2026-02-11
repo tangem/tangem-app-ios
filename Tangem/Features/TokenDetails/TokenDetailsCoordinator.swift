@@ -36,7 +36,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
@@ -51,7 +50,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let notificationManager = SingleTokenNotificationManager(
             userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
-            walletModelsManager: options.walletModelsManager
+            walletModelsManager: options.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
@@ -116,28 +116,13 @@ extension TokenDetailsCoordinator {
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
 
-        /// Legacy
-        /// Will be removed in [REDACTED_INFO]
-        init(
-            userWalletModel: any UserWalletModel,
-            walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil
-        ) {
-            userWalletInfo = userWalletModel.userWalletInfo
-            keysDerivingInteractor = userWalletModel.keysDerivingInteractor
-            walletModelsManager = userWalletModel.walletModelsManager // accounts_fixes_needed_none
-            userTokensManager = userWalletModel.userTokensManager // accounts_fixes_needed_none
-            self.walletModel = walletModel
-            self.pendingTransactionDetails = pendingTransactionDetails
-        }
-
         init(
             userWalletInfo: UserWalletInfo,
             keysDerivingInteractor: any KeysDeriving,
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails?
+            pendingTransactionDetails: PendingTransactionDetails? = nil
         ) {
             self.userWalletInfo = userWalletInfo
             self.keysDerivingInteractor = keysDerivingInteractor
@@ -202,9 +187,36 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
         }
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(userWalletModel: userWalletModel, walletModel: walletModel)
-        )
+
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel
+                )
+            )
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
+                    walletModel: walletModel
+                )
+            )
+        }
 
         tokenDetailsCoordinator = coordinator
     }
@@ -224,13 +236,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 

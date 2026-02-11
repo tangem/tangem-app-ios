@@ -9,18 +9,20 @@
 import Foundation
 import Combine
 
-protocol AccountModelsManager: AccountModelsReordering {
+protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }
 
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { get }
+
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { get }
 
     var accountModels: [AccountModel] { get }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// Archived + active
-    var totalAccountsCountPublisher: AnyPublisher<Int, Never> { get }
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult
