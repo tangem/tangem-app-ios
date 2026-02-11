@@ -6,8 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemLocalization
@@ -17,7 +17,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
@@ -212,7 +212,7 @@ private extension CreateWalletSelectorViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

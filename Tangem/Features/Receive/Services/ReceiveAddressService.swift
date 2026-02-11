@@ -20,22 +20,26 @@ protocol ReceiveAddressService: AnyObject {
 
 // MARK: - CommonReceiveAddressService
 
-class CommonReceiveAddressService {
-    // MARK: - Private Properties
+final class CommonReceiveAddressService {
+    // MARK: - Dependencies
+
+    private let domainAddressResolver: DomainNameAddressResolver?
+    private let receiveAddressInfoUtils: ReceiveAddressInfoUtils
+
+    // MARK: - State
 
     private var _addressTypes: [ReceiveAddressType] = []
 
-    private var resolveDestinationTask: Task<Void, Error>?
-
-    private let domainAddressResolver: DomainNameAddressResolver?
-    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
-
     // MARK: - Init
 
-    init(addresses: [Address], domainAddressResolver: DomainNameAddressResolver?) {
+    init(
+        addresses: [Address],
+        domainAddressResolver: DomainNameAddressResolver?,
+        receiveAddressInfoUtils: ReceiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
+    ) {
         self.domainAddressResolver = domainAddressResolver
-
-        updateReceiveAddressTypes(with: addresses)
+        self.receiveAddressInfoUtils = receiveAddressInfoUtils
+        _addressTypes = makeAddressTypes(from: addresses)
     }
 }
 
@@ -43,47 +47,61 @@ class CommonReceiveAddressService {
 
 extension CommonReceiveAddressService: ReceiveAddressService {
     var addressTypes: [ReceiveAddressType] {
-        _addressTypes
+        ensureOnMainQueue()
+
+        return _addressTypes
     }
 
     var addressInfos: [ReceiveAddressInfo] {
-        _addressTypes.map { $0.info }
+        ensureOnMainQueue()
+
+        return _addressTypes.map(\.info)
     }
 
     func update(with addresses: [Address]) async {
-        updateReceiveAddressTypes(with: addresses)
-
-        resolveDestinationTask?.cancel()
-
-        resolveDestinationTask = runTask(in: self) { service in
-            await service.resolveDomainAddressTypes()
-        }
-
-        _ = try? await resolveDestinationTask?.value
-    }
-
-    // MARK: - Private Implementation
-
-    private func resolveDomainAddressTypes() async {
-        guard let domainAddressResolver else {
-            return
-        }
-
-        for addressInfo in addressInfos {
-            do {
-                let resolveDomainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
-                _addressTypes.append(.domain(resolveDomainName, addressInfo))
-            } catch is CancellationError {
-                // Do Nothig
-            } catch {
-                AppLogger.error("Failed to check resolve address with error:", error: error)
-            }
-        }
-    }
-
-    private func updateReceiveAddressTypes(with addresses: [Address]) {
         let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
-        _addressTypes = addressInfos.map { ReceiveAddressType.address($0) }
+        var resultTypes: [ReceiveAddressType] = addressInfos.map { .address($0) }
+
+        if let domainAddressResolver {
+            let domainTypes = await resolveDomainNames(for: addressInfos, using: domainAddressResolver)
+            resultTypes.append(contentsOf: domainTypes)
+        }
+
+        await setAddressTypes(resultTypes)
+    }
+
+    @MainActor
+    private func setAddressTypes(_ types: [ReceiveAddressType]) {
+        _addressTypes = types
+    }
+}
+
+// MARK: - Private
+
+private extension CommonReceiveAddressService {
+    func makeAddressTypes(from addresses: [Address]) -> [ReceiveAddressType] {
+        receiveAddressInfoUtils
+            .makeAddressInfos(from: addresses)
+            .map { .address($0) }
+    }
+
+    func resolveDomainNames(
+        for addressInfos: [ReceiveAddressInfo],
+        using resolver: DomainNameAddressResolver
+    ) async -> [ReceiveAddressType] {
+        var domainTypes: [ReceiveAddressType] = []
+        do {
+            for addressInfo in addressInfos {
+                try Task.checkCancellation()
+                let domainName = try await resolver.resolveDomainName(addressInfo.address)
+                domainTypes.append(.domain(domainName, addressInfo))
+            }
+        } catch is CancellationError {
+            return []
+        } catch {
+            // Fall-through
+        }
+        return domainTypes
     }
 }
 
