@@ -45,10 +45,7 @@ public struct InfoRowWithAction<Icon: View>: View {
                 }
             },
             trailingIcon: {
-                CircleButton(
-                    title: actionTitle,
-                    action: onAction
-                )
+                CapsuleButton(title: actionTitle, action: onAction)
             }
         )
     }

@@ -9,13 +9,12 @@
 import TangemNFT
 
 struct NFTAssetStepBuilder {
-    let wallet: String
     let asset: NFTAsset
     let collection: NFTCollection
 
-    func makeNFTAssetCompactViewModel() -> NFTAssetCompactViewModel {
+    func makeNFTAssetCompactViewModel(header: SendTokenHeader) -> NFTAssetCompactViewModel {
         let viewModel = NFTAssetCompactViewModel(
-            wallet: wallet,
+            header: header,
             asset: asset,
             collection: collection,
             nftChainIconProvider: NetworkImageProvider()

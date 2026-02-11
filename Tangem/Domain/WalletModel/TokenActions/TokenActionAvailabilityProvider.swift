@@ -232,6 +232,7 @@ extension TokenActionAvailabilityProvider {
              .hasPendingWithdrawOrder,
              .oldCard,
              .zeroFeeCurrencyBalance,
+             .noAccount,
              .none:
             break
         case .zeroWalletBalance:
@@ -273,6 +274,7 @@ extension TokenActionAvailabilityProvider {
         case oldCard
         case hasOnlyCachedBalance
         case yieldModuleApproveNeeded
+        case noAccount
     }
 
     var isSendAvailable: Bool {
@@ -307,6 +309,8 @@ extension TokenActionAvailabilityProvider {
             return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             return .available
+        case .noAccount:
+            return .noAccount
         }
     }
 }
@@ -326,6 +330,7 @@ extension TokenActionAvailabilityProvider {
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
         case yieldModuleApproveNeeded
+        case noAccount
     }
 
     var isSellAvailable: Bool {
@@ -368,6 +373,8 @@ extension TokenActionAvailabilityProvider {
             return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             break
+        case .noAccount:
+            return .noAccount
         }
 
         return .available
