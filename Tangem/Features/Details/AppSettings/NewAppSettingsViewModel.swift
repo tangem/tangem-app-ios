@@ -41,7 +41,7 @@ class NewAppSettingsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     var biometricsTitle: String {
-        BiometricAuthorizationUtils.biometryType == .faceID ? Constants.faceIDTitle : Constants.touchIDTitle
+        BiometricsUtil.biometryType == .faceID ? Constants.faceIDTitle : Constants.touchIDTitle
     }
 
     // MARK: Dependencies
@@ -341,7 +341,7 @@ private extension NewAppSettingsViewModel {
     }
 
     func updateView() {
-        isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
+        isBiometryAvailable = BiometricsUtil.isAvailable
         setupView()
     }
 

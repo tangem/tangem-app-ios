@@ -8,10 +8,14 @@
 
 import BlockchainSdk
 import TangemVisa
+import TangemPay
 
 extension TangemPayUtilities {
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+
+    @Injected(\.keysManager)
+    private static var keysManager: KeysManager
 
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
@@ -40,6 +44,17 @@ extension TangemPayUtilities {
         )
     }
 
+    static var blockchain: Blockchain {
+        .polygon(testnet: false)
+    }
+
+    static func makeAddress(using walletPublicKey: Wallet.PublicKey) throws -> String {
+        try AddressServiceFactory(blockchain: TangemPayUtilities.blockchain)
+            .makeAddressService()
+            .makeAddress(for: walletPublicKey, with: .default)
+            .value
+    }
+
     static func getKey(from repository: KeysRepository) -> Wallet.PublicKey? {
         return repository.keys
             .first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })
@@ -64,7 +79,7 @@ extension TangemPayUtilities {
     static func getCustomerWalletAddressAndAuthorizationTokens(
         customerWalletId: String,
         keysRepository: KeysRepository
-    ) -> (walletAddress: String, tokens: TangemPayAuthorizationTokens)? {
+    ) -> (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
         guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
               let customerWalletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
               // If there was no refreshToken saved - means user never got tangem pay offer
@@ -74,5 +89,20 @@ extension TangemPayUtilities {
         }
 
         return (customerWalletAddress, tokens)
+    }
+
+    static func getBFFStaticToken() -> String {
+        switch FeatureStorage.instance.visaAPIType {
+        case .dev:
+            keysManager.bffStaticTokenDev
+        case .prod:
+            keysManager.bffStaticToken
+        }
+    }
+}
+
+public extension RainCryptoUtilities {
+    static func getRainRSAPublicKey(for apiType: VisaAPIType) throws -> String {
+        try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: apiType)
     }
 }

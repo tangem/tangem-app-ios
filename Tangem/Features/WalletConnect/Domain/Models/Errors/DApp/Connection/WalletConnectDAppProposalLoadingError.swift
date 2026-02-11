@@ -36,6 +36,11 @@ enum WalletConnectDAppProposalLoadingError: LocalizedError {
     /// The dApp connection proposal loading was explicitly cancelled by user.
     case cancelledByUser
 
+    /// There is no selected account.
+    /// - Note: App is probably in a corrupted state.
+    /// - Warning: @vefimenko_tangem, check if this case should exist in [REDACTED_INFO]
+    case selectedAccountRetrievalFailed
+
     var errorDescription: String? {
         switch self {
         case .uriAlreadyUsed:
@@ -61,6 +66,9 @@ enum WalletConnectDAppProposalLoadingError: LocalizedError {
 
         case .cancelledByUser:
             "The dApp connection proposal loading was explicitly cancelled by user."
+
+        case .selectedAccountRetrievalFailed:
+            "There is no selected account. App is probably in a corrupted state."
         }
     }
 }

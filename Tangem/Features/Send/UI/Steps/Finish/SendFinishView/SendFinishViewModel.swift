@@ -12,6 +12,10 @@ import Combine
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
+    var headerTitle: String {
+        settings.title
+    }
+
     @Published private(set) var showHeader = false
     @Published private(set) var transactionSentTime: String?
     @Published private(set) var transactionURL: URL?

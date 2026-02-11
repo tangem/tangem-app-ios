@@ -19,7 +19,17 @@ struct TransactionDispatcherFactory {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
+        let gaslessTransactionSender = GaslessTransactionSender(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionBuilder: gaslessTransactionBuilder
+        )
+        return SendTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionSender: gaslessTransactionSender
+        )
     }
 
     func makeExpressDispatcher() -> TransactionDispatcher {
@@ -77,7 +87,7 @@ struct TransactionDispatcherFactory {
         guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
-            blockchain: walletModel.tokenItem.blockchain,
+            tokenItem: walletModel.tokenItem,
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
             transactionSigner: signer,

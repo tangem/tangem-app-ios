@@ -13,8 +13,8 @@ extension WCTransactionViewModel {
         displayModel.userWalletName
     }
 
-    var isWalletRowVisible: Bool {
-        displayModel.isWalletRowVisible
+    var connectionTargetKind: WCTransactionConnectionTargetKind? {
+        displayModel.connectionTargetKind
     }
 
     var primariActionButtonTitle: String {
@@ -27,6 +27,10 @@ extension WCTransactionViewModel {
 
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? {
         displayModel.simulationDisplayModel
+    }
+
+    var tangemIconProvider: TangemIconProvider {
+        displayModel.tangemIconProvider
     }
 
     private var isDataReady: Bool {

@@ -20,16 +20,19 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
+    /// Staking doesn't support account-based analytics
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var actionModel = makeStakingSingleActionModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
         walletModel: any WalletModel,
@@ -52,6 +55,8 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -100,15 +105,8 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
             sourceTokenAmountInput: actionModel
         )
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: sendAmountCompactViewModel,
@@ -159,7 +157,8 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             dataBuilder: makeStakingBaseDataBuilder(input: actionModel),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }

@@ -14,7 +14,8 @@ import TangemFoundation
 final class StakeKitStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
-    private let provider: StakeKitAPIProvider
+    private let apiProvider: StakeKitAPIProvider
+    private let yieldInfoProvider: StakingYieldInfoProvider
     private let stateRepository: StakingManagerStateRepository
     private let analyticsLogger: StakingAnalyticsLogger
 
@@ -35,13 +36,15 @@ final class StakeKitStakingManager {
     init(
         integrationId: String,
         wallet: StakingWallet,
-        provider: StakeKitAPIProvider,
+        apiProvider: StakeKitAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
-        self.provider = provider
+        self.apiProvider = apiProvider
+        self.yieldInfoProvider = yieldInfoProvider
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
 
@@ -73,6 +76,9 @@ extension StakeKitStakingManager: StakingManager {
         }
     }
 
+    var tosURL: URL { URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")! }
+    var privacyPolicyURL: URL { URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")! }
+
     func updateState(loadActions: Bool) async {
         await updateState(loadActions: loadActions, startUpdateDate: nil)
     }
@@ -80,9 +86,9 @@ extension StakeKitStakingManager: StakingManager {
     func updateState(loadActions: Bool, startUpdateDate: Date? = nil, previousActions: [PendingAction]? = nil) async {
         await updateState(.loading(cached: stateRepository.state()))
         do {
-            async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
-            async let yield = provider.yield(integrationId: integrationId)
-            async let actions = loadActions ? provider.actions(wallet: wallet) : []
+            async let balances = apiProvider.balances(wallet: wallet, integrationId: integrationId)
+            async let yield = yieldInfoProvider.yieldInfo(for: integrationId)
+            async let actions = loadActions ? apiProvider.actions(wallet: wallet) : []
 
             let (loadedBalances, loadedYield, loadedActions) = try await (balances, yield, actions)
             await updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
@@ -121,13 +127,13 @@ extension StakeKitStakingManager: StakingManager {
             return try await estimateFee(action: action)
         case (.availableToStake, .stake), (.staked, .stake):
             return try await execute(
-                try await provider.estimateStakeFee(
+                try await apiProvider.estimateStakeFee(
                     request: mapToActionGenericRequest(action: action)
                 )
             )
         case (.staked, .unstake):
             return try await execute(
-                try await provider.estimateUnstakeFee(
+                try await apiProvider.estimateUnstakeFee(
                     request: mapToActionGenericRequest(action: action)
                 )
             )
@@ -224,14 +230,14 @@ private extension StakeKitStakingManager {
     }
 
     func getStakeTransactionInfo(request: ActionGenericRequest) async throws -> StakingTransactionAction {
-        let action = try await execute(try await provider.enterAction(request: request))
+        let action = try await execute(try await apiProvider.enterAction(request: request))
 
         // We have to wait that stakek.it prepared the transaction
         // Otherwise we may get the 404 error
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.apiProvider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -243,7 +249,7 @@ private extension StakeKitStakingManager {
     }
 
     func getUnstakeTransactionInfo(request: ActionGenericRequest) async throws -> StakingTransactionAction {
-        let action = try await execute(try await provider.exitAction(request: request))
+        let action = try await execute(try await apiProvider.exitAction(request: request))
 
         // We have to wait that stakek.it prepared the transaction
         // Otherwise we may get the 404 error
@@ -253,7 +259,7 @@ private extension StakeKitStakingManager {
             action.transactions.forEach { transaction in
                 group.addTask {
                     try Task.checkCancellation()
-                    return try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
+                    return try await self.execute(try await self.apiProvider.patchTransaction(id: transaction.id))
                 }
             }
 
@@ -315,14 +321,14 @@ private extension StakeKitStakingManager {
     }
 
     func getPendingTransactionAction(request: PendingActionRequest) async throws -> StakingTransactionAction {
-        let action = try await execute(try await provider.pendingAction(request: request))
+        let action = try await execute(try await apiProvider.pendingAction(request: request))
 
         // We have to wait that stakek.it prepared the transaction
         // Otherwise we may get the 404 error
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.apiProvider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -342,11 +348,11 @@ private extension StakeKitStakingManager {
              .restake(let passthrough),
              .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
-            return try await execute(try await provider.estimatePendingFee(request: request))
+            return try await execute(try await apiProvider.estimatePendingFee(request: request))
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
             let fees = try await passthroughs.asyncMap { passthrough in
                 let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
-                return try await self.execute(try await self.provider.estimatePendingFee(request: request))
+                return try await self.execute(try await self.apiProvider.estimatePendingFee(request: request))
             }
 
             return fees.reduce(0, +)

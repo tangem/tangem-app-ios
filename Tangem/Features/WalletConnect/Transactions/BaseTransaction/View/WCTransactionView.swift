@@ -154,7 +154,7 @@ struct WCTransactionView: View {
             MainButton(
                 settings: .init(
                     title: viewModel.primariActionButtonTitle,
-                    icon: .trailing(Assets.tangemIcon),
+                    icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                     isLoading: viewModel.presentationState == .signing,
                     isDisabled: viewModel.isActionButtonBlocked,
                     action: { viewModel.handleViewAction(.sign) }
@@ -185,7 +185,7 @@ struct WCTransactionView: View {
         )
     }
 
-    private func feeSelectorFooter(_ viewModel: FeeSelectorContentViewModel) -> some View {
+    private func feeSelectorFooter(_ viewModel: WCFeeSelectorContentViewModel) -> some View {
         MainButton(title: Localization.commonDone, action: viewModel.done)
     }
 
@@ -198,7 +198,7 @@ struct WCTransactionView: View {
 
             makeAlertButton(
                 from: viewModel.state.secondaryButton,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.state.tangemIcon,
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
         }
@@ -313,24 +313,29 @@ private extension WCTransactionView {
         switch viewModel.transactionData.method {
         case .personalSign, .signTypedData, .signTypedDataV4:
             WCEthPersonalSignTransactionView(
-                walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible,
+                connectionTargetKind: viewModel.connectionTargetKind,
                 blockchain: viewModel.transactionData.blockchain,
                 addressRowViewModel: viewModel.addressRowViewModel
             )
-        case .addChain where viewModel.isWalletRowVisible:
-            WCTransactionWalletRow(walletName: viewModel.userWalletName)
-                .background(Colors.Background.action)
-                .cornerRadius(14, corners: .allCorners)
+        case .addChain:
+            addChainContextRow
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
-                walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible
+                connectionTargetKind: viewModel.connectionTargetKind
             )
         case .sendTransaction, .signTransaction:
             WCEthTransactionDetailsView(viewModel: viewModel)
         default:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var addChainContextRow: some View {
+        if let connectionTargetKind = viewModel.connectionTargetKind {
+            WCTransactionConnectionTargetRow(kind: connectionTargetKind)
+                .background(Colors.Background.action)
+                .cornerRadius(14, corners: .allCorners)
         }
     }
 }

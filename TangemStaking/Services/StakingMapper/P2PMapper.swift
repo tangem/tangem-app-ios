@@ -54,7 +54,7 @@ struct P2PMapper {
                     balanceType: .active,
                     targetAddress: response.vaultAddress,
                     actions: []
-                ),
+                )
             )
         }
 
@@ -94,21 +94,19 @@ struct P2PMapper {
             )
         }
 
+        if let rewards = response.stake.totalEarnedAssets, rewards > .zero {
+            balances.append(
+                StakingBalanceInfo(
+                    item: .ethereum,
+                    amount: rewards,
+                    balanceType: .rewards,
+                    targetAddress: response.vaultAddress,
+                    actions: []
+                )
+            )
+        }
+
         return balances
-    }
-
-    func mapToBalancesInfo(from response: P2PDTO.RewardsHistory.RewardsHistoryInfo) -> [StakingBalanceInfo] {
-        guard let lastRewards = response.rewards.last else { return [] }
-
-        return [
-            StakingBalanceInfo(
-                item: .ethereum,
-                amount: lastRewards.rewards,
-                balanceType: .rewards,
-                targetAddress: response.vaultAddress,
-                actions: []
-            ),
-        ]
     }
 
     func mapToStakingTransactionInfo(
@@ -148,7 +146,7 @@ struct P2PMapper {
             status: .active,
             maximumStakeAmount: vault.totalAssets.flatMap { totalAssets in
                 vault.capacity.flatMap { capacity in
-                    totalAssets - capacity
+                    capacity - totalAssets
                 }
             }
         )

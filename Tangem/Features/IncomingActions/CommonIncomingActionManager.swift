@@ -12,6 +12,7 @@ import Combine
 public class CommonIncomingActionManager {
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
@@ -40,6 +41,8 @@ public class CommonIncomingActionManager {
         guard let action = parser.parseIncomingURL(url) else {
             return false
         }
+
+        mobileFinishActivationManager.onIncoming(action: action)
 
         pendingAction = action
         tryHandleLastAction()
