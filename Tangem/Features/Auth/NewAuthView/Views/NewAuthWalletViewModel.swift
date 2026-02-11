@@ -24,9 +24,9 @@ final class NewAuthWalletViewModel: ObservableObject {
         item.isProtected
     }
 
-    private let item: NewAuthViewModel.WalletItem
+    private let item: NewAuthViewState.WalletItem
 
-    init(item: NewAuthViewModel.WalletItem) {
+    init(item: NewAuthViewState.WalletItem) {
         self.item = item
         loadImage()
     }

@@ -24,8 +24,6 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private let _applicationEntries: CurrentValueSubject<[ApplicationWalletEntry], Never> = .init([])
 
-    @MainActor private var isInitialized = false
-
     private var initialSubscription: AnyCancellable?
     private var permissionSubscription: AnyCancellable?
     private var appSettingsSubscription: AnyCancellable?
@@ -162,20 +160,23 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
 
     /// Initializes the push notifications service.
     /// Checks the registration of appUid (creates or updates the application on the server),
-    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
+    /// fetches the list of wallets linked to the appUid.
     /// After successful initialization, sends a synchronization event.
     func initialize() {
         runTask(in: self) { service in
             let fcmToken = Messaging.messaging().fcmToken ?? ""
 
-            switch service.defineInitializeType() {
-            case .create:
-                await service.createApplication(fcmToken: fcmToken)
-            case .update:
-                await service.updateApplication(fcmToken: fcmToken)
+            do {
+                switch service.defineInitializeType() {
+                case .create:
+                    try await service.createApplication(fcmToken: fcmToken)
+                case .update:
+                    try await service.updateApplication(fcmToken: fcmToken)
+                }
+            } catch {
+                AppLogger.error("Failed to initialize push notifications service", error: error)
+                return
             }
-
-            await service.update(isInitialized: true)
 
             await service.fetchEntries()
 
@@ -195,45 +196,38 @@ private extension CommonUserTokensPushNotificationsService {
         applicationUid.isEmpty ? .create : .update
     }
 
-    func createApplication(fcmToken: String) async {
-        do {
-            let deviceInfo = DeviceInfo()
+    func createApplication(fcmToken: String) async throws {
+        let deviceInfo = DeviceInfo()
 
-            let requestModel = ApplicationDTO.Request(
-                pushToken: fcmToken,
-                platform: deviceInfo.platform,
-                device: deviceInfo.device,
-                systemVersion: deviceInfo.systemVersion,
-                language: deviceInfo.appLanguageCode,
-                timezone: deviceInfo.timezone,
-                version: deviceInfo.version,
-                appsflyerId: AppsFlyerWrapper.shared.appsflyerId
-            )
+        let requestModel = ApplicationDTO.Request(
+            pushToken: fcmToken,
+            platform: deviceInfo.platform,
+            device: deviceInfo.device,
+            systemVersion: deviceInfo.systemVersion,
+            language: deviceInfo.appLanguageCode,
+            timezone: deviceInfo.timezone,
+            version: deviceInfo.version,
+            appsflyerId: AppsFlyerWrapper.shared.appsflyerId
+        )
 
-            let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
+        let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
 
-            await MainActor.run {
-                AppLogger.info("Application has been created for uid: \(response.uid)")
-                AppSettings.shared.applicationUid = response.uid
-                AppSettings.shared.lastStoredFCMToken = fcmToken
-            }
-        } catch {
-            AppLogger.error(error: error)
+        AppLogger.info("Application has been created for uid: \(response.uid)")
+
+        await MainActor.run {
+            AppSettings.shared.applicationUid = response.uid
+            AppSettings.shared.lastStoredFCMToken = fcmToken
         }
     }
 
-    func updateApplication(fcmToken: String?) async {
-        do {
-            let requestModel = ApplicationDTO.Update.Request(pushToken: fcmToken)
-            try await tangemApiService.updateUserWalletsApplications(uid: applicationUid, requestModel: requestModel)
+    func updateApplication(fcmToken: String?) async throws {
+        let requestModel = ApplicationDTO.Update.Request(pushToken: fcmToken)
+        try await tangemApiService.updateUserWalletsApplications(uid: applicationUid, requestModel: requestModel)
 
-            await MainActor.run {
-                AppSettings.shared.lastStoredFCMToken = fcmToken
-            }
+        AppLogger.info("Application has been updated for uid: \(applicationUid)")
 
-            AppLogger.info("Application has been updated for uid: \(applicationUid)")
-        } catch {
-            AppLogger.error(error: error)
+        await MainActor.run {
+            AppSettings.shared.lastStoredFCMToken = fcmToken
         }
     }
 
@@ -346,11 +340,6 @@ private extension CommonUserTokensPushNotificationsService {
     @MainActor
     func update(entries: [ApplicationWalletEntry]) async {
         _applicationEntries.send(entries)
-    }
-
-    @MainActor
-    func update(isInitialized: Bool) async {
-        self.isInitialized = isInitialized
     }
 }
 
@@ -492,16 +481,15 @@ extension CommonUserTokensPushNotificationsService {
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         runTask(in: self) { service in
-            // Skip when service is not initialized
-            guard await service.isInitialized else {
-                return
-            }
-
             let appUid = await AppSettings.shared.applicationUid
             let lastStoredFCMToken = await AppSettings.shared.lastStoredFCMToken
 
             if !appUid.isEmpty, lastStoredFCMToken != fcmToken {
-                await service.updateApplication(fcmToken: fcmToken)
+                do {
+                    try await service.updateApplication(fcmToken: fcmToken)
+                } catch {
+                    AppLogger.error("Failed to update FCM token", error: error)
+                }
             }
         }
     }

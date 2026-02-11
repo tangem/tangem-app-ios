@@ -209,6 +209,8 @@ final class WCCustomEvmFeeService {
         case .legacy(let legacyParameters):
             gasLimitTextField.update(value: legacyParameters.gasLimit.decimal)
             gasPriceTextField.update(value: legacyParameters.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+        case .gasless:
+            break
         }
     }
 
@@ -266,9 +268,11 @@ protocol WCCustomFeeServiceOutput: CustomFeeServiceOutput {
     func updateCustomFeeForInitialization(_ customFee: Fee)
 }
 
-// MARK: - FeeSelectorCustomFeeFieldsBuilder
+// MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
-extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
+extension WCCustomEvmFeeService: FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool { customFee.value != zeroFee }
+
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
         customFee
             .withWeakCaptureOf(self)
@@ -276,6 +280,18 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
             .eraseToAnyPublisher()
     }
 
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        updateView(fee: cachedCustomFee)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
@@ -340,14 +356,6 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
 
             return [customFeeRowViewModel, gasPriceRowViewModel, gasLimitRowViewModel]
         }
-    }
-
-    func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value
-    }
-
-    func resetCustomFeeFieldsValue() {
-        updateView(fee: cachedCustomFee)
     }
 }
 
