@@ -25,6 +25,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let isMainToken: Bool = false
     let isExemptFee: Bool = true
     let defaultAddressString: String
+    let extraId: String? = nil
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
 
