@@ -428,7 +428,7 @@ private extension WCTransactionViewModel {
                     backAction: { [weak self] in self?.returnToTransactionDetails() }
                 )
 
-                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState()
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config))
                 let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
                 presentationState = .multipleTransactionsAlert(viewModel)
@@ -554,14 +554,35 @@ private extension WCTransactionViewModel {
                 return isCoin || isTokenInOtherBlockchain
             }
 
+        let isAccountScopedTransaction = transactionData.account != nil
+
         guard
-            filteredWalletModels.count > 1,
-            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.walletConnectAddress
+            let fallbackAddress = filteredWalletModels.first(where: { $0.isMainToken })?.walletConnectAddress
+            ?? filteredWalletModels.first?.walletConnectAddress
         else {
             return nil
         }
 
-        return WCTransactionAddressRowViewModel(address: mainAddress)
+        let availableNormalizedAddresses = Set(
+            filteredWalletModels.map { walletModel in
+                WCEthereumRequestedAddressExtractor.normalizeAddress(walletModel.walletConnectAddress)
+            }
+        )
+        let extractedAddress = WCEthereumRequestedAddressExtractor.extract(from: transactionData)
+        let addressToDisplay: String
+
+        if let extractedAddress,
+           availableNormalizedAddresses.contains(WCEthereumRequestedAddressExtractor.normalizeAddress(extractedAddress)) {
+            addressToDisplay = extractedAddress
+        } else {
+            addressToDisplay = fallbackAddress
+        }
+
+        guard isAccountScopedTransaction || filteredWalletModels.count > 1 else {
+            return nil
+        }
+
+        return WCTransactionAddressRowViewModel(address: addressToDisplay)
     }
 
     private func successSignTransaction(onComplete: (() -> Void)? = nil) {

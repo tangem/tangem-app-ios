@@ -127,19 +127,23 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
 private extension CommonYieldModuleNetworkManager {
     func bind() {
-        userWalletRepository.eventProvider
-            .filter {
-                switch $0 {
-                case .inserted, .unlocked:
-                    true
-                default:
-                    false
-                }
-            }
+        // Observe all user wallet models, starting with current state
+        let initialModelsPublisher = Deferred { [weak self] in
+            Just(self?.userWalletRepository.models ?? [])
+        }
+
+        let eventModelsPublisher = userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
             .map { manager, _ in
                 manager.userWalletRepository.models
             }
+
+        let allUserWalletModelsPublisher = initialModelsPublisher
+            .merge(with: eventModelsPublisher)
+            .eraseToAnyPublisher()
+
+        // Observe token changes across all wallets / accounts
+        let allWalletModelsPublisher = allUserWalletModelsPublisher
             .map { userWalletModels in
                 userWalletModels.map { userWalletModel in
                     AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
@@ -154,6 +158,9 @@ private extension CommonYieldModuleNetworkManager {
                     .map { $0.flatMap { $0 } }
                     .eraseToAnyPublisher()
             }
+
+        // Detect EVM blockchain additions
+        allWalletModelsPublisher
             .pairwise()
             .receiveOnMain()
             .sink { [weak self] value in
@@ -221,12 +228,6 @@ private extension CommonYieldModuleNetworkManager {
         yieldMarketsRepository.store(
             markets: CachedYieldModuleMarkets(markets: marketsToStore, lastUpdated: response.lastUpdatedAt)
         )
-    }
-}
-
-private extension CommonYieldModuleNetworkManager {
-    enum Constants {
-        static let temporaryDefaultMaxNetworkFee = BigUInt(1) // will be removed in the future [REDACTED_INFO]
     }
 }
 

@@ -24,14 +24,14 @@ struct ActionButtonsSwapCoordinatorView: View {
                         .navigationBarTitle(Text(Localization.actionButtonsSwapNavigationBarTitle), displayMode: .inline)
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
-                                CloseButton(dismiss: { coordinator.dismiss() })
+                                CloseTextButton(action: coordinator.dismiss)
                             }
                         }
                 }
                 .transition(.opacity)
             case .new(let viewModel):
                 NavigationStack {
-                    NewActionButtonsSwapView(viewModel: viewModel)
+                    AccountsAwareActionButtonsSwapView(viewModel: viewModel)
                 }
                 .transition(SendTransitions.transition)
             case .express(let expressCoordinator):
