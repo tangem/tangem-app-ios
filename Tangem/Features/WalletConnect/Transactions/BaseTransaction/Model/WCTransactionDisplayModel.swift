@@ -9,6 +9,11 @@
 import Foundation
 import TangemLocalization
 
+enum WCTransactionConnectionTargetKind {
+    case wallet(name: String)
+    case account(viewData: WCTransactionAccountRowViewData)
+}
+
 @MainActor
 protocol WCTransactionViewModelDisplayData: AnyObject {
     var simulationState: TransactionSimulationState { get }
@@ -25,11 +30,12 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
 @MainActor
 protocol WCTransactionDisplayModel {
     var userWalletName: String { get }
-    var isWalletRowVisible: Bool { get }
+    var connectionTargetKind: WCTransactionConnectionTargetKind? { get }
     var primaryActionButtonTitle: String { get }
     var isActionButtonBlocked: Bool { get }
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
+    var tangemIconProvider: TangemIconProvider { get }
 }
 
 @MainActor
@@ -58,10 +64,19 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         transactionData.userWalletModel.name
     }
 
-    var isWalletRowVisible: Bool {
-        userWalletRepository.models.filter {
-            !$0.isUserWalletLocked
-        }.count > 1
+    var connectionTargetKind: WCTransactionConnectionTargetKind? {
+        let hasMultipleAccounts = transactionData.userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        let accountRowData = WCTransactionAccountRowViewData(account: transactionData.account)
+
+        if hasMultipleAccounts, let accountRowData {
+            return .account(viewData: accountRowData)
+        }
+
+        if userWalletRepository.models.filter({ !$0.isUserWalletLocked }).count > 1 {
+            return .wallet(name: transactionData.userWalletModel.name)
+        }
+
+        return nil
     }
 
     var primaryActionButtonTitle: String {
@@ -133,5 +148,9 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))
             }
         )
+    }
+
+    var tangemIconProvider: TangemIconProvider {
+        CommonTangemIconProvider(config: transactionData.userWalletModel.config)
     }
 }

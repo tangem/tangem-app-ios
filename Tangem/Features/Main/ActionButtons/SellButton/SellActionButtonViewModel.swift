@@ -62,6 +62,9 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
             break
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
+        case .idle where FeatureProvider.isAvailable(.accounts):
+            let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+            coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         case .idle:
             coordinator?.openSell(userWalletModel: userWalletModel)
         }

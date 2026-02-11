@@ -18,24 +18,33 @@ struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     let kingfisherImageCache: ImageCache
 
+    @Namespace private var newConnectionButtonNamespace
+
     var body: some View {
-        GeometryReader { geometryProxy in
-            ScrollView(scrollViewAxis) {
-                stateView(geometryProxy)
+        GeometryReader { proxy in
+            ScrollView {
+                stateView(proxy)
                     .padding(.horizontal, 16)
             }
-            .safeAreaInset(edge: .bottom, spacing: .zero) {
-                newConnectionButton(geometryProxy)
-            }
-            .scrollBounceBehavior(.basedOnSize)
         }
+        .safeAreaInset(edge: .bottom, alignment: .center, spacing: .zero) {
+            if viewModel.state.contentState.isContent {
+                newConnectionButton
+                    .background {
+                        ListFooterOverlayShadowView(color: Colors.Background.secondary)
+                            .transition(.opacity)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
+            }
+        }
+        .scrollBounceBehavior(.basedOnSize)
         .animation(.easeInOut(duration: 0.2), value: viewModel.state)
         .navigationTitle(viewModel.state.navigationBar.title)
         .toolbar {
             navigationButton
         }
         .alert(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
-        .confirmationDialog(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
         .background(Colors.Background.secondary)
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
@@ -63,36 +72,10 @@ struct WalletConnectView: View {
     }
 
     @ViewBuilder
-    private func newConnectionButton(_ proxy: GeometryProxy) -> some View {
-        if !viewModel.state.contentState.isLoading {
-            MainButton(
-                title: viewModel.state.newConnectionButton.title,
-                isLoading: viewModel.state.newConnectionButton.isLoading,
-                action: {
-                    viewModel.handle(viewEvent: .newConnectionButtonTapped)
-                }
-            )
-            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
-            .background {
-                if !viewModel.state.contentState.isEmpty {
-                    ListFooterOverlayShadowView(color: Colors.Background.secondary)
-                        .transition(.opacity)
-                }
-            }
-            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-            .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
-            .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
-            .offset(y: newConnectionButtonYOffset(proxy))
-            .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
-        }
-    }
-
-    @ViewBuilder
     private func stateView(_ geometryProxy: GeometryProxy) -> some View {
         switch viewModel.state.contentState {
         case .empty(let emptyContentState):
             emptyStateView(emptyContentState)
-                .padding(.top, -geometryProxy.safeAreaInsets.top)
                 .frame(height: geometryProxy.size.height - geometryProxy.safeAreaInsets.top)
                 .transition(.opacity)
 
@@ -126,12 +109,15 @@ struct WalletConnectView: View {
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
+
+            newConnectionButton
+                .padding(.top, 56)
+                .padding(.horizontal, 46)
         }
-        .frame(maxWidth: .infinity)
     }
 
     private func loadingStateView(_ loadingContentState: WalletConnectViewState.ContentState.LoadingContentState) -> some View {
-        LazyVStack(alignment: .leading, spacing: .zero) {
+        VStack(alignment: .leading, spacing: .zero) {
             SkeletonView()
                 .frame(width: 90, height: 18)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -236,43 +222,23 @@ struct WalletConnectView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    private func walletLevelSection(_ dApps: [WalletConnectViewState.ContentState.ConnectedDApp]) -> some View {
-        VStack(spacing: 0) {
-            ForEach(dApps, content: dAppRowView)
-        }
-        .background(Colors.Background.action)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .padding(.horizontal, 14)
-    }
-
-    private func legacyWalletLevelSection(_ dApps: [WalletConnectViewState.ContentState.ConnectedDApp]) -> some View {
-        ForEach(dApps, content: dAppRowView)
-    }
-
     private func accountSectionHeader(_ section: WalletConnectViewState.ContentState.AccountSection) -> some View {
         HStack(spacing: 12) {
-            accountIconView(for: section.accountData.icon, accountName: section.accountData.name)
+            AccountIconView(
+                data: AccountModelUtils.UI.iconViewData(icon: section.icon, accountName: section.name),
+                settings: .defaultSized
+            )
+            .settings(.smallSized)
 
-            Text(section.accountData.name)
+            Text(section.name)
                 .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    private func accountIconView(for icon: AccountModel.Icon, accountName: String) -> some View {
-        AccountIconView(
-            data: AccountModelUtils.UI.iconViewData(icon: icon, accountName: accountName)
-        )
-        .settings(.smallSized)
-    }
-
     private func shouldShowWalletName(for wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> Bool {
-        guard viewModel.state.shouldDisplayWalletNames else {
-            return false
-        }
-
-        return wallet.hasAccountSections || wallet.hasWalletLevelDApps
+        return viewModel.state.shouldDisplayWalletNames && wallet.hasAccountSections
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
@@ -343,26 +309,21 @@ struct WalletConnectView: View {
             .frame(width: 36, height: 36)
     }
 
+    private var newConnectionButton: some View {
+        MainButton(
+            title: viewModel.state.newConnectionButton.title,
+            isLoading: viewModel.state.newConnectionButton.isLoading,
+            action: {
+                viewModel.handle(viewEvent: .newConnectionButtonTapped)
+            }
+        )
+        .matchedGeometryEffect(id: viewModel.state.newConnectionButton.title, in: newConnectionButtonNamespace)
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
+        .confirmationDialog(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
+    }
+
     private func dismissDialogAction() {
         viewModel.handle(viewEvent: .closeDialogButtonTapped)
-    }
-
-    private func newConnectionButtonYOffset(_ proxy: GeometryProxy) -> CGFloat {
-        guard !viewModel.state.contentState.isContent else {
-            return .zero
-        }
-
-        let topMargin: CGFloat = 114
-        return -proxy.size.height / 2 + topMargin
-    }
-
-    private var scrollViewAxis: Axis.Set {
-        switch viewModel.state.contentState {
-        case .empty, .loading:
-            []
-        case .content:
-            .vertical
-        }
     }
 }
 
@@ -371,98 +332,43 @@ struct WalletConnectView: View {
 private extension View {
     func alert(for modalDialog: WalletConnectViewState.ModalDialog?, dismissAction: @escaping () -> Void) -> some View {
         alert(
-            modalDialog?.title ?? "",
+            modalDialog?.asAlert?.title ?? "",
             isPresented: Binding(
-                get: { modalDialog?.isAlert == true },
+                get: { modalDialog?.asAlert != nil },
                 set: { isPresented in
                     if !isPresented {
                         dismissAction()
                     }
                 }
             ),
-            presenting: modalDialog,
-            actions: { _ in
-                modalDialog?.actions
+            presenting: modalDialog?.asAlert,
+            actions: { alert in
+                alert.actions
             },
-            message: { _ in
-                Text(modalDialog?.subtitle ?? "")
+            message: { alert in
+                Text(alert.subtitle)
             }
         )
     }
 
     func confirmationDialog(for modalDialog: WalletConnectViewState.ModalDialog?, dismissAction: @escaping () -> Void) -> some View {
-        confirmationDialog(
-            modalDialog?.title ?? "",
-            isPresented: Binding(
-                get: { modalDialog?.isConfirmationDialog == true },
-                set: { isPresented in
-                    if !isPresented {
-                        dismissAction()
-                    }
-                }
-            ),
-            titleVisibility: .visible,
-            presenting: modalDialog,
-            actions: { _ in
-                modalDialog?.actions
-            },
-            message: { _ in
-                Text(modalDialog?.subtitle ?? "")
-            }
-        )
+        confirmationDialog(viewModel: modalDialog?.asConfirmationDialog, onDismiss: dismissAction)
     }
 }
 
-// MARK: - ViewState utilities
-
-private extension WalletConnectViewState.ContentState {
-    var scrollViewAxis: Axis.Set {
-        isEmpty ? [] : .vertical
-    }
-
-    var zStackAlignment: Alignment {
-        isEmpty ? .center : .bottom
-    }
-
-    var stateViewAlignment: Alignment {
-        isEmpty ? .center : .top
-    }
-}
-
-private extension WalletConnectViewState.ModalDialog {
+private extension WalletConnectViewState.ModalDialog.Alert {
     var actions: some View {
-        switch self {
-        case .alert(let content), .confirmationDialog(let content):
-            ForEach(content.buttons, id: \.self) { button in
-                Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
-            }
+        ForEach(buttons, id: \.self) { button in
+            Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
         }
     }
 }
 
-private extension WalletConnectViewState.ModalDialog.DialogButtonRole {
+private extension WalletConnectViewState.ModalDialog.AlertButtonRole {
     var toSwiftUIButtonRole: ButtonRole {
         switch self {
         case .destructive: .destructive
         case .cancel: .cancel
         }
-    }
-}
-
-extension AnyTransition {
-    static let slideToTopWithFade = AnyTransition.modifier(
-        active: SlideWithFadeModifier(offsetY: -120, opacity: 0),
-        identity: SlideWithFadeModifier(offsetY: 0, opacity: 1)
-    )
-}
-
-private struct SlideWithFadeModifier: ViewModifier {
-    let offsetY: CGFloat
-    let opacity: CGFloat
-
-    func body(content: Content) -> some View {
-        content
-            .offset(y: offsetY)
-            .opacity(opacity)
     }
 }

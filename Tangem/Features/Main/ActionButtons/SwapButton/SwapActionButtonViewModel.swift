@@ -61,6 +61,9 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
             break
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
+        case .idle where FeatureProvider.isAvailable(.accounts):
+            let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+            coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         case .idle:
             coordinator?.openSwap(userWalletModel: userWalletModel)
         }

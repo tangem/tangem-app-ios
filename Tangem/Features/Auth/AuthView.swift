@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemSdk
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
@@ -23,7 +24,6 @@ struct AuthView: View {
     var body: some View {
         unlockView
             .alert(item: $viewModel.error, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
@@ -43,7 +43,7 @@ struct AuthView: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 14)
 
-            Text(Localization.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
+            Text(Localization.welcomeUnlockDescription(BiometricsUtil.biometryType.name))
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
 
@@ -64,6 +64,7 @@ struct AuthView: View {
                 isLoading: viewModel.isScanningCard,
                 action: viewModel.unlockWithCard
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
         }
         .padding([.top, .horizontal])
         .padding(.bottom, 6)

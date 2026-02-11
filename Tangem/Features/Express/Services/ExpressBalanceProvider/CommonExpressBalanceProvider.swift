@@ -32,7 +32,7 @@ extension CommonExpressBalanceProvider: ExpressBalanceProvider {
         return balanceValue
     }
 
-    func getFeeCurrencyBalance() -> Decimal {
+    func getCoinBalance() throws -> Decimal {
         feeProvider.getFeeCurrencyBalance()
     }
 }
