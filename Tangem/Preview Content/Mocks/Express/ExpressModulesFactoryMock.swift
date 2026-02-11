@@ -69,7 +69,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             marketsTokensViewModel: nil,
             expressInteractor: expressInteractor,
-            tangemApiService: tangemApiService,
             coordinator: coordinator
         )
     }
