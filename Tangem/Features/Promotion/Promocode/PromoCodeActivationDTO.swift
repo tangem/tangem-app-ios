@@ -14,6 +14,7 @@ extension PromoCodeActivationDTO {
     struct Request: Encodable {
         let address: String
         let promoCode: String
+        let walletId: String
     }
 
     struct Response: Decodable {

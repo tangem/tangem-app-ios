@@ -21,7 +21,7 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
     private lazy var walletSelectorViewModel: WalletConnectWalletSelectorViewModel = makeWalletSelectorViewModel()
     private lazy var networksSelectorViewModel: WalletConnectNetworksSelectorViewModel = makeNetworksSelectorViewModel()
-    private lazy var accountSelectorViewModel: AccountSelectorViewModel? = makeAccountSelectorViewModel()
+    private lazy var accountSelectorViewModel: AccountSelectorViewModel = makeAccountSelectorViewModel()
 
     private let dismissFlowAction: () -> Void
 
@@ -45,17 +45,8 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
 
         self.dismissFlowAction = dismissFlowAction
 
-        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.first
-
-        switch selectedAccountModel {
-        case .standard(.single(let account)):
-            selectedAccount = account
-        case .standard(.multiple(let accounts)):
-            selectedAccount = accounts.first
-        case .none:
-            selectedAccount = nil
-        }
-
+        // [REDACTED_TODO_COMMENT]
+        selectedAccount = selectedUserWallet.accountModelsManager.cryptoAccountModels.first
         bag = []
 
         setupConnectionRequestViewModel()
@@ -147,8 +138,6 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
     }
 
     func openAccountSelector() {
-        guard let accountSelectorViewModel else { return }
-
         state = .connectionTarget(accountSelectorViewModel)
     }
 
@@ -246,10 +235,8 @@ extension WalletConnectDAppConnectionViewModel {
         return viewModel
     }
 
-    private func makeAccountSelectorViewModel() -> AccountSelectorViewModel? {
-        guard let selectedAccount else { return nil }
-
-        let viewModel = AccountSelectorViewModel(
+    private func makeAccountSelectorViewModel() -> AccountSelectorViewModel {
+        return AccountSelectorViewModel(
             selectedItem: selectedAccount,
             userWalletModels: userWallets,
             onSelect: { [weak self] result in
@@ -257,15 +244,15 @@ extension WalletConnectDAppConnectionViewModel {
 
                 switch result {
                 case .wallet(let walletModel):
-                    self.selectedAccount = walletModel.mainAccount
+                    selectedAccount = walletModel.mainAccount
                     selectedUserWallet = walletModel.domainModel
 
                 case .account(let accountModel):
-                    self.selectedAccount = accountModel.domainModel
+                    selectedAccount = accountModel.domainModel
 
                     selectedUserWallet = userWallets.first {
                         $0.accountModelsManager.accountModels.contains {
-                            $0.firstAvailableStandard().id == accountModel.domainModel.id
+                            WCAccountFinder.firstAvailableCryptoAccountModel(from: $0).id == accountModel.domainModel.id
                         }
                     } ?? selectedUserWallet
                 }
@@ -273,7 +260,5 @@ extension WalletConnectDAppConnectionViewModel {
                 openConnectionRequest()
             }
         )
-
-        return viewModel
     }
 }
