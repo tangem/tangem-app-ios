@@ -80,7 +80,7 @@ final class TangemPayBuilder {
     }
 
     func buildTangemPayManager() -> TangemPayManager {
-        TangemPayManager(
+        CommonTangemPayManager(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository,
             availabilityService: availabilityService,
