@@ -19,12 +19,14 @@ struct SwapMarketsTokensView: View {
     var body: some View {
         Group {
             switch viewModel.state {
-            case .idle, .noResults:
+            case .noResults:
                 EmptyView()
-            case .loading(let mode):
-                sectionContent(title: mode.title, showCount: false, tokens: [], isLoading: true)
-            case .loaded(let tokens, let mode):
-                sectionContent(title: mode.title, showCount: mode.showsTokenCount, tokens: tokens, isLoading: false)
+            case .loading:
+                sectionContent(isSearching: false, tokens: [], isLoading: true, isLoadingMore: false)
+            case .loaded(let tokens, let isSearching, let isLoadingMore):
+                sectionContent(isSearching: isSearching, tokens: tokens, isLoading: false, isLoadingMore: isLoadingMore)
+            case .error:
+                errorContent
             }
         }
         .onAppear {
@@ -33,20 +35,37 @@ struct SwapMarketsTokensView: View {
     }
 
     @ViewBuilder
+    private var errorContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            sectionHeader(isSearching: false, count: 0)
+
+            MarketsListErrorView(tryLoadAgain: viewModel.onRetry)
+                .background(Colors.Background.action)
+                .cornerRadiusContinuous(Constants.cornerRadius)
+        }
+    }
+
+    @ViewBuilder
     private func sectionContent(
-        title: String,
-        showCount: Bool,
-        tokens: [MarketTokenItemViewModel],
-        isLoading: Bool
+        isSearching: Bool,
+        tokens: [MarketsItemViewModel],
+        isLoading: Bool,
+        isLoadingMore: Bool
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionHeader(title: title, showCount: showCount, count: tokens.count)
+            sectionHeader(isSearching: isSearching, count: tokens.count)
 
             Group {
                 if isLoading {
                     loadingSkeletons
                 } else {
-                    loadedTokens(tokens)
+                    VStack(spacing: 0) {
+                        loadedTokens(tokens)
+
+                        if isLoadingMore {
+                            loadingMoreSkeletons
+                        }
+                    }
                 }
             }
             .background(Colors.Background.action)
@@ -54,12 +73,12 @@ struct SwapMarketsTokensView: View {
         }
     }
 
-    private func sectionHeader(title: String, showCount: Bool, count: Int) -> some View {
+    private func sectionHeader(isSearching: Bool, count: Int) -> some View {
         HStack(spacing: Constants.titleCountSpacing) {
-            Text(title)
+            Text(Localization.commonFeeSelectorOptionMarket)
                 .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
 
-            if showCount, count > 0 {
+            if isSearching, count > 0 {
                 Text("\(count)")
                     .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
             }
@@ -70,10 +89,10 @@ struct SwapMarketsTokensView: View {
         .padding(.bottom, Constants.headerBottomPadding)
     }
 
-    private func loadedTokens(_ tokens: [MarketTokenItemViewModel]) -> some View {
-        VStack(spacing: 0) {
+    private func loadedTokens(_ tokens: [MarketsItemViewModel]) -> some View {
+        LazyVStack(spacing: 0) {
             ForEach(tokens) { item in
-                MarketTokenItemView(viewModel: item, cellWidth: mainWindowSize.width)
+                MarketsItemView(viewModel: item, cellWidth: mainWindowSize.width)
             }
         }
     }
@@ -81,6 +100,14 @@ struct SwapMarketsTokensView: View {
     private var loadingSkeletons: some View {
         VStack(spacing: 0) {
             ForEach(0 ..< Constants.skeletonItemsCount, id: \.self) { _ in
+                MarketsSkeletonItemView()
+            }
+        }
+    }
+
+    private var loadingMoreSkeletons: some View {
+        VStack(spacing: 0) {
+            ForEach(0 ..< Constants.loadingMoreSkeletonItemsCount, id: \.self) { _ in
                 MarketsSkeletonItemView()
             }
         }
@@ -97,6 +124,7 @@ extension SwapMarketsTokensView {
         static let titleCountSpacing: CGFloat = 8
         static let cornerRadius: CGFloat = 14
         static let skeletonItemsCount: Int = 7
+        static let loadingMoreSkeletonItemsCount: Int = 2
     }
 }
 

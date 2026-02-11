@@ -40,8 +40,6 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let tangemApiService: TangemApiService
-
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
 
     /// Selected source/destination token should be always available, otherwise it couldn't be selected.
@@ -56,12 +54,10 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         coordinator: ActionButtonsSwapRoutable,
-        tangemApiService: TangemApiService
     ) {
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
         self.coordinator = coordinator
-        self.tangemApiService = tangemApiService
 
         // Here only possible direction is `from`
         tokenSelectorViewModel.setup(directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } })
@@ -77,7 +73,7 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
             }
             .eraseToAnyPublisher()
 
-        marketsTokensViewModel?.setup(isActivePublisher: isActivePublisher)
+//        marketsTokensViewModel?.setup(isActivePublisher: isActivePublisher)
         marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
         marketsTokensViewModel?.setup(selectionHandler: self)
     }
@@ -147,58 +143,80 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
             }
         }
     }
+
+    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
+        switch source {
+        case .placeholder:
+            Task { await updateSourceToken(item: item, isNewlyAddedFromMarkets: true) }
+        case .token(let source, _):
+            Task {
+                await updateDestinationToken(item: item)
+                try? await Task.sleep(for: .seconds(0.2))
+
+                await MainActor.run {
+                    coordinator?.openExpress(
+                        input: .init(
+                            userWalletInfo: item.userWalletInfo,
+                            source: ExpressInteractorWalletModelWrapper(
+                                userWalletInfo: source.userWalletInfo,
+                                walletModel: source.walletModel,
+                                expressOperationType: .swap
+                            ),
+                            destination: .chosen(
+                                ExpressInteractorWalletModelWrapper(
+                                    userWalletInfo: item.userWalletInfo,
+                                    walletModel: item.walletModel,
+                                    expressOperationType: .swap,
+                                    isNewlyAddedFromMarkets: true
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
 }
 
 extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
-            do {
-                let networks = try await loadNetworks(for: token.id)
-
-                guard !networks.isEmpty else {
-                    return
-                }
-
-                let inputData = ExpressAddTokenInputData(
-                    coinId: token.id,
-                    coinName: token.name,
-                    coinSymbol: token.symbol,
-                    networks: networks
-                )
-
-                coordinator?.openAddTokenFlowForExpress(inputData: inputData)
-            } catch {
-                AppLogger.error("Failed to load networks for coinId: \(token.id)", error: error)
+            guard let networks = token.networks, !networks.isEmpty else {
+                AppLogger.debug("Selected tokens with no networks")
+                return
             }
+
+            let inputData = ExpressAddTokenInputData(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                networks: networks
+            )
+
+            coordinator?.openAddTokenFlowForExpress(inputData: inputData)
         }
-    }
-
-    private func loadNetworks(for coinId: String) async throws -> [NetworkModel] {
-        let request = CoinsList.Request(
-            supportedBlockchains: [],
-            ids: [coinId]
-        )
-
-        let response = try await tangemApiService.loadCoins(requestModel: request)
-        return response.coins.first?.networks ?? []
     }
 }
 
 // MARK: - Private
 
 private extension AccountsAwareActionButtonsSwapViewModel {
-    func checkNoDestinationTokens(tokenItem: TokenItem) async {
+    func checkNoDestinationTokens(tokenItem: TokenItem, isNewlyAddedFromMarkets: Bool = false) async {
         guard await expressPairsRepository.getPairs(from: tokenItem.expressCurrency).isEmpty else {
             await MainActor.run { show(notification: .none) }
             return
         }
 
         await MainActor.run {
-            show(notification: .noAvailablePairs)
+            if isNewlyAddedFromMarkets {
+                show(notification: .swapNotSupportedForToken(tokenName: tokenItem.name))
+            } else {
+                show(notification: .noAvailablePairs)
+            }
         }
     }
 
-    func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
+    func updateSourceToken(item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool = false) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
             tokenSymbol: item.walletModel.tokenItem.currencySymbol
@@ -213,7 +231,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             coordinator?.showYieldNotificationIfNeeded(for: item.walletModel, completion: nil)
         }
 
-        await updatePairs(sourceItem: item)
+        await updatePairs(sourceItem: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
     }
 
     func updateDestinationToken(item: AccountsAwareTokenSelectorItem) async {
@@ -223,7 +241,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         }
     }
 
-    func updatePairs(sourceItem: AccountsAwareTokenSelectorItem) async {
+    func updatePairs(sourceItem: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool = false) async {
         await MainActor.run { notificationIsLoading = true }
 
         do {
@@ -238,24 +256,32 @@ private extension AccountsAwareActionButtonsSwapViewModel {
 
             // We set the `filterTokenItem` after pairs is loading
             filterTokenItem.send(sourceItem.walletModel.tokenItem)
-            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem)
+            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
 
             await MainActor.run {
                 tokenSelectorState = .selector
             }
         } catch let error as ExpressAPIError {
             await MainActor.run {
-                show(notification: .refreshRequired(
-                    title: error.localizedTitle,
-                    message: error.localizedMessage
-                ))
+                if isNewlyAddedFromMarkets {
+                    show(notification: .swapNotSupportedForToken(tokenName: sourceItem.walletModel.tokenItem.name))
+                } else {
+                    show(notification: .refreshRequired(
+                        title: error.localizedTitle,
+                        message: error.localizedMessage
+                    ))
+                }
             }
         } catch {
             await MainActor.run {
-                show(notification: .refreshRequired(
-                    title: Localization.commonError,
-                    message: Localization.commonUnknownError
-                ))
+                if isNewlyAddedFromMarkets {
+                    show(notification: .swapNotSupportedForToken(tokenName: sourceItem.walletModel.tokenItem.name))
+                } else {
+                    show(notification: .refreshRequired(
+                        title: Localization.commonError,
+                        message: Localization.commonUnknownError
+                    ))
+                }
             }
         }
 

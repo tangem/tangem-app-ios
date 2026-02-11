@@ -792,7 +792,8 @@ private extension ExpressViewModel {
              .verificationRequired,
              .cexOperationFailed,
              .refunded,
-             .longTimeAverageDuration:
+             .longTimeAverageDuration,
+             .tokenNotSupportedForSwap:
             return nil
         }
     }
