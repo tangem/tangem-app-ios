@@ -1,32 +1,20 @@
 //
 //  SendFeeCompactView.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemLocalization
-import TangemAssets
-import TangemUIUtils
-import TangemUI
-import TangemAccessibilityIdentifiers
 
 struct SendFeeCompactView: View {
     @ObservedObject var viewModel: SendFeeCompactViewModel
+    let tapAction: (() -> Void)?
 
     var body: some View {
-        GroupedSection(viewModel.selectedFeeRowViewModel) { feeRowViewModel in
-            FeeRowView(viewModel: feeRowViewModel)
-                .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
-        } header: {
-            DefaultHeaderView(Localization.commonNetworkFeeTitle)
-                .padding(.top, 12)
+        if viewModel.feeCompactViewIsVisible {
+            FeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: tapAction)
         }
-        .backgroundColor(Colors.Background.action)
-        .contentShape(Rectangle())
-        .allowsHitTesting(viewModel.canEditFee)
-        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }

@@ -88,7 +88,7 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
@@ -147,22 +147,19 @@ struct MainCoordinatorView: CoordinatorView {
                 YieldNoticeView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
-                TangemPayYourCardIsIssuingSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFailedToIssueCardSheetViewModel.self) {
-                TangemPayFailedToIssueCardSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayKYCStatusPopupViewModel.self) {
-                TangemPayKYCStatusPopupView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
             .bottomSheet(
                 item: $coordinator.pushNotificationsViewModel,
                 backgroundColor: Colors.Background.primary

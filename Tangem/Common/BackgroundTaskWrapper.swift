@@ -19,7 +19,7 @@ final class BackgroundTaskWrapper {
     private let taskName: String
     private var expirationHandler: ExpirationHandler?
     private var taskIdentifier: UIBackgroundTaskIdentifier
-    private let criticalSection = Lock(isRecursive: false)
+    private let criticalSection = OSAllocatedUnfairLock()
 
     init(
         taskName: String = BackgroundTaskWrapper.makeTaskName(),
