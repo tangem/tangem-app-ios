@@ -7,3 +7,7 @@
 //
 
 import Foundation
+
+protocol MobileOnboardingSeedPhraseRevealDelegate: AnyObject {
+    func onSeedPhraseRevealClose()
+}

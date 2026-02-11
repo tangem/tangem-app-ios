@@ -33,12 +33,12 @@ private extension MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder {
     func makeContinueStep() -> Step {
         let step = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
+            navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
             },
             onComplete: weakify(self, forFunction: MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.didContinue)
         )
-        step.configureNavBar(title: Localization.commonBackup)
         return step
     }
 

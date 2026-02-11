@@ -67,7 +67,7 @@ private extension StepsFlowContentViewController {
     }
 
     func makeVC(step: Step) -> UIViewController {
-        let rootView = AnyView(step.makeView())
+        let rootView = StepView(step: step)
         return UIHostingController(rootView: rootView)
     }
 
@@ -75,8 +75,16 @@ private extension StepsFlowContentViewController {
         oldVC?.willMove(toParent: nil)
         addChild(newVC)
 
-        newVC.view.frame = view.bounds
-        newVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(newVC.view)
+
+        newVC.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            newVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            newVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            newVC.view.topAnchor.constraint(equalTo: view.topAnchor),
+            newVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
         newVC.view.alpha = 0
 
         if let oldVC {
@@ -109,5 +117,27 @@ private extension StepsFlowContentViewController {
 
     func removeCache(id: StepId) {
         cache.removeValue(forKey: id)
+    }
+}
+
+private struct StepView: View {
+    typealias Step = any StepsFlowStep
+
+    private let step: Step
+
+    init(step: Step) {
+        self.step = step
+    }
+
+    var body: some View {
+        ZStack {
+            AnyView(step.makeView())
+                .frame(maxHeight: .infinity, alignment: .top)
+
+            // Workaround: forces the navigation bar to reset.
+            Color.clear
+                .stepsFlowNavBar(title: nil)
+                .stepsFlowNavBar()
+        }
     }
 }
