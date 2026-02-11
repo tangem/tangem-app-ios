@@ -57,19 +57,20 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             .eraseToAnyPublisher()
     }
 
-    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String) {
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData) {
         let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
-            userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
             transactionType: .type(from: txData.expressTransactionData.transactionType),
             transactionHash: txData.result.hash,
             sourceTokenTxInfo: .init(
+                userWalletId: txData.source.userWalletId.stringValue,
                 tokenItem: txData.source.tokenItem,
                 address: txData.source.address ?? .unknown,
                 amountString: txData.expressTransactionData.fromAmount.stringValue,
                 isCustom: txData.source.isCustom
             ),
             destinationTokenTxInfo: .init(
+                userWalletId: txData.destination.userWalletId.stringValue,
                 tokenItem: txData.destination.tokenItem,
                 address: txData.destination.address ?? .unknown,
                 amountString: txData.expressTransactionData.toAmount.stringValue,
