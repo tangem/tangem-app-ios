@@ -12,7 +12,37 @@ import TangemFoundation
 import TangemPay
 import TangemVisa
 
-final class TangemPayManager {
+protocol TangemPayManager {
+    var state: TangemPayLocalState { get }
+    var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
+    var customerId: String? { get }
+
+    func authorizeWithCustomerWallet(authorizingInteractor: TangemPayAuthorizing) async
+    func launchKYC(onDidDismiss: (() async -> Void)?) async throws
+    func cancelKYC(onFinish: @escaping (Bool) -> Void)
+    func refreshState() async
+    func syncTokens(authorizingInteractor: TangemPayAuthorizing)
+}
+
+extension TangemPayManager {
+    func launchKYC() async throws {
+        try await launchKYC(onDidDismiss: nil)
+    }
+}
+
+struct TangemPayManagerMock: TangemPayManager {
+    let state: TangemPayLocalState = .initial
+    let statePublisher: AnyPublisher<TangemPayLocalState, Never> = .just(output: .initial)
+    let customerId: String? = nil
+
+    func authorizeWithCustomerWallet(authorizingInteractor: any TangemPayAuthorizing) async {}
+    func launchKYC(onDidDismiss: (() async -> Void)?) async throws {}
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {}
+    func refreshState() async {}
+    func syncTokens(authorizingInteractor: any TangemPayAuthorizing) {}
+}
+
+final class CommonTangemPayManager: TangemPayManager {
     var state: TangemPayLocalState {
         stateSubject.value
     }
@@ -231,7 +261,7 @@ final class TangemPayManager {
     }
 }
 
-private extension TangemPayManager {
+private extension CommonTangemPayManager {
     enum Constants {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
     }
