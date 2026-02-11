@@ -79,12 +79,15 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
             for network in networks {
                 if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    if network.contractAddress == nil {
-                        return .available
-                    }
-
                     // searchable network is token
-                    if supportedBlockchain.canHandleTokens {
+                    if let contractAddress = network.contractAddress {
+                        if SupportedTokensFilter.canHandleToken(
+                            contractAddress: contractAddress,
+                            blockchain: supportedBlockchain
+                        ) {
+                            return .available
+                        }
+                    } else {
                         return .available
                     }
                 }
@@ -95,7 +98,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        MarketsTokenNetworkChecker.isTokenAddedOnNetworksInAllAccounts(
+        TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
             coinId: coinId,
             availableNetworks: availableNetworks,
             userWalletModels: walletDataProvider.userWalletModels
@@ -122,7 +125,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         bag.removeAll()
 
         let walletDataPublishers = userWalletModels.map { userWalletModel in
-            userWalletModel.accountModelsManager.accountModelsPublisher
+            userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
                 .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
                     let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
 
@@ -334,7 +339,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
-        if let networks = networks {
+        if let networks {
             let supportedState = supportedState(networks: networks)
             isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
 
@@ -395,12 +400,6 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             return
         }
 
-        let expressInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
-
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
@@ -414,6 +413,15 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+            let expressInput = ExpressDependenciesInput(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
+                destination: .loadingAndSet
+            )
             coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)

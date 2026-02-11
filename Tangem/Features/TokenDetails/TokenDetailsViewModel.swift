@@ -19,7 +19,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
@@ -174,8 +174,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     }
 
-    override func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
+    override func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
+        self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
     override func copyDefaultAddress() {
@@ -553,6 +553,8 @@ extension TokenDetailsViewModel {
     }
 }
 
+// MARK: - YieldModuleStatusProvider
+
 extension TokenDetailsViewModel: YieldModuleStatusProvider {
     var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
         walletModel.yieldModuleManager?
@@ -564,8 +566,13 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
     }
 }
 
+// MARK: - RefreshStatusProvider
+
 extension TokenDetailsViewModel: RefreshStatusProvider {
     var isRefreshing: AnyPublisher<Bool, Never> {
-        isRefreshingSubject.eraseToAnyPublisher()
+        refreshScrollViewStateObject
+            .statePublisher
+            .map { $0.isRefreshing }
+            .eraseToAnyPublisher()
     }
 }

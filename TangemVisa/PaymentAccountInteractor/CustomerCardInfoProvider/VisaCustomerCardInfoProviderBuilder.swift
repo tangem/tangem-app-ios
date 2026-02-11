@@ -9,14 +9,13 @@
 import Foundation
 import BlockchainSdk
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCustomerCardInfoProviderBuilder {
     private let apiType: VisaAPIType
-    private let isMockedAPIEnabled: Bool
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func build(
