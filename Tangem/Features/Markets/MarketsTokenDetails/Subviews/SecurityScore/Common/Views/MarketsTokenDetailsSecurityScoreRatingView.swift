@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 
 struct MarketsTokenDetailsSecurityScoreRatingView: View {
@@ -16,10 +17,14 @@ struct MarketsTokenDetailsSecurityScoreRatingView: View {
         HStack(spacing: 6.0) {
             Text(viewData.securityScore)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreValue)
 
-            ForEach(viewData.ratingBullets.indexed(), id: \.0) { _, ratingBullet in
-                RatingBulletView(ratingBullet: ratingBullet)
+            Group {
+                ForEach(viewData.ratingBullets.indexed(), id: \.0) { _, ratingBullet in
+                    RatingBulletView(ratingBullet: ratingBullet)
+                }
             }
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreRatingStars)
         }
     }
 }

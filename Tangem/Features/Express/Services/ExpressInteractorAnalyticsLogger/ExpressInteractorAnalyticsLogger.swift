@@ -9,7 +9,7 @@
 import BlockchainSdk
 import TangemExpress
 
-protocol ExpressInteractorAnalyticsLogger: ExpressAnalyticsLogger {
+protocol ExpressInteractorAnalyticsLogger: ExpressAnalyticsLogger, FeeSelectorAnalytics {
     func logExpressError(_ error: Error, provider: ExpressProvider?)
 
     func logSwapTransactionAnalyticsEvent(destination: TokenItem)

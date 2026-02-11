@@ -146,7 +146,6 @@ struct MarketsTokenDetailsView: View {
 
                 content
                     .hidden(viewModel.allDataLoadFailed)
-                    .padding(.horizontal, Constants.blockHorizontalPadding)
                     .transition(.opacity)
             }
             .padding(.top, Constants.scrollViewContentTopInset)
@@ -246,10 +245,47 @@ struct MarketsTokenDetailsView: View {
             if viewModel.descriptionCanBeShowed {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Constants.blockHorizontalPadding)
             }
 
             portfolioView
+                .padding(.horizontal, Constants.blockHorizontalPadding)
 
+            newsView
+
+            coinView
+        }
+    }
+
+    @ViewBuilder
+    private var portfolioView: some View {
+        if let portfolioViewModel = viewModel.portfolioViewModel {
+            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
+        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
+            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
+                .padding(.bottom, 32 - Constants.contentVerticalSpacing)
+        }
+    }
+
+    @ViewBuilder
+    private var newsView: some View {
+        if viewModel.isAvailableNews {
+            MarketsTokenNewsView(
+                items: viewModel.tokenNewsItems,
+                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
+            )
+        }
+    }
+
+    private var aboutCoinHeader: some View {
+        Text(Localization.marketsAboutCoinHeader)
+            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
+    }
+
+    private var coinView: some View {
+        Group {
             if viewModel.accountsAwarePortfolioViewModel != nil {
                 aboutCoinHeader
             }
@@ -269,22 +305,7 @@ struct MarketsTokenDetailsView: View {
                 EmptyView()
             }
         }
-    }
-
-    @ViewBuilder
-    private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
-            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
-                .padding(.bottom, 32 - Constants.contentVerticalSpacing)
-        }
-    }
-
-    private var aboutCoinHeader: some View {
-        Text(Localization.marketsAboutCoinHeader)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Constants.blockHorizontalPadding)
     }
 
     @ViewBuilder
@@ -373,6 +394,7 @@ private extension MarketsTokenDetailsView {
         static let blockHorizontalPadding: CGFloat = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
         static let contentVerticalSpacing: CGFloat = 14
+        static let blockHeaderHorizontalPadding: CGFloat = 8.0
     }
 }
 
