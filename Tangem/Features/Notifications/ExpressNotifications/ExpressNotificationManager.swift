@@ -108,6 +108,8 @@ final class ExpressNotificationManager {
             event = .noDestinationTokens(tokenName: destinationTokenItem.name)
         case .noDestinationTokens(let sourceTokenItem):
             event = .noDestinationTokens(tokenName: sourceTokenItem.name)
+        case .tokenNotSupportedForSwap(let tokenItem):
+            event = .tokenNotSupportedForSwap(tokenName: tokenItem.name)
         }
 
         let notificationsFactory = NotificationsFactory()

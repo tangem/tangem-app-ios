@@ -21,7 +21,6 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
-    private let tangemApiService: TangemApiService
     private weak var coordinator: SwapTokenSelectorRoutable?
 
     private var selectedTokenItem: TokenItem?
@@ -31,14 +30,12 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
-        tangemApiService: TangemApiService,
         coordinator: SwapTokenSelectorRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
-        self.tangemApiService = tangemApiService
         self.coordinator = coordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
@@ -90,6 +87,25 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
         selectedTokenItem = item.walletModel.tokenItem
         coordinator?.closeSwapTokenSelector()
     }
+
+    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: item.userWalletInfo,
+            walletModel: item.walletModel,
+            expressOperationType: .swap,
+            isNewlyAddedFromMarkets: true
+        )
+
+        switch swapDirection {
+        case .fromSource:
+            expressInteractor.update(destination: expressInteractorWallet)
+        case .toDestination:
+            expressInteractor.update(sender: expressInteractorWallet)
+        }
+
+        selectedTokenItem = item.walletModel.tokenItem
+        coordinator?.closeSwapTokenSelector()
+    }
 }
 
 // MARK: - ExpressExternalTokenSelectionHandler
@@ -97,35 +113,20 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
 extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
-            do {
-                let networks = try await loadNetworks(for: token.id)
-
-                guard !networks.isEmpty else {
-                    return
-                }
-
-                let inputData = ExpressAddTokenInputData(
-                    coinId: token.id,
-                    coinName: token.name,
-                    coinSymbol: token.symbol,
-                    networks: networks
-                )
-
-                coordinator?.openAddTokenFlowForExpress(inputData: inputData)
-            } catch {
-                AppLogger.error("Failed to load networks for coinId: \(token.id)", error: error)
+            guard let networks = token.networks, !networks.isEmpty else {
+                AppLogger.debug("Selected tokens with no networks")
+                return
             }
+
+            let inputData = ExpressAddTokenInputData(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                networks: networks
+            )
+
+            coordinator?.openAddTokenFlowForExpress(inputData: inputData)
         }
-    }
-
-    private func loadNetworks(for coinId: String) async throws -> [NetworkModel] {
-        let request = CoinsList.Request(
-            supportedBlockchains: [],
-            ids: [coinId]
-        )
-
-        let response = try await tangemApiService.loadCoins(requestModel: request)
-        return response.coins.first?.networks ?? []
     }
 }
 

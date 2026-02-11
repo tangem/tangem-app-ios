@@ -100,9 +100,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         // Create external search view model if feature toggle is enabled
         let marketsTokensViewModel: SwapMarketsTokensViewModel?
         if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-            marketsTokensViewModel = SwapMarketsTokensViewModel(
-                searchProvider: CommonSwapMarketsSearchTokensProvider(tangemApiService: tangemApiService)
-            )
+            marketsTokensViewModel = SwapMarketsTokensViewModel()
         } else {
             marketsTokensViewModel = nil
         }
@@ -115,7 +113,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             ),
             marketsTokensViewModel: marketsTokensViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
-            tangemApiService: tangemApiService,
             coordinator: coordinator
         )
     }
