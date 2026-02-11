@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
@@ -64,7 +63,21 @@ final class ResetToFactoryViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        showConfirmationDialog()
+        let resetButton = ConfirmationDialogViewModel.Button(
+            title: Localization.cardSettingsActionSheetReset,
+            role: .destructive,
+            action: { [weak self] in
+                self?.resetCardToFactory()
+            }
+        )
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.cardSettingsActionSheetTitle,
+            buttons: [
+                resetButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
     }
 
     func toggleWarning(warningType: WarningType) {
@@ -97,24 +110,6 @@ private extension ResetToFactoryViewModel {
         if isPaeraCustomer {
             warnings.append(Warning(isAccepted: false, type: .tangemPay))
         }
-    }
-
-    func showConfirmationDialog() {
-        let resetButton = ConfirmationDialogViewModel.Button(
-            title: Localization.cardSettingsActionSheetReset,
-            role: .destructive,
-            action: { [weak self] in
-                self?.resetCardToFactory()
-            }
-        )
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.cardSettingsActionSheetTitle,
-            buttons: [
-                resetButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
     }
 
     func resetCardToFactory() {
