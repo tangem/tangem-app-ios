@@ -7,8 +7,16 @@
 //
 
 import Foundation
-import TangemFoundation
 import BlockchainSdk
+import TangemExpress
+import TangemFoundation
+import TangemLocalization
+
+protocol SendApproveDataBuilderInput {
+    var selectedPolicy: ApprovePolicy? { get }
+    var selectedExpressProvider: ExpressProvider? { get }
+    var approveViewModelInput: ApproveViewModelInput? { get }
+}
 
 protocol SendBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { get }
@@ -16,32 +24,43 @@ protocol SendBaseDataBuilderInput {
     var isFeeIncluded: Bool { get }
 }
 
-struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
-    private let input: SendBaseDataBuilderInput
+struct CommonSendBaseDataBuilder {
+    private let baseDataInput: SendBaseDataBuilderInput
+    private let approveDataInput: SendApproveDataBuilderInput
+
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
     private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
+    private let tangemIconProvider: TangemIconProvider
 
     init(
-        input: SendBaseDataBuilderInput,
+        baseDataInput: SendBaseDataBuilderInput,
+        approveDataInput: SendApproveDataBuilderInput,
         walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder,
+        tangemIconProvider: TangemIconProvider
     ) {
-        self.input = input
+        self.baseDataInput = baseDataInput
+        self.approveDataInput = approveDataInput
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
         self.sendReceiveTokensListBuilder = sendReceiveTokensListBuilder
+        self.tangemIconProvider = tangemIconProvider
     }
+}
 
-    func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
+// MARK: - SendBaseDataBuilder
+
+extension CommonSendBaseDataBuilder: SendBaseDataBuilder {
+    func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> MailData {
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
             fee: transaction.fee.amount,
             destination: transaction.destinationAddress,
             amount: transaction.amount,
-            isFeeIncluded: input.isFeeIncluded,
+            isFeeIncluded: baseDataInput.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: nil,
             stakingTarget: nil
@@ -52,7 +71,7 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
 
-    func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
+    func makeMailData(transactionData: Data, error: SendTxError) -> MailData {
         let emailDataCollector = CompiledExpressDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
@@ -68,8 +87,49 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
     func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder {
         return sendReceiveTokensListBuilder
     }
+}
 
+// MARK: - SendFeeCurrencyProviderDataBuilder
+
+extension CommonSendBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
     func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption {
         .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem)
+    }
+}
+
+// MARK: - SendApproveViewModelInputDataBuilder
+
+extension CommonSendBaseDataBuilder: SendApproveViewModelInputDataBuilder {
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
+        guard let selectedPolicy = approveDataInput.selectedPolicy else {
+            throw SendBaseDataBuilderError.notFound("Selected approve policy")
+        }
+
+        guard let selectedProvider = approveDataInput.selectedExpressProvider else {
+            throw SendBaseDataBuilderError.notFound("Selected provider")
+        }
+
+        guard let approveViewModelInput = approveDataInput.approveViewModelInput else {
+            throw SendBaseDataBuilderError.notFound("ApproveViewModelInput")
+        }
+
+        let settings = ExpressApproveViewModel.Settings(
+            subtitle: Localization.givePermissionSwapSubtitle(
+                selectedProvider.name,
+                walletModel.tokenItem.currencySymbol
+            ),
+            feeFooterText: Localization.swapGivePermissionFeeFooter,
+            tokenItem: walletModel.tokenItem,
+            selectedPolicy: selectedPolicy,
+            tangemIconProvider: tangemIconProvider
+        )
+
+        let feeFormatter = CommonFeeFormatter()
+
+        return ExpressApproveViewModel.Input(
+            settings: settings,
+            feeFormatter: feeFormatter,
+            approveViewModelInput: approveViewModelInput
+        )
     }
 }

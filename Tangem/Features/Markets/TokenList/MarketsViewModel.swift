@@ -208,7 +208,7 @@ private extension MarketsViewModel {
                     )
 
                     viewModel.fetch(with: value, by: searchFilter)
-                case .clearInput:
+                case .clearInput, .cancelInput:
                     if viewModel.currentSearchValue.isEmpty {
                         return
                     }

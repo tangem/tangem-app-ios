@@ -93,8 +93,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                         viewModel.walletImageProvider = model.walletImageProvider
                         viewModel.reloadImage()
                     }
-                case .tangemPayOfferAccepted, .tangemPayKYCDeclined:
-                    break
                 }
             }
             .store(in: &bag)

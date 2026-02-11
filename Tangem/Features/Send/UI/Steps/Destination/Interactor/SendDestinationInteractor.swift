@@ -15,7 +15,6 @@ protocol SendDestinationInteractor {
     var suggestedWalletsPublisher: AnyPublisher<[SendDestinationSuggestedWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendDestinationSuggestedTransactionRecord], Never> { get }
 
-    var willResolveAddress: Bool { get }
     var destinationResolvedAddress: AnyPublisher<String?, Never> { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
@@ -23,6 +22,8 @@ protocol SendDestinationInteractor {
     var allFieldsIsValid: AnyPublisher<Bool, Never> { get }
     var destinationError: AnyPublisher<String?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<String?, Never> { get }
+
+    func willResolve(address: String) -> Bool
 
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
@@ -144,10 +145,6 @@ class CommonSendDestinationInteractor {
 // MARK: - SendDestinationInteractor
 
 extension CommonSendDestinationInteractor: SendDestinationInteractor {
-    var willResolveAddress: Bool {
-        dependenciesBuilder.addressResolver != nil
-    }
-
     var tokenItemPublisher: AnyPublisher<TokenItem, Never> {
         guard let receiveTokenInput else {
             return Empty().eraseToAnyPublisher()
@@ -200,6 +197,11 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
     var destinationAdditionalFieldError: AnyPublisher<String?, Never> {
         _destinationAdditionalFieldError.map { $0?.localizedDescription }.eraseToAnyPublisher()
+    }
+
+    func willResolve(address: String) -> Bool {
+        guard let addressResolver = dependenciesBuilder.addressResolver else { return false }
+        return addressResolver.requiresResolution(address: address)
     }
 
     func update(destination address: String, source: Analytics.DestinationAddressSource) {

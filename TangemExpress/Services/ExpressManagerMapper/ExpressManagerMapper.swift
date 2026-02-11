@@ -28,17 +28,21 @@ struct ExpressManagerMapper {
         providerType: ExpressProviderType
     ) throws -> ExpressSwappableDataItem {
         guard let sourceAddress = request.pair.source.address else {
-            throw Error.destinationAddressNotFound
+            throw Error.sourceAddressNotFound
         }
 
         guard let destinationAddress = request.pair.destination.address else {
             throw Error.destinationAddressNotFound
         }
 
+        let feeCurrency = request.pair.source.feeProvider.feeCurrency(
+            providerId: providerId
+        )
+
         let source = ExpressSwappableDataItem.SourceWalletInfo(
             address: sourceAddress,
             currency: request.pair.source.currency,
-            feeCurrency: request.pair.source.feeCurrency
+            feeCurrency: feeCurrency
         )
 
         let destination = ExpressSwappableDataItem.DestinationWalletInfo(

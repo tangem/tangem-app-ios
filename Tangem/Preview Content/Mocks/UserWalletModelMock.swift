@@ -12,6 +12,7 @@ import TangemAssets
 import TangemNFT
 import BlockchainSdk
 import TangemFoundation
+import TangemPay
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -104,6 +105,15 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -117,4 +127,9 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
+
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
 }

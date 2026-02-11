@@ -13,13 +13,13 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 protocol MainLockedUserWalletDelegate: AnyObject {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel)
     func openScanCardManual()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
 }
 
 final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     lazy var lockedNotificationInput: NotificationViewInput = {
         let factory = NotificationsFactory()
@@ -224,7 +224,7 @@ private extension LockedWalletMainContentViewModel {
             self?.requestSupport()
         }
 
-        let viewModel = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -234,8 +234,6 @@ private extension LockedWalletMainContentViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        lockedUserWalletDelegate?.openTroubleshooting(confirmationDialog: viewModel)
     }
 
     func openScanCardManual() {

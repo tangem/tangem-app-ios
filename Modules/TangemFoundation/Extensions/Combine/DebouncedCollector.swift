@@ -18,7 +18,7 @@ public extension Publishers {
         private let dueTime: S.SchedulerTimeType.Stride
         private let scheduler: S
         private let options: S.SchedulerOptions?
-        private let lock = Lock(isRecursive: false)
+        private let lock = OSAllocatedUnfairLock()
 
         init(upstream: Upstream, dueTime: S.SchedulerTimeType.Stride, scheduler: S, options: S.SchedulerOptions?) {
             self.upstream = upstream
@@ -34,11 +34,11 @@ public extension Publishers {
             upstream
                 .receive(on: scheduler)
                 .scan([]) { result, element in
-                    lock.withLock { reset ? [element] : result + [element] }
+                    lock { reset ? [element] : result + [element] }
                 }
-                .handleEvents(receiveOutput: { _ in lock.withLock { reset = false }})
+                .handleEvents(receiveOutput: { _ in lock { reset = false }})
                 .debounce(for: dueTime, scheduler: scheduler, options: options)
-                .handleEvents(receiveOutput: { _ in lock.withLock { reset = true }})
+                .handleEvents(receiveOutput: { _ in lock { reset = true }})
                 .receive(subscriber: subscriber)
         }
     }

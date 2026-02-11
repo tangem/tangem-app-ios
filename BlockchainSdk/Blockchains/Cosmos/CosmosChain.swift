@@ -172,8 +172,8 @@ extension CosmosChain {
         switch self {
         case .terraV1:
             switch contractAddress {
-            case "uusd":
-                return "uusd"
+            case Self.supportedTokenContractAddress:
+                return Self.supportedTokenContractAddress
             default:
                 return nil
             }
@@ -188,8 +188,8 @@ extension CosmosChain {
         switch self {
         case .terraV1:
             switch contractAddress {
-            case "uusd":
-                return "uusd"
+            case Self.supportedTokenContractAddress:
+                return Self.supportedTokenContractAddress
             default:
                 return nil
             }
@@ -204,7 +204,7 @@ extension CosmosChain {
         switch self {
         case .terraV1:
             return [
-                "uusd": 0.2,
+                Self.supportedTokenContractAddress: 0.2,
             ]
         case .cosmos, .gaia, .terraV2, .sei:
             return [:]
@@ -226,4 +226,6 @@ extension CosmosChain {
     var blockchainName: String {
         blockchain.displayName
     }
+
+    static let supportedTokenContractAddress = "uusd"
 }
