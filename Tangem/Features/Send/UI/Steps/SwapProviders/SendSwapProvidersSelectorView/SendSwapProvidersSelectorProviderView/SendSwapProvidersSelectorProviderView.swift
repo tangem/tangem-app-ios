@@ -35,8 +35,14 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
+            .background(backgroundView)
         }
         .disabled(data.isDisabled)
+    }
+
+    private var backgroundView: some View {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .fill(Colors.Background.action)
     }
 
     private var titleView: some View {

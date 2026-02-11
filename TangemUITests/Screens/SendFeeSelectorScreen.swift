@@ -129,7 +129,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     func tapFeeSelectorDone() -> SendScreen {
         XCTContext.runActivity(named: "Tap Done button on Fee Selector") { _ in
             let doneButton = app.buttons[FeeAccessibilityIdentifiers.feeSelectorDoneButton]
-            doneButton.waitAndTap()
+            doneButton.waitAndTapWithScroll()
         }
         return SendScreen(app)
     }

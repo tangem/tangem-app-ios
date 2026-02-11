@@ -38,3 +38,25 @@ public extension Locale {
         }
     }
 }
+
+// MARK: - Supported Language Code
+
+public extension Locale {
+    /// Returns supported language code with priority: appLanguage → deviceLanguage → fallback
+    static func languageCode(supportedCodes: Set<String>, fallback: String = enLanguageCode) -> String {
+        // Priority 1: App language (respects per-app language setting in iOS Settings)
+        let appLang = Locale.Language(identifier: appLanguageCode)
+        if let code = appLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
+
+        // Priority 2: Device language
+        let deviceLang = Locale.Language(identifier: deviceLanguageCode)
+        if let code = deviceLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
+
+        // Fallback
+        return fallback
+    }
+}

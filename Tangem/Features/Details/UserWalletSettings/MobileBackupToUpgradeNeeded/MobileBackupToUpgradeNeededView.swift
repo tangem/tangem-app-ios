@@ -36,7 +36,7 @@ struct MobileBackupToUpgradeNeededView: View {
 
 private extension MobileBackupToUpgradeNeededView {
     var header: some View {
-        CircleButton.close(action: viewModel.onCloseTap)
+        NavigationBarButton.close(action: viewModel.onCloseTap)
             .frame(maxWidth: .infinity, alignment: .trailing)
     }
 

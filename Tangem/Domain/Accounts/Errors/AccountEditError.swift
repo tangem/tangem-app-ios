@@ -10,7 +10,7 @@ import Foundation
 
 enum AccountEditError: Error {
     case tooManyAccounts
-    case accountNameTooLong
+    case invalidAccountName
     case missingAccountName
     case duplicateAccountName
     case unknownError(Error)

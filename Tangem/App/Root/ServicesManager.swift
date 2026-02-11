@@ -44,6 +44,8 @@ final class CommonServicesManager {
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
@@ -176,8 +178,10 @@ extension CommonServicesManager: ServicesManager {
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
+        stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
+        gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
     }
 

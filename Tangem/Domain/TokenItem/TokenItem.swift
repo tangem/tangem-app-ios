@@ -21,6 +21,10 @@ enum TokenItem: Hashable, Codable {
 
     var isToken: Bool { token != nil }
 
+    var isFeeApproximate: Bool {
+        blockchain.isFeeApproximate(for: amountType)
+    }
+
     var id: TokenItemId? {
         switch self {
         case .token(let token, _):
@@ -137,7 +141,7 @@ enum TokenItem: Hashable, Codable {
 extension TokenItem: CustomStringConvertible {
     var description: String {
         return objectDescription(
-            "TokenItem",
+            String(describing: Self.self),
             userInfo: [
                 "name": name,
                 "derivation": blockchainNetwork.derivationPath?.rawPath ?? "nil",
