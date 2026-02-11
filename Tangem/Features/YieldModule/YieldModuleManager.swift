@@ -68,7 +68,8 @@ final class CommonYieldModuleManager {
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
-    private var nextExpectedState: NextExpectedState?
+    private var _nextExpectedState = CurrentValueSubject<NextExpectedState?, Never>(nil)
+    private var nextExpectedStateTimeoutTask: Task<Void, Never>?
 
     private var bag = Set<AnyCancellable>()
 
@@ -196,17 +197,21 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         var transactions = [Transaction]()
 
+        var yieldContractAddressToSave: String?
+
         switch (yieldTokenState, fee) {
         case (.notDeployed, let deployEnterFee as DeployEnterFee):
-            let yieldModule = try await yieldSupplyService.calculateYieldContract()
+            let yieldContractAddress = try await yieldSupplyService.calculateYieldContract()
 
             let deployTransactions = try await transactionProvider.deployTransactions(
                 walletAddress: walletAddress,
                 tokenContractAddress: token.contractAddress,
-                yieldContractAddress: yieldModule,
+                yieldContractAddress: yieldContractAddress,
                 maxNetworkFee: maxTokenNetworkFee,
                 fee: deployEnterFee
             )
+
+            yieldContractAddressToSave = yieldContractAddress
 
             transactions.append(contentsOf: deployTransactions)
         case (.deployed(let deployed), let fee):
@@ -241,7 +246,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        nextExpectedState = .active
+        if let yieldContractAddressToSave {
+            await yieldSupplyService.storeYieldContract(yieldContractAddressToSave)
+        }
+
+        await setNextExpectedState(.active)
 
         await activate()
 
@@ -280,7 +289,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        nextExpectedState = .notActive
+        await setNextExpectedState(.notActive)
 
         await deactivate()
 
@@ -365,9 +374,14 @@ private extension CommonYieldModuleManager {
             .withWeakCaptureOf(self)
             .asyncMap { result in
                 let (moduleManager, (previous, current)) = result
-                guard let previous else { return }
+                guard let previous,
+                      // avoid redundant calculations if module isn't deployed
+                      let storedYieldContract = await moduleManager.yieldSupplyService.storedYieldContract() else {
+                    return
+                }
 
-                if !previous.isEmpty, current.isEmpty {
+                if moduleManager.hasEnterOrExitTransactions(in: previous, yieldContract: storedYieldContract),
+                   !moduleManager.hasEnterOrExitTransactions(in: current, yieldContract: storedYieldContract) {
                     await moduleManager.updateWalletState(
                         iteration: 0,
                         maxIterations: Constants.maxUpdateIterations
@@ -381,18 +395,9 @@ private extension CommonYieldModuleManager {
     func mapResults(
         walletModelData: WalletModelData,
         marketsInfo: [YieldModuleMarketInfo],
-        pendingTransactions: [PendingTransactionRecord],
-        yieldContract: String?
+        nextExpectedState: NextExpectedState?
     ) -> YieldModuleManagerStateInfo {
         let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
-
-        if hasEnterTransactions(in: pendingTransactions, yieldContract: yieldContract) {
-            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
-        }
-
-        if hasExitTransactions(in: pendingTransactions, yieldContract: yieldContract) {
-            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .exit))
-        }
 
         let state: YieldModuleManagerState
 
@@ -429,7 +434,18 @@ private extension CommonYieldModuleManager {
             }
         }
 
-        return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: state)
+        let result = YieldModuleManagerStateInfo(marketInfo: marketInfo, state: state)
+
+        switch nextExpectedState {
+        case .none:
+            return result
+        case .some where isStateExpected(newState: result.state):
+            return result
+        case .active:
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
+        case .notActive:
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .exit))
+        }
     }
 
     func getYieldModuleState() async throws -> YieldModuleSmartContractState {
@@ -509,32 +525,19 @@ private extension CommonYieldModuleManager {
     /// prepends the cached `YieldModuleManagerStateInfo` so the UI can render
     /// an immediate initial state before live updates arrive.
     func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
-        let yieldContractPublisher: AnyPublisher<String?, Never> = Future
-            .async {
-                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
-                if yieldContract == nil || yieldContract?.isEmpty == true {
-                    return try await self.yieldSupplyService.calculateYieldContract()
-                }
-                return yieldContract
-            }
-            .retry(Constants.yieldContractRetryCount)
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
-
-        let statePublisher = Publishers.CombineLatest4(
+        let statePublisher = Publishers.CombineLatest3(
             _walletModelData.compactMap { $0 },
             yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
-            pendingTransactionsPublisher,
-            yieldContractPublisher
+            _nextExpectedState.removeDuplicates(),
         )
         .withWeakCaptureOf(self)
         .map { result -> YieldModuleManagerStateInfo in
-            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
+            let (moduleManager, (data, marketsInfo, nextExpectedState)) = result
+
             return moduleManager.mapResults(
-                walletModelData: walletModelData,
+                walletModelData: data,
                 marketsInfo: marketsInfo,
-                pendingTransactions: pendingTransactions,
-                yieldContract: yieldContract
+                nextExpectedState: nextExpectedState
             )
         }
         .removeDuplicates()
@@ -566,7 +569,7 @@ private extension CommonYieldModuleManager {
 
     func updateWalletState(iteration: Int, maxIterations: Int) async {
         guard iteration < maxIterations else {
-            nextExpectedState = nil
+            await setNextExpectedState(nil)
             AppLogger.debug("Max iterations reached. Stopping yield module state update.")
             return
         }
@@ -575,8 +578,8 @@ private extension CommonYieldModuleManager {
 
         await updateWallet()
 
-        if isInExpectedState {
-            nextExpectedState = nil
+        if isStateExpected(newState: _state.value?.state) {
+            await setNextExpectedState(nil)
         } else {
             // delay only if the next update is necessary
             try? await Task.sleep(for: .seconds(Constants.updateTimeInterval))
@@ -584,10 +587,30 @@ private extension CommonYieldModuleManager {
         }
     }
 
-    var isInExpectedState: Bool {
-        switch (state?.state, nextExpectedState) {
-        case (.active, .active), (.notActive, .notActive), (_, .none): true
+    func isStateExpected(newState: YieldModuleManagerState?) -> Bool {
+        switch (newState, _nextExpectedState.value) {
+        case (.notActive, .notActive), (_, .none): true
+        case (.active(let yieldSupplyInfo), .active) where !yieldSupplyInfo.isAllowancePermissionRequired: true
         default: false
+        }
+    }
+
+    @MainActor
+    func setNextExpectedState(_ state: NextExpectedState?) {
+        // Cancel any existing timeout task
+        nextExpectedStateTimeoutTask?.cancel()
+        nextExpectedStateTimeoutTask = nil
+
+        _nextExpectedState.send(state)
+
+        // If setting a non-nil state, start a timeout to reset it
+        if state != nil {
+            nextExpectedStateTimeoutTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(Constants.nextExpectedStateTimeout))
+                guard !Task.isCancelled else { return }
+                self?._nextExpectedState.send(nil)
+                AppLogger.debug("Next expected state timed out and was reset to nil")
+            }
         }
     }
 }
@@ -598,7 +621,7 @@ private extension CommonYieldModuleManager {
         return hasTransaction(in: transactions, for: dummyEnterMethod)
     }
 
-    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
+    func hasEnterOrExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyDeployMethod = DeployYieldModuleMethod(
             walletAddress: String(),
             tokenContractAddress: String(),
@@ -608,6 +631,7 @@ private extension CommonYieldModuleManager {
         let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: String())
         let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
         let dummyApproveMethod = ApproveERC20TokenMethod(spender: String(), amount: .zero)
+        let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
 
         return hasTransactions(
             in: pendingTransactions,
@@ -617,16 +641,8 @@ private extension CommonYieldModuleManager {
                 dummyReactivateMethod,
                 dummyEnterMethod,
                 dummyApproveMethod,
+                dummyWithdrawAndDeactivateMethod,
             ],
-            yieldContract: yieldContract
-        )
-    }
-
-    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
-        let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
-        return hasTransactions(
-            in: pendingTransactions,
-            for: [dummyWithdrawAndDeactivateMethod],
             yieldContract: yieldContract
         )
     }
@@ -703,5 +719,6 @@ private extension CommonYieldModuleManager {
         static let yieldContractRetryCount = 5
         static let updateTimeInterval: TimeInterval = 10
         static let maxUpdateIterations = 3
+        static let nextExpectedStateTimeout: TimeInterval = 60
     }
 }
