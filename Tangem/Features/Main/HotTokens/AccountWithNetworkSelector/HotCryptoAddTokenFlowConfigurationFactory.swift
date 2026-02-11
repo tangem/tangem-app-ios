@@ -19,7 +19,7 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
         AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { _ in
                 // HotTokens always have single network
-                // Additionaly, availability to add hot token is controlled by parent.
+                // Additionally, availability to add hot token is controlled by parent.
                 // Those that are already added wont show up in the list thus
                 // Will not get to this method at all
                 guard let tokenItem = hotToken.tokenItem else {
@@ -78,14 +78,14 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         hotToken: HotCryptoToken
-    ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountFiltrationContext) -> Bool)? {
         guard let tokenItem = hotToken.tokenItem else {
-            return { _, _ in false }
+            return { _ in false }
         }
 
         let blockchain = tokenItem.blockchain
-        return { account, _ in
-            AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: account)
+        return { context in
+            AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: context.account)
         }
     }
 
