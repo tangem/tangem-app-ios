@@ -172,7 +172,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 return .unavailable(reason: nil)
             }
 
-            let allAdded = TokenAdditionChecker.areTokenItemsAdded(
+            let allAdded = TokenAdditionChecker.areAllTokenItemsAdded(
                 in: context.account,
                 tokenItems: tokenItems,
                 supportedBlockchains: context.supportedBlockchains

@@ -11,7 +11,7 @@ import BlockchainSdk
 
 /// Unified checker for token addition status across accounts and wallets.
 enum TokenAdditionChecker {
-    static func areTokenItemsAdded(
+    static func areAllTokenItemsAdded(
         in account: any CryptoAccountModel,
         tokenItems: [TokenItem],
         supportedBlockchains: Set<Blockchain>
@@ -44,7 +44,7 @@ enum TokenAdditionChecker {
             for account in accounts {
                 let tokenItems = tokenItemsFactory(account, wallet.config.supportedBlockchains)
 
-                if !areTokenItemsAdded(
+                if !areAllTokenItemsAdded(
                     in: account,
                     tokenItems: tokenItems,
                     supportedBlockchains: wallet.config.supportedBlockchains
