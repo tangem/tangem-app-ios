@@ -13,7 +13,7 @@ import TangemFoundation
 class MarketsQuotesUpdatesScheduler {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
     private let quotesUpdateTimeInterval: TimeInterval = 60.0
 
     private var updateList = Set<String>()

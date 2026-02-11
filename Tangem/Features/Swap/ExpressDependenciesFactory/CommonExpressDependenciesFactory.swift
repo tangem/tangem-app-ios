@@ -23,9 +23,6 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private let initialTokenItem: TokenItem
     private let swappingPair: ExpressInteractor.SwappingPair
 
-    private let supportedProviderTypes: [ExpressProviderType]
-    private let operationType: ExpressOperationType
-
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressInteractor = makeExpressInteractor()
@@ -33,11 +30,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressRepository = makeExpressRepository()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
-    init(
-        input: ExpressDependenciesInput,
-        supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType
-    ) {
+    init(input: ExpressDependenciesInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.source.tokenItem
 
@@ -45,16 +38,9 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
             sender: .success(input.source),
             destination: input.destination.asExpressInteractorDestination
         )
-
-        self.supportedProviderTypes = supportedProviderTypes
-        self.operationType = operationType
     }
 
-    init(
-        input: ExpressDependenciesDestinationInput,
-        supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType
-    ) {
+    init(input: ExpressDependenciesDestinationInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.destination.tokenItem
 
@@ -62,9 +48,6 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
             sender: .loading,
             destination: .success(input.destination)
         )
-
-        self.supportedProviderTypes = supportedProviderTypes
-        self.operationType = operationType
     }
 }
 
@@ -80,8 +63,6 @@ private extension CommonExpressDependenciesFactory {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            supportedProviderTypes: supportedProviderTypes,
-            operationType: operationType,
             transactionValidator: transactionValidator
         )
 

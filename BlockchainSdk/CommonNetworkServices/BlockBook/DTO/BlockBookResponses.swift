@@ -137,7 +137,7 @@ extension BlockBookAddressResponse {
         let token: String?
         let name: String?
         let symbol: String?
-        let decimals: Int
+        let decimals: Int?
         let value: String?
     }
 

@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import Combine
 import TangemFoundation
+import TangemMacro
 
 struct AccountSelectorWalletItem: Identifiable, Equatable {
     let id: String
@@ -18,7 +19,9 @@ struct AccountSelectorWalletItem: Identifiable, Equatable {
     let mainAccount: any CryptoAccountModel
     let domainModel: any UserWalletModel
     let walletImageProvider: WalletImageProviding
+    let accountAvailability: AccountAvailability
 
+    @CaseFlagable
     enum UserWallet: Equatable {
         case active(ActiveWallet)
         case locked(LockedWallet)
@@ -36,17 +39,23 @@ struct AccountSelectorWalletItem: Identifiable, Equatable {
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.wallet == rhs.wallet
+        lhs.id == rhs.id && lhs.wallet == rhs.wallet && lhs.accountAvailability == rhs.accountAvailability
     }
 }
 
 extension AccountSelectorWalletItem {
-    init(userWallet: any UserWalletModel, cryptoAccountModel: any CryptoAccountModel, isLocked: Bool) {
+    init(
+        userWallet: any UserWalletModel,
+        cryptoAccountModel: any CryptoAccountModel,
+        isLocked: Bool,
+        accountAvailability: AccountAvailability = .available
+    ) {
         id = userWallet.userWalletId.stringValue
         name = userWallet.name
         walletImageProvider = userWallet.walletImageProvider
         mainAccount = cryptoAccountModel
         domainModel = userWallet
+        self.accountAvailability = accountAvailability
 
         // Ternary avoided for clarity
         wallet = if isLocked {

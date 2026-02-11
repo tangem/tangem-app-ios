@@ -16,4 +16,6 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
     func closeModule()
     func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle)
+    @MainActor
+    func openNews(newsIds: [Int], selectedIndex: Int)
 }
