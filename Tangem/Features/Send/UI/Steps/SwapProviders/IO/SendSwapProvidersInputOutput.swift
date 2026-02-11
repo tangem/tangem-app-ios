@@ -14,7 +14,7 @@ protocol SendSwapProvidersInput: AnyObject {
     var expressProviders: [ExpressAvailableProvider] { get async }
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
 
-    var selectedExpressProvider: ExpressAvailableProvider? { get async }
+    var selectedExpressProvider: ExpressAvailableProvider? { get }
     var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 }
 

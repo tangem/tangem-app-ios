@@ -54,7 +54,7 @@ struct YieldModuleTransactionView: View {
     private var mainButton: MainButton {
         MainButton(settings: .init(
             title: viewModel.action.buttonTitle,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
             style: .primary,
             isLoading: viewModel.isProcessingRequest,
             isDisabled: !viewModel.isActionButtonAvailable,
@@ -63,7 +63,7 @@ struct YieldModuleTransactionView: View {
     }
 
     private var header: some View {
-        BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
+        BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackTap) })
     }
 }
 
