@@ -204,7 +204,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         bindAnalytics()
     }
 
-    func initializeUserWallet(from cardInfo: CardInfo) {
+    func initializeUserWallet(from cardInfo: CardInfo, walletCreationType: WalletOnboardingViewModel.WalletCreationType) {
         guard userWalletModel == nil else {
             return
         }
@@ -229,6 +229,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         ) else {
             return
         }
+
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
+        var params = walletCreationType.params
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+        logAnalytics(event: .walletCreatedSuccessfully, params: params)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
@@ -482,6 +487,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
     private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
         LegacyManageTokensContext(
             // accounts_fixes_needed_none
@@ -498,6 +504,7 @@ private extension OnboardingViewModel {
         Analytics.log(
             .settingsColdWalletAdded,
             params: [.source: Analytics.ParameterValue.onboarding],
+            analyticsSystems: .all,
             contextParams: .custom(contextData)
         )
     }

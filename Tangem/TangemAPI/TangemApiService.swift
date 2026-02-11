@@ -44,6 +44,26 @@ protocol TangemApiService: AnyObject {
 
     func loadTokenExchangesListDetails(requestModel: MarketsDTO.ExchangesRequest) async throws -> MarketsDTO.ExchangesResponse
 
+    // MARK: - Earn
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response
+
+    // MARK: - News
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response
+
+    /// Retrieves the list of trending news for the main page.
+    /// Corresponds to GET https://api.tangem.com/api/v1/news/trending
+    ///
+    /// - Description:
+    ///   Returns a list of **trending news** for the main page.
+    ///   If there is a news item with `isTrending = true`, it appears first.
+    ///   The remaining items are sorted by `score DESC`.
+    ///   If there are fewer than 10 publications for the current day, the list is filled with news having the highest `score` from the previous day.
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse
+
     // MARK: - User token list management
 
     @available(iOS, deprecated: 100000.0, message: "Superseded by 'getUserAccounts(userWalletId:)', will be removed in the future ([REDACTED_INFO])")

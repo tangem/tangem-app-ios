@@ -18,7 +18,7 @@ struct SendSwapProvidersSelectorView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.expressChooseProvider, trailing: {
-                CircleButton.close(action: viewModel.dismiss)
+                NavigationBarButton.close(action: viewModel.dismiss)
             })
             .padding(.horizontal, 16)
 
@@ -29,20 +29,23 @@ struct SendSwapProvidersSelectorView: View {
                     .padding(.bottom, 14)
             }
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
             SelectableSection(viewModel.providerViewModels) { data in
                 SendSwapProvidersSelectorProviderView(data: data, isSelected: viewModel.isSelected(data.id).asBinding)
             }
-            // Should start when title starts (14 + 36 + 12)
-            .separatorPadding(.init(leading: 62, trailing: 14))
+            .enableSeparators(false)
             .padding(.horizontal, 14)
 
             ExpressMoreProvidersSoonView()
-                .padding(.all, 16)
+                .padding(.top, 18)
+                .padding(.bottom, 16)
+                .padding(.horizontal, 16)
         }
         .padding(.vertical, 4)
         .padding(.bottom, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.primary
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .easeInOut
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
