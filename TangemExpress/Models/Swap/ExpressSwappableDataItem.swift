@@ -46,6 +46,7 @@ public extension ExpressSwappableDataItem {
     struct DestinationWalletInfo {
         let address: String
         let currency: ExpressWalletCurrency
+        let extraId: String?
     }
 
     struct ProviderInfo {
