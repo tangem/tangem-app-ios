@@ -276,11 +276,7 @@ extension ExpressInteractor {
             logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
         }
 
-        expressPendingTransactionRepository.swapTransactionDidSend(
-            sentTransactionData,
-            userWalletId: userWalletInfo.id.stringValue
-        )
-
+        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
         return sentTransactionData
     }
 
