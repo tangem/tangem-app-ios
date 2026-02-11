@@ -33,4 +33,6 @@ public struct DecodedTransactionDetails: Decodable {
     let externalTxUrl: String?
     /// Address where CEX provider should send the swapped amount
     let payoutAddress: String
+    /// ExtraId to address where CEX provider should send the swapped amount
+    let payoutExtraId: String?
 }
