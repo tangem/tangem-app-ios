@@ -22,7 +22,6 @@ struct SendDestinationAddressView: View {
 
             content
         }
-        .animation(.default, value: viewModel.textViewModel.height)
     }
 
     @ViewBuilder
@@ -78,10 +77,18 @@ struct SendDestinationAddressView: View {
     }
 
     private var scanQRButton: some View {
-        CircleButton(image: Assets.Glyphs.scanQrIcon) {
-            viewModel.didTapScanQRButton()
+        Button(action: viewModel.didTapScanQRButton) {
+            Assets.Glyphs.scanQrIcon.image
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: 20, height: 20)
+                .foregroundStyle(Colors.Icon.informative)
+                .padding(8)
+                .background {
+                    Circle()
+                        .fill(Colors.Button.secondary)
+                }
         }
-        .size(.medium)
         .accessibilityIdentifier(SendAccessibilityIdentifiers.scanQRButton)
     }
 

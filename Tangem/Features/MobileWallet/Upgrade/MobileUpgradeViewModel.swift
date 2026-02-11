@@ -20,7 +20,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class MobileUpgradeViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     lazy var info = makeInfo()
@@ -303,7 +303,7 @@ private extension MobileUpgradeViewModel {
             self?.scanCardRequestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

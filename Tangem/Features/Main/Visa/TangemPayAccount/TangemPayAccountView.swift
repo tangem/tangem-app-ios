@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
@@ -71,7 +72,7 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable, .rootedDevice:
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable, .rootedDevice, .kycDeclined:
             EmptyView()
 
         case .failedToIssueCard:

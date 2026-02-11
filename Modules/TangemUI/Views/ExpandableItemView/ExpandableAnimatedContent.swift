@@ -7,123 +7,86 @@
 //
 
 import SwiftUI
-import TangemFoundation
 import TangemUIUtils
 
 // MARK: - Expandable Animated Content
 
-struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Animatable, View {
+struct ExpandableAnimatedContent<CollapsedView: View, ExpandedHeader: View, ExpandedContent: View>: View {
     let collapsedView: CollapsedView
-    let expandedView: ExpandedView
+    let expandedHeader: ExpandedHeader
+    let expandedContent: ExpandedContent
     let backgroundColor: Color
     let cornerRadius: CGFloat
-    var progress: Double
-
-    @State private var expandedHeight: CGFloat = 0
-    @State private var collapsedHeight: CGFloat = 0
-
-    @Environment(\.displayScale) private var displayScale
-
-    var animatableData: Double {
-        get { progress }
-        set { progress = newValue }
-    }
+    let isExpanded: Bool
+    let showExpandedContent: Bool
+    let backgroundGeometryEffect: GeometryEffectPropertiesModel?
+    let expandedContentTransition: AnyTransition?
 
     var body: some View {
         ZStack(alignment: .top) {
-            background
+            if isExpanded {
+                VStack(spacing: 8) {
+                    expandedHeader
 
-            collapsedContent
-                .opacity(collapsedOpacity)
-                .offset(y: collapsedOffset)
-
-            if shouldShowExpandedContent {
-                expandedContent
-                    .opacity(expandedOpacity)
-                    .offset(y: expandedOffset)
+                    if showExpandedContent {
+                        expandedContentWithTransition
+                    }
+                }
+            } else {
+                collapsedView
             }
         }
-        .frame(height: interpolatedHeight, alignment: .top)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        // Do not apply cornerRadius to the view directly to avoid clipping iOS context menus.
+        // Apply clipShape only during animations to prevent content overflow during transitions.
+        .background(background.cornerRadiusContinuous(cornerRadius))
+        .clipShape(TransitionClipShape(
+            progress: isExpanded ? 1 : 0,
+            cornerRadius: cornerRadius
+        ))
     }
 
     // MARK: - Views
 
+    private var expandedContentWithTransition: some View {
+        expandedContent
+            .ifLet(
+                expandedContentTransition,
+                transform: { view, transition in
+                    view.transition(transition)
+                }
+            )
+    }
+
     private var background: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             .fill(backgroundColor)
-    }
-
-    private var collapsedContent: some View {
-        collapsedView
-            .fixedSize(horizontal: false, vertical: true)
-            .readGeometry(\.size.height) { height in
-                if abs(collapsedHeight - height) > (1.0 / displayScale) {
-                    collapsedHeight = height
-                }
-            }
-    }
-
-    private var expandedContent: some View {
-        expandedView
-            .fixedSize(horizontal: false, vertical: true)
-            .readGeometry(\.size.height) { height in
-                if abs(expandedHeight - height) > (1.0 / displayScale) {
-                    expandedHeight = height
-                }
-            }
-    }
-
-    // MARK: - Settings
-
-    private var shouldShowExpandedContent: Bool {
-        progress > 0
-    }
-
-    private var interpolatedHeight: CGFloat {
-        guard collapsedHeight > 0 else { return 0 }
-        let targetHeight = expandedHeight > 0 ? expandedHeight : collapsedHeight
-        let heightDifference = targetHeight - collapsedHeight
-        return max(collapsedHeight + heightDifference * easedProgress, 0)
-    }
-
-    private var collapsedOpacity: Double {
-        1.0 - easedProgress
-    }
-
-    private var expandedOpacity: Double {
-        easedProgress
-    }
-
-    private var collapsedOffset: Double {
-        -collapsedHeight * easedProgress
-    }
-
-    private var expandedOffset: Double {
-        collapsedHeight * (1.0 - easedProgress)
-    }
-
-    private var easedProgress: Double {
-        // Ease-in-out quart curve: faster acceleration and deceleration
-        let coefficient = ExpandableAnimatedContentConstants.quartEasingCoefficient
-
-        let remainingProgress = 1 - progress
-
-        let easedProgress = if progress < ExpandableAnimatedContentConstants.phaseDivisionThreshold {
-            coefficient * pow(progress, 4)
-        } else {
-            1 - coefficient * pow(remainingProgress, 4)
-        }
-
-        return clamp(easedProgress, min: 0, max: 1)
+            .matchedGeometryEffect(backgroundGeometryEffect)
     }
 }
 
-// MARK: - Constants
+// MARK: - TransitionClipShape
 
-enum ExpandableAnimatedContentConstants {
-    static let phaseDivisionThreshold: Double = 0.5
+/// A custom `Shape` that clips content only during expand/collapse animations.
+/// At rest (progress ≈ 0 or ≈ 1), the path extends far beyond bounds so nothing
+/// is effectively clipped — context menus, shadows, and overflow work normally.
+/// During animation, the path is a standard rounded rect that prevents content overflow.
+private struct TransitionClipShape: Shape {
+    var progress: CGFloat
+    let cornerRadius: CGFloat
 
-    /// Coefficient for easeInOutQuart curve (2^(n-1) where n=4 for quart)
-    fileprivate static let quartEasingCoefficient: Double = 8
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        let isTransitioning = progress > CGFloat.ulpOfOne && progress < 1 - CGFloat.ulpOfOne
+
+        if isTransitioning {
+            return Path(roundedRect: rect, cornerRadius: cornerRadius, style: .continuous)
+        }
+
+        // Oversized rect — effectively no clipping.
+        return Path(rect.insetBy(dx: -10000, dy: -10000))
+    }
 }

@@ -87,17 +87,9 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        Just(state).eraseToAnyPublisher()
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func updateTransactionsHistory() async {}
 
     func updateAfterSendingTransaction() {}
 
@@ -105,6 +97,13 @@ final class WalletModelTestsMock: WalletModel {
 
     func updateRentWarning() -> AnyPublisher<String?, Never> {
         Just(nil).eraseToAnyPublisher()
+    }
+
+    // MARK: - WalletModelFeesProvider
+
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+    func makeTokenFeeLoader(for tokenItem: Tangem.TokenItem) -> any Tangem.TokenFeeLoader {
+        TokenFeeLoaderMock()
     }
 
     // MARK: - TransactionHistoryFetcher
@@ -167,6 +166,7 @@ final class WalletModelTestsMock: WalletModel {
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var isSupportedTransactionHistory: Bool { false }
     var hasPendingTransactions: Bool { false }
     var hasAnyPendingTransactions: Bool { false }
@@ -175,6 +175,8 @@ final class WalletModelTestsMock: WalletModel {
     var isEmptyIncludingPendingIncomingTxs: Bool { false }
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible
 
