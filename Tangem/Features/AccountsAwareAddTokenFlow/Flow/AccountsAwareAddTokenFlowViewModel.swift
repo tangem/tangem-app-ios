@@ -70,10 +70,7 @@ private extension AccountsAwareAddTokenFlowViewModel {
                 supportedBlockchains: allSupportedBlockchains,
                 context: .root,
                 onSelectAccount: { [weak self] result in
-                    self?.openNetworkSelectionOrAddToken(
-                        accountSelectorCell: result,
-                        context: .fromChooseAccount
-                    )
+                    self?.handleAccountSelected(result, context: .fromChooseAccount)
                 }
             )
         }
@@ -100,6 +97,23 @@ extension AccountsAwareAddTokenFlowViewModel {
 // MARK: - Navigation
 
 private extension AccountsAwareAddTokenFlowViewModel {
+    func handleAccountSelected(_ accountSelectorCell: AccountSelectorCellModel, context: NavigationContext) {
+        if case .completeIfTokenIsAdded(let executeAction) = configuration.accountSelectionBehavior {
+            let availableTokenItems = configuration.getAvailableTokenItems(accountSelectorCell)
+            if let singleTokenItem = availableTokenItems.singleElement,
+               configuration.isTokenAdded(singleTokenItem, accountSelectorCell.cryptoAccountModel) {
+                executeAction(singleTokenItem, accountSelectorCell)
+                coordinator?.close()
+                return
+            }
+        }
+
+        openNetworkSelectionOrAddToken(
+            accountSelectorCell: accountSelectorCell,
+            context: context
+        )
+    }
+
     func pushCurrentState() {
         navigationStack.append(viewState)
     }

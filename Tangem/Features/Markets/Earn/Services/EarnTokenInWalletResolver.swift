@@ -22,59 +22,75 @@ enum EarnTokenResolution {
 
 struct EarnTokenInWalletResolver {
     /// Resolves earn token against user wallets.
-    /// - **More than one wallet or more than one account** → always `.toAdd` (show account selection / add flow).
-    /// - **Exactly one wallet and one account**, token added → `.alreadyAdded` (navigate to token page).
-    /// - **Exactly one wallet and one account**, token not added → `.toAdd`.
+    /// - **Not exactly one wallet and one account** (by `OneAndOnlyAccountFinder`) → `.toAdd` (add flow shows account selector).
+    /// - **Exactly one wallet and one account**: token already added → `.alreadyAdded`; not added → `.toAdd` (add flow skips account selector).
     func resolve(
         earnToken: EarnTokenModel,
         userWalletModels: [any UserWalletModel]
     ) -> EarnTokenResolution {
-        guard let singleWallet = userWalletModels.singleElement else {
+        guard let oneAndOnly = OneAndOnlyAccountFinder.find(in: userWalletModels) else {
             return .toAdd(token: earnToken, userWalletModels: userWalletModels)
         }
 
-        let manageableAccounts = manageableAccountsForEarnToken(earnToken, in: singleWallet)
-        guard let singleAccount = manageableAccounts.singleElement else {
-            return .toAdd(token: earnToken, userWalletModels: userWalletModels)
+        return resolveForSingleAccount(
+            earnToken: earnToken,
+            userWalletModel: oneAndOnly.userWalletModel,
+            cryptoAccountModel: oneAndOnly.cryptoAccountModel
+        )
+    }
+
+    private func resolveForSingleAccount(
+        earnToken: EarnTokenModel,
+        userWalletModel: any UserWalletModel,
+        cryptoAccountModel: any CryptoAccountModel
+    ) -> EarnTokenResolution {
+        guard AccountBlockchainManageabilityChecker.canManageNetwork(
+            earnToken.networkId,
+            for: cryptoAccountModel,
+            in: userWalletModel.config.supportedBlockchains
+        ) else {
+            return .toAdd(token: earnToken, userWalletModels: [userWalletModel])
         }
 
+        guard let tokenItem = mapEarnTokenToTokenItem(
+            earnToken,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains
+        ) else {
+            return .toAdd(token: earnToken, userWalletModels: [userWalletModel])
+        }
+
+        let walletModels = cryptoAccountModel.walletModelsManager.walletModels
+        let matchingModels = walletModels.filter { isMatch($0, tokenItem: tokenItem, derivationPath: nil) }
+
+        guard let walletModel = matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first else {
+            return .toAdd(token: earnToken, userWalletModels: [userWalletModel])
+        }
+
+        return .alreadyAdded(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func isMatch(_ model: any WalletModel, tokenItem: TokenItem, derivationPath: String?) -> Bool {
+        let idMatch = model.tokenItem.id == tokenItem.id
+        let networkMatch = model.tokenItem.blockchain.networkId == tokenItem.blockchain.networkId
+        let derivationPathMatch = derivationPath.map { $0 == model.tokenItem.blockchainNetwork.derivationPath?.rawPath } ?? true
+        return idMatch && networkMatch && derivationPathMatch
+    }
+
+    private func mapEarnTokenToTokenItem(
+        _ earnToken: EarnTokenModel,
+        supportedBlockchains: Set<Blockchain>
+    ) -> TokenItem? {
         let networkModel = NetworkModel(
             networkId: earnToken.networkId,
             contractAddress: earnToken.contractAddress,
             decimalCount: earnToken.decimalCount
         )
-        let supportedBlockchains = singleWallet.config.supportedBlockchains
         let tokenItemMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
-        guard let tokenItem = tokenItemMapper.mapToTokenItem(
+        return tokenItemMapper.mapToTokenItem(
             id: earnToken.id,
             name: earnToken.name,
             symbol: earnToken.symbol,
             network: networkModel
-        ) else {
-            return .toAdd(token: earnToken, userWalletModels: userWalletModels)
-        }
-
-        let containsToken = singleAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
-        guard containsToken,
-              let walletModel = singleAccount.walletModelsManager.walletModels.first(where: { $0.tokenItem == tokenItem })
-        else {
-            return .toAdd(token: earnToken, userWalletModels: userWalletModels)
-        }
-
-        return .alreadyAdded(walletModel: walletModel, userWalletModel: singleWallet)
-    }
-
-    private func manageableAccountsForEarnToken(
-        _ earnToken: EarnTokenModel,
-        in userWalletModel: any UserWalletModel
-    ) -> [any CryptoAccountModel] {
-        let supportedBlockchains = userWalletModel.config.supportedBlockchains
-        return userWalletModel.accountModelsManager.cryptoAccountModels.filter { cryptoAccount in
-            AccountBlockchainManageabilityChecker.canManageNetwork(
-                earnToken.networkId,
-                for: cryptoAccount,
-                in: supportedBlockchains
-            )
-        }
+        )
     }
 }
