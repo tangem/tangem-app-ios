@@ -289,7 +289,7 @@ class AppCoordinator: CoordinatorObject {
             floatingSheetPresenter.removeAllSheets()
             floatingSheetPresenter.pauseSheetsDisplaying()
 
-        case .unlocked, .inserted, .unlockedWallet, .deleted, .selected:
+        case .unlocked, .inserted, .unlockedWallet, .deleted, .selected, .reordered:
             floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }
