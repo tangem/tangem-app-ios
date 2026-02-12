@@ -196,6 +196,10 @@
 		0F25E1792E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1782E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift */; };
 		0F25E17B2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E17A2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift */; };
 		0F25E19C2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E19B2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift */; };
+		0F261B4F2F34986000D70149 /* CommonMobileUpgradeBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B4E2F34986000D70149 /* CommonMobileUpgradeBannerManager.swift */; };
+		0F261B512F34988300D70149 /* MobileUpgradeBannerStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B502F34988300D70149 /* MobileUpgradeBannerStorageManager.swift */; };
+		0F261B532F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B522F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift */; };
+		0F261B552F35E6C900D70149 /* MobileUpgradeBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B542F35E6C900D70149 /* MobileUpgradeBannerManager.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
 		0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786172E2AD9CE00742D0F /* LinkedList.swift */; };
@@ -5083,6 +5087,10 @@
 		0F25E1782E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareBackupTypesViewModel.swift; sourceTree = "<group>"; };
 		0F25E17A2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareBackupTypesRoutable.swift; sourceTree = "<group>"; };
 		0F25E19B2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift; sourceTree = "<group>"; };
+		0F261B4E2F34986000D70149 /* CommonMobileUpgradeBannerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMobileUpgradeBannerManager.swift; sourceTree = "<group>"; };
+		0F261B502F34988300D70149 /* MobileUpgradeBannerStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeBannerStorageManager.swift; sourceTree = "<group>"; };
+		0F261B522F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMobileUpgradeBannerStorageManager.swift; sourceTree = "<group>"; };
+		0F261B542F35E6C900D70149 /* MobileUpgradeBannerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeBannerManager.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
 		0F2786172E2AD9CE00742D0F /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
@@ -9843,6 +9851,7 @@
 		0A4C217D2DF1AFA300B8B1BD /* MobileWallet */ = {
 			isa = PBXGroup;
 			children = (
+				0F261B4D2F34979A00D70149 /* UpgradeBanner */,
 				0FB93C9C2E57268D00DAB673 /* Upgrade */,
 				0FA453B52E1D3AFE0055B5BB /* Unlock */,
 				0FA453702E1D0D6A0055B5BB /* Utils */,
@@ -10081,6 +10090,17 @@
 				0F25E17A2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift */,
 			);
 			path = HardwareBackupTypes;
+			sourceTree = "<group>";
+		};
+		0F261B4D2F34979A00D70149 /* UpgradeBanner */ = {
+			isa = PBXGroup;
+			children = (
+				0F261B542F35E6C900D70149 /* MobileUpgradeBannerManager.swift */,
+				0F261B502F34988300D70149 /* MobileUpgradeBannerStorageManager.swift */,
+				0F261B4E2F34986000D70149 /* CommonMobileUpgradeBannerManager.swift */,
+				0F261B522F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift */,
+			);
+			path = UpgradeBanner;
 			sourceTree = "<group>";
 		};
 		0F2786162E2AD93400742D0F /* Flow */ = {
@@ -27006,6 +27026,7 @@
 				2DE2A3B52F2A2BC30097CA73 /* EarnWidgetViewModel.swift in Sources */,
 				2DE2A3B62F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift in Sources */,
 				C207D6032DE60EFF00A5FB2E /* WalletConnectDAppBlockchainsAvailabilityResult.swift in Sources */,
+				0F261B532F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift in Sources */,
 				C207D6042DE60EFF00A5FB2E /* WalletConnectDAppConnectionRequest.swift in Sources */,
 				C207D6052DE60EFF00A5FB2E /* WalletConnectDAppConnectionProposal.swift in Sources */,
 				30B4274C2EA67FA800BBFB4D /* GetTokenActionRowView.swift in Sources */,
@@ -27276,6 +27297,7 @@
 				0F2786312E2B754400742D0F /* MobileOnboardingAccessCodeStep.swift in Sources */,
 				B69F0EDB2DD3992400997631 /* StakingAmountModifier.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
+				0F261B512F34988300D70149 /* MobileUpgradeBannerStorageManager.swift in Sources */,
 				EF8E9AAF2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift in Sources */,
 				2D8619BB2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift in Sources */,
 				EFF8F1BE2E844CEA00A5EF0C /* StakingFlowFactory.swift in Sources */,
@@ -27476,6 +27498,7 @@
 				EA7ADBB62F221C0100D99DFE /* GaslessTransactionSendResult.swift in Sources */,
 				EF29E8A02DF9BFA400859AC7 /* SendAmountCompactViewModel.swift in Sources */,
 				DCD82A8E2EB1D8C500F70AE9 /* AccountSelectorViewState.swift in Sources */,
+				0F261B552F35E6C900D70149 /* MobileUpgradeBannerManager.swift in Sources */,
 				EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */,
@@ -29262,6 +29285,7 @@
 				2D245E5B2E97EB56006AD2DC /* MarketsTokenDetailsLinksView.swift in Sources */,
 				DADA1CE72EC4A4A0009329A9 /* TangemPayPinView.swift in Sources */,
 				2D245E5C2E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreRatingView.swift in Sources */,
+				0F261B4F2F34986000D70149 /* CommonMobileUpgradeBannerManager.swift in Sources */,
 				2D245E5D2E97EB56006AD2DC /* MarketsPortfolioContainerView.swift in Sources */,
 				2D245E5E2E97EB56006AD2DC /* MarketsTokenDetailsInsightsViewModel.swift in Sources */,
 				2D245E602E97EB56006AD2DC /* MarketsNavigationBar.swift in Sources */,
