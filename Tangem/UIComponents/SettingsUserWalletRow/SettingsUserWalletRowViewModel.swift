@@ -10,13 +10,14 @@ import Foundation
 import TangemLocalization
 import Combine
 import TangemFoundation
+import TangemUI
 
 final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
     @Published var isUserWalletBackupNeeded: Bool
-    @Published var balanceState: LoadableTokenBalanceView.State = .loading()
+    @Published var balanceState: LoadableBalanceView.State = .loading()
     let tapAction: () -> Void
 
     let isUserWalletLocked: Bool
@@ -114,6 +115,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             return
         }
 
-        balanceState = LoadableTokenBalanceViewStateBuilder().buildTotalBalance(state: state)
+        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
     }
 }
