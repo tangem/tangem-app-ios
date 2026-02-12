@@ -22,12 +22,14 @@ struct WalletConnectDuplicateRequestFilterTests {
 
     @Test(
         arguments: [
-            Timings.NotEnoughInterval.zero,
-            Timings.NotEnoughInterval.wayNotEnough,
-            Timings.NotEnoughInterval.almostEnough,
+            (Timings.NotEnoughInterval.zero, false),
+            (Timings.NotEnoughInterval.wayNotEnough, false),
+            (Timings.NotEnoughInterval.almostEnough, false),
+            (Timings.EnoughInterval.barelyEnough, true),
+            (Timings.EnoughInterval.moreThanEnough, true),
         ]
     )
-    func shouldForbidDuplicateRequestProcessingWithNotEnough(timePassedBetweenRequests: TimeInterval) async throws {
+    func shouldAllowDuplicateRequestOnlyAfterEnoughInterval(timeBetweenRequests: TimeInterval, isDuplicateAllowed: Bool) async throws {
         let dateProvider = Self.makeMockDateProvider()
         let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
 
@@ -35,28 +37,9 @@ struct WalletConnectDuplicateRequestFilterTests {
         let duplicateRequest = try Self.makeAnyRequest()
 
         #expect(await sut.isProcessingAllowed(for: request))
-        dateProvider.advance(by: timePassedBetweenRequests)
+        dateProvider.advance(by: timeBetweenRequests)
 
-        #expect(await sut.isProcessingAllowed(for: duplicateRequest) == false)
-    }
-
-    @Test(
-        arguments: [
-            Timings.EnoughInterval.barelyEnough,
-            Timings.EnoughInterval.moreThanEnough,
-        ]
-    )
-    func shouldAllowDuplicateRequestProcessingWithEnough(timePassedBetweenRequests: TimeInterval) async throws {
-        let dateProvider = Self.makeMockDateProvider()
-        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
-
-        let request = try Self.makeAnyRequest()
-        let duplicateRequest = try Self.makeAnyRequest()
-
-        #expect(await sut.isProcessingAllowed(for: request))
-        dateProvider.advance(by: timePassedBetweenRequests)
-
-        #expect(await sut.isProcessingAllowed(for: duplicateRequest))
+        #expect(await sut.isProcessingAllowed(for: duplicateRequest) == isDuplicateAllowed)
     }
 }
 
@@ -74,11 +57,11 @@ extension WalletConnectDuplicateRequestFilterTests {
         MockCurrentDateProvider(referenceDate: Timings.referenceDate)
     }
 
-    private static func makeAnyRequest() throws -> ReownWalletKit.Request {
+    private static func makeAnyRequest(topic: String = "anyTopic") throws -> ReownWalletKit.Request {
         let anyBlockchain = ReownWalletKit.Blockchain(namespace: "eip155", reference: "1")
 
         return try ReownWalletKit.Request(
-            topic: "anyTopic",
+            topic: topic,
             method: "eth_sendTransaction",
             params: AnyCodable(any: ["anyMessage", "anyAddress"]),
             chainId: try #require(anyBlockchain)
