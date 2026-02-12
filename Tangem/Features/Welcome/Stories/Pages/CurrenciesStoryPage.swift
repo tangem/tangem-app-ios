@@ -21,8 +21,6 @@ struct CurrenciesStoryPage: View {
     let searchTokens: () -> Void
     let scanTroubleshootingDialog: Binding<ConfirmationDialogViewModel?>
 
-    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
-
     private let numberOfRows = 6
     private let rowImages = [
         Assets.Stories.currency0,
@@ -77,17 +75,6 @@ struct CurrenciesStoryPage: View {
                             }
                         }
                     )
-
-                if !isMobileWalletEnabled {
-                    MainButton(
-                        title: Localization.commonSearchTokens,
-                        icon: .leading(Assets.search),
-                        style: .secondary,
-                        isDisabled: isScanning,
-                        action: searchTokens
-                    )
-                    .padding(.horizontal, 16)
-                }
             }
 
             StoriesBottomButtons(
