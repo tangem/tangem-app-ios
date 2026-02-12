@@ -14,6 +14,7 @@ import TangemAssets
 import TangemFoundation
 import TangemStaking
 import struct TangemUI.TokenIconInfo
+import TangemUI
 
 protocol TokenItemContextActionsProvider: AnyObject {
     func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenContextActionsSection]
@@ -26,8 +27,8 @@ protocol TokenItemContextActionDelegate: AnyObject {
 final class TokenItemViewModel: ObservableObject, Identifiable {
     let id: WalletModelId
 
-    @Published var balanceCrypto: LoadableTokenBalanceView.State
-    @Published var balanceFiat: LoadableTokenBalanceView.State
+    @Published var balanceCrypto: LoadableBalanceView.State
+    @Published var balanceFiat: LoadableBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
     @Published var contextActionSections: [TokenContextActionsSection] = []
@@ -70,7 +71,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     private let tokenIcon: TokenIconInfo
     private let priceChangeUtility = PriceChangeUtility()
-    private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
+    private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
     private var bag = Set<AnyCancellable>()
 
