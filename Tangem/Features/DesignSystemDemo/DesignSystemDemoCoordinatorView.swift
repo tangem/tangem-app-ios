@@ -28,6 +28,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.typoCoordinator) {
                 TypographyDemoCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.buttonsCoordinator) {
+                ButtonComponentDemoCoordinatorView(coordinator: $0)
+            }
     }
 
     private var sheets: some View {
@@ -42,6 +45,10 @@ struct DesignSystemDemoView: View {
         VStack(spacing: 8) {
             MainButton(title: "Typography") {
                 viewModel.openTypo()
+            }
+
+            MainButton(title: "Buttons") {
+                viewModel.openButtons()
             }
         }
         .padding()
