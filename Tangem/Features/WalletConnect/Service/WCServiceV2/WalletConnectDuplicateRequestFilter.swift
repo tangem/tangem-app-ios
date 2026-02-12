@@ -33,28 +33,29 @@ actor WalletConnectDuplicateRequestFilter {
 
     /// Returns `true` if processing is allowed for the request, `false` if it is considered a recent duplicate.
     func isProcessingAllowed(for request: ReownWalletKit.Request) -> Bool {
-        removeExpiredRecentRequests()
+        let currentDate = currentDateProvider()
+        removeExpiredRecentRequests(currentDate)
 
         let requestFootprint = StableRequestFootprint(from: request)
 
         defer {
-            requestToReceivedDate[requestFootprint] = currentDateProvider()
+            requestToReceivedDate[requestFootprint] = currentDate
         }
 
         guard let potentialDuplicateRequestReceivedDate = requestToReceivedDate[requestFootprint] else {
             return true
         }
 
-        let timePassedSinceLastRequest = currentDateProvider().timeIntervalSince(potentialDuplicateRequestReceivedDate)
+        let timePassedSinceLastRequest = currentDate.timeIntervalSince(potentialDuplicateRequestReceivedDate)
         let isEnough = timePassedSinceLastRequest >= requiredIntervalBetweenDuplicateRequests
 
         return isEnough
     }
 
-    private func removeExpiredRecentRequests() {
+    private func removeExpiredRecentRequests(_ currentDate: Date) {
         requestToReceivedDate.removeAll(
             where: {
-                let isExpired = currentDateProvider().timeIntervalSince($0.value) > requiredIntervalBetweenDuplicateRequests
+                let isExpired = currentDate.timeIntervalSince($0.value) > requiredIntervalBetweenDuplicateRequests
                 return isExpired
             }
         )
