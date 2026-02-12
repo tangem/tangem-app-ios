@@ -15,7 +15,7 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
     func openOnboardingModal(with options: OnboardingCoordinator.Options)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel)
     func openMobileBackup(userWalletModel: UserWalletModel)
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
