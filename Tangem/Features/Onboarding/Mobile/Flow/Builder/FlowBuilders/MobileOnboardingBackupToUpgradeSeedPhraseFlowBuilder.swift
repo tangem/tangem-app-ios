@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 
+///  Убрать зависимость на MobileOnboardingBackupSeedPhraseFlowBuilder и сделать - StepsFlowBuilder
 final class MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder: MobileOnboardingBackupSeedPhraseFlowBuilder {
     private let onContinue: () -> Void
 
