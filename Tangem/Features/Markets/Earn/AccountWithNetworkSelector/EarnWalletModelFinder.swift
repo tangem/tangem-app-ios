@@ -18,24 +18,23 @@ enum EarnWalletModelFinder {
         in account: any CryptoAccountModel,
         preferNonCustom: Bool = true
     ) -> (any WalletModel)? {
+        let walletModelsById = Dictionary(
+            uniqueKeysWithValues: account.walletModelsManager.walletModels.map { ($0.id, $0) }
+        )
+
         let matchingTokens = account.userTokensManager.userTokens.filter {
             $0.id == tokenItem.id &&
                 $0.blockchain.networkId == tokenItem.blockchain.networkId &&
                 $0.contractAddress == tokenItem.contractAddress
         }
-        let matchingWalletModels = matchingTokens.compactMap {
-            walletModel(byTokenItem: $0, in: account)
+
+        let matchingWalletModels = matchingTokens.compactMap { tokenItem -> (any WalletModel)? in
+            let walletModelId = WalletModelId(tokenItem: tokenItem)
+            return walletModelsById[walletModelId]
         }
+
         return preferNonCustom
             ? (matchingWalletModels.first(where: { !$0.isCustom }) ?? matchingWalletModels.first)
             : matchingWalletModels.first
-    }
-
-    private static func walletModel(
-        byTokenItem tokenItem: TokenItem,
-        in account: any CryptoAccountModel
-    ) -> (any WalletModel)? {
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
-        return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
     }
 }
