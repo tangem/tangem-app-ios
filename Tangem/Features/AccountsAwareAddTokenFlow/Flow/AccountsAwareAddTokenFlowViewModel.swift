@@ -98,12 +98,15 @@ extension AccountsAwareAddTokenFlowViewModel {
 
 private extension AccountsAwareAddTokenFlowViewModel {
     func handleAccountSelected(_ accountSelectorCell: AccountSelectorCellModel, context: NavigationContext) {
-        if case .completeIfTokenIsAdded(let executeAction) = configuration.accountSelectionBehavior {
+        if case .customExecuteAction(let executeAction) = configuration.accountSelectionBehavior {
             let availableTokenItems = configuration.getAvailableTokenItems(accountSelectorCell)
-            if let singleTokenItem = availableTokenItems.singleElement,
-               configuration.isTokenAdded(singleTokenItem, accountSelectorCell.cryptoAccountModel) {
-                executeAction(singleTokenItem, accountSelectorCell)
-                coordinator?.close()
+            if let singleTokenItem = availableTokenItems.singleElement {
+                executeAction(singleTokenItem, accountSelectorCell) { [weak self] in
+                    self?.openNetworkSelectionOrAddToken(
+                        accountSelectorCell: accountSelectorCell,
+                        context: context
+                    )
+                }
                 return
             }
         }
