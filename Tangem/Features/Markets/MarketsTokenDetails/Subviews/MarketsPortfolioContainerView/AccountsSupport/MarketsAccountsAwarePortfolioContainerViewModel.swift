@@ -422,7 +422,9 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
                 ),
                 destination: .loadingAndSet
             )
-            coordinator.openExchange(input: expressInput)
+            Task { @MainActor in
+                coordinator.openExchange(input: expressInput)
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
