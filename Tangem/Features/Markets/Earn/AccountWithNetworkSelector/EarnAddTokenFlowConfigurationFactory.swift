@@ -15,7 +15,10 @@ enum EarnAddTokenFlowConfigurationFactory {
         earnToken: EarnTokenModel,
         coordinator: EarnAddTokenRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        AccountsAwareAddTokenFlowConfiguration(
+        let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool = { tokenItem, account in
+            account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+        }
+        return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 let networkModel = NetworkModel(
                     networkId: earnToken.networkId,
@@ -34,10 +37,11 @@ enum EarnAddTokenFlowConfigurationFactory {
                 }
                 return [tokenItem]
             },
-            isTokenAdded: { tokenItem, account in
-                account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
-            },
-            accountSelectionBehavior: makeCompleteIfTokenIsAddedBehavior(coordinator: coordinator),
+            isTokenAdded: isTokenAdded,
+            accountSelectionBehavior: makeCustomExecuteActionBehavior(
+                coordinator: coordinator,
+                isTokenAdded: isTokenAdded
+            ),
             postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
                 handleTokenAddedSuccessfully(
                     addedToken: tokenItem,
@@ -55,16 +59,21 @@ enum EarnAddTokenFlowConfigurationFactory {
 // MARK: - Private
 
 private extension EarnAddTokenFlowConfigurationFactory {
-    static func makeCompleteIfTokenIsAddedBehavior(
-        coordinator: EarnAddTokenRoutable
+    static func makeCustomExecuteActionBehavior(
+        coordinator: EarnAddTokenRoutable,
+        isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool
     ) -> AccountsAwareAddTokenFlowConfiguration.AccountSelectionBehavior {
-        .completeIfTokenIsAdded(executeAction: { [weak coordinator] tokenItem, accountSelectorCell in
-            navigateToToken(
-                tokenItem: tokenItem,
-                accountSelectorCell: accountSelectorCell,
-                coordinator: coordinator
-            )
-        })
+        .customExecuteAction { [weak coordinator] tokenItem, accountSelectorCell, continueToNetworkSelection in
+            if isTokenAdded(tokenItem, accountSelectorCell.cryptoAccountModel) {
+                navigateToToken(
+                    tokenItem: tokenItem,
+                    accountSelectorCell: accountSelectorCell,
+                    coordinator: coordinator
+                )
+            } else {
+                continueToNetworkSelection()
+            }
+        }
     }
 
     static func navigateToToken(
