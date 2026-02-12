@@ -16,29 +16,12 @@ struct WalletCreationHelper {
     init(
         userWalletId: UserWalletId,
         userWalletName: String?,
-        userWalletConfig: UserWalletConfig
+        userWalletConfig: UserWalletConfig,
+        networkService: WalletsNetworkService
     ) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
         self.userWalletName = userWalletName ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: userWalletConfig)
-
-        let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
-        let mapper = CryptoAccountsNetworkMapper(
-            supportedBlockchains: userWalletConfig.supportedBlockchains,
-            remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
-        )
-        let networkService = CommonCryptoAccountsNetworkService(
-            userWalletId: userWalletId,
-            mapper: mapper
-        )
-
-        self.networkService = networkService
-    }
-
-    init(userWalletInfo: UserWalletInfo, networkService: WalletsNetworkService) {
-        userWalletId = userWalletInfo.id
-        userWalletConfig = userWalletInfo.config
-        userWalletName = userWalletInfo.name
         self.networkService = networkService
     }
 
@@ -57,12 +40,29 @@ struct WalletCreationHelper {
 
     func updateWallet() async throws {
         let name = userWalletName
-        let identifier = userWalletId.stringValue
         let contextBuilder = userWalletConfig.contextBuilder
         let context = contextBuilder
             .enrich(withName: name)
             .build()
 
-        try await networkService.updateWallet(userWalletId: identifier, context: context)
+        try await networkService.updateWallet(context: context)
+    }
+}
+
+// MARK: - Convenience initializers
+
+extension WalletCreationHelper {
+    /// Convenience initializer for cases when the network service doesn't need to be injected from outside.
+    init(
+        userWalletId: UserWalletId,
+        userWalletName: String?,
+        userWalletConfig: UserWalletConfig
+    ) {
+        self.init(
+            userWalletId: userWalletId,
+            userWalletName: userWalletName,
+            userWalletConfig: userWalletConfig,
+            networkService: CommonWalletsNetworkService(userWalletId: userWalletId)
+        )
     }
 }
