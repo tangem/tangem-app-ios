@@ -128,7 +128,7 @@ struct AccountSelectorWalletCellButtonView: View {
                 Text(AppConstants.dotSign)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: viewModel.fiatBalanceState,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                     loader: .init(size: CGSize(width: 40, height: 12))
