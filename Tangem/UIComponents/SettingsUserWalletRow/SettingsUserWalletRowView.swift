@@ -37,7 +37,6 @@ struct SettingsUserWalletRowView: View {
             }
         )
         .infinityFrame(axis: .horizontal, alignment: .leading)
-        .padding(.vertical, 12)
         .contentShape(Rectangle())
     }
 
