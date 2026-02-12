@@ -1,6 +1,6 @@
 //
 //  SensitiveText.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -9,40 +9,42 @@
 import Foundation
 import SwiftUI
 
-struct SensitiveText: View {
-    @ObservedObject private var sensitiveTextVisibilityViewModel: SensitiveTextVisibilityViewModel = .shared
+public struct SensitiveText: View {
+    @ObservedObject private var visibilityState: SensitiveTextVisibilityState = .shared
     private let textType: TextType
 
-    init(_ textType: TextType) {
+    public init(_ textType: TextType) {
         self.textType = textType
     }
 
-    init(_ text: String) {
+    public init(_ text: String) {
         textType = .string(text)
     }
 
-    init(_ text: AttributedString) {
+    public init(_ text: AttributedString) {
         textType = .attributed(text)
     }
 
-    init(builder: @escaping (String) -> String, sensitive: String) {
+    public init(builder: @escaping (String) -> String, sensitive: String) {
         textType = .builder(builder: builder, sensitive: sensitive)
     }
 
-    var body: some View {
+    public var body: some View {
         switch textType {
         case .string(let string):
-            Text(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : string)
+            Text(visibilityState.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
-            Text(sensitiveTextVisibilityViewModel.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
+            Text(visibilityState.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
                 .monospacedDigit()
         case .builder(let builder, let sensitive):
-            Text(builder(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : sensitive))
+            Text(builder(visibilityState.isHidden ? Constants.maskedBalanceString : sensitive))
         }
     }
 }
 
-extension SensitiveText {
+// MARK: - TextType
+
+public extension SensitiveText {
     enum TextType {
         case string(String)
         case attributed(AttributedString)
@@ -53,20 +55,20 @@ extension SensitiveText {
 // MARK: - SensitiveText.TextType + Hashable
 
 extension SensitiveText.TextType: Hashable {
-    static func == (lhs: SensitiveText.TextType, rhs: SensitiveText.TextType) -> Bool {
+    public static func == (lhs: SensitiveText.TextType, rhs: SensitiveText.TextType) -> Bool {
         switch (lhs, rhs) {
         case (.string(let lhs), .string(let rhs)):
             return lhs == rhs
         case (.attributed(let lhs), .attributed(let rhs)):
             return lhs == rhs
-        case (.builder(let lhsBuilder, let lhs), .builder(let rhsBbuilder, let rhs)):
-            return lhsBuilder(lhs) == rhsBbuilder(rhs)
+        case (.builder(let lhsBuilder, let lhs), .builder(let rhsBuilder, let rhs)):
+            return lhsBuilder(lhs) == rhsBuilder(rhs)
         default:
             return false
         }
     }
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         switch self {
         case .string(let string):
             hasher.combine(string)
@@ -78,8 +80,10 @@ extension SensitiveText.TextType: Hashable {
     }
 }
 
-extension SensitiveText {
+// MARK: - Constants
+
+public extension SensitiveText {
     enum Constants {
-        static let maskedBalanceString: String = "\u{2217}\u{2217}\u{2217}"
+        public static let maskedBalanceString: String = "\u{2217}\u{2217}\u{2217}"
     }
 }

@@ -8,13 +8,14 @@
 
 import SwiftUI
 import Combine
+import TangemUI
 
 /// ViewModel for displaying yield balances in the balance view.
 /// It manages the loading and formatting of both crypto and fiat yield balances.
 /// It also handles the ticks of yield balances based on the current APY.
 final class YieldBalancesViewModel: BalancesViewModel {
-    @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
-    @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
+    @Published var cryptoBalance: LoadableBalanceView.State = .loading()
+    @Published var fiatBalance: LoadableBalanceView.State = .loading()
     @Published var isRefreshing: Bool = false
 
     var balanceAccessibilityIdentifier: String? { nil }
@@ -122,11 +123,11 @@ final class YieldBalancesViewModel: BalancesViewModel {
     }
 
     private func setupBalance(
-        balance: inout LoadableTokenBalanceView.State,
+        balance: inout LoadableBalanceView.State,
         balanceType: FormattedTokenBalanceType,
         isFiat: Bool
     ) {
-        let builder = LoadableTokenBalanceViewStateBuilder()
+        let builder = LoadableBalanceViewStateBuilder()
         balance = if isFiat {
             builder.buildAttributedTotalBalance(type: balanceType)
         } else {
