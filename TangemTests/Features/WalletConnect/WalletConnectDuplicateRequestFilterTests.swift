@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
 import ReownWalletKit
 @testable import Tangem
@@ -19,18 +20,58 @@ struct WalletConnectDuplicateRequestFilterTests {
         #expect(await sut.isProcessingAllowed(for: request))
     }
 
-    @Test
-    func shouldForbidDuplicateRequestProcessingWithShortInterval() async throws {
-        let sut = Self.makeSUT()
+    @Test(
+        arguments: [
+            Timings.NotEnoughInterval.zero,
+            Timings.NotEnoughInterval.wayNotEnough,
+            Timings.NotEnoughInterval.almostEnough,
+        ]
+    )
+    func shouldForbidDuplicateRequestProcessingWithNotEnough(timePassedBetweenRequests: TimeInterval) async throws {
+        let dateProvider = Self.makeMockDateProvider()
+        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+
         let request = try Self.makeAnyRequest()
         let duplicateRequest = try Self.makeAnyRequest()
 
         #expect(await sut.isProcessingAllowed(for: request))
+        dateProvider.advance(by: timePassedBetweenRequests)
+
         #expect(await sut.isProcessingAllowed(for: duplicateRequest) == false)
     }
 
-    private static func makeSUT() -> WalletConnectDuplicateRequestFilter {
-        WalletConnectDuplicateRequestFilter()
+    @Test(
+        arguments: [
+            Timings.EnoughInterval.barelyEnough,
+            Timings.EnoughInterval.moreThanEnough,
+        ]
+    )
+    func shouldAllowDuplicateRequestProcessingWithEnough(timePassedBetweenRequests: TimeInterval) async throws {
+        let dateProvider = Self.makeMockDateProvider()
+        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+
+        let request = try Self.makeAnyRequest()
+        let duplicateRequest = try Self.makeAnyRequest()
+
+        #expect(await sut.isProcessingAllowed(for: request))
+        dateProvider.advance(by: timePassedBetweenRequests)
+
+        #expect(await sut.isProcessingAllowed(for: duplicateRequest))
+    }
+}
+
+// MARK: - Factory methods
+
+extension WalletConnectDuplicateRequestFilterTests {
+    private static func makeSUT(currentDateProvider: @escaping () -> Date = Date.init) -> WalletConnectDuplicateRequestFilter {
+        WalletConnectDuplicateRequestFilter(
+            window: Timings.requiredWindow,
+            currentDateProvider: currentDateProvider
+        )
+    }
+
+    private static func makeMockDateProvider() -> MockCurrentDateProvider {
+        MockCurrentDateProvider(referenceDate: Timings.referenceDate)
     }
 
     private static func makeAnyRequest() throws -> ReownWalletKit.Request {
@@ -42,5 +83,41 @@ struct WalletConnectDuplicateRequestFilterTests {
             params: AnyCodable(any: ["anyMessage", "anyAddress"]),
             chainId: try #require(anyBlockchain)
         )
+    }
+}
+
+// MARK: - Nested types
+
+extension WalletConnectDuplicateRequestFilterTests {
+    private enum Timings {
+        static let referenceDate = Date(timeIntervalSinceReferenceDate: 123456789)
+        static let requiredWindow: TimeInterval = 5
+
+        enum NotEnoughInterval {
+            static let zero = TimeInterval.zero
+            static let wayNotEnough: TimeInterval = Timings.requiredWindow.advanced(by: -4.9)
+            static let almostEnough: TimeInterval = Timings.requiredWindow.advanced(by: -0.1)
+        }
+
+        enum EnoughInterval {
+            static let barelyEnough: TimeInterval = Timings.requiredWindow.advanced(by: 0.1)
+            static let moreThanEnough: TimeInterval = Timings.requiredWindow.advanced(by: 100)
+        }
+    }
+
+    private final class MockCurrentDateProvider {
+        private var currentDate: Date
+
+        init(referenceDate: Date) {
+            currentDate = referenceDate
+        }
+
+        func advance(by interval: TimeInterval) {
+            currentDate = currentDate.advanced(by: interval)
+        }
+
+        func callAsFunction() -> Date {
+            currentDate
+        }
     }
 }
