@@ -11,6 +11,11 @@ import Foundation
 
 protocol FeeSelectorOutput: AnyObject {
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption)
+    func userDidDismissFeeSelection()
+}
+
+extension FeeSelectorOutput {
+    func userDidDismissFeeSelection() {}
 }
 
 protocol FeeSelectorRoutable: AnyObject {
