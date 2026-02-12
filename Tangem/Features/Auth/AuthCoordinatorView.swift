@@ -22,7 +22,6 @@ struct AuthCoordinatorView: CoordinatorView {
     var body: some View {
         NavigationStack {
             content
-                .navigationLinks(links)
         }
     }
 
@@ -30,20 +29,8 @@ struct AuthCoordinatorView: CoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AuthView(viewModel: rootViewModel)
-                    .setGeometryEffect(geometryEffect)
-            }
-
-            if let rootViewModel = coordinator.newRootViewModel {
-                NewAuthView(viewModel: rootViewModel)
             }
         }
-    }
-
-    private var links: some View {
-        NavHolder()
-            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
-                AddWalletSelectorCoordinatorView(coordinator: $0)
-            }
     }
 }
 
