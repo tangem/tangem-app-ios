@@ -42,7 +42,7 @@ struct TokenItemView: View {
                     HStack(spacing: 6) {
                         trailingBadge
 
-                        LoadableTokenBalanceView(
+                        LoadableBalanceView(
                             state: viewModel.balanceFiat,
                             style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                             loader: .init(size: .init(width: 40, height: 12)),
@@ -73,7 +73,7 @@ struct TokenItemView: View {
             },
             secondaryTrailingView: {
                 if !viewModel.hasError {
-                    LoadableTokenBalanceView(
+                    LoadableBalanceView(
                         state: viewModel.balanceCrypto,
                         style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                         loader: .init(size: .init(width: 40, height: 12))

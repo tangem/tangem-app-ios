@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import struct TangemUI.TokenIconInfo
+import TangemUI
 
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     let id: Identifier
@@ -22,7 +23,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     var hasMonochromeIcon: Bool { isNetworkUnreachable || !hasDerivation || isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
 
-    let balance: LoadableTokenBalanceView.State
+    let balance: LoadableBalanceView.State
 
     var errorMessage: String? {
         if !hasDerivation {
@@ -47,7 +48,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     init(
         id: Identifier,
         tokenIcon: TokenIconInfo,
-        balance: LoadableTokenBalanceView.State,
+        balance: LoadableBalanceView.State,
         hasDerivation: Bool,
         isTestnet: Bool,
         isNetworkUnreachable: Bool,
