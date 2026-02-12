@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemUI
 
 struct ActiveStakingViewData {
     let balance: BalanceState
