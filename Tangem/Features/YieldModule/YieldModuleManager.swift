@@ -34,7 +34,7 @@ protocol YieldModuleManager {
     func fetchChartData() async throws -> YieldChartData
 
     func sendActivationState()
-    func sendTransactionSendEvent(transactionHash: String)
+    func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
 }
 
 protocol YieldModuleManagerUpdater {
@@ -47,6 +47,7 @@ protocol YieldModuleManagerUpdater {
 final class CommonYieldModuleManager {
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let blockchain: Blockchain
     let tokenId: String
@@ -254,8 +255,12 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         await activate()
 
-        if hasEnterTransaction(in: transactions), let enterHash = result.last {
-            await yieldModuleNetworkManager.sendTransactionEvent(txHash: enterHash, operation: .enter)
+        if hasEnterTransaction(in: transactions), let enterHash = result.last, let lastSourceAddress = transactions.last?.sourceAddress {
+            await yieldModuleNetworkManager.sendTransactionEvent(
+                txHash: enterHash,
+                operation: .enter,
+                userAddress: arePushNotificationsEnabled() ? lastSourceAddress : nil
+            )
         }
 
         return result
@@ -293,8 +298,12 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         await deactivate()
 
-        if let exitHash = result.first {
-            await yieldModuleNetworkManager.sendTransactionEvent(txHash: exitHash, operation: .exit)
+        if let exitHash = result.first, let firstSourceAddress = transactions.first?.sourceAddress {
+            await yieldModuleNetworkManager.sendTransactionEvent(
+                txHash: exitHash,
+                operation: .exit,
+                userAddress: arePushNotificationsEnabled() ? firstSourceAddress : nil
+            )
         }
 
         return result
@@ -354,9 +363,15 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         }
     }
 
-    func sendTransactionSendEvent(transactionHash: String) {
+    func sendTransactionSendEvent(sourceAddress: String, transactionHash: String) {
+        let arePushNotificationsEnabled = arePushNotificationsEnabled()
+
         Task { [weak self] in
-            await self?.yieldModuleNetworkManager.sendTransactionEvent(txHash: transactionHash, operation: .send)
+            await self?.yieldModuleNetworkManager.sendTransactionEvent(
+                txHash: transactionHash,
+                operation: .send,
+                userAddress: arePushNotificationsEnabled ? sourceAddress : nil
+            )
         }
     }
 }
@@ -681,6 +696,10 @@ private extension CommonYieldModuleManager {
 
             return methodMatch && (tokenMatch || yieldModuleMatch)
         }
+    }
+
+    func arePushNotificationsEnabled() -> Bool {
+        userWalletRepository.selectedModel?.userTokensPushNotificationsManager.status.isActive ?? false
     }
 }
 
