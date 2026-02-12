@@ -689,20 +689,9 @@ extension MultiWalletMainContentViewModel {
         }
     }
 
-    private func openMobileUpgrade() {
-        runTask(in: self) { viewModel in
-            do {
-                let context = try await viewModel.unlock()
-                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
-            } catch where error.isCancellationError {
-                AppLogger.error("Unlock is canceled", error: error)
-            } catch {
-                AppLogger.error("Unlock failed:", error: error)
-                await runOnMain {
-                    viewModel.error = error.alertBinder
-                }
-            }
-        }
+    private func openHardwareBackupTypes() {
+        logMainButtonUpgradeAnalytics()
+        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
     }
 
     private func findCloreWalletModelForMigration() -> (any WalletModel)? {
@@ -806,7 +795,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .openMobileFinishActivation:
             openMobileFinishActivation()
         case .openMobileUpgrade:
-            openMobileUpgrade()
+            openHardwareBackupTypes()
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
         case .tangemPaySync:
@@ -939,31 +928,6 @@ private extension MultiWalletMainContentViewModel {
     }
 }
 
-// MARK: - Unlocking
-
-private extension MultiWalletMainContentViewModel {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletModel.userWalletId,
-            config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-
-        let result = try await authUtil.unlock()
-
-        switch result {
-        case .successful(let context):
-            return context
-
-        case .canceled:
-            throw CancellationError()
-
-        case .userWalletNeedsToDelete:
-            throw CancellationError()
-        }
-    }
-}
-
 // MARK: - Analytics
 
 private extension MultiWalletMainContentViewModel {
@@ -979,5 +943,12 @@ private extension MultiWalletMainContentViewModel {
         ]
 
         Analytics.log(event: .apyClicked, params: params)
+    }
+
+    func logMainButtonUpgradeAnalytics() {
+        Analytics.log(
+            .mainButtonUpgrade,
+            contextParams: .userWallet(userWalletModel.userWalletId)
+        )
     }
 }

@@ -39,6 +39,7 @@ struct NotificationView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.background)
+        .colorTheme(settings.event.colorTheme)
         .cornerRadiusContinuous(14)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(settings.event.accessibilityIdentifier)
@@ -205,6 +206,17 @@ extension NotificationView: Setupable {
     /// - Note: This will only work for notifications with `.withButtons` style. Also note that all buttons simultaneously will change `isLoading` state
     func setButtonsLoadingState(to isLoading: Bool) -> Self {
         map { $0.isLoading = isLoading }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func colorTheme(_ colorTheme: NotificationView.ColorTheme) -> some View {
+        switch colorTheme {
+        case .system: self
+        case .dark: colorScheme(.dark)
+        case .light: colorScheme(.light)
+        }
     }
 }
 
