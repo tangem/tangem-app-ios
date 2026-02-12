@@ -9,6 +9,7 @@
 import struct SwiftUI.Image
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 
 struct WalletConnectWalletSelectorViewState {
     let navigationTitle = Localization.commonChooseWallet
@@ -47,6 +48,6 @@ extension WalletConnectWalletSelectorViewState.UserWallet {
     struct Description {
         let tokensCount: String
         let delimiter = AppConstants.dotSign
-        var balanceState: LoadableTokenBalanceView.State
+        var balanceState: LoadableBalanceView.State
     }
 }

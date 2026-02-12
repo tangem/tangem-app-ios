@@ -762,6 +762,10 @@ extension SendModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SendModel: SendBaseInput, SendBaseOutput {
+    func stopSwapProvidersAutoUpdateTimer() {
+        swapManager.stopTimer()
+    }
+
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
@@ -844,6 +848,7 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
@@ -937,6 +942,10 @@ extension SendModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension SendModel: FeeSelectorOutput {
+    func userDidDismissFeeSelection() {
+        swapManager.updateFees()
+    }
+
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         switch receiveToken {
         case .same:

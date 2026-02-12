@@ -367,8 +367,16 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return .just(output: [currentCurrencyModel])
         }
 
+        guard let blockchain else {
+            // This path shouldnt occur in production because before adding custom token
+            // user MUST select a blockchain. But if it changes, we will at least have debug-mode assertion
+            // Compile-time guarantee would be nicer but it requires quite heavy refactoring
+            assertionFailure("Blockchain should be selected before searching for token")
+            return .just(output: [])
+        }
+
         let requestModel = CoinsList.Request(
-            supportedBlockchains: Set(settings.supportedBlockchains),
+            supportedBlockchains: Set([blockchain]),
             contractAddress: contractAddress
         )
 

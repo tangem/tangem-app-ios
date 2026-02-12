@@ -70,10 +70,7 @@ private extension AccountsAwareAddTokenFlowViewModel {
                 selectedItem: nil,
                 context: .root,
                 onSelectAccount: { [weak self] result in
-                    self?.openNetworkSelectionOrAddToken(
-                        accountSelectorCell: result,
-                        context: .fromChooseAccount
-                    )
+                    self?.handleAccountSelected(result, context: .fromChooseAccount)
                 }
             )
         }
@@ -100,6 +97,30 @@ extension AccountsAwareAddTokenFlowViewModel {
 // MARK: - Navigation
 
 private extension AccountsAwareAddTokenFlowViewModel {
+    func handleAccountSelected(_ accountSelectorCell: AccountSelectorCellModel, context: NavigationContext) {
+        let availableTokenItems = configuration.getAvailableTokenItems(accountSelectorCell)
+
+        switch configuration.accountSelectionBehavior {
+        case .customExecuteAction(let executeAction):
+            if let singleTokenItem = availableTokenItems.singleElement {
+                executeAction(singleTokenItem, accountSelectorCell) { [weak self] in
+                    self?.openNetworkSelectionOrAddToken(
+                        tokenItems: availableTokenItems,
+                        accountSelectorCell: accountSelectorCell,
+                        context: context
+                    )
+                }
+                return
+            }
+        case .executeAccountSelection:
+            openNetworkSelectionOrAddToken(
+                tokenItems: availableTokenItems,
+                accountSelectorCell: accountSelectorCell,
+                context: context
+            )
+        }
+    }
+
     func pushCurrentState() {
         navigationStack.append(viewState)
     }
@@ -109,7 +130,18 @@ private extension AccountsAwareAddTokenFlowViewModel {
         context: NavigationContext
     ) {
         let availableTokenItems = configuration.getAvailableTokenItems(accountSelectorCell)
+        openNetworkSelectionOrAddToken(
+            tokenItems: availableTokenItems,
+            accountSelectorCell: accountSelectorCell,
+            context: context
+        )
+    }
 
+    func openNetworkSelectionOrAddToken(
+        tokenItems availableTokenItems: [TokenItem],
+        accountSelectorCell: AccountSelectorCellModel,
+        context: NavigationContext
+    ) {
         // Skip network selection if there's only one network available
         if let singleTokenItem = availableTokenItems.singleElement {
             openAddToken(
