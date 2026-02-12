@@ -90,6 +90,8 @@ class MarketsWalletDataProvider {
                     }
 
                     dataProvider._selectedUserWalletModel.send(selectedUserWalletModel)
+                case .reordered:
+                    break
                 }
             })
             .store(in: &bag)
