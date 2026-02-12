@@ -112,7 +112,9 @@ final class CommonCryptoAccountsRepository {
         }
 
         let walletCreationHelper = WalletCreationHelper(
-            userWalletInfo: userWalletInfo,
+            userWalletId: userWalletInfo.id,
+            userWalletName: userWalletInfo.name,
+            userWalletConfig: userWalletInfo.config,
             networkService: networkService
         )
 
