@@ -20,7 +20,7 @@ struct YieldModuleAPITarget: TargetType {
         case chart(tokenContractAddress: String, chainId: Int, window: String?, bucketSizeDays: Int?)
         case activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String)
         case deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int)
-        case transactionEvents(txHash: String, operation: String)
+        case transactionEvents(txHash: String, operation: String, userAddress: String?)
 
         var isTransactionEvents: Bool {
             switch self {
@@ -33,7 +33,7 @@ struct YieldModuleAPITarget: TargetType {
     }
 
     var tangemApiBaseURL: URL {
-        tangemAPIType.apiBaseUrl
+        tangemAPIType.apiBaseUrlv2
     }
 
     var yieldBaseURL: URL {
@@ -110,12 +110,16 @@ struct YieldModuleAPITarget: TargetType {
                 ],
                 encoding: JSONEncoding.default
             )
-        case .transactionEvents(let txHash, let operation):
+        case .transactionEvents(let txHash, let operation, let userAddress):
+            var params: [String: Any] = [
+                "transactionId": txHash,
+                "operationType": operation,
+            ]
+
+            params["userAddress"] = userAddress ?? NSNull()
+
             return .requestParameters(
-                parameters: [
-                    "transactionId": txHash,
-                    "operationType": operation,
-                ],
+                parameters: params,
                 encoding: JSONEncoding.default
             )
         }
