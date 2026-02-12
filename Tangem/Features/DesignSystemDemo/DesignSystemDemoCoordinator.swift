@@ -12,6 +12,7 @@ import TangemAssets
 
 protocol DesignSystemDemoRoutable: AnyObject {
     func openTypography()
+    func openButtons()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -20,6 +21,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
 
     @Published var rootViewModel: DesignSystemDemoViewModel?
     @Published var typoCoordinator: TypographyDemoCoordinator?
+    @Published var buttonsCoordinator: ButtonComponentDemoCoordinator?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -35,6 +37,15 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
 }
 
 extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
+    func openButtons() {
+        buttonsCoordinator = .init(
+            dismissAction: { [weak self] _ in self?.buttonsCoordinator = nil },
+            popToRootAction: { [weak self] _ in self?.buttonsCoordinator = nil }
+        )
+
+        buttonsCoordinator?.start(with: ())
+    }
+
     func openTypography() {
         typoCoordinator = .init(
             dismissAction: { [weak self] _ in self?.typoCoordinator = nil },
