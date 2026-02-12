@@ -22,7 +22,7 @@ protocol YieldModuleNetworkManager {
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
-    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation) async
+    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
 }
 
 final class CommonYieldModuleNetworkManager {
@@ -120,8 +120,8 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         )
     }
 
-    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation) async {
-        try? await yieldModuleAPIService.sendTransactionEvent(txHash: txHash, operation: operation.rawValue)
+    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async {
+        try? await yieldModuleAPIService.sendTransactionEvent(txHash: txHash, operation: operation.rawValue, userAddress: userAddress)
     }
 }
 
