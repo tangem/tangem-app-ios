@@ -17,8 +17,8 @@ final class AccountsAwareTokenSelectorItemViewModel: ObservableObject, Identifia
     let tokenIconInfo: TokenIconInfo
 
     @Published var disabledReason: DisabledReason?
-    @Published var cryptoBalance: LoadableTokenBalanceView.State
-    @Published var fiatBalance: LoadableTokenBalanceView.State
+    @Published var cryptoBalance: LoadableBalanceView.State
+    @Published var fiatBalance: LoadableBalanceView.State
 
     let action: () -> Void
 
@@ -38,16 +38,16 @@ final class AccountsAwareTokenSelectorItemViewModel: ObservableObject, Identifia
         self.tokenIconInfo = tokenIconInfo
         self.action = action
 
-        cryptoBalance = LoadableTokenBalanceViewStateBuilder().build(type: cryptoBalanceProvider.formattedBalanceType)
-        fiatBalance = LoadableTokenBalanceViewStateBuilder().build(type: fiatBalanceProvider.formattedBalanceType)
+        cryptoBalance = LoadableBalanceViewStateBuilder().build(type: cryptoBalanceProvider.formattedBalanceType)
+        fiatBalance = LoadableBalanceViewStateBuilder().build(type: fiatBalanceProvider.formattedBalanceType)
 
         cryptoBalanceProvider.formattedBalanceTypePublisher
-            .map { LoadableTokenBalanceViewStateBuilder().build(type: $0) }
+            .map { LoadableBalanceViewStateBuilder().build(type: $0) }
             .receiveOnMain()
             .assign(to: &$cryptoBalance)
 
         fiatBalanceProvider.formattedBalanceTypePublisher
-            .map { LoadableTokenBalanceViewStateBuilder().build(type: $0) }
+            .map { LoadableBalanceViewStateBuilder().build(type: $0) }
             .receiveOnMain()
             .assign(to: &$fiatBalance)
 
