@@ -2875,6 +2875,7 @@
 		C2E921382DD7ACC800ACE654 /* BlockaidWalletConnectDAppVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E921372DD7ACB700ACE654 /* BlockaidWalletConnectDAppVerificationService.swift */; };
 		C2F1B33E2DE9F76600EDA3E1 /* WalletConnectHapticFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1B33D2DE9F71B00EDA3E1 /* WalletConnectHapticFeedbackGenerator.swift */; };
 		C2F1B3402DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1B33F2DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift */; };
+		C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = C2FC44062F3E66F900A61EAB /* TangemTestKit */; };
 		C2FC85702DF772CD009F30B2 /* WalletConnectAnimationCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FC856F2DF772C4009F30B2 /* WalletConnectAnimationCurve.swift */; };
 		C2FF4FFC2DD6710B00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFB2DD670FE00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift */; };
 		C2FF4FFE2DD6712300FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFD2DD6711C00FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift */; };
@@ -9629,6 +9630,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */,
+				C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
 				DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */,
 			);
@@ -26408,6 +26410,7 @@
 				B67E38C62CC7259B00D660EB /* TangemSdk */,
 				B63DFC4D2CD4EABB00720D9F /* TangemModules */,
 				DC2CA0DC2EF069BC00C10344 /* CryptoSwift */,
+				C2FC44062F3E66F900A61EAB /* TangemTestKit */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -26761,6 +26764,7 @@
 				C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */,
 				2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */,
 				DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */,
+				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -37437,6 +37441,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = TangemTestKit;
+		};
 		F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Modules;
@@ -38019,6 +38027,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
 			productName = "AppsFlyerLib-Strict";
+		};
+		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TangemTestKit;
 		};
 		DC2CA0DC2EF069BC00C10344 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
