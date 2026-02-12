@@ -10,14 +10,17 @@ import Foundation
 import ReownWalletKit
 
 final actor WalletConnectDuplicateRequestFilter {
-    private let window: TimeInterval
+    private let requiredIntervalBetweenDuplicateRequests: TimeInterval
     private let currentDateProvider: () -> Date
 
     private var requestToReceivedDate: [StableRequestFootprint: Date] = [:]
 
-    init(window: TimeInterval = 120, currentDateProvider: @escaping () -> Date = Date.init) {
+    init(
+        requiredIntervalBetweenDuplicateRequests: TimeInterval = 120,
+        currentDateProvider: @escaping () -> Date = Date.init
+    ) {
+        self.requiredIntervalBetweenDuplicateRequests = requiredIntervalBetweenDuplicateRequests
         self.currentDateProvider = currentDateProvider
-        self.window = window
     }
 
     func isProcessingAllowed(for request: ReownWalletKit.Request) -> Bool {
@@ -33,14 +36,16 @@ final actor WalletConnectDuplicateRequestFilter {
             return true
         }
 
-        let enoughTimePassedSinceLastRequest = currentDateProvider().timeIntervalSince(potentialDuplicateRequestReceivedDate) > window
-        return enoughTimePassedSinceLastRequest
+        let timePassedSinceLastRequest = currentDateProvider().timeIntervalSince(potentialDuplicateRequestReceivedDate)
+        let isEnough = timePassedSinceLastRequest > requiredIntervalBetweenDuplicateRequests
+
+        return isEnough
     }
 
     private func removeExpiredRecentRequests() {
         requestToReceivedDate.removeAll(
             where: {
-                let isExpired = currentDateProvider().timeIntervalSince($0.value) > window
+                let isExpired = currentDateProvider().timeIntervalSince($0.value) > requiredIntervalBetweenDuplicateRequests
                 return isExpired
             }
         )

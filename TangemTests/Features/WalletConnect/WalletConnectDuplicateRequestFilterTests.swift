@@ -96,7 +96,7 @@ struct WalletConnectDuplicateRequestFilterTests {
 extension WalletConnectDuplicateRequestFilterTests {
     private static func makeSUT(currentDateProvider: @escaping () -> Date = Date.init) -> WalletConnectDuplicateRequestFilter {
         WalletConnectDuplicateRequestFilter(
-            window: Timings.requiredWindow,
+            requiredIntervalBetweenDuplicateRequests: Timings.requiredInterval,
             currentDateProvider: currentDateProvider
         )
     }
@@ -122,17 +122,17 @@ extension WalletConnectDuplicateRequestFilterTests {
 extension WalletConnectDuplicateRequestFilterTests {
     private enum Timings {
         static let referenceDate = Date(timeIntervalSinceReferenceDate: 123456789)
-        static let requiredWindow: TimeInterval = 5
+        static let requiredInterval: TimeInterval = 5
 
         enum NotEnoughInterval {
             static let zero = TimeInterval.zero
-            static let wayNotEnough: TimeInterval = Timings.requiredWindow.advanced(by: -4.9)
-            static let almostEnough: TimeInterval = Timings.requiredWindow.advanced(by: -0.1)
+            static let wayNotEnough: TimeInterval = Timings.requiredInterval.advanced(by: -4.9)
+            static let almostEnough: TimeInterval = Timings.requiredInterval.advanced(by: -0.1)
         }
 
         enum EnoughInterval {
-            static let barelyEnough: TimeInterval = Timings.requiredWindow.advanced(by: 0.1)
-            static let moreThanEnough: TimeInterval = Timings.requiredWindow.advanced(by: 100)
+            static let barelyEnough: TimeInterval = Timings.requiredInterval.advanced(by: 0.1)
+            static let moreThanEnough: TimeInterval = Timings.requiredInterval.advanced(by: 100)
         }
     }
 
