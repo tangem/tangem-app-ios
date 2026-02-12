@@ -15,8 +15,6 @@ protocol DetailsRoutable: AnyObject {
 
     func openOnboardingModal(with input: OnboardingInput)
 
-    func openAddWallet() // [REDACTED_TODO_COMMENT]
-
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openSupportChat(input: SupportChatInputModel)
