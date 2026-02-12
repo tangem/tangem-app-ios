@@ -18,6 +18,8 @@ final class SwapMarketsTokensViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let dataProvider: MarketsListDataProvider
     private let chartsProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
@@ -172,7 +174,10 @@ final class SwapMarketsTokensViewModel: ObservableObject {
 
     private func makeItemViewModel(token: MarketsTokenModel, index: Int) -> MarketsItemViewModel? {
         guard let networks = token.networks,
-              !networks.filter({ $0.contractAddress != nil && $0.decimalCount != nil }).isEmpty else {
+              NetworkSupportChecker.hasAnySupportedNetwork(
+                  networks: networks,
+                  userWalletModels: userWalletRepository.models
+              ) else {
             return nil
         }
 
