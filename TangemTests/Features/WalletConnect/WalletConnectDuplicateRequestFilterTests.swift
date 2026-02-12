@@ -9,12 +9,13 @@
 import Foundation
 import Testing
 import ReownWalletKit
+import TangemTestKit
 @testable import Tangem
 
-struct WalletConnectDuplicateRequestFilterTests {
+final class WalletConnectDuplicateRequestFilterTests: LeakTrackingTestSuite {
     @Test
     func shouldAllowRequestProcessingWhenFilterIsEmpty() async throws {
-        let sut = Self.makeSUT()
+        let sut = makeSUT()
         let request = try Self.makeAnyRequest()
 
         #expect(await sut.isProcessingAllowed(for: request))
@@ -22,17 +23,17 @@ struct WalletConnectDuplicateRequestFilterTests {
 
     @Test(
         arguments: [
-            (Timings.NotEnoughInterval.zero, false),
-            (Timings.NotEnoughInterval.wayNotEnough, false),
-            (Timings.NotEnoughInterval.almostEnough, false),
-            (Timings.EnoughInterval.exactlyEnough, true),
-            (Timings.EnoughInterval.barelyEnough, true),
-            (Timings.EnoughInterval.moreThanEnough, true),
+            (Timings.IntervalBetweenRequests.zero, false),
+            (Timings.IntervalBetweenRequests.wayNotEnough, false),
+            (Timings.IntervalBetweenRequests.almostEnough, false),
+            (Timings.IntervalBetweenRequests.exactlyEnough, true),
+            (Timings.IntervalBetweenRequests.barelyEnough, true),
+            (Timings.IntervalBetweenRequests.moreThanEnough, true),
         ]
     )
     func shouldAllowDuplicateRequestOnlyAfterEnoughInterval(timeBetweenRequests: TimeInterval, isDuplicateAllowed: Bool) async throws {
-        let dateProvider = Self.makeMockDateProvider()
-        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+        let dateProvider = makeMockDateProvider()
+        let sut = makeSUT(currentDateProvider: dateProvider.callAsFunction)
 
         let request = try Self.makeAnyRequest()
         let duplicateRequest = try Self.makeAnyRequest()
@@ -45,17 +46,17 @@ struct WalletConnectDuplicateRequestFilterTests {
 
     @Test(
         arguments: [
-            (Timings.NotEnoughInterval.zero, false),
-            (Timings.NotEnoughInterval.wayNotEnough, false),
-            (Timings.NotEnoughInterval.almostEnough, false),
-            (Timings.EnoughInterval.exactlyEnough, true),
-            (Timings.EnoughInterval.barelyEnough, true),
-            (Timings.EnoughInterval.moreThanEnough, true),
+            (Timings.IntervalBetweenRequests.zero, false),
+            (Timings.IntervalBetweenRequests.wayNotEnough, false),
+            (Timings.IntervalBetweenRequests.almostEnough, false),
+            (Timings.IntervalBetweenRequests.exactlyEnough, true),
+            (Timings.IntervalBetweenRequests.barelyEnough, true),
+            (Timings.IntervalBetweenRequests.moreThanEnough, true),
         ]
     )
     func shouldAllowSequentialDuplicateRequestsOnlyAfterEnoughInterval(timeBetweenRequests: TimeInterval, isDuplicateAllowed: Bool) async throws {
-        let dateProvider = Self.makeMockDateProvider()
-        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+        let dateProvider = makeMockDateProvider()
+        let sut = makeSUT(currentDateProvider: dateProvider.callAsFunction)
 
         let request = try Self.makeAnyRequest()
         let duplicateRequest = try Self.makeAnyRequest()
@@ -70,17 +71,17 @@ struct WalletConnectDuplicateRequestFilterTests {
 
     @Test(
         arguments: [
-            Timings.NotEnoughInterval.zero,
-            Timings.NotEnoughInterval.wayNotEnough,
-            Timings.NotEnoughInterval.almostEnough,
-            Timings.EnoughInterval.exactlyEnough,
-            Timings.EnoughInterval.barelyEnough,
-            Timings.EnoughInterval.moreThanEnough,
+            Timings.IntervalBetweenRequests.zero,
+            Timings.IntervalBetweenRequests.wayNotEnough,
+            Timings.IntervalBetweenRequests.almostEnough,
+            Timings.IntervalBetweenRequests.exactlyEnough,
+            Timings.IntervalBetweenRequests.barelyEnough,
+            Timings.IntervalBetweenRequests.moreThanEnough,
         ]
     )
     func shouldAllowSequentialUniqueRequestsAfterAnyInterval(timeBetweenRequests: TimeInterval) async throws {
-        let dateProvider = Self.makeMockDateProvider()
-        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+        let dateProvider = makeMockDateProvider()
+        let sut = makeSUT(currentDateProvider: dateProvider.callAsFunction)
 
         let request = try Self.makeAnyRequest()
 
@@ -97,15 +98,17 @@ struct WalletConnectDuplicateRequestFilterTests {
 // MARK: - Factory methods
 
 extension WalletConnectDuplicateRequestFilterTests {
-    private static func makeSUT(currentDateProvider: @escaping () -> Date = Date.init) -> WalletConnectDuplicateRequestFilter {
-        WalletConnectDuplicateRequestFilter(
-            requiredIntervalBetweenDuplicateRequests: Timings.requiredInterval,
-            currentDateProvider: currentDateProvider
+    private func makeSUT(currentDateProvider: @escaping () -> Date = Date.init) -> WalletConnectDuplicateRequestFilter {
+        trackForMemoryLeaks(
+            WalletConnectDuplicateRequestFilter(
+                requiredIntervalBetweenDuplicateRequests: Timings.requiredInterval,
+                currentDateProvider: currentDateProvider
+            )
         )
     }
 
-    private static func makeMockDateProvider() -> MockCurrentDateProvider {
-        MockCurrentDateProvider(referenceDate: Timings.referenceDate)
+    private func makeMockDateProvider() -> MockCurrentDateProvider {
+        trackForMemoryLeaks(MockCurrentDateProvider(referenceDate: Timings.referenceDate))
     }
 
     private static func makeAnyRequest(topic: String = "anyTopic") throws -> ReownWalletKit.Request {
@@ -127,13 +130,10 @@ extension WalletConnectDuplicateRequestFilterTests {
         static let referenceDate = Date(timeIntervalSinceReferenceDate: 123456789)
         static let requiredInterval: TimeInterval = 5
 
-        enum NotEnoughInterval {
+        enum IntervalBetweenRequests {
             static let zero = TimeInterval.zero
             static let wayNotEnough: TimeInterval = Timings.requiredInterval.advanced(by: -4.9)
             static let almostEnough: TimeInterval = Timings.requiredInterval.advanced(by: -0.1)
-        }
-
-        enum EnoughInterval {
             static let exactlyEnough = Timings.requiredInterval
             static let barelyEnough: TimeInterval = Timings.requiredInterval.advanced(by: 0.1)
             static let moreThanEnough: TimeInterval = Timings.requiredInterval.advanced(by: 100)
