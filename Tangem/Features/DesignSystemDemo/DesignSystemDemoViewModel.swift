@@ -18,4 +18,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTypo() {
         coordinator?.openTypography()
     }
+
+    func openButtons() {
+        coordinator?.openButtons()
+    }
 }
