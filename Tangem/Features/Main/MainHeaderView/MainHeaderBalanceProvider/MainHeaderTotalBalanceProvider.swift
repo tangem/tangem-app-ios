@@ -9,10 +9,11 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemUI
 
 protocol MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State { get }
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
+    var balance: LoadableBalanceView.State { get }
+    var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> { get }
 }
 
 class CommonMainHeaderBalanceProvider {
@@ -30,7 +31,7 @@ class CommonMainHeaderBalanceProvider {
         self.mainBalanceFormatter = mainBalanceFormatter
     }
 
-    private func mapToLoadableTokenBalanceViewState(state: TotalBalanceState) -> LoadableTokenBalanceView.State {
+    private func mapToLoadableBalanceViewState(state: TotalBalanceState) -> LoadableBalanceView.State {
         if userWalletStateInfoProvider.isUserWalletLocked {
             // Show endless shimmer for locked wallet
             return .loading(cached: .none)
@@ -56,15 +57,15 @@ class CommonMainHeaderBalanceProvider {
 // MARK: - MainHeaderBalanceProvider
 
 extension CommonMainHeaderBalanceProvider: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
-        mapToLoadableTokenBalanceViewState(state: totalBalanceProvider.totalBalance)
+    var balance: LoadableBalanceView.State {
+        mapToLoadableBalanceViewState(state: totalBalanceProvider.totalBalance)
     }
 
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+    var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         totalBalanceProvider
             .totalBalancePublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapToLoadableTokenBalanceViewState(state: $1) }
+            .map { $0.mapToLoadableBalanceViewState(state: $1) }
             .eraseToAnyPublisher()
     }
 }
