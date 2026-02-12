@@ -17,7 +17,10 @@ enum EarnAddTokenFlowConfigurationFactory {
         coordinator: EarnAddTokenRoutable,
         analyticsProvider: EarnAnalyticsProvider
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        AccountsAwareAddTokenFlowConfiguration(
+        let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool = { tokenItem, account in
+            account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+        }
+        return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 let networkModel = NetworkModel(
                     networkId: earnToken.networkId,
@@ -36,9 +39,11 @@ enum EarnAddTokenFlowConfigurationFactory {
                 }
                 return [tokenItem]
             },
-            isTokenAdded: { tokenItem, account in
-                account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
-            },
+            isTokenAdded: isTokenAdded,
+            accountSelectionBehavior: makeCustomExecuteActionBehavior(
+                coordinator: coordinator,
+                isTokenAdded: isTokenAdded
+            ),
             postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
                 handleTokenAddedSuccessfully(
                     addedToken: tokenItem,
@@ -47,7 +52,7 @@ enum EarnAddTokenFlowConfigurationFactory {
                 )
             },
             accountFilter: makeAccountFilter(earnToken: earnToken),
-            accountAvailabilityProvider: makeAccountAvailabilityProvider(earnToken: earnToken),
+            accountAvailabilityProvider: nil,
             analyticsLogger: analyticsProvider
         )
     }
@@ -56,21 +61,35 @@ enum EarnAddTokenFlowConfigurationFactory {
 // MARK: - Private
 
 private extension EarnAddTokenFlowConfigurationFactory {
-    static func handleTokenAddedSuccessfully(
-        addedToken: TokenItem,
+    static func makeCustomExecuteActionBehavior(
+        coordinator: EarnAddTokenRoutable,
+        isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool
+    ) -> AccountsAwareAddTokenFlowConfiguration.AccountSelectionBehavior {
+        .customExecuteAction { [weak coordinator] tokenItem, accountSelectorCell, continueToNetworkSelection in
+            if isTokenAdded(tokenItem, accountSelectorCell.cryptoAccountModel) {
+                navigateToToken(
+                    tokenItem: tokenItem,
+                    accountSelectorCell: accountSelectorCell,
+                    coordinator: coordinator
+                )
+            } else {
+                continueToNetworkSelection()
+            }
+        }
+    }
+
+    static func navigateToToken(
+        tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         coordinator: EarnAddTokenRoutable?
     ) {
         guard let coordinator else { return }
 
-        FeedbackGenerator.success()
-
-        // Find the wallet model for the added token
-        let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
-            $0.tokenItem == addedToken
-        }
-
-        guard let walletModel else {
+        let account = accountSelectorCell.cryptoAccountModel
+        guard let walletModel = EarnWalletModelFinder.findWalletModel(
+            for: tokenItem,
+            in: account
+        ) else {
             coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
             coordinator.close()
             return
@@ -81,39 +100,25 @@ private extension EarnAddTokenFlowConfigurationFactory {
         coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
     }
 
+    static func handleTokenAddedSuccessfully(
+        addedToken: TokenItem,
+        accountSelectorCell: AccountSelectorCellModel,
+        coordinator: EarnAddTokenRoutable?
+    ) {
+        FeedbackGenerator.success()
+        navigateToToken(
+            tokenItem: addedToken,
+            accountSelectorCell: accountSelectorCell,
+            coordinator: coordinator
+        )
+    }
+
     static func makeAccountFilter(
         earnToken: EarnTokenModel
     ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
         let networkId = earnToken.networkId
         return { account, supportedBlockchains in
             AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
-        }
-    }
-
-    static func makeAccountAvailabilityProvider(
-        earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability)? {
-        let networkModel = NetworkModel(
-            networkId: earnToken.networkId,
-            contractAddress: earnToken.contractAddress,
-            decimalCount: earnToken.decimalCount
-        )
-
-        return { context in
-            let tokenItemMapper = TokenItemMapper(supportedBlockchains: context.supportedBlockchains)
-            guard let tokenItem = tokenItemMapper.mapToTokenItem(
-                id: earnToken.id,
-                name: earnToken.name,
-                symbol: earnToken.symbol,
-                network: networkModel
-            ) else {
-                return .unavailable(reason: nil)
-            }
-
-            let alreadyAdded = context.account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
-            return alreadyAdded
-                ? .unavailable(reason: Localization.marketsTokenAdded)
-                : .available
         }
     }
 }
