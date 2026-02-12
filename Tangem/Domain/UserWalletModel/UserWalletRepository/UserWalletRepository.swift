@@ -25,6 +25,7 @@ protocol UserWalletRepository {
     func updateAssociatedCard(userWalletId: UserWalletId, cardId: String)
     func add(userWalletModel: UserWalletModel) throws
     func delete(userWalletId: UserWalletId)
+    func reorder(orderedUserWalletIds: [UserWalletId])
     func onBiometricsChanged(enabled: Bool)
     func onSaveUserWalletsChanged(enabled: Bool)
     func savePublicData()
@@ -56,6 +57,7 @@ enum UserWalletRepositoryEvent: Equatable {
     case unlockedWallet(userWalletId: UserWalletId)
     case deleted(userWalletIds: [UserWalletId], isRepositoryEmpty: Bool)
     case selected(userWalletId: UserWalletId)
+    case reordered(orderedUserWalletIds: [UserWalletId])
 }
 
 enum UserWalletRepositoryUnlockMethod {
