@@ -30,7 +30,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private(set) var walletImage: Image?
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
-    @Published var mobileUpgradeNotificationInput: NotificationViewInput? // [REDACTED_TODO_COMMENT]
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
@@ -39,7 +38,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     var isMobileUpgradeAvailable: Bool {
-        FeatureProvider.isAvailable(.mobileWallet) && userWalletModel.config.hasFeature(.userWalletUpgrade)
+        userWalletModel.config.hasFeature(.userWalletUpgrade)
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -251,7 +250,6 @@ private extension UserWalletSettingsViewModel {
         pushNotificationsViewModel = nil
         mobileAccessCodeViewModel = nil
         mobileBackupViewModel = nil
-        mobileUpgradeNotificationInput = nil
     }
 
     func setupViewModels() {
@@ -359,51 +357,8 @@ private extension UserWalletSettingsViewModel {
                     detailsType: detailsType,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openMobileBackupTypes)
                 )
-
-            case .upgrade:
-                mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
-                    onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
-                )
             }
         }
-    }
-
-    func onMobileUpgradeNotificationUpgrade() {
-        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
-
-        runTask(in: self) { viewModel in
-            if isBackupNeeded {
-                viewModel.logMobileBackupNeededAnalytics(action: .upgrade)
-                await viewModel.openMobileBackupToUpgradeNeeded()
-            } else {
-                await viewModel.upgradeMobileWallet()
-            }
-        }
-    }
-
-    func upgradeMobileWallet() async {
-        let unlockResult = await mobileUnlock()
-
-        switch unlockResult {
-        case .successful(let context):
-            await openMobileUpgradeToHardwareWallet(context: context)
-        case .canceled:
-            break
-        case .failed(let error):
-            alert = error.alertBinder
-        }
-    }
-
-    func onMobileBackupToUpgradeComplete() {
-        runTask(in: self) { viewModel in
-            await viewModel.closeOnboarding()
-            await viewModel.upgradeMobileWallet()
-        }
-    }
-
-    func onMobileUpgradeNotificationDismiss() {
-        setupView()
     }
 
     func mobileAccessCodeTap() {
@@ -594,71 +549,8 @@ private extension UserWalletSettingsViewModel {
     }
 
     @MainActor
-    func openMobileUpgradeToHardwareWallet(context: MobileWalletContext) {
-        coordinator?.openMobileUpgradeToHardwareWallet(userWalletModel: userWalletModel, context: context)
-    }
-
-    @MainActor
-    func openMobileBackupToUpgradeNeeded() {
-        coordinator?.openMobileBackupToUpgradeNeeded(
-            onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
-        )
-    }
-
-    @MainActor
-    func openBackupMobileWallet() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .upgrade),
-            onContinue: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileBackupToUpgradeComplete)
-        ))
-        coordinator?.openOnboardingModal(with: .mobileInput(input))
-    }
-
-    @MainActor
     func openMobileUpgrade() {
         coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
-    }
-
-    @MainActor
-    func closeOnboarding() {
-        coordinator?.closeOnboarding()
-    }
-}
-
-// MARK: - Mobile wallet unlocking
-
-private extension UserWalletSettingsViewModel {
-    func mobileUnlock() async -> MobileUnlockResult {
-        do {
-            let authUtil = MobileAuthUtil(
-                userWalletId: userWalletModel.userWalletId,
-                config: userWalletModel.config,
-                biometricsProvider: CommonUserWalletBiometricsProvider()
-            )
-            let result = try await authUtil.unlock()
-
-            switch result {
-            case .successful(let context):
-                return .successful(context: context)
-
-            case .canceled:
-                return .canceled
-
-            case .userWalletNeedsToDelete:
-                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
-                return .canceled
-            }
-
-        } catch {
-            return .failed(error: error)
-        }
-    }
-
-    enum MobileUnlockResult {
-        case successful(context: MobileWalletContext)
-        case canceled
-        case failed(error: Error)
     }
 }
 
@@ -718,12 +610,12 @@ private extension UserWalletSettingsViewModel {
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
             case .standard(.multiple):
-                // In multiple accounts case we don't support managing tokens from this screen,
+                // In multiple accounts mode we don't support managing tokens from this screen,
                 // instead users should manage tokens from respective account details screens
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
-                // Unreachable state, because account models manager should always contain at least one account model (main account)
-                assertionFailure("Unexpected state: no account models found, unable to update dependencies for user wallet")
+                // Reachable case - the saved wallet has been deleted from the app
+                // Erasing all dependencies since they aren't needed anymore
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             }
         }

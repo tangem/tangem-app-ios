@@ -13,10 +13,6 @@ enum SettingsMigrator {
     static func migrateIfNeeded() {
         cleanStorageIfNeeded()
 
-        guard FeatureProvider.isAvailable(.mobileWallet) else {
-            return
-        }
-
         let newSettingsVersion = 1
 
         guard AppSettings.shared.settingsVersion < newSettingsVersion else {
