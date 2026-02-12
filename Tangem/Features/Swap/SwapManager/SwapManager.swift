@@ -42,4 +42,6 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
 
     func update()
     func send() async throws -> TransactionDispatcherResult
+
+    func stopTimer()
 }
