@@ -128,7 +128,10 @@ extension ExpressCoordinator: ExpressRoutable {
 
 extension ExpressCoordinator: SendFeeSelectorRoutable {
     func closeFeeSelector() {
-        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+        Task { @MainActor in
+            rootViewModel?.refreshFee()
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 
     func openFeeSelectorLearnMoreURL(_ url: URL) {
