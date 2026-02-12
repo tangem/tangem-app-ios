@@ -749,6 +749,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
