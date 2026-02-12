@@ -138,6 +138,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapFeeRow() {
+        stopTimer()
         openFeeSelectorView()
     }
 
@@ -168,6 +169,10 @@ final class ExpressViewModel: ObservableObject {
 
     func didTapCloseButton() {
         coordinator?.closeSwappingView()
+    }
+
+    func refreshFee() {
+        interactor.refresh(type: .fee)
     }
 }
 

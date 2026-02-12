@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import CombineExt
+import TangemUI
 
 @MainActor
 final class AccountSelectorWalletCellViewModel: ObservableObject {
@@ -24,7 +25,7 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
     // MARK: Published Properties
 
     @Published private(set) var walletIcon: LoadingResult<ImageValue, Never> = .loading
-    @Published private(set) var fiatBalanceState: LoadableTokenBalanceView.State = .loading()
+    @Published private(set) var fiatBalanceState: LoadableBalanceView.State = .loading()
 
     // MARK: Private Properties
 
