@@ -63,7 +63,7 @@ struct OrganizeTokensListItemView: View {
     private var defaultMiddleComponent: some View {
         tokenName
 
-        LoadableTokenBalanceView(
+        LoadableBalanceView(
             state: viewModel.balance,
             style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
             loader: .init(size: .init(width: 52, height: 12))

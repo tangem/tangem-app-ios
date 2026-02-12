@@ -39,7 +39,7 @@ final class TangemPayMainViewModel: ObservableObject {
         settings: .init(event: TangemPayNotificationEvent.tangemPayIsNowBeta, dismissAction: nil)
     )
 
-    @Published private(set) var balance: LoadableTokenBalanceView.State
+    @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
