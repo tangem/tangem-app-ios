@@ -99,6 +99,7 @@ final class CommonEarnAnalyticsProvider: EarnAnalyticsProvider {
         )
     }
 
+    // [REDACTED_TODO_COMMENT]
     func logBestOpportunitiesLoadError(errorCode: String, errorMessage: String) {
         Analytics.log(
             event: .earnBestOpportunitiesLoadError,
