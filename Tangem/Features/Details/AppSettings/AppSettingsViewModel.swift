@@ -12,34 +12,48 @@ import TangemSdk
 import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 class AppSettingsViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    private let mobileSdk = CommonMobileWalletSdk()
 
     // MARK: ViewState
 
     @Published var warningViewModel: DefaultWarningRowViewModel?
-    @Published var savingWalletViewModel: DefaultToggleRowViewModel?
-    @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
+    @Published var useBiometricAuthenticationViewModel: DefaultToggleRowViewModel?
+    @Published var requireAccessCodesViewModel: DefaultToggleRowViewModel?
     @Published var currencySelectionViewModel: DefaultRowViewModel?
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
     @Published var themeSettingsViewModel: DefaultRowViewModel?
-    @Published var isSavingWallet: Bool {
-        didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
+
+    @Published var useBiometricAuthentication: Bool {
+        didSet { AppSettings.shared.useBiometricAuthentication = useBiometricAuthentication }
     }
 
-    @Published var isSavingAccessCodes: Bool {
-        didSet { AppSettings.shared.saveAccessCodes = isSavingAccessCodes }
+    @Published var requireAccessCodes: Bool {
+        didSet {
+            AppSettings.shared.requireAccessCodes = requireAccessCodes
+        }
     }
 
     @Published var alert: AlertBinder?
+
+    var biometricsTitle: String {
+        BiometricsUtil.biometryType == .faceID ? Constants.faceIDTitle : Constants.touchIDTitle
+    }
 
     // MARK: Dependencies
 
     private weak var coordinator: AppSettingsRoutable?
 
     // MARK: Properties
+
+    private lazy var hasProtectedWallets: Bool = userWalletRepository.models.contains { userWalletModel in
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+        return !unlocker.canUnlockAutomatically
+    }
 
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
@@ -48,6 +62,10 @@ class AppSettingsViewModel: ObservableObject {
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
 
+    private var isRequireAccessCodeEnabled: Bool {
+        hasProtectedWallets && useBiometricAuthentication
+    }
+
     private var showingBiometryWarning: Bool {
         warningViewModel != nil
     }
@@ -55,9 +73,10 @@ class AppSettingsViewModel: ObservableObject {
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
-        let isSavingWallet = AppSettings.shared.saveUserWallets
-        self.isSavingWallet = isSavingWallet
-        isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
+        let useBiometricAuthentication = AppSettings.shared.useBiometricAuthentication
+        self.useBiometricAuthentication = useBiometricAuthentication
+
+        requireAccessCodes = !useBiometricAuthentication || AppSettings.shared.requireAccessCodes
 
         updateView()
         bind()
@@ -102,18 +121,24 @@ private extension AppSettingsViewModel {
             .store(in: &bag)
     }
 
-    func isSavingWalletRequestChange(saveWallet: Bool) {
-        Analytics.log(
-            .saveUserWalletSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.toggleState(for: saveWallet)]
-        )
+    func useBiometricAuthenticationRequestChange(useBiometricAuthentication: Bool) {
+        // [REDACTED_TODO_COMMENT]
 
-        if saveWallet {
+        guard hasProtectedWallets else {
+            if useBiometricAuthentication {
+                presentSetAccessCodeAlert(useBiometricAuthentication: useBiometricAuthentication)
+            } else {
+                setUseBiometricAuthentication(useBiometricAuthentication)
+            }
+            return
+        }
+
+        if useBiometricAuthentication {
             unlockWithBiometry { [weak self] in
-                self?.setSaveWallets($0)
+                self?.setUseBiometricAuthentication($0)
             }
         } else {
-            presentSavingWalletDeleteAlert()
+            presentDisableBiometricsAlert()
         }
     }
 
@@ -130,20 +155,19 @@ private extension AppSettingsViewModel {
         }
     }
 
-    func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
-        Analytics.log(
-            .saveAccessCodeSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.toggleState(for: saveAccessCodes)]
-        )
+    func requireAccessCodesRequestChange(require: Bool) {
+        // [REDACTED_TODO_COMMENT]
 
-        if saveAccessCodes {
-            setSaveAccessCodes(true)
-        } else {
-            presentSavingAccessCodesDeleteAlert()
-        }
+        presentRequireAccessCodeAlert(require: require)
     }
 
     func setupView() {
+        useBiometricAuthenticationViewModel = DefaultToggleRowViewModel(
+            title: biometricsTitle,
+            isDisabled: !isBiometryAvailable,
+            isOn: useBiometricAuthenticationBinding(),
+        )
+
         if isBiometryAvailable {
             warningViewModel = nil
         } else {
@@ -156,16 +180,10 @@ private extension AppSettingsViewModel {
             }
         }
 
-        savingWalletViewModel = DefaultToggleRowViewModel(
-            title: Localization.appSettingsSavedWallet,
-            isDisabled: !isBiometryAvailable,
-            isOn: isSavingWalletBinding()
-        )
-
-        savingAccessCodesViewModel = DefaultToggleRowViewModel(
-            title: Localization.appSettingsSavedAccessCodes,
-            isDisabled: !isBiometryAvailable,
-            isOn: isSavingAccessCodesBinding()
+        requireAccessCodesViewModel = DefaultToggleRowViewModel(
+            title: Localization.appSettingsRequireAccessCode,
+            isDisabled: !isRequireAccessCodeEnabled,
+            isOn: requireAccessCodesBinding()
         )
 
         currencySelectionViewModel = DefaultRowViewModel(
@@ -195,26 +213,26 @@ private extension AppSettingsViewModel {
         themeSettingsViewModel?.update(detailsType: .text(AppSettings.shared.appTheme.titleForDetails))
     }
 
-    func isSavingWalletBinding() -> BindingValue<Bool> {
+    func useBiometricAuthenticationBinding() -> BindingValue<Bool> {
         BindingValue<Bool>(
             root: self,
             default: false,
-            get: { $0.isSavingWallet },
+            get: { $0.useBiometricAuthentication },
             set: { root, newValue in
-                root.isSavingWallet = newValue
-                root.isSavingWalletRequestChange(saveWallet: newValue)
+                root.useBiometricAuthentication = newValue
+                root.useBiometricAuthenticationRequestChange(useBiometricAuthentication: newValue)
             }
         )
     }
 
-    func isSavingAccessCodesBinding() -> BindingValue<Bool> {
+    func requireAccessCodesBinding() -> BindingValue<Bool> {
         BindingValue<Bool>(
             root: self,
             default: false,
-            get: { $0.isSavingAccessCodes },
+            get: { $0.requireAccessCodes },
             set: { root, newValue in
-                root.isSavingAccessCodes = newValue
-                root.isSavingAccessCodesRequestChange(saveAccessCodes: newValue)
+                root.requireAccessCodes = newValue
+                root.requireAccessCodesRequestChange(require: newValue)
             }
         )
     }
@@ -229,17 +247,31 @@ private extension AppSettingsViewModel {
         )
     }
 
-    func presentSavingWalletDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text(Localization.commonDelete)) { [weak self] in
-            self?.setSaveWallets(false)
-        }
-        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
-            self?.setSaveWallets(true)
+    func presentSetAccessCodeAlert(useBiometricAuthentication: Bool) {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) { [weak self] in
+            self?.setUseBiometricAuthentication(!useBiometricAuthentication)
         }
 
         let alert = Alert(
             title: Text(Localization.commonAttention),
-            message: Text(Localization.appSettingsOffSavedWalletAlertMessage),
+            message: Text(Localization.appSettingsAccessCodeWarning),
+            dismissButton: okButton
+        )
+
+        self.alert = AlertBinder(alert: alert)
+    }
+
+    func presentDisableBiometricsAlert() {
+        let okButton = Alert.Button.destructive(Text(Localization.commonDisable)) { [weak self] in
+            self?.setUseBiometricAuthentication(false)
+        }
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
+            self?.setUseBiometricAuthentication(true)
+        }
+
+        let alert = Alert(
+            title: Text(Localization.commonAttention),
+            message: Text(Localization.appSettingsOffBiometricsAlertMessage(biometricsTitle)),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -247,58 +279,74 @@ private extension AppSettingsViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func presentSavingAccessCodesDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text(Localization.commonDelete)) { [weak self] in
-            self?.setSaveAccessCodes(false)
-        }
-
-        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
-            self?.setSaveAccessCodes(true)
-        }
-
-        let alert = Alert(
-            title: Text(Localization.commonAttention),
-            message: Text(Localization.appSettingsOffSavedAccessCodeAlertMessage),
-            primaryButton: okButton,
-            secondaryButton: cancelButton
-        )
-
-        self.alert = AlertBinder(alert: alert)
-    }
-
-    func setSaveWallets(_ saveWallets: Bool) {
-        isSavingWallet = saveWallets
-        userWalletRepository.onSaveUserWalletsChanged(enabled: saveWallets)
-
-        // If saved wallets is turn off we should delete access codes too
-        if !saveWallets {
-            isSavingAccessCodes = false
-        }
-    }
-
-    func setSaveAccessCodes(_ saveAccessCodes: Bool) {
-        if saveAccessCodes {
-            // If savingWallets already on, just update settings
-            if isSavingWallet {
-                isSavingAccessCodes = true
-            } else {
-                // Otherwise saving access codes should be on after biometry authorization
-                unlockWithBiometry { [weak self] success in
-                    self?.setSaveWallets(success)
-                    self?.isSavingAccessCodes = success
-                }
+    func presentRequireAccessCodeAlert(require: Bool) {
+        let okButton = if require {
+            Alert.Button.destructive(Text(Localization.commonEnable)) { [weak self] in
+                self?.setRequireAccessCodes(require)
             }
         } else {
+            Alert.Button.default(Text(Localization.commonOk)) { [weak self] in
+                self?.setRequireAccessCodes(require)
+            }
+        }
+
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
+            self?.setRequireAccessCodes(!require)
+        }
+
+        let alert = Alert(
+            title: Text(Localization.commonAttention),
+            message: require
+                ? Text(Localization.appSettingsOnRequireAccessCodeAlertMessage)
+                : Text(Localization.appSettingsOffRequireAccessCodeAlertMessage),
+            primaryButton: okButton,
+            secondaryButton: cancelButton
+        )
+
+        self.alert = AlertBinder(alert: alert)
+    }
+
+    func setUseBiometricAuthentication(_ useBiometricAuthentication: Bool) {
+        userWalletRepository.onBiometricsChanged(enabled: useBiometricAuthentication)
+        self.useBiometricAuthentication = useBiometricAuthentication
+
+        // If saved wallets is turn off we should delete access codes too
+        if !useBiometricAuthentication {
+            requireAccessCodes = true
+        }
+
+        updateView()
+    }
+
+    func setRequireAccessCodes(_ requireAccessCodes: Bool) {
+        if requireAccessCodes {
             let accessCodeRepository = AccessCodeRepository()
             accessCodeRepository.clear()
 
-            isSavingAccessCodes = false
+            clearBiometricsForMobileWallets()
+
+            self.requireAccessCodes = true
+        } else {
+            // If useBiometricAuthentication already on, just update settings
+            if useBiometricAuthentication {
+                self.requireAccessCodes = requireAccessCodes
+            } else {
+                // Otherwise useBiometricAuthentication should be on after biometry authorization
+                unlockWithBiometry { [weak self] success in
+                    self?.setUseBiometricAuthentication(success)
+                    self?.requireAccessCodes = false
+                }
+            }
         }
     }
 
     func updateView() {
         isBiometryAvailable = BiometricsUtil.isAvailable
         setupView()
+    }
+
+    func clearBiometricsForMobileWallets() {
+        mobileSdk.clearBiometrics(walletIDs: userWalletRepository.models.map { $0.userWalletId })
     }
 }
 
@@ -316,5 +364,12 @@ extension AppSettingsViewModel {
     func openBiometrySettings() {
         Analytics.log(.buttonEnableBiometricAuthentication)
         coordinator?.openAppSettings()
+    }
+}
+
+extension AppSettingsViewModel {
+    enum Constants {
+        static let faceIDTitle = "Face ID"
+        static let touchIDTitle = "Touch ID"
     }
 }
