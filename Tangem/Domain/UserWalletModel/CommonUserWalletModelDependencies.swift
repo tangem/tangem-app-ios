@@ -285,9 +285,11 @@ private extension CommonUserWalletModelDependencies {
             supportedBlockchains: config.supportedBlockchains,
             remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
         )
+        let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
         let networkService = CommonCryptoAccountsNetworkService(
             userWalletId: userWalletId,
-            mapper: mapper
+            mapper: mapper,
+            walletsNetworkService: walletsNetworkService
         )
         let defaultAccountFactory = CommonDefaultAccountFactory(
             userWalletId: userWalletId,
