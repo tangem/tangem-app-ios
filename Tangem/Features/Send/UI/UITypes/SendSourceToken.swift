@@ -11,6 +11,7 @@ import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
 struct SendSourceToken {
+    let userWalletInfo: UserWalletInfo
     let header: SendTokenHeader
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
