@@ -68,6 +68,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
     }
 
     func userDidTapDismissButton() {
+        interactor.userDidDismissFeeSelection()
         feesViewModel.userDidRequestRevertCustomFeeValues()
         router?.closeFeeSelector()
     }
