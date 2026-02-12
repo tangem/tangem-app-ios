@@ -10,12 +10,13 @@ import Foundation
 import SwiftUI
 import TangemAssets
 import TangemAccounts
+import TangemUI
 import TangemUIUtils
 
 struct ExpandedAccountItemHeaderView: View {
     let name: String
     let iconData: AccountIconView.ViewData
-    let totalFiatBalance: LoadableTokenBalanceView.State
+    let totalFiatBalance: LoadableBalanceView.State
     let iconGeometryEffect: GeometryEffectPropertiesModel
     let iconBackgroundGeometryEffect: GeometryEffectPropertiesModel
     let nameGeometryEffect: GeometryEffectPropertiesModel
@@ -45,7 +46,7 @@ struct ExpandedAccountItemHeaderView: View {
     init(
         name: String,
         iconData: AccountIconView.ViewData,
-        totalFiatBalance: LoadableTokenBalanceView.State,
+        totalFiatBalance: LoadableBalanceView.State,
         iconGeometryEffect: GeometryEffectPropertiesModel,
         iconBackgroundGeometryEffect: GeometryEffectPropertiesModel,
         nameGeometryEffect: GeometryEffectPropertiesModel,
@@ -117,7 +118,7 @@ struct ExpandedAccountItemHeaderView: View {
     @ViewBuilder
     private var balanceView: some View {
         if shouldShowBalance {
-            LoadableTokenBalanceView(
+            LoadableBalanceView(
                 state: totalFiatBalance,
                 style: .init(font: .Tangem.caption1Medium, textColor: .Tangem.Text.Neutral.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))

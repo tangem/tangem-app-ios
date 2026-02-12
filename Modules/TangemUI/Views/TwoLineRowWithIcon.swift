@@ -75,16 +75,6 @@ public struct TwoLineRowWithIcon<
     }
 }
 
-public extension TwoLineRowWithIcon {
-    enum SecondLineMode {
-        case hidden
-        case exists(
-            secondaryLeadingView: () -> SecondaryLeading,
-            secondaryTrailingView: () -> SecondaryTrailing,
-        )
-    }
-}
-
 // MARK: - Setupable
 
 extension TwoLineRowWithIcon: Setupable {
