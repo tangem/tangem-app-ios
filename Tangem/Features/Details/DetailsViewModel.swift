@@ -44,10 +44,7 @@ final class DetailsViewModel: ObservableObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     var userWalletsSectionFooterString: String? {
-        guard
-            FeatureProvider.isAvailable(.mobileWallet),
-            [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode)
-        else {
+        guard [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode) else {
             return nil
         }
         return Localization.detailsWalletsSectionDescription
@@ -395,15 +392,11 @@ private extension DetailsViewModel {
     func addOrScanNewUserWallet() {
         isScanning = true
 
-        if FeatureProvider.isAvailable(.mobileWallet) {
-            Analytics.log(
-                .buttonAddWallet,
-                params: [.source: .settings],
-                contextParams: .empty
-            )
-        } else {
-            Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
-        }
+        Analytics.log(
+            .buttonAddWallet,
+            params: [.source: .settings],
+            contextParams: .empty
+        )
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -508,11 +501,7 @@ private extension DetailsViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if FeatureProvider.isAvailable(.mobileWallet) {
-            return AppSettings.shared.useBiometricAuthentication
-        } else {
-            return AppSettings.shared.saveUserWallets
-        }
+        return AppSettings.shared.useBiometricAuthentication
     }
 
     func unlockWithBiometry(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
