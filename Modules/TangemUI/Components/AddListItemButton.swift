@@ -26,6 +26,11 @@ public struct AddListItemButton: View {
                     .style(Fonts.Bold.subheadline, color: textAndIconColor)
 
                 Spacer()
+
+                if viewData.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                }
             }
         }
         .disabled(!viewData.isEnabled)
@@ -65,14 +70,14 @@ public extension AddListItemButton {
             switch state {
             case .enabled(let action):
                 return action
-            case .disabled:
+            case .disabled, .loading:
                 return {}
             }
         }
 
         func disabledActionIfNeeded() {
             switch state {
-            case .enabled:
+            case .enabled, .loading:
                 break
             case .disabled(let action):
                 action?()
@@ -83,7 +88,16 @@ public extension AddListItemButton {
             switch state {
             case .enabled:
                 return true
-            case .disabled:
+            case .disabled, .loading:
+                return false
+            }
+        }
+
+        var isLoading: Bool {
+            switch state {
+            case .loading:
+                return true
+            case .enabled, .disabled:
                 return false
             }
         }
@@ -94,6 +108,7 @@ public extension AddListItemButton {
     enum State {
         case enabled(action: () -> Void)
         case disabled(action: (() -> Void)? = nil)
+        case loading
     }
 }
 
@@ -103,6 +118,7 @@ public extension AddListItemButton {
         AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", state: .enabled(action: {})))
         AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (disabled, no action)", state: .disabled()))
         AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (disabled, with action)", state: .disabled(action: { print("Tapped disabled button") })))
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (loading)", state: .loading))
     }
 }
 #endif
