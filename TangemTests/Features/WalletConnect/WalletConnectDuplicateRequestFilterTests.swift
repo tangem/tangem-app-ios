@@ -59,11 +59,11 @@ final class WalletConnectDuplicateRequestFilterTests: LeakTrackingTestSuite {
         let sut = makeSUT(currentDateProvider: dateProvider.callAsFunction)
 
         let request = try Self.makeAnyRequest()
-        let duplicateRequest = try Self.makeAnyRequest()
 
         #expect(await sut.isProcessingAllowed(for: request))
 
         for _ in 0 ..< 9 {
+            let duplicateRequest = try Self.makeAnyRequest()
             dateProvider.advance(by: timeBetweenRequests)
             #expect(await sut.isProcessingAllowed(for: duplicateRequest) == isDuplicateAllowed)
         }
@@ -88,9 +88,9 @@ final class WalletConnectDuplicateRequestFilterTests: LeakTrackingTestSuite {
         #expect(await sut.isProcessingAllowed(for: request))
 
         for i in 0 ..< 9 {
-            let duplicateRequest = try Self.makeAnyRequest(topic: "unique-request-#\(i)-topic")
+            let uniqueRequest = try Self.makeAnyRequest(topic: "unique-request-#\(i)-topic")
             dateProvider.advance(by: timeBetweenRequests)
-            #expect(await sut.isProcessingAllowed(for: duplicateRequest))
+            #expect(await sut.isProcessingAllowed(for: uniqueRequest))
         }
     }
 }
