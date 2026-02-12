@@ -308,26 +308,22 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
-                Task { @MainActor in
-                    let factory = CommonExpressModulesFactory(input: input)
-                    let coordinator = ExpressCoordinator(
-                        factory: factory,
-                        dismissAction: dismissAction,
-                        popToRootAction: self.popToRootAction
-                    )
-
-                    coordinator.start(with: .default)
-                    self.expressCoordinator = coordinator
-                }
-            }
-
-            Task { @MainActor [tangemStoriesPresenter] in
-                tangemStoriesPresenter.present(
-                    story: .swap(.initialWithoutImages),
-                    analyticsSource: .markets,
-                    presentCompletion: openSwapBlock
+                let factory = CommonExpressModulesFactory(input: input)
+                let coordinator = ExpressCoordinator(
+                    factory: factory,
+                    dismissAction: dismissAction,
+                    popToRootAction: popToRootAction
                 )
+
+                coordinator.start(with: .default)
+                expressCoordinator = coordinator
             }
+
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
@@ -353,9 +349,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
 extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {
