@@ -21,6 +21,12 @@ struct SendFactory {
                 walletModel: options.input.walletModel
             )
 
+        case .swap:
+            SwapFlowFactory(
+                userWalletInfo: options.input.userWalletInfo,
+                walletModel: options.input.walletModel
+            )
+
         case .nft(let parameters):
             NFTFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
