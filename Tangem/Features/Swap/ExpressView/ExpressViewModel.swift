@@ -27,6 +27,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var isSwapButtonLoading: Bool = false
     @Published var isSwapButtonDisabled: Bool = false
+    @Published var isInputDisabled: Bool = false
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var isMaxAmountButtonHidden: Bool = false
 
@@ -403,6 +404,17 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateInputDisabled(state: ExpressInteractor.State) {
+        switch state {
+        case .preloadRestriction(.tokenNotSupportedForSwap):
+            isInputDisabled = true
+            sendCurrencyViewModel?.update(isInputDisabled: true)
+        default:
+            isInputDisabled = false
+            sendCurrencyViewModel?.update(isInputDisabled: false)
+        }
+    }
+
     // MARK: - Receive view bubble
 
     func updateReceiveView(wallet: ExpressInteractor.Destination?) {
@@ -440,13 +452,23 @@ private extension ExpressViewModel {
         updateMainButton(state: state)
         updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
+        updateInputDisabled(state: state)
 
         switch state {
-        case .idle, .preloadRestriction:
+        case .idle, .preloadRestriction(.noSourceTokens), .preloadRestriction(.noDestinationTokens):
             isSwapButtonLoading = false
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+
+        case .preloadRestriction(.tokenNotSupportedForSwap):
+            isSwapButtonLoading = false
+            stopTimer()
+
+            // Set destination to show "-"
+            receiveCurrencyViewModel?.update(cryptoAmountState: .noData)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .noData)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
