@@ -9,10 +9,11 @@
 import SwiftUI
 import Combine
 import TangemAccessibilityIdentifiers
+import TangemUI
 
 protocol BalancesViewModel: ObservableObject {
-    var cryptoBalance: LoadableTokenBalanceView.State { get set }
-    var fiatBalance: LoadableTokenBalanceView.State { get set }
+    var cryptoBalance: LoadableBalanceView.State { get set }
+    var fiatBalance: LoadableBalanceView.State { get set }
 
     var balanceAccessibilityIdentifier: String? { get }
     var isYieldActive: Bool { get }
