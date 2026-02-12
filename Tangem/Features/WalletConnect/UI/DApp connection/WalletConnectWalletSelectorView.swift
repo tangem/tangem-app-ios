@@ -129,7 +129,7 @@ struct WalletConnectWalletSelectorView: View {
                 Text(descriptionViewModel.delimiter)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: descriptionViewModel.balanceState,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                     loader: .init(size: CGSize(width: 40, height: 12))
