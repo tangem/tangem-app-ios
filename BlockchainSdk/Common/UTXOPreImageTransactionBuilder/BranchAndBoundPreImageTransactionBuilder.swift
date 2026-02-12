@@ -335,9 +335,9 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             case .exactly(let fee): fee
             }
 
-            // Skip validation if we spend full balance and fee calculation
-            if context.fee.isCalculation, recipientValue == context.total {
-                // The change may be negative value
+            // If all known inputs are selected, allow single-output variant even when fee
+            // consumes the remainder (or makes effective change negative).
+            if context.fee.isCalculation, inputs.count == context.totalOutputsCount {
                 change -= fee
 
                 guard change <= 0 else {
