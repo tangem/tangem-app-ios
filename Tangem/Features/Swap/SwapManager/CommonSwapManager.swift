@@ -135,6 +135,11 @@ extension CommonSwapManager: SwapManager {
             throw error
         }
     }
+
+    func stopTimer() {
+        AppLogger.info("Stop timer")
+        refreshDataTask?.cancel()
+    }
 }
 
 // MARK: - SendApproveDataBuilderInput
@@ -198,11 +203,6 @@ private extension CommonSwapManager {
         case .idle, .loading, .preloadRestriction, .requiredRefresh, .restriction:
             stopTimer()
         }
-    }
-
-    func stopTimer() {
-        AppLogger.info("Stop timer")
-        refreshDataTask?.cancel()
     }
 
     func restartTimer() {

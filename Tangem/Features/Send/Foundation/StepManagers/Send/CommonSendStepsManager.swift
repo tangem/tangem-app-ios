@@ -205,6 +205,7 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
+        output?.stopSwapProvidersAutoUpdateTimer()
         router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 

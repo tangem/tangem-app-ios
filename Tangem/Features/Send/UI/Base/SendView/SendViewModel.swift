@@ -418,6 +418,10 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
+    func stopSwapProvidersAutoUpdateTimer() {
+        interactor.stopSwapProvidersAutoUpdateTimer()
+    }
+
     func setKeyboardActive(_ isActive: Bool) {
         isKeyboardActive = isActive
     }
