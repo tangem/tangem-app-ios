@@ -16,14 +16,7 @@ class StartupProcessor {
     private let jailbreakWarningUtil = JailbreakWarningUtil()
 
     var shouldOpenAuthScreen: Bool {
-        if FeatureProvider.isAvailable(.mobileWallet) {
-            AppSettings.shared.saveUserWallets
-                && userWalletRepository.models.isNotEmpty
-        } else {
-            AppSettings.shared.saveUserWallets
-                && userWalletRepository.models.isNotEmpty
-                && BiometricsUtil.isAvailable
-        }
+        AppSettings.shared.saveUserWallets && userWalletRepository.models.isNotEmpty
     }
 
     func getStartupOption() -> StartupOption {
@@ -52,10 +45,6 @@ class StartupProcessor {
     }
 
     private func shouldOpenMainScreen() -> UserWalletModel? {
-        guard FeatureProvider.isAvailable(.mobileWallet) else {
-            return nil
-        }
-
         let allUnlocked = userWalletRepository.models.allConforms { !$0.isUserWalletLocked }
         guard allUnlocked else {
             return nil
