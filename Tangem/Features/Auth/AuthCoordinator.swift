@@ -23,11 +23,6 @@ final class AuthCoordinator: CoordinatorObject {
     // MARK: - Root view model
 
     @Published var rootViewModel: AuthViewModel?
-    @Published var newRootViewModel: NewAuthViewModel?
-
-    // MARK: - Child coordinators
-
-    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
 
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
@@ -38,12 +33,7 @@ final class AuthCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.mobileWallet) {
-            newRootViewModel = NewAuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
-        } else {
-            rootViewModel = AuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
-        }
+        rootViewModel = AuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
     }
 }
 
@@ -75,24 +65,5 @@ extension AuthCoordinator: AuthRoutable {
 
     func openScanCardManual() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
-    }
-}
-
-// MARK: - NewAuthRoutable
-
-extension AuthCoordinator: NewAuthRoutable {
-    // [REDACTED_TODO_COMMENT]
-    func openAddWallet() {
-        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let userWallet):
-                self?.dismiss(with: .main(userWallet))
-            }
-        }
-
-        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .signIn)
-        coordinator.start(with: inputOptions)
-        addWalletSelectorCoordinator = coordinator
     }
 }

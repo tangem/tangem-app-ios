@@ -1,5 +1,5 @@
 //
-//  NewAuthWalletView+EnvironmentValues.swift
+//  AuthWalletView+EnvironmentValues.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]

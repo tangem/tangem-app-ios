@@ -27,10 +27,6 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
 
     @MainActor
     func openHardwareBackupTypes(userWalletModel: UserWalletModel)
-    @MainActor
-    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext)
-    @MainActor
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void)
 
     @MainActor
     func closeOnboarding()

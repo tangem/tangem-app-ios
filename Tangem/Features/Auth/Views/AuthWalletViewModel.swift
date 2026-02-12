@@ -1,5 +1,5 @@
 //
-//  NewAuthWalletViewModel.swift
+//  AuthWalletViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Combine
 import TangemFoundation
 
-final class NewAuthWalletViewModel: ObservableObject {
+final class AuthWalletViewModel: ObservableObject {
     @Published var icon: LoadingResult<ImageValue, Never> = .loading
 
     var title: String {
@@ -24,9 +24,9 @@ final class NewAuthWalletViewModel: ObservableObject {
         item.isProtected
     }
 
-    private let item: NewAuthViewState.WalletItem
+    private let item: AuthViewState.WalletItem
 
-    init(item: NewAuthViewState.WalletItem) {
+    init(item: AuthViewState.WalletItem) {
         self.item = item
         loadImage()
     }
@@ -34,7 +34,7 @@ final class NewAuthWalletViewModel: ObservableObject {
 
 // MARK: - Internal methods
 
-extension NewAuthWalletViewModel {
+extension AuthWalletViewModel {
     func onTap() {
         item.action()
     }
@@ -46,7 +46,7 @@ extension NewAuthWalletViewModel {
 
 // MARK: - Private methods
 
-private extension NewAuthWalletViewModel {
+private extension AuthWalletViewModel {
     func loadImage() {
         guard icon.value == nil else {
             return
