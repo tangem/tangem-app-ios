@@ -9,8 +9,8 @@
 import Combine
 
 final class StepsFlowEnvironment: ObservableObject {
-    @Published var title: String?
-    @Published var leadingItem: StepsFlowNavBarItem?
-    @Published var trailingItem: StepsFlowNavBarItem?
+    @Published var navigationTitle: String?
+    @Published var navigationLeadingItem: StepsFlowNavBarItem?
+    @Published var navigationTrailingItem: StepsFlowNavBarItem?
     @Published var isLoading: Bool = false
 }

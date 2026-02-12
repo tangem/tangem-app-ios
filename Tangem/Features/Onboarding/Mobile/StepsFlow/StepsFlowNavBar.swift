@@ -23,26 +23,30 @@ extension View {
             trailingItem: StepsFlowNavBarItem(content: trailing)
         ))
     }
+
+    func stepsFlow(isLoading: Bool) -> some View {
+        modifier(StepsFlowLoadingModifier(isLoading: isLoading))
+    }
 }
 
 private struct StepsFlowNavTitleModifier: ViewModifier {
-    @EnvironmentObject private var navBarEnvironment: StepsFlowNavBarEnvironment
+    @EnvironmentObject private var environment: StepsFlowEnvironment
 
     let title: String?
 
     func body(content: Content) -> some View {
         content
             .onAppear {
-                navBarEnvironment.title = title
+                environment.navigationTitle = title
             }
             .onChange(of: title) { title in
-                navBarEnvironment.title = title
+                environment.navigationTitle = title
             }
     }
 }
 
 private struct StepsFlowNavBarModifier: ViewModifier {
-    @EnvironmentObject private var navBarEnvironment: StepsFlowNavBarEnvironment
+    @EnvironmentObject private var environment: StepsFlowEnvironment
 
     let leadingItem: StepsFlowNavBarItem
     let trailingItem: StepsFlowNavBarItem
@@ -50,14 +54,30 @@ private struct StepsFlowNavBarModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear {
-                navBarEnvironment.leadingItem = leadingItem
-                navBarEnvironment.trailingItem = trailingItem
+                environment.navigationLeadingItem = leadingItem
+                environment.navigationTrailingItem = trailingItem
             }
             .onChange(of: leadingItem) { item in
-                navBarEnvironment.leadingItem = item
+                environment.navigationLeadingItem = item
             }
             .onChange(of: trailingItem) { item in
-                navBarEnvironment.trailingItem = item
+                environment.navigationTrailingItem = item
+            }
+    }
+}
+
+private struct StepsFlowLoadingModifier: ViewModifier {
+    @EnvironmentObject private var environment: StepsFlowEnvironment
+
+    let isLoading: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                environment.isLoading = isLoading
+            }
+            .onChange(of: isLoading) { isLoading in
+                environment.isLoading = isLoading
             }
     }
 }
