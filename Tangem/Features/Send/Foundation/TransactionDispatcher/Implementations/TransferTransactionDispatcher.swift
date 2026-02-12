@@ -46,7 +46,10 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
             walletModel.updateAfterSendingTransaction()
 
             if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
-                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: result.hash)
+                walletModel.yieldModuleManager?.sendTransactionSendEvent(
+                    sourceAddress: transferTransaction.sourceAddress,
+                    transactionHash: result.hash
+                )
             }
 
             return result
