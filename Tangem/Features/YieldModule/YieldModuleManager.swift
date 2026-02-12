@@ -321,8 +321,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             fee: approveFee.fee
         )
 
-        return try await transactionDispatcher
+        let hash = try await transactionDispatcher
             .send(transaction: .transfer(transaction)).hash
+
+        // active state must have isAllowancePermissionRequired == false
+        await setNextExpectedState(.active)
+
+        return hash
     }
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {
@@ -397,7 +402,9 @@ private extension CommonYieldModuleManager {
         marketsInfo: [YieldModuleMarketInfo],
         nextExpectedState: NextExpectedState?
     ) -> YieldModuleManagerStateInfo {
-        let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
+        let marketInfo = marketsInfo.first {
+            $0.tokenContractAddress == token.contractAddress && $0.chainId == chainId
+        }
 
         let state: YieldModuleManagerState
 
