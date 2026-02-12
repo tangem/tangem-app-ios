@@ -11,6 +11,7 @@ import TangemFoundation
 import TangemVisa
 import TangemLocalization
 import TangemPay
+import TangemUI
 
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
@@ -26,7 +27,7 @@ final class TangemPayAccountViewModel: ObservableObject {
     private let tangemPayManager: TangemPayManager
     private weak var router: TangemPayAccountRoutable?
 
-    private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
+    private let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 
     init(tangemPayManager: TangemPayManager, router: TangemPayAccountRoutable?) {
         self.tangemPayManager = tangemPayManager
@@ -89,7 +90,7 @@ private extension TangemPayAccountViewModel {
                             return .skeleton
                         case .some(let card):
                             let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
-                            let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
+                            let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
                             return .normal(card: cardInfo, balance: balance)
                         }
                     }
@@ -116,7 +117,7 @@ extension TangemPayAccountViewModel {
         case kycDeclined
         case issuingYourCard
         case failedToIssueCard
-        case normal(card: CardInfo, balance: LoadableTokenBalanceView.State)
+        case normal(card: CardInfo, balance: LoadableBalanceView.State)
         case syncNeeded
         case unavailable
         case rootedDevice

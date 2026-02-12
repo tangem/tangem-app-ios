@@ -80,7 +80,7 @@ struct TangemPayAccountView: View {
 
         case .normal(_, let balance):
             VStack(alignment: .trailing, spacing: 4) {
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: balance,
                     style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                     loader: .init(size: CGSize(width: 40, height: 17))

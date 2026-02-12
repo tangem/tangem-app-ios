@@ -111,7 +111,7 @@ extension FeeSelectorRowViewModel {
 
     enum SubtitleType: Hashable {
         case fee(LoadableTextView.State)
-        case balance(LoadableTokenBalanceView.State)
+        case balance(LoadableBalanceView.State)
     }
 
     @CaseFlagable
