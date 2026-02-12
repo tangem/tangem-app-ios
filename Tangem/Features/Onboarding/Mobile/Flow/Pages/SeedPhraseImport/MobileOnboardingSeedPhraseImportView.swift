@@ -13,7 +13,6 @@ struct MobileOnboardingSeedPhraseImportView: View {
 
     var body: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel.importViewModel)
-            .flowLoadingOverlay(isPresented: viewModel.isCreating)
             .background {
                 Color.clear.alert(item: $viewModel.alert) { $0.alert }
             }
@@ -21,6 +20,7 @@ struct MobileOnboardingSeedPhraseImportView: View {
             .stepsFlowNavBar(leading: {
                 MobileOnboardingFlowNavBarAction.back(handler: viewModel.onBack).view()
             })
+            .stepsFlow(isLoading: viewModel.isCreating)
             // [REDACTED_TODO_COMMENT]
             // became switches between steps without recreating their views.
             .onAppear(perform: viewModel.onAppear)

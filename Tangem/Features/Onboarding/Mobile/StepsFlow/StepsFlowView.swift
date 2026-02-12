@@ -12,12 +12,10 @@ import TangemAssets
 
 struct StepsFlowView: View {
     @StateObject private var viewModel: StepsFlowViewModel
-    @StateObject private var navBarEnvironment = StepsFlowNavBarEnvironment()
-
-    @State private var isLoading: Bool = false
+    @StateObject private var environment = StepsFlowEnvironment()
 
     private var navBarTitle: String {
-        navBarEnvironment.title ?? .empty
+        environment.navigationTitle ?? .empty
     }
 
     private let configuration: StepsFlowConfiguration
@@ -32,6 +30,7 @@ struct StepsFlowView: View {
             flowBar
             flowContent
         }
+        .overlay(loadingOverlay)
     }
 }
 
@@ -52,12 +51,12 @@ private extension StepsFlowView {
 
     var flowContent: some View {
         StepsFlowContent(actions: viewModel.actions)
-            .environmentObject(navBarEnvironment)
+            .environmentObject(environment)
     }
 
     @ViewBuilder
     var loadingOverlay: some View {
-        if isLoading {
+        if environment.isLoading {
             ZStack {
                 Colors.Overlays.overlayPrimary
                     .ignoresSafeArea()
@@ -83,11 +82,11 @@ private extension StepsFlowView {
     }
 
     func navBarLeadingItemView() -> some View {
-        navBarEnvironment.leadingItem.map { $0.content() }
+        environment.navigationLeadingItem.map { $0.content() }
     }
 
     func navBarTrailingItemView() -> some View {
-        navBarEnvironment.trailingItem.map { $0.content() }
+        environment.navigationTrailingItem.map { $0.content() }
     }
 }
 
