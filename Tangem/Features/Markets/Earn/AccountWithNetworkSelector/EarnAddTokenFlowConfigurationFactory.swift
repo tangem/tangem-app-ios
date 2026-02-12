@@ -91,12 +91,12 @@ private extension EarnAddTokenFlowConfigurationFactory {
             in: account
         ) else {
             coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
-            coordinator.close()
+            Task { @MainActor in coordinator.close() }
             return
         }
 
         let userWalletModel = accountSelectorCell.userWalletModel
-        coordinator.close()
+        Task { @MainActor in coordinator.close() }
         coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
     }
 
