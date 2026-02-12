@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
 import Foundation
+import TangemUI
 
 protocol FeeSelectorSummaryRoutable: AnyObject {
     func userDidRequestTokenSelector()
@@ -98,7 +99,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
         let feeTokenItem = tokenFeeProvider.feeTokenItem
-        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+        let subtitleBalanceState = LoadableBalanceViewStateBuilder().build(
             type: tokenFeeProvider.formattedFeeTokenBalance,
             textBuilder: Localization.commonBalance
         )

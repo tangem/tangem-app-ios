@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAccounts
 import TangemLocalization
+import TangemUI
 
 final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - View State
@@ -17,7 +18,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     @Published private(set) var isExpanded: Bool
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
-    @Published private(set) var totalFiatBalance: LoadableTokenBalanceView.State
+    @Published private(set) var totalFiatBalance: LoadableBalanceView.State
     @Published private(set) var priceChange: TokenPriceChangeView.State
 
     var tokensCount: String { Localization.commonTokensCount(rawTokensCount) }

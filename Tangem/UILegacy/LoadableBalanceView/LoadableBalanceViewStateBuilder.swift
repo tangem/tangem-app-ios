@@ -1,5 +1,5 @@
 //
-//  LoadableTokenBalanceViewStateBuilder.swift
+//  LoadableBalanceViewStateBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,12 @@
 
 import Foundation
 import TangemLocalization
+import TangemUI
 
-struct LoadableTokenBalanceViewStateBuilder {
+struct LoadableBalanceViewStateBuilder {
     let formatter = BalanceFormatter()
 
-    func build(type: FormattedTokenBalanceType, icon: LoadableTokenBalanceView.State.Icon? = nil) -> LoadableTokenBalanceView.State {
+    func build(type: FormattedTokenBalanceType, icon: LoadableBalanceView.State.Icon? = nil) -> LoadableBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
             .loading(cached: .string(cached.balance)) // Shining text
@@ -27,7 +28,7 @@ struct LoadableTokenBalanceViewStateBuilder {
         }
     }
 
-    func build(type: FormattedTokenBalanceType, textBuilder builder: @escaping (String) -> String) -> LoadableTokenBalanceView.State {
+    func build(type: FormattedTokenBalanceType, textBuilder builder: @escaping (String) -> String) -> LoadableBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
             .loading(cached: .builder(builder: builder, sensitive: cached.balance)) // Shining text
@@ -42,7 +43,7 @@ struct LoadableTokenBalanceViewStateBuilder {
         }
     }
 
-    func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableTokenBalanceView.State {
+    func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
             let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance)
@@ -61,7 +62,7 @@ struct LoadableTokenBalanceViewStateBuilder {
     func buildTotalBalance(
         state: TotalBalanceState,
         currencyCode: String = AppSettings.shared.selectedCurrencyCode
-    ) -> LoadableTokenBalanceView.State {
+    ) -> LoadableBalanceView.State {
         switch state {
         case .empty:
             return .empty

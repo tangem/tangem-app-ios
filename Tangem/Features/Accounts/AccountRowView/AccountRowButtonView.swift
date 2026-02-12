@@ -53,11 +53,11 @@ struct AccountRowButtonView<Trailing: View>: View {
 
                 Text(AppConstants.dotSign)
 
-                makeLoadableTokenBalanceView(state: balanceState)
+                makeLoadableBalanceView(state: balanceState)
             }
 
         case .balanceOnly(let balanceState):
-            makeLoadableTokenBalanceView(state: balanceState)
+            makeLoadableBalanceView(state: balanceState)
 
         case .unavailableWithReason(let reason):
             Text(reason)
@@ -67,8 +67,8 @@ struct AccountRowButtonView<Trailing: View>: View {
         }
     }
 
-    private func makeLoadableTokenBalanceView(state: LoadableTokenBalanceView.State) -> some View {
-        LoadableTokenBalanceView(
+    private func makeLoadableBalanceView(state: LoadableBalanceView.State) -> some View {
+        LoadableBalanceView(
             state: state,
             style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
             loader: .init(size: CGSize(width: balanceLoaderWidth, height: balanceLoaderHeight))
