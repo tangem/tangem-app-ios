@@ -166,18 +166,18 @@ struct MarketsPortfolioTokenItemView: View {
     private func portfolioTokenActionTypeImageType(for type: TokenActionType) -> ImageType {
         switch type {
         case .buy:
-            return Assets.Portfolio.buy12
+            return Assets.plusMini
         case .exchange:
-            return Assets.Portfolio.exchange12
+            return Assets.exchangeMini
         case .receive:
-            return Assets.Portfolio.receive12
+            return Assets.arrowDownMini
         case .stake:
-            return Assets.Portfolio.stake12
+            return Assets.stakingMini
         case .yield:
             return Assets.YieldModule.yieldSupplyAssets
         default:
             assertionFailure("Unhandled TokenActionType: \(type)")
-            return Assets.Portfolio.buy12
+            return Assets.plusMini
         }
     }
 }
