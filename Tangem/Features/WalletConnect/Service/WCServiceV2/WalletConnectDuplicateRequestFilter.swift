@@ -9,12 +9,20 @@
 import Foundation
 import ReownWalletKit
 
-final actor WalletConnectDuplicateRequestFilter {
+/// Filters out duplicate ``ReownWalletKit.Request`` within a given time window.
+///
+/// Each request updates its last-seen timestamp, so repeated duplicates keep the interval window active.
+actor WalletConnectDuplicateRequestFilter {
     private let requiredIntervalBetweenDuplicateRequests: TimeInterval
     private let currentDateProvider: () -> Date
 
     private var requestToReceivedDate: [StableRequestFootprint: Date] = [:]
 
+    /// Creates a duplicate request filter.
+    /// - Parameters:
+    ///   - requiredIntervalBetweenDuplicateRequests: Minimum time interval to allow processing the same request footprint again.
+    ///   Defaults to 120 seconds.
+    ///   - currentDateProvider: Date provider. Defaults to ``Date/init()``.
     init(
         requiredIntervalBetweenDuplicateRequests: TimeInterval = 120,
         currentDateProvider: @escaping () -> Date = Date.init
@@ -23,6 +31,7 @@ final actor WalletConnectDuplicateRequestFilter {
         self.currentDateProvider = currentDateProvider
     }
 
+    /// Returns `true` if processing is allowed for the request, `false` if it is considered a recent duplicate.
     func isProcessingAllowed(for request: ReownWalletKit.Request) -> Bool {
         removeExpiredRecentRequests()
 
@@ -37,7 +46,7 @@ final actor WalletConnectDuplicateRequestFilter {
         }
 
         let timePassedSinceLastRequest = currentDateProvider().timeIntervalSince(potentialDuplicateRequestReceivedDate)
-        let isEnough = timePassedSinceLastRequest > requiredIntervalBetweenDuplicateRequests
+        let isEnough = timePassedSinceLastRequest >= requiredIntervalBetweenDuplicateRequests
 
         return isEnough
     }
@@ -53,6 +62,7 @@ final actor WalletConnectDuplicateRequestFilter {
 }
 
 extension WalletConnectDuplicateRequestFilter {
+    /// Footprint of a ``ReownWalletKit.Request`` without unstable properties. Suitable for hash value comparison.
     private struct StableRequestFootprint: Hashable {
         let topic: String
         let method: String

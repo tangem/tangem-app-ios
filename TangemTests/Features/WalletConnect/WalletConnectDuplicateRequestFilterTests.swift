@@ -25,6 +25,7 @@ struct WalletConnectDuplicateRequestFilterTests {
             (Timings.NotEnoughInterval.zero, false),
             (Timings.NotEnoughInterval.wayNotEnough, false),
             (Timings.NotEnoughInterval.almostEnough, false),
+            (Timings.EnoughInterval.exactlyEnough, true),
             (Timings.EnoughInterval.barelyEnough, true),
             (Timings.EnoughInterval.moreThanEnough, true),
         ]
@@ -47,6 +48,7 @@ struct WalletConnectDuplicateRequestFilterTests {
             (Timings.NotEnoughInterval.zero, false),
             (Timings.NotEnoughInterval.wayNotEnough, false),
             (Timings.NotEnoughInterval.almostEnough, false),
+            (Timings.EnoughInterval.exactlyEnough, true),
             (Timings.EnoughInterval.barelyEnough, true),
             (Timings.EnoughInterval.moreThanEnough, true),
         ]
@@ -71,6 +73,7 @@ struct WalletConnectDuplicateRequestFilterTests {
             Timings.NotEnoughInterval.zero,
             Timings.NotEnoughInterval.wayNotEnough,
             Timings.NotEnoughInterval.almostEnough,
+            Timings.EnoughInterval.exactlyEnough,
             Timings.EnoughInterval.barelyEnough,
             Timings.EnoughInterval.moreThanEnough,
         ]
@@ -131,6 +134,7 @@ extension WalletConnectDuplicateRequestFilterTests {
         }
 
         enum EnoughInterval {
+            static let exactlyEnough = Timings.requiredInterval
             static let barelyEnough: TimeInterval = Timings.requiredInterval.advanced(by: 0.1)
             static let moreThanEnough: TimeInterval = Timings.requiredInterval.advanced(by: 100)
         }
