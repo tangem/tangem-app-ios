@@ -100,23 +100,25 @@ private extension AccountsAwareAddTokenFlowViewModel {
     func handleAccountSelected(_ accountSelectorCell: AccountSelectorCellModel, context: NavigationContext) {
         let availableTokenItems = configuration.getAvailableTokenItems(accountSelectorCell)
 
-        if case .customExecuteAction(let executeAction) = configuration.accountSelectionBehavior,
-           let singleTokenItem = availableTokenItems.singleElement {
-            executeAction(singleTokenItem, accountSelectorCell) { [weak self] in
-                self?.openNetworkSelectionOrAddToken(
-                    tokenItems: availableTokenItems,
-                    accountSelectorCell: accountSelectorCell,
-                    context: context
-                )
+        switch configuration.accountSelectionBehavior {
+        case .customExecuteAction(let executeAction):
+            if let singleTokenItem = availableTokenItems.singleElement {
+                executeAction(singleTokenItem, accountSelectorCell) { [weak self] in
+                    self?.openNetworkSelectionOrAddToken(
+                        tokenItems: availableTokenItems,
+                        accountSelectorCell: accountSelectorCell,
+                        context: context
+                    )
+                }
+                return
             }
-            return
+        case .executeAccountSelection:
+            openNetworkSelectionOrAddToken(
+                tokenItems: availableTokenItems,
+                accountSelectorCell: accountSelectorCell,
+                context: context
+            )
         }
-
-        openNetworkSelectionOrAddToken(
-            tokenItems: availableTokenItems,
-            accountSelectorCell: accountSelectorCell,
-            context: context
-        )
     }
 
     func pushCurrentState() {
