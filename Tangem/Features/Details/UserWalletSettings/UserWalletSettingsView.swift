@@ -103,13 +103,6 @@ struct UserWalletSettingsView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private var mobileUpgradeSection: some View {
-        viewModel.mobileUpgradeNotificationInput.map {
-            NotificationView(input: $0)
-        }
-    }
-
     @ViewBuilder
     private var accountsSection: some View {
         viewModel.accountsViewModel.map { viewModel in
