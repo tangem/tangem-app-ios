@@ -31,7 +31,7 @@ struct MainHeaderView: View {
                     .cornerRadiusContinuous(6)
                     .padding(.vertical, 5)
             } else {
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: viewModel.balance,
                     style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
                     loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
