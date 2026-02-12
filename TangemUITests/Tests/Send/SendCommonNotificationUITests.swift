@@ -67,32 +67,29 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testInsufficientEthereumFeeBannerNavigatesToEthereumToken() {
+    func testInsufficientSolanaFeeBannerNavigatesToSolanaToken() {
         setAllureId(3645)
 
-        // [REDACTED_TODO_COMMENT]
+        let usdcSolanaToken = "USDC"
+        let topUpTokenName = "Solana"
 
-        let polTokenName = "POL (ex-MATIC)"
-
-        let ethNetworkScenario = ScenarioConfig(
-            name: "eth_network_balance",
-            initialState: "Empty"
-        )
+        let tokensScenario = ScenarioConfig(name: "user_tokens_api", initialState: "SolanaUSDC")
+        let solanaBalanceScenario = ScenarioConfig(name: "solana_balance", initialState: "Empty")
 
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            scenarios: [ethNetworkScenario]
+            scenarios: [tokensScenario, solanaBalanceScenario]
         )
 
-        let polTokenScreen = CreateWalletSelectorScreen(app)
+        let usdcSolanaScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .tapToken(polTokenName)
+            .tapToken(usdcSolanaToken)
             .waitForNotEnoughFeeForTransactionBanner()
 
-        polTokenScreen
+        usdcSolanaScreen
             .tapGoToFeeCurrencyButton()
-            .waitForTokenName(ethTokenName)
+            .waitForTokenName(topUpTokenName)
             .waitForActionButtons()
     }
 
