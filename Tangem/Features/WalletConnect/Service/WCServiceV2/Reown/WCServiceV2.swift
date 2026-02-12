@@ -78,7 +78,7 @@ private extension WCServiceV2 {
                 case .unlocked:
                     wcService.subscribeToWalletModelsIfNeeded()
 
-                case .locked:
+                case .locked, .reordered:
                     break
                 }
             }
