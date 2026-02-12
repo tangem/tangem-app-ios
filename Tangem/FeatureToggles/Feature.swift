@@ -12,7 +12,6 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
-    case mobileWallet
     case accounts
     case marketsAndNews
     case marketsEarn
@@ -27,7 +26,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
-        case .mobileWallet: return "Mobile wallet"
         case .accounts: return "Accounts"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
@@ -44,7 +42,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
-        case .mobileWallet: return .version("5.32")
         case .accounts: return .version("5.33")
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
