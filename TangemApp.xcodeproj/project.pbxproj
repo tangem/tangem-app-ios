@@ -4616,6 +4616,13 @@
 		EFE242852F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */; };
 		EFE242A72F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */; };
 		EFE255FA2C3D8C7C00B17DAC /* SendQRCodeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */; };
+		EFE31A302F3DEE850013FFEC /* SwapFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A2F2F3DEE850013FFEC /* SwapFlowFactory.swift */; };
+		EFE31A332F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A322F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift */; };
+		EFE31A352F3DEF750013FFEC /* SwapSummaryStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A342F3DEF750013FFEC /* SwapSummaryStep.swift */; };
+		EFE31A372F3DEFC00013FFEC /* SwapSummaryStepRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A362F3DEFC00013FFEC /* SwapSummaryStepRoutable.swift */; };
+		EFE31A3B2F3DF02E0013FFEC /* CommonSwapStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A3A2F3DF02E0013FFEC /* CommonSwapStepsManager.swift */; };
+		EFE31A3F2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A3E2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift */; };
+		EFE31A412F3DF60F0013FFEC /* SwapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A402F3DF60F0013FFEC /* SwapModel.swift */; };
 		EFE54CCF2D09D09600D803EB /* OnrampStatusInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CCE2D09D09600D803EB /* OnrampStatusInput.swift */; };
 		EFE54CD22D09DD1C00D803EB /* FakePendingExpressTransactionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CD12D09DD1A00D803EB /* FakePendingExpressTransactionsManager.swift */; };
 		EFE54CDC2D0AF12900D803EB /* ExpressAnalyticsLoggerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CDB2D0AF12700D803EB /* ExpressAnalyticsLoggerMock.swift */; };
@@ -9479,6 +9486,13 @@
 		EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorSuggestedFeeProvider.swift; sourceTree = "<group>"; };
 		EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderMock.swift; sourceTree = "<group>"; };
 		EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRCodeService.swift; sourceTree = "<group>"; };
+		EFE31A2F2F3DEE850013FFEC /* SwapFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFlowFactory.swift; sourceTree = "<group>"; };
+		EFE31A322F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryStepBuildable.swift; sourceTree = "<group>"; };
+		EFE31A342F3DEF750013FFEC /* SwapSummaryStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryStep.swift; sourceTree = "<group>"; };
+		EFE31A362F3DEFC00013FFEC /* SwapSummaryStepRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryStepRoutable.swift; sourceTree = "<group>"; };
+		EFE31A3A2F3DF02E0013FFEC /* CommonSwapStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwapStepsManager.swift; sourceTree = "<group>"; };
+		EFE31A3E2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFlowBaseDependenciesFactory.swift; sourceTree = "<group>"; };
+		EFE31A402F3DF60F0013FFEC /* SwapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapModel.swift; sourceTree = "<group>"; };
 		EFE54CCE2D09D09600D803EB /* OnrampStatusInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampStatusInput.swift; sourceTree = "<group>"; };
 		EFE54CD12D09DD1A00D803EB /* FakePendingExpressTransactionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakePendingExpressTransactionsManager.swift; sourceTree = "<group>"; };
 		EFE54CDB2D0AF12700D803EB /* ExpressAnalyticsLoggerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAnalyticsLoggerMock.swift; sourceTree = "<group>"; };
@@ -23933,6 +23947,7 @@
 		EF665E3C2CBD233600F79B87 /* ManagmentModels */ = {
 			isa = PBXGroup;
 			children = (
+				EFE31A402F3DF60F0013FFEC /* SwapModel.swift */,
 				EF9870882E0E6F1C00AD7458 /* SendModel.swift */,
 				EFB23F2C2CBE7F1F005A6719 /* OnrampModel.swift */,
 				EFA4E37E2C3EEE9E008815AD /* StakingModel.swift */,
@@ -25209,6 +25224,7 @@
 			children = (
 				EFAF8A832E85EEBF009C3CF9 /* SendGenericFlowBaseDependenciesFactory.swift */,
 				EFF8F1D92E85AB3000A5EF0C /* SendFlowBaseDependenciesFactory.swift */,
+				EFE31A3E2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift */,
 				EFF8F1DD2E85B00A00A5EF0C /* StakingFlowDependenciesFactory.swift */,
 				EFAF8A982E86F17D009C3CF9 /* OnrampFlowBaseDependenciesFactory.swift */,
 			);
@@ -25227,6 +25243,7 @@
 			isa = PBXGroup;
 			children = (
 				EFF8F1CF2E8573CD00A5EF0C /* Send */,
+				EFE31A3D2F3DF51D0013FFEC /* Swap */,
 				EFF8F1D82E85824C00A5EF0C /* Staking */,
 				EFAF8A882E85EFF4009C3CF9 /* Onramp */,
 			);
@@ -25345,6 +25362,7 @@
 		EFB999AD2C3D9A7200F6A987 /* StepManagers */ = {
 			isa = PBXGroup;
 			children = (
+				EFE31A3C2F3DF0490013FFEC /* Swap */,
 				EF82F8072EAFA336006A46BB /* Send */,
 				EF82F8082EAFA343006A46BB /* Staking */,
 				EF82F8092EAFA355006A46BB /* Onramp */,
@@ -25429,6 +25447,7 @@
 		EFBC4EF12E81A08F0080271D /* Steps */ = {
 			isa = PBXGroup;
 			children = (
+				EFE31A312F3DEF530013FFEC /* Swap */,
 				EFC7AD712DD8BB5700AE78E1 /* Destination */,
 				EFC7AD5E2DD4F44B00AE78E1 /* Amount */,
 				EFFA434F2E02A4C0001E0E54 /* ReceiveToken */,
@@ -25968,6 +25987,32 @@
 				EF2674012F19B132005A3909 /* CommonFeeSelectorInteractor.swift */,
 			);
 			path = FeeSelectorInteractor;
+			sourceTree = "<group>";
+		};
+		EFE31A312F3DEF530013FFEC /* Swap */ = {
+			isa = PBXGroup;
+			children = (
+				EFE31A342F3DEF750013FFEC /* SwapSummaryStep.swift */,
+				EFE31A322F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift */,
+				EFE31A362F3DEFC00013FFEC /* SwapSummaryStepRoutable.swift */,
+			);
+			path = Swap;
+			sourceTree = "<group>";
+		};
+		EFE31A3C2F3DF0490013FFEC /* Swap */ = {
+			isa = PBXGroup;
+			children = (
+				EFE31A3A2F3DF02E0013FFEC /* CommonSwapStepsManager.swift */,
+			);
+			path = Swap;
+			sourceTree = "<group>";
+		};
+		EFE31A3D2F3DF51D0013FFEC /* Swap */ = {
+			isa = PBXGroup;
+			children = (
+				EFE31A2F2F3DEE850013FFEC /* SwapFlowFactory.swift */,
+			);
+			path = Swap;
 			sourceTree = "<group>";
 		};
 		EFE7D57C2AA20D480047D93A /* TokenPriceChange */ = {
@@ -27166,6 +27211,7 @@
 				EFD32AE929ED94030026353E /* FeatureStateRowViewModel.swift in Sources */,
 				EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */,
 				C207D5F42DE60E0200A5FB2E /* WalletConnectWalletSelectorViewEvent.swift in Sources */,
+				EFE31A412F3DF60F0013FFEC /* SwapModel.swift in Sources */,
 				C207D5F52DE60E0200A5FB2E /* WalletConnectWalletSelectorViewState.swift in Sources */,
 				C207D5F62DE60E0200A5FB2E /* WalletConnectWalletSelectorViewModel.swift in Sources */,
 				EF9E2A592B56AA7F00418559 /* ExpressSuccessSentRoutableMock.swift in Sources */,
@@ -27985,6 +28031,7 @@
 				2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */,
 				0F8414C42E994B5000D03FB6 /* MobileRemoveWalletNotificationView.swift in Sources */,
 				EFFA435D2E02E895001E0E54 /* SendReceiveTokenNetworkSelectorView.swift in Sources */,
+				EFE31A332F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift in Sources */,
 				B002654C2CE1F50000D969E0 /* OnboardingPinStackView.swift in Sources */,
 				B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */,
 				EA31CB242F0C05220016AABC /* GaslessTransactionsDTO+GaslessTransaction.swift in Sources */,
@@ -28658,6 +28705,7 @@
 				B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */,
 				DC8E03222DE18851008967D8 /* WCTransactionDetailsSection.swift in Sources */,
 				B0C370812C6CDCAA00439263 /* MarketsQuotesUpdateHelper.swift in Sources */,
+				EFE31A372F3DEFC00013FFEC /* SwapSummaryStepRoutable.swift in Sources */,
 				0F8414B32E96A96700D03FB6 /* AddWalletSelectorView.swift in Sources */,
 				DC1DA9392D562EE3003638ED /* ViewHierarchySnapshottingInitializable.swift in Sources */,
 				DC3ED8A72C1B49F900C89C62 /* DefaultPickerRowView.swift in Sources */,
@@ -28813,6 +28861,7 @@
 				B06C08412A73E11000D982BC /* SingleWalletMainHeaderSubtitleProvider.swift in Sources */,
 				EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */,
 				DC9E1DF22E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift in Sources */,
+				EFE31A302F3DEE850013FFEC /* SwapFlowFactory.swift in Sources */,
 				EF9E2A572B56A9B100418559 /* SentExpressTransactionData+Mock.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				2D96E9602E55D25300B69F91 /* ReceiveAddressInfo.swift in Sources */,
@@ -28863,6 +28912,7 @@
 				EF95442A2C3C528900041FCD /* SendBaseInteractor.swift in Sources */,
 				DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */,
 				EF977CB92C774B8E006BB27C /* MultipleRewardsCoordinator.swift in Sources */,
+				EFE31A3F2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift in Sources */,
 				DC02EE822ECB936200A4BD67 /* TangemPayAuthorizingProvider.swift in Sources */,
 				B6293B1C2F15479500B44807 /* TokenItemPromoProviderOutput.swift in Sources */,
 				B620D18D2ECE87F2000F7620 /* UserWalletInfo.swift in Sources */,
@@ -29684,6 +29734,7 @@
 				DA1010292CDA5A6700EE0D05 /* OnrampCurrencySkeletonView.swift in Sources */,
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
 				30C9C3262E76BF1400DC913B /* UserSettingsAccountsViewModel.swift in Sources */,
+				EFE31A352F3DEF750013FFEC /* SwapSummaryStep.swift in Sources */,
 				EAE484392EB0FB6700086EBD /* YieldModuleTransactionViewModel.swift in Sources */,
 				EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
@@ -29704,6 +29755,7 @@
 				2D72D98C2EF5605B008868DE /* MarketsMainView.swift in Sources */,
 				DCC4F7B92F30E85600AF0322 /* MobileWalletPromoService.swift in Sources */,
 				2D72D98D2EF5605B008868DE /* PulseMarketWidgetViewModel.swift in Sources */,
+				EFE31A3B2F3DF02E0013FFEC /* CommonSwapStepsManager.swift in Sources */,
 				2D72D98E2EF5605B008868DE /* MarketsSearchCoordinatorView.swift in Sources */,
 				2D72D98F2EF5605B008868DE /* TopMarketWidgetView.swift in Sources */,
 				2D72D9902EF5605B008868DE /* PulseMarketWidgetRoutable.swift in Sources */,
