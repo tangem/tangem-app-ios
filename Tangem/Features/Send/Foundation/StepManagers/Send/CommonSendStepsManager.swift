@@ -16,8 +16,8 @@ class CommonSendStepsManager {
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?

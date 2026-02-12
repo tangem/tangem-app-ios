@@ -186,6 +186,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             summaryStep: summary,
             finishStep: finish,
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)

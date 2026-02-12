@@ -73,7 +73,7 @@ extension HoldToConfirmButton {
         public static let `default` = Self(
             cancelTitle: Localization.commonTapAndHoldHint,
             holdDuration: 1.5,
-            shakeDuration: 0.5,
+            shakeDuration: 0.8,
             vibratesPerSecond: 20
         )
 
