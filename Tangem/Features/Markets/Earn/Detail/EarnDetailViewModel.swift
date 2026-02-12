@@ -166,11 +166,8 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             let params = error.marketsAnalyticsParams
             let errorCode = params[.errorCode] ?? ""
             let errorMessage = params[.errorMessage] ?? ""
-            if mostlyUsedViewModels.isEmpty {
-                analyticsProvider.logPageLoadError(errorCode: errorCode, errorMessage: errorMessage)
-            } else {
-                analyticsProvider.logBestOpportunitiesLoadError(errorCode: errorCode, errorMessage: errorMessage)
-            }
+            
+            analyticsProvider.logPageLoadError(errorCode: errorCode, errorMessage: errorMessage)
         case .appendedItems(let models, let lastPage):
             appendTokenViewModels(from: models, lastPage: lastPage)
         case .startInitialFetch, .cleared:
