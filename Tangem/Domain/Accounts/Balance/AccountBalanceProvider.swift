@@ -8,15 +8,16 @@
 
 import Combine
 import Foundation
+import TangemUI
 
 protocol AccountBalanceProvider: TotalBalanceProvider {
-    var totalFiatBalance: LoadableTokenBalanceView.State { get }
-    var totalFiatBalancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
+    var totalFiatBalance: LoadableBalanceView.State { get }
+    var totalFiatBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never> { get }
 }
 
 class CommonAccountBalanceProvider {
     private let totalBalanceProvider: TotalBalanceProvider
-    private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
+    private let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 
     init(totalBalanceProvider: TotalBalanceProvider) {
         self.totalBalanceProvider = totalBalanceProvider
@@ -34,13 +35,13 @@ extension CommonAccountBalanceProvider: AccountBalanceProvider {
         totalBalanceProvider.totalBalancePublisher
     }
 
-    var totalFiatBalance: LoadableTokenBalanceView.State {
+    var totalFiatBalance: LoadableBalanceView.State {
         loadableTokenBalanceViewStateBuilder.buildTotalBalance(
             state: totalBalanceProvider.totalBalance
         )
     }
 
-    var totalFiatBalancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+    var totalFiatBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         totalBalanceProvider.totalBalancePublisher
             .withWeakCaptureOf(self)
             .map { $0.loadableTokenBalanceViewStateBuilder.buildTotalBalance(state: $1) }
