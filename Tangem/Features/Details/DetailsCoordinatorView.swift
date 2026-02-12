@@ -38,9 +38,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tosViewModel) {
                 DetailsTOSView(viewModel: $0)
             }
-            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
-                AddWalletSelectorCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
             }
