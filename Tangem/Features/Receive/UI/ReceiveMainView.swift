@@ -18,7 +18,7 @@ struct ReceiveMainView: View {
 
     var body: some View {
         contentView
-            .animation(.contentFrameUpdate, value: viewModel.viewState)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder
