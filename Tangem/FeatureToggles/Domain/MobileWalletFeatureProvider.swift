@@ -16,10 +16,7 @@ struct MobileWalletFeatureProvider {
     private let targetMinor = 0
 
     var isAvailable: Bool {
-        guard ProcessInfo.processInfo.isOperatingSystemAtLeast(targetVersion) else {
-            return false
-        }
-        return FeatureProvider.isAvailable(.mobileWallet)
+        ProcessInfo.processInfo.isOperatingSystemAtLeast(targetVersion)
     }
 
     private var targetVersion: OperatingSystemVersion {
