@@ -42,7 +42,7 @@ struct YieldIdentificationModifier: ViewModifier {
 
 // MARK: - Convenience
 
-extension LoadableTokenBalanceView {
+extension LoadableBalanceView {
     func yieldIdentificationIfNeeded(showInfoAction: @escaping () -> Void) -> some View {
         modifier(YieldIdentificationModifier(showInfoAction: showInfoAction))
     }
