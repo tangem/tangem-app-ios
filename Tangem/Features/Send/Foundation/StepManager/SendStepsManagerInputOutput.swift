@@ -12,4 +12,5 @@ protocol SendStepsManagerOutput: AnyObject {
     func update(step: SendStep)
     func update(flowActionType: SendFlowActionType)
     func setKeyboardActive(_ isActive: Bool)
+    func stopSwapProvidersAutoUpdateTimer()
 }
