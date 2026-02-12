@@ -50,15 +50,15 @@ struct AccountsAwareAddTokenFlowConfiguration {
     }
 }
 
-// MARK: - PostAddBehavior
+// MARK: - Behaviors
 
 extension AccountsAwareAddTokenFlowConfiguration {
-    typealias AccountsAwareActionTokenConfiguration = (TokenItem, AccountSelectorCellModel, @escaping () -> Void) -> Void
+    typealias AccountSelectionActionWithContinuation = (TokenItem, AccountSelectorCellModel, @escaping () -> Void) -> Void
 
     enum AccountSelectionBehavior {
         case executeAccountSelection
         /// Custom action when account is selected. Call the continuation to proceed to network selection.
-        case customExecuteAction(AccountsAwareActionTokenConfiguration)
+        case customExecuteAction(AccountSelectionActionWithContinuation)
     }
 
     enum PostAddBehavior {
