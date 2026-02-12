@@ -251,6 +251,35 @@ class CommonUserWalletRepository: UserWalletRepository {
         removedModels.forEach { $0.dispose() }
     }
 
+    func reorder(orderedUserWalletIds: [UserWalletId]) {
+        let currentIds = models.map(\.userWalletId)
+
+        // Early return if order is unchanged
+        guard orderedUserWalletIds != currentIds else {
+            return
+        }
+
+        let currentIdsSet = Set(currentIds)
+        let newIdsSet = Set(orderedUserWalletIds)
+
+        guard
+            currentIdsSet == newIdsSet,
+            currentIdsSet.count == currentIds.count,
+            currentIdsSet.count == orderedUserWalletIds.count
+        else {
+            AppLogger.warning("Wallet reorder failed: ID mismatch or duplicates detected")
+            return
+        }
+
+        let modelsByIds = models.reduce(into: [UserWalletId: UserWalletModel]()) { result, model in
+            result[model.userWalletId] = model
+        }
+        models = orderedUserWalletIds.compactMap { modelsByIds[$0] }
+
+        savePublicData()
+        sendEvent(.reordered(orderedUserWalletIds: orderedUserWalletIds))
+    }
+
     private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
         if let sensitiveInfo = userWalletModel.serializePrivate() {
             userWalletDataStorage.savePrivateData(
