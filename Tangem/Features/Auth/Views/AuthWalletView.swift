@@ -1,5 +1,5 @@
 //
-//  NewAuthWalletView.swift
+//  AuthWalletView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,13 +12,13 @@ import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
 
-struct NewAuthWalletView: View {
-    @StateObject private var viewModel: NewAuthWalletViewModel
+struct AuthWalletView: View {
+    @StateObject private var viewModel: AuthWalletViewModel
 
     @Environment(\.unlockingUserWalletId) private var unlockingUserWalletId: UserWalletId?
 
-    init(item: NewAuthViewState.WalletItem) {
-        _viewModel = StateObject(wrappedValue: NewAuthWalletViewModel(item: item))
+    init(item: AuthViewState.WalletItem) {
+        _viewModel = StateObject(wrappedValue: AuthWalletViewModel(item: item))
     }
 
     var body: some View {
@@ -39,7 +39,7 @@ struct NewAuthWalletView: View {
 
 // MARK: - Subviews
 
-private extension NewAuthWalletView {
+private extension AuthWalletView {
     var icon: some View {
         image
             .frame(width: 36, height: 36)
