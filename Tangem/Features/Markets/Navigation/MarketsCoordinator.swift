@@ -209,9 +209,7 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
     }
 
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {
