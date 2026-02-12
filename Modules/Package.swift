@@ -168,6 +168,9 @@ var serviceModules: [PackageDescription.Target] {
                 .unsafeFlags(["-Wno-shorten-64-to-32"]),
             ],
         ),
+        .tangemTarget(
+            name: "TangemTestKit"
+        ),
     ]
 }
 
