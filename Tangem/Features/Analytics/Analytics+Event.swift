@@ -264,6 +264,7 @@ extension Analytics {
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
+        case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
         // MARK: - Referral program
 
