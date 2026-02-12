@@ -136,8 +136,10 @@ private struct StepView: View {
 
             // Workaround: forces the navigation bar to reset.
             Color.clear
+                .allowsTightening(false)
                 .stepsFlowNavBar(title: nil)
                 .stepsFlowNavBar()
+                .stepsFlow(isLoading: false)
         }
     }
 }
