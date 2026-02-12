@@ -65,6 +65,30 @@ struct WalletConnectDuplicateRequestFilterTests {
             #expect(await sut.isProcessingAllowed(for: duplicateRequest) == isDuplicateAllowed)
         }
     }
+
+    @Test(
+        arguments: [
+            Timings.NotEnoughInterval.zero,
+            Timings.NotEnoughInterval.wayNotEnough,
+            Timings.NotEnoughInterval.almostEnough,
+            Timings.EnoughInterval.barelyEnough,
+            Timings.EnoughInterval.moreThanEnough,
+        ]
+    )
+    func shouldAllowSequentialUniqueRequestsAfterAnyInterval(timeBetweenRequests: TimeInterval) async throws {
+        let dateProvider = Self.makeMockDateProvider()
+        let sut = Self.makeSUT(currentDateProvider: dateProvider.callAsFunction)
+
+        let request = try Self.makeAnyRequest()
+
+        #expect(await sut.isProcessingAllowed(for: request))
+
+        for i in 0 ..< 9 {
+            let duplicateRequest = try Self.makeAnyRequest(topic: "unique-request-#\(i)-topic")
+            dateProvider.advance(by: timeBetweenRequests)
+            #expect(await sut.isProcessingAllowed(for: duplicateRequest))
+        }
+    }
 }
 
 // MARK: - Factory methods
