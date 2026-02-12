@@ -86,7 +86,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             },
             onLater: { [weak coordinator] in
                 analyticsLogger.logLaterTapped()
-                coordinator?.close()
+                Task { @MainActor in coordinator?.close() }
             }
         )
     }
@@ -106,44 +106,50 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             accountToken == tokenItem
         }
 
-        guard
-            let actualTokenItem = accountTokenItem,
-            let walletModel = findWalletModel(for: actualTokenItem, in: account)
-        else {
-            coordinator.close()
+        guard let actualTokenItem = accountTokenItem,
+              let walletModel = findWalletModel(for: actualTokenItem, in: account) else {
+            Task { @MainActor in coordinator.close() }
             return
         }
 
-        coordinator.close()
+        let navigationTokenAction = { @MainActor in
+            let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
+            switch action {
+            case .buy:
+                analyticsLogger.logBuyTapped()
+                let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+                coordinator.openOnramp(input: sendInput, parameters: parameters)
 
-        let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
-        switch action {
-        case .buy:
-            analyticsLogger.logBuyTapped()
-            let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-            coordinator.openOnramp(input: sendInput, parameters: parameters)
-
-        case .exchange:
-            analyticsLogger.logExchangeTapped()
-            let expressInput = ExpressDependenciesInput(
-                userWalletInfo: userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(
+            case .exchange:
+                analyticsLogger.logExchangeTapped()
+                let expressInput = ExpressDependenciesInput(
                     userWalletInfo: userWalletInfo,
-                    walletModel: walletModel,
-                    expressOperationType: .swap
-                ),
-                destination: .loadingAndSet
-            )
+                    source: ExpressInteractorWalletModelWrapper(
+                        userWalletInfo: userWalletInfo,
+                        walletModel: walletModel,
+                        expressOperationType: .swap
+                    ),
+                    destination: .loadingAndSet
+                )
 
-            coordinator.openExchange(input: expressInput)
+                coordinator.openExchange(input: expressInput)
 
-        case .receive:
-            analyticsLogger.logReceiveTapped()
-            coordinator.openReceive(walletModel: walletModel)
+            case .receive:
+                analyticsLogger.logReceiveTapped()
+                coordinator.openReceive(walletModel: walletModel)
 
-        default:
-            break
+            default:
+                break
+            }
+        }
+
+        Task { @MainActor in
+            coordinator.close()
+            // We have to wait a little bit to while floating sheet is closed
+            try await Task.sleep(for: .seconds(0.2))
+
+            navigationTokenAction()
         }
     }
 
