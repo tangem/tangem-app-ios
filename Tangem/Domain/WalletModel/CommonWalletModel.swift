@@ -63,8 +63,6 @@ class CommonWalletModel {
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
     private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
-    private lazy var formatter = BalanceFormatter()
-
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -113,6 +111,18 @@ class CommonWalletModel {
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
         account = cryptoAccount
+    }
+
+    func initializeLazyProperties() {
+        _ = availableBalanceProvider
+        _ = stakingBalanceProvider
+        _ = totalTokenBalanceProvider
+        _ = fiatAvailableBalanceProvider
+        _ = fiatStakingBalanceProvider
+        _ = fiatTotalTokenBalanceProvider
+
+        _ = _yieldModuleManager
+        _ = _rate
     }
 
     private func bind() {
@@ -739,6 +749,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         AppLogger.info(self, "has pending local transactions. Try to insert it to transaction history")
+        let formatter = BalanceFormatter()
         let mapper = PendingTransactionRecordMapper(formatter: formatter)
 
         pendingTransactions.forEach { pending in
