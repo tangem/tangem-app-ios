@@ -47,6 +47,7 @@ final class CommonServicesManager {
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
+    @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -183,6 +184,7 @@ extension CommonServicesManager: ServicesManager {
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
+        mobileUpgradeBannerStorageManager.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
