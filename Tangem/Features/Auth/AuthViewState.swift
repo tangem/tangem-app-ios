@@ -1,5 +1,5 @@
 //
-//  NewAuthViewState.swift
+//  AuthViewState.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
-enum NewAuthViewState {
+enum AuthViewState {
     case locked
     case wallets(WalletsState)
 
@@ -35,7 +35,7 @@ enum NewAuthViewState {
     }
 }
 
-extension NewAuthViewState: Equatable {
+extension AuthViewState: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case (.locked, .locked): true
@@ -45,7 +45,7 @@ extension NewAuthViewState: Equatable {
     }
 }
 
-extension NewAuthViewState {
+extension AuthViewState {
     struct WalletsState {
         let title = Localization.welcomeUnlockTitle
         let description = Localization.authInfoSubtitle
