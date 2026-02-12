@@ -14,12 +14,13 @@ import TangemAssets
 import TangemStories
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
+import TangemUI
 
 final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Public Properties
 
-    @Published var balanceCrypto: LoadableTokenBalanceView.State = .loading()
-    @Published var balanceFiat: LoadableTokenBalanceView.State = .loading()
+    @Published var balanceCrypto: LoadableBalanceView.State = .loading()
+    @Published var balanceFiat: LoadableBalanceView.State = .loading()
     @Published var contextActions: [TokenActionType] = []
 
     @Published var hasPendingTransactions: Bool = false
@@ -173,11 +174,11 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func setupBalance(_ type: FormattedTokenBalanceType) {
-        balanceCrypto = LoadableTokenBalanceViewStateBuilder().build(type: type)
+        balanceCrypto = LoadableBalanceViewStateBuilder().build(type: type)
     }
 
     private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
-        balanceFiat = LoadableTokenBalanceViewStateBuilder().build(type: type, icon: .leading)
+        balanceFiat = LoadableBalanceViewStateBuilder().build(type: type, icon: .leading)
     }
 
     private func buildContextActions() {
