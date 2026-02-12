@@ -844,6 +844,7 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
