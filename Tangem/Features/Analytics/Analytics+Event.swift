@@ -118,6 +118,8 @@ extension Analytics {
         case apyClicked = "[Main Screen] APY Clicked"
         case mainButtonAccountShowTokens = "[Main Screen] Button - Account Show Tokens"
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
+        case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
+        case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
 
         // MARK: - Send
 

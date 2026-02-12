@@ -55,6 +55,7 @@ enum NotificationButtonActionType: Identifiable {
     case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
+    case closeMobileUpgrade
     case tangemPaySync(title: String, icon: MainButton.Icon?)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
@@ -91,6 +92,7 @@ enum NotificationButtonActionType: Identifiable {
         case .unlock: "unlock".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
+        case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
         case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
@@ -150,7 +152,9 @@ enum NotificationButtonActionType: Identifiable {
         case .openMobileFinishActivation:
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
-            return .empty
+            return Localization.hwUpgrade
+        case .closeMobileUpgrade:
+            return Localization.commonLater
         case .tangemPaySync(let title, _):
             return title
         case .allowPushPermissionRequest:
@@ -198,6 +202,7 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
@@ -240,7 +245,8 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .postponePushPermissionRequest,
              .givePermission,
-             .openCloreMigration:
+             .openCloreMigration,
+             .closeMobileUpgrade:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
