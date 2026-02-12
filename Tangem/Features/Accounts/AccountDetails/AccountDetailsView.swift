@@ -30,7 +30,18 @@ struct AccountDetailsView: View {
         .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
+    @ViewBuilder
     private var accountSection: some View {
+        if viewModel.canBeEdited {
+            Button(action: viewModel.openEditAccount) {
+                accountSectionContent
+            }
+        } else {
+            accountSectionContent
+        }
+    }
+
+    private var accountSectionContent: some View {
         RowWithLeadingAndTrailingIcons(
             leadingIcon: {
                 AccountIconView(data: viewModel.accountIconViewData)
