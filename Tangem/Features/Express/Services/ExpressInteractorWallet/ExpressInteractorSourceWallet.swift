@@ -21,7 +21,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var sendingRestrictions: SendingRestrictions? { get }
     var amountToCreateAccount: Decimal { get }
 
-    var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { get }
+    var tokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider { get }
     var transactionDispatcherProvider: TransactionDispatcherProvider { get }
 
     var allowanceService: (any AllowanceService)? { get }
@@ -36,7 +36,9 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
 extension ExpressSourceWallet where Self: ExpressInteractorSourceWallet {
     var address: String? { defaultAddressString }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
+    var coinCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
     var analyticsLogger: ExpressAnalyticsLogger { interactorAnalyticsLogger }
+    var expressFeeProviderFactory: ExpressFeeProviderFactory { tokenFeeProvidersManagerProvider }
 }

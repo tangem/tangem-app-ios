@@ -79,7 +79,7 @@ private extension SendSwapProvidersSelectorViewModel {
         input?
             .expressProvidersPublisher
             .withWeakCaptureOf(self)
-            .asyncMap { await $0.prepareProviderRows(providers: $1) }
+            .map { $0.prepareProviderRows(providers: $1) }
             .receiveOnMain()
             .assign(to: &$providerViewModels)
 
@@ -104,25 +104,21 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$selectedProvider)
     }
 
-    @MainActor
-    private func prepareProviderRows(providers: [ExpressAvailableProvider]) async -> [SendSwapProvidersSelectorProviderViewData] {
-        let viewModels: [SendSwapProvidersSelectorProviderViewData] = await providers
+    private func prepareProviderRows(providers: [ExpressAvailableProvider]) -> [SendSwapProvidersSelectorProviderViewData] {
+        let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await self.mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
+            .map { mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
 
         return viewModels
     }
 
-    @MainActor
-    func mapToSendSwapProvidersSelectorProviderViewData(
-        availableProvider: ExpressAvailableProvider
-    ) async -> SendSwapProvidersSelectorProviderViewData {
+    func mapToSendSwapProvidersSelectorProviderViewData(availableProvider: ExpressAvailableProvider) -> SendSwapProvidersSelectorProviderViewData {
         let senderCurrencyCode = tokenItem.currencySymbol
         let destinationCurrencyCode = receiveTokenInput?.receiveToken.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
-        let state = await availableProvider.getState()
+        let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
@@ -132,7 +128,7 @@ private extension SendSwapProvidersSelectorViewModel {
             )
         )
 
-        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: availableProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: availableProvider)
         let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
         case .none: .none
         case .fcaWarning: .fcaWarning
@@ -140,7 +136,7 @@ private extension SendSwapProvidersSelectorViewModel {
         case .bestRate: .bestRate
         }
 
-        if let percentSubtitle = await makePercentSubtitle(provider: availableProvider) {
+        if let percentSubtitle = makePercentSubtitle(provider: availableProvider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -163,14 +159,14 @@ private extension SendSwapProvidersSelectorViewModel {
         Task { @MainActor in dismiss() }
     }
 
-    func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
+    func makePercentSubtitle(provider: ExpressAvailableProvider) -> ProviderRowViewModel.Subtitle? {
         // For selectedProvider we don't add percent badge
         guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
         }
 
-        guard let quote = await provider.getState().quote,
-              let selectedRate = await selectedProvider?.getState().quote?.rate else {
+        guard let quote = provider.getState().quote,
+              let selectedRate = selectedProvider?.getState().quote?.rate else {
             return nil
         }
 

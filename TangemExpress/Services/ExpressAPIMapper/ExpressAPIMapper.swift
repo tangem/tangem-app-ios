@@ -110,7 +110,7 @@ struct ExpressAPIMapper {
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
-            .map { $0 / pow(10, item.source.feeCurrency.decimalCount) }
+            .map { $0 / pow(10, item.source.coinCurrency.decimalCount) }
 
         return ExpressTransactionData(
             requestId: txDetails.requestId,
@@ -142,7 +142,7 @@ struct ExpressAPIMapper {
         case .dex, .dexBridge:
             if let txValue, let decimalTxValue = Decimal(string: txValue) {
                 // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
-                return decimalTxValue / pow(10, item.source.feeCurrency.decimalCount)
+                return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
 
             return .zero
