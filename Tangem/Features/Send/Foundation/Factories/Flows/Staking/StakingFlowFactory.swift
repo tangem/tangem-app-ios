@@ -11,23 +11,12 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let defaultAddressString: String
-    let userWalletInfo: UserWalletInfo
+    let sourceToken: SendSourceToken
     let manager: any StakingManager
 
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let allowanceServiceFactory: AllowanceServiceFactory
-    /// Staking doesn't support account-based analytics
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
+    let walletModelDependenciesProvider: WalletModelDependenciesProvider
 
     var actionType: StakingAction.ActionType { .stake }
 
@@ -36,41 +25,17 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        userWalletInfo: UserWalletInfo,
+        sourceToken: SendSourceToken,
         manager: any StakingManager,
-        walletModel: any WalletModel,
+        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        allowanceServiceFactory: AllowanceServiceFactory,
+        walletModelDependenciesProvider: WalletModelDependenciesProvider,
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.sourceToken = sourceToken
         self.manager = manager
-
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .stake
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        defaultAddressString = walletModel.defaultAddressString
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
-        tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        allowanceServiceFactory = AllowanceServiceFactory(
-            walletModel: walletModel,
-            transactionDispatcherProvider: transactionDispatcherProvider
-        )
+        self.baseDataBuilderFactory = baseDataBuilderFactory
+        self.allowanceServiceFactory = allowanceServiceFactory
+        self.walletModelDependenciesProvider = walletModelDependenciesProvider
     }
 }
 
@@ -83,7 +48,7 @@ extension StakingFlowFactory {
     ) -> StakingModel {
         StakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: makeSourceToken(),
+            sendSourceToken: sourceToken,
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
             allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
@@ -178,7 +143,7 @@ extension StakingFlowFactory: SendAmountStepBuildable {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
-                validator: walletModelDependenciesProvider.transactionValidator,
+                validator: sourceToken.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),

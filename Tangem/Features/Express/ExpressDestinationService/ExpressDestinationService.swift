@@ -9,11 +9,11 @@
 import Foundation
 
 protocol ExpressDestinationService {
-    func getSource(destination: any ExpressInteractorDestinationWallet) async throws -> any ExpressInteractorSourceWallet
-    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet
+    func getSource(destination: TokenItem) async throws -> any ExpressInteractorSourceWallet
+    func getDestination(source: TokenItem) async throws -> any ExpressInteractorSourceWallet
 }
 
 enum ExpressDestinationServiceError: Error {
-    case sourceNotFound(destination: any ExpressInteractorDestinationWallet)
-    case destinationNotFound(source: any ExpressInteractorSourceWallet)
+    case sourceNotFound(destination: TokenItem)
+    case destinationNotFound(source: TokenItem)
 }
