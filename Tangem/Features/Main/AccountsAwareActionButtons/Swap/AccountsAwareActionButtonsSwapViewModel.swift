@@ -50,6 +50,8 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
 
     private weak var coordinator: ActionButtonsSwapRoutable?
 
+    private var additionRoutable: SwapMarketsTokenAdditionRoutable?
+
     init(
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
@@ -63,17 +65,16 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
         tokenSelectorViewModel.setup(directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } })
         tokenSelectorViewModel.setup(with: self)
 
-        // Setup isActive publisher: markets are only active when source is selected (destination mode)
-        let isActivePublisher = $source
-            .map { source -> Bool in
-                switch source {
-                case .placeholder: return false
-                case .token: return true
-                }
-            }
-            .eraseToAnyPublisher()
+//        // Setup isActive publisher: markets are only active when source is selected (destination mode)
+//        let isActivePublisher = $source
+//            .map { source -> Bool in
+//                switch source {
+//                case .placeholder: return false
+//                case .token: return true
+//                }
+//            }
+//            .eraseToAnyPublisher()
 
-//        marketsTokensViewModel?.setup(isActivePublisher: isActivePublisher)
         marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
         marketsTokensViewModel?.setup(selectionHandler: self)
     }
@@ -143,39 +144,6 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
             }
         }
     }
-
-    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
-        switch source {
-        case .placeholder:
-            Task { await updateSourceToken(item: item, isNewlyAddedFromMarkets: true) }
-        case .token(let source, _):
-            Task {
-                await updateDestinationToken(item: item)
-                try? await Task.sleep(for: .seconds(0.2))
-
-                await MainActor.run {
-                    coordinator?.openExpress(
-                        input: .init(
-                            userWalletInfo: item.userWalletInfo,
-                            source: ExpressInteractorWalletModelWrapper(
-                                userWalletInfo: source.userWalletInfo,
-                                walletModel: source.walletModel,
-                                expressOperationType: .swap
-                            ),
-                            destination: .chosen(
-                                ExpressInteractorWalletModelWrapper(
-                                    userWalletInfo: item.userWalletInfo,
-                                    walletModel: item.walletModel,
-                                    expressOperationType: .swap,
-                                    isNewlyAddedFromMarkets: true
-                                )
-                            )
-                        )
-                    )
-                }
-            }
-        }
-    }
 }
 
 extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHandler {
@@ -193,7 +161,50 @@ extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHand
                 networks: networks
             )
 
-            coordinator?.openAddTokenFlowForExpress(inputData: inputData)
+            additionRoutable = SwapMarketsTokenAdditionCoordinator { [weak self] item in
+                self?.userDidSelectNewlyAddedToken(item: item)
+                self?.additionRoutable = nil
+            }
+
+            additionRoutable?.requestAddToken(inputData: inputData)
+        }
+    }
+}
+
+// MARK: - Market Token Addition
+
+extension AccountsAwareActionButtonsSwapViewModel {
+    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
+        guard case .token(let sourceItem, _) = source else {
+            return
+        }
+
+        Task {
+            await updatePairs(sourceItem: sourceItem, isNewlyAddedFromMarkets: true)
+            await updateDestinationToken(item: item)
+
+            try? await Task.sleep(for: .seconds(0.2))
+
+            await MainActor.run {
+                coordinator?.openExpress(
+                    input: .init(
+                        userWalletInfo: sourceItem.userWalletInfo,
+                        source: ExpressInteractorWalletModelWrapper(
+                            userWalletInfo: sourceItem.userWalletInfo,
+                            walletModel: sourceItem.walletModel,
+                            expressOperationType: .swap
+                        ),
+                        destination: .chosen(
+                            ExpressInteractorWalletModelWrapper(
+                                userWalletInfo: item.userWalletInfo,
+                                walletModel: item.walletModel,
+                                expressOperationType: .swap,
+                                isNewlyAddedFromMarkets: true
+                            )
+                        )
+                    )
+                )
+            }
         }
     }
 }
@@ -216,7 +227,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         }
     }
 
-    func updateSourceToken(item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool = false) async {
+    func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
             tokenSymbol: item.walletModel.tokenItem.currencySymbol
@@ -231,7 +242,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             coordinator?.showYieldNotificationIfNeeded(for: item.walletModel, completion: nil)
         }
 
-        await updatePairs(sourceItem: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
+        await updatePairs(sourceItem: item)
     }
 
     func updateDestinationToken(item: AccountsAwareTokenSelectorItem) async {
