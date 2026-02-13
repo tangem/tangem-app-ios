@@ -9,29 +9,13 @@
 import struct TangemUI.TokenIconInfo
 
 class NFTFlowFactory: SendFlowBaseDependenciesFactory {
-    let userWalletInfo: UserWalletInfo
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    let sourceToken: SendSourceToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-
-    let walletAddresses: [String]
-    let suggestedWallets: [SendDestinationSuggestedWallet]
-    let shouldShowFeeSelector: Bool
-
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
+    let sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
-    let analyticsLogger: SendAnalyticsLogger
-
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
@@ -44,53 +28,19 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
 
     init(
-        userWalletInfo: UserWalletInfo,
+        sourceToken: SendSourceToken,
         nftAssetStepBuilder: NFTAssetStepBuilder,
-        walletModel: any WalletModel
+        sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput,
+        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        source: ExpressInteractorWalletModelWrapper
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.sourceToken = sourceToken
         self.nftAssetStepBuilder = nftAssetStepBuilder
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .send
-        )
-
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        accountModelAnalyticsProvider = walletModel.account
-        walletAddresses = walletModel.addresses.map(\.value)
-        shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-
-        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
-        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
-
-        walletModelHistoryUpdater = walletModel
-        tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
-
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            expressOperationType: .swapAndSend
-        )
+        self.sendingWalletDestinationStepDataInput = sendingWalletDestinationStepDataInput
+        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
+            userWalletInfo: sourceToken.userWalletInfo,
             source: source,
             destination: .none
         )
@@ -103,7 +53,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let header = tokenHeaderProvider.makeSendTokenHeader()
+        let header = sourceToken.header
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
@@ -223,13 +173,13 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
         SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
             sourceWalletData: .init(
-                walletAddresses: walletAddresses,
-                suggestedWallets: suggestedWallets,
+                walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
+                suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,
                 destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
-                    transactionHistoryUpdater: walletModelHistoryUpdater,
+                    transactionHistoryUpdater: sendingWalletDestinationStepDataInput.walletModelHistoryUpdater,
                     transactionHistoryMapper: TransactionHistoryMapper(
                         currencySymbol: tokenItem.currencySymbol,
-                        walletAddresses: walletAddresses,
+                        walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
                         showSign: false,
                         isToken: tokenItem.isToken
                     )
