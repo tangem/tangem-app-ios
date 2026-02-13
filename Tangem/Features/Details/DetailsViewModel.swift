@@ -12,6 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -27,13 +28,6 @@ final class DetailsViewModel: ObservableObject {
     // MARK: - View State
 
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
-    var walletsSectionTypes: [WalletSectionType] {
-        var viewModels: [WalletSectionType] = userWalletsViewModels.map { .wallet($0) }
-        addOrScanNewUserWalletViewModel.map { viewModel in
-            viewModels.append(.addOrScanNewUserWalletButton(viewModel))
-        }
-        return viewModels
-    }
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
@@ -50,8 +44,8 @@ final class DetailsViewModel: ObservableObject {
         return Localization.detailsWalletsSectionDescription
     }
 
-    @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
-    @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
+    @Published var userWalletRows: [UserWalletRowModel] = []
+    @Published private(set) var addOrScanNewUserWalletViewModel: AddListItemButton.ViewData?
 
     private var isScanning: Bool = false {
         didSet {
@@ -291,6 +285,21 @@ private extension DetailsViewModel {
                 )
             }
             .store(in: &bag)
+
+        bindWalletRowsReorder()
+    }
+
+    func bindWalletRowsReorder() {
+        $userWalletRows
+            .removeDuplicates { $0.map(\.id) == $1.map(\.id) }
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newRows in
+                let orderedIds = newRows.map(\.userWalletId)
+                viewModel.userWalletRepository.reorder(orderedUserWalletIds: orderedIds)
+                Analytics.log(.settingsLongtapWalletsOrder)
+            }
+            .store(in: &bag)
     }
 
     func setupWalletConnectRowViewModel() {
@@ -309,16 +318,24 @@ private extension DetailsViewModel {
     }
 
     func setupUserWalletViewModels() {
-        userWalletsViewModels = userWalletRepository.models.map { userWallet in
-            SettingsUserWalletRowViewModel(userWallet: userWallet) { [weak self] in
-                if userWallet.isUserWalletLocked {
-                    self?.unlock(userWalletModel: userWallet, onDidUnlock: { userWalletModel in
-                        self?.openWalletSettings(userWalletModel: userWalletModel)
-                    })
-                } else {
-                    self?.openWalletSettings(userWalletModel: userWallet)
+        userWalletRows = userWalletRepository.models.map { userWallet in
+            let viewModel = SettingsUserWalletRowViewModel(
+                userWallet: userWallet,
+                tapAction: { [weak self] in
+                    if userWallet.isUserWalletLocked {
+                        self?.unlock(
+                            userWalletModel: userWallet,
+                            onDidUnlock: { userWalletModel in
+                                self?.openWalletSettings(userWalletModel: userWalletModel)
+                            }
+                        )
+                    } else {
+                        self?.openWalletSettings(userWalletModel: userWallet)
+                    }
                 }
-            }
+            )
+
+            return UserWalletRowModel(userWalletId: userWallet.userWalletId, viewModel: viewModel)
         }
 
         addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
@@ -328,13 +345,14 @@ private extension DetailsViewModel {
         addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
-    func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
+    func makeAddOrScanUserWalletViewModel() -> AddListItemButton.ViewData {
         let isSaveUserWallets = AppSettings.shared.saveUserWallets
-        return DefaultRowViewModel(
-            title: isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-            detailsType: isScanning ? .loader : .none,
-            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-        )
+        let title = isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton
+        let state: AddListItemButton.State = isScanning
+            ? .loading
+            : .enabled(action: weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+
+        return AddListItemButton.ViewData(text: title, state: state)
     }
 
     func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
@@ -679,17 +697,9 @@ private extension DetailsViewModel {
 }
 
 extension DetailsViewModel {
-    enum WalletSectionType: Identifiable {
-        case wallet(SettingsUserWalletRowViewModel)
-        case addOrScanNewUserWalletButton(DefaultRowViewModel)
-
-        var id: Int {
-            switch self {
-            case .wallet(let viewModel):
-                return viewModel.id.hashValue
-            case .addOrScanNewUserWalletButton(let viewModel):
-                return viewModel.id.hashValue
-            }
-        }
+    struct UserWalletRowModel: Identifiable {
+        var id: UserWalletId { userWalletId }
+        let userWalletId: UserWalletId
+        let viewModel: SettingsUserWalletRowViewModel
     }
 }
