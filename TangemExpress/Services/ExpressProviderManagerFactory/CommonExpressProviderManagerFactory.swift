@@ -23,11 +23,13 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
         self.transactionValidator = transactionValidator
     }
 
-    func makeExpressProviderManager(provider: ExpressProvider) -> ExpressProviderManager? {
+    func makeExpressProviderManager(provider: ExpressProvider, pair: ExpressManagerSwappingPair) -> ExpressProviderManager? {
         switch provider.type {
         case .dex, .dexBridge:
             return DEXExpressProviderManager(
                 provider: provider,
+                swappingPair: pair,
+                expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
                 mapper: mapper,
                 transactionValidator: transactionValidator,
@@ -35,6 +37,8 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
         case .cex:
             return CEXExpressProviderManager(
                 provider: provider,
+                swappingPair: pair,
+                expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
                 mapper: mapper
             )
