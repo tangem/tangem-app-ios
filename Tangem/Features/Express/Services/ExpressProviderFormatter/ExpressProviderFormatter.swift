@@ -20,8 +20,8 @@ struct ExpressProviderFormatter {
         self.balanceFormatter = balanceFormatter
     }
 
-    func mapToBadge(availableProvider: ExpressAvailableProvider) async -> ProviderBadge? {
-        let state: ExpressProviderManagerState = await availableProvider.getState()
+    func mapToBadge(availableProvider: ExpressAvailableProvider) -> ProviderBadge? {
+        let state: ExpressProviderManagerState = availableProvider.getState()
 
         if ukGeoDefiner.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
             return .fcaWarning
