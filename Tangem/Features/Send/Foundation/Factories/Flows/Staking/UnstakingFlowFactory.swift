@@ -52,7 +52,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
             isCustom: walletModel.isCustom
         )
 
-        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
+        tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = UnstakingBalanceProvider(
             tokenItem: tokenItem,

@@ -7,9 +7,10 @@
 //
 
 import Combine
+import TangemExpress
 import TangemFoundation
 
-protocol TokenFeeProvidersManager {
+protocol TokenFeeProvidersManager: ExpressFeeProvider {
     var selectedFeeProvider: any TokenFeeProvider { get }
     var selectedFeeProviderPublisher: AnyPublisher<any TokenFeeProvider, Never> { get }
 
@@ -17,8 +18,8 @@ protocol TokenFeeProvidersManager {
     var supportFeeSelection: Bool { get }
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> { get }
 
-    func updateFeeOptionInAllProviders(feeOption: FeeOption)
-    func updateInputInAllProviders(input: TokenFeeProviderInputData)
+    func update(feeOption: FeeOption)
+    func update(input: TokenFeeProviderInputData)
 
     func updateSelectedFeeProvider(feeTokenItem: TokenItem)
 }
