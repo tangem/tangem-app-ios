@@ -27,6 +27,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
             XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Search field should exist")
             searchField.tap()
             searchField.typeText(countryName)
+            searchField.typeText(XCUIKeyboardKey.return.rawValue)
         }
         return self
     }

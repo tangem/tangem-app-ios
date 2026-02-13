@@ -137,6 +137,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapFeeRow() {
+        stopTimer()
         openFeeSelectorView()
     }
 
@@ -167,6 +168,10 @@ final class ExpressViewModel: ObservableObject {
 
     func didTapCloseButton() {
         coordinator?.closeSwappingView()
+    }
+
+    func refreshFee() {
+        interactor.refresh(type: .fee)
     }
 }
 
@@ -296,6 +301,7 @@ private extension ExpressViewModel {
 
         interactor.state
             .withWeakCaptureOf(self)
+            .receiveOnMain()
             .sink { $0.expressInteractorStateDidUpdated(state: $1) }
             .store(in: &bag)
 
@@ -428,15 +434,12 @@ private extension ExpressViewModel {
     // MARK: - Update for state
 
     func expressInteractorStateDidUpdated(state: ExpressInteractor.State) {
-        Task { @MainActor in
-            await updateState(state: state)
-        }
+        updateState(state: state)
     }
 
-    @MainActor
-    func updateState(state: ExpressInteractor.State) async {
+    func updateState(state: ExpressInteractor.State) {
         updateFeeValue(state: state)
-        await updateProviderView(state: state)
+        updateProviderView(state: state)
         updateMainButton(state: state)
         updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
@@ -479,8 +482,7 @@ private extension ExpressViewModel {
         }
     }
 
-    @MainActor
-    func updateProviderView(state: ExpressInteractor.State) async {
+    func updateProviderView(state: ExpressInteractor.State) {
         switch state {
         case .idle:
             providerState = .none
@@ -490,7 +492,7 @@ private extension ExpressViewModel {
             // Do noting for other cases
             break
         default:
-            if let providerRowViewModel = await mapToProviderRowViewModel() {
+            if let providerRowViewModel = mapToProviderRowViewModel() {
                 providerState = .loaded(data: providerRowViewModel)
             } else {
                 providerState = .none
@@ -592,12 +594,12 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
+    func mapToProviderRowViewModel() -> ProviderRowViewModel? {
         guard let selectedProvider = interactor.getState().context?.availableProvider else {
             return nil
         }
 
-        let state = await selectedProvider.getState()
+        let state = selectedProvider.getState()
         if state.isError {
             // Don't show a error provider
             return nil
@@ -610,7 +612,7 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
-        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
         let badge: ProviderRowViewModel.Badge? = switch providerBadge {
         case .none: .none
         case .bestRate: .bestRate
@@ -749,6 +751,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
