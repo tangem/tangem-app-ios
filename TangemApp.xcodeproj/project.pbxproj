@@ -2963,6 +2963,7 @@
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
 		D89010682F322A0100C53FBD /* MarketsAndNewsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89010672F322A0100C53FBD /* MarketsAndNewsScreen.swift */; };
+		D890113C2F35171300C53FBD /* WireMockPortResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890113B2F35171300C53FBD /* WireMockPortResolver.swift */; };
 		D892E6BF2E95114000D29113 /* SendCardanoNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */; };
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D89D14752EE32ED300D610CC /* WelcomeBackScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89D14742EE32ED300D610CC /* WelcomeBackScreen.swift */; };
@@ -7809,6 +7810,7 @@
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
 		D89010672F322A0100C53FBD /* MarketsAndNewsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAndNewsScreen.swift; sourceTree = "<group>"; };
+		D890113B2F35171300C53FBD /* WireMockPortResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireMockPortResolver.swift; sourceTree = "<group>"; };
 		D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCardanoNotificationUITests.swift; sourceTree = "<group>"; };
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D89D14742EE32ED300D610CC /* WelcomeBackScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeBackScreen.swift; sourceTree = "<group>"; };
@@ -19085,6 +19087,7 @@
 		D852F8342E5C86C200C71B7F /* WireMock */ = {
 			isa = PBXGroup;
 			children = (
+				D890113B2F35171300C53FBD /* WireMockPortResolver.swift */,
 				D852F8312E5C86C200C71B7F /* WireMockClient.swift */,
 				D852F8322E5C86C200C71B7F /* WireMockError.swift */,
 				D852F8332E5C86C200C71B7F /* WireMockScenario.swift */,
@@ -30070,6 +30073,7 @@
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
 				D8F983DC2EBA2AB00061F55F /* SellTokenSelectorScreen.swift in Sources */,
 				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
+				D890113C2F35171300C53FBD /* WireMockPortResolver.swift in Sources */,
 				D8F18BCF2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift in Sources */,
 				D830EDB22F1FD3C700515821 /* AccountSettingsScreen.swift in Sources */,
 				D852F8452E5CBEA800C71B7F /* WalletConnectSheet.swift in Sources */,
