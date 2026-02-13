@@ -12,9 +12,6 @@ import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
-    @Injected(\.tangemApiService)
-    private var tangemApiService: TangemApiService
-
     @Injected(\.expressPairsRepository)
     private var expressPairsRepository: ExpressPairsRepository
 
