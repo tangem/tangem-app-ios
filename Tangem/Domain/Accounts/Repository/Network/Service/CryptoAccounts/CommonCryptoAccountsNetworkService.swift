@@ -18,13 +18,16 @@ final class CommonCryptoAccountsNetworkService {
 
     private let userWalletId: UserWalletId
     private let mapper: CryptoAccountsNetworkMapper
+    private let walletsNetworkService: WalletsNetworkService
 
     init(
         userWalletId: UserWalletId,
-        mapper: CryptoAccountsNetworkMapper
+        mapper: CryptoAccountsNetworkMapper,
+        walletsNetworkService: WalletsNetworkService
     ) {
         self.userWalletId = userWalletId
         self.mapper = mapper
+        self.walletsNetworkService = walletsNetworkService
     }
 
     private func retry<T>(retryCount: Int, work: () async throws -> T) async throws(CryptoAccountsNetworkServiceError) -> T {
@@ -68,27 +71,29 @@ final class CommonCryptoAccountsNetworkService {
 // MARK: - WalletsNetworkService protocol conformance
 
 extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
-    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+    func createWallet(with context: some Encodable) async throws -> String? {
         do {
-            let newRevision = try await tangemApiService.createWallet(with: context)
+            let newRevision = try await walletsNetworkService.createWallet(with: context)
 
             if let newRevision {
                 eTagStorage.saveETag(newRevision, for: userWalletId)
             }
+
+            return newRevision
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch {
-            throw .underlyingError(error)
+            throw CryptoAccountsNetworkServiceError.underlyingError(error)
         }
     }
 
-    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+    func updateWallet(context: some Encodable) async throws {
         do {
-            try await tangemApiService.updateWallet(by: userWalletId, context: context)
+            try await walletsNetworkService.updateWallet(context: context)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch {
-            throw .underlyingError(error)
+            throw CryptoAccountsNetworkServiceError.underlyingError(error)
         }
     }
 }
