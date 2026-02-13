@@ -603,7 +603,7 @@ extension SendModel: SendFeeUpdater {
             return
         }
 
-        sourceToken.tokenFeeProvidersManager.updateInputInAllProviders(input: .common(amount: amount, destination: destination))
+        sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
         sourceToken.tokenFeeProvidersManager.selectedFeeProvider.updateFees()
     }
 
@@ -949,7 +949,7 @@ extension SendModel: FeeSelectorOutput {
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         switch receiveToken {
         case .same:
-            sourceToken.tokenFeeProvidersManager.updateFeeOptionInAllProviders(feeOption: feeOption)
+            sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
             sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
 
         case .swap:
