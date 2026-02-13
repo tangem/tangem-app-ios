@@ -8,7 +8,10 @@
 
 import Foundation
 
-public protocol ExpressProviderManager: Actor {
+public protocol ExpressProviderManager {
+    var pair: ExpressManagerSwappingPair { get }
+    var feeProvider: ExpressFeeProvider { get }
+
     func getState() -> ExpressProviderManagerState
 
     func update(request: ExpressManagerSwappingPairRequest) async
