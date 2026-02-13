@@ -9,23 +9,29 @@
 import Foundation
 import TangemFoundation
 
-actor CEXExpressProviderManager {
+final class CEXExpressProviderManager {
     // MARK: - Dependencies
 
     private let provider: ExpressProvider
+    private let swappingPair: ExpressManagerSwappingPair
+    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
 
-    private var _state: ExpressProviderManagerState = .idle
+    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
 
     init(
         provider: ExpressProvider,
+        swappingPair: ExpressManagerSwappingPair,
+        expressFeeProvider: ExpressFeeProvider,
         expressAPIProvider: ExpressAPIProvider,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
+        self.swappingPair = swappingPair
+        self.expressFeeProvider = expressFeeProvider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
     }
@@ -34,24 +40,27 @@ actor CEXExpressProviderManager {
 // MARK: - ExpressProviderManager
 
 extension CEXExpressProviderManager: ExpressProviderManager {
+    var pair: ExpressManagerSwappingPair { swappingPair }
+    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
+
     func getState() -> ExpressProviderManagerState {
-        _state
+        _state.read()
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state = state
+
+        _state.mutate { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
-        let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(request: feeRequest, amount: request.amount)
+        let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
         try Task.checkCancellation()
 
         let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
         let request = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
-        let item = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
+        let item = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
 
         let data = try await expressAPIProvider.exchangeData(item: item)
         try Task.checkCancellation()
@@ -71,15 +80,14 @@ private extension CEXExpressProviderManager {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
-            guard try request.pair.source.feeProvider.feeCurrencyHasPositiveBalance(providerId: provider.id) else {
+            guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
                 let quote = try await loadQuote(request: request)
-                let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+                let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
 
                 return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
             }
 
-            let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
-            let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(request: feeRequest, amount: request.amount)
+            let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
             try Task.checkCancellation()
 
             let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
@@ -115,7 +123,7 @@ private extension CEXExpressProviderManager {
     }
 
     func loadQuote(request: ExpressManagerSwappingPairRequest) async throws -> ExpressQuote {
-        let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id, providerType: provider.type)
+        let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
         let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
         return quote
@@ -133,7 +141,6 @@ private extension CEXExpressProviderManager {
         }
 
         return ExpressManagerSwappingPairRequest(
-            pair: request.pair,
             amount: reducedAmount,
             feeOption: request.feeOption,
             approvePolicy: request.approvePolicy,
@@ -146,7 +153,7 @@ private extension CEXExpressProviderManager {
     }
 
     func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) throws -> Bool {
-        let sourceBalance = try request.pair.source.balanceProvider.getBalance()
+        let sourceBalance = try pair.source.balanceProvider.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         return isNotEnoughBalanceForSwapping
@@ -154,11 +161,11 @@ private extension CEXExpressProviderManager {
 
     func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: BSDKFee) throws -> Decimal {
         // The fee's subtraction needed only for fee currency
-        guard request.pair.source.isFeeCurrency(providerId: provider.id) else {
+        guard expressFeeProvider.isFeeCurrency(source: pair.source.currency) else {
             return 0
         }
 
-        let balance = try request.pair.source.feeProvider.feeCurrencyBalance(providerId: provider.id)
+        let balance = try expressFeeProvider.feeCurrencyBalance()
         let fee = estimatedFee.amount.value
         let fullAmount = request.amount + fee
 
@@ -175,7 +182,7 @@ private extension CEXExpressProviderManager {
 
 // MARK: - CustomStringConvertible
 
-extension CEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+extension CEXExpressProviderManager: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
