@@ -11,32 +11,17 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
-    let userWalletInfo: UserWalletInfo
+    let sourceToken: SendSourceToken
     let parameters: PredefinedOnrampParameters
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
 
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let defaultAddressString: String
-
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
+
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
-    lazy var dependencies = makeOnrampDependencies(
-        preferredValues: parameters.preferredValues
-    )
-
-    lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: source)
-
+    lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
+    lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
 
     lazy var onrampModel = makeOnrampModel(
@@ -58,55 +43,24 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: UserWalletInfo,
+        sourceToken: SendSourceToken,
         parameters: PredefinedOnrampParameters,
-        source: SendCoordinator.Source,
-        walletModel: any WalletModel
+        coordinatorSource: SendCoordinator.Source,
+        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        source: ExpressInteractorWalletModelWrapper
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.sourceToken = sourceToken
         self.parameters = parameters
-        self.source = source
+        self.coordinatorSource = coordinatorSource
+        self.baseDataBuilderFactory = baseDataBuilderFactory
 
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .onramp
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        defaultAddressString = walletModel.defaultAddressString
-
-        tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
         pendingExpressTransactionsManagerBuilder = .init(
-            userWalletId: userWalletInfo.id.stringValue,
-            tokenItem: walletModel.tokenItem,
+            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+            tokenItem: sourceToken.tokenItem,
         )
 
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            expressOperationType: .onramp
-        )
-
-        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
+        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: sourceToken.userWalletInfo, source: source)
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
-
-        accountModelAnalyticsProvider = walletModel.account
     }
 }
 
@@ -130,7 +84,9 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             ),
             onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
                 input: onrampModel,
-                pendingTransactionsManager: makePendingExpressTransactionsManager()
+                pendingTransactionsManager: pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
+                    expressAPIProvider: expressDependenciesFactory.expressAPIProvider
+                )
             ),
             router: router
         )
@@ -179,7 +135,7 @@ extension OnrampFlowFactory: SendBaseBuildable {
             dataBuilder: dataBuilder,
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )
     }
 }
