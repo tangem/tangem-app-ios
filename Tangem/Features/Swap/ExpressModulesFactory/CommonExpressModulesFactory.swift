@@ -95,7 +95,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwapTokenSelectorViewModel(
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        coordinator: any SwapTokenSelectorRoutable
+        coordinator: any SwapTokenSelectorRoutable,
+        additionRoutable: any SwapMarketsTokenAdditionRoutable
     ) -> SwapTokenSelectorViewModel {
         // Create external search view model if feature toggle is enabled
         let marketsTokensViewModel: SwapMarketsTokensViewModel?
@@ -113,7 +114,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             ),
             marketsTokensViewModel: marketsTokensViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            additionRoutable: additionRoutable
         )
     }
 
