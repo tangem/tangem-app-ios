@@ -29,7 +29,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
 
-    let expressTokenFeeProvidersManager: any ExpressTokenFeeProvidersManager
+    let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let transactionDispatcherProvider: any TransactionDispatcherProvider
 
     let sendingRestrictions: SendingRestrictions? = .none
@@ -39,7 +39,6 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private var _balanceProvider: any ExpressBalanceProvider
-    private var _feeProvider: any ExpressFeeProvider
 
     init(
         userWalletId: UserWalletId,
@@ -63,15 +62,14 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
             feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: false)
         )
 
-        expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
+        tokenFeeProvidersManagerProvider = TangemPayTokenFeeProvidersManagerProvider(
+            feeTokenItem: feeTokenItem,
+            availableTokenBalanceProvider: availableBalanceProvider
+        )
         transactionDispatcherProvider = TangemPayTransactionDispatcherProvider(cexTransactionDispatcher: cexTransactionDispatcher)
 
         _balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider,
-        )
-
-        _feeProvider = TangemPayWithdrawExpressFeeProvider(
-            feeTokenItem: feeTokenItem
         )
     }
 }
@@ -79,8 +77,6 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
 // MARK: - ExpressSourceWallet, ExpressDestinationWallet
 
 extension ExpressInteractorTangemPayWalletWrapper {
-    var feeProvider: ExpressFeeProvider { _feeProvider }
-
     var balanceProvider: ExpressBalanceProvider { _balanceProvider }
 
     var operationType: ExpressOperationType { .swap }
