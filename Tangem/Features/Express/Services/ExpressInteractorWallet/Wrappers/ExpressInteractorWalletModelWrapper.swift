@@ -22,8 +22,8 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
+    let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let transactionDispatcherProvider: TransactionDispatcherProvider
-    var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { _tokenFeeManager }
 
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
@@ -35,7 +35,6 @@ struct ExpressInteractorWalletModelWrapper {
 
     private let _allowanceService: (any AllowanceService)?
     private let _balanceProvider: any ExpressBalanceProvider
-    private let _tokenFeeManager: CommonExpressTokenFeeProvidersManager
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -72,21 +71,19 @@ struct ExpressInteractorWalletModelWrapper {
             signer: userWalletInfo.signer
         )
 
-        let allowanceServiceFactory = AllowanceServiceFactory(
+        tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            transactionDispatcherProvider: transactionDispatcherProvider
+            supportingOptions: .swap
         )
 
-        _allowanceService = allowanceServiceFactory.makeAllowanceService()
+        _allowanceService = AllowanceServiceFactory(
+            walletModel: walletModel,
+            transactionDispatcherProvider: transactionDispatcherProvider
+        ).makeAllowanceService()
 
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
             feeProvider: walletModel
-        )
-
-        _tokenFeeManager = CommonExpressTokenFeeProvidersManager(
-            tokenItem: tokenItem,
-            tokenFeeManagerBuilder: TokenFeeProvidersManagerBuilder(walletModel: walletModel, supportingOptions: .swap)
         )
     }
 }
@@ -139,7 +136,6 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 // MARK: - ExpressSourceWallet
 
 extension ExpressInteractorWalletModelWrapper {
-    var feeProvider: any ExpressFeeProvider { _tokenFeeManager }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
     var operationType: ExpressOperationType { expressOperationType }
 }

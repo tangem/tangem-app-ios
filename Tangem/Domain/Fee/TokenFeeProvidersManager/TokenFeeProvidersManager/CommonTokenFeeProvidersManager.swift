@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemExpress
 import TangemFoundation
 
 final class CommonTokenFeeProvidersManager {
@@ -109,11 +110,11 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 
     // Updating
 
-    func updateFeeOptionInAllProviders(feeOption: FeeOption) {
+    func update(feeOption: FeeOption) {
         feeProviders.forEach { $0.select(feeOption: feeOption) }
     }
 
-    func updateInputInAllProviders(input: TokenFeeProviderInputData) {
+    func update(input: TokenFeeProviderInputData) {
         feeProviders.forEach { $0.setup(input: input) }
 
         checkSelectedProviderIsSupported()
@@ -137,6 +138,87 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 
         alreadyUsedProviders.insert(tokenFeeProvider.feeTokenItem)
         selectedProviderSubject.send(tokenFeeProvider)
+    }
+}
+
+// MARK: - ExpressFeeProvider
+
+extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
+    func feeCurrency() -> ExpressWalletCurrency {
+        selectedFeeProvider.feeTokenItem.expressCurrency
+    }
+
+    func feeCurrencyBalance() throws -> Decimal {
+        guard let balance = selectedFeeProvider.balanceFeeTokenState.value else {
+            throw ExpressBalanceProviderError.balanceNotFound
+        }
+
+        return balance
+    }
+
+    func estimatedFee(amount: Decimal) async throws -> BSDKFee {
+        update(input: .cex(amount: amount))
+        await selectedFeeProvider.updateFees().value
+
+        let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+        return fee
+    }
+
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
+        update(
+            input: .dex(.ethereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee))
+        )
+
+        await selectedFeeProvider.updateFees().value
+        let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+        return fee
+    }
+
+    func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee {
+        let blockchain = initialSelectedProvider.feeTokenItem.blockchain
+
+        switch (data, blockchain) {
+        case (.cex(let data), _):
+            update(
+                input: .common(amount: data.fromAmount, destination: data.destinationAddress)
+            )
+
+            await selectedFeeProvider.updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+
+        case (.dex(let data), .solana):
+            guard let txData = data.txData, let transactionData = Data(base64Encoded: txData) else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
+
+            update(input: .dex(.solana(compiledTransaction: transactionData)))
+            await selectedFeeProvider.updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+
+        case (.dex(let data), _):
+            guard let txData = data.txData.map(Data.init(hexString:)) else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
+
+            // The `txValue` is always is coin
+            let amount = BSDKAmount(with: blockchain, type: .coin, value: data.txValue)
+            update(input: .dex(.ethereum(
+                amount: amount,
+                destination: data.destinationAddress,
+                txData: txData,
+                otherNativeFee: data.otherNativeFee
+            )))
+
+            await selectedFeeProvider.updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+        }
     }
 }
 
