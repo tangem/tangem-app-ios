@@ -22,8 +22,7 @@ struct MainHeaderView: View {
             Text(viewModel.userWalletName)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            Spacer()
-                .frame(height: 6)
+            Spacer(minLength: 6)
 
             if viewModel.isUserWalletLocked {
                 Colors.Field.primary
@@ -39,8 +38,7 @@ struct MainHeaderView: View {
                 )
             }
 
-            Spacer()
-                .frame(height: 10)
+            Spacer(minLength: 10)
 
             HStack {
                 subtitleText
@@ -67,10 +65,10 @@ struct MainHeaderView: View {
             .hidden(viewModel.cardImage == nil)
         }
         .padding(.horizontal, 14)
+        .frame(height: imageSize.height)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(cornerRadius)
         .previewContentShape(cornerRadius: cornerRadius)
-        .frame(minHeight: imageSize.height)
     }
 
     private var subtitleText: some View {
