@@ -123,6 +123,8 @@
 		0AB346872E8402A2004003A0 /* YieldModuleNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */; };
 		0AB346892E840E44004003A0 /* YieldModuleMarketsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
+		0AB7A01F2F3F2B580024EAA7 /* SwapMarketsTokenAdditionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7A01E2F3F2B580024EAA7 /* SwapMarketsTokenAdditionRoutable.swift */; };
+		0AB7A0212F3F2C2A0024EAA7 /* SwapMarketsTokenAdditionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7A0202F3F2C2A0024EAA7 /* SwapMarketsTokenAdditionCoordinator.swift */; };
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
 		0ABAA2F52E56074100024627 /* MobileWalletAddressesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */; };
 		0ABBB2A52ECB70C30082BC76 /* P2PStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2A42ECB70C30082BC76 /* P2PStakingAPIService.swift */; };
@@ -5006,6 +5008,8 @@
 		0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleNetworkManager.swift; sourceTree = "<group>"; };
 		0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMarketsRepository.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
+		0AB7A01E2F3F2B580024EAA7 /* SwapMarketsTokenAdditionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapMarketsTokenAdditionRoutable.swift; sourceTree = "<group>"; };
+		0AB7A0202F3F2C2A0024EAA7 /* SwapMarketsTokenAdditionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapMarketsTokenAdditionCoordinator.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
 		0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletAddressesTests.swift; sourceTree = "<group>"; };
 		0ABBB2A42ECB70C30082BC76 /* P2PStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PStakingAPIService.swift; sourceTree = "<group>"; };
@@ -23040,6 +23044,8 @@
 				EF279CFA2EA8284E003C4660 /* SwapTokenSelectorView.swift */,
 				EF279CF82EA82653003C4660 /* SwapTokenSelectorViewModel.swift */,
 				EF279CFC2EA82D2C003C4660 /* SwapTokenSelectorRoutable.swift */,
+				0AB7A0202F3F2C2A0024EAA7 /* SwapMarketsTokenAdditionCoordinator.swift */,
+				0AB7A01E2F3F2B580024EAA7 /* SwapMarketsTokenAdditionRoutable.swift */,
 			);
 			path = SwapTokenSelector;
 			sourceTree = "<group>";
@@ -27447,6 +27453,7 @@
 				6416A7D89E5CE588E24AC2DF /* WCTransactionNetworkRowViewModel.swift in Sources */,
 				B61A01902E6A6D7C00A82ECB /* CommonCryptoAccountsPersistentStorage.swift in Sources */,
 				DC8E03112DE16AE6008967D8 /* WCValidatedRequest.swift in Sources */,
+				0AB7A01F2F3F2B580024EAA7 /* SwapMarketsTokenAdditionRoutable.swift in Sources */,
 				C20FC9292E2EC0A60075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */,
 				EF4041492DE4E08B002F996A /* SendAmountCompactTokenView.swift in Sources */,
 				B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */,
@@ -29213,6 +29220,7 @@
 				2D245E382E97EB56006AD2DC /* MarketsTokenDetailsInsightsView.swift in Sources */,
 				2D245E392E97EB56006AD2DC /* MarketsTokenDetailsLinkChipsView.swift in Sources */,
 				2D245E3A2E97EB56006AD2DC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */,
+				0AB7A0212F3F2C2A0024EAA7 /* SwapMarketsTokenAdditionCoordinator.swift in Sources */,
 				DF4793C32EE94E030024ADE3 /* TangemPayPinCheckView.swift in Sources */,
 				2D245E3B2E97EB56006AD2DC /* MarketsTokenDetailsExchangeItemView.swift in Sources */,
 				B676291E2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift in Sources */,

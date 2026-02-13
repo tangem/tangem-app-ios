@@ -22,6 +22,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
     private weak var coordinator: SwapTokenSelectorRoutable?
+    private weak var additionRoutable: SwapMarketsTokenAdditionRoutable?
 
     private var selectedTokenItem: TokenItem?
 
@@ -30,13 +31,15 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
-        coordinator: SwapTokenSelectorRoutable
+        coordinator: SwapTokenSelectorRoutable,
+        additionRoutable: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
+        self.additionRoutable = additionRoutable
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
@@ -125,7 +128,7 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
                 networks: networks
             )
 
-            coordinator?.openAddTokenFlowForExpress(inputData: inputData)
+            additionRoutable?.requestAddToken(inputData: inputData)
         }
     }
 }
