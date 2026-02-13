@@ -1579,9 +1579,7 @@
 		B61B61F22EDE53F400D32DA6 /* AccountModelsReordering.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61B61F12EDE53F400D32DA6 /* AccountModelsReordering.swift */; };
 		B61D2A202B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61D2A1F2B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift */; };
 		B61F71252E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F711B2E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift */; };
-		B61F71262E949D55002C3C66 /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */; };
 		B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F711A2E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift */; };
-		B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */; };
 		B61F71302E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F712F2E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift */; };
 		B61F71362E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71352E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift */; };
 		B61F71372E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71342E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift */; };
@@ -2428,6 +2426,10 @@
 		B63127D42A2F52E2007C124C /* OrganizeTokensListInnerSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListInnerSection.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
 		B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */; };
+		B6323D102F3B896700354A0C /* CommonWalletsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323D0D2F3B896700354A0C /* CommonWalletsNetworkService.swift */; };
+		B6323D112F3B896700354A0C /* WalletsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323D0E2F3B896700354A0C /* WalletsNetworkService.swift */; };
+		B6323D152F3B896700354A0C /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323D122F3B896700354A0C /* CommonCryptoAccountsNetworkService.swift */; };
+		B6323D162F3B896700354A0C /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323D132F3B896700354A0C /* CryptoAccountsNetworkService.swift */; };
 		B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */; };
 		B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */; };
 		B63A5F042D95D7B9001A61C1 /* NFTNetworkServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63A5F022D95D7B9001A61C1 /* NFTNetworkServiceFactory.swift */; };
@@ -6471,8 +6473,6 @@
 		B61D2A1F2B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+TokenDetails.swift"; sourceTree = "<group>"; };
 		B61F711A2E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
 		B61F711B2E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCryptoAccountsInfo.swift; sourceTree = "<group>"; };
-		B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
-		B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B61F712F2E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedCryptoAccountsProvider.swift; sourceTree = "<group>"; };
 		B61F71342E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedCryptoAccountInfo.swift; sourceTree = "<group>"; };
 		B61F71352E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedCryptoAccountInfo.AccountId.swift; sourceTree = "<group>"; };
@@ -7308,6 +7308,10 @@
 		B63127D32A2F52E2007C124C /* OrganizeTokensListInnerSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListInnerSection.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
 		B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutableStub.swift; sourceTree = "<group>"; };
+		B6323D0D2F3B896700354A0C /* CommonWalletsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletsNetworkService.swift; sourceTree = "<group>"; };
+		B6323D0E2F3B896700354A0C /* WalletsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletsNetworkService.swift; sourceTree = "<group>"; };
+		B6323D122F3B896700354A0C /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
+		B6323D132F3B896700354A0C /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift; sourceTree = "<group>"; };
 		B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyMainFooterView.swift; sourceTree = "<group>"; };
 		B63A5F022D95D7B9001A61C1 /* NFTNetworkServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTNetworkServiceFactory.swift; sourceTree = "<group>"; };
@@ -15256,8 +15260,8 @@
 		B61F71232E949D55002C3C66 /* Service */ = {
 			isa = PBXGroup;
 			children = (
-				B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */,
-				B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */,
+				B6323D0F2F3B896700354A0C /* Wallets */,
+				B6323D142F3B896700354A0C /* CryptoAccounts */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -17666,6 +17670,24 @@
 				B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */,
 			);
 			path = ListItem;
+			sourceTree = "<group>";
+		};
+		B6323D0F2F3B896700354A0C /* Wallets */ = {
+			isa = PBXGroup;
+			children = (
+				B6323D0E2F3B896700354A0C /* WalletsNetworkService.swift */,
+				B6323D0D2F3B896700354A0C /* CommonWalletsNetworkService.swift */,
+			);
+			path = Wallets;
+			sourceTree = "<group>";
+		};
+		B6323D142F3B896700354A0C /* CryptoAccounts */ = {
+			isa = PBXGroup;
+			children = (
+				B6323D132F3B896700354A0C /* CryptoAccountsNetworkService.swift */,
+				B6323D122F3B896700354A0C /* CommonCryptoAccountsNetworkService.swift */,
+			);
+			path = CryptoAccounts;
 			sourceTree = "<group>";
 		};
 		B6364F862ACEE99F00D615B5 /* Empty */ = {
@@ -27069,6 +27091,8 @@
 				0FA453D52E1E9F150055B5BB /* AuthViewModel.swift in Sources */,
 				0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */,
 				0A4C217F2DF1AFF200B8B1BD /* MobileUserWalletConfig.swift in Sources */,
+				B6323D152F3B896700354A0C /* CommonCryptoAccountsNetworkService.swift in Sources */,
+				B6323D162F3B896700354A0C /* CryptoAccountsNetworkService.swift in Sources */,
 				2DB648842C35877000DA100D /* MarketsWalletSelectorViewModel.swift in Sources */,
 				2DCDE45A2DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift in Sources */,
 				B036881E2C74B79300D418FB /* MarketsListDataFetcher.swift in Sources */,
@@ -29476,9 +29500,7 @@
 				DCFEFE442CF07D94002DFE58 /* SwapTokenSelectorStrings.swift in Sources */,
 				B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */,
 				B61F71252E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift in Sources */,
-				B61F71262E949D55002C3C66 /* CryptoAccountsNetworkService.swift in Sources */,
 				B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */,
-				B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				B0A4C4A22A271CD20060E039 /* BalanceWithButtonsViewModel.swift in Sources */,
 				2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */,
@@ -29560,6 +29582,8 @@
 				DC0003182DC2090600305FB6 /* WalletConnectV2SignTypedData.swift in Sources */,
 				DC0003192DC2090600305FB6 /* WCSolanaSignAllTransactionsHandler.swift in Sources */,
 				DC00031A2DC2090600305FB6 /* WebSocketError.swift in Sources */,
+				B6323D102F3B896700354A0C /* CommonWalletsNetworkService.swift in Sources */,
+				B6323D112F3B896700354A0C /* WalletsNetworkService.swift in Sources */,
 				DC00031B2DC2090600305FB6 /* WalletConnectEthTransaction.swift in Sources */,
 				EA265A112E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift in Sources */,
 				0F46A6A12EB11A3000A462FA /* ResetToFactoryUtil.swift in Sources */,
