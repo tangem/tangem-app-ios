@@ -1073,6 +1073,7 @@
 		A786FB0B2F1A509400DEA9A7 /* ScrollWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0A2F1A509400DEA9A7 /* ScrollWalletAssembly.swift */; };
 		A786FB0D2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0C2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift */; };
 		A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */; };
+		A7C1B2D62F12345600ABCDE1 /* BerachainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */; };
 		A7F344B32F2CE3B400544085 /* CloreMigrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */; };
@@ -5957,6 +5958,7 @@
 		A786FB0A2F1A509400DEA9A7 /* ScrollWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollWalletAssembly.swift; sourceTree = "<group>"; };
 		A786FB0C2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumOptimisticRollupConstants.swift; sourceTree = "<group>"; };
 		A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonadExternalLinkProvider.swift; sourceTree = "<group>"; };
+		A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerachainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+CloreMigration.swift"; sourceTree = "<group>"; };
 		A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationView.swift; sourceTree = "<group>"; };
@@ -15966,6 +15968,7 @@
 				B62D3CFD2CBC79D900C2460E /* ZkSyncExternalLinkProvider.swift */,
 				2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */,
 				A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */,
+				A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */,
 				A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */,
 			);
 			path = OtherChains;
@@ -30492,6 +30495,7 @@
 				2D2B9C282CE5176A00D744C6 /* ChilizExternalLinkProvider.swift in Sources */,
 				2DDB4C392E9F92EC00759EAA /* LineaExternalLinkProvider.swift in Sources */,
 				A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */,
+				A7C1B2D62F12345600ABCDE1 /* BerachainExternalLinkProvider.swift in Sources */,
 				B62D407C2CBC79DA00C2460E /* DogecoinExternalLinkProvider.swift in Sources */,
 				B62D41A72CBC79DA00C2460E /* SuiFeeParameters.swift in Sources */,
 				B62D3FEC2CBC79DA00C2460E /* OP_CHECKSIG.swift in Sources */,

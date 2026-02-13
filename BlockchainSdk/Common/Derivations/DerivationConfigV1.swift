@@ -176,6 +176,8 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/534352'/0'/0/0"
         case .monad:
             return "m/44'/268435779'/0'/0/0"
+        case .berachain:
+            return "m/44'/8008'/0'/0/0"
         }
     }
 }

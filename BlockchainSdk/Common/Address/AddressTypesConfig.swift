@@ -108,6 +108,7 @@ struct AddressTypesConfig {
              .scroll,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             return [.default]
