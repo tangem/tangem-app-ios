@@ -7,10 +7,17 @@
 //
 
 import BlockchainSdk
+import TangemExpress
 import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
 struct SendSourceToken {
+    // Wallet info. Signer, userWalletId, etc.
+
+    let userWalletInfo: UserWalletInfo
+
+    // Token info. Basically for UI
+
     let header: SendTokenHeader
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -18,11 +25,21 @@ struct SendSourceToken {
     let fiatItem: FiatItem
     let possibleToConvertToFiat: Bool
 
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
+
+    let defaultAddressString: String
+
+    // Only for send
+
     let transactionValidator: TransactionValidator
     let transactionCreator: TransactionCreator
+    let withdrawalNotificationProvider: WithdrawalNotificationProvider?
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
+
+    // Common providers
+
+    let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let transactionDispatcherProvider: any TransactionDispatcherProvider
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 }
