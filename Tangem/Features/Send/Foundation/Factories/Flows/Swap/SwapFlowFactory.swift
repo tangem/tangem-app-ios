@@ -9,75 +9,25 @@
 import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SendFlowBaseDependenciesFactory {
-    let userWalletInfo: UserWalletInfo
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
-
-    let walletAddresses: [String]
-    let shouldShowFeeSelector: Bool
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
+    let sourceToken: SendSourceToken
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
-    let suggestedWallets: [SendDestinationSuggestedWallet]
-    let analyticsLogger: SendAnalyticsLogger
-
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
 
-    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
-        self.userWalletInfo = userWalletInfo
-
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .send
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        accountModelAnalyticsProvider = walletModel.account
-        walletAddresses = walletModel.addresses.map(\.value)
-        shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-
-        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
-        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .send)
-
-        walletModelHistoryUpdater = walletModel
-        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
-
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            expressOperationType: .swapAndSend
-        )
+    init(
+        sourceToken: SendSourceToken,
+        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        source: ExpressInteractorWalletModelWrapper
+    ) {
+        self.sourceToken = sourceToken
+        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
+            userWalletInfo: sourceToken.userWalletInfo,
             source: source,
             destination: .none
         )
