@@ -68,35 +68,29 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
             )
         }
     }
+
+    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
+        selectToken(item, isNewlyAddedFromMarkets: true)
+    }
 }
 
 // MARK: - AccountsAwareTokenSelectorViewModelOutput
 
 extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            expressOperationType: .swap
-        )
-
-        switch swapDirection {
-        case .fromSource:
-            expressInteractor.update(destination: expressInteractorWallet)
-        case .toDestination:
-            expressInteractor.update(sender: expressInteractorWallet)
-        }
-
-        selectedTokenItem = item.walletModel.tokenItem
-        coordinator?.closeSwapTokenSelector()
+        selectToken(item, isNewlyAddedFromMarkets: false)
     }
+}
 
-    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
+// MARK: - Private
+
+private extension SwapTokenSelectorViewModel {
+    func selectToken(_ item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
             walletModel: item.walletModel,
             expressOperationType: .swap,
-            isNewlyAddedFromMarkets: true
+            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
         )
 
         switch swapDirection {

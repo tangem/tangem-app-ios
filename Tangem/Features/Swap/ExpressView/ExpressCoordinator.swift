@@ -30,10 +30,7 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
-    private lazy var marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
-        // Delegate to swapTokenSelectorViewModel to handle the selection with newly added flag
-        self?.swapTokenSelectorViewModel?.userDidSelectNewlyAddedToken(item: item)
-    }
+    private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
 
     // MARK: - Child view models
 
@@ -80,6 +77,16 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
+            guard let viewModel = self?.swapTokenSelectorViewModel else {
+                AppLogger.debug("SwapTokenSelectorViewModel not found")
+                return
+            }
+            viewModel.selectNewToken(item)
+        }
+
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
+
         swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(
             swapDirection: swapDirection,
             coordinator: self,

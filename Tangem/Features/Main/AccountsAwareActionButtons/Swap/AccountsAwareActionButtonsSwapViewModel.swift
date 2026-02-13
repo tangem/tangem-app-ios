@@ -129,7 +129,7 @@ extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHand
             )
 
             additionRoutable = SwapMarketsTokenAdditionCoordinator { [weak self] item in
-                self?.userDidSelectNewlyAddedToken(item: item)
+                self?.selectNewToken(item)
                 self?.additionRoutable = nil
             }
 
@@ -141,7 +141,7 @@ extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHand
 // MARK: - Market Token Addition
 
 extension AccountsAwareActionButtonsSwapViewModel {
-    func userDidSelectNewlyAddedToken(item: AccountsAwareTokenSelectorItem) {
+    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
         guard case .token(let sourceItem, _) = source else {
             return
         }

@@ -153,11 +153,3 @@ extension ActionButtonsSwapCoordinator {
         }
     }
 }
-
-// MARK: - Constants
-
-private extension ActionButtonsSwapCoordinator {
-    enum ToastConstants {
-        static let topPadding: CGFloat = 52
-    }
-}
