@@ -1,12 +1,12 @@
 //
-//  TokenFeeProvidersManagerBuilder.swift
+//  CommonTokenFeeProvidersManagerProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-struct TokenFeeProvidersManagerBuilder {
+struct CommonTokenFeeProvidersManagerProvider {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
@@ -20,7 +20,11 @@ struct TokenFeeProvidersManagerBuilder {
         self.walletModel = walletModel
         self.supportingOptions = supportingOptions
     }
+}
 
+// MARK: - TokenFeeProvidersManagerProvider
+
+extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let coinTokenFeeProvider = makeMainTokenFeeProvider()
         var feeProviders = [coinTokenFeeProvider]
@@ -38,7 +42,7 @@ struct TokenFeeProvidersManagerBuilder {
 
 // MARK: - Private
 
-private extension TokenFeeProvidersManagerBuilder {
+private extension CommonTokenFeeProvidersManagerProvider {
     func prepareInitialTokenFeeProvider(main: any TokenFeeProvider, all: [any TokenFeeProvider]) -> any TokenFeeProvider {
         // Early exit when we have only main provider
         guard all.hasMultipleFeeProviders else {
