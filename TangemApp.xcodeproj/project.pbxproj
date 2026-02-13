@@ -4534,6 +4534,7 @@
 		EFBCA4CF2F3E43CE006FA68A /* TangemPayTokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBCA4CE2F3E43CE006FA68A /* TangemPayTokenFeeLoader.swift */; };
 		EFBCA4D12F3E4466006FA68A /* TokenFeeProvidersManagerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBCA4D02F3E4466006FA68A /* TokenFeeProvidersManagerProvider.swift */; };
 		EFBCA4D42F3E4503006FA68A /* TangemPayTokenFeeProvidersManagerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBCA4D32F3E4503006FA68A /* TangemPayTokenFeeProvidersManagerProvider.swift */; };
+		EFBCA4F92F3F4777006FA68A /* SendSourceTokenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBCA4F82F3F4777006FA68A /* SendSourceTokenFactory.swift */; };
 		EFC1AB732D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */; };
 		EFC377E02E7C268400B7B86A /* OnrampAmountBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */; };
 		EFC377E32E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */; };
@@ -9387,6 +9388,7 @@
 		EFBCA4CE2F3E43CE006FA68A /* TangemPayTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTokenFeeLoader.swift; sourceTree = "<group>"; };
 		EFBCA4D02F3E4466006FA68A /* TokenFeeProvidersManagerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvidersManagerProvider.swift; sourceTree = "<group>"; };
 		EFBCA4D32F3E4503006FA68A /* TangemPayTokenFeeProvidersManagerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTokenFeeProvidersManagerProvider.swift; sourceTree = "<group>"; };
+		EFBCA4F82F3F4777006FA68A /* SendSourceTokenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSourceTokenFactory.swift; sourceTree = "<group>"; };
 		EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXONetworkAddressInfoProvider.swift; sourceTree = "<group>"; };
 		EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBadge.swift; sourceTree = "<group>"; };
 		EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampProviderProcessingTimeFormatter.swift; sourceTree = "<group>"; };
@@ -25777,6 +25779,7 @@
 				EFBBA4992E8AA3FA004F48ED /* SendInput.swift */,
 				DA559C242B0261F400F59584 /* SendType.swift */,
 				EFF8F1F12E85D6E400A5EF0C /* SendFactory.swift */,
+				EFBCA4F82F3F4777006FA68A /* SendSourceTokenFactory.swift */,
 				EFAF8A852E85EECE009C3CF9 /* Dependencies */,
 				EFAF8A912E86A8B0009C3CF9 /* Flows */,
 			);
@@ -28715,6 +28718,7 @@
 				EFB7F4472F2BCC9700325D69 /* ApproveTransactionDispatcher.swift in Sources */,
 				DC8F7BDC2E0C9C2400B3F5DB /* WCApprovalAnalyzer.swift in Sources */,
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
+				EFBCA4F92F3F4777006FA68A /* SendSourceTokenFactory.swift in Sources */,
 				2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */,
 				B69A48672C47BA2A003497E1 /* OverlayContentStateController.swift in Sources */,
 				B6B436962E3C364300006FA7 /* AccountModelsManager.swift in Sources */,
