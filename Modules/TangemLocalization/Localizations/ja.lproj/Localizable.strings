@@ -362,7 +362,7 @@
 "common_unstake" = "ステーキング解除";
 "common_utxo_validate_withdrawal_message_warning" = "%1$@の制限により、1つのトランザクションに収まるUTXOは%2$li個のみです。つまり、 %3$@以下しか送信できません。量を減らす必要があります。";
 "common_value_copied" = "値がコピーされました";
-"common_wallets" = "Wallets";
+"common_wallets" = "ウォレット";
 "common_warning" = "警告";
 "common_week" = "週";
 "common_with" = "で";
@@ -920,6 +920,11 @@
 "onboarding_top_up_min_create_account_amount" = "始めるには、ウォレットに%1$@ 以上入金するだけです";
 "onboarding_twin_exit_warning" = "ツイン化プロセスは部分的に完了しています。現在終了することはできません。";
 "onboarding_twins_interrupt_warning" = "ウォレットの作成プロセスが何らかの理由で中断された場合は、最初からやり直す必要があります。";
+"onboarding_used_card_last_step" = "Last step";
+"onboarding_used_card_new_card_button" = "I\'ve just bought it";
+"onboarding_used_card_warning" = "Tangem never sells wallets along with the pre-generated access code";
+"onboarding_used_card_welcome_back_description" = "This wallet has already been activated, and we would like to confirm that it was activated by you.";
+"onboarding_used_card_welcome_back_title" = "Welcome back";
 "onboarding_wallet_info_subtitle_first" = "秘密鍵のバックアップは、未使用のTangemウォレットカードまたはリング2つまで可能です。";
 "onboarding_wallet_info_subtitle_fourth" = "アクセスコードは、バックアップカード1枚を使用して復元できます。";
 "onboarding_wallet_info_subtitle_second" = "すべてのバックアップカードは同一の秘密鍵を使用しており、すべての機能を使用できます。";
@@ -1311,9 +1316,9 @@
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
-"swap_search_tooltip_title" = "Use search to find what you need";
+"swap_search_suggestion_hint" = "他のものをお探しですか？\n検索してみるか、別の暗号資産をチェックしてみましょう！";
+"swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
+"swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
 "swap_story_fifth_subtitle" = "24時間体制のサポートであらゆる問題に対応します。";
 "swap_story_fifth_title" = "いつもここに";
 "swap_story_first_subtitle" = "複数の信頼できるプロバイダーが一箇所に集結。ウォレット内で様々な暗号資産を簡単に交換できます。";

@@ -920,6 +920,11 @@
 "onboarding_top_up_min_create_account_amount" = "To get started, simply top up the wallet with more than %1$@";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can't exit it now.";
 "onboarding_twins_interrupt_warning" = "If the process of creating the wallet gets interrupted in any way, you'll have to start over";
+"onboarding_used_card_last_step" = "Last step";
+"onboarding_used_card_new_card_button" = "I\'ve just bought it";
+"onboarding_used_card_warning" = "Tangem never sells wallets along with the pre-generated access code";
+"onboarding_used_card_welcome_back_description" = "This wallet has already been activated, and we would like to confirm that it was activated by you.";
+"onboarding_used_card_welcome_back_title" = "Welcome back";
 "onboarding_wallet_info_subtitle_first" = "You can backup your keys up to two other blank Tangem Wallet cards or rings.";
 "onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";
 "onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functional with the identical keys.";
