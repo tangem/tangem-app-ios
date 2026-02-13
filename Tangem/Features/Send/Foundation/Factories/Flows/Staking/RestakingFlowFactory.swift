@@ -11,62 +11,27 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class RestakingFlowFactory: StakingFlowDependenciesFactory {
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: UserWalletInfo
+    let sourceToken: SendSourceToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    var actionType: StakingAction.ActionType { action.displayType }
-
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
-    /// Staking doesn't support account-based analytics
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
+
+    var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var restakingModel = makeRestakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        userWalletInfo: UserWalletInfo,
+        sourceToken: SendSourceToken,
         manager: any StakingManager,
         action: RestakingModel.Action,
-        walletModel: any WalletModel,
+        baseDataBuilderFactory: SendBaseDataBuilderFactory,
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.sourceToken = sourceToken
         self.manager = manager
         self.action = action
-
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: action.displayType.sendFlowActionType
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-
-        tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
+        self.baseDataBuilderFactory = baseDataBuilderFactory
     }
 }
 
@@ -80,7 +45,7 @@ extension RestakingFlowFactory {
         RestakingModel(
             stakingManager: stakingManager,
             action: action,
-            sendSourceToken: makeSourceToken(),
+            sendSourceToken: sourceToken,
             sendAmountValidator: RestakingAmountValidator(
                 tokenItem: tokenItem,
                 action: actionType,
