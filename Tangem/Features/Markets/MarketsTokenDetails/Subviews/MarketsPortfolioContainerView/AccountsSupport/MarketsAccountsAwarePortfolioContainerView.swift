@@ -167,7 +167,6 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
 
     private func accountHeader(accountData: AccountData) -> some View {
         AccountInlineHeaderView(iconData: accountData.iconInfo, name: accountData.name)
-            .font(Fonts.Bold.subheadline)
             .expandsHorizontally(true)
     }
 
