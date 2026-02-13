@@ -96,10 +96,8 @@ extension ExpressCoordinator: ExpressRoutable {
         UIApplication.shared.endEditing()
 
         let dismissAction = { [weak self] in
-            self?.swappingSuccessCoordinator = nil
-            DispatchQueue.main.async {
-                self?.dismiss(with: nil)
-            }
+            guard let self = self else { return }
+            dismiss(with: nil)
         }
 
         let coordinator = SwappingSuccessCoordinator(
