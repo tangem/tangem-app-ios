@@ -28,7 +28,7 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getSource(destination: any ExpressInteractorDestinationWallet) async throws -> any ExpressInteractorSourceWallet {
+    func getSource(destination: TokenItem) async throws -> any ExpressInteractorSourceWallet {
         guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
             throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
         }
@@ -36,7 +36,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         return source
     }
 
-    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet {
+    func getDestination(source: TokenItem) async throws -> any ExpressInteractorSourceWallet {
         guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
             throw ExpressDestinationServiceError.destinationNotFound(source: source)
         }
@@ -49,7 +49,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
 private extension CommonExpressDestinationService {
     func getExpressInteractorWallet(
-        base: any ExpressInteractorDestinationWallet,
+        base: TokenItem,
         searchType: SearchType
     ) async -> (any ExpressInteractorSourceWallet)? {
         let walletModels: [UserWalletInfoWalletModelPair] = {
@@ -74,9 +74,9 @@ private extension CommonExpressDestinationService {
             }
         }()
 
-        let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
+        let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
-            let isNotSource = wallet.walletModel.id != base.id
+            let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
             let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })

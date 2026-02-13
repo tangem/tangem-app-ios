@@ -9,9 +9,6 @@
 import TangemExpress
 
 protocol OnrampFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var defaultAddressString: String { get }
-
-    var pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -22,7 +19,7 @@ extension OnrampFlowBaseDependenciesFactory {
         CommonOnrampSendAnalyticsLogger(
             tokenItem: tokenItem,
             source: source,
-            accountModelAnalyticsProvider: accountModelAnalyticsProvider
+            accountModelAnalyticsProvider: sourceToken.accountModelAnalyticsProvider
         )
     }
 
@@ -71,7 +68,7 @@ extension OnrampFlowBaseDependenciesFactory {
         OnrampModel(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            defaultAddressString: defaultAddressString,
+            defaultAddressString: sourceToken.defaultAddressString,
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
@@ -101,11 +98,5 @@ extension OnrampFlowBaseDependenciesFactory {
 
     func makeOnrampNotificationManager(input: OnrampNotificationManagerInput, delegate: NotificationTapDelegate) -> OnrampNotificationManager {
         CommonOnrampNotificationManager(input: input, delegate: delegate)
-    }
-
-    func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager {
-        pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
-            expressAPIProvider: expressDependenciesFactory.expressAPIProvider
-        )
     }
 }
