@@ -125,9 +125,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateMessage
         case .systemDeprecationPermanent(let version, let dateString):
-            // [REDACTED_TODO_COMMENT]
-            return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
-                .replacingOccurrences(of: "..", with: ".")
+            return Localization.warningIosDeprecationMessage(version, dateString)
         case .missingDerivation(let numberOfNetworks, _):
             return Localization.warningMissingDerivationMessage(numberOfNetworks)
         case .walletLocked:
