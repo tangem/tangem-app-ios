@@ -641,25 +641,19 @@ private extension ExpressInteractor {
                 // Do nothing
                 log("The update task was cancelled")
             } catch {
+                // Log specific error types for debugging
                 switch error {
                 case let error as ExpressAPIError:
                     await logExpressError(error)
                 case let error as ExpressProviderError where error == .transactionSizeNotSupported:
                     await logExpressError(error)
-                case let error as ExpressRepositoryError where error == .availableProvidersDoesNotFound:
-                    guard let destination = getDestination() else { break }
-                    updateState(.preloadRestriction(.tokenNotSupportedForSwap(tokenItem: destination.tokenItem)))
+                case let error as ExpressRepositoryError:
+                    await logExpressError(error)
                 default:
                     break
                 }
 
-                // Check if a newly added destination token from markets is not supported for swap
-                if let destination = getDestination(),
-                   destination.isNewlyAddedFromMarkets {
-                    updateState(.preloadRestriction(.tokenNotSupportedForSwap(tokenItem: destination.tokenItem)))
-                    return
-                }
-
+                // All errors use consistent handling - preserve quote and allow retry
                 let quote = getState().quote
                 updateState(.requiredRefresh(occurredError: error, quote: quote))
             }

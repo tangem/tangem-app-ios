@@ -73,7 +73,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 // MARK: - AccountsAwareTokenSelectorViewModelOutput
 
 extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
             walletModel: item.walletModel,
