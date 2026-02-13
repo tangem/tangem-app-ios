@@ -7,42 +7,38 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 
-public struct TangemButton: View {
-    private let content: Content
-    private let size: Size
-    private let horizontalLayout: HorizontalLayout
-    private let cornerStyle: CornerStyle
-    private let styleType: StyleType
-    private let action: () -> Void
+public struct TangemButton: View, Setupable {
+    private var content: Content
+    private var horizontalLayout: HorizontalLayout = .intrinsic
+    private var cornerStyle: CornerStyle = .default
+    private var styleType: StyleType = .primary
+    private var buttonState: ButtonState = .normal
 
-    private var buttonState: ButtonState
+    private var size: Size = .x10 {
+        didSet {
+            _iconSize = .init(wrappedValue: oldValue.iconSize, relativeTo: oldValue.textStyle)
+        }
+    }
+
+    private let action: () -> Void
 
     @ScaledMetric
     private var iconSize: CGFloat
 
     public init(
         content: Content,
-        buttonState: ButtonState = .normal,
-        size: Size = .x10,
-        horizontalLayout: HorizontalLayout = .intrinsic,
-        cornerStyle: CornerStyle = .default,
-        styleType: StyleType = .primary,
         action: @escaping () -> Void
     ) {
         self.content = content
-        self.buttonState = buttonState
-        self.size = size
-        self.horizontalLayout = horizontalLayout
-        self.cornerStyle = cornerStyle
-        self.styleType = styleType
+        self.action = action
+
         _iconSize = .init(
             wrappedValue: size.iconSize,
             relativeTo: size.textStyle
         )
-
-        self.action = action
     }
 
     public var body: some View {
@@ -58,8 +54,7 @@ public struct TangemButton: View {
             cornerStyle: cornerStyle,
             cornerRadius: size.cornerRadius,
             iconSize: _iconSize
-        )
-        )
+        ))
         .disabled(!buttonState.isNormal)
     }
 
@@ -102,5 +97,27 @@ public struct TangemButton: View {
             .renderingMode(.template)
             .aspectRatio(contentMode: .fit)
             .frame(width: iconSize, height: iconSize)
+    }
+}
+
+public extension TangemButton {
+    func setButtonState(isLoading: Bool, isDisabled: Bool = false) -> Self {
+        map { $0.buttonState = .from(isLoading: isLoading, isEnabled: !isDisabled) }
+    }
+
+    func setHorizontalLayout(_ horizontalLayout: HorizontalLayout) -> Self {
+        map { $0.horizontalLayout = horizontalLayout }
+    }
+
+    func setCornerStyle(_ cornerStyle: CornerStyle) -> Self {
+        map { $0.cornerStyle = cornerStyle }
+    }
+
+    func setStyleType(_ styleType: StyleType) -> Self {
+        map { $0.styleType = styleType }
+    }
+
+    func setSize(_ size: Size) -> Self {
+        map { $0.size = size }
     }
 }

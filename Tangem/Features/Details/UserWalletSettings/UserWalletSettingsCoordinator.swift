@@ -36,7 +36,6 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
-    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child view models
@@ -186,29 +185,6 @@ extension UserWalletSettingsCoordinator:
         let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
         hardwareBackupTypesCoordinator = coordinator
-    }
-
-    @MainActor
-    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
-        let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .dismiss:
-                self?.mobileUpgradeCoordinator = nil
-            case .main(let userWalletModel):
-                self?.openMain(userWalletModel: userWalletModel)
-            }
-        }
-
-        let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
-        let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
-        coordinator.start(with: inputOptions)
-        mobileUpgradeCoordinator = coordinator
-    }
-
-    @MainActor
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
-        let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
-        floatingSheetPresenter.enqueue(sheet: sheet)
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {

@@ -148,13 +148,16 @@ private struct ButtonComponentDemoView: View {
 
             _Button(
                 content: content,
-                buttonState: buttonState,
-                size: size,
-                horizontalLayout: horLayout,
-                cornerStyle: cornerStyle,
-                styleType: styleType,
                 action: { print("action") }
             )
+            .setButtonState(
+                isLoading: buttonState.isLoading,
+                isDisabled: buttonState.isDisabled
+            )
+            .setSize(size)
+            .setStyleType(styleType)
+            .setCornerStyle(cornerStyle)
+            .setHorizontalLayout(horLayout)
         }
         .padding()
     }

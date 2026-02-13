@@ -123,21 +123,21 @@ public extension TangemButton {
             return .normal
         }
 
-        var isDisabled: Bool {
+        public var isDisabled: Bool {
             if case .disabled = self {
                 return true
             }
             return false
         }
 
-        var isLoading: Bool {
+        public var isLoading: Bool {
             if case .loading = self {
                 return true
             }
             return false
         }
 
-        var isNormal: Bool {
+        public var isNormal: Bool {
             if case .normal = self {
                 return true
             }
