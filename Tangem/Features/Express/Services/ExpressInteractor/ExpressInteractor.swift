@@ -691,7 +691,7 @@ private extension ExpressInteractor {
                 try await expressPairsRepository.updatePairs(for: source.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
 
                 _swappingPair.value.destination = .loading
-                let destination = try await expressDestinationService.getDestination(source: source)
+                let destination = try await expressDestinationService.getDestination(source: source.tokenItem)
                 update(destination: destination)
 
             case (_, .success(let destination)):
@@ -700,7 +700,7 @@ private extension ExpressInteractor {
                     userWalletInfo: userWalletInfo
                 )
                 _swappingPair.value.sender = .loading
-                let source = try await expressDestinationService.getSource(destination: destination)
+                let source = try await expressDestinationService.getSource(destination: destination.tokenItem)
                 update(sender: source)
 
             default:
@@ -714,12 +714,12 @@ private extension ExpressInteractor {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             log("Destination not found")
             _swappingPair.value.sender = .failure(ExpressDestinationServiceError.sourceNotFound(destination: destination))
-            return .noSourceTokens(destination: destination.tokenItem)
+            return .noSourceTokens(destination: destination)
         } catch ExpressDestinationServiceError.destinationNotFound(let source) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             log("Destination not found")
             _swappingPair.value.destination = .failure(ExpressDestinationServiceError.destinationNotFound(source: source))
-            return .noDestinationTokens(source: source.tokenItem)
+            return .noDestinationTokens(source: source)
         } catch {
             log("Get destination failed with error: \(error)")
             if _swappingPair.value.destination?.isLoading == true {
