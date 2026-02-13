@@ -16,7 +16,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        coordinator: SwapTokenSelectorRoutable
+        additionRoutable: SwapMarketsTokenAdditionRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
         AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
@@ -32,8 +32,8 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
             isTokenAdded: { tokenItem, account in
                 account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
             },
-            postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
-                guard let coordinator else { return }
+            postAddBehavior: .executeAction { [weak additionRoutable] tokenItem, accountSelectorCell in
+                guard let additionRoutable else { return }
 
                 let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
                     $0.tokenItem == tokenItem
@@ -48,7 +48,10 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
                     account: accountSelectorCell.cryptoAccountModel,
                     walletModel: walletModel
                 )
-                coordinator.onTokenAdded(item: item)
+
+                Task { @MainActor in
+                    additionRoutable.didAddMarketToken(item: item)
+                }
             },
             accountFilter: { account, supportedBlockchains in
                 let networkIds = networks.map(\.networkId)

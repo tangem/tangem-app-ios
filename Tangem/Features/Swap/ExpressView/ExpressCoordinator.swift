@@ -30,6 +30,10 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
+    private lazy var marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
+        // Delegate to swapTokenSelectorViewModel to handle the selection with newly added flag
+        self?.swapTokenSelectorViewModel?.userDidSelectNewlyAddedToken(item: item)
+    }
 
     // MARK: - Child view models
 
@@ -76,7 +80,11 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
-        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
+        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(
+            swapDirection: swapDirection,
+            coordinator: self,
+            additionRoutable: marketsTokenAdditionCoordinator
+        )
     }
 
     func presentFeeSelectorView() {
@@ -165,52 +173,13 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
     func closeSwapTokenSelector() {
         swapTokenSelectorViewModel = nil
     }
-
-    @MainActor
-    func openAddTokenFlowForExpress(inputData: ExpressAddTokenInputData) {
-        guard !inputData.networks.isEmpty else {
-            return
-        }
-
-        // Create configuration
-        let configuration = SwapAddMarketsTokenFlowConfigurationFactory.make(
-            coinId: inputData.coinId,
-            coinName: inputData.coinName,
-            coinSymbol: inputData.coinSymbol,
-            networks: inputData.networks,
-            coordinator: self
-        )
-
-        // Present add token flow
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
-            userWalletModels: userWalletRepository.models,
-            configuration: configuration,
-            coordinator: self
-        )
-
-        floatingSheetPresenter.enqueue(sheet: viewModel)
-    }
-
-    func onTokenAdded(item: AccountsAwareTokenSelectorItem) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-
-            // Add a small delay to avoid animation glitches
-            try? await Task.sleep(for: .milliseconds(500))
-
-            // Delegate to swapTokenSelectorViewModel to handle the selection with newly added flag
-            swapTokenSelectorViewModel?.userDidSelectNewlyAddedToken(item: item)
-        }
-    }
 }
 
 // MARK: - AccountsAwareAddTokenFlowRoutable
 
 extension ExpressCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {

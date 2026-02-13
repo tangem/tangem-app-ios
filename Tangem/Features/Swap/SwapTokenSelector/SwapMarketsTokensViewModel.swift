@@ -173,11 +173,10 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     }
 
     private func makeItemViewModel(token: MarketsTokenModel, index: Int) -> MarketsItemViewModel? {
-        guard let networks = token.networks,
-              NetworkSupportChecker.hasAnySupportedNetwork(
-                  networks: networks,
-                  userWalletModels: userWalletRepository.models
-              ) else {
+        guard NetworkSupportChecker.hasAnySupportedNetwork(
+            networks: token.networks ?? [],
+            userWalletModels: userWalletRepository.models
+        ) else {
             return nil
         }
 
