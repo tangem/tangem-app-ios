@@ -51,7 +51,7 @@ final class AccountsAwareActionButtonsSellViewModel: ObservableObject {
 // MARK: - AccountsAwareTokenSelectorViewModelOutput
 
 extension AccountsAwareActionButtonsSellViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.sell, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
 
         guard let url = makeSellUrl(walletModel: item.walletModel) else {
