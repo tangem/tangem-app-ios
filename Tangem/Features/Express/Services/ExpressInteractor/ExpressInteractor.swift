@@ -235,7 +235,7 @@ extension ExpressInteractor {
 
         let result: TransactionSendResultState = try await {
             switch getState() {
-            case .idle, .loading, .requiredRefresh, .restriction, .preloadRestriction:
+            case .idle, .loading, .requiredRefresh, .restriction, .preloadRestriction, .runtimeRestriction:
                 throw ExpressInteractorError.transactionDataNotFound
             case .permissionRequired:
                 assertionFailure("Should called sendApproveTransaction()")
@@ -584,6 +584,11 @@ private extension ExpressInteractor {
                 return try await interactor.mapState(state: state)
             }
 
+            // Validate destination support for newly-added tokens BEFORE updating
+            if let runtimeRestriction = await interactor.validateDestinationSupport() {
+                return .runtimeRestriction(runtimeRestriction)
+            }
+
             // If we have an amount to we will start the full update
             if let amount = await interactor.expressManager.getAmount(), amount > 0 {
                 interactor.updateState(.loading(type: .full))
@@ -628,6 +633,30 @@ extension ExpressInteractor: FeeSelectorOutput {
 // MARK: - Helpers
 
 private extension ExpressInteractor {
+    /// Validates if the current destination token is supported for swap.
+    /// Returns `RuntimeRestrictionType.tokenNotSupportedForSwap` if a newly-added market token
+    /// has no available swap providers.
+    func validateDestinationSupport() async -> RuntimeRestrictionType? {
+        guard let destination = getDestination(),
+              destination.isNewlyAddedFromMarkets,
+              let source = getSource().value else {
+            return nil
+        }
+
+        let pairs = await expressPairsRepository.getPairs(from: source.tokenItem.expressCurrency)
+
+        // Check if there are any providers for this specific pair
+        let hasProviders = pairs.contains(where: { pair in
+            pair.destination == destination.tokenItem.expressCurrency.asCurrency
+        })
+
+        if !hasProviders {
+            return .tokenNotSupportedForSwap(tokenItem: destination.tokenItem)
+        }
+
+        return nil
+    }
+
     func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> State) {
         cancelRefresh()
         updateStateTask = Task { [weak self] in
@@ -853,6 +882,7 @@ extension ExpressInteractor {
         case idle
         case requiredRefresh(occurredError: Error, quote: Quote?)
         case preloadRestriction(PreloadRestrictionType)
+        case runtimeRestriction(RuntimeRestrictionType)
         case loading(type: RefreshType)
         case restriction(RestrictionType, context: Context, quote: Quote?)
         case permissionRequired(PermissionRequiredState, context: Context, quote: Quote)
@@ -861,7 +891,7 @@ extension ExpressInteractor {
 
         var quote: Quote? {
             switch self {
-            case .idle, .loading, .requiredRefresh, .preloadRestriction:
+            case .idle, .loading, .requiredRefresh, .preloadRestriction, .runtimeRestriction:
                 return nil
             case .restriction(_, _, let quote):
                 return quote
@@ -872,7 +902,7 @@ extension ExpressInteractor {
 
         var context: Context? {
             switch self {
-            case .idle, .loading, .requiredRefresh, .preloadRestriction:
+            case .idle, .loading, .requiredRefresh, .preloadRestriction, .runtimeRestriction:
                 return nil
             case .restriction(_, let context, _),
                  .permissionRequired(_, let context, _),
@@ -886,7 +916,7 @@ extension ExpressInteractor {
             switch self {
             case .readyToSwap, .previewCEX:
                 return true
-            case .idle, .loading, .restriction, .preloadRestriction, .requiredRefresh, .permissionRequired:
+            case .idle, .loading, .restriction, .preloadRestriction, .runtimeRestriction, .requiredRefresh, .permissionRequired:
                 return false
             }
         }
@@ -896,6 +926,7 @@ extension ExpressInteractor {
             case .idle,
                  .loading(.full),
                  .preloadRestriction,
+                 .runtimeRestriction,
                  .requiredRefresh,
                  .permissionRequired,
                  .restriction(.hasPendingApproveTransaction, _, _):
@@ -924,6 +955,10 @@ extension ExpressInteractor {
     enum PreloadRestrictionType {
         case noSourceTokens(destination: TokenItem)
         case noDestinationTokens(source: TokenItem)
+        case tokenNotSupportedForSwap(tokenItem: TokenItem)
+    }
+
+    enum RuntimeRestrictionType {
         case tokenNotSupportedForSwap(tokenItem: TokenItem)
     }
 
