@@ -45,9 +45,14 @@ struct SendFactory {
             )
 
         case .swap:
-            SwapFlowFactory(
-                userWalletInfo: options.input.userWalletInfo,
-                walletModel: options.input.walletModel
+            return SwapFlowFactory(
+                sourceToken: sourceToken,
+                baseDataBuilderFactory: baseDataBuilderFactory,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: sourceToken.userWalletInfo,
+                    walletModel: options.input.walletModel,
+                    expressOperationType: .swap
+                )
             )
 
         case .nft(let parameters):
@@ -155,6 +160,7 @@ struct SendFactory {
         default:
             let flowActionType: SendFlowActionType = switch options.type {
             case .send, .nft, .sell: .send
+            case .swap: .swap
             case .staking: .stake
             case .restaking(_, let action): action.type.sendFlowActionType
             case .unstaking: .unstake
