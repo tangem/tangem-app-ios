@@ -34,7 +34,8 @@ class DeprecationService {
         let currentDate = Date()
         guard currentDate < permanentSystemDeprecationWarningDate else {
             return .systemDeprecationPermanent(
-                dateFormatter.string(from: systemDeprecationDate)
+                version: systemVersion,
+                date: dateFormatter.string(from: systemDeprecationDate)
             )
         }
 
