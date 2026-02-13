@@ -11,6 +11,7 @@ final class YieldModuleTransactionFlowFactory {
     private let yieldManagerInteractor: YieldManagerInteractor
     private let logger: YieldAnalyticsLogger
     private let tangemIconProvider: TangemIconProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private weak var coordinator: YieldModuleActiveCoordinator?
 
     // MARK: - Init
@@ -20,12 +21,14 @@ final class YieldModuleTransactionFlowFactory {
         yieldManagerInteractor: YieldManagerInteractor,
         logger: YieldAnalyticsLogger,
         tangemIconProvider: TangemIconProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
         coordinator: YieldModuleActiveCoordinator? = nil
     ) {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
         self.tangemIconProvider = tangemIconProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.coordinator = coordinator
     }
 
@@ -39,7 +42,8 @@ final class YieldModuleTransactionFlowFactory {
             yieldManagerInteractor: yieldManagerInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
-            tangemIconProvider: tangemIconProvider
+            tangemIconProvider: tangemIconProvider,
+            confirmTransactionPolicy: confirmTransactionPolicy
         )
     }
 }
