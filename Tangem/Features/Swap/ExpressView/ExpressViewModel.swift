@@ -411,7 +411,8 @@ private extension ExpressViewModel {
 
     func updateInputDisabled(state: ExpressInteractor.State) {
         switch state {
-        case .preloadRestriction(.tokenNotSupportedForSwap):
+        case .preloadRestriction(.tokenNotSupportedForSwap),
+             .runtimeRestriction(.tokenNotSupportedForSwap):
             isInputDisabled = true
             sendCurrencyViewModel?.update(isInputDisabled: true)
         default:
@@ -467,7 +468,8 @@ private extension ExpressViewModel {
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .preloadRestriction(.tokenNotSupportedForSwap):
+        case .preloadRestriction(.tokenNotSupportedForSwap),
+             .runtimeRestriction(.tokenNotSupportedForSwap):
             isSwapButtonLoading = false
             stopTimer()
 
@@ -509,7 +511,7 @@ private extension ExpressViewModel {
     @MainActor
     func updateProviderView(state: ExpressInteractor.State) async {
         switch state {
-        case .idle:
+        case .idle, .runtimeRestriction:
             providerState = .none
         case .loading(.full):
             providerState = .loading
@@ -546,7 +548,8 @@ private extension ExpressViewModel {
         case .readyToSwap(_, let context, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
 
-        case .idle, .loading, .preloadRestriction, .restriction, .requiredRefresh, .permissionRequired:
+        case .idle, .loading, .preloadRestriction, .restriction,
+             .requiredRefresh, .permissionRequired, .runtimeRestriction:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
         }
@@ -582,6 +585,7 @@ private extension ExpressViewModel {
 
         case .requiredRefresh,
              .preloadRestriction,
+             .runtimeRestriction,
              .restriction(.hasPendingTransaction, _, _),
              .restriction(.hasPendingApproveTransaction, _, _),
              .restriction(.tooSmallAmountForSwapping, _, _),
@@ -605,7 +609,7 @@ private extension ExpressViewModel {
         switch state {
         case .loading(.refreshRates), .loading(.fee):
             break
-        case .idle, .loading(.full), .preloadRestriction, .requiredRefresh:
+        case .idle, .loading(.full), .preloadRestriction, .runtimeRestriction, .requiredRefresh:
             legalText = nil
         case .restriction(_, let provider, _),
              .permissionRequired(_, let provider, _),
