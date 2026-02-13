@@ -9,25 +9,31 @@
 import Foundation
 import TangemFoundation
 
-actor DEXExpressProviderManager {
+final class DEXExpressProviderManager {
     // MARK: - Dependencies
 
     private let provider: ExpressProvider
+    private let swappingPair: ExpressManagerSwappingPair
+    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
     private let transactionValidator: ExpressProviderTransactionValidator
 
     // MARK: - State
 
-    private var _state: ExpressProviderManagerState = .idle
+    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
 
     init(
         provider: ExpressProvider,
+        swappingPair: ExpressManagerSwappingPair,
+        expressFeeProvider: ExpressFeeProvider,
         expressAPIProvider: ExpressAPIProvider,
         mapper: ExpressManagerMapper,
         transactionValidator: ExpressProviderTransactionValidator
     ) {
         self.provider = provider
+        self.swappingPair = swappingPair
+        self.expressFeeProvider = expressFeeProvider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
         self.transactionValidator = transactionValidator
@@ -37,18 +43,21 @@ actor DEXExpressProviderManager {
 // MARK: - ExpressProviderManager
 
 extension DEXExpressProviderManager: ExpressProviderManager {
+    var pair: ExpressManagerSwappingPair { swappingPair }
+    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
+
     func getState() -> ExpressProviderManagerState {
-        _state
+        _state.read()
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state = state
+        _state.mutate { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        guard case .ready(let state) = _state else {
+        guard case .ready(let state) = _state.read() else {
             throw ExpressProviderError.transactionDataNotFound
         }
 
@@ -61,14 +70,14 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 private extension DEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
-            let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id, providerType: provider.type)
+            let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
             if let restriction = await checkRestriction(request: request, quote: quote) {
                 return restriction
             }
 
-            let dataItem = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
+            let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
             let data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
@@ -95,7 +104,7 @@ private extension DEXExpressProviderManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote) async -> ExpressProviderManagerState? {
         // Check Balance
         do {
-            let sourceBalance = try request.pair.source.balanceProvider.getBalance()
+            let sourceBalance = try pair.source.balanceProvider.getBalance()
             let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
@@ -103,8 +112,8 @@ private extension DEXExpressProviderManager {
             }
 
             // Check fee currency balance at least more then zero
-            guard try request.pair.source.feeProvider.feeCurrencyHasPositiveBalance(providerId: provider.id) else {
-                let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+            guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
+                let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
                 return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
             }
 
@@ -115,7 +124,11 @@ private extension DEXExpressProviderManager {
         // Check Permission
         if let spender = quote.allowanceContract {
             do {
-                let allowanceState = try await request.pair.source.allowanceProvider?.allowanceState(request: request, spender: spender)
+                let allowanceState = try await pair.source.allowanceProvider?.allowanceState(
+                    request: request,
+                    contractAddress: pair.source.currency.contractAddress,
+                    spender: spender
+                )
 
                 switch allowanceState {
                 case .none:
@@ -138,7 +151,7 @@ private extension DEXExpressProviderManager {
     }
 
     func proceed(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState {
-        let coinBalance = try request.pair.source.balanceProvider.getCoinBalance()
+        let coinBalance = try pair.source.balanceProvider.getCoinBalance()
         if data.txValue > coinBalance {
             let estimateFee = try await estimateFee(request: request, data: data)
             return .restriction(estimateFee, quote: quote)
@@ -166,13 +179,12 @@ private extension DEXExpressProviderManager {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
-            let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
-            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(
-                request: feeRequest,
+            let estimateFee = try await expressFeeProvider.estimatedFee(
                 estimatedGasLimit: estimatedGasLimit,
                 otherNativeFee: otherNativeFee
             )
-            let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+
+            let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
             return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value, isFeeCurrency: isFeeCurrency)
         }
 
@@ -181,11 +193,7 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.Ready {
-        let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
-        _ = try await request.pair.source.feeProvider.transactionFee(
-            request: feeRequest,
-            data: .dex(data: data)
-        )
+        _ = try await expressFeeProvider.transactionFee(data: .dex(data: data))
 
         try Task.checkCancellation()
 
@@ -197,7 +205,7 @@ private extension DEXExpressProviderManager {
 
 // MARK: - CustomStringConvertible
 
-extension DEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+extension DEXExpressProviderManager: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
