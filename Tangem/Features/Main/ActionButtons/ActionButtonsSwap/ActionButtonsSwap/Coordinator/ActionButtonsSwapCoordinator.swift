@@ -72,7 +72,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
                 AccountsAwareActionButtonsSwapViewModel(
                     tokenSelectorViewModel: tokenSelectorViewModel,
                     marketsTokensViewModel: marketsTokensViewModel,
-                    coordinator: self,
+                    coordinator: self
                 )
             )
         }
@@ -122,79 +122,6 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
 
             floatingSheetPresenter.enqueue(sheet: vm)
         }
-    }
-}
-
-extension ActionButtonsSwapCoordinator: SwapTokenSelectorRoutable {
-    func closeSwapTokenSelector() {}
-
-    /// Opens the add-token flow for an external token selected from search results
-    @MainActor
-    func openAddTokenFlowForExpress(inputData: ExpressAddTokenInputData) {
-        guard !inputData.networks.isEmpty else {
-            return
-        }
-
-        // Create configuration
-        let configuration = SwapAddMarketsTokenFlowConfigurationFactory.make(
-            coinId: inputData.coinId,
-            coinName: inputData.coinName,
-            coinSymbol: inputData.coinSymbol,
-            networks: inputData.networks,
-            coordinator: self
-        )
-
-        // Present add token flow
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
-            userWalletModels: userWalletRepository.models,
-            configuration: configuration,
-            coordinator: self
-        )
-
-        floatingSheetPresenter.enqueue(sheet: viewModel)
-    }
-
-    /// Called when a token is added via the add-token flow
-    func onTokenAdded(item: AccountsAwareTokenSelectorItem) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-
-            // Add a small delay to avoid animation glitches
-            try? await Task.sleep(for: .milliseconds(500))
-
-            // Extract the view model from viewType and delegate selection with newly added flag
-            if case .new(let swapViewModel) = viewType {
-                swapViewModel.userDidSelectNewlyAddedToken(item: item)
-            } else {
-                AppLogger.error("onTokenAdded called with unexpected viewType: \(String(describing: viewType))", error: ExpressInteractorError.destinationNotFound)
-            }
-        }
-    }
-}
-
-// MARK: - AccountsAwareAddTokenFlowRoutable
-
-extension ActionButtonsSwapCoordinator: AccountsAwareAddTokenFlowRoutable {
-    func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func presentSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
-            .present(
-                layout: .top(padding: ToastConstants.topPadding),
-                type: .temporary()
-            )
-    }
-
-    func presentErrorToast(with text: String) {
-        Toast(view: WarningToast(text: text))
-            .present(
-                layout: .top(padding: ToastConstants.topPadding),
-                type: .temporary()
-            )
     }
 }
 
