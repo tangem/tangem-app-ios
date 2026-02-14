@@ -11,17 +11,28 @@ import TangemUI
 import TangemAssets
 
 public struct StepsFlowView: View {
-    @StateObject private var viewModel: StepsFlowViewModel
     @StateObject private var environment = StepsFlowEnvironment()
 
     private var navBarTitle: String {
         environment.navigationTitle ?? .empty
     }
 
+    private var progressValue: Double {
+        guard
+            let position = builder.currentPosition,
+            position.total > 0
+        else {
+            return 0
+        }
+
+        return Double(position.index + 1) / Double(position.total)
+    }
+
+    private let builder: StepsFlowBuilder
     private let configuration: StepsFlowConfiguration
 
     public init(builder: StepsFlowBuilder, configuration: StepsFlowConfiguration) {
-        _viewModel = StateObject(wrappedValue: StepsFlowViewModel(builder: builder))
+        self.builder = builder
         self.configuration = configuration
     }
 
@@ -42,15 +53,15 @@ private extension StepsFlowView {
             navBar
 
             if configuration.hasProgressBar {
-                makeProgressBar(value: viewModel.progressValue)
+                makeProgressBar(value: progressValue)
                     .padding(.horizontal, configuration.progressBarPadding)
-                    .animation(.default, value: viewModel.progressValue)
+                    .animation(.default, value: progressValue)
             }
         }
     }
 
     var flowContent: some View {
-        StepsFlowContent(actions: viewModel.actions)
+        StepsFlowContent(builder: builder)
             .environmentObject(environment)
     }
 
