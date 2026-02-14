@@ -23,7 +23,7 @@ struct MobileOnboardingSuccessView: View {
             Spacer()
             actionButton(viewModel.actionItem)
         }
-        .onAppear(perform: viewModel.onWillAppear)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
         .stepsFlowNavBar(title: viewModel.navigationTitle)

@@ -27,7 +27,6 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     }
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-    private var isFirstAppeared: Bool = true
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
@@ -49,9 +48,7 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
 }
 
 extension MobileOnboardingSeedPhraseRecoveryViewModel {
-    func onAppear() {
-        guard isFirstAppeared else { return }
-        isFirstAppeared = false
+    func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
 

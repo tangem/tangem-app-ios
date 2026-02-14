@@ -17,7 +17,6 @@ final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
     let navigationTitle = Localization.commonBackup
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-    private var isFirstAppeared: Bool = true
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
@@ -42,9 +41,7 @@ final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingSeedPhraseValidationViewModel {
-    func onAppear() {
-        guard isFirstAppeared else { return }
-        isFirstAppeared = false
+    func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
 
