@@ -45,7 +45,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingSeedPhraseImportViewModel {
-    func onAppear() {
+    func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
 

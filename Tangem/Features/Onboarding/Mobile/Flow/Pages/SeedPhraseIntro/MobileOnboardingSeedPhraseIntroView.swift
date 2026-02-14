@@ -22,7 +22,7 @@ struct MobileOnboardingSeedPhraseIntroView: View {
             .stepsFlowNavBar(leading: {
                 MobileOnboardingFlowNavBarAction.close(handler: viewModel.onCloseTap).view()
             })
-            .onAppear(perform: viewModel.onFirstAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 }
 

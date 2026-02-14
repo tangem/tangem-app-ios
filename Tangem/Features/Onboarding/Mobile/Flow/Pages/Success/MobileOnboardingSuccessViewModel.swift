@@ -17,8 +17,6 @@ final class MobileOnboardingSuccessViewModel {
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
 
-    private var isAppeared = false
-
     private let type: SuccessType
     private let onAppear: () -> Void
     private let onComplete: () -> Void
@@ -39,9 +37,7 @@ final class MobileOnboardingSuccessViewModel {
 // MARK: - Internal methods
 
 extension MobileOnboardingSuccessViewModel {
-    func onWillAppear() {
-        guard !isAppeared else { return }
-        isAppeared = true
+    func onFirstAppear() {
         onAppear()
     }
 
