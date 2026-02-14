@@ -42,6 +42,7 @@ struct CollapsedAccountItemHeaderView: View {
                     Text(name)
                         .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
                         .matchedGeometryEffect(nameGeometryEffect)
+                        .hidden()
                         .anchorPreference(key: _CollapsedPreferenceKey.self, value: .topLeading) { [$0] }
 
                     Color.clear
