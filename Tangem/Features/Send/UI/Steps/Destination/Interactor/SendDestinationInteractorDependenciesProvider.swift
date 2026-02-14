@@ -109,6 +109,12 @@ private extension SendDestinationInteractorDependenciesProvider {
 // MARK: - Types
 
 extension SendDestinationInteractorDependenciesProvider {
+    struct SendingWalletDataInput {
+        let walletAddresses: [String]
+        let suggestedWallets: [SendDestinationSuggestedWallet]
+        let walletModelHistoryUpdater: any WalletModelHistoryUpdater
+    }
+
     struct SendingWalletData {
         let walletAddresses: [String]
         let suggestedWallets: [SendDestinationSuggestedWallet]
