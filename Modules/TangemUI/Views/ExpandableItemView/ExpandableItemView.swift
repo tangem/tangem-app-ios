@@ -110,17 +110,18 @@ public struct ExpandableItemView<
                     Color.clear
                 }
             }
-            .overlay {
+            .overlay(alignment: .topLeading) {
                 Text(_name)
                     .style(
                         isExpandedContentVisible ? Fonts.Bold.footnote : Fonts.Bold.largeTitle,
                         color: isExpandedContentVisible ? Color.red : Color.blue
                     )
                     .contentTransition(.interpolate)
-                    .position(isExpandedContentVisible ? expandedPoint : collapsedPoint)
-                    .debugBorder(color: .blue)
+                    .offset(
+                        x: isExpandedContentVisible ? expandedPoint.x : collapsedPoint.x,
+                        y: isExpandedContentVisible ? expandedPoint.y : collapsedPoint.y
+                    )
             }
-            .debugBorder(color: .red)
         }
         .buttonStyle(.scaled(
             scaleAmount: isExpanded ? 1.0 : 0.98,
