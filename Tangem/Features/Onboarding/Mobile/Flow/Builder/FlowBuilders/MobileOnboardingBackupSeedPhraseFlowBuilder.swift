@@ -55,13 +55,29 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
     }
 
     func completeStep() -> Step {
-        makeDoneStep()
+        if case .hardwareWallet(let action) = source, action == .upgrade {
+            makeContinueStep()
+        } else {
+            makeDoneStep()
+        }
     }
 }
 
 // MARK: - Private methods
 
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
+    func makeContinueStep() -> Step {
+        let step = MobileOnboardingSuccessStep(
+            type: .seedPhaseBackupContinue,
+            navigationTitle: Localization.commonBackup,
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+            },
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
+        )
+        return step
+    }
+
     func makeDoneStep() -> Step {
         let successType: MobileOnboardingSuccessViewModel.SuccessType
         if case .walletSettings(let action) = source, action == .accessCode {
