@@ -40,8 +40,9 @@ struct CollapsedAccountItemHeaderView: View {
             primaryLeadingView: {
                 HStack(spacing: geometryEffectAnchorOffset) {
                     Text(name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
                         .matchedGeometryEffect(nameGeometryEffect)
+                        .anchorPreference(key: _CollapsedPreferenceKey.self, value: .topLeading) { [$0] }
 
                     Color.clear
                         .frame(size: .zero)
