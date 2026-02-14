@@ -10,6 +10,7 @@ import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 public struct ExpandableItemView<
     CollapsedView: View,
@@ -18,6 +19,7 @@ public struct ExpandableItemView<
 >: View {
     // MARK: - Dependencies
 
+    private let _name: String
     private let collapsedView: CollapsedView
     private let expandedView: ExpandedView
     private let expandedViewHeaderBuilder: () -> ExpandedViewHeader
@@ -28,10 +30,14 @@ public struct ExpandableItemView<
     private let onExpandedChange: ((_ isExpanded: Bool) -> Void)?
     private let isExpandedExternal: Bool
 
+    @State private var collapsedPoint: CGPoint = .zero
+    @State private var expandedPoint: CGPoint = .zero
+
     // MARK: - Init
 
     /// - Note: `onExpandedChange` is called only on user interaction, not on initial state setup or programmatic changes.
     public init(
+        _name: String,
         isExpanded: Bool,
         backgroundColor: Color = Colors.Background.primary,
         cornerRadius: CGFloat = 14,
@@ -42,6 +48,7 @@ public struct ExpandableItemView<
         @ViewBuilder expandedViewHeader: @escaping () -> ExpandedViewHeader,
         onExpandedChange: ((_ isExpanded: Bool) -> Void)? = nil
     ) {
+        self._name = _name
         _isExpanded = .init(initialValue: isExpanded)
         _isExpandedContentVisible = .init(initialValue: isExpanded)
         isExpandedExternal = isExpanded
@@ -79,6 +86,41 @@ public struct ExpandableItemView<
                 backgroundGeometryEffect: backgroundGeometryEffect,
                 expandedContentTransition: expandedViewTransition
             )
+            .overlayPreferenceValue(_CollapsedPreferenceKey.self, alignment: .topLeading) { collapsedPreferences in
+                GeometryReader { proxy in
+                    let _ = collapsedPreferences.forEach { collapsed in
+                        let value = proxy[collapsed]
+                        let _ = print("Collapsed anchor: \(value)")
+                        DispatchQueue.main.async {
+                            collapsedPoint = value
+                        }
+                    }
+                    Color.clear
+                }
+            }
+            .overlayPreferenceValue(_ExpandedPreferenceKey.self, alignment: .topLeading) { expandedPreferences in
+                GeometryReader { proxy in
+                    let _ = expandedPreferences.forEach { expanded in
+                        let value = proxy[expanded]
+                        let _ = print("Expanded anchor: \(value)")
+                        DispatchQueue.main.async {
+                            expandedPoint = value
+                        }
+                    }
+                    Color.clear
+                }
+            }
+            .overlay {
+                Text(_name)
+                    .style(
+                        isExpandedContentVisible ? Fonts.Bold.footnote : Fonts.Bold.largeTitle,
+                        color: isExpandedContentVisible ? Color.red : Color.blue
+                    )
+                    .contentTransition(.interpolate)
+                    .position(isExpandedContentVisible ? expandedPoint : collapsedPoint)
+                    .debugBorder(color: .blue)
+            }
+            .debugBorder(color: .red)
         }
         .buttonStyle(.scaled(
             scaleAmount: isExpanded ? 1.0 : 0.98,
@@ -147,5 +189,19 @@ private extension ExpandableItemView {
         static var containerAnimation: Animation { .easeInOut(duration: animationDuration) }
         /// Delay before showing expanded content, as a fraction of total animation duration
         static var expandedContentDelay: CGFloat { animationDuration / 6 }
+    }
+}
+
+public struct _CollapsedPreferenceKey: PreferenceKey {
+    public static var defaultValue: [Anchor<CGPoint>] = []
+    public static func reduce(value: inout [Anchor<CGPoint>], nextValue: () -> [Anchor<CGPoint>]) {
+        value.append(contentsOf: nextValue())
+    }
+}
+
+public struct _ExpandedPreferenceKey: PreferenceKey {
+    public static var defaultValue: [Anchor<CGPoint>] = []
+    public static func reduce(value: inout [Anchor<CGPoint>], nextValue: () -> [Anchor<CGPoint>]) {
+        value.append(contentsOf: nextValue())
     }
 }
