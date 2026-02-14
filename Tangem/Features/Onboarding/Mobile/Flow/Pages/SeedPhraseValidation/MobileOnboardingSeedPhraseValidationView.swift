@@ -45,6 +45,6 @@ private extension MobileOnboardingSeedPhraseValidationView {
                 createWalletAction: viewModel.onCreateWallet
             )
         ))
-        .onAppear(perform: viewModel.onAppear)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 }

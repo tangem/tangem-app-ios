@@ -73,7 +73,7 @@ private extension MobileOnboardingSeedPhraseRecoveryView {
         .padding(.bottom, 6)
         .screenCaptureProtection()
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear(perform: viewModel.onAppear)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {
