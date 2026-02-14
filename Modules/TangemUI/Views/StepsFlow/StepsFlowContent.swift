@@ -11,18 +11,41 @@ import SwiftUI
 import Combine
 
 struct StepsFlowContent: UIViewControllerRepresentable {
-    let actions: AnyPublisher<StepsFlowAction, Never>
+    private let builder: StepsFlowBuilder
+
+    init(builder: StepsFlowBuilder) {
+        self.builder = builder
+    }
+
+    func makeCoordinator() -> StepsFlowCoordinator {
+        StepsFlowCoordinator()
+    }
 
     func makeUIViewController(context: Context) -> UIViewController {
         let flowVC = StepsFlowContentViewController()
-        flowVC.bind(actions: actions)
+        context.coordinator.viewController = flowVC
+        context.coordinator.bind(builder: builder)
         return flowVC
     }
 
     func updateUIViewController(_ viewController: UIViewController, context: Context) {}
 }
 
-private final class StepsFlowContentViewController: UIViewController {
+final class StepsFlowCoordinator {
+    weak var viewController: StepsFlowContentViewController?
+
+    private var actionSubscription: AnyCancellable?
+
+    func bind(builder: StepsFlowBuilder) {
+        actionSubscription = builder.actionPublisher
+            .compactMap { $0 }
+            .sink { [weak self] action in
+                self?.viewController?.handle(action: action)
+            }
+    }
+}
+
+final class StepsFlowContentViewController: UIViewController {
     typealias Step = any StepsFlowStep
     typealias StepId = AnyHashable
 
@@ -32,15 +55,6 @@ private final class StepsFlowContentViewController: UIViewController {
     private var currentStepVC: UIViewController? {
         guard let currentStepId else { return nil }
         return cache[currentStepId]
-    }
-
-    private var actionSubscription: AnyCancellable?
-
-    func bind(actions: AnyPublisher<StepsFlowAction, Never>) {
-        actionSubscription = actions
-            .sink { [weak self] action in
-                self?.handle(action: action)
-            }
     }
 }
 

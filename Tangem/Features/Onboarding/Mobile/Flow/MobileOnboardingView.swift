@@ -25,6 +25,7 @@ struct MobileOnboardingView: View {
     var body: some View {
         ZStack {
             StepsFlowView(builder: viewModel.flowBuilder, configuration: configuration)
+                .id(viewModel.flowId)
 
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)

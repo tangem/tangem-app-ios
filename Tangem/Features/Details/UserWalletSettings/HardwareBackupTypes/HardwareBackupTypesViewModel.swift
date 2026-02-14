@@ -104,7 +104,7 @@ private extension HardwareBackupTypesViewModel {
 
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
-                await viewModel.openMobileBackupNeeded()
+                await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
             }
@@ -130,9 +130,8 @@ private extension HardwareBackupTypesViewModel {
         }
     }
 
-    func onBackupToUpgradeComplete() {
+    func onMobileBackupToUpgradeFinished() {
         runTask(in: self) { viewModel in
-            await viewModel.closeOnboarding()
             await viewModel.upgradeMobileWallet()
         }
     }
@@ -182,20 +181,14 @@ private extension HardwareBackupTypesViewModel {
         coordinator?.openCreateHardwareWallet(userWalletModel: userWalletModel)
     }
 
-    func openMobileBackupNeeded() {
+    func openMobileBackupToUpgradeNeeded() {
         logBackupToUpgradeNeededAnalytics()
-        coordinator?.openMobileBackupToUpgradeNeeded(
-            onBackupRequested: weakify(self, forFunction: HardwareBackupTypesViewModel.openBackupMobileWallet)
-        )
-    }
 
-    func openBackupMobileWallet() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
+        coordinator?.openMobileBackupNeeded(
             userWalletModel: userWalletModel,
             source: .hardwareWallet(action: .upgrade),
-            onContinue: weakify(self, forFunction: HardwareBackupTypesViewModel.onBackupToUpgradeComplete)
-        ))
-        coordinator?.openMobileOnboarding(input: input)
+            onBackupFinished: weakify(self, forFunction: HardwareBackupTypesViewModel.onMobileBackupToUpgradeFinished)
+        )
     }
 
     func openUpgradeToHardwareWallet(context: MobileWalletContext) {

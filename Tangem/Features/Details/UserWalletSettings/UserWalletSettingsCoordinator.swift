@@ -317,14 +317,6 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
     }
 }
 
-// MARK: - MobileBackupToUpgradeNeededRoutable
-
-extension UserWalletSettingsCoordinator: MobileBackupToUpgradeNeededRoutable {
-    func dismissMobileBackupToUpgradeNeeded() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
-}
-
 // MARK: - MobileRemoveWalletDelegate
 
 extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
