@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 class MobileOnboardingFlowBuilder: StepsFlowBuilder {
     let hasProgressBar: Bool

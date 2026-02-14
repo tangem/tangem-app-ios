@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-extension View {
+public extension View {
     func stepsFlowNavBar(title: String?) -> some View {
         modifier(StepsFlowNavTitleModifier(title: title))
     }
