@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemUI
 
 public struct AccountInlineHeaderView: View {
     private let iconData: AccountIconView.ViewData
@@ -46,6 +47,7 @@ public struct AccountInlineHeaderView: View {
                 .matchedGeometryEffect(nameGeometryEffect)
                 .minimumScaleFactor(minimumScaleFactor)
                 .lineLimit(1)
+                .anchorPreference(key: _ExpandedPreferenceKey.self, value: .topLeading) { [$0] }
 
             if expandsHorizontally {
                 Spacer()
