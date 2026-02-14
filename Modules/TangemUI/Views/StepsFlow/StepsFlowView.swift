@@ -10,7 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-struct StepsFlowView: View {
+public struct StepsFlowView: View {
     @StateObject private var viewModel: StepsFlowViewModel
     @StateObject private var environment = StepsFlowEnvironment()
 
@@ -20,12 +20,12 @@ struct StepsFlowView: View {
 
     private let configuration: StepsFlowConfiguration
 
-    init(builder: StepsFlowBuilder, configuration: StepsFlowConfiguration) {
+    public init(builder: StepsFlowBuilder, configuration: StepsFlowConfiguration) {
         _viewModel = StateObject(wrappedValue: StepsFlowViewModel(builder: builder))
         self.configuration = configuration
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             flowBar
             flowContent

@@ -8,9 +8,10 @@
 
 import Combine
 
-class StepsFlowBuilder {
+open class StepsFlowBuilder {
+    public typealias Step = any StepsFlowStep
+
     typealias Flow = StepsFlowStepLinkedList
-    typealias Step = any StepsFlowStep
     typealias Node = LinkedListNode<Step>
 
     var actionPublisher: AnyPublisher<StepsFlowAction?, Never> {
@@ -27,12 +28,12 @@ class StepsFlowBuilder {
     private let flow = Flow()
     private let actionSubject = CurrentValueSubject<StepsFlowAction?, Never>(nil)
 
-    init() {
+    public init() {
         setupFlow()
         startFlow()
     }
 
-    func setupFlow() {}
+    open func setupFlow() {}
 }
 
 // MARK: - Private methods
@@ -52,7 +53,7 @@ private extension StepsFlowBuilder {
 
 // MARK: - Flow commands
 
-extension StepsFlowBuilder {
+public extension StepsFlowBuilder {
     func next() {
         guard
             let currentNode,
@@ -76,7 +77,7 @@ extension StepsFlowBuilder {
 
 // MARK: - Step commands
 
-extension StepsFlowBuilder {
+public extension StepsFlowBuilder {
     func append(step: Step) {
         flow.append(step)
     }
