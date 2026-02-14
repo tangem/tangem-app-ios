@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-protocol StepsFlowStep: AnyObject {
+public protocol StepsFlowStep: AnyObject {
     var id: AnyHashable { get }
     func makeView() -> any View
 }

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 class MobileOnboardingFlowStep: StepsFlowStep {
     let id: AnyHashable = UUID()
