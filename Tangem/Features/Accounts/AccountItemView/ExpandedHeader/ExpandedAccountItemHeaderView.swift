@@ -71,7 +71,6 @@ struct ExpandedAccountItemHeaderView: View {
                 name: name
             )
             .iconSettings(AccountItemConstants.expandedIconSettings)
-            .font(Fonts.Bold.subheadline)
             .iconGeometryEffect(iconGeometryEffect)
             .iconBackgroundGeometryEffect(iconBackgroundGeometryEffect)
             .nameGeometryEffect(nameGeometryEffect)

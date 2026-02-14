@@ -24,6 +24,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
         let effects = AccountGeometryEffects(namespace: namespace)
 
         ExpandableItemView(
+            _name: viewModel.name,
             isExpanded: viewModel.isExpanded,
             backgroundGeometryEffect: effects.background,
             expandedViewTransition: viewModel.isEmptyContent ? nil : Constants.expandedContentTransition,
