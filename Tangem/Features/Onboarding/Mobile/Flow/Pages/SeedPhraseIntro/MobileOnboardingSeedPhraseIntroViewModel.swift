@@ -27,8 +27,6 @@ final class MobileOnboardingSeedPhraseIntroViewModel {
         .custom(userWalletModel.analyticsContextData)
     }
 
-    private var isFirstAppeared: Bool = true
-
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
@@ -42,8 +40,6 @@ final class MobileOnboardingSeedPhraseIntroViewModel {
 
 extension MobileOnboardingSeedPhraseIntroViewModel {
     func onFirstAppear() {
-        guard isFirstAppeared else { return }
-        isFirstAppeared = false
         logScreenOpenedAnalytics()
     }
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct MobileOnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: MobileOnboardingSeedPhraseImportViewModel
@@ -21,8 +22,6 @@ struct MobileOnboardingSeedPhraseImportView: View {
                 MobileOnboardingFlowNavBarAction.back(handler: viewModel.onBack).view()
             })
             .stepsFlow(isLoading: viewModel.isCreating)
-            // [REDACTED_TODO_COMMENT]
-            // became switches between steps without recreating their views.
-            .onAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 }
