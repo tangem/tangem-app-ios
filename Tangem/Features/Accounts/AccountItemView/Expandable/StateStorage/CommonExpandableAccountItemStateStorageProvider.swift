@@ -59,6 +59,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
                 .map { $0.cryptoAccounts() }
                 .prepend([]) // Triggers initial `pairwise` call
                 .pairwise()
+                .receiveOnMain() // This class is used in the UI layer, so we need to receive updates on the main thread
                 .withWeakCaptureOf(self)
                 .sink { storage, input in
                     storage.handleCryptoAccounts(
