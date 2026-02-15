@@ -16,8 +16,10 @@ import TangemVisa
 import TangemFoundation
 import TangemMobileWalletSdk
 import TangemPay
+import struct TangemSdk.SignData
+import struct TangemSdk.DerivationPath
 
-class LockedUserWalletModel: UserWalletModel {
+final class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -34,16 +36,14 @@ class LockedUserWalletModel: UserWalletModel {
 
     var cardSetLabel: String { config.cardSetLabel }
 
-    var hasBackupCards: Bool {
-        userWallet.walletInfo.hasBackupCards
-    }
+    var hasBackupCards: Bool { userWallet.walletInfo.hasBackupCards }
 
     var hasImportedWallets: Bool { false }
 
     var emailConfig: EmailConfig? { nil }
 
     var signer: TangemSigner {
-        fatalError("Should not be called for locked wallets")
+        DummyTangemSigner(config: config)
     }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
@@ -125,12 +125,12 @@ class LockedUserWalletModel: UserWalletModel {
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
     var tangemPayAccount: TangemPayAccount? { nil }
 
-    var keysDerivingInteractor: any KeysDeriving {
-        fatalError("Should not be called for locked wallets")
+    var keysDerivingInteractor: KeysDeriving {
+        DummyKeysDeriving(config: config)
     }
 
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
-        fatalError("Should not be called for locked wallets")
+        DummyTangemPayAuthorizer()
     }
 
     var name: String { userWallet.name }
@@ -263,7 +263,9 @@ extension LockedUserWalletModel: UserWalletSerializable {
     }
 
     func serializePrivate() -> StoredUserWallet.SensitiveInfo {
-        fatalError("Should not be called for locked wallets")
+        // Replacing this with some dummy data may lead to overwrite real data on the disk, therefore do not return anything here.
+        // Locked wallets should not be serialized, so this function should not be called, calling this method is a programmer error.
+        preconditionFailure("'\(#function)' should not be called for locked wallets")
     }
 }
 
@@ -294,6 +296,63 @@ private extension LockedUserWalletModel {
             try mobileSdk.delete(walletIDs: [userWalletId])
         } catch {
             AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
+        }
+    }
+}
+
+// MARK: - Dummy stubs
+
+private extension LockedUserWalletModel {
+    struct DummyTangemSigner: TangemSigner {
+        let hasNFCInteraction: Bool
+        let latestSignerType: TangemSignerType?
+
+        init(config: UserWalletConfig) {
+            let signer = config.tangemSigner
+            hasNFCInteraction = signer.hasNFCInteraction
+            latestSignerType = signer.latestSignerType
+        }
+
+        func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
+            stub()
+        }
+
+        func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error> {
+            stub()
+        }
+
+        func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
+            stub()
+        }
+
+        private func stub<T>(for function: StaticString = #function) -> AnyPublisher<T, Error> {
+            .anyFail(error: "Locked wallet does not support signing using '\(function)'")
+        }
+    }
+
+    final class DummyKeysDeriving: KeysDeriving {
+        let requiresCard: Bool
+
+        init(config: UserWalletConfig) {
+            requiresCard = config.tangemSigner.hasNFCInteraction
+        }
+
+        func deriveKeys(
+            derivations: [Data: [DerivationPath]],
+            completion: @escaping (Result<DerivationResult, Error>) -> Void
+        ) {
+            completion(.failure("Locked wallet does not support keys deriving using '\(#function)'"))
+        }
+    }
+
+    final class DummyTangemPayAuthorizer: TangemPayAuthorizing {
+        var syncNeededTitle: String { .empty }
+
+        func authorize(
+            customerWalletId: String,
+            authorizationService: TangemPay.TangemPayAuthorizationService
+        ) async throws -> TangemPayAuthorizingResponse {
+            throw "Locked wallet does not support Tangem Pay authorization using '\(#function)'"
         }
     }
 }
