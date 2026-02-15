@@ -28,13 +28,22 @@ extension CommonAccountsAwareTokenSelectorWalletsProvider: AccountsAwareTokenSel
 private extension CommonAccountsAwareTokenSelectorWalletsProvider {
     func mapToAccountsAwareTokenSelectorWallet(userWalletModel: any UserWalletModel) -> AccountsAwareTokenSelectorWallet {
         let userWalletInfo = userWalletModel.userWalletInfo
-        let accounts = mapToAccountType(accountModels: userWalletModel.accountModelsManager.accountModels, userWalletInfo: userWalletInfo)
+        let isUserWalletLocked = userWalletModel.isUserWalletLocked
+        let accounts = mapToAccountType(
+            accountModels: userWalletModel.accountModelsManager.accountModels,
+            userWalletInfo: userWalletInfo,
+            isUserWalletLocked: isUserWalletLocked
+        )
         let accountsPublisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
             .map { mapper, accountModels in
-                mapper.mapToAccountType(accountModels: accountModels, userWalletInfo: userWalletInfo)
+                mapper.mapToAccountType(
+                    accountModels: accountModels,
+                    userWalletInfo: userWalletInfo,
+                    isUserWalletLocked: isUserWalletLocked
+                )
             }
             .eraseToAnyPublisher()
 
@@ -54,10 +63,14 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         return AccountsAwareTokenSelectorAccount(cryptoAccount: cryptoAccount, itemsProvider: itemsProvider)
     }
 
-    func mapToAccountType(accountModels: [AccountModel], userWalletInfo: UserWalletInfo) -> AccountsAwareTokenSelectorWallet.AccountType {
+    func mapToAccountType(
+        accountModels: [AccountModel],
+        userWalletInfo: UserWalletInfo,
+        isUserWalletLocked: Bool
+    ) -> AccountsAwareTokenSelectorWallet.AccountType {
         switch accountModels.firstStandard() {
         case .none:
-            assertionFailure("UserWalletModel does not contain CryptoAccount")
+            assert(isUserWalletLocked, "Non-locked wallet should contain at least one crypto account (main)")
             return .multiple([])
         case .standard(.single(let account)):
             return .single(
