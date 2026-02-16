@@ -9,6 +9,7 @@
 import UIKit
 import SwiftUI
 import Combine
+import TangemFoundation
 
 struct StepsFlowContent: UIViewControllerRepresentable {
     private let builder: StepsFlowBuilder
@@ -23,7 +24,7 @@ struct StepsFlowContent: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIViewController {
         let flowVC = StepsFlowContentViewController()
-        context.coordinator.viewController = flowVC
+        context.coordinator.contentViewController = flowVC
         context.coordinator.bind(builder: builder)
         return flowVC
     }
@@ -32,15 +33,16 @@ struct StepsFlowContent: UIViewControllerRepresentable {
 }
 
 final class StepsFlowCoordinator {
-    weak var viewController: StepsFlowContentViewController?
+    weak var contentViewController: StepsFlowContentViewController?
 
     private var actionSubscription: AnyCancellable?
 
     func bind(builder: StepsFlowBuilder) {
         actionSubscription = builder.actionPublisher
             .compactMap { $0 }
+            .receiveOnMain()
             .sink { [weak self] action in
-                self?.viewController?.handle(action: action)
+                self?.contentViewController?.handle(action: action)
             }
     }
 }
@@ -119,7 +121,6 @@ private extension StepsFlowContentViewController {
                 }
             )
         } else {
-            view.addSubview(newVC.view)
             newVC.view.alpha = 1
             newVC.didMove(toParent: self)
         }
@@ -150,7 +151,6 @@ private struct StepView: View {
 
             // Workaround: forces the navigation bar to reset.
             Color.clear
-                .allowsTightening(false)
                 .stepsFlowNavBar(title: nil)
                 .stepsFlowNavBar()
                 .stepsFlow(isLoading: false)
