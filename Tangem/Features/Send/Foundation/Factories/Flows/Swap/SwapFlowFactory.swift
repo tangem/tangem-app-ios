@@ -8,15 +8,15 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SwapFlowFactory: SendFlowBaseDependenciesFactory {
+class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var swapModel = makeSwapModel(analyticsLogger: analyticsLogger)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: swapModel)
 
     init(
         sourceToken: SendSourceToken,
@@ -55,19 +55,19 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         )
 
         // Steps setup
-        fee.compact.bind(input: sendModel)
-        fee.finish.bind(input: sendModel)
+        fee.compact.bind(input: swapModel)
+        fee.finish.bind(input: swapModel)
 
         // Notifications setup
-        notificationManager.setup(input: sendModel)
-        notificationManager.setupManager(with: sendModel)
+        // notificationManager.setup(input: swapModel)
+        // notificationManager.setupManager(with: swapModel)
 
         // Logger setup
-        analyticsLogger.setup(sendDestinationInput: sendModel)
-        analyticsLogger.setup(sendFeeInput: sendModel)
-        analyticsLogger.setup(sendSourceTokenInput: sendModel)
-        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
-        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
+        // analyticsLogger.setup(sendDestinationInput: swapModel)
+        analyticsLogger.setup(sendFeeInput: swapModel)
+        analyticsLogger.setup(sendSourceTokenInput: swapModel)
+        analyticsLogger.setup(sendReceiveTokenInput: swapModel)
+        analyticsLogger.setup(sendSwapProvidersInput: swapModel)
 
         let stepsManager = CommonSwapStepsManager(
             summaryStep: summary,
@@ -80,8 +80,8 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
         summary.set(router: stepsManager)
 
-        sendModel.router = viewModel
-        sendModel.alertPresenter = viewModel
+        swapModel.router = viewModel
+        swapModel.alertPresenter = viewModel
 
         return viewModel
     }
@@ -91,19 +91,19 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
 extension SwapFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: sendModel, output: sendModel)
+        SendViewModelBuilder.IO(input: swapModel, output: swapModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
-                baseDataInput: sendModel,
+                baseDataInput: swapModel,
                 approveDataInput: swapManager,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
+                    sourceTokenInput: swapModel,
+                    receiveTokenOutput: swapModel,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )
@@ -120,11 +120,11 @@ extension SwapFlowFactory: SendBaseBuildable {
 extension SwapFlowFactory: SwapSummaryStepBuildable {
     var summaryIO: SwapSummaryStepBuilder.IO {
         SwapSummaryStepBuilder.IO(
-            input: sendModel,
-            output: sendModel,
-            sourceTokenInput: sendModel,
-            receiveTokenInput: sendModel,
-            receiveTokenAmountInput: sendModel
+            input: swapModel,
+            output: swapModel,
+            sourceTokenInput: swapModel,
+            receiveTokenInput: swapModel,
+            receiveTokenAmountInput: swapModel
         )
     }
 
@@ -148,8 +148,8 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
 extension SwapFlowFactory: SendFeeStepBuildable {
     var feeDependencies: SendFeeStepBuilder.Dependencies {
         SendFeeStepBuilder.Dependencies(
-            tokenFeeManagerProviding: sendModel,
-            feeSelectorOutput: sendModel,
+            tokenFeeManagerProviding: swapModel,
+            feeSelectorOutput: swapModel,
             analyticsLogger: analyticsLogger
         )
     }
@@ -159,7 +159,7 @@ extension SwapFlowFactory: SendFeeStepBuildable {
 
 extension SwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendSwapProvidersBuilder.IO(input: swapModel, output: swapModel, receiveTokenInput: swapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
@@ -179,7 +179,7 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
 
 extension SwapFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
-        SendFinishStepBuilder.IO(input: sendModel)
+        SendFinishStepBuilder.IO(input: swapModel)
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
