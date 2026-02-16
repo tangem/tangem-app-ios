@@ -89,8 +89,8 @@ extension ExpressCoordinator: ExpressRoutable {
 
         swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            coordinator: self,
-            additionRoutable: marketsTokenAdditionCoordinator
+            tokenSelectorCoordinator: self,
+            marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )
     }
 
