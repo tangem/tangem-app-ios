@@ -1335,7 +1335,7 @@
 		B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09933A12B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift */; };
 		B09B19B92D8D5F5D008358C7 /* VisaWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09B19B82D8D5F5D008358C7 /* VisaWalletModel.swift */; };
 		B09B577B2D06F500008DBE1C /* VisaApprovePairSearchUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09B577A2D06F500008DBE1C /* VisaApprovePairSearchUtility.swift */; };
-		B09BB85F259A075600B92000 /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
+		B09BB85F259A075600B92000 /* TangemButtonLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButtonLegacy.swift */; };
 		B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB856259A075500B92000 /* ButtonStyles.swift */; };
 		B09BB864259A075600B92000 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB85C259A075600B92000 /* CustomTextField.swift */; };
 		B09BD0022ACEE4F800CAB754 /* NotificationTransitionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BD0012ACEE4F800CAB754 /* NotificationTransitionModifier.swift */; };
@@ -6224,7 +6224,7 @@
 		B09933A12B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMainHeaderProviderFactory.swift; sourceTree = "<group>"; };
 		B09B19B82D8D5F5D008358C7 /* VisaWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaWalletModel.swift; sourceTree = "<group>"; };
 		B09B577A2D06F500008DBE1C /* VisaApprovePairSearchUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaApprovePairSearchUtility.swift; sourceTree = "<group>"; };
-		B09BB855259A075500B92000 /* TangemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemButton.swift; sourceTree = "<group>"; };
+		B09BB855259A075500B92000 /* TangemButtonLegacy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemButtonLegacy.swift; sourceTree = "<group>"; };
 		B09BB856259A075500B92000 /* ButtonStyles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		B09BB85C259A075600B92000 /* CustomTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		B09BD0012ACEE4F800CAB754 /* NotificationTransitionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTransitionModifier.swift; sourceTree = "<group>"; };
@@ -14299,7 +14299,7 @@
 		B09BB853259A075500B92000 /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
-				B09BB855259A075500B92000 /* TangemButton.swift */,
+				B09BB855259A075500B92000 /* TangemButtonLegacy.swift */,
 				B09BB856259A075500B92000 /* ButtonStyles.swift */,
 			);
 			path = Buttons;
@@ -28983,7 +28983,7 @@
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B0BDF9BA2B4D3BB300EEBE4F /* MainHeaderUserWalletStateInfoProvider.swift in Sources */,
 				B6DF90592CA302280099FED5 /* MainCoordinatorNavigationAssertion.swift in Sources */,
-				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
+				B09BB85F259A075600B92000 /* TangemButtonLegacy.swift in Sources */,
 				C207D5EE2DE60DF100A5FB2E /* WalletConnectNetworksSelectorViewEvent.swift in Sources */,
 				C207D5EF2DE60DF100A5FB2E /* WalletConnectNetworksSelectorViewModel.swift in Sources */,
 				C207D5F02DE60DF100A5FB2E /* WalletConnectNetworksSelectorViewState.swift in Sources */,
