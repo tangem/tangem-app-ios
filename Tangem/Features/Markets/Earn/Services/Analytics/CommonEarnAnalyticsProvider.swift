@@ -87,17 +87,7 @@ final class CommonEarnAnalyticsProvider: EarnAnalyticsProvider {
 
     func logAccountSelectorOpened() {}
 
-    // MARK: - EarnAnalyticsProvider (continued)
-
-    func logPageLoadError(errorCode: String, errorMessage: String) {
-        Analytics.log(
-            event: .earnPageLoadError,
-            params: [
-                .errorCode: errorCode,
-                .errorMessage: errorMessage,
-            ]
-        )
-    }
+    // MARK: - EarnAnalyticsProvider
 
     func logBestOpportunitiesLoadError(errorCode: String, errorMessage: String) {
         Analytics.log(
