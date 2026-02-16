@@ -39,16 +39,19 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     // MARK: - Private Properties
 
     private let filterProvider: EarnDataFilterProvider
+    private let analyticsProvider: EarnAnalyticsProvider
     private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
     init(
         filterProvider: EarnDataFilterProvider,
+        analyticsProvider: EarnAnalyticsProvider,
         blockchainIconProvider: NetworkImageProvider = NetworkImageProvider(),
         onDismiss: (() -> Void)? = nil
     ) {
         self.filterProvider = filterProvider
+        self.analyticsProvider = analyticsProvider
         dismissAction = onDismiss
         currentSelection = filterProvider.selectedNetworkFilter
 
@@ -86,7 +89,23 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     private func selectAndDismiss(network: EarnNetworkFilterType) {
         currentSelection = network
+        let (networkFilterType, networkId) = analyticsNetworkFilterParams(for: network)
+        analyticsProvider.logBestOpportunitiesFilterNetworkApplied(
+            networkFilterType: networkFilterType,
+            networkId: networkId
+        )
         filterProvider.didSelectNetworkFilter(network)
         dismissAction?()
+    }
+
+    private func analyticsNetworkFilterParams(for network: EarnNetworkFilterType) -> (String, String) {
+        switch network {
+        case .all:
+            return ("All Networks", "")
+        case .userNetworks:
+            return ("My Networks", "")
+        case .specific(let networkInfo):
+            return ("Specific", networkInfo.networkId)
+        }
     }
 }
