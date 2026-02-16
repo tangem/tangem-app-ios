@@ -77,19 +77,13 @@ private extension AccountsAwareActionButtonsBuyViewModel {
 
     func filterHotTokens(_ hotTokens: [HotCryptoToken]) -> [HotCryptoToken] {
         hotTokens.filter { hotToken in
-            guard let tokenItem = hotToken.tokenItem, let coinId = tokenItem.id else { return false }
+            guard let tokenItem = hotToken.tokenItem else { return false }
 
-            let network = NetworkModel(
-                networkId: tokenItem.networkId,
-                contractAddress: tokenItem.contractAddress,
-                decimalCount: tokenItem.decimalCount
-            )
-
-            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
-                coinId: coinId,
-                availableNetworks: [network],
+            let isAddedOnAll = TokenAdditionChecker.areTokenItemsAddedInAllAccounts(
                 userWalletModels: userWalletModels
-            )
+            ) { _, _ in
+                [tokenItem]
+            }
 
             return !isAddedOnAll
         }
