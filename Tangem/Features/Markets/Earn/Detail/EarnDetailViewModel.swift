@@ -163,7 +163,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             if tokenViewModels.isEmpty {
                 listLoadingState = .error
             }
-            
+
             handleAnalyticsError(error)
         case .appendedItems(let models, let lastPage):
             appendTokenViewModels(from: models, lastPage: lastPage)
@@ -172,7 +172,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             listLoadingState = .loading
         }
     }
-    
+
     private func handleAnalyticsError(_ error: Error) {
         let params = error.marketsAnalyticsParams
         let errorCode = params[.errorCode] ?? ""
