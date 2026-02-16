@@ -42,7 +42,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             expressCurrencyViewModel: .init(
                 viewType: .receive,
                 headerType: .action(name: Localization.swappingToTitle),
-                canChangeCurrency: receiveTokenInput.receiveToken.tokenItem != initialTokenItem
+                canChangeCurrency: receiveTokenInput.receiveToken.value?.tokenItem != initialTokenItem
             )
         )
 

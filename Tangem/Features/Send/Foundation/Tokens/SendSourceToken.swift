@@ -12,15 +12,15 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
-protocol GenericSourceToken {
+protocol GenericSourceToken: SendReceiveToken {
     var userWalletInfo: UserWalletInfo { get }
 
     var id: WalletModelId { get }
     var header: SendTokenHeader { get }
-    var tokenItem: TokenItem { get }
+    /// var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
-    var tokenIconInfo: TokenIconInfo { get }
-    var fiatItem: FiatItem { get }
+    // var tokenIconInfo: TokenIconInfo { get }
+    // var fiatItem: FiatItem { get }
     var isCustom: Bool { get }
     var possibleToConvertToFiat: Bool { get }
     var defaultAddressString: String { get }
