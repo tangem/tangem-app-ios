@@ -237,12 +237,12 @@ extension SwapModel: SendReceiveTokenInput {
         true
     }
 
-    var receiveToken: SendReceiveTokenType {
-        .swap(SendReceiveToken)
+    var receiveToken: LoadingResult<any SendReceiveToken, any Error> {
+        _receiveToken.value.mapValue { $0 as SendReceiveToken }
     }
 
-    var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
-        fatalError()
+    var receiveTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
+        _receiveToken.map { $0.mapValue { $0 as SendReceiveToken }}.eraseToAnyPublisher()
     }
 }
 
@@ -306,7 +306,7 @@ extension SwapModel: SendReceiveTokenAmountInput {
             return .failure(SendAmountError.noAmount)
         }
 
-        let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+        let fiat = receiveToken.value?.tokenItem.currencyId.flatMap { currencyId in
             balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
         }
         return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
@@ -318,16 +318,16 @@ extension SwapModel: SendReceiveTokenAmountInput {
         provider: ExpressProvider?
     ) async throws -> HighPriceImpactCalculator.Result? {
         guard let source = sourceToken.value,
+              let receive = receiveToken.value,
               let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
               let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
-              let provider = provider,
-              case .swap(let receiveToken) = receiveToken else {
+              let provider = provider else {
             return nil
         }
 
         let impactCalculator = HighPriceImpactCalculator(
             source: source.tokenItem,
-            destination: receiveToken.tokenItem
+            destination: receive.tokenItem
         )
 
         let result = try await impactCalculator.isHighPriceImpact(
@@ -421,7 +421,7 @@ extension SwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { $0.isReadyToSend(token: $1) }
+            .flatMapLatest { $0.0.isReadyToSend() }
             .eraseToAnyPublisher()
     }
 
@@ -436,15 +436,15 @@ extension SwapModel: SendSummaryInput, SendSummaryOutput {
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { $0.summaryTransactionData(token: $1) }
+            .flatMapLatest { $0.0.summaryTransactionData() }
             .eraseToAnyPublisher()
     }
 
-    private func isReadyToSend(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+    private func isReadyToSend() -> AnyPublisher<Bool, Never> {
         .just(output: false)
     }
 
-    private func summaryTransactionData(token: SendReceiveTokenType) -> AnyPublisher<SendSummaryTransactionData?, Never> {
+    private func summaryTransactionData() -> AnyPublisher<SendSummaryTransactionData?, Never> {
         .just(output: .none)
     }
 }
