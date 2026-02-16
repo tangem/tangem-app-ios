@@ -13,24 +13,11 @@ import TangemUIUtils
 import TangemLocalization
 import TangemMacro
 
-protocol SwapSummaryInteractor: AnyObject {
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
-    var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
-    var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
-    var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
-
-    func userDidRequestSwapSourceAndReceiveToken()
-    func userDidRequestSwap()
-}
-
-final class SwapSummaryViewModel: ObservableObject {
-    @Published private(set) var swapSourceTokenViewModel: SwapSourceTokenViewModel?
-    @Published private(set) var isSwapButtonLoading: Bool = false
-    @Published private(set) var isSwapButtonDisabled: Bool = false
-    @Published private(set) var swapReceiveTokenViewModel: SwapReceiveTokenViewModel?
+final class SwapSummaryViewModel: ObservableObject, Identifiable {
+    @Published private(set) var swapAmountViewModel: SwapAmountViewModel
 
     @Published private(set) var providerState: ProviderState?
-    @Published private(set) var expressFeeRowViewModel: FeeCompactViewModel?
+    @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading = false
@@ -43,7 +30,6 @@ final class SwapSummaryViewModel: ObservableObject {
     @Published private(set) var mainButtonState: MainButtonState = .swap
 
     @Published private(set) var transactionDescription: AttributedString?
-
     @Published private(set) var alert: AlertBinder?
 
     private let interactor: SwapSummaryInteractor
@@ -56,10 +42,14 @@ final class SwapSummaryViewModel: ObservableObject {
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
+        swapAmountViewModel: SwapAmountViewModel,
+        feeCompactViewModel: SendFeeCompactViewModel,
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.analyticsLogger = analyticsLogger
+        self.swapAmountViewModel = swapAmountViewModel
+        self.feeCompactViewModel = feeCompactViewModel
 
         bind()
     }
@@ -76,18 +66,6 @@ final class SwapSummaryViewModel: ObservableObject {
             .assign(to: &$isMaxAmountButtonHidden)
     }
 
-    func userDidTapChangeSourceTokenButton() {
-        router?.summaryStepRequestEditSourceToken()
-    }
-
-    func userDidTapSwapSourceAndReceiveTokensButton() {
-        interactor.userDidRequestSwapSourceAndReceiveToken()
-    }
-
-    func userDidTapChangeReceiveTokenButton() {
-        router?.summaryStepRequestEditReceiveToken()
-    }
-
     func userDidTapSwapProvider() {
         router?.summaryStepRequestEditProviders()
     }
@@ -100,6 +78,22 @@ final class SwapSummaryViewModel: ObservableObject {
 
     func userDidTapMainActionButton() {
         interactor.userDidRequestSwap()
+    }
+}
+
+// MARK: - SwapAmountCompactRoutable
+
+extension SwapSummaryViewModel: SwapAmountCompactRoutable {
+    func userDidTapChangeSourceTokenButton() {
+        router?.summaryStepRequestEditSourceToken()
+    }
+
+    func userDidTapSwapSourceAndReceiveTokensButton() {
+        interactor.userDidRequestSwapSourceAndReceiveToken()
+    }
+
+    func userDidTapChangeReceiveTokenButton() {
+        router?.summaryStepRequestEditReceiveToken()
     }
 }
 

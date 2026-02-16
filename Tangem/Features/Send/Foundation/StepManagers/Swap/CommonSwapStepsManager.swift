@@ -14,7 +14,6 @@ class CommonSwapStepsManager {
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
-    private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -29,14 +28,12 @@ class CommonSwapStepsManager {
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
-        summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
     ) {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
-        self.summaryTitleProvider = summaryTitleProvider
         self.router = router
 
         stack = [summaryStep]
@@ -72,8 +69,8 @@ extension CommonSwapStepsManager: SendStepsManager {
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
-        case .summary:
-            return .init(title: summaryTitleProvider.title, trailingViewType: .closeButton)
+        case .swap:
+            return .init(title: Localization.commonSwap, trailingViewType: .closeButton)
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:
@@ -83,18 +80,14 @@ extension CommonSwapStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .summary: .init(action: .action)
+        case .swap: .init(action: .none)
         case .finish: .init(action: .close)
         default: .empty
         }
     }
 
     var shouldShowDismissAlert: Bool {
-        if currentStep().type.isFinish {
-            return false
-        }
-
-        return stack.contains(where: { $0.type.isSummary })
+        return false
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -104,36 +97,24 @@ extension CommonSwapStepsManager: SendStepsManager {
     func performFinish() {
         next(step: finishStep)
     }
-
-    func performContinue() {
-        assert(stack.contains(where: { $0.type.isSummary }), "Continue is possible only after summary")
-
-        guard currentStep().canBeClosed(continueAction: back) else {
-            return
-        }
-
-        back()
-    }
 }
 
 // MARK: - SendSummaryStepsRoutable
 
-extension CommonSwapStepsManager: SendSummaryStepsRoutable {
-    func summaryStepRequestEditFee() {
-        guard currentStep().type.isSummary else {
-            assertionFailure("This code should only be called from summary")
-            return
-        }
+extension CommonSwapStepsManager: SwapSummaryStepRoutable {
+    func summaryStepRequestEditSourceToken() {
+        // [REDACTED_TODO_COMMENT]
+    }
 
+    func summaryStepRequestEditReceiveToken() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func summaryStepRequestEditFee() {
         router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 
     func summaryStepRequestEditProviders() {
-        guard currentStep().type.isSummary else {
-            assertionFailure("This code should only be called from summary")
-            return
-        }
-
         router?.openSwapProvidersSelector(viewModel: providersSelector)
     }
 }

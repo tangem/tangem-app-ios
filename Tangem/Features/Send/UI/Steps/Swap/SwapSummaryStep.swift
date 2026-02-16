@@ -11,24 +11,21 @@ import Combine
 import SwiftUI
 
 class SwapSummaryStep {
-    private let viewModel: SendSummaryViewModel
-    private let interactor: SendSummaryInteractor
+    private let viewModel: SwapSummaryViewModel
+    private let interactor: SwapSummaryInteractor
     private let analyticsLogger: SendSummaryAnalyticsLogger
-    private let sendFeeProvider: SendFeeUpdater
 
     init(
-        viewModel: SendSummaryViewModel,
-        interactor: SendSummaryInteractor,
+        viewModel: SwapSummaryViewModel,
+        interactor: SwapSummaryInteractor,
         analyticsLogger: SendSummaryAnalyticsLogger,
-        sendFeeProvider: SendFeeUpdater
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
-        self.sendFeeProvider = sendFeeProvider
     }
 
-    func set(router: SendSummaryStepsRoutable) {
+    func set(router: SwapSummaryStepRoutable) {
         viewModel.router = router
     }
 }
@@ -36,7 +33,7 @@ class SwapSummaryStep {
 // MARK: - SendStep
 
 extension SwapSummaryStep: SendStep {
-    var type: SendStepType { .summary(viewModel) }
+    var type: SendStepType { .swap(viewModel) }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         interactor.isUpdatingPublisher.eraseToAnyPublisher()
@@ -48,6 +45,5 @@ extension SwapSummaryStep: SendStep {
 
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
-        sendFeeProvider.updateFees()
     }
 }
