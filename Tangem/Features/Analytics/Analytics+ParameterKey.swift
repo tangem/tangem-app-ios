@@ -115,6 +115,10 @@ extension Analytics {
 
         case selectedCategories = "Selected Categories"
 
+        // MARK: - Earn
+
+        case networkFilterType = "Network Filter Type"
+
         // MARK: - Wallet Connect
 
         case walletConnectDAppName = "DApp Name"
