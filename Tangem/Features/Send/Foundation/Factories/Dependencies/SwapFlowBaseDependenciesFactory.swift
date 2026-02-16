@@ -15,21 +15,15 @@ protocol SwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
 extension SwapFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
-    func makeSwapModel(
-        swapManager: SwapManager,
-        analyticsLogger: any SendAnalyticsLogger,
-        predefinedValues: SendModel.PredefinedValues
-    ) -> SendModel {
-        SendModel(
-            userWalletId: userWalletInfo.id,
-            userToken: sourceToken,
-            transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
-            analyticsLogger: analyticsLogger,
-            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
-            sendAlertBuilder: makeSendAlertBuilder(),
-            swapManager: swapManager,
-            predefinedValues: predefinedValues
+    func makeSwapModel(analyticsLogger: any SendAnalyticsLogger) -> SwapModel {
+        SwapModel(
+            sourceToken: sourceToken,
+            receiveToken: .none,
+            expressManager: expressDependenciesFactory.expressManager,
+            expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
+            expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
+            expressDestinationService: expressDependenciesFactory.expressDestinationService,
+            expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
         )
     }
 }

@@ -40,6 +40,7 @@ struct SendSourceTokenFactory {
             isCustom: walletModel.isCustom,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
+            isCustom: walletModel.isCustom,
             possibleToConvertToFiat: possibleToConvertToFiat,
             availableBalanceProvider: walletModel.availableBalanceProvider,
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,

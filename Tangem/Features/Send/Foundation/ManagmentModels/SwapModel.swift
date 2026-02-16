@@ -45,6 +45,7 @@ final class SwapModel {
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
 
+    private let balanceConverter = BalanceConverter()
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -141,8 +142,8 @@ extension SwapModel {
                 )
 
                 _receiveToken.send(.loading)
-                // let destination = try await expressDestinationService.getDestination(source: source)
-                // update(receive: destination)
+                let destination: SwapSourceToken = try await expressDestinationService.getDestination(source: source.tokenItem)
+                update(receive: destination)
 
             case (_, .success(let destination)):
                 try await expressPairsRepository.updatePairs(
@@ -151,8 +152,8 @@ extension SwapModel {
                 )
 
                 _sourceToken.send(.loading)
-                // let source = try await expressDestinationService.getSource(destination: destination)
-                // update(source: source)
+                let source: SwapSourceToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
+                update(source: source)
 
             default:
                 assertionFailure("Wrong case. Check implementation")
@@ -193,7 +194,7 @@ extension SwapModel: SendSourceTokenInput {
     }
 }
 
-// MARK: - SendReceiveTokenOutput
+// MARK: - SendSourceTokenOutput
 
 extension SwapModel: SendSourceTokenOutput {
     func userDidSelect(sourceToken: SendSourceToken) {
@@ -237,7 +238,7 @@ extension SwapModel: SendReceiveTokenInput {
     }
 
     var receiveToken: SendReceiveTokenType {
-        fatalError()
+        .swap(SendReceiveToken)
     }
 
     var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
@@ -254,6 +255,243 @@ extension SwapModel: SendReceiveTokenOutput {
 
     func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
         // _receiveToken.send(newReceiveToken)
+    }
+}
+
+// MARK: - SendReceiveTokenAmountInput
+
+extension SwapModel: SendReceiveTokenAmountInput {
+    var receiveAmount: LoadingResult<SendAmount, any Error> {
+        mapToReceiveSendAmount(state: _selectedProvider.value?.value?.getState())
+    }
+
+    var receiveAmountPublisher: AnyPublisher<TangemFoundation.LoadingResult<SendAmount, any Error>, Never> {
+        _selectedProvider
+            .withWeakCaptureOf(self)
+            .map { $0.mapToReceiveSendAmount(state: $1?.value?.getState()) }
+            .eraseToAnyPublisher()
+    }
+
+    var highPriceImpact: HighPriceImpactCalculator.Result? {
+        get async {
+            try? await mapToHighPriceImpactCalculatorResult(
+                sourceTokenAmount: sourceAmount.value,
+                receiveTokenAmount: receiveAmount.value,
+                provider: _selectedProvider.value?.value?.provider
+            )
+        }
+    }
+
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        Publishers.CombineLatest3(
+            sourceAmountPublisher.compactMap { $0.value },
+            receiveAmountPublisher.compactMap { $0.value },
+            selectedExpressProviderPublisher.compactMap { $0?.provider }
+        )
+        .withWeakCaptureOf(self)
+        .setFailureType(to: Error.self)
+        .asyncTryMap {
+            try await $0.mapToHighPriceImpactCalculatorResult(
+                sourceTokenAmount: $1.0,
+                receiveTokenAmount: $1.1,
+                provider: $1.2
+            )
+        }
+        .replaceError(with: nil)
+        .eraseToAnyPublisher()
+    }
+
+    private func mapToReceiveSendAmount(state: ExpressProviderManagerState?) -> LoadingResult<SendAmount, any Error> {
+        guard let quote = state?.quote else {
+            return .failure(SendAmountError.noAmount)
+        }
+
+        let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
+        }
+        return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
+    }
+
+    private func mapToHighPriceImpactCalculatorResult(
+        sourceTokenAmount: SendAmount?,
+        receiveTokenAmount: SendAmount?,
+        provider: ExpressProvider?
+    ) async throws -> HighPriceImpactCalculator.Result? {
+        guard let source = sourceToken.value,
+              let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
+              let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
+              let provider = provider,
+              case .swap(let receiveToken) = receiveToken else {
+            return nil
+        }
+
+        let impactCalculator = HighPriceImpactCalculator(
+            source: source.tokenItem,
+            destination: receiveToken.tokenItem
+        )
+
+        let result = try await impactCalculator.isHighPriceImpact(
+            provider: provider,
+            sourceFiatAmount: sourceTokenFiatAmount,
+            destinationFiatAmount: receiveTokenFiatAmount
+        )
+
+        return result
+    }
+}
+
+// MARK: - SendSwapProvidersInput
+
+extension SwapModel: SendSwapProvidersInput {
+    var expressProviders: [ExpressAvailableProvider] {
+        _availableProviders.value?.value ?? []
+    }
+
+    var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
+        _availableProviders.compactMap { $0?.value }.eraseToAnyPublisher()
+    }
+
+    var selectedExpressProvider: ExpressAvailableProvider? {
+        _selectedProvider.value?.value
+    }
+
+    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+        _selectedProvider.map { $0?.value }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendSwapProvidersOutput
+
+extension SwapModel: SendSwapProvidersOutput {
+    func userDidSelect(provider: ExpressAvailableProvider) {
+        _selectedProvider.send(.success(provider))
+    }
+}
+
+// MARK: - SendFeeInput
+
+extension SwapModel: SendFeeInput {
+    var selectedFee: TokenFee? {
+        tokenFeeProvidersManager?.selectedTokenFee
+    }
+
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
+        tokenFeeProvidersManagerPublisher
+            .flatMapLatest { $0.selectedTokenFeePublisher }
+            .eraseToAnyPublisher()
+    }
+
+    var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
+        tokenFeeProvidersManagerPublisher
+            .flatMapLatest { $0.supportFeeSelectionPublisher }
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding
+
+extension SwapModel: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
+        _selectedProvider.value?.value?.manager.feeProvider as? TokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        _selectedProvider
+            .compactMap { $0?.value?.manager as? TokenFeeProvidersManager }
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - FeeSelectorOutput
+
+extension SwapModel: FeeSelectorOutput {
+    func userDidDismissFeeSelection() {
+        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+    }
+
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+        tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+        tokenFeeProvidersManager?.update(feeOption: feeOption)
+    }
+}
+
+// MARK: - SendSummaryInput, SendSummaryOutput
+
+extension SwapModel: SendSummaryInput, SendSummaryOutput {
+    var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.isReadyToSend(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
+        tokenFeeProvidersManagerPublisher
+            .flatMapLatest { $0.selectedFeeProviderPublisher }
+            .flatMapLatest { $0.statePublisher.map(\.isLoading) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.summaryTransactionData(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func isReadyToSend(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    private func summaryTransactionData(token: SendReceiveTokenType) -> AnyPublisher<SendSummaryTransactionData?, Never> {
+        .just(output: .none)
+    }
+}
+
+// MARK: - SendFinishInput
+
+extension SwapModel: SendFinishInput {
+    var transactionSentDate: AnyPublisher<Date, Never> {
+        _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
+    }
+
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendBaseInput, SendBaseOutput
+
+extension SwapModel: SendBaseInput, SendBaseOutput {
+    func stopSwapProvidersAutoUpdateTimer() {
+        // swapManager.stopTimer()
+    }
+
+    var actionInProcessing: AnyPublisher<Bool, Never> {
+        _isSending.eraseToAnyPublisher()
+    }
+
+    func actualizeInformation() {}
+
+    func performAction() async throws -> TransactionDispatcherResult {
+        throw TransactionDispatcherResult.Error.actionNotSupported
+    }
+}
+
+// MARK: - SendBaseDataBuilderInput
+
+extension SwapModel: SendBaseDataBuilderInput {
+    var bsdkAmount: BSDKAmount? {
+        nil //  _amount.value?.crypto.map { makeAmount(decimal: $0) }
+    }
+
+    var bsdkFee: BSDKFee? {
+        selectedFee?.value.value
+    }
+
+    var isFeeIncluded: Bool {
+        false
     }
 }
 
