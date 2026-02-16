@@ -673,7 +673,6 @@ private extension ExpressInteractor {
                 // Do nothing
                 log("The update task was cancelled")
             } catch {
-                // Log specific error types for debugging
                 switch error {
                 case let error as ExpressAPIError:
                     await logExpressError(error)
@@ -685,7 +684,6 @@ private extension ExpressInteractor {
                     break
                 }
 
-                // All errors use consistent handling - preserve quote and allow retry
                 let quote = getState().quote
                 updateState(.requiredRefresh(occurredError: error, quote: quote))
             }
