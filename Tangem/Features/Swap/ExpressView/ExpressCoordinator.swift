@@ -182,30 +182,6 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
     }
 }
 
-// MARK: - AccountsAwareAddTokenFlowRoutable
-
-extension ExpressCoordinator: AccountsAwareAddTokenFlowRoutable {
-    func close() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
-
-    func presentSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
-            .present(
-                layout: .top(padding: ToastConstants.topPadding),
-                type: .temporary()
-            )
-    }
-
-    func presentErrorToast(with text: String) {
-        Toast(view: WarningToast(text: text))
-            .present(
-                layout: .top(padding: ToastConstants.topPadding),
-                type: .temporary()
-            )
-    }
-}
-
 // MARK: - ExpressApproveRoutable
 
 extension ExpressCoordinator: ExpressApproveRoutable {
@@ -229,13 +205,5 @@ extension ExpressCoordinator: ExpressApproveRoutable {
 extension ExpressCoordinator: ExpressProvidersSelectorRoutable {
     func closeExpressProvidersSelector() {
         expressProvidersSelectorViewModel = nil
-    }
-}
-
-// MARK: - Constants
-
-private extension ExpressCoordinator {
-    enum ToastConstants {
-        static let topPadding: CGFloat = 52
     }
 }

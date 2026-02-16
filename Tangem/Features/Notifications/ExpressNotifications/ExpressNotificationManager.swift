@@ -111,16 +111,9 @@ final class ExpressNotificationManager {
             event = .noDestinationTokens(tokenName: destinationTokenItem.name)
         case .noDestinationTokens(let sourceTokenItem):
             event = .noDestinationTokens(tokenName: sourceTokenItem.name)
-        case .tokenNotSupportedForSwap(let tokenItem):
-            event = .tokenNotSupportedForSwap(tokenName: tokenItem.name)
         }
 
-        let notificationsFactory = NotificationsFactory()
-        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
-            self?.delegate?.didTapNotification(with: id, action: actionType)
-        }
-
-        await updateNotificationInputs([notification])
+        await setupNotification(for: event)
     }
 
     private func setupNotification(for restriction: ExpressInteractor.RuntimeRestrictionType) async {
@@ -131,6 +124,10 @@ final class ExpressNotificationManager {
             event = .tokenNotSupportedForSwap(tokenName: tokenItem.name)
         }
 
+        await setupNotification(for: event)
+    }
+
+    private func setupNotification(for event: ExpressNotificationEvent) async {
         let notificationsFactory = NotificationsFactory()
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)

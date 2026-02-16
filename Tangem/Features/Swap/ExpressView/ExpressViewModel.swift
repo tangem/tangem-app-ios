@@ -412,8 +412,7 @@ private extension ExpressViewModel {
 
     func updateInputDisabled(state: ExpressInteractor.State) {
         switch state {
-        case .preloadRestriction(.tokenNotSupportedForSwap),
-             .runtimeRestriction(.tokenNotSupportedForSwap):
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
             isInputDisabled = true
             sendCurrencyViewModel?.update(isInputDisabled: true)
         default:
@@ -459,15 +458,14 @@ private extension ExpressViewModel {
         updateInputDisabled(state: state)
 
         switch state {
-        case .idle, .preloadRestriction(.noSourceTokens), .preloadRestriction(.noDestinationTokens):
+        case .idle, .preloadRestriction:
             isSwapButtonLoading = false
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .preloadRestriction(.tokenNotSupportedForSwap),
-             .runtimeRestriction(.tokenNotSupportedForSwap):
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
             isSwapButtonLoading = false
             stopTimer()
 

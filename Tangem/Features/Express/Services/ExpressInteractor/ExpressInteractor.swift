@@ -958,7 +958,6 @@ extension ExpressInteractor {
     enum PreloadRestrictionType {
         case noSourceTokens(destination: TokenItem)
         case noDestinationTokens(source: TokenItem)
-        case tokenNotSupportedForSwap(tokenItem: TokenItem)
     }
 
     enum RuntimeRestrictionType {
