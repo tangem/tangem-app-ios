@@ -33,9 +33,9 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             expressCurrencyViewModel: .init(
                 viewType: .send,
                 headerType: .action(name: Localization.swappingFromTitle),
-                canChangeCurrency: sourceTokenInput.sourceToken.tokenItem != initialTokenItem
+                canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialTokenItem
             ),
-            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: sourceTokenInput.sourceToken.value?.tokenItem.decimalCount ?? 0)
         )
 
         swapReceiveTokenViewModel = SwapReceiveTokenViewModel(
