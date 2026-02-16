@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemUI
 import TangemAssets
 
 public struct StepsFlowView: View {
