@@ -54,7 +54,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let earnDataProvider = CommonMarketsWidgetEarnService()
-
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
     private var bag = Set<AnyCancellable>()

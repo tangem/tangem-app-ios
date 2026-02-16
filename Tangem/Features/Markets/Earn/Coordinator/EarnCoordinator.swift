@@ -13,7 +13,7 @@ import TangemFoundation
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
-    let routeOnEarnTokenResolvedAction: (EarnTokenResolution) -> Void
+    let routeOnEarnTokenResolvedAction: (EarnTokenResolution, EarnOpportunitySource) -> Void
 
     // MARK: - Root ViewModels
 
@@ -28,13 +28,14 @@ final class EarnCoordinator: CoordinatorObject {
     // MARK: - Injected
 
     @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
+    @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
     // MARK: - Init
 
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
-        routeOnEarnTokenResolvedAction: @escaping (EarnTokenResolution) -> Void
+        routeOnEarnTokenResolvedAction: @escaping (EarnTokenResolution, EarnOpportunitySource) -> Void
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -49,8 +50,10 @@ final class EarnCoordinator: CoordinatorObject {
                 dataProvider: earnDataProvider,
                 filterProvider: filterProvider,
                 mostlyUsedTokens: options.mostlyUsedTokens,
-                coordinator: self
+                coordinator: self,
+                analyticsProvider: analyticsProvider
             )
+            analyticsProvider.logPageOpened()
         }
     }
 }
@@ -70,13 +73,14 @@ extension EarnCoordinator: EarnDetailRoutable {
         dismissAction(())
     }
 
-    func routeOnTokenResolved(_ resolution: EarnTokenResolution) {
-        routeOnEarnTokenResolvedAction(resolution)
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {
+        routeOnEarnTokenResolvedAction(resolution, source)
     }
 
     func openNetworksFilter() {
         networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
             filterProvider: filterProvider,
+            analyticsProvider: analyticsProvider,
             onDismiss: { [weak self] in
                 self?.networkFilterBottomSheetViewModel = nil
             }
@@ -86,6 +90,7 @@ extension EarnCoordinator: EarnDetailRoutable {
     func openTypesFilter() {
         typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
             filterProvider: filterProvider,
+            analyticsProvider: analyticsProvider,
             onDismiss: { [weak self] in
                 self?.typeFilterBottomSheetViewModel = nil
             }
