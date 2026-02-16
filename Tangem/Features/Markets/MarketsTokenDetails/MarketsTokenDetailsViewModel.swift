@@ -548,7 +548,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if FeatureProvider.isAvailable(.accounts) {
             accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
-                inputData: .init(coinId: tokenInfo.id),
+                inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
                 walletDataProvider: walletDataProvider,
                 coordinator: coordinator,
                 addTokenTapAction: { [weak self] in
