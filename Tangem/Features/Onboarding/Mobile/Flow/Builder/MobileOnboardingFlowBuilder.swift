@@ -14,5 +14,6 @@ class MobileOnboardingFlowBuilder: StepsFlowBuilder {
 
     init(hasProgressBar: Bool) {
         self.hasProgressBar = hasProgressBar
+        super.init()
     }
 }
