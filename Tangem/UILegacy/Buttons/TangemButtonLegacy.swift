@@ -1,5 +1,5 @@
 //
-//  TangemButton.swift
+//  TangemButtonLegacy.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 
-struct TangemButton: View {
+struct TangemButtonLegacy: View {
     let title: String
     var image: ImageType?
     var systemImage: String = ""
@@ -62,7 +62,7 @@ struct TangemButton: View {
     }
 }
 
-extension TangemButton {
+extension TangemButtonLegacy {
     enum IconPosition {
         case leading
         case trailing
@@ -73,8 +73,8 @@ extension TangemButton {
         image: ImageType? = nil,
         systemImage: String = "",
         action: @escaping () -> Void
-    ) -> TangemButton {
-        return TangemButton(
+    ) -> TangemButtonLegacy {
+        return TangemButtonLegacy(
             title: title,
             image: image,
             systemImage: systemImage,
@@ -85,19 +85,19 @@ extension TangemButton {
     }
 }
 
-struct TangemButton_Previews: PreviewProvider {
+struct TangemButtonLegacy_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            TangemButton(title: "Recharge de portefeuille", image: Assets.scan) {}
+            TangemButtonLegacy(title: "Recharge de portefeuille", image: Assets.scan) {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButton(title: "Scan", image: Assets.scan) {}
+            TangemButtonLegacy(title: "Scan", image: Assets.scan) {}
                 .buttonStyle(TangemButtonStyle(
                     colorStyle: .black,
                     layout: .big
                 ))
 
-            TangemButton(
+            TangemButtonLegacy(
                 title: Localization.commonExplore,
                 systemImage: "chevron.right",
                 iconPosition: .trailing
@@ -108,7 +108,7 @@ struct TangemButton_Previews: PreviewProvider {
                 ))
 
             HStack {
-                TangemButton(
+                TangemButtonLegacy(
                     title: Localization.commonSend,
                     image: Assets.scan
                 ) {}
@@ -117,13 +117,13 @@ struct TangemButton_Previews: PreviewProvider {
                         isLoading: true
                     ))
 
-                TangemButton.vertical(
+                TangemButtonLegacy.vertical(
                     title: Localization.commonBuy,
                     systemImage: "arrow.up"
                 ) {}
                     .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
-                TangemButton.vertical(
+                TangemButtonLegacy.vertical(
                     title: "Scan",
                     systemImage: "arrow.right"
                 ) {}
