@@ -24,6 +24,8 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private let chartsProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
     private let marketCapFormatter: MarketCapFormatter
+    
+    private let dayRatingFilter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
 
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: nil)
 
@@ -163,13 +165,12 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     }
 
     private func loadInitial() {
-        let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
-        dataProvider.fetch("", with: filter)
+        dataProvider.fetch("", with: dayRatingFilter)
     }
 
     private func performSearch(text: String) {
         let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
-        dataProvider.fetch(text, with: filter)
+        dataProvider.fetch(text, with: dayRatingFilter)
     }
 
     private func makeItemViewModel(token: MarketsTokenModel, index: Int) -> MarketsItemViewModel? {

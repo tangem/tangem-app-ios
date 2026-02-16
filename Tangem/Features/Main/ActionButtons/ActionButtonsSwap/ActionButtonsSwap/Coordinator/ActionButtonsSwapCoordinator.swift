@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemUI
 
 typealias ActionButtonsTokenSelectorViewModel = TokenSelectorViewModel<
     ActionButtonsTokenSelectorItem,
@@ -21,8 +20,6 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     // MARK: - Injected
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Published
 
