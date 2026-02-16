@@ -17,3 +17,7 @@ public protocol ExpressProviderManager {
     func update(request: ExpressManagerSwappingPairRequest) async
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData
 }
+
+public extension ExpressProviderManager {
+    var isFeeCurrency: Bool { pair.source.currency == feeProvider.feeCurrency() }
+}
