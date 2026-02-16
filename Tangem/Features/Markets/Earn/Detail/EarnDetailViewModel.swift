@@ -163,20 +163,21 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             if tokenViewModels.isEmpty {
                 listLoadingState = .error
             }
-            let params = error.marketsAnalyticsParams
-            let errorCode = params[.errorCode] ?? ""
-            let errorMessage = params[.errorMessage] ?? ""
-            if mostlyUsedViewModels.isEmpty {
-                analyticsProvider.logPageLoadError(errorCode: errorCode, errorMessage: errorMessage)
-            } else {
-                analyticsProvider.logBestOpportunitiesLoadError(errorCode: errorCode, errorMessage: errorMessage)
-            }
+            
+            handleAnalyticsError(error)
         case .appendedItems(let models, let lastPage):
             appendTokenViewModels(from: models, lastPage: lastPage)
         case .startInitialFetch, .cleared:
             tokenViewModels = []
             listLoadingState = .loading
         }
+    }
+    
+    private func handleAnalyticsError(_ error: Error) {
+        let params = error.marketsAnalyticsParams
+        let errorCode = params[.errorCode] ?? ""
+        let errorMessage = params[.errorMessage] ?? ""
+        analyticsProvider.logBestOpportunitiesLoadError(errorCode: errorCode, errorMessage: errorMessage)
     }
 }
 
