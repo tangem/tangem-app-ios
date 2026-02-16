@@ -44,7 +44,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         let providers = makeSwapProviders()
 
         let summary = makeSwapSummaryStep(
-            sendFeeCompactViewModel: fee.compact
+            feeCompactViewModel: fee.compact
         )
 
         let finish = makeSendFinishStep(
@@ -74,7 +74,6 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers,
-            summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
             router: router
         )
 
@@ -120,16 +119,21 @@ extension SwapFlowFactory: SendBaseBuildable {
 
 extension SwapFlowFactory: SwapSummaryStepBuildable {
     var summaryIO: SwapSummaryStepBuilder.IO {
-        SwapSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
+        SwapSummaryStepBuilder.IO(
+            input: sendModel,
+            output: sendModel,
+            sourceTokenInput: sendModel,
+            receiveTokenInput: sendModel,
+            receiveTokenAmountInput: sendModel
+        )
     }
 
     var summaryTypes: SwapSummaryStepBuilder.Types {
-        .init(settings: .init(destinationEditableType: .editable, amountEditableType: .editable))
+        SwapSummaryStepBuilder.Types(initialTokenItem: sourceToken.tokenItem)
     }
 
     var summaryDependencies: SwapSummaryStepBuilder.Dependencies {
         SwapSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

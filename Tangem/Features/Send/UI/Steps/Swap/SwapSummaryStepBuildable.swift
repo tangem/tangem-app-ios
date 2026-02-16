@@ -13,22 +13,12 @@ protocol SwapSummaryStepBuildable {
 }
 
 extension SwapSummaryStepBuildable {
-    func makeSwapSummaryStep(
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
-        sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
-        nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
-        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil
-    ) -> SwapSummaryStepBuilder.ReturnValue {
+    func makeSwapSummaryStep(feeCompactViewModel: SendFeeCompactViewModel) -> SwapSummaryStepBuilder.ReturnValue {
         SwapSummaryStepBuilder.make(
             io: summaryIO,
             types: summaryTypes,
             dependencies: summaryDependencies,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            nftAssetCompactViewModel: nftAssetCompactViewModel,
-            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            feeCompactViewModel: feeCompactViewModel
         )
     }
 }
@@ -37,25 +27,16 @@ enum SwapSummaryStepBuilder {
     struct IO {
         let input: SendSummaryInput
         let output: SendSummaryOutput
-        let receiveTokenAmountInput: SendReceiveTokenAmountInput?
-
-        init(
-            input: SendSummaryInput,
-            output: SendSummaryOutput,
-            receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil
-        ) {
-            self.input = input
-            self.output = output
-            self.receiveTokenAmountInput = receiveTokenAmountInput
-        }
+        let sourceTokenInput: SendSourceTokenInput
+        let receiveTokenInput: SendReceiveTokenInput
+        let receiveTokenAmountInput: SendReceiveTokenAmountInput
     }
 
     struct Types {
-        let settings: SendSummaryViewModel.Settings
+        let initialTokenItem: TokenItem
     }
 
     struct Dependencies {
-        let sendFeeProvider: any SendFeeUpdater
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
@@ -69,13 +50,9 @@ enum SwapSummaryStepBuilder {
         io: IO,
         types: Types,
         dependencies: Dependencies,
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
-        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
-        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        feeCompactViewModel: SendFeeCompactViewModel,
     ) -> ReturnValue {
-        let interactor = CommonSendSummaryInteractor(
+        let interactor = CommonSwapSummaryInteractor(
             input: io.input,
             output: io.output,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
@@ -84,23 +61,26 @@ enum SwapSummaryStepBuilder {
             stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
         )
 
-        let viewModel = SendSummaryViewModel(
+        let swapAmountViewModel = SwapAmountViewModel(
+            initialTokenItem: types.initialTokenItem,
+            sourceTokenInput: io.sourceTokenInput,
+            receiveTokenInput: io.receiveTokenInput
+        )
+
+        let viewModel = SwapSummaryViewModel(
             interactor: interactor,
-            settings: types.settings,
             notificationManager: dependencies.notificationManager,
             analyticsLogger: dependencies.analyticsLogger,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            nftAssetCompactViewModel: nftAssetCompactViewModel,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            swapAmountViewModel: swapAmountViewModel,
+            feeCompactViewModel: feeCompactViewModel,
         )
+
+        swapAmountViewModel.router = viewModel
 
         let step = SwapSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
-            analyticsLogger: dependencies.analyticsLogger,
-            sendFeeProvider: dependencies.sendFeeProvider
+            analyticsLogger: dependencies.analyticsLogger
         )
 
         return step

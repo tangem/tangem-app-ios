@@ -36,11 +36,11 @@ struct SwapSummaryView: View {
 
             GroupedScrollView(contentType: .lazy()) {
                 VStack(spacing: 14) {
-                    swappingViews
+                    SwapAmountView(viewModel: viewModel.swapAmountViewModel)
 
                     providerSection
 
-                    feeSection
+                    feeSectionView
 
                     informationSection
                 }
@@ -71,64 +71,73 @@ struct SwapSummaryView: View {
           */
     }
 
-    private var swappingViews: some View {
-        VStack(spacing: 14) {
-            GroupedSection(viewModel.swapSourceTokenViewModel) {
-                SwapSourceTokenView(viewModel: $0)
-                    .didTapChangeCurrency(viewModel.userDidTapChangeSourceTokenButton)
-                    .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
-            }
+    // MARK: - Fee
 
-            GroupedSection(viewModel.swapReceiveTokenViewModel) {
-                SwapReceiveTokenView(viewModel: $0)
-                    .didTapChangeCurrency(viewModel.userDidTapChangeReceiveTokenButton)
-                    .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
-            }
-            .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
-        }
-        .overlay(alignment: .center) { swappingButton }
-        .padding(.top, 10) // Check it
+    @ViewBuilder
+    private var feeSectionView: some View {
+        SendFeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: viewModel.userDidTapFee)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
     }
 
-    private var swappingButton: some View {
-        Button(action: viewModel.userDidTapSwapSourceAndReceiveTokensButton) {
-            if viewModel.isSwapButtonLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
-            } else {
-                Assets.swappingIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
-            }
-        }
-        .disabled(viewModel.isSwapButtonLoading || viewModel.isSwapButtonDisabled)
-        .frame(width: 44, height: 44)
-        .background(Colors.Background.primary)
-        .cornerRadius(22)
-        .overlay(
-            RoundedRectangle(cornerRadius: 22)
-                .stroke(Colors.Stroke.primary, lineWidth: 1)
-        )
-    }
+//    private var swappingViews: some View {
+//        VStack(spacing: 14) {
+//            GroupedSection(viewModel.swapSourceTokenViewModel) {
+//                SwapSourceTokenView(viewModel: $0)
+//                    .didTapChangeCurrency(viewModel.userDidTapChangeSourceTokenButton)
+//                    .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
+//            }
+//
+//            GroupedSection(viewModel.swapReceiveTokenViewModel) {
+//                SwapReceiveTokenView(viewModel: $0)
+//                    .didTapChangeCurrency(viewModel.userDidTapChangeReceiveTokenButton)
+//                    .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
+//            }
+//            .innerContentPadding(12)
+//            .backgroundColor(Colors.Background.action)
+//        }
+//        .overlay(alignment: .center) { swappingButton }
+//        .padding(.top, 10) // Check it
+//    }
+//
+//    private var swappingButton: some View {
+//        Button(action: viewModel.userDidTapSwapSourceAndReceiveTokensButton) {
+//            if viewModel.isSwapButtonLoading {
+//                ProgressView()
+//                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+//            } else {
+//                Assets.swappingIcon.image
+//                    .renderingMode(.template)
+//                    .resizable()
+//                    .frame(width: 20, height: 20)
+//                    .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
+//            }
+//        }
+//        .disabled(viewModel.isSwapButtonLoading || viewModel.isSwapButtonDisabled)
+//        .frame(width: 44, height: 44)
+//        .background(Colors.Background.primary)
+//        .cornerRadius(22)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 22)
+//                .stroke(Colors.Stroke.primary, lineWidth: 1)
+//        )
+//    }
 
     private var informationSection: some View {
         ForEach(viewModel.notificationInputs) {
             NotificationView(input: $0)
-                .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
+                .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
                 .transition(.notificationTransition)
         }
     }
 
-    @ViewBuilder
-    private var feeSection: some View {
-        if let expressFeeRowViewModel = viewModel.expressFeeRowViewModel {
-            FeeCompactView(viewModel: expressFeeRowViewModel, tapAction: viewModel.userDidTapFee)
-                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
-        }
-    }
+//    [REDACTED_USERNAME]
+//    private var feeSection: some View {
+//        if let expressFeeRowViewModel = viewModel.expressFeeRowViewModel {
+//            FeeCompactView(viewModel: expressFeeRowViewModel, tapAction: viewModel.userDidTapFee)
+//                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+//        }
+//    }
 
     private var providerSection: some View {
         GroupedSection(viewModel.providerState) { state in
