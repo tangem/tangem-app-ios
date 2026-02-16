@@ -183,6 +183,80 @@ extension SwapModel {
     }
 }
 
+// MARK: - SendSourceTokenInput
+
+extension SwapModel: SendSourceTokenInput {
+    var sourceToken: LoadingResult<SendSourceToken, any Error> { _sourceToken.value }
+
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
+        _sourceToken.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendReceiveTokenOutput
+
+extension SwapModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {
+        _sourceToken.send(.success(sourceToken))
+    }
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension SwapModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
+
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendSourceTokenAmountOutput
+
+extension SwapModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
+        _amount.send(amount)
+    }
+}
+
+// MARK: - SendReceiveTokenInput
+
+extension SwapModel: SendReceiveTokenInput {
+    var isReceiveTokenSelectionAvailable: Bool {
+        true
+    }
+
+    var receiveToken: SendReceiveTokenType {
+        fatalError()
+    }
+
+    var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
+        fatalError()
+    }
+}
+
+// MARK: - SendReceiveTokenOutput
+
+extension SwapModel: SendReceiveTokenOutput {
+    func userDidRequestClearSelection() {
+        assertionFailure("SwapModel doesn't support receiving token clearing")
+    }
+
+    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+        // _receiveToken.send(newReceiveToken)
+    }
+}
+
 extension SwapModel {
     enum SwappingPairState {
         case loading
