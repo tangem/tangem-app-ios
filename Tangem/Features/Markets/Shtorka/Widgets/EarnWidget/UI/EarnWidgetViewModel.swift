@@ -144,9 +144,10 @@ private extension EarnWidgetViewModel {
     private func onTokenTapAction(with token: EarnTokenModel) {
         Task { @MainActor [weak self] in
             guard let self else { return }
+            analyticsService.logEarnOpportunitySelected(token: token.symbol, blockchain: token.networkName)
             let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
             let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: userWalletModels)
-            coordinator?.routeOnTokenResolved(resolution)
+            coordinator?.routeOnTokenResolved(resolution, source: .markets)
         }
     }
 
