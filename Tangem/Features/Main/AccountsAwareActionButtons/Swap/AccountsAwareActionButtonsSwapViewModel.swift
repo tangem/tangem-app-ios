@@ -108,7 +108,7 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
         case .placeholder:
             Task { await updateSourceToken(item: item) }
         case .token:
-            Task { await openExpressWithDestination(item: item, isNewlyAddedFromMarkets: false) }
+            Task { await openExpressWithDestination(item: item) }
         }
     }
 }
@@ -147,12 +147,15 @@ extension AccountsAwareActionButtonsSwapViewModel {
         }
 
         Task {
-            await updatePairs(sourceItem: sourceItem, isNewlyAddedFromMarkets: true)
+            await updatePairs(sourceItem: sourceItem)
             await openExpressWithDestination(item: item, isNewlyAddedFromMarkets: true)
         }
     }
 
-    private func openExpressWithDestination(item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) async {
+    private func openExpressWithDestination(
+        item: AccountsAwareTokenSelectorItem,
+        isNewlyAddedFromMarkets: Bool = false
+    ) async {
         guard case .token(let sourceItem, _) = source else {
             return
         }
@@ -187,19 +190,14 @@ extension AccountsAwareActionButtonsSwapViewModel {
 // MARK: - Private
 
 private extension AccountsAwareActionButtonsSwapViewModel {
-    func checkNoDestinationTokens(tokenItem: TokenItem, isNewlyAddedFromMarkets: Bool = false) async {
+    func checkNoDestinationTokens(tokenItem: TokenItem) async {
         guard await expressPairsRepository.getPairs(from: tokenItem.expressCurrency).isEmpty else {
             await MainActor.run { show(notification: .none) }
             return
         }
 
         await MainActor.run {
-            // Show specific message for newly added market tokens
-            if isNewlyAddedFromMarkets {
-                show(notification: .swapNotSupportedForToken(tokenName: tokenItem.name))
-            } else {
-                show(notification: .noAvailablePairs)
-            }
+            show(notification: .noAvailablePairs)
         }
     }
 
@@ -228,7 +226,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         }
     }
 
-    func updatePairs(sourceItem: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool = false) async {
+    func updatePairs(sourceItem: AccountsAwareTokenSelectorItem) async {
         await MainActor.run { notificationIsLoading = true }
 
         do {
@@ -243,7 +241,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
 
             // We set the `filterTokenItem` after pairs is loading
             filterTokenItem.send(sourceItem.walletModel.tokenItem)
-            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
+            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem)
 
             await MainActor.run {
                 tokenSelectorState = .selector

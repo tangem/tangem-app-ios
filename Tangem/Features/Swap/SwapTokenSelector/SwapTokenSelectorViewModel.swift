@@ -21,8 +21,9 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
-    private weak var coordinator: SwapTokenSelectorRoutable?
-    private weak var additionRoutable: SwapMarketsTokenAdditionRoutable?
+
+    private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
+    private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
 
     private var selectedTokenItem: TokenItem?
 
@@ -31,15 +32,15 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
-        coordinator: SwapTokenSelectorRoutable,
-        additionRoutable: SwapMarketsTokenAdditionRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
-        self.coordinator = coordinator
-        self.additionRoutable = additionRoutable
+        self.tokenSelectorCoordinator = tokenSelectorCoordinator
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
@@ -49,7 +50,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func close() {
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 
     func onDisappear() {
@@ -101,7 +102,7 @@ private extension SwapTokenSelectorViewModel {
         }
 
         selectedTokenItem = item.walletModel.tokenItem
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 }
 
@@ -122,7 +123,7 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
                 networks: networks
             )
 
-            additionRoutable?.requestAddToken(inputData: inputData)
+            marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
         }
     }
 }

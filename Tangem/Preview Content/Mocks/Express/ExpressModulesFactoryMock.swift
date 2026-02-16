@@ -59,16 +59,16 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
 
     func makeSwapTokenSelectorViewModel(
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        coordinator: any SwapTokenSelectorRoutable,
-        additionRoutable: SwapMarketsTokenAdditionRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             marketsTokensViewModel: nil,
             expressInteractor: expressInteractor,
-            coordinator: coordinator,
-            additionRoutable: additionRoutable
+            tokenSelectorCoordinator: tokenSelectorCoordinator,
+            marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )
     }
 
