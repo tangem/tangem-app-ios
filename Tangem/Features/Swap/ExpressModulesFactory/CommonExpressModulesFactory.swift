@@ -18,9 +18,6 @@ class CommonExpressModulesFactory {
     @Injected(\.expressPairsRepository)
     private var expressPairsRepository: ExpressPairsRepository
 
-    @Injected(\.tangemApiService)
-    private var tangemApiService: TangemApiService
-
     private let userWalletInfo: UserWalletInfo
     private let initialTokenItem: TokenItem
     private let expressDependenciesFactory: ExpressDependenciesFactory

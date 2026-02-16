@@ -246,20 +246,19 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             await MainActor.run {
                 tokenSelectorState = .selector
             }
+        } catch let error as ExpressAPIError {
+            await MainActor.run {
+                show(notification: .refreshRequired(
+                    title: error.localizedTitle,
+                    message: error.localizedMessage
+                ))
+            }
         } catch {
             await MainActor.run {
-                // Show detailed error for both flows
-                if let expressError = error as? ExpressAPIError {
-                    show(notification: .refreshRequired(
-                        title: expressError.localizedTitle,
-                        message: expressError.localizedMessage
-                    ))
-                } else {
-                    show(notification: .refreshRequired(
-                        title: Localization.commonError,
-                        message: Localization.commonUnknownError
-                    ))
-                }
+                show(notification: .refreshRequired(
+                    title: Localization.commonError,
+                    message: Localization.commonUnknownError
+                ))
             }
         }
 
