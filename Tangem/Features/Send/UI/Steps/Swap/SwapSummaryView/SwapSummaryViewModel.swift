@@ -1,0 +1,162 @@
+//
+//  SwapSummaryViewModel.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import TangemUI
+import TangemUIUtils
+import TangemLocalization
+import TangemMacro
+
+protocol SwapSummaryInteractor: AnyObject {
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
+    var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
+    var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
+    var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
+
+    func userDidRequestSwapSourceAndReceiveToken()
+    func userDidRequestSwap()
+}
+
+final class SwapSummaryViewModel: ObservableObject {
+    @Published private(set) var swapSourceTokenViewModel: SwapSourceTokenViewModel?
+    @Published private(set) var isSwapButtonLoading: Bool = false
+    @Published private(set) var isSwapButtonDisabled: Bool = false
+    @Published private(set) var swapReceiveTokenViewModel: SwapReceiveTokenViewModel?
+
+    @Published private(set) var providerState: ProviderState?
+    @Published private(set) var expressFeeRowViewModel: FeeCompactViewModel?
+
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var notificationButtonIsLoading = false
+
+    @Published private(set) var isMaxAmountButtonHidden: Bool = false
+
+    @Published private(set) var mainButtonIsLoading: Bool = false
+    @Published private(set) var mainButtonIsEnabled: Bool = false
+    @Published private(set) var mainButtonIcon: MainButton.Icon?
+    @Published private(set) var mainButtonState: MainButtonState = .swap
+
+    @Published private(set) var transactionDescription: AttributedString?
+
+    @Published private(set) var alert: AlertBinder?
+
+    private let interactor: SwapSummaryInteractor
+    private let notificationManager: NotificationManager
+    private let analyticsLogger: SendSummaryAnalyticsLogger
+
+    weak var router: SwapSummaryStepRoutable?
+
+    init(
+        interactor: SwapSummaryInteractor,
+        notificationManager: NotificationManager,
+        analyticsLogger: SendSummaryAnalyticsLogger,
+    ) {
+        self.interactor = interactor
+        self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
+
+        bind()
+    }
+
+    func bind(sourceTokenInput: SendSourceTokenInput) {
+        sourceTokenInput.sourceTokenPublisher
+            .map { CommonTangemIconProvider(config: $0.userWalletInfo.config).getMainButtonIcon() }
+            .assign(to: &$mainButtonIcon)
+    }
+
+    func bind(swapProvidersInput: SendSwapProvidersInput) {
+        swapProvidersInput.selectedExpressProviderPublisher.compactMap { $0 }
+            .map { $0.manager.pair.isSameNetwork && $0.manager.isFeeCurrency }
+            .assign(to: &$isMaxAmountButtonHidden)
+    }
+
+    func userDidTapChangeSourceTokenButton() {
+        router?.summaryStepRequestEditSourceToken()
+    }
+
+    func userDidTapSwapSourceAndReceiveTokensButton() {
+        interactor.userDidRequestSwapSourceAndReceiveToken()
+    }
+
+    func userDidTapChangeReceiveTokenButton() {
+        router?.summaryStepRequestEditReceiveToken()
+    }
+
+    func userDidTapSwapProvider() {
+        router?.summaryStepRequestEditProviders()
+    }
+
+    func userDidTapFee() {
+        router?.summaryStepRequestEditFee()
+    }
+
+    func userDidTapMaxAmount() {}
+
+    func userDidTapMainActionButton() {
+        interactor.userDidRequestSwap()
+    }
+}
+
+// MARK: - Private
+
+private extension SwapSummaryViewModel {
+    func bind() {
+        interactor
+            .transactionDescription
+            .receiveOnMain()
+            .assign(to: &$transactionDescription)
+
+        interactor
+            .isNotificationButtonIsLoading
+            .receiveOnMain()
+            .assign(to: &$notificationButtonIsLoading)
+
+        notificationManager
+            .notificationPublisher
+            .receiveOnMain()
+            .assign(to: &$notificationInputs)
+    }
+}
+
+// MARK: - Types
+
+extension SwapSummaryViewModel {
+    @RawCaseName
+    enum ProviderState: Identifiable {
+        case loading
+        case loaded(data: ProviderRowViewModel)
+    }
+
+    @RawCaseName
+    enum MainButtonState: Identifiable {
+        case swap
+        case insufficientFunds
+        case permitAndSwap
+
+        var title: String {
+            switch self {
+            case .swap:
+                return Localization.swappingSwapAction
+            case .insufficientFunds:
+                return Localization.swappingInsufficientFunds
+            case .permitAndSwap:
+                return Localization.swappingPermitAndSwap
+            }
+        }
+
+        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
+            switch self {
+            case .swap, .permitAndSwap:
+                return tangemIconProvider.getMainButtonIcon()
+            case .insufficientFunds:
+                return .none
+            }
+        }
+    }
+}

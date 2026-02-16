@@ -6,8 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-protocol SwapFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
+protocol SwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -23,9 +22,9 @@ extension SwapFlowBaseDependenciesFactory {
     ) -> SendModel {
         SendModel(
             userWalletId: userWalletInfo.id,
-            userToken: makeSourceToken(),
+            userToken: sourceToken,
             transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: walletModelDependenciesProvider.transactionValidator),
+            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),

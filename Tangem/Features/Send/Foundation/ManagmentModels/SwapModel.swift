@@ -92,17 +92,17 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        updateTask { owner in
-            guard let source = owner._sourceToken.value.value, let destination = owner._receiveToken.value.value else {
-                ExpressLogger.info("Source / Receive not found")
-                let provider = try await owner.expressManager.update(pair: .none)
-                return provider
-            }
-
-            let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            let provider = try await owner.expressManager.update(pair: pair)
-            return provider
-        }
+//        updateTask { owner in
+//            guard let source = owner._sourceToken.value.value, let destination = owner._receiveToken.value.value else {
+//                ExpressLogger.info("Source / Receive not found")
+//                let provider = try await owner.expressManager.update(pair: .none)
+//                return provider
+//            }
+//
+//            let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+//            let provider = try await owner.expressManager.update(pair: pair)
+//            return provider
+//        }
     }
 
     func updateTask(block: @escaping (_ model: SwapModel) async throws -> ExpressAvailableProvider?) {
