@@ -95,8 +95,8 @@ private extension SendAmountCompactViewModel {
             swapProvidersInput.expressProvidersPublisher
         )
         .withWeakCaptureOf(self)
-        .asyncMap {
-            await $0.mapToSendSwapProviderCompactViewData(
+        .map {
+            $0.mapToSendSwapProviderCompactViewData(
                 receiveToken: $1.0,
                 availableProvider: $1.1,
                 providers: $1.2
@@ -126,7 +126,7 @@ private extension SendAmountCompactViewModel {
         receiveToken: SendReceiveTokenType,
         availableProvider: ExpressAvailableProvider?,
         providers: [ExpressAvailableProvider]
-    ) async -> SendSwapProviderCompactViewData? {
+    ) -> SendSwapProviderCompactViewData? {
         switch (receiveToken, availableProvider) {
         case (.same, _):
             return nil
@@ -135,7 +135,7 @@ private extension SendAmountCompactViewModel {
         case (.swap, .some(let selectedProvider)):
             let availableProvidersCount = providers.filter(\.isAvailable).count
 
-            let badge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
                 canSelectAnother: availableProvidersCount > 1,
