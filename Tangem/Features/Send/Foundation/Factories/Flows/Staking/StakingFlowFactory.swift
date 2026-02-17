@@ -139,6 +139,10 @@ extension StakingFlowFactory: SendAmountStepBuildable {
         )
     }
 
+    var amountTypes: SendAmountStepBuilder.Types {
+        .init(initialSourceToken: sourceToken)
+    }
+
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
