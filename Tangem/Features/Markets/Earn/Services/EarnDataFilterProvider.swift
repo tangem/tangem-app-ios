@@ -11,17 +11,6 @@ import Combine
 import TangemFoundation
 import BlockchainSdk
 
-// MARK: - State
-
-extension EarnDataFilterProvider {
-    enum State {
-        case idle
-        case loading
-        case loaded
-        case emptyAvailableNetworks
-    }
-}
-
 final class EarnDataFilterProvider {
     // MARK: - Dependencies
 
@@ -69,10 +58,12 @@ final class EarnDataFilterProvider {
         EarnFilterType.allCases
     }
 
+    @MainActor
     var myNetworks: [EarnNetworkInfo] {
         _myNetworks
     }
 
+    @MainActor
     var availableNetworks: [EarnNetworkInfo] {
         _availableNetworks
     }
@@ -109,6 +100,10 @@ final class EarnDataFilterProvider {
 
     func didSelectFilterType(_ type: EarnFilterType) {
         _filterTypeValue.send(type)
+
+        if _stateSubject.value == .emptyAvailableNetworks {
+            Task { await fetchAvailableNetworks() }
+        }
     }
 
     func didSelectNetworkFilter(_ filter: EarnNetworkFilterType) {
@@ -122,47 +117,64 @@ final class EarnDataFilterProvider {
 
     func fetchAvailableNetworks() async {
         fetchNetworksTask?.cancel()
-        _stateSubject.send(.loading)
 
-        fetchNetworksTask = Task { @MainActor [weak self] in
+        await applyFilterState(state: .loading, networks: [])
+
+        fetchNetworksTask = Task { [weak self] in
             guard let self else { return }
-            updateMyNetworkIds()
-            await loadAvailableNetworks()
+
+            if let (state, networks) = await loadAvailableNetworks() {
+                await applyFilterState(state: state, networks: networks)
+            }
         }
     }
 
     // MARK: - Private Methods
 
-    private func updateMyNetworkIds() {
-        _myNetworks = userWalletRepository.models
-            .flatMap { $0.accountModelsManager.cryptoAccountModels }
-            .flatMap { $0.userTokensManager.userTokens }
-            .map { EarnNetworkInfo(networkId: $0.networkId, networkName: $0.name) }
-            .unique()
+    @MainActor
+    private func applyFilterState(state: State, networks: [EarnNetworkInfo]) {
+        _availableNetworks = networks
+        _stateSubject.send(state)
+        updateMyNetworks()
     }
 
-    private func loadAvailableNetworks() async {
+    /// Fills `_myNetworks` with the intersection of backend available networks and user's networks.
+    /// Only networks that are both returned by the API and present in the user's wallets are included.
+    @MainActor
+    private func updateMyNetworks() {
+        let userNetworkIds = Set(
+            userWalletRepository.models
+                .flatMap { $0.accountModelsManager.cryptoAccountModels }
+                .flatMap { $0.userTokensManager.userTokens }
+                .map(\.networkId)
+        )
+        _myNetworks = _availableNetworks.filter { userNetworkIds.contains($0.networkId) }
+    }
+
+    /// Loads available earn networks from API. Does not mutate instance state; returns result for application on main actor.
+    /// Returns `nil` when the task was cancelled (caller should not apply state).
+    private func loadAvailableNetworks() async -> (State, [EarnNetworkInfo])? {
         do {
             let request = EarnDTO.Networks.Request(type: nil)
             let response = try await tangemApiService.loadEarnNetworks(requestModel: request)
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else { return nil }
 
-            _availableNetworks = response.items.compactMap { item in
+            let networks: [EarnNetworkInfo] = response.items.compactMap { item in
                 guard let blockchain = supportedBlockchainsByNetworkId[item.networkId] else {
                     return nil
                 }
-
                 return EarnNetworkInfo(networkId: blockchain.networkId, networkName: blockchain.displayName)
             }
 
-            _stateSubject.send(_availableNetworks.isEmpty ? .emptyAvailableNetworks : .loaded)
-            AppLogger.tag("Earn").debug("Fetched \(_availableNetworks.count) available networks")
+            AppLogger.tag("Earn").debug("Fetched \(networks.count) available networks")
+            let state: State = networks.isEmpty ? .emptyAvailableNetworks : .loaded
+            return (state, networks)
         } catch {
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else { return nil }
 
             AppLogger.tag("Earn").error("Failed to fetch available networks", error: error)
-            _stateSubject.send(.emptyAvailableNetworks)
+            return (.emptyAvailableNetworks, [])
         }
     }
 
@@ -175,10 +187,30 @@ final class EarnDataFilterProvider {
             return nil
         case .userNetworks(let networkInfos):
             let networkIds = networkInfos.map { $0.networkId }
-            return networkIds.isEmpty ? nil : networkIds
+            // -1 This is fallback for correct stage receive list of Earns. Confirmed by the system analyst
+            return networkIds.isEmpty ? [Constants.dummyNetworkId] : networkIds
         case .specific(let networkInfo):
             return [networkInfo.networkId]
         }
+    }
+}
+
+// MARK: - State
+
+extension EarnDataFilterProvider {
+    enum State {
+        case idle
+        case loading
+        case loaded
+        case emptyAvailableNetworks
+    }
+}
+
+// MARK: - Constants
+
+extension EarnDataFilterProvider {
+    enum Constants {
+        static let dummyNetworkId = "-1"
     }
 }
 
