@@ -99,7 +99,7 @@ private extension AccountsAwareActionButtonsBuyViewModel {
 // MARK: - AccountsAwareTokenSelectorViewModelOutput
 
 extension AccountsAwareActionButtonsBuyViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
 
         let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
