@@ -94,7 +94,8 @@ final class RelatedTokensViewModel: ObservableObject {
                             maxYieldApy: nil,
                             marketCap: response.metrics?.marketCap,
                             isUnderMarketCapLimit: nil,
-                            stakingOpportunities: nil
+                            stakingOpportunities: nil,
+                            networks: response.networks,
                         )
 
                         return (index, model)
