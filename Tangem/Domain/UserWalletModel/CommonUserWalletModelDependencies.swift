@@ -274,7 +274,10 @@ private extension CommonUserWalletModelDependencies {
         hasTokenSynchronization: Bool
     ) -> (repository: CommonCryptoAccountsRepository, mapper: CryptoAccountsNetworkMapper, provider: ArchivedCryptoAccountsProvider) {
         let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
-        let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(storageIdentifier: userWalletId.stringValue)
+        let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(
+            storageIdentifier: userWalletId.stringValue,
+            hasTokenSynchronization: hasTokenSynchronization
+        )
         let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
 
@@ -282,13 +285,16 @@ private extension CommonUserWalletModelDependencies {
             supportedBlockchains: config.supportedBlockchains,
             remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
         )
+        let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
         let networkService = CommonCryptoAccountsNetworkService(
             userWalletId: userWalletId,
-            mapper: mapper
+            mapper: mapper,
+            walletsNetworkService: walletsNetworkService
         )
-        let defaultAccountFactory = DefaultAccountFactory(
+        let defaultAccountFactory = CommonDefaultAccountFactory(
             userWalletId: userWalletId,
-            defaultBlockchains: config.defaultBlockchains
+            defaultBlockchains: config.defaultBlockchains,
+            persistentStorage: persistentStorage
         )
         let cryptoAccountsRepository = CommonCryptoAccountsRepository(
             tokenItemsRepository: tokenItemsRepository,

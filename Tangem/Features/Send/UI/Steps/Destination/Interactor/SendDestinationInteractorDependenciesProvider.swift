@@ -81,7 +81,7 @@ private extension SendDestinationInteractorDependenciesProvider {
         let validator = CommonSendDestinationValidator(
             walletAddresses: walletAddresses,
             addressService: addressService,
-            supportsCompound: receivedTokenType.tokenItem.blockchain.supportsCompound
+            allowSameAddressTransaction: receivedTokenType.tokenItem.blockchain.supportsCompound || receivedTokenType.isSwap
         )
 
         return validator
@@ -109,6 +109,12 @@ private extension SendDestinationInteractorDependenciesProvider {
 // MARK: - Types
 
 extension SendDestinationInteractorDependenciesProvider {
+    struct SendingWalletDataInput {
+        let walletAddresses: [String]
+        let suggestedWallets: [SendDestinationSuggestedWallet]
+        let walletModelHistoryUpdater: any WalletModelHistoryUpdater
+    }
+
     struct SendingWalletData {
         let walletAddresses: [String]
         let suggestedWallets: [SendDestinationSuggestedWallet]

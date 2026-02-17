@@ -362,6 +362,7 @@
 "common_unstake" = "Termine el staking";
 "common_utxo_validate_withdrawal_message_warning" = "Debido a limitaciones sobre %1$@, solo %2$li UTXO pueden caber en una sola transacción. Esto significa que solo puedes enviar %3$@ o menos. Debe reducir la cantidad.";
 "common_value_copied" = "Valor copiado";
+"common_wallets" = "Wallets";
 "common_warning" = "Alerta";
 "common_week" = "semana";
 "common_with" = "con";
@@ -430,9 +431,11 @@
 "domain_receive_assets_onboarding_title" = "Envíe fondos utilizando solo";
 "earn_best_opportunities" = "Las mejores oportunidades";
 "earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "Todas las redes";
 "earn_filter_all_types" = "Todos los tipos";
 "earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mayormente usado";
 "earn_no_results" = "No results";
@@ -771,6 +774,7 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Tire hacia arriba o toque la barra de búsqueda para agregar tokens directamente desde el mercado";
 "markets_tooltip_title" = "Agregar tokens";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "Potencie sus activos mientras los suministra con acceso inmediato. %@";
 "markets_yield_supply_banner_title" = "Activar Modo Rendimiento";
 "mobile_wallet_requires_min_os_warning_body" = "Debes actualizar a %1$@ para crear una mobile wallet";
@@ -1307,6 +1311,9 @@
 "swap_approve_description" = "Al aprobar, permites que el contrato inteligente use tus tokens en futuras transacciones.";
 "swap_fixed_rate" = "Tasa Fija";
 "swap_give_permission_fee_footer" = "La red cobrará una tasa de aprobación del token para verificar que usted autoriza el uso de su token para el intercambio.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Siéntase seguro con una asistencia permanente que le ayudará con cualquier problema";
 "swap_story_fifth_title" = "Siempre aquí";
 "swap_story_first_subtitle" = "Múltiples proveedores de confianza en un solo lugar: intercambie cualquier activo sin esfuerzo en su billetera";
@@ -1361,10 +1368,12 @@
 "tangem_pay_status_completed" = "Completado";
 "tangem_pay_status_declined" = "Rechazado";
 "tangem_pay_status_pending" = "Pendiente";
+"tangem_pay_status_reversed" = "Revertida";
 "tangem_pay_terms_fees_limits" = "Términos, tarifas y límites";
 "tangem_pay_terms_limits" = "Términos y límites";
 "tangem_pay_transaction_declined_notification_text" = "El banco rechazó esta solicitud de transacción.";
 "tangem_pay_transaction_fee_notification_text" = "Esta tarifa cubre el costo de procesar tu transferencia.";
+"tangem_pay_transaction_reversed_notification_text" = "La transacción fue revertida parcial o totalmente por el comerciante";
 "tangem_pay_unfreeze_card_alert_body" = "Sigue usando tu dinero. Puedes congelarlo en cualquier momento.";
 "tangem_pay_unfreeze_card_alert_title" = "¿Descongelar tu tarjeta?";
 "tangem_pay_unfreeze_card_failed" = "No se pudo descongelar la tarjeta. Inténtalo de nuevo más tarde.";
@@ -1735,6 +1744,7 @@
 "warning_hedera_missing_token_association_message" = "Este token debe estar asociado a su cuenta de Hedera antes de que pueda recibirlo. Tarifa de asociación ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Asocie su token";
 "warning_hedera_token_association_not_enough_hbar_message" = "No hay suficiente %@. Recargue su cuenta de Hedera para asociar este token";
+"warning_ios_deprecation_message" = "La compatibilidad con iOS %1$@ finalizará el %2$@. Para seguir recibiendo actualizaciones de la app y garantizar su funcionamiento completo, actualiza a la última versión de iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "¿Está seguro de que desea cancelar la transacción? No podrá volver a reintentarlo.";
 "warning_kaspa_unfinished_token_transaction_message" = "Su transacción con un importe de %1$@ %2$@ no se ha completado. Puede volver a intentarlo para completarla.";
 "warning_kaspa_unfinished_token_transaction_title" = "Tiene una transacción sin terminar";

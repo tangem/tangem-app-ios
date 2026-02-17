@@ -254,12 +254,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let tokenItemPromoInputPublisher = accountSectionsPublisher
             .eraseToAnyPublisher()
             .combineLatest(plainSectionsPublisher.eraseToAnyPublisher()) { accountSections, plainSections in
-                let flattenedAccountSectionsTokenItems = accountSections
-                    .flatMap(\.items)
-                    .flatMap(\.items)
-                    .nilIfEmpty
-
-                return flattenedAccountSectionsTokenItems ?? plainSections.flatMap(\.items)
+                return accountSections.flattenedTokenItems.nilIfEmpty ?? plainSections.flattenedTokenItems
             }
             .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
 
@@ -420,38 +415,30 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        // [REDACTED_TODO_COMMENT]
-        let didSyncTokenListPublisher: AnyPublisher<Void, Never>
-        let didReceiveSectionsPublisher: AnyPublisher<Void, Never>
-
-        if FeatureProvider.isAvailable(.accounts) {
-            // The persistent storage for accounts (or, more precisely, the instance of `CryptoAccountsPersistentStorageController`)
-            // will emit the available models both after local initialization/migration and after remote synchronization,
-            // so no separate `initializedPublisher` trigger needed
-            didSyncTokenListPublisher = .just
-            // Both plain and account sections should emit a value to be a trigger for finishing loading state
-            didReceiveSectionsPublisher = plainSectionsPublisher
-                .mapToVoid()
-                .zip(accountSectionsPublisher.mapToVoid())
+        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel
+                .accountModelsManager
+                .hasSyncedWithRemotePublisher
+                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                    // We disable loading state when the token list is synced with remote or there is at least one token
+                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+                }
+                .filter { $0 }
                 .mapToVoid()
                 .eraseToAnyPublisher()
         } else {
             // [REDACTED_TODO_COMMENT]
-            // accounts_fixes_needed_none
-            didSyncTokenListPublisher = userWalletModel
-                .userTokensManager
+            userWalletModel
+                .userTokensManager // accounts_fixes_needed_none
                 .initializedPublisher
                 .filter { $0 }
-                .mapToVoid()
-                .eraseToAnyPublisher()
-            // When accounts aren't enabled, we rely only on plain sections
-            didReceiveSectionsPublisher = plainSectionsPublisher
+                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
                 .mapToVoid()
                 .eraseToAnyPublisher()
         }
 
         didSyncTokenListPublisher
-            .zip(didReceiveSectionsPublisher)
             .prefix(1)
             .mapToValue(false)
             .receiveOnMain()
@@ -575,11 +562,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        guard let dispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel, signer: userWalletModel.signer
-        ).makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletModel.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
@@ -700,20 +689,9 @@ extension MultiWalletMainContentViewModel {
         }
     }
 
-    private func openMobileUpgrade() {
-        runTask(in: self) { viewModel in
-            do {
-                let context = try await viewModel.unlock()
-                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
-            } catch where error.isCancellationError {
-                AppLogger.error("Unlock is canceled", error: error)
-            } catch {
-                AppLogger.error("Unlock failed:", error: error)
-                await runOnMain {
-                    viewModel.error = error.alertBinder
-                }
-            }
-        }
+    private func openHardwareBackupTypes() {
+        logMainButtonUpgradeAnalytics()
+        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
     }
 
     private func findCloreWalletModelForMigration() -> (any WalletModel)? {
@@ -817,7 +795,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .openMobileFinishActivation:
             openMobileFinishActivation()
         case .openMobileUpgrade:
-            openMobileUpgrade()
+            openHardwareBackupTypes()
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
         case .tangemPaySync:
@@ -950,31 +928,6 @@ private extension MultiWalletMainContentViewModel {
     }
 }
 
-// MARK: - Unlocking
-
-private extension MultiWalletMainContentViewModel {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletModel.userWalletId,
-            config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-
-        let result = try await authUtil.unlock()
-
-        switch result {
-        case .successful(let context):
-            return context
-
-        case .canceled:
-            throw CancellationError()
-
-        case .userWalletNeedsToDelete:
-            throw CancellationError()
-        }
-    }
-}
-
 // MARK: - Analytics
 
 private extension MultiWalletMainContentViewModel {
@@ -990,5 +943,12 @@ private extension MultiWalletMainContentViewModel {
         ]
 
         Analytics.log(event: .apyClicked, params: params)
+    }
+
+    func logMainButtonUpgradeAnalytics() {
+        Analytics.log(
+            .mainButtonUpgrade,
+            contextParams: .userWallet(userWalletModel.userWalletId)
+        )
     }
 }

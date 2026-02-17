@@ -16,6 +16,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -140,17 +141,38 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     // MARK: - Earn
 
-    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel]) {
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {
+        switch resolution {
+        case .toAdd(let token, let userWalletModels):
+            openAddEarnToken(for: token, userWalletModels: userWalletModels, source: source)
+        case .alreadyAdded(let walletModel, let userWalletModel):
+            openMainTokenDetails(walletModel: walletModel, with: userWalletModel)
+        }
+    }
+
+    private func openAddEarnToken(
+        for token: EarnTokenModel,
+        userWalletModels: [any UserWalletModel],
+        source: EarnOpportunitySource
+    ) {
+        earnAnalyticsProvider.logAddTokenScreenOpened(
+            token: token.symbol,
+            blockchain: token.networkName,
+            source: source.rawValue
+        )
         let configuration = EarnAddTokenFlowConfigurationFactory.make(
             earnToken: token,
-            coordinator: self
+            coordinator: self,
+            analyticsProvider: earnAnalyticsProvider
         )
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
-            userWalletModels: userWalletModels,
-            configuration: configuration,
-            coordinator: self
-        )
+
         Task { @MainActor in
+            let viewModel = AccountsAwareAddTokenFlowViewModel(
+                userWalletModels: userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -160,8 +182,8 @@ extension MarketsCoordinator: MarketsMainRoutable {
             dismissAction: { [weak self] in
                 self?.earnListCoordinator = nil
             },
-            openEarnTokenDetailsAction: { [weak self] token, userWalletModels in
-                self?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+            routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
+                self?.routeOnTokenResolved(resolution, source: source)
             }
         )
 
@@ -198,9 +220,7 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
     }
 
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {
@@ -219,7 +239,7 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
             )
     }
 
-    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.mainTokenDetailsCoordinator = nil
         }

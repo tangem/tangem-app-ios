@@ -18,16 +18,6 @@ protocol StakingFlowDependenciesFactory: SendGenericFlowBaseDependenciesFactory 
 // MARK: - Shared dependencies
 
 extension StakingFlowDependenciesFactory {
-    func makeStakingTransactionDispatcher(
-        stakingManger: some StakingManager,
-        analyticsLogger: any StakingAnalyticsLogger
-    ) -> TransactionDispatcher {
-        transactionDispatcherFactory.makeStakingTransactionDispatcher(
-            stakingManger: stakingManger,
-            analyticsLogger: analyticsLogger
-        )
-    }
-
     func makeStakingNotificationManager(analyticsLogger: StakingSendAnalyticsLogger) -> StakingNotificationManager {
         CommonStakingNotificationManager(
             tokenItem: tokenItem,
@@ -45,7 +35,7 @@ extension StakingFlowDependenciesFactory {
     }
 
     func makeStakingFeeIncludedCalculator() -> FeeIncludedCalculator {
-        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: walletModelDependenciesProvider.transactionValidator)
+        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: sourceToken.transactionValidator)
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {

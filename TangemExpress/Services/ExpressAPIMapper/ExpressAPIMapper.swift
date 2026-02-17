@@ -90,6 +90,11 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
+        // Validate payout extra id matches what we sent (case-sensitive for memos)
+        if request.toExtraId != txDetails.payoutExtraId {
+            throw ExpressAPIMapperError.payoutExtraIdNotEqual
+        }
+
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
@@ -105,7 +110,7 @@ struct ExpressAPIMapper {
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
-            .map { $0 / pow(10, item.source.feeCurrency.decimalCount) }
+            .map { $0 / pow(10, item.source.coinCurrency.decimalCount) }
 
         return ExpressTransactionData(
             requestId: txDetails.requestId,
@@ -137,7 +142,7 @@ struct ExpressAPIMapper {
         case .dex, .dexBridge:
             if let txValue, let decimalTxValue = Decimal(string: txValue) {
                 // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
-                return decimalTxValue / pow(10, item.source.feeCurrency.decimalCount)
+                return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
 
             return .zero
@@ -266,6 +271,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case mapToDecimalError(_ string: String)
     case requestIdNotEqual
     case payoutAddressNotEqual
+    case payoutExtraIdNotEqual
     case wrongProviderType
 
     var errorDescription: String? {
@@ -273,6 +279,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .mapToDecimalError(let value): "Wrong decimal value \(value)"
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
+        case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .wrongProviderType: "Provider type is not support"
         }
     }

@@ -137,6 +137,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapFeeRow() {
+        stopTimer()
         openFeeSelectorView()
     }
 
@@ -167,6 +168,10 @@ final class ExpressViewModel: ObservableObject {
 
     func didTapCloseButton() {
         coordinator?.closeSwappingView()
+    }
+
+    func refreshFee() {
+        interactor.refresh(type: .fee)
     }
 }
 
@@ -296,22 +301,35 @@ private extension ExpressViewModel {
 
         interactor.state
             .withWeakCaptureOf(self)
+            .receiveOnMain()
             .sink { $0.expressInteractorStateDidUpdated(state: $1) }
             .store(in: &bag)
 
         interactor.swappingPair
             .receive(on: DispatchQueue.main)
             .pairwise()
-            .sink { [weak self] prev, pair in
-                if pair.sender.value?.id != prev.sender.value?.id {
-                    self?.updateSendView(wallet: pair.sender)
+            .sink { [weak self] previous, current in
+                let previousSender = previous.sender.value
+                let previousDestination = previous.destination?.value
+
+                let currentSender = current.sender.value
+                let currentDestination = current.destination?.value
+
+                let sameSender = (currentSender?.id == previousSender?.id)
+                    && (currentSender?.userWalletId == previousSender?.userWalletId)
+
+                let sameDestination = (currentDestination?.id == previousDestination?.id)
+                    && (currentDestination?.userWalletId == previousDestination?.userWalletId)
+
+                if !sameSender {
+                    self?.updateSendView(wallet: current.sender)
                 }
 
-                if pair.destination?.value?.id != prev.destination?.value?.id {
-                    self?.updateReceiveView(wallet: pair.destination)
+                if !sameDestination {
+                    self?.updateReceiveView(wallet: current.destination)
                 }
 
-                self?.updateMaxButtonVisibility(pair: pair)
+                self?.updateMaxButtonVisibility(pair: current)
             }
             .store(in: &bag)
 
@@ -391,6 +409,15 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateInputDisabled(state: ExpressInteractor.State) {
+        switch state {
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
+            sendCurrencyViewModel?.update(isInputDisabled: true)
+        default:
+            sendCurrencyViewModel?.update(isInputDisabled: false)
+        }
+    }
+
     // MARK: - Receive view bubble
 
     func updateReceiveView(wallet: ExpressInteractor.Destination?) {
@@ -416,18 +443,16 @@ private extension ExpressViewModel {
     // MARK: - Update for state
 
     func expressInteractorStateDidUpdated(state: ExpressInteractor.State) {
-        Task { @MainActor in
-            await updateState(state: state)
-        }
+        updateState(state: state)
     }
 
-    @MainActor
-    func updateState(state: ExpressInteractor.State) async {
+    func updateState(state: ExpressInteractor.State) {
         updateFeeValue(state: state)
-        await updateProviderView(state: state)
+        updateProviderView(state: state)
         updateMainButton(state: state)
         updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
+        updateInputDisabled(state: state)
 
         switch state {
         case .idle, .preloadRestriction:
@@ -435,6 +460,15 @@ private extension ExpressViewModel {
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
+            isSwapButtonLoading = false
+            stopTimer()
+
+            // Set destination to show "-"
+            receiveCurrencyViewModel?.update(cryptoAmountState: .noData)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .noData)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
@@ -467,10 +501,9 @@ private extension ExpressViewModel {
         }
     }
 
-    @MainActor
-    func updateProviderView(state: ExpressInteractor.State) async {
+    func updateProviderView(state: ExpressInteractor.State) {
         switch state {
-        case .idle:
+        case .idle, .runtimeRestriction:
             providerState = .none
         case .loading(.full):
             providerState = .loading
@@ -478,7 +511,7 @@ private extension ExpressViewModel {
             // Do noting for other cases
             break
         default:
-            if let providerRowViewModel = await mapToProviderRowViewModel() {
+            if let providerRowViewModel = mapToProviderRowViewModel() {
                 providerState = .loaded(data: providerRowViewModel)
             } else {
                 providerState = .none
@@ -507,7 +540,8 @@ private extension ExpressViewModel {
         case .readyToSwap(_, let context, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
 
-        case .idle, .loading, .preloadRestriction, .restriction, .requiredRefresh, .permissionRequired:
+        case .idle, .loading, .preloadRestriction, .restriction,
+             .requiredRefresh, .permissionRequired, .runtimeRestriction:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
         }
@@ -543,6 +577,7 @@ private extension ExpressViewModel {
 
         case .requiredRefresh,
              .preloadRestriction,
+             .runtimeRestriction,
              .restriction(.hasPendingTransaction, _, _),
              .restriction(.hasPendingApproveTransaction, _, _),
              .restriction(.tooSmallAmountForSwapping, _, _),
@@ -566,7 +601,7 @@ private extension ExpressViewModel {
         switch state {
         case .loading(.refreshRates), .loading(.fee):
             break
-        case .idle, .loading(.full), .preloadRestriction, .requiredRefresh:
+        case .idle, .loading(.full), .preloadRestriction, .runtimeRestriction, .requiredRefresh:
             legalText = nil
         case .restriction(_, let provider, _),
              .permissionRequired(_, let provider, _),
@@ -580,12 +615,12 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
+    func mapToProviderRowViewModel() -> ProviderRowViewModel? {
         guard let selectedProvider = interactor.getState().context?.availableProvider else {
             return nil
         }
 
-        let state = await selectedProvider.getState()
+        let state = selectedProvider.getState()
         if state.isError {
             // Don't show a error provider
             return nil
@@ -598,7 +633,7 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
-        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
         let badge: ProviderRowViewModel.Badge? = switch providerBadge {
         case .none: .none
         case .bestRate: .bestRate
@@ -737,6 +772,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
@@ -780,7 +816,8 @@ private extension ExpressViewModel {
              .verificationRequired,
              .cexOperationFailed,
              .refunded,
-             .longTimeAverageDuration:
+             .longTimeAverageDuration,
+             .tokenNotSupportedForSwap:
             return nil
         }
     }

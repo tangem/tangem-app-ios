@@ -10,11 +10,15 @@ import Foundation
 import Combine
 import TangemExpress
 import TangemFoundation
+import TangemAccounts
+import TangemLocalization
+import TangemUI
 import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -26,6 +30,7 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var swappingSuccessCoordinator: SwappingSuccessCoordinator?
+    private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
 
     // MARK: - Child view models
 
@@ -72,7 +77,21 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
-        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
+            guard let viewModel = self?.swapTokenSelectorViewModel else {
+                AppLogger.debug("SwapTokenSelectorViewModel not found")
+                return
+            }
+            viewModel.selectNewToken(item)
+        }
+
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
+
+        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(
+            swapDirection: swapDirection,
+            tokenSelectorCoordinator: self,
+            marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
+        )
     }
 
     func presentFeeSelectorView() {
@@ -128,7 +147,10 @@ extension ExpressCoordinator: ExpressRoutable {
 
 extension ExpressCoordinator: SendFeeSelectorRoutable {
     func closeFeeSelector() {
-        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+        Task { @MainActor in
+            rootViewModel?.refreshFee()
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 
     func openFeeSelectorLearnMoreURL(_ url: URL) {

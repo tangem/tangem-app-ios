@@ -47,6 +47,7 @@ final class SendModel {
 
     // MARK: - Private injections
 
+    private let userWalletId: UserWalletId
     private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
@@ -63,6 +64,7 @@ final class SendModel {
     // MARK: - Public interface
 
     init(
+        userWalletId: UserWalletId,
         userToken: SendSourceToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
@@ -72,6 +74,7 @@ final class SendModel {
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
+        self.userWalletId = userWalletId
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
         self.analyticsLogger = analyticsLogger
@@ -139,18 +142,23 @@ private extension SendModel {
             .store(in: &bag)
 
         Publishers
-            .CombineLatest(
+            .CombineLatest3(
                 _receivedToken.removeDuplicates(),
-                _destination.removeDuplicates()
+                _destination.removeDuplicates(),
+                _destinationAdditionalField
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink {
-                $0.swapManager.update(
-                    destination: $1.0.receiveToken?.tokenItem,
-                    address: $1.1?.value.transactionAddress,
-                    tokenHeader: $0.destinationTokenHeader,
-                    accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
+            .sink { sendModel, args in
+                let (receivedToken, destination, additionalField) = args
+
+                sendModel.swapManager.update(
+                    userWalletId: sendModel.userWalletId,
+                    destination: receivedToken.receiveToken?.tokenItem,
+                    address: destination?.value.transactionAddress,
+                    additionalField: additionalField,
+                    tokenHeader: sendModel.destinationTokenHeader,
+                    accountModelAnalyticsProvider: sendModel.destinationAccountAnalyticsProvider
                 )
             }
             .store(in: &bag)
@@ -293,7 +301,8 @@ private extension SendModel {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
+        let dispatcher = sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
         return result
     }
@@ -499,11 +508,14 @@ extension SendModel: SendReceiveTokenAmountInput {
         switch state {
         case .requiredRefresh(let error, _):
             return .failure(error)
-        case .idle, .preloadRestriction, .restriction:
+        case .idle, .preloadRestriction, .restriction(_, _, .none), .runtimeRestriction:
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
-        case .permissionRequired(_, _, let quote), .readyToSwap(_, _, let quote), .previewCEX(_, _, let quote):
+        case .restriction(_, _, .some(let quote)),
+             .permissionRequired(_, _, let quote),
+             .readyToSwap(_, _, let quote),
+             .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
@@ -591,7 +603,7 @@ extension SendModel: SendFeeUpdater {
             return
         }
 
-        sourceToken.tokenFeeProvidersManager.updateInputInAllProviders(input: .common(amount: amount, destination: destination))
+        sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
         sourceToken.tokenFeeProvidersManager.selectedFeeProvider.updateFees()
     }
 
@@ -701,7 +713,8 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                     switch state {
                     case .loading(.refreshRates), .loading(.fee):
                         return Empty().eraseToAnyPublisher()
-                    case .idle, .loading(.full), .preloadRestriction, .restriction, .requiredRefresh:
+                    case .idle, .loading(.full), .preloadRestriction,
+                         .restriction, .requiredRefresh, .runtimeRestriction:
                         return .just(output: .none)
                     case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
@@ -750,6 +763,10 @@ extension SendModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SendModel: SendBaseInput, SendBaseOutput {
+    func stopSwapProvidersAutoUpdateTimer() {
+        swapManager.stopTimer()
+    }
+
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
@@ -832,6 +849,7 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
@@ -925,10 +943,14 @@ extension SendModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension SendModel: FeeSelectorOutput {
+    func userDidDismissFeeSelection() {
+        swapManager.updateFees()
+    }
+
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         switch receiveToken {
         case .same:
-            sourceToken.tokenFeeProvidersManager.updateFeeOptionInAllProviders(feeOption: feeOption)
+            sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
             sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
 
         case .swap:

@@ -118,6 +118,8 @@ extension Analytics {
         case apyClicked = "[Main Screen] APY Clicked"
         case mainButtonAccountShowTokens = "[Main Screen] Button - Account Show Tokens"
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
+        case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
+        case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
 
         // MARK: - Send
 
@@ -262,6 +264,7 @@ extension Analytics {
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
+        case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
         // MARK: - Referral program
 
@@ -467,6 +470,18 @@ extension Analytics {
         case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+
+        // MARK: - Earn
+
+        case earnPageOpened = "[Earn] Page Opened"
+        case earnMostlyUsedCarouselScrolled = "[Earn] Mostly Used Carousel Scrolled"
+        case earnBestOpportunitiesFilterNetworkApplied = "[Earn] Best Opportunities Filter Network Applied"
+        case earnBestOpportunitiesFilterTypeApplied = "[Earn] Best Opportunities Filter Type Applied"
+        case earnOpportunitySelected = "[Earn] Opportunity selected"
+        case earnAddTokenScreenOpened = "[Earn] Add Token Screen Opened"
+        case earnTokenAdded = "[Earn] Token Added"
+        case earnPageLoadError = "[Earn] Page Load Error"
+        case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
 
         // MARK: - Markets / Chart
 

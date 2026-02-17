@@ -30,8 +30,10 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
     func update(amount: Decimal?)
 
     func update(
+        userWalletId: UserWalletId,
         destination: TokenItem?,
         address: String?,
+        additionalField: SendDestinationAdditionalField,
         tokenHeader: ExpressInteractorTokenHeader?,
         accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     )
@@ -40,4 +42,6 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
 
     func update()
     func send() async throws -> TransactionDispatcherResult
+
+    func stopTimer()
 }

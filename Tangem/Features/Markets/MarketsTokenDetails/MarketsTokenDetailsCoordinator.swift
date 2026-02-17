@@ -169,10 +169,13 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func makeYieldModuleFlowFactory(input: SendInput, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        let factory = TransactionDispatcherFactory(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
-        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard input.walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: input.walletModel,
@@ -305,26 +308,22 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
-                Task { @MainActor in
-                    let factory = CommonExpressModulesFactory(input: input)
-                    let coordinator = ExpressCoordinator(
-                        factory: factory,
-                        dismissAction: dismissAction,
-                        popToRootAction: self.popToRootAction
-                    )
-
-                    coordinator.start(with: .default)
-                    self.expressCoordinator = coordinator
-                }
-            }
-
-            Task { @MainActor [tangemStoriesPresenter] in
-                tangemStoriesPresenter.present(
-                    story: .swap(.initialWithoutImages),
-                    analyticsSource: .markets,
-                    presentCompletion: openSwapBlock
+                let factory = CommonExpressModulesFactory(input: input)
+                let coordinator = ExpressCoordinator(
+                    factory: factory,
+                    dismissAction: dismissAction,
+                    popToRootAction: popToRootAction
                 )
+
+                coordinator.start(with: .default)
+                expressCoordinator = coordinator
             }
+
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
@@ -350,9 +349,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
 extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {

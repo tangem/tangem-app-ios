@@ -8,11 +8,12 @@
 
 import Foundation
 import struct TangemUIUtils.AlertBinder
+import TangemFoundation
 
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
-    let openEarnTokenDetailsAction: (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
+    let routeOnEarnTokenResolvedAction: (EarnTokenResolution, EarnOpportunitySource) -> Void
 
     // MARK: - Root ViewModels
 
@@ -24,28 +25,35 @@ final class EarnCoordinator: CoordinatorObject {
     @Published var networkFilterBottomSheetViewModel: EarnNetworkFilterBottomSheetViewModel?
     @Published var typeFilterBottomSheetViewModel: EarnTypeFilterBottomSheetViewModel?
 
-    // MARK: - Private Properties
+    // MARK: - Injected
 
-    private lazy var filterProvider = EarnFilterProvider()
+    @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
+    @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
     // MARK: - Init
 
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
-        openEarnTokenDetailsAction: @escaping (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
+        routeOnEarnTokenResolvedAction: @escaping (EarnTokenResolution, EarnOpportunitySource) -> Void
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
-        self.openEarnTokenDetailsAction = openEarnTokenDetailsAction
+        self.routeOnEarnTokenResolvedAction = routeOnEarnTokenResolvedAction
     }
 
     func start(with options: Options) {
         Task { @MainActor in
+            let earnDataProvider = EarnDataProvider()
+
             rootViewModel = EarnDetailViewModel(
+                dataProvider: earnDataProvider,
+                filterProvider: filterProvider,
                 mostlyUsedTokens: options.mostlyUsedTokens,
-                coordinator: self
+                coordinator: self,
+                analyticsProvider: analyticsProvider
             )
+            analyticsProvider.logPageOpened()
         }
     }
 }
@@ -65,17 +73,14 @@ extension EarnCoordinator: EarnDetailRoutable {
         dismissAction(())
     }
 
-    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
-        openEarnTokenDetailsAction(token, userWalletModels)
-    }
-
-    func openEarnTokenDetails(for token: EarnTokenModel) {
-        // Will be implemented in future iteration
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {
+        routeOnEarnTokenResolvedAction(resolution, source)
     }
 
     func openNetworksFilter() {
         networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
-            provider: filterProvider,
+            filterProvider: filterProvider,
+            analyticsProvider: analyticsProvider,
             onDismiss: { [weak self] in
                 self?.networkFilterBottomSheetViewModel = nil
             }
@@ -84,7 +89,8 @@ extension EarnCoordinator: EarnDetailRoutable {
 
     func openTypesFilter() {
         typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
-            provider: filterProvider,
+            filterProvider: filterProvider,
+            analyticsProvider: analyticsProvider,
             onDismiss: { [weak self] in
                 self?.typeFilterBottomSheetViewModel = nil
             }

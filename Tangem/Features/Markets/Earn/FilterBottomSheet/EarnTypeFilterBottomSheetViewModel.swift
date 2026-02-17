@@ -14,8 +14,8 @@ import TangemLocalization
 final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var listOptionViewModel: [DefaultSelectableRowViewModel<EarnFilterOption>]
-    @Published var currentSelection: EarnFilterOption
+    @Published var listOptionViewModel: [DefaultSelectableRowViewModel<EarnFilterType>]
+    @Published var currentSelection: EarnFilterType
 
     var title: String {
         Localization.earnFilterAllTypes
@@ -28,18 +28,24 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - Private Properties
 
     private var subscription: AnyCancellable?
-    private let provider: EarnFilterProvider
-    private let dismiss: (() -> Void)?
+    private let filterProvider: EarnDataFilterProvider
+    private let analyticsProvider: EarnAnalyticsProvider
+    private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
-    init(provider: EarnFilterProvider, onDismiss: (() -> Void)? = nil) {
-        self.provider = provider
-        dismiss = onDismiss
-        currentSelection = .type(provider.currentFilterValue.type)
-        listOptionViewModel = provider.supportedTypes.map {
+    init(
+        filterProvider: EarnDataFilterProvider,
+        analyticsProvider: EarnAnalyticsProvider,
+        onDismiss: (() -> Void)? = nil
+    ) {
+        self.filterProvider = filterProvider
+        self.analyticsProvider = analyticsProvider
+        dismissAction = onDismiss
+        currentSelection = filterProvider.selectedFilterType
+        listOptionViewModel = filterProvider.supportedFilterTypes.map {
             DefaultSelectableRowViewModel(
-                id: .type($0),
+                id: $0,
                 title: $0.description,
                 subtitle: nil
             )
@@ -52,15 +58,15 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
             .removeDuplicates()
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { viewModel, newOption in
-                viewModel.update(option: newOption)
+            .sink(receiveValue: { viewModel, newType in
+                viewModel.selectAndDismiss(type: newType)
             })
     }
 
-    private func update(option: EarnFilterOption) {
-        guard case .type(let value) = option else { return }
-        currentSelection = option
-        provider.didSelectType(value)
-        dismiss?()
+    private func selectAndDismiss(type: EarnFilterType) {
+        currentSelection = type
+        analyticsProvider.logBestOpportunitiesFilterTypeApplied(type: type.analyticsTypeValue)
+        filterProvider.didSelectFilterType(type)
+        dismissAction?()
     }
 }
