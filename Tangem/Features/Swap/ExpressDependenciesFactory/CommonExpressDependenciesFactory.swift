@@ -14,16 +14,19 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private var _onrampRepository: OnrampRepository
 
     @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: any ExpressPairsRepository
+    var expressPairsRepository: any ExpressPairsRepository
 
     @Injected(\.expressPendingTransactionsRepository)
-    private var pendingTransactionRepository: ExpressPendingTransactionRepository
+    var expressPendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletInfo: UserWalletInfo
     private let initialTokenItem: TokenItem
     private let swappingPair: ExpressInteractor.SwappingPair
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
+
+    private(set) lazy var expressManager = makeExpressManager()
+    private(set) lazy var expressDestinationService = makeExpressDestinationService()
 
     private(set) lazy var expressInteractor = makeExpressInteractor()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
@@ -54,16 +57,31 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
 // MARK: - Private
 
 private extension CommonExpressDependenciesFactory {
-    func makeExpressInteractor() -> ExpressInteractor {
+    func makeExpressManager() -> ExpressManager {
         let transactionValidator = CommonExpressProviderTransactionValidator(
             tokenItem: initialTokenItem,
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
-        let expressManager = TangemExpressFactory().makeExpressManager(
+        return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             transactionValidator: transactionValidator
+        )
+    }
+
+    func makeExpressDestinationService() -> ExpressDestinationService {
+        let shouldFilterForOneWallet = !FeatureProvider.isAvailable(.accounts)
+
+        return CommonExpressDestinationService(
+            userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
+        )
+    }
+
+    func makeExpressInteractor() -> ExpressInteractor {
+        let transactionValidator = CommonExpressProviderTransactionValidator(
+            tokenItem: initialTokenItem,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
         let shouldFilterForOneWallet = !FeatureProvider.isAvailable(.accounts)
@@ -72,10 +90,8 @@ private extension CommonExpressDependenciesFactory {
             swappingPair: swappingPair,
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
-            expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: CommonExpressDestinationService(
-                userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
-            ),
+            expressPendingTransactionRepository: expressPendingTransactionRepository,
+            expressDestinationService: expressDestinationService,
             expressAPIProvider: expressAPIProvider
         )
 

@@ -91,7 +91,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
-            providersSelector: providers,
+            providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             router: router
@@ -237,7 +237,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
 extension SendFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, sourceTokenInput: sendModel, receiveTokenInput: sendModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {

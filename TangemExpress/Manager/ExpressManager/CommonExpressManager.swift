@@ -136,15 +136,15 @@ private extension CommonExpressManager {
     /// Return the state which checking the all properties
     func updateState(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
         guard let pair = _pair else {
-            ExpressLogger.warning("Pair isn't set. Return .idle state")
+            ExpressLogger.warning("Pair isn't set. Return nil as `selectedProvider`")
             return nil
         }
 
         try Task.checkCancellation()
 
         guard let amount = _amount, amount > 0 else {
-            ExpressLogger.warning(self, "Amount isn't set. Return .idle state")
-            return nil
+            ExpressLogger.warning(self, "Amount isn't set. Return nil as `selectedProvider`")
+            return availableProviders.first
         }
 
         let request = try makeRequest()
@@ -208,15 +208,14 @@ private extension CommonExpressManager {
         }
     }
 
-    func updateIsBestFlag() async {
-        let bestRate = await bestByRateProvider()
+    func updateIsBestFlag() {
+        let bestRate = bestByRateProvider()
 
-        let enabledProvidersMoreThanOne = await availableProviders
-            .asyncCompactMap { provider -> ExpressQuote? in
-                let state = provider.getState()
-                return state.quote
-            }
-            .count > 1
+        let enabledProvidersMoreThanOne = availableProviders.compactMap { provider -> ExpressQuote? in
+            let state = provider.getState()
+            return state.quote
+        }
+        .count > 1
 
         availableProviders.forEach { provider in
             // We set the `isBest` flag only if we have more than one enabled provider
@@ -231,7 +230,7 @@ private extension CommonExpressManager {
         // If we have more then one provider then selected the best
         if availableProviders.count > 1 {
             // Try to find the best with expectAmount
-            if let bestByRateProvider = await bestByRateProvider() {
+            if let bestByRateProvider = bestByRateProvider() {
                 return bestByRateProvider
             }
         }
@@ -243,7 +242,7 @@ private extension CommonExpressManager {
         return provider
     }
 
-    func bestByRateProvider() async -> ExpressAvailableProvider? {
+    func bestByRateProvider() -> ExpressAvailableProvider? {
         var hasProviderWithQuote = false
 
         let bests = availableProviders.sorted(by: { lhsProvider, rhsProvider in
@@ -280,7 +279,7 @@ private extension CommonExpressManager {
         }
 
         // Update "isBest" flag after each provider's state updating
-        await updateIsBestFlag()
+        updateIsBestFlag()
     }
 
     func makeRequest() throws -> ExpressManagerSwappingPairRequest {
