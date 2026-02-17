@@ -734,7 +734,7 @@ private extension ExpressInteractor {
                 try await expressPairsRepository.updatePairs(for: source.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
 
                 _swappingPair.value.destination = .loading
-                let destination = try await expressDestinationService.getDestination(source: source.tokenItem)
+                let destination: ExpressInteractorSourceWallet = try await expressDestinationService.getDestination(source: source.tokenItem)
                 update(destination: destination)
 
             case (_, .success(let destination)):
@@ -743,7 +743,7 @@ private extension ExpressInteractor {
                     userWalletInfo: userWalletInfo
                 )
                 _swappingPair.value.sender = .loading
-                let source = try await expressDestinationService.getSource(destination: destination.tokenItem)
+                let source: ExpressInteractorSourceWallet = try await expressDestinationService.getSource(destination: destination.tokenItem)
                 update(sender: source)
 
             default:
