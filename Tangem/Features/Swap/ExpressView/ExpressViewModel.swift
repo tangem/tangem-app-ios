@@ -408,6 +408,15 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateInputDisabled(state: ExpressInteractor.State) {
+        switch state {
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
+            sendCurrencyViewModel?.update(isInputDisabled: true)
+        default:
+            sendCurrencyViewModel?.update(isInputDisabled: false)
+        }
+    }
+
     // MARK: - Receive view bubble
 
     func updateReceiveView(wallet: ExpressInteractor.Destination?) {
@@ -445,6 +454,7 @@ private extension ExpressViewModel {
         updateMainButton(state: state)
         updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
+        updateInputDisabled(state: state)
 
         switch state {
         case .idle, .preloadRestriction:
@@ -452,6 +462,15 @@ private extension ExpressViewModel {
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+
+        case .runtimeRestriction(.tokenNotSupportedForSwap):
+            isSwapButtonLoading = false
+            stopTimer()
+
+            // Set destination to show "-"
+            receiveCurrencyViewModel?.update(cryptoAmountState: .noData)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .noData)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
@@ -487,7 +506,7 @@ private extension ExpressViewModel {
     @MainActor
     func updateProviderView(state: ExpressInteractor.State) async {
         switch state {
-        case .idle:
+        case .idle, .runtimeRestriction:
             providerState = .none
         case .loading(.full):
             providerState = .loading
@@ -524,7 +543,8 @@ private extension ExpressViewModel {
         case .readyToSwap(_, let context, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
 
-        case .idle, .loading, .preloadRestriction, .restriction, .requiredRefresh, .permissionRequired:
+        case .idle, .loading, .preloadRestriction, .restriction,
+             .requiredRefresh, .permissionRequired, .runtimeRestriction:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
         }
@@ -560,6 +580,7 @@ private extension ExpressViewModel {
 
         case .requiredRefresh,
              .preloadRestriction,
+             .runtimeRestriction,
              .restriction(.hasPendingTransaction, _, _),
              .restriction(.hasPendingApproveTransaction, _, _),
              .restriction(.tooSmallAmountForSwapping, _, _),
@@ -583,7 +604,7 @@ private extension ExpressViewModel {
         switch state {
         case .loading(.refreshRates), .loading(.fee):
             break
-        case .idle, .loading(.full), .preloadRestriction, .requiredRefresh:
+        case .idle, .loading(.full), .preloadRestriction, .runtimeRestriction, .requiredRefresh:
             legalText = nil
         case .restriction(_, let provider, _),
              .permissionRequired(_, let provider, _),
@@ -798,7 +819,8 @@ private extension ExpressViewModel {
              .verificationRequired,
              .cexOperationFailed,
              .refunded,
-             .longTimeAverageDuration:
+             .longTimeAverageDuration,
+             .tokenNotSupportedForSwap:
             return nil
         }
     }
