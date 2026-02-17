@@ -27,6 +27,7 @@ final class AccountsAwareUserTokensManager {
     private let shouldLoadExpressAvailability: Bool
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+    private var isDisposed = false
 
     private var isMainAccountManager: Bool {
         AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
@@ -121,7 +122,12 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
-        guard shouldLoadExpressAvailability else {
+        ensureOnMainQueue()
+
+        guard
+            !isDisposed,
+            shouldLoadExpressAvailability
+        else {
             return
         }
 
@@ -431,6 +437,16 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     func sync(completion: @escaping () -> Void) {
+        ensureOnMainQueue()
+
+        guard !isDisposed else {
+            // Flushing all pending sync completions (if any) on dispose
+            pendingUserTokensSyncCompletions.append(completion)
+            pendingUserTokensSyncCompletions.forEach { $0() }
+            pendingUserTokensSyncCompletions.removeAll()
+            return
+        }
+
         defer {
             pendingUserTokensSyncCompletions.append(completion)
         }
@@ -542,6 +558,16 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             }
         }
         .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension AccountsAwareUserTokensManager: DisposableEntity {
+    func dispose() {
+        ensureOnMainQueue()
+
+        isDisposed = true
     }
 }
 

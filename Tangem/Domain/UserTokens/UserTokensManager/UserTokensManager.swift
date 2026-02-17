@@ -15,7 +15,7 @@ protocol UserTokensSyncService {
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-protocol UserTokensManager: UserTokensReordering, UserTokensSyncService {
+protocol UserTokensManager: UserTokensReordering, UserTokensSyncService, DisposableEntity {
     var userTokens: [TokenItem] { get }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { get }
