@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 struct AverageRewardingViewData: Hashable, Identifiable {
     var id: Int { hashValue }

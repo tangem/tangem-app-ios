@@ -208,7 +208,7 @@ struct MarketsTokenDetailsView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                     if let priceChangeState = viewModel.priceChangeState {
-                        TokenPriceChangeView(state: priceChangeState, showSkeletonWhenLoading: true)
+                        PriceChangeView(state: priceChangeState, showSkeletonWhenLoading: true)
                     }
                 }
                 .id(UUID())
