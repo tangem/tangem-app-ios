@@ -317,7 +317,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990006", "AF990007", "AF990008":
             return cardsCount == 2 ? Assets.Cards.ramenCatDouble : Assets.Cards.ramenCatTriple
         // Sakura
-        case "AF990029", "AF990030", "AF990031":
+        case "AF990029", "AF990030", "AF990031", "AF990071", "AF990072", "AF990073":
             return cardsCount == 2 ? Assets.Cards.sakuraDouble : Assets.Cards.sakuraTriple
         // Bitcoin Pizza
         case "AF990019":
