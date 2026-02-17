@@ -9,7 +9,9 @@
 import Combine
 import struct TangemUI.TokenIconInfo
 
-protocol SendReceiveToken {
+protocol SendGenericToken {}
+
+protocol SendReceiveToken: SendGenericToken {
     var tokenItem: TokenItem { get }
     var tokenIconInfo: TokenIconInfo { get }
     var fiatItem: FiatItem { get }
