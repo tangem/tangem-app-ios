@@ -11,6 +11,7 @@ import Combine
 import CombineExt
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
@@ -75,7 +76,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var price: String? { priceInfo?.price }
 
-    var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
+    var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
