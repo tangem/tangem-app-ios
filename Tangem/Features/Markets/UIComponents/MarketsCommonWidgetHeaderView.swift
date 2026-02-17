@@ -17,9 +17,10 @@ struct MarketsCommonWidgetHeaderView: View {
     let buttonTitle: String?
     let buttonAction: (() -> Void)?
     let isLoading: Bool
+    var isLoadFailed: Bool = false
 
     private var isDisplayButton: Bool {
-        buttonTitle != nil && !isLoading
+        buttonTitle != nil && !isLoading && !isLoadFailed
     }
 
     var body: some View {
