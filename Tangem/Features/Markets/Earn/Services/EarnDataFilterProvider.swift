@@ -11,17 +11,6 @@ import Combine
 import TangemFoundation
 import BlockchainSdk
 
-// MARK: - State
-
-extension EarnDataFilterProvider {
-    enum State {
-        case idle
-        case loading
-        case loaded
-        case emptyAvailableNetworks
-    }
-}
-
 final class EarnDataFilterProvider {
     // MARK: - Dependencies
 
@@ -175,10 +164,30 @@ final class EarnDataFilterProvider {
             return nil
         case .userNetworks(let networkInfos):
             let networkIds = networkInfos.map { $0.networkId }
-            return networkIds.isEmpty ? nil : networkIds
+            // -1 This is fallback for correct stage receive list of Earns. Confirmed by the system analyst
+            return networkIds.isEmpty ? [Constants.dummyNetworkId] : networkIds
         case .specific(let networkInfo):
             return [networkInfo.networkId]
         }
+    }
+}
+
+// MARK: - State
+
+extension EarnDataFilterProvider {
+    enum State {
+        case idle
+        case loading
+        case loaded
+        case emptyAvailableNetworks
+    }
+}
+
+// MARK: - Constants
+
+extension EarnDataFilterProvider {
+    enum Constants {
+        static let dummyNetworkId = "-1"
     }
 }
 
