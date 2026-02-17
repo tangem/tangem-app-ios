@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemLocalization
 
+@MainActor
 final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
