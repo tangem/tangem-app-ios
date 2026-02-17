@@ -70,6 +70,9 @@ final class ExpressNotificationManager {
         case .preloadRestriction(let preloadRestrictionType):
             Task { await setupNotification(for: preloadRestrictionType) }
 
+        case .runtimeRestriction(let runtimeRestrictionType):
+            Task { await setupNotification(for: runtimeRestrictionType) }
+
         case .restriction(let restrictions, _, _):
             runTask(in: self) { manager in
                 try await manager.setupNotification(for: restrictions)
@@ -110,6 +113,21 @@ final class ExpressNotificationManager {
             event = .noDestinationTokens(tokenName: sourceTokenItem.name)
         }
 
+        await setupNotification(for: event)
+    }
+
+    private func setupNotification(for restriction: ExpressInteractor.RuntimeRestrictionType) async {
+        let event: ExpressNotificationEvent
+
+        switch restriction {
+        case .tokenNotSupportedForSwap(let tokenItem):
+            event = .tokenNotSupportedForSwap(tokenName: tokenItem.name)
+        }
+
+        await setupNotification(for: event)
+    }
+
+    private func setupNotification(for event: ExpressNotificationEvent) async {
         let notificationsFactory = NotificationsFactory()
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)
