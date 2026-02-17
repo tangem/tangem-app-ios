@@ -151,7 +151,7 @@ private extension SendAmountViewModel {
         .receive(on: DispatchQueue.main)
         .sink { viewModel, args in
             let (token, amount) = args
-            viewModel.updateReceivedToken(receiveToken: token, amount: amount)
+            viewModel.updateReceivedToken(receiveToken: token.value, amount: amount)
         }
         .store(in: &bag)
     }
@@ -218,16 +218,16 @@ extension SendAmountViewModel {
         sendAmountFormatter = .init(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem, balanceFormatter: balanceFormatter)
     }
 
-    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount, Error>) {
+    func updateReceivedToken(receiveToken: SendReceiveToken?, amount: LoadingResult<SendAmount, Error>) {
         guard interactor.isReceiveTokenSelectionAvailable else {
             receivedTokenViewType = .none
             return
         }
 
         switch receiveToken {
-        case .same:
+        case .none:
             receivedTokenViewType = .selectButton
-        case .swap(let receiveToken):
+        case .some(let receiveToken):
             receivedTokenViewType = .selected(SendAmountTokenViewData(
                 tokenIconInfo: receiveToken.tokenIconInfo,
                 title: receiveToken.tokenItem.name,
