@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 // MARK: - EarnTokenModel
 
@@ -17,11 +18,12 @@ struct EarnTokenModel: Identifiable, Hashable {
     let imageUrl: URL?
     let networkId: String
     let networkName: String
-    let networkImageUrl: URL?
+    let blockchainIconAsset: ImageType?
     let contractAddress: String?
     let decimalCount: Int?
     let rateValue: Decimal
     let rateType: RateType
+    let rateText: String
     let earnType: EarnType
 }
 
