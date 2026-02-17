@@ -12,7 +12,7 @@ import Combine
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
-import struct TangemUI.TokenIconInfo
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
