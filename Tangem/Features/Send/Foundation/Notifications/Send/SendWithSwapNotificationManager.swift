@@ -41,10 +41,10 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, receiveToken -> AnyPublisher<String?, Never> in
-                switch receiveToken {
-                case .same:
+                switch receiveToken.value {
+                case .none:
                     return .just(output: nil)
-                case .swap:
+                case .some:
                     return manager
                         .expressNotificationManager
                         .notificationPublisher
@@ -72,9 +72,9 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
 extension SendWithSwapNotificationManager: SendNotificationManager {
     var notificationInputs: [NotificationViewInput] {
         switch receiveTokenInput?.receiveToken {
-        case .none, .same:
+        case .none:
             return sendNotificationManager.notificationInputs
-        case .swap:
+        case .some:
             return expressNotificationManager.notificationInputs
         }
     }
@@ -89,10 +89,10 @@ extension SendWithSwapNotificationManager: SendNotificationManager {
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, receiveToken in
-                switch receiveToken {
-                case .same:
+                switch receiveToken.value {
+                case .none:
                     return manager.sendNotificationManager.notificationPublisher
-                case .swap:
+                case .some:
                     return manager.expressNotificationManager.notificationPublisher
                 }
             }
