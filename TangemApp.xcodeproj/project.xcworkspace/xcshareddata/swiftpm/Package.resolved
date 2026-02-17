@@ -1,5 +1,5 @@
 {
-  "originHash" : "b9f8b688707eb4fcccc6609c8181be059da5c50788896224a48119cc3a48abda",
+  "originHash" : "0f5870294303bd3c598467084456bb305c0da8fa9cc6cdbd87299f00d4ec9e33",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -94,9 +94,10 @@
     {
       "identity" : "bdk-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/maltsevoff/bdk-swift",
+      "location" : "https://github.com/bitcoindevkit/bdk-swift",
       "state" : {
-        "revision" : "d841c22f206e07f1210efc87bbe2d3a052a586bc"
+        "revision" : "2c409932f611264f5f736a41830cf09b483164d6",
+        "version" : "2.3.0"
       }
     },
     {
