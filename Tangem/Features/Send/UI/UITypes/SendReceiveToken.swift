@@ -9,8 +9,13 @@
 import Combine
 import struct TangemUI.TokenIconInfo
 
-struct SendReceiveToken: Hashable {
-    let wallet: String
+protocol SendReceiveToken {
+    var tokenItem: TokenItem { get }
+    var tokenIconInfo: TokenIconInfo { get }
+    var fiatItem: FiatItem { get }
+}
+
+struct CommonSendReceiveToken: SendReceiveToken {
     let tokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
