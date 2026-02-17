@@ -15,32 +15,42 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
-    private weak var coordinator: SwapTokenSelectorRoutable?
+
+    private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
+    private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
 
     private var selectedTokenItem: TokenItem?
 
     init(
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
-        coordinator: SwapTokenSelectorRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
-        self.coordinator = coordinator
+        self.tokenSelectorCoordinator = tokenSelectorCoordinator
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
+
+        marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        marketsTokensViewModel?.setup(selectionHandler: self)
     }
 
     func close() {
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 
     func onDisappear() {
@@ -59,16 +69,29 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
             )
         }
     }
+
+    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
+        selectToken(item, isNewlyAddedFromMarkets: true)
+    }
 }
 
 // MARK: - AccountsAwareTokenSelectorViewModelOutput
 
 extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+        selectToken(item, isNewlyAddedFromMarkets: false)
+    }
+}
+
+// MARK: - Private
+
+private extension SwapTokenSelectorViewModel {
+    func selectToken(_ item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
             walletModel: item.walletModel,
-            expressOperationType: .swap
+            expressOperationType: .swap,
+            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
         )
 
         switch swapDirection {
@@ -79,7 +102,29 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
         }
 
         selectedTokenItem = item.walletModel.tokenItem
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+}
+
+// MARK: - ExpressExternalTokenSelectionHandler
+
+extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
+    func didSelectExternalToken(_ token: MarketsTokenModel) {
+        Task { @MainActor in
+            guard let networks = token.networks, !networks.isEmpty else {
+                AppLogger.debug("Selected tokens with no networks")
+                return
+            }
+
+            let inputData = ExpressAddTokenInputData(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                networks: networks
+            )
+
+            marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
+        }
     }
 }
 
