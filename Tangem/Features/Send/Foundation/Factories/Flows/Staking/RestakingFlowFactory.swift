@@ -61,11 +61,13 @@ extension RestakingFlowFactory {
 extension RestakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
