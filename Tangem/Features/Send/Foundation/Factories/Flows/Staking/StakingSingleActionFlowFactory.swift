@@ -56,11 +56,13 @@ extension StakingSingleActionFlowFactory {
 extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
