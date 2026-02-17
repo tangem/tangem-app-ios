@@ -12,7 +12,7 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
-protocol SendSourceToken: SendReceiveToken {
+protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var userWalletInfo: UserWalletInfo { get }
 
     var id: WalletModelId { get }
@@ -25,6 +25,7 @@ protocol SendSourceToken: SendReceiveToken {
 
     var availableBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+    var allowanceService: (any AllowanceService)? { get }
 
     var transactionValidator: TransactionValidator { get }
     var transactionCreator: TransactionCreator { get }
@@ -34,6 +35,18 @@ protocol SendSourceToken: SendReceiveToken {
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+}
+
+// MARK: ExpressSourceWallet + SendSourceToken
+
+extension ExpressSourceWallet where Self: SendSourceToken {
+    var address: String? { defaultAddressString }
+    var extraId: String? { .none }
+    var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
+    var coinCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
+    var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
+    var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
+    var expressFeeProviderFactory: ExpressFeeProviderFactory { tokenFeeProvidersManagerProvider }
 }
 
 struct CommonSendSourceToken: SendSourceToken {
@@ -55,6 +68,7 @@ struct CommonSendSourceToken: SendSourceToken {
 
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
+    let allowanceService: (any AllowanceService)?
 
     let defaultAddressString: String
 
@@ -70,6 +84,13 @@ struct CommonSendSourceToken: SendSourceToken {
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let transactionDispatcherProvider: any TransactionDispatcherProvider
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+
+    // Express
+
+    let balanceProvider: any BalanceProvider
+    let analyticsLogger: any AnalyticsLogger
+    let operationType: ExpressOperationType
+    let supportedProvidersFilter: SupportedProvidersFilter
 }
 
 // MARK: - Equatable
