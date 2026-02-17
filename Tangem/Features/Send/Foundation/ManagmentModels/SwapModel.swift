@@ -142,7 +142,7 @@ extension SwapModel {
                 )
 
                 _receiveToken.send(.loading)
-                let destination: SwapSourceToken = try await expressDestinationService.getDestination(source: source.tokenItem)
+                let destination: SendSourceToken = try await expressDestinationService.getDestination(source: source.tokenItem)
                 update(receive: destination)
 
             case (_, .success(let destination)):
@@ -152,7 +152,7 @@ extension SwapModel {
                 )
 
                 _sourceToken.send(.loading)
-                let source: SwapSourceToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
+                let source: SendSourceToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
                 update(source: source)
 
             default:
@@ -164,12 +164,12 @@ extension SwapModel {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             ExpressLogger.info("Source not found")
             _sourceToken.send(.failure(ExpressDestinationServiceError.sourceNotFound(destination: destination)))
-            // return .noSourceTokens(destination: destination.tokenItem)
+
         } catch ExpressDestinationServiceError.destinationNotFound(let source) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             ExpressLogger.info("Destination not found")
             _receiveToken.send(.failure(ExpressDestinationServiceError.destinationNotFound(source: source)))
-            // return .noDestinationTokens(source: source.tokenItem)
+
         } catch {
             ExpressLogger.info("Update pairs failed with error: \(error)")
 
@@ -184,19 +184,15 @@ extension SwapModel {
     }
 }
 
-// MARK: - SendSourceTokenInput
+// MARK: - SendSourceTokenInput, SendSourceTokenOutput
 
-extension SwapModel: SendSourceTokenInput {
+extension SwapModel: SendSourceTokenInput, SendSourceTokenOutput {
     var sourceToken: LoadingResult<SendSourceToken, any Error> { _sourceToken.value }
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
         _sourceToken.eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendSourceTokenOutput
-
-extension SwapModel: SendSourceTokenOutput {
     func userDidSelect(sourceToken: SendSourceToken) {
         _sourceToken.send(.success(sourceToken))
     }
@@ -204,7 +200,7 @@ extension SwapModel: SendSourceTokenOutput {
 
 // MARK: - SendSourceTokenAmountInput
 
-extension SwapModel: SendSourceTokenAmountInput {
+extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     var sourceAmount: LoadingResult<SendAmount, any Error> {
         switch _amount.value {
         case .none: .failure(SendAmountError.noAmount)
@@ -220,19 +216,15 @@ extension SwapModel: SendSourceTokenAmountInput {
             }
         }.eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendSourceTokenAmountOutput
-
-extension SwapModel: SendSourceTokenAmountOutput {
     func sourceAmountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
     }
 }
 
-// MARK: - SendReceiveTokenInput
+// MARK: - SendReceiveTokenInput, SendReceiveTokenOutput
 
-extension SwapModel: SendReceiveTokenInput {
+extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     var isReceiveTokenSelectionAvailable: Bool {
         true
     }
@@ -244,17 +236,18 @@ extension SwapModel: SendReceiveTokenInput {
     var receiveTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
         _receiveToken.map { $0.mapValue { $0 as SendReceiveToken }}.eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendReceiveTokenOutput
-
-extension SwapModel: SendReceiveTokenOutput {
     func userDidRequestClearSelection() {
         assertionFailure("SwapModel doesn't support receiving token clearing")
     }
 
     func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
-        // _receiveToken.send(newReceiveToken)
+        guard let receiveToken = receiveToken as? SendSourceToken else {
+            return selected(false)
+        }
+
+        _receiveToken.send(.success(receiveToken))
+        selected(true)
     }
 }
 
@@ -368,6 +361,20 @@ extension SwapModel: SendSwapProvidersOutput {
     }
 }
 
+// MARK: - TokenFeeProvidersManagerProviding
+
+extension SwapModel: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
+        _selectedProvider.value?.value?.manager.feeProvider as? TokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        _selectedProvider
+            .compactMap { $0?.value?.manager as? TokenFeeProvidersManager }
+            .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - SendFeeInput
 
 extension SwapModel: SendFeeInput {
@@ -384,20 +391,6 @@ extension SwapModel: SendFeeInput {
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         tokenFeeProvidersManagerPublisher
             .flatMapLatest { $0.supportFeeSelectionPublisher }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - TokenFeeProvidersManagerProviding
-
-extension SwapModel: TokenFeeProvidersManagerProviding {
-    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
-        _selectedProvider.value?.value?.manager.feeProvider as? TokenFeeProvidersManager
-    }
-
-    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
-        _selectedProvider
-            .compactMap { $0?.value?.manager as? TokenFeeProvidersManager }
             .eraseToAnyPublisher()
     }
 }
@@ -483,7 +476,12 @@ extension SwapModel: SendBaseInput, SendBaseOutput {
 
 extension SwapModel: SendBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? {
-        nil //  _amount.value?.crypto.map { makeAmount(decimal: $0) }
+        guard let crypto = sourceAmount.value?.crypto,
+              let source = sourceToken.value else {
+            return nil
+        }
+
+        return BSDKAmount(with: source.tokenItem.blockchain, type: source.tokenItem.amountType, value: crypto)
     }
 
     var bsdkFee: BSDKFee? {

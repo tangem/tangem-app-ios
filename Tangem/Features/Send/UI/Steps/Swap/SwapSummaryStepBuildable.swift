@@ -28,12 +28,13 @@ enum SwapSummaryStepBuilder {
         let input: SendSummaryInput
         let output: SendSummaryOutput
         let sourceTokenInput: SendSourceTokenInput
+        let sourceTokenAmountInput: SendSourceTokenAmountInput
         let receiveTokenInput: SendReceiveTokenInput
         let receiveTokenAmountInput: SendReceiveTokenAmountInput
     }
 
     struct Types {
-        let initialTokenItem: TokenItem
+        let initialSourceToken: SendSourceToken
     }
 
     struct Dependencies {
@@ -62,9 +63,11 @@ enum SwapSummaryStepBuilder {
         )
 
         let swapAmountViewModel = SwapAmountViewModel(
-            initialTokenItem: types.initialTokenItem,
+            initialSourceToken: types.initialSourceToken,
             sourceTokenInput: io.sourceTokenInput,
-            receiveTokenInput: io.receiveTokenInput
+            sourceTokenAmountInput: io.sourceTokenAmountInput,
+            receiveTokenInput: io.receiveTokenInput,
+            receiveTokenAmountInput: io.receiveTokenAmountInput
         )
 
         let viewModel = SwapSummaryViewModel(

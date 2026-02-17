@@ -9,15 +9,22 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 class SwapSourceTokenViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
 
+    private let initialSourceToken: SendSourceToken
+    private var sourceTokenCancellable: AnyCancellable?
+    private var sourceTokenAmountCancellable: AnyCancellable?
+
     init(
+        initialSourceToken: SendSourceToken,
         expressCurrencyViewModel: ExpressCurrencyViewModel,
         decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     ) {
+        self.initialSourceToken = initialSourceToken
         self.expressCurrencyViewModel = expressCurrencyViewModel
         self.decimalNumberTextFieldViewModel = decimalNumberTextFieldViewModel
     }
@@ -26,17 +33,31 @@ class SwapSourceTokenViewModel: ObservableObject, Identifiable {
         Analytics.log(.swapSendTokenBalanceClicked)
     }
 
-    func bind(sourceInput: SendSourceTokenInput) {}
+    func bind(sourceInput: SendSourceTokenInput, sourceAmountInput: SendSourceTokenAmountInput) {
+        sourceTokenCancellable = sourceInput
+            .sourceTokenPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { $0.update(token: $1) }
 
-    func update(wallet: ExpressInteractor.Source, initialWalletId: WalletModelId) {
-        expressCurrencyViewModel.update(wallet: wallet.mapValue { $0 as ExpressGenericWallet }, initialWalletId: initialWalletId)
+        sourceTokenAmountCancellable = Publishers.CombineLatest(
+            sourceAmountInput.sourceAmountPublisher,
+            sourceInput.sourceTokenPublisher
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { $0.updateSendFiatValue(amount: $1.0.value, tokenItem: $1.1.value?.tokenItem) }
+    }
 
-        if let tokenItem = wallet.value?.tokenItem {
+    private func update(token: LoadingResult<SendSourceToken, any Error>) {
+        expressCurrencyViewModel.update(wallet: token.mapValue { $0 as SendGenericToken }, initialWalletId: initialSourceToken.id)
+
+        if let tokenItem = token.value?.tokenItem {
             decimalNumberTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
         }
     }
 
-    func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem?) {
-        expressCurrencyViewModel.updateFiatValue(expectAmount: amount, tokenItem: tokenItem)
+    private func updateSendFiatValue(amount: SendAmount?, tokenItem: TokenItem?) {
+        expressCurrencyViewModel.updateFiatValue(expectAmount: amount?.fiat, tokenItem: tokenItem)
     }
 }

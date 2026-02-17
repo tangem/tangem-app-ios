@@ -24,29 +24,40 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     weak var router: SwapAmountCompactRoutable?
 
+    private let initialSourceToken: SendSourceToken
+    private var sourceTokenCancellable: AnyCancellable?
+    private var receiveTokenCancellable: AnyCancellable?
+
     init(
-        initialTokenItem: TokenItem,
+        initialSourceToken: SendSourceToken,
         sourceTokenInput: SendSourceTokenInput,
-        receiveTokenInput: SendReceiveTokenInput
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
+        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
     ) {
+        self.initialSourceToken = initialSourceToken
+
         swapSourceTokenViewModel = SwapSourceTokenViewModel(
+            initialSourceToken: initialSourceToken,
             expressCurrencyViewModel: .init(
                 viewType: .send,
                 headerType: .action(name: Localization.swappingFromTitle),
-                canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialTokenItem
+                canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialSourceToken.tokenItem
             ),
             decimalNumberTextFieldViewModel: .init(maximumFractionDigits: sourceTokenInput.sourceToken.value?.tokenItem.decimalCount ?? 0)
         )
 
         swapReceiveTokenViewModel = SwapReceiveTokenViewModel(
+            initialSourceToken: initialSourceToken,
             expressCurrencyViewModel: .init(
                 viewType: .receive,
                 headerType: .action(name: Localization.swappingToTitle),
-                canChangeCurrency: receiveTokenInput.receiveToken.value?.tokenItem != initialTokenItem
+                canChangeCurrency: receiveTokenInput.receiveToken.value?.tokenItem != initialSourceToken.tokenItem
             )
         )
 
-        bind(sourceTokenInput: sourceTokenInput, receiveTokenInput: receiveTokenInput)
+        swapSourceTokenViewModel.bind(sourceInput: sourceTokenInput, sourceAmountInput: sourceTokenAmountInput)
+        swapReceiveTokenViewModel.bind(receiveTokenInput: receiveTokenInput, receiveTokenAmountInput: receiveTokenAmountInput)
     }
 
     func userDidTapChangeSourceTokenButton() {
@@ -59,9 +70,5 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapChangeReceiveTokenButton() {
         router?.userDidTapChangeReceiveTokenButton()
-    }
-
-    func bind(sourceTokenInput: SendSourceTokenInput, receiveTokenInput: SendReceiveTokenInput) {
-        // [REDACTED_TODO_COMMENT]
     }
 }

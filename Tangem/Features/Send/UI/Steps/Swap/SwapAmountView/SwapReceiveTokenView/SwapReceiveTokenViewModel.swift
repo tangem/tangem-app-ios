@@ -15,22 +15,44 @@ class SwapReceiveTokenViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var cryptoAmountState: LoadableTextView.State
 
+    private let initialSourceToken: SendSourceToken
+    private var receiveTokenCancellable: AnyCancellable?
+    private var receiveTokenAmountCancellable: AnyCancellable?
+
     init(
+        initialSourceToken: SendSourceToken,
         expressCurrencyViewModel: ExpressCurrencyViewModel,
         cryptoAmountState: LoadableTextView.State = .initialized
     ) {
+        self.initialSourceToken = initialSourceToken
         self.expressCurrencyViewModel = expressCurrencyViewModel
         self.cryptoAmountState = cryptoAmountState
     }
 
-    func update(wallet: ExpressInteractor.Destination?, initialWalletId: WalletModelId) {
-        expressCurrencyViewModel.update(wallet: wallet?.mapValue { $0 as ExpressGenericWallet }, initialWalletId: initialWalletId)
+    func bind(receiveTokenInput: SendReceiveTokenInput, receiveTokenAmountInput: SendReceiveTokenAmountInput) {
+        receiveTokenCancellable = receiveTokenInput
+            .receiveTokenPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { $0.update(token: $1) }
+
+        receiveTokenAmountCancellable = Publishers.CombineLatest(
+            receiveTokenAmountInput.receiveAmountPublisher,
+            receiveTokenInput.receiveTokenPublisher
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { $0.updateReceive(amount: $1.0.value, tokenItem: $1.1.value?.tokenItem) }
     }
 
-    func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
-        expressCurrencyViewModel.updateFiatValue(expectAmount: expectAmount, tokenItem: tokenItem)
+    private func update(token: LoadingResult<SendReceiveToken, any Error>) {
+        expressCurrencyViewModel.update(wallet: token.mapValue { $0 as SendGenericToken }, initialWalletId: initialSourceToken.id)
+    }
 
-        guard let expectAmount else {
+    private func updateReceive(amount: SendAmount?, tokenItem: TokenItem?) {
+        expressCurrencyViewModel.updateFiatValue(expectAmount: amount?.fiat, tokenItem: tokenItem)
+
+        guard let expectAmount = amount?.crypto else {
             update(cryptoAmountState: .loaded(text: "0"))
             return
         }
@@ -42,7 +64,7 @@ class SwapReceiveTokenViewModel: ObservableObject, Identifiable {
         update(cryptoAmountState: .loaded(text: formatted))
     }
 
-    func update(cryptoAmountState: LoadableTextView.State) {
+    private func update(cryptoAmountState: LoadableTextView.State) {
         self.cryptoAmountState = cryptoAmountState
     }
 }
