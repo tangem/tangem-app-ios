@@ -15,6 +15,7 @@ struct EarnNetworkFilterNetworkRowInput: Identifiable {
     let iconAsset: ImageType
     let networkName: String
     let currencySymbol: String
+    let isSelected: Bool
     let onTap: () -> Void
 }
 
@@ -42,6 +43,8 @@ struct EarnNetworkFilterNetworkRowView: View {
             }
 
             Spacer(minLength: 0)
+
+            CheckIconView(isSelected: input.isSelected)
         }
         .padding(.vertical, 16)
         .contentShape(Rectangle())
