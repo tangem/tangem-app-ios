@@ -100,6 +100,7 @@ private extension SendSwapProvidersSelectorViewModel {
 
         input?
             .selectedExpressProviderPublisher
+            .map { $0?.value }
             .receiveOnMain()
             .assign(to: &$selectedProvider)
     }

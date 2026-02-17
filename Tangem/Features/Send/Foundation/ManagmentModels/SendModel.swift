@@ -499,7 +499,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         Publishers.CombineLatest3(
             sourceAmountPublisher.compactMap { $0.value },
             receiveAmountPublisher.compactMap { $0.value },
-            selectedExpressProviderPublisher.compactMap { $0?.provider }
+            selectedExpressProviderPublisher.compactMap { $0?.value?.provider }
         )
         .withWeakCaptureOf(self)
         .setFailureType(to: Error.self)
@@ -575,16 +575,22 @@ extension SendModel: SendSwapProvidersInput {
         get async { await swapManager.providers }
     }
 
-    var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
+    var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         swapManager.providersPublisher
     }
 
-    var selectedExpressProvider: ExpressAvailableProvider? {
-        swapManager.state.context?.availableProvider
+    var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
+        guard let provider = swapManager.state.context?.availableProvider else {
+            return nil
+        }
+
+        return .success(provider)
     }
 
-    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+    var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
         swapManager.selectedProviderPublisher
+            .map { $0.map { .success($0) } }
+            .eraseToAnyPublisher()
     }
 }
 
