@@ -200,7 +200,7 @@ private extension CommonSwapManager {
              .previewCEX,
              .readyToSwap:
             restartTimer()
-        case .idle, .loading, .preloadRestriction, .requiredRefresh, .restriction:
+        case .idle, .loading, .preloadRestriction, .requiredRefresh, .restriction, .runtimeRestriction:
             stopTimer()
         }
     }

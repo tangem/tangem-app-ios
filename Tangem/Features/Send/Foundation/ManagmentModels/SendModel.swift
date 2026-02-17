@@ -508,7 +508,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         switch state {
         case .requiredRefresh(let error, _):
             return .failure(error)
-        case .idle, .preloadRestriction, .restriction(_, _, .none):
+        case .idle, .preloadRestriction, .restriction(_, _, .none), .runtimeRestriction:
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
@@ -713,7 +713,8 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                     switch state {
                     case .loading(.refreshRates), .loading(.fee):
                         return Empty().eraseToAnyPublisher()
-                    case .idle, .loading(.full), .preloadRestriction, .restriction, .requiredRefresh:
+                    case .idle, .loading(.full), .preloadRestriction,
+                         .restriction, .requiredRefresh, .runtimeRestriction:
                         return .just(output: .none)
                     case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
