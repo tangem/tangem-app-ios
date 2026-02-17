@@ -27,4 +27,27 @@ enum NetworkSupportChecker {
         // Tokens require blockchain to support token handling
         return SupportedTokensFilter.canHandleToken(contractAddress: contractAddress, blockchain: blockchain)
     }
+
+    /// Checks if any network from the list is supported by any of the user wallet models.
+    /// Only multi-currency wallets are considered.
+    static func hasAnySupportedNetwork(
+        networks: [NetworkModel],
+        userWalletModels: [UserWalletModel]
+    ) -> Bool {
+        guard networks.isNotEmpty else {
+            return false
+        }
+
+        let multiCurrencyModels = userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
+
+        for model in multiCurrencyModels {
+            for network in networks {
+                if isNetworkSupported(network, in: model.config.supportedBlockchains) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
 }

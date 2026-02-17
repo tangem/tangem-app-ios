@@ -19,6 +19,7 @@ enum Feature: String, Hashable, CaseIterable {
     case gaslessTransactions
     case exchangeOnlyWithinSingleAddress
     case experimentService
+    case expressAllTokensSearch
 
     var name: String {
         switch self {
@@ -32,6 +33,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessTransactions: return "Gasless transactions"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
+        case .expressAllTokensSearch: return "Express All Tokens Search"
         }
     }
 
@@ -47,6 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessTransactions: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
+        case .expressAllTokensSearch: return .unspecified
         }
     }
 }
