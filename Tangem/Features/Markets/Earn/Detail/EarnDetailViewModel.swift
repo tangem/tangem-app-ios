@@ -60,7 +60,9 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
 
     func onFirstAppear() {
         Task { @MainActor in
-            await filterProvider.fetchAvailableNetworks()
+            if filterProvider.state == .idle || filterProvider.state == .emptyAvailableNetworks {
+                await filterProvider.fetchAvailableNetworks()
+            }
         }
     }
 
