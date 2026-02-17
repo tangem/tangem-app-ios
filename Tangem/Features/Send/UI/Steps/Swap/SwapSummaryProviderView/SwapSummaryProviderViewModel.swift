@@ -54,7 +54,7 @@ private extension SwapSummaryProviderViewModel {
             swapProvidersInput.selectedExpressProviderPublisher
         )
         .withWeakCaptureOf(self)
-        .map { $0.mapToProviderState(sourceToken: $1.0, receiveToken: $1.1, provider: .success($1.2)) }
+        .map { $0.mapToProviderState(sourceToken: $1.0, receiveToken: $1.1, provider: $1.2) }
         .receiveOnMain()
         .assign(to: &$providerState)
     }
@@ -62,14 +62,16 @@ private extension SwapSummaryProviderViewModel {
     func mapToProviderState(
         sourceToken: SendSourceToken,
         receiveToken: SendReceiveToken,
-        provider: LoadingResult<ExpressAvailableProvider?, any Error>
+        provider: LoadingResult<ExpressAvailableProvider, any Error>?
     ) -> ProviderState? {
         switch provider {
+        case .none:
+            return nil
         case .loading:
             return .loading
-        case .failure, .success(.none):
+        case .failure:
             return nil
-        case .success(.some(let provider)):
+        case .success(let provider):
             if let data = mapToProviderRowViewModel(sourceToken: sourceToken, receiveToken: receiveToken, provider: provider) {
                 return .loaded(data: data)
             }

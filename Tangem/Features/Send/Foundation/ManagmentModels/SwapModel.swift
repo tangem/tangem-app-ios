@@ -25,7 +25,7 @@ final class SwapModel {
     private let _receiveToken: CurrentValueSubject<LoadingResult<SendSourceToken, any Error>, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
 
-    private let _providers = CurrentValueSubject<LoadingResult<ExpressManagerUpdatingResult?, any Error>?, Never>(.none)
+    private let _providersState = CurrentValueSubject<ProvidersState, Never>(.loading(.rates))
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -76,10 +76,6 @@ final class SwapModel {
 
 // MARK: - Changes -> ExpressManager
 
-extension SwapModel {}
-
-// MARK: - Changes -> ExpressManager
-
 extension SwapModel {
     func update(source wallet: SendSourceToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
@@ -115,13 +111,13 @@ extension SwapModel {
             do {
                 switch try await block(input.expressManager) {
                 case .none:
-                    input._providers.send(.none)
+                    input._providersState.send(.idle)
 
                 case .some(let selectedProvider):
-                    input._providers.send(.success(selectedProvider))
+                    input._providersState.send(.loaded(selectedProvider))
                 }
             } catch {
-                input._providers.send(.failure(error))
+                input._providersState.send(.failure(error))
             }
         })
     }
@@ -257,13 +253,13 @@ extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
 
 extension SwapModel: SendReceiveTokenAmountInput {
     var receiveAmount: LoadingResult<SendAmount, any Error> {
-        mapToReceiveSendAmount(state: selectedExpressProvider?.getState())
+        mapToReceiveSendAmount(state: selectedExpressProvider?.value?.getState())
     }
 
-    var receiveAmountPublisher: AnyPublisher<TangemFoundation.LoadingResult<SendAmount, any Error>, Never> {
-        _providers.map { $0?.value?.selected }
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        selectedExpressProviderPublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapToReceiveSendAmount(state: $1?.getState()) }
+            .map { $0.mapToReceiveSendAmount(state: $1?.value?.getState()) }
             .eraseToAnyPublisher()
     }
 
@@ -272,7 +268,7 @@ extension SwapModel: SendReceiveTokenAmountInput {
             try? await mapToHighPriceImpactCalculatorResult(
                 sourceTokenAmount: sourceAmount.value,
                 receiveTokenAmount: receiveAmount.value,
-                provider: selectedExpressProvider?.provider
+                provider: selectedExpressProvider?.value?.provider
             )
         }
     }
@@ -281,7 +277,7 @@ extension SwapModel: SendReceiveTokenAmountInput {
         Publishers.CombineLatest3(
             sourceAmountPublisher.compactMap { $0.value },
             receiveAmountPublisher.compactMap { $0.value },
-            selectedExpressProviderPublisher.compactMap { $0?.provider }
+            selectedExpressProviderPublisher.compactMap { $0?.value?.provider }
         )
         .withWeakCaptureOf(self)
         .setFailureType(to: Error.self)
@@ -339,19 +335,32 @@ extension SwapModel: SendReceiveTokenAmountInput {
 
 extension SwapModel: SendSwapProvidersInput {
     var expressProviders: [ExpressAvailableProvider] {
-        _providers.value?.value?.providers ?? []
+        _providersState.value.providers
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        _providers.compactMap { $0?.value?.providers }.eraseToAnyPublisher()
+        _providersState.compactMap { $0.providers }.eraseToAnyPublisher()
     }
 
-    var selectedExpressProvider: ExpressAvailableProvider? {
-        _providers.value?.value?.selected
+    var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
+        mapToLoadingExpressAvailableProvider(providersState: _providersState.value)
     }
 
-    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
-        _providers.map { $0?.value?.selected }.eraseToAnyPublisher()
+    var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
+        _providersState
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadingExpressAvailableProvider(providersState: $1) }
+            .eraseToAnyPublisher().eraseToAnyPublisher()
+    }
+
+    private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {
+        switch providersState {
+        case .idle: return .none
+        case .failure(let error): return .failure(error)
+        case .loading(.rates): return .loading
+        case .loading: return .none
+        case .loaded(let result): return result.selected.map { .success($0) }
+        }
     }
 }
 
@@ -369,12 +378,12 @@ extension SwapModel: SendSwapProvidersOutput {
 
 extension SwapModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
-        selectedExpressProvider?.manager.feeProvider as? TokenFeeProvidersManager
+        selectedExpressProvider?.value?.manager.feeProvider as? TokenFeeProvidersManager
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
         selectedExpressProviderPublisher
-            .compactMap { $0?.manager as? TokenFeeProvidersManager }
+            .compactMap { $0?.value?.manager as? TokenFeeProvidersManager }
             .eraseToAnyPublisher()
     }
 }
@@ -492,5 +501,35 @@ extension SwapModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         false
+    }
+}
+
+extension SwapModel {
+    enum ProvidersState {
+        case idle
+        case loading(LoadingType)
+        /// Error only for case when all providers didn't loaded
+        case failure(Error)
+        case loaded(ExpressManagerUpdatingResult)
+
+        var selectedProvider: ExpressAvailableProvider? {
+            switch self {
+            case .loaded(let result): result.selected
+            default: nil
+            }
+        }
+
+        var providers: [ExpressAvailableProvider] {
+            switch self {
+            case .loaded(let result): result.providers
+            default: []
+            }
+        }
+    }
+
+    enum LoadingType {
+        case rates
+        case autoupdate
+        case fee
     }
 }
