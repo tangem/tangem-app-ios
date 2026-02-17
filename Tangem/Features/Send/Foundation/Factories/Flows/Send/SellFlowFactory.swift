@@ -80,6 +80,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -88,6 +89,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
+            initialSourceToken: sourceToken,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
