@@ -42,26 +42,36 @@ class SwapReceiveTokenViewModel: ObservableObject, Identifiable {
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
-        .sink { $0.updateReceive(amount: $1.0.value, tokenItem: $1.1.value?.tokenItem) }
+        .sink { $0.updateReceive(amount: $1.0, sourceToken: $1.1) }
     }
 
     private func update(token: LoadingResult<SendReceiveToken, any Error>) {
         expressCurrencyViewModel.update(wallet: token.mapValue { $0 as SendGenericToken }, initialWalletId: initialSourceToken.id)
     }
 
-    private func updateReceive(amount: SendAmount?, tokenItem: TokenItem?) {
-        expressCurrencyViewModel.updateFiatValue(expectAmount: amount?.fiat, tokenItem: tokenItem)
+    private func updateReceive(amount: LoadingResult<SendAmount, any Error>, sourceToken: LoadingResult<SendReceiveToken, any Error>) {
+        switch (sourceToken, amount) {
+        case (.loading, _), (_, .loading):
+            update(cryptoAmountState: .loading)
+            expressCurrencyViewModel.update(fiatAmountState: .loading)
 
-        guard let expectAmount = amount?.crypto else {
+        case (_, .failure), (.failure, _):
             update(cryptoAmountState: .loaded(text: "0"))
-            return
+            expressCurrencyViewModel.updateFiatValue(expectAmount: .none, tokenItem: .none)
+
+        case (.success(let token), .success(let amount)):
+            guard let crypto = amount.crypto else {
+                update(cryptoAmountState: .loaded(text: "0"))
+                expressCurrencyViewModel.updateFiatValue(expectAmount: .none, tokenItem: .none)
+                return
+            }
+
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: token.tokenItem.decimalCount)
+            let formatted: String = formatter.format(value: crypto)
+
+            update(cryptoAmountState: .loaded(text: formatted))
+            expressCurrencyViewModel.updateFiatValue(expectAmount: amount.fiat, tokenItem: token.tokenItem)
         }
-
-        let decimals = tokenItem?.decimalCount ?? AppConstants.maximumFractionDigitsForBalance
-
-        let formatter = DecimalNumberFormatter(maximumFractionDigits: decimals)
-        let formatted: String = formatter.format(value: expectAmount)
-        update(cryptoAmountState: .loaded(text: formatted))
     }
 
     private func update(cryptoAmountState: LoadableTextView.State) {

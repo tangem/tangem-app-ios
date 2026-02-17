@@ -44,6 +44,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             initialSourceToken: sourceToken,
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
+            sourceTokenAmountOutput: swapModel,
             receiveTokenInput: swapModel,
             receiveTokenAmountInput: swapModel
         )

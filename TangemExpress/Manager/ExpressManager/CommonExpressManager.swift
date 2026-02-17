@@ -144,7 +144,7 @@ private extension CommonExpressManager {
 
         guard let amount = _amount, amount > 0 else {
             ExpressLogger.warning(self, "Amount isn't set. Return nil as `selectedProvider`")
-            return availableProviders.first
+            return nil
         }
 
         let request = try makeRequest()
