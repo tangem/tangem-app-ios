@@ -155,6 +155,10 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
         )
     }
 
+    var destinationTypes: SendDestinationStepBuilder.Types {
+        .init(initialSourceToken: sourceToken)
+    }
+
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {
         SendDestinationStepBuilder.Dependencies(
             sendQRCodeService: makeSendQRCodeService(),
@@ -171,7 +175,8 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
         analyticsLogger: any SendDestinationAnalyticsLogger
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
-            receivedTokenType: receiveTokenInput.receiveToken,
+            initialSourceToken: sourceToken,
+            receivedToken: receiveTokenInput.receiveToken.value,
             sourceWalletData: .init(
                 walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
                 suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,

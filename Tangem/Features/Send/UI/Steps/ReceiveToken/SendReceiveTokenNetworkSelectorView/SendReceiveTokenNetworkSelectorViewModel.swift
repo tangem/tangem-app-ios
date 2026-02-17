@@ -116,7 +116,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func loadNetworks() async throws -> [SendReceiveTokenNetworkSelectorNetworkViewData] {
-        guard let sourceToken = sourceTokenInput?.sourceToken else {
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
             throw CommonError.objectReleased
         }
 
@@ -138,7 +138,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func availableNetworks() async throws -> [TokenItem] {
-        guard let sourceToken = sourceTokenInput?.sourceToken else {
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
             throw CommonError.objectReleased
         }
 
