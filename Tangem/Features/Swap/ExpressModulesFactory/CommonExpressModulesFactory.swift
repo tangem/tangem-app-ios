@@ -92,13 +92,27 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwapTokenSelectorViewModel(
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        coordinator: any SwapTokenSelectorRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) -> SwapTokenSelectorViewModel {
-        SwapTokenSelectorViewModel(
+        // Create external search view model if feature toggle is enabled
+        let marketsTokensViewModel: SwapMarketsTokensViewModel?
+        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+            marketsTokensViewModel = SwapMarketsTokensViewModel()
+        } else {
+            marketsTokensViewModel = nil
+        }
+
+        return SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
+                walletsProvider: .common(),
+                availabilityProvider: .swap()
+            ),
+            marketsTokensViewModel: marketsTokensViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
-            coordinator: coordinator
+            tokenSelectorCoordinator: tokenSelectorCoordinator,
+            marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )
     }
 
