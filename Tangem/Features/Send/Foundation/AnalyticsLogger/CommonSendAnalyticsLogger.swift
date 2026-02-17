@@ -292,7 +292,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
             analyticsParameters[.receiveToken] = token
 
-            if let provider = sendSwapProvidersInput?.selectedExpressProvider {
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
                 analyticsParameters[.provider] = provider.provider.name
             }
 
@@ -408,7 +408,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
 
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider {
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
             analyticsParameters[.provider] = provider.provider.name
         }
 

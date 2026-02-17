@@ -63,7 +63,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func bind(swapProvidersInput: SendSwapProvidersInput) {
-        swapProvidersInput.selectedExpressProviderPublisher.compactMap { $0 }
+        swapProvidersInput.selectedExpressProviderPublisher.compactMap { $0?.value }
             .map { $0.manager.pair.isSameNetwork && $0.manager.isFeeCurrency }
             .assign(to: &$isMaxAmountButtonHidden)
     }
