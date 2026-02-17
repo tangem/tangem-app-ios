@@ -274,7 +274,8 @@ private extension CommonDeeplinkPresenter {
             maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
-            stakingOpportunities: nil
+            stakingOpportunities: nil,
+            networks: nil,
         )
 
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
