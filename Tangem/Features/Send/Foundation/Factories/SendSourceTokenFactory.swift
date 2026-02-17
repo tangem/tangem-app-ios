@@ -31,11 +31,13 @@ struct SendSourceTokenFactory {
             signer: userWalletInfo.signer
         )
 
-        return SendSourceToken(
+        return CommonSendSourceToken(
             userWalletInfo: userWalletInfo,
+            id: walletModel.id,
             header: header,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
+            isCustom: walletModel.isCustom,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
             possibleToConvertToFiat: possibleToConvertToFiat,
