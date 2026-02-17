@@ -60,6 +60,8 @@ final class MarketsListDataProvider {
     /// Total tokens value by pages
     private var totalTokensCount: Int?
 
+    private var loadNetworks: Bool?
+
     private var lastSearchText: String?
     private var lastFilter: Filter?
     private var taskCancellable: AnyCancellable?
@@ -67,6 +69,10 @@ final class MarketsListDataProvider {
 
     private var selectedCurrencyCode: String {
         AppSettings.shared.selectedCurrencyCode
+    }
+
+    init(loadNetworks: Bool? = nil) {
+        self.loadNetworks = loadNetworks
     }
 
     // MARK: - Implementation
@@ -224,7 +230,8 @@ private extension MarketsListDataProvider {
             limit: limitPerPage,
             interval: filter.interval,
             order: filter.order,
-            search: searchText
+            search: searchText,
+            showNetworks: loadNetworks
         )
 
         AppLogger.tag("Markets").info("Loading market list tokens with request \(requestModel.parameters.debugDescription)")
