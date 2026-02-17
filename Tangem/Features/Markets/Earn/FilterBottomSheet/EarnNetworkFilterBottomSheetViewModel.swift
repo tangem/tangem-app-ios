@@ -68,9 +68,17 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
         let blockchainsByNetworkId = filterProvider.supportedBlockchainsByNetworkId
 
+        let selectedNetworkFilter = filterProvider.selectedNetworkFilter
         networkRowInputs = filterProvider.availableNetworks.compactMap { networkInfo in
             guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
                 return nil
+            }
+
+            let isSelected: Bool
+            if case .specific(let selected) = selectedNetworkFilter {
+                isSelected = selected.networkId == networkInfo.networkId
+            } else {
+                isSelected = false
             }
 
             return EarnNetworkFilterNetworkRowInput(
@@ -78,6 +86,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
                 iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
+                isSelected: isSelected,
                 onTap: { [weak self] in
                     self?.selectAndDismiss(network: .specific(networkInfo: networkInfo))
                 }
