@@ -12,6 +12,11 @@ struct SendSourceTokenFactory {
 
     func makeSourceToken(tokenHeaderProvider: SendGenericTokenHeaderProvider) -> SendSourceToken {
         let header = tokenHeaderProvider.makeSendTokenHeader()
+        let tokenHeader = ExpressInteractorTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account
+        ).makeHeader()
+
         let tokenIconInfo = TokenIconInfoBuilder().build(
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
@@ -35,11 +40,12 @@ struct SendSourceTokenFactory {
             userWalletInfo: userWalletInfo,
             id: walletModel.id,
             header: header,
+            tokenHeader: tokenHeader,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            isCustom: walletModel.isCustom,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
+            isCustom: walletModel.isCustom,
             possibleToConvertToFiat: possibleToConvertToFiat,
             availableBalanceProvider: walletModel.availableBalanceProvider,
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
