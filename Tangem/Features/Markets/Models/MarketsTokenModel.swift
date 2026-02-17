@@ -21,6 +21,7 @@ struct MarketsTokenModel: Identifiable, Decodable, Equatable {
     let marketCap: Decimal?
     let isUnderMarketCapLimit: Bool?
     let stakingOpportunities: [StakingOpportunity]?
+    let networks: [NetworkModel]?
 
     struct StakingOpportunity: Decodable, Equatable {
         let id: UInt64
