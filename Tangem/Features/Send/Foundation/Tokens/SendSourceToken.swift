@@ -12,15 +12,13 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
-protocol GenericSourceToken: SendReceiveToken {
+protocol SendSourceToken: SendReceiveToken {
     var userWalletInfo: UserWalletInfo { get }
 
     var id: WalletModelId { get }
     var header: SendTokenHeader { get }
-    /// var tokenItem: TokenItem { get }
+    var tokenHeader: ExpressInteractorTokenHeader? { get }
     var feeTokenItem: TokenItem { get }
-    // var tokenIconInfo: TokenIconInfo { get }
-    // var fiatItem: FiatItem { get }
     var isCustom: Bool { get }
     var possibleToConvertToFiat: Bool { get }
     var defaultAddressString: String { get }
@@ -28,16 +26,14 @@ protocol GenericSourceToken: SendReceiveToken {
     var availableBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
 
-    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
-}
-
-protocol SendSourceToken: GenericSourceToken {
     var transactionValidator: TransactionValidator { get }
     var transactionCreator: TransactionCreator { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
+
+    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
+    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
 }
 
 struct CommonSendSourceToken: SendSourceToken {
@@ -49,6 +45,7 @@ struct CommonSendSourceToken: SendSourceToken {
 
     let id: WalletModelId
     let header: SendTokenHeader
+    let tokenHeader: ExpressInteractorTokenHeader?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo

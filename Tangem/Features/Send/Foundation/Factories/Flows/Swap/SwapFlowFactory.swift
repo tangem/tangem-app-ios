@@ -123,13 +123,14 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             input: swapModel,
             output: swapModel,
             sourceTokenInput: swapModel,
+            sourceTokenAmountInput: swapModel,
             receiveTokenInput: swapModel,
             receiveTokenAmountInput: swapModel
         )
     }
 
     var summaryTypes: SwapSummaryStepBuilder.Types {
-        SwapSummaryStepBuilder.Types(initialTokenItem: sourceToken.tokenItem)
+        SwapSummaryStepBuilder.Types(initialSourceToken: sourceToken)
     }
 
     var summaryDependencies: SwapSummaryStepBuilder.Dependencies {
