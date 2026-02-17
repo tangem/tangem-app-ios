@@ -146,7 +146,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
-            stakingOpportunities: nil
+            stakingOpportunities: nil,
+            networks: nil,
         )
 
         coordinator?.openMarketsTokenDetails(tokenModel: model)
