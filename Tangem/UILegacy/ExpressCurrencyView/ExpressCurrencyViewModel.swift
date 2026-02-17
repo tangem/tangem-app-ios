@@ -117,6 +117,71 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func update(wallet: LoadingResult<any SendGenericToken, Error>, initialWalletId: WalletModelId) {
+        switch wallet {
+        case .loading:
+            canChangeCurrency = false
+            tokenIconState = .loading
+            symbolState = .loading
+            balanceState = .loading
+
+        case .success(let wallet as SendSourceToken):
+            headerType = ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: wallet.tokenHeader)
+            canChangeCurrency = wallet.id != initialWalletId
+            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
+            walletDidChangeSubscription = wallet.availableBalanceProvider.balanceTypePublisher.sink { [weak self] state in
+                switch state {
+                case .loading:
+                    self?.balanceState = .loading
+                case .loaded(let balance):
+                    let formatted = BalanceFormatter().formatDecimal(balance)
+                    self?.balanceState = .formatted(formatted)
+                // No balance cases
+                case .empty, .failure:
+                    self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
+                }
+            }
+
+        case .success(let wallet as ExpressInteractorTangemPayWallet):
+            headerType = .action(name: viewType.actionName())
+            canChangeCurrency = false
+            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
+
+            walletDidChangeSubscription = wallet.availableBalanceProvider.formattedBalanceTypePublisher.sink { [weak self] state in
+                switch state {
+                case .loading:
+                    self?.balanceState = .loading
+                case .loaded(let formatted):
+                    self?.balanceState = .formatted(formatted)
+                // No balance cases
+                case .failure:
+                    self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
+                }
+            }
+
+        case .success(let wallet as SendReceiveToken):
+            headerType = .action(name: viewType.actionName())
+            canChangeCurrency = false
+            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: false))
+            // No balance for abstract wallet
+            balanceState = .idle
+
+        case .success(let wallet):
+            assertionFailure("Don't have implementation for \(wallet)")
+            fallthrough
+
+        case .failure:
+            headerType = .action(name: viewType.actionName())
+            canChangeCurrency = true
+            tokenIconState = .notAvailable
+            symbolState = .noData
+            balanceState = .notAvailable
+        }
+    }
+
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
         guard let expectAmount else {
             update(fiatAmountState: .loaded(text: BalanceFormatter().formatFiatBalance(0)))

@@ -40,11 +40,21 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
 extension SwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
+        let swapAmountViewModel = SwapAmountViewModel(
+            initialSourceToken: sourceToken,
+            sourceTokenInput: swapModel,
+            sourceTokenAmountInput: swapModel,
+            receiveTokenInput: swapModel,
+            receiveTokenAmountInput: swapModel
+        )
+
         let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders()
 
         let summary = makeSwapSummaryStep(
-            feeCompactViewModel: fee.compact
+            swapAmountViewModel: swapAmountViewModel,
+            swapSummaryProviderViewModel: providers.compact,
+            feeCompactViewModel: fee.compact,
         )
 
         let finish = makeSendFinishStep(
@@ -66,7 +76,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
-            providersSelector: providers,
+            providersSelector: providers.selector,
             router: router
         )
 
@@ -122,10 +132,6 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
         )
     }
 
-    var summaryTypes: SwapSummaryStepBuilder.Types {
-        SwapSummaryStepBuilder.Types(initialSourceToken: sourceToken)
-    }
-
     var summaryDependencies: SwapSummaryStepBuilder.Dependencies {
         SwapSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
@@ -153,7 +159,12 @@ extension SwapFlowFactory: SendFeeStepBuildable {
 
 extension SwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: swapModel, output: swapModel, receiveTokenInput: swapModel)
+        SendSwapProvidersBuilder.IO(
+            input: swapModel,
+            output: swapModel,
+            sourceTokenInput: swapModel,
+            receiveTokenInput: swapModel
+        )
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
