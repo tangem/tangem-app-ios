@@ -19,7 +19,7 @@ struct CommonSendAmountValidator {
 
 extension CommonSendAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
-        guard let sourceToken = input?.sourceToken else {
+        guard let sourceToken = input?.sourceToken.value else {
             throw Error.sendSourceTokenInputNotFound
         }
 
