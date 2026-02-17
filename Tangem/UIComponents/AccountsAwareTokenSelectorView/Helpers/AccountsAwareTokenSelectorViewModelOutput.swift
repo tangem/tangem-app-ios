@@ -7,5 +7,5 @@
 //
 
 protocol AccountsAwareTokenSelectorViewModelOutput: AnyObject {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem)
+    func userDidSelect(item: AccountsAwareTokenSelectorItem)
 }
