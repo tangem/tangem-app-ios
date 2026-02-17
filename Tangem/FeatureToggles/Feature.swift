@@ -13,6 +13,7 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
     case accounts
+    case redesign
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
@@ -26,6 +27,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
         case .accounts: return "Accounts"
+        case .redesign: return "Redesign"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
@@ -41,6 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .accounts: return .version("5.33")
+        case .redesign: return .unspecified
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .version("5.33")
