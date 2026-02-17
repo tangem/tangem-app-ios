@@ -93,3 +93,7 @@ extension FakeUserTokensManager: UserTokensReordering {
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
 }
+
+extension FakeUserTokensManager: DisposableEntity {
+    func dispose() {}
+}

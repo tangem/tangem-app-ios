@@ -85,3 +85,9 @@ extension LockedUserTokensManager: UserTokensReordering {
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
 }
+
+// MARK: - DisposableEntity protocol conformance
+
+extension LockedUserTokensManager: DisposableEntity {
+    func dispose() {}
+}

@@ -439,6 +439,12 @@ extension CommonUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncin
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonUserTokensManager: DisposableEntity {
+    func dispose() {}
+}
+
 // MARK: - Auxiliary types
 
 extension CommonUserTokensManager {
