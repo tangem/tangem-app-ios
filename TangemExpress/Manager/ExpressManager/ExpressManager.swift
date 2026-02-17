@@ -38,43 +38,43 @@ public class ExpressManagerUpdatingResult {
 
 public extension ExpressManager {
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await update(pair: pair)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 
     func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await update(amount: amount, by: source)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await update(approvePolicy: approvePolicy)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 
     func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await update(feeOption: feeOption)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await updateSelectedProvider(provider: provider)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 
     func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
         let selected = try await update(by: source)
+        let providers = getAllProviders()
 
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
