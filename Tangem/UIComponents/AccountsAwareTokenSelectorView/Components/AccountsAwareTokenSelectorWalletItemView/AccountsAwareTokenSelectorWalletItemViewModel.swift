@@ -41,7 +41,7 @@ final class AccountsAwareTokenSelectorWalletItemViewModel: ObservableObject, Ide
         $viewType
             .flatMapLatest { $0.itemsCount }
             .removeDuplicates()
-            .map { $0 == .zero ? .empty : .visible }
+            .map { $0 == .zero ? .empty : .visible(itemsCount: $0) }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
     }
