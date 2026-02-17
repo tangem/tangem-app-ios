@@ -34,6 +34,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         initialSourceToken: SendSourceToken,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
+        sourceTokenAmountOutput: SendSourceTokenAmountOutput,
         receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
     ) {
@@ -59,6 +60,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         )
 
         swapSourceTokenViewModel.bind(sourceInput: sourceTokenInput, sourceAmountInput: sourceTokenAmountInput)
+        swapSourceTokenViewModel.setup(sourceInput: sourceTokenInput, sourceTokenAmountOutput: sourceTokenAmountOutput)
+
         swapReceiveTokenViewModel.bind(receiveTokenInput: receiveTokenInput, receiveTokenAmountInput: receiveTokenAmountInput)
 
         bind(receiveTokenInput: receiveTokenInput, receiveTokenAmountInput: receiveTokenAmountInput)
