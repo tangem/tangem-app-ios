@@ -18,6 +18,9 @@ class SwapSourceTokenViewModel: ObservableObject, Identifiable {
     private let initialSourceToken: SendSourceToken
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
+    private var sourceTokenAmountOutputCancellable: AnyCancellable?
+
+    private let balanceConverter = BalanceConverter()
 
     init(
         initialSourceToken: SendSourceToken,
@@ -49,6 +52,18 @@ class SwapSourceTokenViewModel: ObservableObject, Identifiable {
         .sink { $0.updateSendFiatValue(amount: $1.0.value, tokenItem: $1.1.value?.tokenItem) }
     }
 
+    func setup(sourceInput: SendSourceTokenInput, sourceTokenAmountOutput: SendSourceTokenAmountOutput) {
+        sourceTokenAmountOutputCancellable = Publishers.CombineLatest(
+            sourceInput.sourceTokenPublisher.compactMap { $0.value?.tokenItem },
+            decimalNumberTextFieldViewModel.valuePublisher
+        )
+        .withWeakCaptureOf(self)
+        .asyncMap { await $0.mapToSendAmount(crypto: $1.1, tokenItem: $1.0) }
+        .sink { [weak sourceTokenAmountOutput] amount in
+            sourceTokenAmountOutput?.sourceAmountDidChanged(amount: amount)
+        }
+    }
+
     private func update(token: LoadingResult<SendSourceToken, any Error>) {
         expressCurrencyViewModel.update(wallet: token.mapValue { $0 as SendGenericToken }, initialWalletId: initialSourceToken.id)
 
@@ -58,6 +73,23 @@ class SwapSourceTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func updateSendFiatValue(amount: SendAmount?, tokenItem: TokenItem?) {
-        expressCurrencyViewModel.updateFiatValue(expectAmount: amount?.fiat, tokenItem: tokenItem)
+        expressCurrencyViewModel.updateFiatValue(expectAmount: amount?.crypto, tokenItem: tokenItem)
+    }
+
+    private func mapToSendAmount(crypto: Decimal?, tokenItem: TokenItem?) async -> SendAmount? {
+        guard let crypto else {
+            return nil
+        }
+
+        guard let currencyId = tokenItem?.currencyId else {
+            return SendAmount(type: .typical(crypto: crypto, fiat: .none))
+        }
+
+        do {
+            let fiat = try await balanceConverter.convertToFiat(crypto, currencyId: currencyId)
+            return SendAmount(type: .typical(crypto: crypto, fiat: fiat))
+        } catch {
+            return SendAmount(type: .typical(crypto: crypto, fiat: .none))
+        }
     }
 }
