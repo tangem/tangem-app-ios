@@ -364,11 +364,11 @@ extension StakingModel: SendFeeUpdater {
 // MARK: - SendSourceTokenInput
 
 extension StakingModel: SendSourceTokenInput {
-    var sourceToken: SendSourceToken {
-        sendSourceToken
+    var sourceToken: LoadingResult<SendSourceToken, any Error> {
+        .success(sendSourceToken)
     }
 
-    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
         .just(output: sourceToken)
     }
 }

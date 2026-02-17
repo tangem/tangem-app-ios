@@ -11,16 +11,52 @@ import TangemExpress
 import struct TangemUI.TokenIconInfo
 import struct TangemAccounts.AccountIconView
 
-struct SendSourceToken {
+protocol SendSourceToken: SendReceiveToken {
+    // Common token info
+
+    var userWalletInfo: UserWalletInfo { get }
+    var id: WalletModelId { get }
+    var header: SendTokenHeader { get }
+    var tokenItem: TokenItem { get }
+    var feeTokenItem: TokenItem { get }
+    var isCustom: Bool { get }
+    var tokenIconInfo: TokenIconInfo { get }
+    var fiatItem: FiatItem { get }
+
+    var possibleToConvertToFiat: Bool { get }
+    var defaultAddressString: String { get }
+
+    // Common dependencies
+
+    var availableBalanceProvider: TokenBalanceProvider { get }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
+    // Send
+
+    var transactionValidator: TransactionValidator { get }
+    var transactionCreator: TransactionCreator { get }
+    var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
+    var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
+
+    // Common providers
+
+    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
+    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+}
+
+struct CommonSendSourceToken: SendSourceToken {
     // Wallet info. Signer, userWalletId, etc.
 
     let userWalletInfo: UserWalletInfo
 
     // Token info. Basically for UI
 
+    let id: WalletModelId
     let header: SendTokenHeader
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
+    let isCustom: Bool
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
     let possibleToConvertToFiat: Bool
@@ -46,8 +82,8 @@ struct SendSourceToken {
 
 // MARK: - Equatable
 
-extension SendSourceToken: Equatable {
-    static func == (lhs: SendSourceToken, rhs: SendSourceToken) -> Bool {
-        lhs.header == rhs.header && lhs.tokenItem == rhs.tokenItem
+extension CommonSendSourceToken: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.userWalletInfo.id == rhs.userWalletInfo.id && lhs.tokenItem == rhs.tokenItem
     }
 }

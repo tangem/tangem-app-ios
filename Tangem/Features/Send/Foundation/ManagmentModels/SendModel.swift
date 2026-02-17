@@ -24,7 +24,7 @@ protocol SendModelRoutable: AnyObject {
 final class SendModel {
     // MARK: - Data
 
-    private let _sendingToken: CurrentValueSubject<SendSourceToken, Never>
+    private let _sourceToken: SendSourceToken
     private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
@@ -82,7 +82,7 @@ final class SendModel {
         self.sendAlertBuilder = sendAlertBuilder
         self.swapManager = swapManager
 
-        _sendingToken = .init(userToken)
+        _sourceToken = userToken
         _receivedToken = .init(.same(userToken))
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
@@ -105,7 +105,7 @@ private extension SendModel {
                 _amount.compactMap { $0?.crypto },
                 _destination.compactMap { $0?.value.transactionAddress },
                 _destinationAdditionalField,
-                _sendingToken.flatMapLatest { $0.tokenFeeProvidersManager.selectedTokenFeePublisher.compactMap { $0.value } },
+                _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher.compactMap { $0.value },
             )
             .withWeakCaptureOf(self)
             .asyncMap { manager, args -> Result<BSDKTransaction, Error>? in
@@ -184,7 +184,7 @@ private extension SendModel {
             transactionsParams = params
         }
 
-        let transaction = try await sourceToken.transactionCreator.createTransaction(
+        let transaction = try await _sourceToken.transactionCreator.createTransaction(
             amount: amount,
             fee: fee,
             destinationAddress: destination,
@@ -195,7 +195,7 @@ private extension SendModel {
     }
 
     private func makeAmount(decimal: Decimal) -> Amount {
-        let tokenItem = _sendingToken.value.tokenItem
+        let tokenItem = _sourceToken.tokenItem
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: decimal)
     }
 }
@@ -223,10 +223,10 @@ private extension SendModel {
         // If both tokens have the same network
         // it means destination will be valid after change
         // Then we safely change the token
-        case .swap(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+        case .swap(let token) where token.tokenItem.blockchain == _receivedToken.value.tokenItem.blockchain:
             reset()
 
-        case .same(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+        case .same(let token) where token.tokenItem.blockchain == _receivedToken.value.tokenItem.blockchain:
             reset()
 
         case .swap:
@@ -280,7 +280,7 @@ private extension SendModel {
     /// 3. Then at the end we start the send actions
     private func send() async throws -> TransactionDispatcherResult {
         do {
-            let result = switch receiveToken {
+            let result = switch _receivedToken.value {
             case .same: try await simpleSend()
             case .swap: try await swapManager.send()
             }
@@ -301,7 +301,7 @@ private extension SendModel {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let dispatcher = sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+        let dispatcher = _sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
         let result = try await dispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
         return result
@@ -311,13 +311,14 @@ private extension SendModel {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
 
+        let tokenFeeProvidersManager = _sourceToken.tokenFeeProvidersManager
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
             additionalField: _destinationAdditionalField.value,
-            fee: sourceToken.tokenFeeProvidersManager.selectedTokenFee.option,
+            fee: tokenFeeProvidersManager.selectedTokenFee.option,
             signerType: result.signerType,
             currentProviderHost: result.currentHost,
-            tokenFee: sourceToken.tokenFeeProvidersManager.selectedTokenFee
+            tokenFee: tokenFeeProvidersManager.selectedTokenFee
         )
     }
 
@@ -376,10 +377,10 @@ extension SendModel: SendDestinationOutput {
 // MARK: - SendSourceTokenInput
 
 extension SendModel: SendSourceTokenInput {
-    var sourceToken: SendSourceToken { _sendingToken.value }
+    var sourceToken: LoadingResult<SendSourceToken, any Error> { .success(_sourceToken) }
 
-    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
-        _sendingToken.eraseToAnyPublisher()
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
+        Just(sourceToken).eraseToAnyPublisher()
     }
 }
 
@@ -387,7 +388,7 @@ extension SendModel: SendSourceTokenInput {
 
 extension SendModel: SendSourceTokenOutput {
     func userDidSelect(sourceToken: SendSourceToken) {
-        _sendingToken.send(sourceToken)
+        assertionFailure("SendModel doesn't support SourceToken updating")
     }
 }
 
@@ -426,12 +427,21 @@ extension SendModel: SendReceiveTokenInput {
         swapManager.isSwapAvailable
     }
 
-    var receiveToken: SendReceiveTokenType {
-        _receivedToken.value
+    var receiveToken: LoadingResult<any SendReceiveToken, any Error> {
+        switch _receivedToken.value {
+        case .same: .loading
+        case .swap(let receiveToken): .success(receiveToken)
+        }
     }
 
-    var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
-        _receivedToken.eraseToAnyPublisher()
+    var receiveTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
+        _receivedToken.map { receivedToken in
+            switch receivedToken {
+            case .same: .loading
+            case .swap(let receiveToken): .success(receiveToken)
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
@@ -439,7 +449,7 @@ extension SendModel: SendReceiveTokenInput {
 
 extension SendModel: SendReceiveTokenOutput {
     func userDidRequestClearSelection() {
-        let newReceiveToken = SendReceiveTokenType.same(_sendingToken.value)
+        let newReceiveToken = SendReceiveTokenType.same(_sourceToken)
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
             self?._receivedToken.send(newReceiveToken)
 
@@ -516,7 +526,7 @@ extension SendModel: SendReceiveTokenAmountInput {
              .permissionRequired(_, _, let quote),
              .readyToSwap(_, _, let quote),
              .previewCEX(_, _, let quote):
-            let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+            let fiat = _receivedToken.value.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
             return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
@@ -531,12 +541,12 @@ extension SendModel: SendReceiveTokenAmountInput {
         guard let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
               let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
               let provider = provider,
-              case .swap(let receiveToken) = receiveToken else {
+              case .swap(let receiveToken) = _receivedToken.value else {
             return nil
         }
 
         let impactCalculator = HighPriceImpactCalculator(
-            source: sourceToken.tokenItem,
+            source: _sourceToken.tokenItem,
             destination: receiveToken.tokenItem
         )
 
@@ -590,7 +600,7 @@ extension SendModel: SendSwapProvidersOutput {
 
 extension SendModel: SendFeeUpdater {
     func updateFees() {
-        switch receiveToken {
+        switch _receivedToken.value {
         case .same: updateFeesForSend()
         case .swap: updateFeesForSwap()
         }
@@ -603,8 +613,8 @@ extension SendModel: SendFeeUpdater {
             return
         }
 
-        sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
-        sourceToken.tokenFeeProvidersManager.selectedFeeProvider.updateFees()
+        _sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
+        _sourceToken.tokenFeeProvidersManager.selectedFeeProvider.updateFees()
     }
 
     func updateFeesForSwap() {
@@ -632,7 +642,7 @@ extension SendModel: SendFeeInput {
     }
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
-        receiveTokenPublisher
+        _receivedToken
             .withWeakCaptureOf(self)
             .flatMapLatest { $0.shouldShowFeeSelectorRow(token: $1) }
             .eraseToAnyPublisher()
@@ -655,14 +665,14 @@ extension SendModel: SendFeeInput {
 
 extension SendModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        receiveTokenPublisher
+        _receivedToken
             .withWeakCaptureOf(self)
             .flatMapLatest { $0.isReadyToSend(token: $1) }
             .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
-        sourceToken.tokenFeeProvidersManager
+        _sourceToken.tokenFeeProvidersManager
             .selectedFeeProviderPublisher
             .flatMapLatest { $0.statePublisher.map(\.isLoading) }
             .removeDuplicates()
@@ -670,7 +680,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        receiveTokenPublisher
+        _receivedToken
             .withWeakCaptureOf(self)
             .flatMapLatest { $0.summaryTransactionData(token: $1) }
             .eraseToAnyPublisher()
@@ -787,11 +797,11 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> {
-        sourceToken.tokenFeeProvidersManager.selectedFeeProvider.feesPublisher
+        _sourceToken.tokenFeeProvidersManager.selectedFeeProvider.feesPublisher
     }
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
-        sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
+        _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -817,7 +827,7 @@ extension SendModel: NotificationTapDelegate {
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
-            sourceToken.availableBalanceProvider.balanceType.value.flatMap {
+            _sourceToken.availableBalanceProvider.balanceType.value.flatMap {
                 leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
             }
         case .reduceAmountBy(let amount, _, _):
@@ -862,7 +872,7 @@ extension SendModel: NotificationTapDelegate {
     private func leaveMinimalAmountOnBalance(amountToLeave amount: Decimal, balance: Decimal) {
         var newAmount = balance - amount
 
-        if let fee = selectedFee?.value.value?.amount, sourceToken.tokenItem.amountType == fee.type {
+        if let fee = selectedFee?.value.value?.amount, _sourceToken.tokenItem.amountType == fee.type {
             // In case when fee can be more that amount
             newAmount = max(0, newAmount - fee.value)
         }
@@ -921,18 +931,18 @@ extension SendModel: SendDestinationAccountOutput {
 
 extension SendModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? {
-        switch receiveToken {
-        case .same: sourceToken.tokenFeeProvidersManager
+        switch _receivedToken.value {
+        case .same: _sourceToken.tokenFeeProvidersManager
         case .swap: swapManager.tokenFeeProvidersManager
         }
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<TokenFeeProvidersManager, Never> {
-        receiveTokenPublisher
+        _receivedToken
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
                 switch receiveToken {
-                case .same: model.sourceTokenPublisher.map(\.tokenFeeProvidersManager).eraseToAnyPublisher()
+                case .same: model.sourceTokenPublisher.compactMap { $0.value }.map(\.tokenFeeProvidersManager).eraseToAnyPublisher()
                 case .swap: model.swapManager.tokenFeeProvidersManagerPublisher.eraseToAnyPublisher()
                 }
             }
@@ -948,10 +958,10 @@ extension SendModel: FeeSelectorOutput {
     }
 
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
-        switch receiveToken {
+        switch _receivedToken.value {
         case .same:
-            sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
-            sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+            _sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
+            _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
 
         case .swap:
             swapManager.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
