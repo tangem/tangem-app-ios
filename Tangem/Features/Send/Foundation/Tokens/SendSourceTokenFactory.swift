@@ -36,6 +36,21 @@ struct SendSourceTokenFactory {
             signer: userWalletInfo.signer
         )
 
+        let allowanceService = AllowanceServiceFactory(
+            walletModel: walletModel,
+            transactionDispatcherProvider: transactionDispatcherProvider
+        ).makeAllowanceService()
+
+        let balanceProvider = CommonExpressBalanceProvider(
+            availableBalanceProvider: walletModel.availableBalanceProvider,
+            feeProvider: walletModel
+        )
+
+        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
+        )
+
         return CommonSendSourceToken(
             userWalletInfo: userWalletInfo,
             id: walletModel.id,
@@ -49,6 +64,7 @@ struct SendSourceTokenFactory {
             possibleToConvertToFiat: possibleToConvertToFiat,
             availableBalanceProvider: walletModel.availableBalanceProvider,
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
+            allowanceService: allowanceService,
             defaultAddressString: walletModel.defaultAddressString,
             transactionValidator: walletModel.transactionValidator,
             transactionCreator: walletModel.transactionCreator,
@@ -56,7 +72,11 @@ struct SendSourceTokenFactory {
             tokenFeeProvidersManager: tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager(),
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
             transactionDispatcherProvider: transactionDispatcherProvider,
-            accountModelAnalyticsProvider: walletModel.account
+            accountModelAnalyticsProvider: walletModel.account,
+            balanceProvider: balanceProvider,
+            analyticsLogger: analyticsLogger,
+            operationType: .swap,
+            supportedProvidersFilter: .swap
         )
     }
 }
