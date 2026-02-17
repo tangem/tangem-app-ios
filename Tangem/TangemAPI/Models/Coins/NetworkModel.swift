@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct NetworkModel: Codable {
+struct NetworkModel: Codable, Equatable {
     let networkId: String
     let contractAddress: String?
     let decimalCount: Int?
