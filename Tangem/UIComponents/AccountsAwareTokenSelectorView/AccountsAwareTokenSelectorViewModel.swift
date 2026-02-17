@@ -9,12 +9,13 @@
 import Combine
 import TangemAccounts
 import TangemFoundation
+import TangemMacro
 
 final class AccountsAwareTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
 
     @Published private(set) var wallets: [AccountsAwareTokenSelectorWalletItemViewModel]
-    @Published private(set) var contentVisibility: ContentVisibility = .visible
+    @Published private(set) var contentVisibility: ContentVisibility = .visible(itemsCount: 0)
 
     private let walletsProvider: any AccountsAwareTokenSelectorWalletsProvider
     private let availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
@@ -53,13 +54,21 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
         viewModelsMapper.setupSelectedItemFilter(selectedItemPublisher: directionPublisher.map { $0?.tokenItem })
     }
 
+    func itemsCountToDisplay(configuration: SectionHeaderConfiguration, itemsCount: Int) -> Int? {
+        guard configuration.showsItemsCount, !searchText.isEmpty, itemsCount > 0 else { return nil }
+
+        return itemsCount
+    }
+
     private func bind() {
-        // Collect visibility states from all wallets
+        // Collect items count from all wallets and compute visibility
         wallets
-            .map { $0.$contentVisibility }
+            .map { $0.$viewType.flatMapLatest { $0.itemsCount } }
             .combineLatest()
-            .removeDuplicates()
-            .map { $0.allConforms { $0 == .empty } ? .empty : .visible }
+            .map { counts -> ContentVisibility in
+                let totalCount = counts.sum()
+                return totalCount == 0 ? .empty : .visible(itemsCount: totalCount)
+            }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
     }
@@ -68,8 +77,21 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
 // MARK: - ContentVisibility
 
 extension AccountsAwareTokenSelectorViewModel {
+    @CaseFlagable
     enum ContentVisibility: Equatable {
-        case visible
+        case visible(itemsCount: Int)
         case empty
+    }
+}
+
+extension AccountsAwareTokenSelectorViewModel {
+    struct SectionHeaderConfiguration {
+        let title: String
+        let showsItemsCount: Bool
+
+        init(title: String, showsItemsCount: Bool = false) {
+            self.title = title
+            self.showsItemsCount = showsItemsCount
+        }
     }
 }

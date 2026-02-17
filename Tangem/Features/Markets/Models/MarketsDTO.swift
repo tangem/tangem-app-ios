@@ -23,6 +23,7 @@ extension MarketsDTO.General {
         let interval: MarketsPriceIntervalType
         let order: MarketsListOrderType
         let search: String?
+        let showNetworks: Bool?
 
         init(
             currency: String,
@@ -30,7 +31,8 @@ extension MarketsDTO.General {
             limit: Int = 20,
             interval: MarketsPriceIntervalType,
             order: MarketsListOrderType,
-            search: String?
+            search: String?,
+            showNetworks: Bool?
         ) {
             self.currency = currency
             self.offset = offset
@@ -38,6 +40,7 @@ extension MarketsDTO.General {
             self.interval = interval
             self.order = order
             self.search = search
+            self.showNetworks = showNetworks
         }
 
         // MARK: - Helper
@@ -53,6 +56,10 @@ extension MarketsDTO.General {
 
             if let search, !search.isEmpty {
                 params["search"] = search
+            }
+
+            if let showNetworks {
+                params["showNetworks"] = showNetworks ? "true" : "false"
             }
 
             return params

@@ -100,30 +100,15 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
      - Checking the lists of available networks
      */
     private func supportedState(networks: [NetworkModel]) -> SupportedStateOption {
-        let multiCurrencyUserWalletModels = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
         guard !networks.isEmpty else {
             return .unsupported
         }
 
-        for model in multiCurrencyUserWalletModels {
-            let supportedBlockchains = model.config.supportedBlockchains
-
-            for network in networks {
-                if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    // searchable network is token
-                    if let contractAddress = network.contractAddress {
-                        if SupportedTokensFilter.canHandleToken(
-                            contractAddress: contractAddress,
-                            blockchain: supportedBlockchain
-                        ) {
-                            return .available
-                        }
-                    } else {
-                        return .available
-                    }
-                }
-            }
+        if NetworkSupportChecker.hasAnySupportedNetwork(
+            networks: networks,
+            userWalletModels: walletDataProvider.userWalletModels
+        ) {
+            return .available
         }
 
         return .unavailable
