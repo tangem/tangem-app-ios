@@ -27,7 +27,9 @@ final class AccountsAwareUserTokensManager {
     private let shouldLoadExpressAvailability: Bool
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
-    private var isDisposed = false
+
+    private var isDisposed: Bool { onDisposeSubject.value }
+    private let onDisposeSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var isMainAccountManager: Bool {
         AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
@@ -122,8 +124,6 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
-        ensureOnMainQueue()
-
         guard
             !isDisposed,
             shouldLoadExpressAvailability
@@ -244,7 +244,11 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     var userTokens: [TokenItem] {
-        userTokensRepository
+        guard !isDisposed else {
+            return []
+        }
+
+        return userTokensRepository
             .cryptoAccount
             .tokens
             .compactMap { $0.toTokenItem() }
@@ -253,6 +257,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
         userTokensRepository
             .cryptoAccountPublisher
+            .prefix(untilOutputFrom: onDisposeSubject)
             .map { $0.tokens.compactMap { $0.toTokenItem() } }
             .eraseToAnyPublisher()
     }
@@ -437,8 +442,6 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     func sync(completion: @escaping () -> Void) {
-        ensureOnMainQueue()
-
         guard !isDisposed else {
             // Flushing all pending sync completions (if any) on dispose
             pendingUserTokensSyncCompletions.append(completion)
@@ -565,9 +568,7 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
 
 extension AccountsAwareUserTokensManager: DisposableEntity {
     func dispose() {
-        ensureOnMainQueue()
-
-        isDisposed = true
+        onDisposeSubject.send(true)
     }
 }
 
