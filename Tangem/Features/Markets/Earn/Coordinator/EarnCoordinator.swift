@@ -68,6 +68,7 @@ extension EarnCoordinator {
 
 // MARK: - EarnDetailRoutable
 
+@MainActor
 extension EarnCoordinator: EarnDetailRoutable {
     func dismiss() {
         dismissAction(())
