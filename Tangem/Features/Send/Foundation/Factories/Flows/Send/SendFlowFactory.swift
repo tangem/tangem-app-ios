@@ -150,6 +150,10 @@ extension SendFlowFactory: SendAmountStepBuildable {
         )
     }
 
+    var amountTypes: SendAmountStepBuilder.Types {
+        .init(initialSourceToken: sourceToken)
+    }
+
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: CommonSendAmountValidator(input: sendModel),
@@ -172,6 +176,10 @@ extension SendFlowFactory: SendDestinationStepBuildable {
         )
     }
 
+    var destinationTypes: SendDestinationStepBuilder.Types {
+        .init(initialSourceToken: sourceToken)
+    }
+
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {
         SendDestinationStepBuilder.Dependencies(
             sendQRCodeService: makeSendQRCodeService(),
@@ -188,7 +196,8 @@ extension SendFlowFactory: SendDestinationStepBuildable {
         analyticsLogger: any SendDestinationAnalyticsLogger
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
-            receivedTokenType: receiveTokenInput.receiveToken,
+            initialSourceToken: sourceToken,
+            receivedToken: receiveTokenInput.receiveToken.value,
             sourceWalletData: .init(
                 walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
                 suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,
