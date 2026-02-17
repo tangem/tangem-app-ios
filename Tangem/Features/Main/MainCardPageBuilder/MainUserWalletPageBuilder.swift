@@ -88,8 +88,13 @@ enum MainUserWalletPageBuilder: Identifiable {
                     .id(id)
             }
         case .multiWallet(let id, _, let bodyModel):
-            MultiWalletMainContentView(viewModel: bodyModel)
-                .id(id)
+            if FeatureProvider.isAvailable(.redesign) {
+                MultiWalletMainContentRedesignedView(viewModel: bodyModel)
+                    .id(id)
+            } else {
+                MultiWalletMainContentView(viewModel: bodyModel)
+                    .id(id)
+            }
         case .lockedWallet(let id, _, let bodyModel):
             LockedWalletMainContentView(viewModel: bodyModel)
                 .id(id)
