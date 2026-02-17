@@ -21,8 +21,7 @@ struct SendReceiveTokenBuilder {
     func makeSendReceiveToken(tokenItem: TokenItem) -> SendReceiveToken {
         let tokenIconInfo = tokenIconInfoBuilder.build(from: tokenItem, isCustom: false)
 
-        return SendReceiveToken(
-            wallet: "Receive Wallet",
+        return CommonSendReceiveToken(
             tokenItem: tokenItem,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem
