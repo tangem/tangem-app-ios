@@ -76,7 +76,8 @@ struct EarnDetailView: View {
                 EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
 
                 EarnFilterHeaderView(
-                    isFilterInteractionEnabled: viewModel.isFilterInteractionEnabled,
+                    isNetworksFilterEnabled: viewModel.isFilterInteractionEnabled,
+                    isTypesFilterEnabled: true,
                     isLoading: viewModel.isFilterLoading,
                     networkFilterTitle: viewModel.selectedNetworkFilterTitle,
                     typesFilterTitle: viewModel.selectedFilterTypeTitle,
