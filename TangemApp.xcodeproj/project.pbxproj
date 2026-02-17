@@ -312,6 +312,7 @@
 		0FEBB07B2EF44F65000B79EC /* TangemUrlHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEBB07A2EF44F65000B79EC /* TangemUrlHelper.swift */; };
 		0FF19C922E3CBCC700008D8E /* AuthWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C912E3CBCC700008D8E /* AuthWalletView.swift */; };
 		0FF19C942E3CBCD800008D8E /* AuthWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C932E3CBCD800008D8E /* AuthWalletViewModel.swift */; };
+		0FF655002F43172100F59748 /* MultiWalletMainContentRedesignedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */; };
 		0FF8F9672EA8F5E400251C53 /* DetailsTOSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */; };
 		0FF8F9692EA8F5EE00251C53 /* DetailsTOSViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9682EA8F5EE00251C53 /* DetailsTOSViewModel.swift */; };
 		0FF8F96B2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F96A2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift */; };
@@ -5195,6 +5196,7 @@
 		0FEBB07A2EF44F65000B79EC /* TangemUrlHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemUrlHelper.swift; sourceTree = "<group>"; };
 		0FF19C912E3CBCC700008D8E /* AuthWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWalletView.swift; sourceTree = "<group>"; };
 		0FF19C932E3CBCD800008D8E /* AuthWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWalletViewModel.swift; sourceTree = "<group>"; };
+		0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentRedesignedView.swift; sourceTree = "<group>"; };
 		0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSView.swift; sourceTree = "<group>"; };
 		0FF8F9682EA8F5EE00251C53 /* DetailsTOSViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSViewModel.swift; sourceTree = "<group>"; };
 		0FF8F96A2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AuthWalletView+EnvironmentValues.swift"; sourceTree = "<group>"; };
@@ -10436,6 +10438,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		0FF654FE2F43170800F59748 /* Redesign */ = {
+			isa = PBXGroup;
+			children = (
+				0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */,
+			);
+			path = Redesign;
+			sourceTree = "<group>";
+		};
 		0FF8F9652EA8F5B600251C53 /* TOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -13886,6 +13896,7 @@
 		B06C08512A73FC1B00D982BC /* MultiWalletMainContent */ = {
 			isa = PBXGroup;
 			children = (
+				0FF654FE2F43170800F59748 /* Redesign */,
 				B6F764B82EC4FC3D003608C2 /* Sections */,
 				B04A5C762A793C33001B95EC /* Views */,
 				B06C08542A73FC3B00D982BC /* MultiWalletMainContentView.swift */,
@@ -28191,6 +28202,7 @@
 				EFD114D92F116A890099301F /* CommonTokenFeeProvidersManagerProvider.swift in Sources */,
 				EF0AC19C2D20706600233B81 /* MultiWalletNotificationEvent.swift in Sources */,
 				B06997D02692EC5E0014A676 /* SellService.swift in Sources */,
+				0FF655002F43172100F59748 /* MultiWalletMainContentRedesignedView.swift in Sources */,
 				EFBBA4982E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift in Sources */,
 				DCBDC9E92CD14082003E76DD /* StoriesDelegate.swift in Sources */,
 				EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */,
