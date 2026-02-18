@@ -41,6 +41,7 @@ struct SwapTokenSelectorView: View {
                 NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
             }
         }
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
 }
