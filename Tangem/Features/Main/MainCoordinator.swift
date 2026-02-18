@@ -501,7 +501,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openExpress(input: ExpressDependenciesInput) {
         let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory)
+        let coordinator = makeExpressCoordinator(factory: factory, analyticsScreen: .mainScreen)
 
         let openExpressBlock = { [weak self] in
             coordinator.start(with: .default)
