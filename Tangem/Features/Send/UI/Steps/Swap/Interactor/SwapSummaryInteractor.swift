@@ -12,25 +12,26 @@ import Foundation
 protocol SwapSummaryInteractor: AnyObject {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
+    var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> { get }
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
+    func userDidRequestMaxAmount()
     func userDidRequestSwap()
 }
 
 class CommonSwapSummaryInteractor {
-    private weak var input: SendSummaryInput?
-    private weak var output: SendSummaryOutput?
-    private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
+    private weak var input: SwapSummaryInput?
+    private weak var output: SwapSummaryOutput?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
     private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
 
     init(
-        input: SendSummaryInput,
-        output: SendSummaryOutput,
+        input: SwapSummaryInput,
+        output: SwapSummaryOutput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
@@ -38,7 +39,6 @@ class CommonSwapSummaryInteractor {
     ) {
         self.input = input
         self.output = output
-        self.receiveTokenAmountInput = receiveTokenAmountInput
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.swapDescriptionBuilder = swapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
@@ -61,6 +61,15 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
             .eraseToAnyPublisher()
     }
 
+    var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> {
+        guard let input else {
+            assertionFailure("SendSummaryInput is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.isMaxAmountButtonHiddenPublisher
+    }
+
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
@@ -71,14 +80,12 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        guard let receiveTokenAmountInput else {
+        guard let input else {
+            assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
         }
 
-        return receiveTokenAmountInput
-            .receiveAmountPublisher
-            .map { $0.isLoading }
-            .eraseToAnyPublisher()
+        return input.isUpdatingPublisher
     }
 
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
@@ -90,9 +97,17 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         return input.isReadyToSendPublisher
     }
 
-    func userDidRequestSwap() {}
+    func userDidRequestSwap() {
+        output?.userDidRequestSwap()
+    }
 
-    func userDidRequestSwapSourceAndReceiveToken() {}
+    func userDidRequestMaxAmount() {
+        output?.userDidRequestMaxAmount()
+    }
+
+    func userDidRequestSwapSourceAndReceiveToken() {
+        output?.userDidRequestSwapSourceAndReceiveToken()
+    }
 }
 
 // MARK: - Private
