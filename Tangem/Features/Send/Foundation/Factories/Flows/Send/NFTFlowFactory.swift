@@ -100,6 +100,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             router: router
         )
 

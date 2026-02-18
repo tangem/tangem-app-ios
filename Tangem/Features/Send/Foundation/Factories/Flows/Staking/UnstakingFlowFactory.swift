@@ -102,6 +102,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             action: action,
             isPartialUnstakeAllowed: isPartialUnstakeAllowed
         )
