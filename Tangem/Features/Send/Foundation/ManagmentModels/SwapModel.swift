@@ -317,7 +317,8 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     private func mapToReceiveSendAmount(state: ProvidersState) -> LoadingResult<SendAmount, any Error> {
         switch state {
-        case .loading(.rates):
+        case .loading(.rates),
+             .loading(.providers) where sourceAmount.value?.crypto != nil:
             return .loading
 
         case .idle, .loading: // Another loading has to be filtered

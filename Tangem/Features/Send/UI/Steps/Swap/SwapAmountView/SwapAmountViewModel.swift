@@ -39,6 +39,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private let balanceConverter = BalanceConverter()
 
     private var sourceTokenCancellable: AnyCancellable?
+    private var sourceTokenAmountCancellable: AnyCancellable?
     private var receiveTokenCancellable: AnyCancellable?
 
     init(
@@ -79,25 +80,26 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
 
-//        interactor.receivedTokenAmountPublisher
+//        interactor.isAutoupdatingPublisher
 //            .map { $0.isLoading }
 //            .receiveOnMain()
 //            .assign(to: &$isSwapButtonLoading)
 
         // Source token / amount updating
 
-        let updatedSourceAmountPublisher = sourceDecimalNumberTextFieldViewModel
+        sourceTokenCancellable = interactor.sourceTokenPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.updateSource(sourceToken: $1) }
+
+        sourceTokenAmountCancellable = sourceDecimalNumberTextFieldViewModel
             .valuePublisher
+            .prepend(.none)
             .withWeakCaptureOf(self)
             .map { $0.update(amount: $1) }
-
-        sourceTokenCancellable = Publishers.CombineLatest(
-            updatedSourceAmountPublisher.prepend(.none),
-            interactor.sourceTokenPublisher
-        )
-        .receiveOnMain()
-        .withWeakCaptureOf(self)
-        .sink { $0.updateSourceFiat(amount: $1.0, sourceToken: $1.1) }
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.updateSourceFiat(amount: $1) }
 
         // Receive token / amount updating
 
@@ -138,33 +140,44 @@ private extension SwapAmountViewModel {
         try? interactor.update(amount: amount)
     }
 
-    private func updateSourceFiat(amount: SendAmount?, sourceToken: LoadingResult<SendSourceToken, any Error>) {
+    private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
         sourceExpressCurrencyViewModel.update(
             wallet: sourceToken.mapValue { $0 as SendGenericToken },
             initialWalletId: initialSourceToken.id
         )
 
-        switch (sourceToken, amount) {
-        case (.loading, _):
+        switch sourceToken {
+        case .loading:
             sourceExpressCurrencyViewModel.update(fiatAmountState: .loading)
 
-        case (.failure, _):
+        case .failure:
             sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: .none, tokenItem: .none)
 
-        case (.success(let token), let amount):
+        case .success(let token):
             sourceDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
 
-            if let crypto = amount?.crypto, let textFieldValue = sourceDecimalNumberTextFieldViewModel.value {
-                let roundedAmount = crypto.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+            if let textFieldValue = sourceDecimalNumberTextFieldViewModel.value {
+                let roundedAmount = textFieldValue.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
 
                 // If we have amount then we should round and update it with new decimalCount
                 if roundedAmount != textFieldValue {
                     _ = update(amount: roundedAmount)
                     sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
+                    sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
                 }
             }
+        }
+    }
 
-            sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: amount?.crypto, tokenItem: token.tokenItem)
+    private func updateSourceFiat(amount: SendAmount?) {
+        switch amount {
+        case .none:
+            let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
+            sourceExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
+
+        case .some(let amount):
+            let fiatFormatted = balanceFormatter.formatFiatBalance(amount.fiat)
+            sourceExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
         }
     }
 
@@ -209,5 +222,6 @@ private extension SwapAmountViewModel {
 extension SwapAmountViewModel: SendAmountExternalUpdatableViewModel {
     func externalUpdate(amount: SendAmount?) {
         sourceDecimalNumberTextFieldViewModel.update(value: amount?.crypto)
+        updateSourceFiat(amount: amount)
     }
 }
