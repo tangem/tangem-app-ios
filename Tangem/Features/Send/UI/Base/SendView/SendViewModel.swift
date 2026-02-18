@@ -110,7 +110,7 @@ final class SendViewModel: ObservableObject {
             performApprove()
         case .action where flowActionType == .onramp:
             performOnramp()
-        case .action:
+        case .action, .holdAction:
             performAction()
         case .close:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
