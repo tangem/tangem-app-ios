@@ -30,6 +30,14 @@ struct MarketsTokenDetailsView: View {
 
     private var isDarkColorScheme: Bool { colorScheme == .dark }
 
+    private var shortDescription: String? {
+        guard case .loaded(let model) = viewModel.state else {
+            return nil
+        }
+
+        return model.shortDescription
+    }
+
     /// `UIColor` is used since `Color(uiColor:)` constructor loses Xcode color asset dark/light appearance setting.
     @available(iOS, deprecated: 18.0, message: "Replace 'UIColor' with 'Color' since 'Color.mix(with:by:in:)' is available")
     private var defaultBackgroundColor: UIColor {
@@ -208,7 +216,7 @@ struct MarketsTokenDetailsView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                     if let priceChangeState = viewModel.priceChangeState {
-                        TokenPriceChangeView(state: priceChangeState, showSkeletonWhenLoading: true)
+                        PriceChangeView(state: priceChangeState, showSkeletonWhenLoading: true)
                     }
                 }
                 .id(UUID())
@@ -242,14 +250,18 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var content: some View {
         VStack(spacing: Constants.contentVerticalSpacing) {
-            if viewModel.descriptionCanBeShowed {
+            let hasShortDescription = viewModel.descriptionCanBeShowed && shortDescription != nil
+
+            // When `description` is an EmptyView (i.e. `hasShortDescription` is false) we don't want to add extra padding above the `portfolioView`
+            if hasShortDescription {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Constants.blockHorizontalPadding)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             portfolioView
-                .padding(.horizontal, Constants.blockHorizontalPadding)
+                .padding(.horizontal, Constants.contentHorizontalPadding)
+                .padding(.top, hasShortDescription ? 0 : Constants.contentVerticalSpacing)
 
             newsView
 
@@ -263,7 +275,6 @@ struct MarketsTokenDetailsView: View {
             MarketsPortfolioContainerView(viewModel: portfolioViewModel)
         } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
             MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
-                .padding(.bottom, 32 - Constants.contentVerticalSpacing)
         }
     }
 
@@ -281,11 +292,11 @@ struct MarketsTokenDetailsView: View {
         Text(Localization.marketsAboutCoinHeader)
             .style(Fonts.Bold.title3, color: Colors.Text.primary1)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
+            .padding(.horizontal, 8.0)
     }
 
     private var coinView: some View {
-        Group {
+        VStack(spacing: Constants.contentVerticalPadding) {
             if viewModel.accountsAwarePortfolioViewModel != nil {
                 aboutCoinHeader
             }
@@ -305,13 +316,13 @@ struct MarketsTokenDetailsView: View {
                 EmptyView()
             }
         }
-        .padding(.horizontal, Constants.blockHorizontalPadding)
+        .padding(.horizontal, Constants.contentHorizontalPadding)
     }
 
     @ViewBuilder
     private var contentBlocks: some View {
-        VStack(spacing: 14) {
-            let blocksWidth = mainWindowSize.width - Constants.blockHorizontalPadding * 2
+        VStack(spacing: Constants.contentVerticalPadding) {
+            let blocksWidth = mainWindowSize.width - Constants.contentHorizontalPadding * 2
             if let insightsViewModel = viewModel.insightsViewModel {
                 MarketsTokenDetailsInsightsView(viewModel: insightsViewModel, viewWidth: blocksWidth)
             }
@@ -347,7 +358,7 @@ struct MarketsTokenDetailsView: View {
         case .loading:
             DescriptionBlockSkeletons()
         case .loaded(let model):
-            if let shortDescription = model.shortDescription {
+            if let shortDescription {
                 if model.fullDescription == nil {
                     Text(shortDescription)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
@@ -388,13 +399,13 @@ struct MarketsTokenDetailsView: View {
 
 private extension MarketsTokenDetailsView {
     enum Constants {
-        static let chartHeight: CGFloat = 200.0
+        static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
-        static let blockHorizontalPadding: CGFloat = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
-        static let contentVerticalSpacing: CGFloat = 14
-        static let blockHeaderHorizontalPadding: CGFloat = 8.0
+        static let contentVerticalSpacing = 32.0
+        static let contentVerticalPadding = 14.0
+        static let contentHorizontalPadding = 16.0
     }
 }
 
