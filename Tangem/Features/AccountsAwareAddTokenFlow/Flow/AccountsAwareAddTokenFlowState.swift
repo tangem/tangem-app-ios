@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemMacro
+
 extension AccountsAwareAddTokenFlowViewModel {
     /// Defines the navigation context for a given state
     enum NavigationContext: Equatable {
@@ -14,24 +16,14 @@ extension AccountsAwareAddTokenFlowViewModel {
         case fromChooseAccount
     }
 
+    @RawCaseName
     enum ViewState: Equatable {
         case accountSelector(viewModel: AccountSelectorViewModel, context: NavigationContext)
         case networkSelector(viewModel: AccountsAwareNetworkSelectorViewModel, context: NavigationContext)
         case addToken(viewModel: AccountsAwareAddTokenViewModel)
         case getToken(viewModel: AccountsAwareGetTokenViewModel)
 
-        var id: String {
-            switch self {
-            case .accountSelector:
-                "accountSelector"
-            case .networkSelector:
-                "networkSelector"
-            case .addToken:
-                "addToken"
-            case .getToken:
-                "getToken"
-            }
-        }
+        var id: String { rawCaseValue }
 
         /// Returns true if the current state allows back navigation
         var canGoBack: Bool {
