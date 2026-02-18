@@ -26,6 +26,7 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private let marketCapFormatter: MarketCapFormatter
 
     private let dayRatingFilter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
+    private let dayTrendingFilter = MarketsListDataProvider.Filter(interval: .day, order: .trending)
 
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: nil)
 
@@ -44,6 +45,10 @@ final class SwapMarketsTokensViewModel: ObservableObject {
 
     var isSearching: Bool {
         !currentSearchText.isEmpty
+    }
+
+    var sectionTitle: String {
+        isSearching ? Localization.commonFeeSelectorOptionMarket : Localization.feedTrendingNow
     }
 
     // MARK: - Init
@@ -175,7 +180,7 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     }
 
     private func loadInitial() {
-        dataProvider.fetch("", with: dayRatingFilter)
+        dataProvider.fetch("", with: dayTrendingFilter)
     }
 
     private func performSearch(text: String) {
