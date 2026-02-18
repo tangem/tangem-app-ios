@@ -46,7 +46,6 @@ struct SwapMarketsTokensView: View {
             sectionHeader(isSearching: false, count: 0)
 
             MarketsListErrorView(tryLoadAgain: viewModel.onRetry)
-                .background(Colors.Background.action)
                 .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
