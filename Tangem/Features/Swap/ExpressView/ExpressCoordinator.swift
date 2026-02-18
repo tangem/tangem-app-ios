@@ -42,13 +42,16 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Properties
 
     private let factory: ExpressModulesFactory
+    private let analyticsScreen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen
 
     required init(
         factory: ExpressModulesFactory,
+        analyticsScreen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
         dismissAction: @escaping DismissAction,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.factory = factory
+        self.analyticsScreen = analyticsScreen
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -77,13 +80,16 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
-        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
-            guard let viewModel = self?.swapTokenSelectorViewModel else {
-                AppLogger.debug("SwapTokenSelectorViewModel not found")
-                return
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(
+            screen: analyticsScreen,
+            onTokenAdded: { [weak self] item in
+                guard let viewModel = self?.swapTokenSelectorViewModel else {
+                    AppLogger.debug("SwapTokenSelectorViewModel not found")
+                    return
+                }
+                viewModel.selectNewToken(item)
             }
-            viewModel.selectNewToken(item)
-        }
+        )
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 

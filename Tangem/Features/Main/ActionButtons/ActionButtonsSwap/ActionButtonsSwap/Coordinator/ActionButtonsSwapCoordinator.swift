@@ -92,6 +92,7 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
         let factory = CommonExpressModulesFactory(input: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
+            analyticsScreen: .mainScreen,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
