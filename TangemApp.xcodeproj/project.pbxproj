@@ -1078,6 +1078,7 @@
 		9345E59CCF194B22F38F4A45 /* AccountOperationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
 		A7122B1B2F44D0D4004B5C3F /* BitcoinDevKit in Frameworks */ = {isa = PBXBuildFile; productRef = A7122B1A2F44D0D4004B5C3F /* BitcoinDevKit */; };
+		A7122B1F2F45AFA6004B5C3F /* BitcoinDevKit in Frameworks */ = {isa = PBXBuildFile; productRef = A7122B1E2F45AFA6004B5C3F /* BitcoinDevKit */; };
 		A71BEDE22EF459E9000DAE13 /* WalletConnectBitcoinSignPsbtDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEDE12EF459E9000DAE13 /* WalletConnectBitcoinSignPsbtDTO.swift */; };
 		A71BEDE42EF46403000DAE13 /* WalletConnectPsbtSignInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEDE32EF46403000DAE13 /* WalletConnectPsbtSignInput.swift */; };
 		A71BEDE62EF57693000DAE13 /* BitcoinTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEDE52EF57693000DAE13 /* BitcoinTransactionParams.swift */; };
@@ -9771,6 +9772,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7122B1F2F45AFA6004B5C3F /* BitcoinDevKit in Frameworks */,
 				B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
 				B63DFC4C2CD4EA1C00720D9F /* TangemModules in Frameworks */,
 				B67E38C52CC7252900D660EB /* TangemSdk in Frameworks */,
@@ -26751,6 +26753,7 @@
 			packageProductDependencies = (
 				B67E38C42CC7252900D660EB /* TangemSdk */,
 				B63DFC4B2CD4EA1C00720D9F /* TangemModules */,
+				A7122B1E2F45AFA6004B5C3F /* BitcoinDevKit */,
 			);
 			productName = BlockchainSdkTests;
 			productReference = B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */;
@@ -37991,6 +37994,11 @@
 			productName = TangemModules;
 		};
 		A7122B1A2F44D0D4004B5C3F /* BitcoinDevKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A7467FA72F44AEDE0064A4FD /* XCRemoteSwiftPackageReference "bdk-swift" */;
+			productName = BitcoinDevKit;
+		};
+		A7122B1E2F45AFA6004B5C3F /* BitcoinDevKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A7467FA72F44AEDE0064A4FD /* XCRemoteSwiftPackageReference "bdk-swift" */;
 			productName = BitcoinDevKit;
