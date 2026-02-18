@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemExpress
+import TangemMacro
 import TangemFoundation
 
 protocol SwapModelRoutable: AnyObject {
@@ -32,6 +33,8 @@ final class SwapModel {
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
     // MARK: - Dependencies
+
+    var externalAmountUpdater: SendAmountExternalUpdater!
 
     weak var router: SendModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
@@ -467,14 +470,29 @@ extension SwapModel: FeeSelectorOutput {
     }
 }
 
-// MARK: - SendSummaryInput, SendSummaryOutput
+// MARK: - SwapSummaryInput, SwapSummaryOutput
 
-extension SwapModel: SendSummaryInput, SendSummaryOutput {
+extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { $0.0.isReadyToSend() }
             .eraseToAnyPublisher()
+    }
+
+    var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> {
+        Publishers
+            .CombineLatest3(
+                selectedExpressProviderPublisher.compactMap { $0?.value?.manager.isFeeCurrency },
+                sourceTokenPublisher.compactMap(\.value),
+                receiveTokenPublisher.compactMap(\.value),
+            )
+            .map { $0 && $1.tokenItem.blockchain == $2.tokenItem.blockchain }
+            .eraseToAnyPublisher()
+    }
+
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        _providersState.map { $0.isLoading }.eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
@@ -490,6 +508,18 @@ extension SwapModel: SendSummaryInput, SendSummaryOutput {
             .withWeakCaptureOf(self)
             .flatMapLatest { $0.0.summaryTransactionData() }
             .eraseToAnyPublisher()
+    }
+
+    func userDidRequestSwap() {}
+
+    func userDidRequestMaxAmount() {
+        guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
+            return
+        }
+    }
+
+    func userDidRequestSwapSourceAndReceiveToken() {
+        swappingPairDidChange()
     }
 
     private func isReadyToSend() -> AnyPublisher<Bool, Never> {
@@ -551,6 +581,7 @@ extension SwapModel: SendBaseDataBuilderInput {
 }
 
 extension SwapModel {
+    @CaseFlagable
     enum ProvidersState {
         case idle
         case loading(LoadingType)
