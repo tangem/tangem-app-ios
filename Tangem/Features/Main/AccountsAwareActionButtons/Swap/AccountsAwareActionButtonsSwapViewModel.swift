@@ -129,13 +129,10 @@ extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHand
                 userHasSearchedDuringThisSession: marketsTokensViewModel?.userHasSearchedDuringThisSession ?? false
             )
 
-            marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(
-                screen: .mainScreen,
-                onTokenAdded: { [weak self] item in
-                    self?.selectNewToken(item)
-                    self?.marketsTokenAdditionCoordinator = nil
-                }
-            )
+            marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
+                self?.selectNewToken(item)
+                self?.marketsTokenAdditionCoordinator = nil
+            }
 
             marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
         }
