@@ -15,6 +15,7 @@ enum SendMainButtonType: Hashable {
     case `continue`
     case action
     case close
+    case holdAction
 }
 
 enum SendFlowActionType: Hashable {
@@ -67,7 +68,7 @@ extension SendMainButtonType {
             Localization.commonNext
         case .continue:
             Localization.commonContinue
-        case .action:
+        case .action, .holdAction:
             action.title
         case .close:
             Localization.commonClose
