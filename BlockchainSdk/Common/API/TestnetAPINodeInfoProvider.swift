@@ -278,7 +278,7 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .pepecoin:
             return [
-                .init(url: URL(string: "https://testnet.pepeblocks.com")!),
+                .init(url: URL(string: "wss://testnet.electrum.pepeblocks.com:60004")!),
             ]
         case .hyperliquidEVM:
             return [
