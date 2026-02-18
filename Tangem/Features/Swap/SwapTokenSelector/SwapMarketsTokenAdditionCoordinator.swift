@@ -9,6 +9,7 @@
 import Foundation
 import TangemAccounts
 import TangemUI
+import UIKit
 
 /// Coordinator that handles market token addition flow in swap context.
 /// Encapsulates shared logic for adding tokens from markets search.
@@ -16,9 +17,17 @@ final class SwapMarketsTokenAdditionCoordinator {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource
+    private let screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen
     private let onTokenAdded: (AccountsAwareTokenSelectorItem) -> Void
 
-    init(onTokenAdded: @escaping (AccountsAwareTokenSelectorItem) -> Void) {
+    init(
+        source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource = .markets,
+        screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
+        onTokenAdded: @escaping (AccountsAwareTokenSelectorItem) -> Void
+    ) {
+        self.source = source
+        self.screen = screen
         self.onTokenAdded = onTokenAdded
     }
 }
@@ -26,6 +35,8 @@ final class SwapMarketsTokenAdditionCoordinator {
 extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable {
     @MainActor
     func requestAddToken(inputData: ExpressAddTokenInputData) {
+        UIApplication.shared.endEditing()
+
         guard !inputData.networks.isEmpty else {
             return
         }
@@ -36,6 +47,9 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
             coinName: inputData.coinName,
             coinSymbol: inputData.coinSymbol,
             networks: inputData.networks,
+            source: source,
+            screen: screen,
+            userHasSearchedDuringThisSession: inputData.userHasSearchedDuringThisSession,
             additionRoutable: self
         )
 

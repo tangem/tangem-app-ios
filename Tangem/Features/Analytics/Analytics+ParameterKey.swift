@@ -97,6 +97,8 @@ extension Analytics {
 
         case fromSummary = "From Summary"
         case valid = "Valid"
+        case screen = "Screen"
+        case searched = "Searched"
 
         case sendBlockchain = "Send Blockchain"
         case receiveBlockchain = "Receive Blockchain"
