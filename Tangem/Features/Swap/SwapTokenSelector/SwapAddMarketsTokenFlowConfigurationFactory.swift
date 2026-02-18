@@ -16,9 +16,21 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
+        source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource,
+        screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
+        userHasSearchedDuringThisSession: Bool,
         additionRoutable: SwapMarketsTokenAdditionRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        AccountsAwareAddTokenFlowConfiguration(
+        let analyticsLogger = SwapAddTokenFlowAnalyticsLogger(
+            coinSymbol: coinSymbol,
+            source: source,
+            screen: screen,
+            userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
+        )
+
+        analyticsLogger.logTokenSelected()
+
+        return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 MarketsTokenItemsProvider.calculateTokenItems(
                     coinId: coinId,
@@ -63,7 +75,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
                     )
                 }
             },
-            analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
+            analyticsLogger: analyticsLogger
         )
     }
 }

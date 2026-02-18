@@ -193,7 +193,14 @@ private extension AccountsAwareAddTokenFlowViewModel {
             pushCurrentState()
         }
 
-        configuration.analyticsLogger.logAccountSelectorOpened()
+        // Get counts for analytics
+        let walletsCount = userWalletModels.count
+        let accountsCount = userWalletModels.flatMap { $0.accountModelsManager.cryptoAccountModels }.count
+
+        configuration.analyticsLogger.logAccountSelectorOpened(
+            walletsCount: walletsCount,
+            accountsCount: accountsCount
+        )
 
         let filter = makeCryptoAccountModelsFilter(with: supportedBlockchains)
         let availabilityProvider = makeAccountAvailabilityProvider(supportedBlockchains: supportedBlockchains)
@@ -227,6 +234,8 @@ private extension AccountsAwareAddTokenFlowViewModel {
             accountSelectorCell: accountSelectorCell,
             tokenItem: tokenItem
         )
+
+        configuration.analyticsLogger.logAddTokenScreenOpened()
 
         viewState = .addToken(
             viewModel: AccountsAwareAddTokenViewModel(
