@@ -162,6 +162,7 @@ protocol WalletModelFeeProvider {
 protocol WalletModelDependenciesProvider {
     var blockchainDataProvider: BlockchainDataProvider { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
+    var requiredMemoRestrictable: (any RequiredMemoRestrictable)? { get }
     var assetRequirementsManager: AssetRequirementsManager? { get }
 
     var transactionCreator: TransactionCreator { get }

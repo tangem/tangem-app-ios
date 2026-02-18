@@ -4215,6 +4215,7 @@
 		EF72DC062C467001003DD97F /* StakingTokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF72DC042C467001003DD97F /* StakingTokenItem.swift */; };
 		EF7349122F45DBD400234D75 /* ExpressProviderRateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7349112F45DBD400234D75 /* ExpressProviderRateType.swift */; };
 		EF7349142F45DC2F00234D75 /* ExpressPairProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7349132F45DC2F00234D75 /* ExpressPairProvider.swift */; };
+		EF7349162F45EFE000234D75 /* ExpressDestinationNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7349152F45EFE000234D75 /* ExpressDestinationNotificationProvider.swift */; };
 		EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */; };
 		EF7672DA2E0C50F900A8900E /* CommonSwapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7672D92E0C50F900A8900E /* CommonSwapManager.swift */; };
 		EF7672DC2E0C511C00A8900E /* SwapDestinationWalletWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7672DB2E0C511C00A8900E /* SwapDestinationWalletWrapper.swift */; };
@@ -9078,6 +9079,7 @@
 		EF72DC042C467001003DD97F /* StakingTokenItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTokenItem.swift; sourceTree = "<group>"; };
 		EF7349112F45DBD400234D75 /* ExpressProviderRateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderRateType.swift; sourceTree = "<group>"; };
 		EF7349132F45DC2F00234D75 /* ExpressPairProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPairProvider.swift; sourceTree = "<group>"; };
+		EF7349152F45EFE000234D75 /* ExpressDestinationNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDestinationNotificationProvider.swift; sourceTree = "<group>"; };
 		EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItem+ExpressCurrency.swift"; sourceTree = "<group>"; };
 		EF7672D92E0C50F900A8900E /* CommonSwapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwapManager.swift; sourceTree = "<group>"; };
 		EF7672DB2E0C511C00A8900E /* SwapDestinationWalletWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapDestinationWalletWrapper.swift; sourceTree = "<group>"; };
@@ -14403,6 +14405,7 @@
 				EF9EA9612B10D39600AC1DA1 /* ExpressTokensListAdapter */,
 				EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */,
 				EF4194552ED9C19800798992 /* ExpressTransactionValidator */,
+				EF7349172F45EFEE00234D75 /* ExpressDestinationNotificationProvider */,
 				B0BB97282B18653B00053954 /* ExpressInteractor */,
 				EF7731522ECF4965000869BC /* ExpressInteractorWallet */,
 				B0BB972B2B18654300053954 /* ExpressPendingTransactionRepository */,
@@ -24146,6 +24149,14 @@
 			path = ProviderRowView;
 			sourceTree = "<group>";
 		};
+		EF7349172F45EFEE00234D75 /* ExpressDestinationNotificationProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF7349152F45EFE000234D75 /* ExpressDestinationNotificationProvider.swift */,
+			);
+			path = ExpressDestinationNotificationProvider;
+			sourceTree = "<group>";
+		};
 		EF75A3D02B06418D0023A60A /* TokenItem */ = {
 			isa = PBXGroup;
 			children = (
@@ -28285,6 +28296,7 @@
 				DCB573632E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift in Sources */,
 				EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */,
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
+				EF7349162F45EFE000234D75 /* ExpressDestinationNotificationProvider.swift in Sources */,
 				0AB346812E83CD8F004003A0 /* YieldModuleDTO.swift in Sources */,
 				EF40414C2DE4E098002F996A /* SendAmountCompactViewSeparator.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinData.swift in Sources */,

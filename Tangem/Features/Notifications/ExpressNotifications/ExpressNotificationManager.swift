@@ -99,6 +99,17 @@ final class ExpressNotificationManager {
                 )
             }
 
+            if let source = expressInteractor?.getSource().value, preview.isMemoRequired {
+                let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
+                let validationErrorEvent = factory.mapToValidationErrorEvent(.destinationMemoRequired)
+                let notification = ExpressNotificationEvent.validationErrorEvent(
+                    event: validationErrorEvent,
+                    context: .init(isFeeCurrency: false, feeValue: 0.1)
+                )
+                let input = NotificationsFactory().buildNotificationInput(for: notification)
+                inputs.append(input)
+            }
+
             notificationInputsSubject.value = inputs
         }
     }

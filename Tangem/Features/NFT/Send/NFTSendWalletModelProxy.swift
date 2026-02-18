@@ -395,4 +395,8 @@ extension NFTSendWalletModelProxy: WalletModel {
     var ethereumGaslessDataProvider: (any BlockchainSdk.EthereumGaslessDataProvider)? {
         mainTokenWalletModel.ethereumGaslessDataProvider
     }
+
+    var requiredMemoRestrictable: (any RequiredMemoRestrictable)? {
+        mainTokenWalletModel.requiredMemoRestrictable
+    }
 }

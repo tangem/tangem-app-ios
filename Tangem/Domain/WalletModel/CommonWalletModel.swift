@@ -649,6 +649,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? WithdrawalNotificationProvider
     }
 
+    var requiredMemoRestrictable: (any RequiredMemoRestrictable)? {
+        walletManager as? RequiredMemoRestrictable
+    }
+
     var assetRequirementsManager: AssetRequirementsManager? {
         walletManager as? AssetRequirementsManager
     }

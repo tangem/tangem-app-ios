@@ -475,6 +475,22 @@ private extension ExpressInteractor {
         let withdrawalNotificationProvider = sender.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
 
+        let isMemoRequired = try await {
+            guard let requiredMemoValidator = sender.requiredMemoValidator else {
+                return false
+            }
+
+            guard let destinationWallet = getDestinationValue()?.value, let destination = destinationWallet.address else {
+                return false
+            }
+
+            let transactionParams = try destinationWallet.transactionParams()
+            return await requiredMemoValidator.isMemoRequired(
+                destination: destination,
+                transactionParams: transactionParams
+            )
+        }()
+
         // Check on the minimum received amount
         // Almost impossible case because the providers check it on their side
         if let destination = getDestination() as? ExpressInteractorSourceWallet,
@@ -492,7 +508,8 @@ private extension ExpressInteractor {
         let previewCEXState = PreviewCEXState(
             subtractFee: subtractFee,
             isExemptFee: sender.isExemptFee,
-            notification: notification
+            notification: notification,
+            isMemoRequired: isMemoRequired,
         )
 
         let correctState: State = .previewCEX(previewCEXState, context: context, quote: quote)
@@ -1006,6 +1023,7 @@ extension ExpressInteractor {
         let subtractFee: SubtractFee
         let isExemptFee: Bool
         let notification: WithdrawalNotification?
+        let isMemoRequired: Bool
     }
 
     struct SubtractFee {
