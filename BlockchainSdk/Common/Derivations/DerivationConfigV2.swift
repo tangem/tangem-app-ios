@@ -80,6 +80,7 @@ struct DerivationConfigV2: DerivationConfig {
              .scroll,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             return "m/44'/60'/0'/0/0"
