@@ -12,8 +12,9 @@ import XCTest
 final class WireMockClient {
     private let baseURL: String
 
-    init(baseURL: String = "https://wiremock.tests-d.com") {
-        self.baseURL = baseURL
+    init(baseURL: String? = nil) {
+        // Use WireMockPortResolver for per-simulator port isolation in parallel tests
+        self.baseURL = baseURL ?? WireMockPortResolver.wireMockBaseURL
     }
 
     // MARK: - Scenario Management
