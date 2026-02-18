@@ -24,10 +24,17 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressPair(response: ExpressDTO.Swap.Pairs.Response) -> ExpressPair {
-        ExpressPair(
+        let providers = response.providers.map { provider in
+            let rates = provider.rateTypes
+                .compactMap { ExpressProviderRateType(rawValue: $0.rawValue) }
+
+            return ExpressPairProvider(id: provider.providerId, rates: rates)
+        }
+
+        return ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
             destination: mapToExpressCurrency(currency: response.to),
-            providers: response.providers.map { .init($0.providerId) }
+            providers: providers
         )
     }
 
