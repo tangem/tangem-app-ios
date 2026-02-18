@@ -72,7 +72,6 @@ extension TangemPayMainCoordinator {
 
         let coordinator = ExpressCoordinator(
             factory: factory,
-            analyticsScreen: .visa,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )

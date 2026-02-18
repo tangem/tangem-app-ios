@@ -192,9 +192,9 @@ private extension CommonExpressManager {
 
         return ExpressAvailableProvider(
             provider: provider,
+            manager: manager,
             isBest: false,
             isAvailable: isAvailable,
-            manager: manager
         )
     }
 
@@ -220,7 +220,8 @@ private extension CommonExpressManager {
 
         availableProviders.forEach { provider in
             // We set the `isBest` flag only if we have more than one enabled provider
-            provider.isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
+            let isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
+            provider.update(isBest: isBest)
 
             ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
