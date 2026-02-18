@@ -1,5 +1,5 @@
 //
-//  SwapAddTokenFlowAnalyticsLogger.swift
+//  SwapSelectTokenAnalyticsLogger.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,21 +9,18 @@
 import BlockchainSdk
 
 /// Swap-specific implementation of AddTokenFlowAnalyticsLogger
-final class SwapAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
+final class SwapSelectTokenAnalyticsLogger: AddTokenFlowAnalyticsLogger {
     private let coinSymbol: String
     private let source: SwapTokenSource
-    private let screen: SwapTokenScreen
     private let userHasSearchedDuringThisSession: Bool
 
     init(
         coinSymbol: String,
         source: SwapTokenSource,
-        screen: SwapTokenScreen,
         userHasSearchedDuringThisSession: Bool
     ) {
         self.coinSymbol = coinSymbol
         self.source = source
-        self.screen = screen
         self.userHasSearchedDuringThisSession = userHasSearchedDuringThisSession
     }
 
@@ -69,7 +66,6 @@ final class SwapAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
             event: .swapTokenSelected,
             params: [
                 .source: source.parameterValue.rawValue,
-                .screen: screen.parameterValue.rawValue,
                 .searched: Analytics.ParameterValue.boolState(for: userHasSearchedDuringThisSession).rawValue,
                 .token: coinSymbol,
             ]
@@ -87,7 +83,7 @@ final class SwapAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
 
 // MARK: - Supporting Types
 
-extension SwapAddTokenFlowAnalyticsLogger {
+extension SwapSelectTokenAnalyticsLogger {
     enum SwapTokenSource {
         case portfolio
         case markets
@@ -96,22 +92,6 @@ extension SwapAddTokenFlowAnalyticsLogger {
             switch self {
             case .portfolio: return .portfolio
             case .markets: return .markets
-            }
-        }
-    }
-
-    enum SwapTokenScreen {
-        case mainScreen
-        case tokenScreen
-        case markets
-        case visa
-
-        var parameterValue: Analytics.ParameterValue {
-            switch self {
-            case .mainScreen: return .mainScreen
-            case .tokenScreen: return .tokenScreen
-            case .markets: return .markets
-            case .visa: return .visa
             }
         }
     }
