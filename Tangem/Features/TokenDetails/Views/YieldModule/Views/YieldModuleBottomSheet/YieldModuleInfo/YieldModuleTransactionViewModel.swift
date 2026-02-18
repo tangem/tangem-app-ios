@@ -25,6 +25,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     // MARK: - ViewState
 
     let tangemIconProvider: TangemIconProvider
+    let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     // MARK: - Published
 
@@ -64,7 +65,8 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         yieldManagerInteractor: YieldManagerInteractor,
         notificationManager: YieldModuleNotificationManager,
         logger: YieldAnalyticsLogger,
-        tangemIconProvider: TangemIconProvider
+        tangemIconProvider: TangemIconProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy
     ) {
         self.action = action
 
@@ -74,6 +76,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         self.notificationManager = notificationManager
         self.logger = logger
         self.tangemIconProvider = tangemIconProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
 
         start()
     }

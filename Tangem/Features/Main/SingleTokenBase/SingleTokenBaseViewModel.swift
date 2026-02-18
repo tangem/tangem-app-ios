@@ -62,7 +62,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         priceFormatter.formatPrice(walletModel.quote?.price)
     }
 
-    final var priceChangeState: TokenPriceChangeView.State {
+    final var priceChangeState: PriceChangeView.State {
         priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
