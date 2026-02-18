@@ -16,15 +16,13 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource,
-        screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
+        source: SwapSelectTokenAnalyticsLogger.SwapTokenSource,
         userHasSearchedDuringThisSession: Bool,
         additionRoutable: SwapMarketsTokenAdditionRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        let analyticsLogger = SwapAddTokenFlowAnalyticsLogger(
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             coinSymbol: coinSymbol,
             source: source,
-            screen: screen,
             userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
         )
 
