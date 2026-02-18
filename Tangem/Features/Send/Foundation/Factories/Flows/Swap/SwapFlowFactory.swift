@@ -40,20 +40,12 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
 extension SwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let swapAmountViewModel = SwapAmountViewModel(
-            initialSourceToken: sourceToken,
-            sourceTokenInput: swapModel,
-            sourceTokenAmountInput: swapModel,
-            sourceTokenAmountOutput: swapModel,
-            receiveTokenInput: swapModel,
-            receiveTokenAmountInput: swapModel
-        )
-
+        let amount = makeSwapAmountViewModel()
         let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders()
 
         let summary = makeSwapSummaryStep(
-            swapAmountViewModel: swapAmountViewModel,
+            swapAmountViewModel: amount.viewModel,
             swapSummaryProviderViewModel: providers.compact,
             feeCompactViewModel: fee.compact,
         )
@@ -86,6 +78,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
         swapModel.router = viewModel
         swapModel.alertPresenter = viewModel
+        swapModel.externalAmountUpdater = amount.amountUpdater
 
         return viewModel
     }
@@ -115,6 +108,33 @@ extension SwapFlowFactory: SendBaseBuildable {
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+        )
+    }
+}
+
+// MARK: - SendAmountStepBuildable
+
+extension SwapFlowFactory: SendAmountStepBuildable {
+    var amountIO: SendAmountStepBuilder.IO {
+        SendAmountStepBuilder.IO(
+            sourceIO: (input: swapModel, output: swapModel),
+            sourceAmountIO: (input: swapModel, output: swapModel),
+            receiveIO: (input: swapModel, output: swapModel),
+            receiveAmountIO: (input: swapModel, output: swapModel),
+            swapProvidersInput: swapModel,
+        )
+    }
+
+    var amountTypes: SendAmountStepBuilder.Types {
+        .init(initialSourceToken: sourceToken)
+    }
+
+    var amountDependencies: SendAmountStepBuilder.Dependencies {
+        SendAmountStepBuilder.Dependencies(
+            sendAmountValidator: CommonSwapAmountValidator(),
+            amountModifier: .none,
+            notificationService: .none,
+            analyticsLogger: analyticsLogger
         )
     }
 }
