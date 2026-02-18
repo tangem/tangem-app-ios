@@ -46,6 +46,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let tangemIconProvider: TangemIconProvider
+    let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     @Published var legalText: AttributedString?
 
@@ -88,6 +89,7 @@ final class ExpressViewModel: ObservableObject {
         self.interactor = interactor
         self.coordinator = coordinator
         tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
+        confirmTransactionPolicy = CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
 
         Analytics.log(
             event: .swapScreenOpenedSwap,
