@@ -15,28 +15,19 @@ class BaseTestCase: XCTestCase {
     // MARK: - WireMock Support
 
     lazy var wireMockClient = WireMockClient()
-    private var activeScenarios: [String: String] = [:]
+    private var modifiedScenarios: [String] = []
 
     override func setUp() {
         super.setUp()
-
         continueAfterFailure = false
     }
 
     override func tearDown() {
+        resetModifiedWireMockScenarios()
+
         app.launchArguments.removeAll()
         app.launchEnvironment.removeAll()
         app.terminate()
-
-        // Reset only active WireMock scenarios after each test
-        if !activeScenarios.isEmpty {
-            XCTContext.runActivity(named: "Reset active WireMock scenarios") { _ in
-                for scenarioName in activeScenarios.keys {
-                    wireMockClient.resetScenarioSync(scenarioName)
-                }
-            }
-            activeScenarios.removeAll()
-        }
 
         super.tearDown()
     }
@@ -72,7 +63,14 @@ class BaseTestCase: XCTestCase {
         }
 
         app.launchArguments = arguments
-        app.launchEnvironment = ["UITEST": "1"]
+
+        // Build launch environment with resolved WireMock URL for parallel test support
+        // WireMockPortResolver determines the correct port based on simulator UDID
+        let wireMockURL = WireMockPortResolver.wireMockBaseURL
+
+        var launchEnvironment = ["UITEST": "1"]
+        launchEnvironment["WIREMOCK_BASE_URL"] = wireMockURL
+        app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
         setupWireMockScenarios(scenarios)
@@ -89,11 +87,21 @@ class BaseTestCase: XCTestCase {
             // Set initial states for specified scenarios
             for scenario in scenarios {
                 wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
-
-                if scenario.initialState != "Started" {
-                    activeScenarios[scenario.name] = scenario.initialState
+                if !modifiedScenarios.contains(scenario.name) {
+                    modifiedScenarios.append(scenario.name)
                 }
             }
+        }
+    }
+
+    private func resetModifiedWireMockScenarios() {
+        guard !modifiedScenarios.isEmpty else { return }
+
+        XCTContext.runActivity(named: "Reset modified WireMock scenarios") { _ in
+            for scenarioName in modifiedScenarios {
+                wireMockClient.resetScenarioSync(scenarioName)
+            }
+            modifiedScenarios.removeAll()
         }
     }
 
