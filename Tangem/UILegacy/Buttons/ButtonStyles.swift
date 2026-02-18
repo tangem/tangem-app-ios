@@ -206,14 +206,14 @@ extension ButtonStyle where Self == TangemButtonStyle {
 struct ButtonStyles_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .center, spacing: 16.0) {
-            TangemButton(
+            TangemButtonLegacy(
                 title: "Tangem Wide button",
                 systemImage: "arrow.up",
                 action: {}
             )
             .buttonStyle(TangemButtonStyle(layout: .wide))
 
-            TangemButton(title: "Tangem custom button", action: {})
+            TangemButtonLegacy(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(
                     layout: .custom(size: CGSize(
                         width: 175,
@@ -222,7 +222,7 @@ struct ButtonStyles_Previews: PreviewProvider {
                     font: .system(size: 18)
                 ))
 
-            TangemButton(title: "Tangem custom button", action: {})
+            TangemButtonLegacy(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(
                     layout: .customWidth(234),
                     font: .system(size: 18)

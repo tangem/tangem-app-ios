@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
