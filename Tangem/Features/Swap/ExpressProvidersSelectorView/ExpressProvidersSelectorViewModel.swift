@@ -66,7 +66,7 @@ extension ExpressProvidersSelectorViewModel {
             expressInteractor.selectedProviderPublisher()
         )
         .withWeakCaptureOf(self)
-        .asyncMap { await $0.mapToProviderRowViewModels(providers: $1.0, selectedProvider: $1.1) }
+        .map { $0.mapToProviderRowViewModels(providers: $1.0, selectedProvider: $1.1) }
         .receiveOnMain()
         .assign(to: &$providerViewModels)
     }
@@ -91,22 +91,22 @@ extension ExpressProvidersSelectorViewModel {
     func mapToProviderRowViewModels(
         providers: [ExpressAvailableProvider],
         selectedProvider: ExpressAvailableProvider?
-    ) async -> [ProviderRowViewModel] {
-        await providers
+    ) -> [ProviderRowViewModel] {
+        providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await self.mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
+            .map { mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
     }
 
     func mapToProviderRowViewModel(
         provider: ExpressAvailableProvider,
         selectedProvider: ExpressAvailableProvider?
-    ) async -> ProviderRowViewModel {
+    ) -> ProviderRowViewModel {
         let senderCurrencyCode = expressInteractor.getSource().value?.tokenItem.currencySymbol
         let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
-        let state = await provider.getState()
+        let state = provider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
@@ -135,7 +135,7 @@ extension ExpressProvidersSelectorViewModel {
             return .none
         }()
 
-        if let percentSubtitle = await makePercentSubtitle(provider: provider, selectedProvider: selectedProvider) {
+        if let percentSubtitle = makePercentSubtitle(provider: provider, selectedProvider: selectedProvider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -155,14 +155,14 @@ extension ExpressProvidersSelectorViewModel {
     func makePercentSubtitle(
         provider: ExpressAvailableProvider,
         selectedProvider: ExpressAvailableProvider?
-    ) async -> ProviderRowViewModel.Subtitle? {
+    ) -> ProviderRowViewModel.Subtitle? {
         // For selectedProvider we don't add percent badge
         guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
         }
 
-        guard let quote = await provider.getState().quote,
-              let selectedRate = await selectedProvider?.getState().quote?.rate else {
+        guard let quote = provider.getState().quote,
+              let selectedRate = selectedProvider?.getState().quote?.rate else {
             return nil
         }
 
