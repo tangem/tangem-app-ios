@@ -35,7 +35,7 @@ extension StakingFlowDependenciesFactory {
     }
 
     func makeStakingFeeIncludedCalculator() -> FeeIncludedCalculator {
-        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: walletModelDependenciesProvider.transactionValidator)
+        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: sourceToken.transactionValidator)
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
