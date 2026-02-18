@@ -272,9 +272,9 @@ extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     }
 }
 
-// MARK: - SendReceiveTokenAmountInput
+// MARK: - SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput
 
-extension SwapModel: SendReceiveTokenAmountInput {
+extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var receiveAmount: LoadingResult<SendAmount, any Error> {
         mapToReceiveSendAmount(state: _providersState.value)
     }
@@ -317,7 +317,7 @@ extension SwapModel: SendReceiveTokenAmountInput {
 
     private func mapToReceiveSendAmount(state: ProvidersState) -> LoadingResult<SendAmount, any Error> {
         switch state {
-        case .loading(.providers), .loading(.rates):
+        case .loading(.rates):
             return .loading
 
         case .idle, .loading: // Another loading has to be filtered
@@ -364,6 +364,8 @@ extension SwapModel: SendReceiveTokenAmountInput {
 
         return result
     }
+
+    func receiveAmountDidChanged(amount: SendAmount?) {}
 }
 
 // MARK: - SendSwapProvidersInput
@@ -516,9 +518,19 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
             return
         }
+
+        externalAmountUpdater.externalUpdate(amount: balance)
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
+        guard let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
+            ExpressLogger.info("Swap Source and Receive tokens is not possible")
+            return
+        }
+
+        _sourceToken.send(.success(destination))
+        _receiveToken.send(.success(source))
+
         swappingPairDidChange()
     }
 
