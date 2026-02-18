@@ -586,6 +586,20 @@ private extension ExpressInteractor {
 
             // Validate destination support for newly-added tokens BEFORE updating
             if let runtimeRestriction = await interactor.validateDestinationSupport() {
+                // Log unavailable swap pair analytics
+                if case .tokenNotSupportedForSwap(let tokenItem) = runtimeRestriction,
+                   let source = interactor.getSource().value {
+                    Analytics.log(
+                        event: .swapNoticeUnavailableToSwapPair,
+                        params: [
+                            .sendToken: source.tokenItem.currencySymbol,
+                            .receiveToken: tokenItem.currencySymbol,
+                            .sendBlockchain: source.tokenItem.blockchain.displayName,
+                            .receiveBlockchain: tokenItem.blockchain.displayName,
+                        ]
+                    )
+                }
+
                 return .runtimeRestriction(runtimeRestriction)
             }
 
