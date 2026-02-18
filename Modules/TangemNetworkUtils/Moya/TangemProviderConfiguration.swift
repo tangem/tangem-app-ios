@@ -7,6 +7,7 @@
 //
 import Foundation
 import Moya
+import TangemFoundation
 
 public struct TangemProviderConfiguration {
     public let logOptions: TangemNetworkLoggerPlugin.LogOptions?
@@ -44,6 +45,10 @@ public struct TangemProviderConfiguration {
         }
 
         plugins.append(NetworkHeadersPlugin(networkHeaders: headerValues))
+
+        if AppEnvironment.current.isUITest {
+            plugins.append(WireMockRedirectPlugin())
+        }
 
         return plugins
     }

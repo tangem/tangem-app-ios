@@ -11,7 +11,7 @@ import Foundation
 @MainActor
 protocol EarnDetailRoutable: AnyObject {
     func dismiss()
-    func routeOnTokenResolved(_ resolution: EarnTokenResolution)
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource)
     func openNetworksFilter()
     func openTypesFilter()
 }
