@@ -60,6 +60,10 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 
+    func onAppear() {
+        Analytics.log(.swapChooseTokenScreenOpened)
+    }
+
     func onDisappear() {
         if let tokenItem = selectedTokenItem {
             Analytics.log(
@@ -86,6 +90,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
 extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+        logPortfolioTokenSelected(item: item)
         selectToken(item, isNewlyAddedFromMarkets: false)
     }
 }
@@ -110,6 +115,15 @@ private extension SwapTokenSelectorViewModel {
 
         selectedTokenItem = item.walletModel.tokenItem
         tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+
+    func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
+            coinSymbol: item.walletModel.tokenItem.currencySymbol,
+            source: .portfolio,
+            userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
+        )
+        analyticsLogger.logTokenSelected()
     }
 }
 
