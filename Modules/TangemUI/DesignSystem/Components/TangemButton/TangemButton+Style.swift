@@ -54,34 +54,10 @@ extension TangemButton {
                 .padding(.horizontal, makeHorizontalInsets())
                 .frame(height: size.height)
                 .frame(maxWidth: horizontalLayout.maxWidth)
-                .background(
-                    _Shape(
-                        horizontalLayout: horizontalLayout,
-                        content: content,
-                        cornerStyle: cornerStyle,
-                        cornerRadius: cornerRadius
-                    )
-                    .fill(makeBackgroundColor())
-                    .overlay(
-                        _Shape(
-                            horizontalLayout: horizontalLayout,
-                            content: content,
-                            cornerStyle: cornerStyle,
-                            cornerRadius: cornerRadius
-                        )
-                        .stroke(style.strokeColor, lineWidth: 1)
-                    )
-                )
+                .background(makeBackgroundColor(), in: buttonShape)
+                .overlay { buttonShape.stroke(style.strokeColor, lineWidth: 1) }
                 .foregroundStyle(makeForegroundColor())
-                .overlay {
-                    _Shape(
-                        horizontalLayout: horizontalLayout,
-                        content: content,
-                        cornerStyle: cornerStyle,
-                        cornerRadius: cornerRadius
-                    )
-                    .fill(makeOverlayColor(isPressed: configuration.isPressed))
-                }
+                .overlay { buttonShape.fill(makeOverlayColor(isPressed: configuration.isPressed)) }
                 .overlay {
                     if state.isLoading {
                         ProgressView()
@@ -91,6 +67,20 @@ extension TangemButton {
                             ))
                     }
                 }
+        }
+
+        @ShapeBuilder
+        private var buttonShape: AnyInsettableShape {
+            if case .icon = content, cornerStyle == .rounded, horizontalLayout == .intrinsic {
+                Circle()
+            } else {
+                switch cornerStyle {
+                case .rectangular:
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                case .rounded:
+                    Capsule()
+                }
+            }
         }
 
         private func makeHorizontalInsets() -> CGFloat {
@@ -128,32 +118,6 @@ extension TangemButton {
                 return style.foregroundColor
             case .disabled:
                 return .disabledForeground
-            }
-        }
-
-        struct _Shape: Shape {
-            let horizontalLayout: HorizontalLayout
-            let content: Content
-            let cornerStyle: CornerStyle
-            let cornerRadius: CGFloat
-
-            private var resultRadius: CGFloat {
-                switch cornerStyle {
-                case .default:
-                    cornerRadius
-                case .rounded:
-                    10_000
-                }
-            }
-
-            public func path(in rect: CGRect) -> Path {
-                if case .icon = content, cornerStyle == .rounded, horizontalLayout == .intrinsic {
-                    return Circle()
-                        .path(in: rect)
-                }
-
-                return RoundedRectangle(cornerRadius: resultRadius)
-                    .path(in: rect)
             }
         }
     }
