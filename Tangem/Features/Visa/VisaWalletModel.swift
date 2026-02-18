@@ -174,6 +174,7 @@ extension VisaWalletModel: WalletModelFeeProvider {
 extension VisaWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: any BlockchainDataProvider { VisaDummyBlockchainDataProvider() }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }
+    var requiredMemoRestrictable: (any RequiredMemoRestrictable)? { nil }
     var assetRequirementsManager: (any AssetRequirementsManager)? { nil }
     var addressResolver: (any AddressResolver)? { nil }
     var transactionCreator: any TransactionCreator { transactionDependency }

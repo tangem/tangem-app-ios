@@ -28,6 +28,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any ExpressTransactionValidator { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
+    var requiredMemoValidator: (any ExpressRequiredMemoValidator)? { get }
     var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
 }
 
