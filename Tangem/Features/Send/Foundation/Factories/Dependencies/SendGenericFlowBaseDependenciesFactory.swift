@@ -10,60 +10,20 @@ import Foundation
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
-    var tokenItem: TokenItem { get }
-    var feeTokenItem: TokenItem { get }
-    var tokenIconInfo: TokenIconInfo { get }
-    var userWalletInfo: UserWalletInfo { get }
-
-    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
-    var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
-    var availableBalanceProvider: TokenBalanceProvider { get }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
-
-    var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
+    var sourceToken: SendSourceToken { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
+}
 
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+extension SendGenericFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
+    var tokenItem: TokenItem { sourceToken.tokenItem }
+    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
+    var tokenIconInfo: TokenIconInfo { sourceToken.tokenIconInfo }
 }
 
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
-    func makeSourceToken() -> SendSourceToken {
-        SendSourceToken(
-            header: tokenHeaderProvider.makeSendTokenHeader(),
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            tokenIconInfo: tokenIconInfo,
-            fiatItem: makeFiatItem(),
-            possibleToConvertToFiat: possibleToConvertToFiat(),
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
-            availableBalanceProvider: availableBalanceProvider,
-            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
-            transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcherProvider: transactionDispatcherProvider,
-            accountModelAnalyticsProvider: accountModelAnalyticsProvider
-        )
-    }
-
-    func isFeeApproximate() -> Bool {
-        tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType)
-    }
-
-    func possibleToConvertToFiat() -> Bool {
-        fiatAvailableBalanceProvider.balanceType.value != .none
-    }
-
-    func makeFiatItem() -> FiatItem {
-        FiatItem(
-            iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),
-            currencyCode: AppSettings.shared.selectedCurrencyCode,
-            fractionDigits: 2
-        )
-    }
-
     // Services
 
     func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
