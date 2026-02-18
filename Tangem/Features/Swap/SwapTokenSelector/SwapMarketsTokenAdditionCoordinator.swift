@@ -9,6 +9,7 @@
 import Foundation
 import TangemAccounts
 import TangemUI
+import UIKit
 
 /// Coordinator that handles market token addition flow in swap context.
 /// Encapsulates shared logic for adding tokens from markets search.
@@ -34,6 +35,8 @@ final class SwapMarketsTokenAdditionCoordinator {
 extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable {
     @MainActor
     func requestAddToken(inputData: ExpressAddTokenInputData) {
+        UIApplication.shared.endEditing()
+
         guard !inputData.networks.isEmpty else {
             return
         }
