@@ -22,3 +22,16 @@ class DomainNameAddressResolverFactoryProvider {
         apiList: apiListProvider.apiList
     )
 }
+
+class DomainNameAddressResolverFactoryProvider {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+
+    /// It is safe to get provider list without validation that list is not empty, because this factory created
+    /// only after WalletManager creation, which can't created without API list
+    lazy var factory = DomainNameAddressResolverFactory(
+        blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
+        tangemProviderConfig: .ephemeralConfiguration,
+        apiList: apiListProvider.apiList
+    )
+}
