@@ -17,17 +17,14 @@ final class SwapMarketsTokenAdditionCoordinator {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource
-    private let screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen
+    private let source: SwapSelectTokenAnalyticsLogger.SwapTokenSource
     private let onTokenAdded: (AccountsAwareTokenSelectorItem) -> Void
 
     init(
-        source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource = .markets,
-        screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
+        source: SwapSelectTokenAnalyticsLogger.SwapTokenSource = .markets,
         onTokenAdded: @escaping (AccountsAwareTokenSelectorItem) -> Void
     ) {
         self.source = source
-        self.screen = screen
         self.onTokenAdded = onTokenAdded
     }
 }
@@ -48,7 +45,6 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
             coinSymbol: inputData.coinSymbol,
             networks: inputData.networks,
             source: source,
-            screen: screen,
             userHasSearchedDuringThisSession: inputData.userHasSearchedDuringThisSession,
             additionRoutable: self
         )
