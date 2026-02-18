@@ -125,7 +125,7 @@ public extension AccountIconView {
 
         public static let largeSized: Self = .init(
             padding: 24,
-            size: CGSize(bothDimensions: 34),
+            size: CGSize(bothDimensions: 40),
             letterFontStyle: Fonts.Bold.largeTitle
         )
 

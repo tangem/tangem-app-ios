@@ -21,7 +21,7 @@ struct AccountsAwareNetworkSelectorView: View {
                 }
             }
         }
-        .roundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 16)
+        .roundedBackground(with: Colors.Background.action, padding: 0)
         .scrollBounceBehavior(.basedOnSize)
         .padding(.bottom, 16)
         .padding(.top, 12)
