@@ -308,6 +308,14 @@ extension Analytics {
         case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
         case swapFeeSelected = "[Swap] Fee Selected"
 
+        case swapTokenSelected = "[Swap] Token Selected"
+        case swapSearchTokenScreenOpened = "[Swap] Search Token Screen Opened"
+        case swapChooseWalletScreenOpened = "[Swap] Choose Wallet Screen Opened"
+        case swapAddTokenScreenOpened = "[Swap] Add Token Screen Opened"
+        case swapButtonAddToken = "[Swap] Button - Add Token"
+        case swapTokenAdded = "[Swap] Token Added"
+        case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
