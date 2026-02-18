@@ -34,7 +34,8 @@ struct PulseMarketWidgetView: View {
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.isFirstLoading
+            isLoading: viewModel.isFirstLoading,
+            isLoadFailed: viewModel.tokenViewModelsState.isFailure
         )
     }
 

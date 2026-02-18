@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemLocalization
 
+@MainActor
 final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
@@ -39,16 +40,19 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     // MARK: - Private Properties
 
     private let filterProvider: EarnDataFilterProvider
+    private let analyticsProvider: EarnAnalyticsProvider
     private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
     init(
         filterProvider: EarnDataFilterProvider,
+        analyticsProvider: EarnAnalyticsProvider,
         blockchainIconProvider: NetworkImageProvider = NetworkImageProvider(),
         onDismiss: (() -> Void)? = nil
     ) {
         self.filterProvider = filterProvider
+        self.analyticsProvider = analyticsProvider
         dismissAction = onDismiss
         currentSelection = filterProvider.selectedNetworkFilter
 
@@ -65,9 +69,17 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
         let blockchainsByNetworkId = filterProvider.supportedBlockchainsByNetworkId
 
+        let selectedNetworkFilter = filterProvider.selectedNetworkFilter
         networkRowInputs = filterProvider.availableNetworks.compactMap { networkInfo in
             guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
                 return nil
+            }
+
+            let isSelected: Bool
+            if case .specific(let selected) = selectedNetworkFilter {
+                isSelected = selected.networkId == networkInfo.networkId
+            } else {
+                isSelected = false
             }
 
             return EarnNetworkFilterNetworkRowInput(
@@ -75,6 +87,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
                 iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
+                isSelected: isSelected,
                 onTap: { [weak self] in
                     self?.selectAndDismiss(network: .specific(networkInfo: networkInfo))
                 }
@@ -86,7 +99,23 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     private func selectAndDismiss(network: EarnNetworkFilterType) {
         currentSelection = network
+        let (networkFilterType, networkId) = analyticsNetworkFilterParams(for: network)
+        analyticsProvider.logBestOpportunitiesFilterNetworkApplied(
+            networkFilterType: networkFilterType,
+            networkId: networkId
+        )
         filterProvider.didSelectNetworkFilter(network)
         dismissAction?()
+    }
+
+    private func analyticsNetworkFilterParams(for network: EarnNetworkFilterType) -> (String, String) {
+        switch network {
+        case .all:
+            return ("All Networks", "")
+        case .userNetworks:
+            return ("My Networks", "")
+        case .specific(let networkInfo):
+            return ("Specific", networkInfo.networkId)
+        }
     }
 }

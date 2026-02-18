@@ -26,8 +26,8 @@ class CommonSendAnalyticsLogger {
 
     private var sourceFlow: Analytics.ParameterValue {
         switch sendReceiveTokenInput?.receiveToken {
-        case .same, .none: .send
-        case .swap: .sendAndSwap
+        case .none: .send
+        case .some: .sendAndSwap
         }
     }
 
@@ -54,7 +54,7 @@ class CommonSendAnalyticsLogger {
 
         var result: [Analytics.ParameterKey: String] = [:]
 
-        if let sourceAccount = sendSourceTokenInput?.sourceToken.accountModelAnalyticsProvider {
+        if let sourceAccount = sendSourceTokenInput?.sourceToken.value?.accountModelAnalyticsProvider {
             result.enrich(with: sourceAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .source)))
         }
 
@@ -220,7 +220,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logTapMaxAmount() {
         var params: [Analytics.ParameterKey: String] = [.source: sourceFlow.rawValue]
 
-        if let token = sendSourceTokenInput?.sourceToken {
+        if let token = sendSourceTokenInput?.sourceToken.value {
             params[.token] = token.tokenItem.currencySymbol
             params[.blockchain] = token.tokenItem.blockchain.displayName
         }
@@ -231,7 +231,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logTapConvertToAnotherToken() {
         var params: [Analytics.ParameterKey: String] = [:]
 
-        if let token = sendSourceTokenInput?.sourceToken {
+        if let token = sendSourceTokenInput?.sourceToken.value {
             params[.token] = token.tokenItem.currencySymbol
             params[.blockchain] = token.tokenItem.blockchain.displayName
         }
@@ -285,7 +285,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
         Task {
             var analyticsParameters: [Analytics.ParameterKey: String] = [:]
 
-            if let source = sendSourceTokenInput?.sourceToken {
+            if let source = sendSourceTokenInput?.sourceToken.value {
                 analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
                 analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
             }
@@ -338,9 +338,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     func logFinishStepOpened() {
         switch sendReceiveTokenInput?.receiveToken {
         // Old send, simple send
-        case .none, .same:
+        case .none:
             logSendFinishScreenOpened(destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false)
-        case .swap:
+        case .some:
             logSendWithSwapFinishScreenOpened()
         }
     }
@@ -398,12 +398,12 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
         }
 
-        if let source = sendSourceTokenInput?.sourceToken {
+        if let source = sendSourceTokenInput?.sourceToken.value {
             analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
             analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
         }
 
-        if let receive = sendReceiveTokenInput?.receiveToken.receiveToken {
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
             analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
             analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
@@ -474,14 +474,8 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         case .filled: .full
         }
 
-        var sourceValue = sendType.analytics
-
-        if case .swap = sendReceiveTokenInput?.receiveToken {
-            sourceValue = .sendAndSwap
-        }
-
         var params: [Analytics.ParameterKey: String] = [
-            .source: sourceValue.rawValue,
+            .source: sourceFlow.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,

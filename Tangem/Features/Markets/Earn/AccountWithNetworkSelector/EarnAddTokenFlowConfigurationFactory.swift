@@ -14,7 +14,8 @@ import TangemFoundation
 enum EarnAddTokenFlowConfigurationFactory {
     static func make(
         earnToken: EarnTokenModel,
-        coordinator: EarnAddTokenRoutable
+        coordinator: EarnAddTokenRoutable,
+        analyticsProvider: EarnAnalyticsProvider
     ) -> AccountsAwareAddTokenFlowConfiguration {
         let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool = { tokenItem, account in
             account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
@@ -39,6 +40,7 @@ enum EarnAddTokenFlowConfigurationFactory {
                 return [tokenItem]
             },
             isTokenAdded: isTokenAdded,
+            accountSelectionAvailability: .disabled,
             accountSelectionBehavior: makeCustomExecuteActionBehavior(
                 coordinator: coordinator,
                 isTokenAdded: isTokenAdded
@@ -52,7 +54,7 @@ enum EarnAddTokenFlowConfigurationFactory {
             },
             accountFilter: makeAccountFilter(earnToken: earnToken),
             accountAvailabilityProvider: nil,
-            analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
+            analyticsLogger: analyticsProvider
         )
     }
 }

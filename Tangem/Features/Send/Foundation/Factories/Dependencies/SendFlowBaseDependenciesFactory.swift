@@ -9,7 +9,6 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -25,9 +24,9 @@ extension SendFlowBaseDependenciesFactory {
     ) -> SendModel {
         SendModel(
             userWalletId: userWalletInfo.id,
-            userToken: makeSourceToken(),
+            userToken: sourceToken,
             transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: walletModelDependenciesProvider.transactionValidator),
+            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),
@@ -59,7 +58,7 @@ extension SendFlowBaseDependenciesFactory {
             sendNotificationManager: CommonSendNotificationManager(
                 userWalletId: userWalletInfo.id,
                 tokenItem: tokenItem,
-                withdrawalNotificationProvider: walletModelDependenciesProvider.withdrawalNotificationProvider
+                withdrawalNotificationProvider: sourceToken.withdrawalNotificationProvider
             ),
             expressNotificationManager: ExpressNotificationManager(
                 userWalletId: userWalletInfo.id,
@@ -71,7 +70,7 @@ extension SendFlowBaseDependenciesFactory {
     // MARK: - Receive token
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
-        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
+        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: sourceToken.fiatItem)
     }
 
     // MARK: - Services
@@ -88,14 +87,11 @@ extension SendFlowBaseDependenciesFactory {
 
     // MARK: - Analytics
 
-    static func makeSendAnalyticsLogger(
-        walletModel: any WalletModel,
-        sendType: CommonSendAnalyticsLogger.SendType
-    ) -> SendAnalyticsLogger {
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
         CommonSendAnalyticsLogger(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !walletModel.shouldShowFeeSelector),
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !sourceToken.tokenFeeProvidersManager.supportFeeSelection),
             sendType: sendType
         )
     }
