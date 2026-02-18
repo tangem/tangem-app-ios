@@ -311,7 +311,6 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
                 let factory = CommonExpressModulesFactory(input: input)
                 let coordinator = ExpressCoordinator(
                     factory: factory,
-                    analyticsScreen: .markets,
                     dismissAction: dismissAction,
                     popToRootAction: popToRootAction
                 )

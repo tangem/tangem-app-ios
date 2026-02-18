@@ -19,11 +19,9 @@ protocol ExpressFeeCurrencyNavigating: FeeCurrencyNavigating {
 extension ExpressFeeCurrencyNavigating {
     func makeExpressCoordinator(
         factory: any ExpressModulesFactory,
-        analyticsScreen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen
     ) -> ExpressCoordinator {
         return ExpressCoordinator(
             factory: factory,
-            analyticsScreen: analyticsScreen,
             dismissAction: makeExpressCoordinatorDismissAction(),
             popToRootAction: makeExpressCoordinatorPopToRootAction()
         )
