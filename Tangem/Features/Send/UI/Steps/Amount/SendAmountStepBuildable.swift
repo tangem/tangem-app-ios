@@ -19,6 +19,10 @@ extension SendAmountStepBuildable {
     func makeSendAmountStep() -> SendAmountStepBuilder.ReturnValue {
         SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
     }
+
+    func makeSwapAmountViewModel() -> (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater) {
+        SendAmountStepBuilder.makeSwapAmountViewModel(io: amountIO, types: amountTypes, dependencies: amountDependencies)
+    }
 }
 
 enum SendAmountStepBuilder {
@@ -113,5 +117,39 @@ enum SendAmountStepBuilder {
         interactorSaver.updater = amountUpdater
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
+    }
+
+    static func makeSwapAmountViewModel(io: IO, types: Types, dependencies: Dependencies) -> (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater) {
+        let interactorSaver = CommonSendAmountInteractorSaver(
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            sourceTokenAmountOutput: io.sourceAmountIO.output,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output
+        )
+
+        let interactor = CommonSendAmountInteractor(
+            sourceTokenInput: io.sourceIO.input,
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            validator: dependencies.sendAmountValidator,
+            amountModifier: dependencies.amountModifier,
+            notificationService: dependencies.notificationService,
+            saver: interactorSaver,
+            type: .crypto
+        )
+
+        let viewModel = SwapAmountViewModel(
+            initialSourceToken: types.initialSourceToken,
+            interactor: interactor,
+            sourceTokenInput: io.sourceIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+        )
+
+        let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
+        interactorSaver.updater = amountUpdater
+
+        return (viewModel: viewModel, amountUpdater: amountUpdater)
     }
 }
