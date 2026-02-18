@@ -125,13 +125,17 @@ extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHand
                 coinId: token.id,
                 coinName: token.name,
                 coinSymbol: token.symbol,
-                networks: networks
+                networks: networks,
+                userHasSearchedDuringThisSession: marketsTokensViewModel?.userHasSearchedDuringThisSession ?? false
             )
 
-            marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator { [weak self] item in
-                self?.selectNewToken(item)
-                self?.marketsTokenAdditionCoordinator = nil
-            }
+            marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(
+                screen: .mainScreen,
+                onTokenAdded: { [weak self] item in
+                    self?.selectNewToken(item)
+                    self?.marketsTokenAdditionCoordinator = nil
+                }
+            )
 
             marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
         }
