@@ -428,7 +428,10 @@ private extension WCTransactionViewModel {
                     backAction: { [weak self] in self?.returnToTransactionDetails() }
                 )
 
-                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config))
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(
+                    tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config),
+                    confirmTransactionPolicy: confirmTransactionPolicy
+                )
                 let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
                 presentationState = .multipleTransactionsAlert(viewModel)
