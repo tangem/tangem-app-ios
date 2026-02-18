@@ -30,13 +30,24 @@ struct AccountDetailsView: View {
         .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
+    @ViewBuilder
     private var accountSection: some View {
+        if viewModel.canBeEdited {
+            Button(action: viewModel.openEditAccount) {
+                accountSectionContent
+            }
+        } else {
+            accountSectionContent
+        }
+    }
+
+    private var accountSectionContent: some View {
         RowWithLeadingAndTrailingIcons(
             leadingIcon: {
                 AccountIconView(data: viewModel.accountIconViewData)
             },
             content: {
-                VStack(alignment: .leading, spacing: .zero) {
+                VStack(alignment: .leading, spacing: 2.0) {
                     Text(Localization.accountFormName)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
