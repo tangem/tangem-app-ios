@@ -10,9 +10,13 @@ import enum BlockchainSdk.Blockchain
 
 enum WalletConnectBalanceObserveChains {
     static func chains() -> [Blockchain] {
-        [
-            .bitcoin(testnet: false),
-            .bitcoin(testnet: true),
-        ]
+        var chains: [Blockchain] = []
+
+        if FeatureProvider.isAvailable(.walletConnectBitcoin) {
+            chains.append(.bitcoin(testnet: false))
+            chains.append(.bitcoin(testnet: true))
+        }
+
+        return chains
     }
 }

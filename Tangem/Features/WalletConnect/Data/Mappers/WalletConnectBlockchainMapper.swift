@@ -11,7 +11,7 @@ import enum BlockchainSdk.Blockchain
 
 enum WalletConnectBlockchainMapper {
     static func mapToDomain(_ reownBlockchain: ReownWalletKit.Blockchain) -> BlockchainSdk.Blockchain? {
-        guard WalletConnectSupportedNamespace(rawValue: reownBlockchain.namespace.lowercased()) != nil else {
+        guard isNamespaceSupported(reownBlockchain.namespace.lowercased()) else {
             return nil
         }
 
@@ -42,6 +42,10 @@ enum WalletConnectBlockchainMapper {
         }
 
         if case .bitcoin = domainBlockchain, let bitcoinReownReferences = domainBlockchain.wcChainID, !bitcoinReownReferences.isEmpty {
+            guard FeatureProvider.isAvailable(.walletConnectBitcoin) else {
+                return nil
+            }
+
             return ReownWalletKit.Blockchain(
                 namespace: WalletConnectSupportedNamespace.bip122.rawValue,
                 reference: preferredCAIPReference ?? bitcoinReownReferences[0]
@@ -49,5 +53,16 @@ enum WalletConnectBlockchainMapper {
         }
 
         return nil
+    }
+
+    private static func isNamespaceSupported(_ namespace: String) -> Bool {
+        switch WalletConnectSupportedNamespace(rawValue: namespace) {
+        case .none:
+            return false
+        case .some(.eip155), .some(.solana):
+            return true
+        case .some(.bip122):
+            return FeatureProvider.isAvailable(.walletConnectBitcoin)
+        }
     }
 }
