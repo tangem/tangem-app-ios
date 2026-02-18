@@ -281,7 +281,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
     func openExpress(input: ExpressDependenciesInput) {
         let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory)
+        let coordinator = makeExpressCoordinator(factory: factory, analyticsScreen: .tokenScreen)
 
         let showExpressBlock = { [weak self] in
             coordinator.start(with: .default)
