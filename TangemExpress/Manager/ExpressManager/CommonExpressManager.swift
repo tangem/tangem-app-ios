@@ -192,9 +192,9 @@ private extension CommonExpressManager {
 
         return ExpressAvailableProvider(
             provider: provider,
+            manager: manager,
             isBest: false,
             isAvailable: isAvailable,
-            manager: manager
         )
     }
 
