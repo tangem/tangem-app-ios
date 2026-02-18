@@ -81,6 +81,7 @@ extension PublicKeyType {
              .scroll,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             self = PublicKeyType.secp256k1Extended
