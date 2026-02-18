@@ -98,7 +98,8 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             targetsStep: targets.step,
             summaryStep: summary,
             finishStep: finish,
-            summaryTitleProvider: makeStakingSummaryTitleProvider()
+            summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
