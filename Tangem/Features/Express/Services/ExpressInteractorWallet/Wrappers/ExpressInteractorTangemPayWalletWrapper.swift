@@ -36,6 +36,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
+    let requiredMemoValidator: (any ExpressRequiredMemoValidator)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private var _balanceProvider: any ExpressBalanceProvider

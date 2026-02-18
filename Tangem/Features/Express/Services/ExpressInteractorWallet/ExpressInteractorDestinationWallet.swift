@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
@@ -17,6 +18,17 @@ protocol ExpressInteractorDestinationWallet: ExpressDestinationWallet {
     var isNewlyAddedFromMarkets: Bool { get }
     var tokenHeader: ExpressInteractorTokenHeader? { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+}
+
+extension ExpressInteractorDestinationWallet {
+    func transactionParams() throws -> (any TransactionParams)? {
+        guard let extraId else {
+            return nil
+        }
+
+        let builder = TransactionParamsBuilder(blockchain: tokenItem.blockchain)
+        return try builder.transactionParameters(value: extraId)
+    }
 }
 
 extension ExpressInteractorDestinationWallet {
