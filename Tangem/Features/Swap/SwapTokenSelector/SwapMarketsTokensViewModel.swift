@@ -153,10 +153,6 @@ final class SwapMarketsTokensViewModel: ObservableObject {
         let previousSearchText = currentSearchText
         currentSearchText = text
 
-        if !text.isEmpty, previousSearchText.isEmpty {
-            Analytics.log(.swapSearchTokenScreenOpened)
-        }
-
         if !text.isEmpty, !userHasSearchedDuringThisSession {
             userHasSearchedDuringThisSession = true
         }
