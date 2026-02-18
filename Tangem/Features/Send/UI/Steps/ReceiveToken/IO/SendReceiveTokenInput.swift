@@ -12,8 +12,8 @@ import TangemFoundation
 protocol SendReceiveTokenInput: AnyObject {
     var isReceiveTokenSelectionAvailable: Bool { get }
 
-    var receiveToken: SendReceiveTokenType { get }
-    var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
+    var receiveToken: LoadingResult<SendReceiveToken, any Error> { get }
+    var receiveTokenPublisher: AnyPublisher<LoadingResult<SendReceiveToken, any Error>, Never> { get }
 }
 
 protocol SendReceiveTokenOutput: AnyObject {
