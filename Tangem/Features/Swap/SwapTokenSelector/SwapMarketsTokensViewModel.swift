@@ -38,6 +38,8 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private var tokenViewModels: [MarketsItemViewModel] = []
     private var hasLoadedInitially = false
 
+    private(set) var userHasSearchedDuringThisSession = false
+
     // MARK: - Computed
 
     var isSearching: Bool {
@@ -150,6 +152,14 @@ final class SwapMarketsTokensViewModel: ObservableObject {
     private func handleSearchTextChange(_ text: String) {
         let previousSearchText = currentSearchText
         currentSearchText = text
+
+        if !text.isEmpty, previousSearchText.isEmpty {
+            Analytics.log(.swapSearchTokenScreenOpened)
+        }
+
+        if !text.isEmpty, !userHasSearchedDuringThisSession {
+            userHasSearchedDuringThisSession = true
+        }
 
         // If search text changed, reset the list
         if previousSearchText != text {
