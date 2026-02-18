@@ -76,6 +76,7 @@ struct AccountFormView: View {
                     Text(description)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         .transition(.opacity)
+                        .padding(.horizontal, 14.0)
                 }
             }
             .readGeometry(\.size.height) { height in
