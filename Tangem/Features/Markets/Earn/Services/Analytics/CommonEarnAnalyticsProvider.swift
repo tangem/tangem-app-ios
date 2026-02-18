@@ -85,7 +85,7 @@ final class CommonEarnAnalyticsProvider: EarnAnalyticsProvider {
 
     func logLaterTapped() {}
 
-    func logAccountSelectorOpened() {}
+    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?) {}
 
     // MARK: - EarnAnalyticsProvider
 
