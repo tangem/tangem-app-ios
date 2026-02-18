@@ -12,5 +12,5 @@ final class NoOpAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
     func logExchangeTapped() {}
     func logReceiveTapped() {}
     func logLaterTapped() {}
-    func logAccountSelectorOpened() {}
+    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?) {}
 }
