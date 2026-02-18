@@ -69,7 +69,7 @@ private extension AuthWalletView {
     }
 
     var info: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 2.0) {
             Text(viewModel.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
