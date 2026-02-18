@@ -41,10 +41,8 @@ struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {
 
     var title: String {
         switch receiveTokenInput?.receiveToken {
-        case .none, .same:
-            Localization.commonSend
-        case .swap:
-            Localization.sendWithSwapTitle
+        case .none: Localization.commonSend
+        case .some: Localization.sendWithSwapTitle
         }
     }
 }
