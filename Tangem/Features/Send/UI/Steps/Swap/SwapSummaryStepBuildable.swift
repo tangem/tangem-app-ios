@@ -29,8 +29,8 @@ extension SwapSummaryStepBuildable {
 
 enum SwapSummaryStepBuilder {
     struct IO {
-        let input: SendSummaryInput
-        let output: SendSummaryOutput
+        let input: SwapSummaryInput
+        let output: SwapSummaryOutput
         let sourceTokenInput: SendSourceTokenInput
         let sourceTokenAmountInput: SendSourceTokenAmountInput
         let receiveTokenInput: SendReceiveTokenInput

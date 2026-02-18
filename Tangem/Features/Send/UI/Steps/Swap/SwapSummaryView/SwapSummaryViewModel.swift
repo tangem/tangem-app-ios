@@ -62,12 +62,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
             .assign(to: &$mainButtonIcon)
     }
 
-    func bind(swapProvidersInput: SendSwapProvidersInput) {
-        swapProvidersInput.selectedExpressProviderPublisher.compactMap { $0?.value }
-            .map { $0.manager.pair.isSameNetwork && $0.manager.isFeeCurrency }
-            .assign(to: &$isMaxAmountButtonHidden)
-    }
-
     func userDidTapSwapProvider() {
         router?.summaryStepRequestEditProviders()
     }
@@ -76,7 +70,9 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
-    func userDidTapMaxAmount() {}
+    func userDidTapMaxAmount() {
+        interactor.userDidRequestMaxAmount()
+    }
 
     func userDidTapMainActionButton() {
         interactor.userDidRequestSwap()
@@ -115,6 +111,11 @@ private extension SwapSummaryViewModel {
             .transactionDescription
             .receiveOnMain()
             .assign(to: &$transactionDescription)
+
+        interactor
+            .isMaxAmountButtonHiddenPublisher
+            .receiveOnMain()
+            .assign(to: &$isMaxAmountButtonHidden)
 
         interactor
             .isNotificationButtonIsLoading
