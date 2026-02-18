@@ -25,7 +25,7 @@ class CommonSendAmountInteractorSaver: SendAmountInteractorSaver {
     var updater: SendAmountExternalUpdater?
 
     private var captureAmount: SendAmount?
-    private var captureToken: SendReceiveTokenType?
+    private var captureToken: SendReceiveToken?
 
     init(
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
@@ -45,18 +45,18 @@ class CommonSendAmountInteractorSaver: SendAmountInteractorSaver {
 
     func captureValue() {
         captureAmount = sourceTokenAmountInput?.sourceAmount.value
-        captureToken = receiveTokenInput?.receiveToken
+        captureToken = receiveTokenInput?.receiveToken.value
     }
 
     func cancelChanges() {
         updater?.externalUpdate(amount: captureAmount?.main)
         sourceTokenAmountOutput?.sourceAmountDidChanged(amount: captureAmount)
 
-        if let captureToken, captureToken != receiveTokenInput?.receiveToken {
+        if captureToken?.tokenItem != receiveTokenInput?.receiveToken.value?.tokenItem {
             switch captureToken {
-            case .same:
+            case .none:
                 receiveTokenOutput?.userDidRequestClearSelection()
-            case .swap(let receiveToken):
+            case .some(let receiveToken):
                 receiveTokenOutput?.userDidRequestSelect(receiveToken: receiveToken, selected: { _ in })
             }
         }
