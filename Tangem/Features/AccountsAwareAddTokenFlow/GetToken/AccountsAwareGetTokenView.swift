@@ -32,7 +32,7 @@ struct AccountsAwareGetTokenView: View {
                 GetTokenActionRowView(
                     icon: Assets.exchangeMini,
                     title: Localization.commonExchange,
-                    subtitle: Localization.exсhangeTokenDescription
+                    subtitle: Localization.exchangeTokenDescription
                 )
                 .asTappableRow { viewModel.handleViewEvent(.exchangeTapped) }
 

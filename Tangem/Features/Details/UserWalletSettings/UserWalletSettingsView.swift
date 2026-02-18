@@ -57,23 +57,28 @@ struct UserWalletSettingsView: View {
     }
 
     @ViewBuilder
+    private var walletIcon: some View {
+        if let walletImage = viewModel.walletImage {
+            walletImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 40, height: 40)
+                .cornerRadius(10)
+        }
+    }
+
+    @ViewBuilder
     private var walletRenameSubsection: some View {
         if FeatureProvider.isAvailable(.accounts) {
-            InfoRowWithAction(
-                icon: {
-                    if let walletImage = viewModel.walletImage {
-                        walletImage
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 40, height: 40)
-                            .cornerRadius(10)
-                    }
-                },
-                title: Localization.settingsWalletNameTitle,
-                value: viewModel.name,
-                actionTitle: Localization.commonRename,
-                onAction: viewModel.onTapNameField
-            )
+            Button(action: viewModel.onTapNameField) {
+                InfoRowWithAction(
+                    icon: { walletIcon },
+                    title: Localization.settingsWalletNameTitle,
+                    value: viewModel.name,
+                    actionTitle: Localization.commonRename,
+                    onAction: viewModel.onTapNameField
+                )
+            }
         } else {
             DefaultTextFieldRowView(
                 title: Localization.settingsWalletNameTitle,
