@@ -27,7 +27,7 @@ struct PickerView: View {
 }
 
 private struct ButtonComponentDemoView: View {
-    @State private var cornerStyle: _Button.CornerStyle = .default
+    @State private var cornerStyle: _Button.CornerStyle = .rectangular
     @State private var styleType: _Button.StyleType = .accent
     @State private var buttonState: _Button.ButtonState = .normal
     @State private var content: _Button.Content = .text("Button")
@@ -35,7 +35,7 @@ private struct ButtonComponentDemoView: View {
     @State private var size: _Button.Size = .x12
 
     let cornerStyles: [_Button.CornerStyle] = [
-        .default,
+        .rectangular,
         .rounded,
     ]
 
@@ -80,7 +80,7 @@ private struct ButtonComponentDemoView: View {
     var body: some View {
         VStack(spacing: 8) {
             PickerView(contents: [
-                "default",
+                "rectangular",
                 "rounded",
             ], selection: .init(get: {
                 cornerStyles.firstIndex(of: cornerStyle)!
