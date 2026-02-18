@@ -11,7 +11,7 @@ import TangemAssets
 
 public extension TangemButton {
     enum CornerStyle: Equatable, Sendable {
-        case `default`
+        case rectangular
         case rounded
     }
 
