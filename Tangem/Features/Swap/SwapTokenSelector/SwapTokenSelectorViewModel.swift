@@ -27,6 +27,13 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private var selectedTokenItem: TokenItem?
 
+    // MARK: - Computed
+
+    /// Returns true if user has searched during this session
+    var userHasSearchedDuringThisSession: Bool {
+        marketsTokensViewModel?.userHasSearchedDuringThisSession ?? false
+    }
+
     init(
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
@@ -120,7 +127,8 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
                 coinId: token.id,
                 coinName: token.name,
                 coinSymbol: token.symbol,
-                networks: networks
+                networks: networks,
+                userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
             )
 
             marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)

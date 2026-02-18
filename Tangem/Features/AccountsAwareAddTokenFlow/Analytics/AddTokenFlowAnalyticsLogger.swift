@@ -13,6 +13,13 @@ protocol AddTokenFlowAnalyticsLogger: AddTokenAnalyticsLogger, GetTokenAnalytics
 
 protocol AddTokenAnalyticsLogger {
     func logTokenAdded(tokenItem: TokenItem, isMainAccount: Bool)
+    func logAddTokenButtonTapped()
+    func logAddTokenScreenOpened()
+}
+
+extension AddTokenAnalyticsLogger {
+    func logAddTokenButtonTapped() {}
+    func logAddTokenScreenOpened() {}
 }
 
 // MARK: - GetTokenAnalyticsLogger
@@ -27,5 +34,5 @@ protocol GetTokenAnalyticsLogger {
 // MARK: - AccountSelectorAnalyticsLogger
 
 protocol AccountSelectorAnalyticsLogger {
-    func logAccountSelectorOpened()
+    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?)
 }
