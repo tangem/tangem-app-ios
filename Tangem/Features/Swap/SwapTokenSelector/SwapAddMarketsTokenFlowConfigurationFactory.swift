@@ -47,22 +47,12 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
             postAddBehavior: .executeAction { [weak additionRoutable] tokenItem, accountSelectorCell in
                 guard let additionRoutable else { return }
 
-                let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
-                    $0.tokenItem == tokenItem
-                }
-
-                guard let walletModel else {
-                    return
-                }
-
-                let item = AccountsAwareTokenSelectorItem(
-                    userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
-                    account: accountSelectorCell.cryptoAccountModel,
-                    walletModel: walletModel
-                )
-
-                Task { @MainActor in
-                    await additionRoutable.didAddMarketToken(item: item)
+                Task {
+                    await handleTokenAdded(
+                        tokenItem: tokenItem,
+                        accountSelectorCell: accountSelectorCell,
+                        additionRoutable: additionRoutable
+                    )
                 }
             },
             accountFilter: { account, supportedBlockchains in
@@ -77,5 +67,50 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
             },
             analyticsLogger: analyticsLogger
         )
+    }
+
+    @MainActor
+    private static func handleTokenAdded(
+        tokenItem: TokenItem,
+        accountSelectorCell: AccountSelectorCellModel,
+        additionRoutable: SwapMarketsTokenAdditionRoutable,
+        retryCount: Int = 0
+    ) async {
+        let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
+            $0.tokenItem == tokenItem
+        }
+
+        if let walletModel {
+            let item = AccountsAwareTokenSelectorItem(
+                userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
+                account: accountSelectorCell.cryptoAccountModel,
+                walletModel: walletModel
+            )
+            await additionRoutable.didAddMarketToken(item: item)
+            return
+        }
+
+        guard retryCount < Constants.maxWalletModelRetries else {
+            AppLogger.debug("Failed to find wallet model for \(tokenItem) after \(retryCount) retries")
+            return
+        }
+
+        try? await Task.sleep(for: Constants.walletModelRetryDelay)
+
+        await handleTokenAdded(
+            tokenItem: tokenItem,
+            accountSelectorCell: accountSelectorCell,
+            additionRoutable: additionRoutable,
+            retryCount: retryCount + 1
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension SwapAddMarketsTokenFlowConfigurationFactory {
+    enum Constants {
+        static let walletModelRetryDelay: Duration = .milliseconds(100)
+        static let maxWalletModelRetries = 20
     }
 }
