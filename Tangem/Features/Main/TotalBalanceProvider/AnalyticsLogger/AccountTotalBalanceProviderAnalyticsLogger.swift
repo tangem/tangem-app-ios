@@ -8,6 +8,7 @@
 
 import Combine
 
+/// `TotalBalanceProviderAnalyticsLogger` should be use for each special account. Not for general combined total balance
 class AccountTotalBalanceProviderAnalyticsLogger {}
 
 // MARK: - TotalBalanceProviderAnalyticsLogger
