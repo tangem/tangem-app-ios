@@ -368,7 +368,7 @@ final class UserWalletNotificationManager {
                 .pendingDerivationsCount
         }
 
-        return userWalletModel
+        let crypto = userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
@@ -378,6 +378,22 @@ final class UserWalletNotificationManager {
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
+
+        let tangemPay = userWalletModel.accountModelsManager
+            .tangemPayAccountModelPublisher
+            .flatMapLatest { accountModel -> AnyPublisher<Int, Never> in
+                guard let accountModel else {
+                    return Just(0).eraseToAnyPublisher()
+                }
+
+                return accountModel
+                    .statePublisher
+                    .map { $0.isSyncNeeded || $0.isSyncInProgress ? 1 : 0 }
+                    .eraseToAnyPublisher()
+            }
+
+        return Publishers.CombineLatest(crypto, tangemPay)
+            .map(+)
             .eraseToAnyPublisher()
     }
 
