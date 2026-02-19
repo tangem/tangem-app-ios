@@ -17,11 +17,6 @@ protocol AddTokenAnalyticsLogger {
     func logAddTokenScreenOpened()
 }
 
-extension AddTokenAnalyticsLogger {
-    func logAddTokenButtonTapped() {}
-    func logAddTokenScreenOpened() {}
-}
-
 // MARK: - GetTokenAnalyticsLogger
 
 protocol GetTokenAnalyticsLogger {
@@ -34,5 +29,5 @@ protocol GetTokenAnalyticsLogger {
 // MARK: - AccountSelectorAnalyticsLogger
 
 protocol AccountSelectorAnalyticsLogger {
-    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?)
+    func logAccountSelectorOpened()
 }
