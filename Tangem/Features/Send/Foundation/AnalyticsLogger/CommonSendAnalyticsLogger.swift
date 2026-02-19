@@ -332,6 +332,52 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     }
 }
 
+// MARK: - SendApproveAnalyticsLogger
+
+extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy) {
+        var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+            analyticsParameters[.provider] = provider.provider.name
+        }
+
+        if let source = sendSourceTokenInput?.sourceToken.value {
+            analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+            analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        analyticsParameters[.type] = switch policy {
+        case .specified: Analytics.ParameterValue.oneTransactionApprove.rawValue
+        case .unlimited: Analytics.ParameterValue.unlimitedApprove.rawValue
+        }
+
+        Analytics.log(event: .swapButtonPermissionApprove, params: analyticsParameters)
+    }
+
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
+        let permissionType: Analytics.ParameterValue = switch policy {
+        case .specified: .oneTransactionApprove
+        case .unlimited: .unlimitedApprove
+        }
+
+        Analytics.log(event: .transactionSent, params: [
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            .blockchain: tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+            .walletForm: signerType,
+            .selectedHost: currentProviderHost,
+        ], analyticsSystems: .all)
+    }
+}
+
 // MARK: - SendFinishAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
