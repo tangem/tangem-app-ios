@@ -25,6 +25,13 @@ public struct TangemPayEnrollmentStateFetcher {
         let customerInfo = try await customerService.loadCustomerInfo()
         let customerId = customerInfo.id
 
+        guard customerInfo.kyc?.status == .approved else {
+            if case .declined = customerInfo.kyc?.status {
+                return (.kycDeclined, customerId)
+            }
+            return (.kycRequired, customerId)
+        }
+
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
             case .active, .blocked:
@@ -33,13 +40,6 @@ public struct TangemPayEnrollmentStateFetcher {
             default:
                 break
             }
-        }
-
-        guard customerInfo.kyc?.status == .approved else {
-            if case .declined = customerInfo.kyc?.status {
-                return (.kycDeclined, customerId)
-            }
-            return (.kycRequired, customerId)
         }
 
         return (.issuingCard, customerId)
