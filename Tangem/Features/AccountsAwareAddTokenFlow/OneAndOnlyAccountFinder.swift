@@ -23,11 +23,14 @@ enum OneAndOnlyAccountFinder {
             return nil
         }
 
-        let cryptoAccountModel = switch accountModel {
+        let cryptoAccountModel: (any CryptoAccountModel)? = switch accountModel {
         case .standard(.multiple(let cryptoAccountModels)):
             cryptoAccountModels.singleElement
         case .standard(.single(let model)):
             model
+        case .tangemPay:
+            // Currently it's impossible to have TangemPay account without having any other account
+            nil
         }
 
         guard let cryptoAccountModel else {
