@@ -47,7 +47,6 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
                 NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
             }
 
             // [REDACTED_TODO_COMMENT]
