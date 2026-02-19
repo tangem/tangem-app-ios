@@ -860,7 +860,6 @@ extension SendModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
-             .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
