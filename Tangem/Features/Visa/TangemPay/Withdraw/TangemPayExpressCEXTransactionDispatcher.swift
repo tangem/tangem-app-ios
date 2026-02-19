@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 import TangemExpress
 import TangemVisa
 
@@ -35,10 +36,23 @@ extension TangemPayExpressCEXTransactionDispatcher: TransactionDispatcher {
             walletPublicKey: walletPublicKey
         )
 
-        let orderResponse = try await withdrawTransactionService
-            .getOrder(id: result.orderID)
+        try? await Task.sleep(for: .seconds(3)) // approximate wait for the server to generate txHash
 
-        guard let txHash = orderResponse.data?.transactionHash else {
+        let pollingSequence = PollingSequence(
+            interval: Self.interval,
+            request: { [withdrawTransactionService] in
+                try await withdrawTransactionService.getOrder(id: result.orderID)
+            }
+        )
+
+        let txHash = await pollingSequence
+            .prefix(5)
+            .first(where: { $0.value?.data?.transactionHash != nil })?
+            .value?
+            .data?
+            .transactionHash
+
+        guard let txHash else {
             throw Error.transactionHashNotFound
         }
 
@@ -55,4 +69,6 @@ extension TangemPayExpressCEXTransactionDispatcher {
         case walletPublicKeyNotFound
         case transactionHashNotFound
     }
+
+    static let interval: TimeInterval = 3
 }
