@@ -309,10 +309,6 @@ extension Analytics {
         case swapFeeSelected = "[Swap] Fee Selected"
 
         case swapTokenSelected = "[Swap] Token Selected"
-        case swapChooseWalletScreenOpened = "[Swap] Choose Wallet Screen Opened"
-        case swapAddTokenScreenOpened = "[Swap] Add Token Screen Opened"
-        case swapButtonAddToken = "[Swap] Button - Add Token"
-        case swapTokenAdded = "[Swap] Token Added"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
 
         // MARK: - Seed phrase
@@ -503,6 +499,9 @@ extension Analytics {
         case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
         case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
         case marketsChartPopupGetTokenButtonLater = "[Markets / Chart] Popup Get token - Button Later"
+        case marketsChartAddTokenScreenOpened = "[Markets / Chart] Add Token Screen Opened"
+        case marketsChartButtonAddToken = "[Markets / Chart] Button - Add Token"
+        case marketsChartTokenAdded = "[Markets / Chart] Token Added"
 
         // MARK: - Manage Tokens
 
