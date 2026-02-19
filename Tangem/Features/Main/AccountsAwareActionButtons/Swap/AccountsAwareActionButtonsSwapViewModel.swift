@@ -108,6 +108,7 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
         case .placeholder:
             Task { await updateSourceToken(item: item) }
         case .token:
+            logPortfolioTokenSelected(item: item)
             Task { await openExpressWithDestination(item: item) }
         }
     }
@@ -297,6 +298,14 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             let tokenHeader = provider.makeHeader()
             return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: tokenHeader)
         }
+    }
+
+    func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
+            source: .portfolio,
+            userHasSearchedDuringThisSession: false
+        )
+        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
     }
 }
 
