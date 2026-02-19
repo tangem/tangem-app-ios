@@ -775,7 +775,6 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
-             .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
