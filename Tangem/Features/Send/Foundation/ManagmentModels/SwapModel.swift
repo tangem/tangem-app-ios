@@ -642,6 +642,7 @@ extension SwapModel: SendSwapProvidersInput {
 
     var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
         _providersState
+            .filter { $0.filter(loading: [.rates]) }
             .withWeakCaptureOf(self)
             .map { $0.mapToLoadingExpressAvailableProvider(providersState: $1) }
             .eraseToAnyPublisher().eraseToAnyPublisher()
@@ -702,16 +703,22 @@ extension SwapModel: SendFeeInput {
     }
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
-        selectedExpressProviderPublisher
+        _providersState
+            // Ignore all loading
+            .filter { $0.filter(loading: []) }
             .withWeakCaptureOf(self)
-            .map { $0.mapToShouldShowFeeSelectorRow(selectedProvider: $1) }
+            .map { $0.mapToShouldShowFeeSelectorRow(providersState: $1) }
             .eraseToAnyPublisher().eraseToAnyPublisher()
     }
 
-    private func mapToShouldShowFeeSelectorRow(selectedProvider: LoadingResult<ExpressAvailableProvider, any Error>?) -> Bool {
-        switch selectedProvider?.value?.getState() {
-        case .preview, .ready: return true
-        default: return false
+    private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
+        switch providersState {
+        case .loaded(_, state: .restriction(.notEnoughAmountForFee, _)),
+             .loaded(_, state: .previewCEX),
+             .loaded(_, state: .readyToSwap):
+            return true
+        default:
+            return false
         }
     }
 }
@@ -726,6 +733,10 @@ extension SwapModel: FeeSelectorOutput {
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
         tokenFeeProvidersManager?.update(feeOption: feeOption)
+
+        updateTask(loadingType: .fee) { manager in
+            try await manager.update(by: .autoUpdate)
+        }
     }
 }
 
