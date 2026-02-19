@@ -19,6 +19,7 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var header: SendTokenHeader { get }
     var tokenHeader: ExpressInteractorTokenHeader? { get }
     var feeTokenItem: TokenItem { get }
+    var isExemptFee: Bool { get }
     var isCustom: Bool { get }
     var possibleToConvertToFiat: Bool { get }
     var defaultAddressString: String { get }
@@ -31,6 +32,9 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var transactionCreator: TransactionCreator { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
+
+    var sendingRestrictionsProvider: any SendingRestrictionsProvider { get }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
@@ -61,6 +65,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let tokenHeader: ExpressInteractorTokenHeader?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
+    let isExemptFee: Bool
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
     let isCustom: Bool
@@ -80,6 +85,9 @@ struct CommonSendSourceToken: SendSourceToken {
     let tokenFeeProvidersManager: TokenFeeProvidersManager
 
     // Common providers
+
+    let sendingRestrictionsProvider: any SendingRestrictionsProvider
+    let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
 
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let transactionDispatcherProvider: any TransactionDispatcherProvider
