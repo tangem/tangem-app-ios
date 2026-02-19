@@ -4101,6 +4101,7 @@
 		EF48F74B2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F74A2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift */; };
 		EF48F7B62F473F6C00AF698B /* SendingRestrictionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */; };
 		EF48F7B92F4749D200AF698B /* ReceivingRestrictionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */; };
+		EF48F7BB2F47510D00AF698B /* SwapNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7BA2F47510D00AF698B /* SwapNotificationManager.swift */; };
 		EF496EF82F39D81C003DFA2D /* TransactionDispatcherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF496EF72F39D81C003DFA2D /* TransactionDispatcherProvider.swift */; };
 		EF496EFA2F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF496EF92F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift */; };
 		EF49C05D2CAD70320062AF06 /* OnrampManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49C05C2CAD70310062AF06 /* OnrampManager.swift */; };
@@ -8988,6 +8989,7 @@
 		EF48F74A2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectorViewModelBuilder.swift; sourceTree = "<group>"; };
 		EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendingRestrictionsProvider.swift; sourceTree = "<group>"; };
 		EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivingRestrictionsProvider.swift; sourceTree = "<group>"; };
+		EF48F7BA2F47510D00AF698B /* SwapNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapNotificationManager.swift; sourceTree = "<group>"; };
 		EF496EF72F39D81C003DFA2D /* TransactionDispatcherProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherProvider.swift; sourceTree = "<group>"; };
 		EF496EF92F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelTransactionDispatcherProvider.swift; sourceTree = "<group>"; };
 		EF49C05C2CAD70310062AF06 /* OnrampManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampManager.swift; sourceTree = "<group>"; };
@@ -25635,6 +25637,7 @@
 			isa = PBXGroup;
 			children = (
 				EFADE7A02E127D6A00CA7916 /* SendWithSwapNotificationManager.swift */,
+				EF48F7BA2F47510D00AF698B /* SwapNotificationManager.swift */,
 				DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */,
 				DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */,
 			);
@@ -27188,6 +27191,7 @@
 				2DE2A3B32F2A2BC30097CA73 /* EarnWidgetView.swift in Sources */,
 				2DE2A3B42F2A2BC30097CA73 /* EarnWidgetRoutable.swift in Sources */,
 				2DE2A3B52F2A2BC30097CA73 /* EarnWidgetViewModel.swift in Sources */,
+				EF48F7BB2F47510D00AF698B /* SwapNotificationManager.swift in Sources */,
 				2DE2A3B62F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift in Sources */,
 				C207D6032DE60EFF00A5FB2E /* WalletConnectDAppBlockchainsAvailabilityResult.swift in Sources */,
 				0F261B532F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift in Sources */,

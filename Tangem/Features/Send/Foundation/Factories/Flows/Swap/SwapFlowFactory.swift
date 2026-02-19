@@ -16,7 +16,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
     lazy var swapModel = makeSwapModel(analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: swapModel)
+    lazy var notificationManager = makeSwapNotificationManager()
 
     init(
         sourceToken: SendSourceToken,
@@ -58,6 +58,14 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         // Steps setup
         fee.compact.bind(input: swapModel)
         fee.finish.bind(input: swapModel)
+
+        // Notifications setup
+        notificationManager.setupManager(with: swapModel)
+        notificationManager.setup(
+            sourceTokenInput: swapModel,
+            receiveTokenInput: swapModel,
+            swapModelStateProvider: swapModel
+        )
 
         // Logger setup
         analyticsLogger.setup(sendFeeInput: swapModel)
