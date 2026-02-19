@@ -133,8 +133,9 @@ extension SwapModel {
                 case .none:
                     input._providersState.send(.idle)
 
-                case .some(let selectedProvider):
-                    input._providersState.send(.loaded(selectedProvider))
+                case .some(let updatingResult):
+                    let state = try await input.mapToLoadedState(result: updatingResult)
+                    input._providersState.send(.loaded(updatingResult, state: state))
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
@@ -143,6 +144,107 @@ extension SwapModel {
                 input._providersState.send(.failure(error))
             }
         })
+    }
+}
+
+// MARK: - Map
+
+extension SwapModel {
+    func mapToLoadedState(result: ExpressManagerUpdatingResult) async throws -> LoadedState {
+        if result.providers.isEmpty {
+            // No available providers
+        }
+
+        guard let selected = result.selected else {
+            return .idle
+        }
+
+        let tokenFeeProvidersManager = try selected.getTokenFeeProvidersManager()
+
+        switch selected.getState() {
+        case .idle:
+            return .idle
+
+        case .error(let error, .none):
+            return .requiredRefresh(occurredError: error, quote: .none)
+
+        case .error(let error, .some(let quote)):
+            let quote = try await map(provider: selected.provider, quote: quote)
+            return .requiredRefresh(occurredError: error, quote: quote)
+
+        case .restriction(let restriction, .none):
+            let restriction = map(restriction: restriction, tokenFeeProvidersManager: tokenFeeProvidersManager)
+            return .restriction(restriction, quote: .none)
+
+        case .restriction(let restriction, .some(let quote)):
+            let quote = try await map(provider: selected.provider, quote: quote)
+            let restriction = map(restriction: restriction, tokenFeeProvidersManager: tokenFeeProvidersManager)
+            return .restriction(restriction, quote: quote)
+
+        case .permissionRequired(let permissionRequired) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
+        case .preview(let previewCEX) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: previewCEX.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
+        case .ready(let ready) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: ready.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
+        case .permissionRequired(let permissionRequired):
+            return try await map(permissionRequired: permissionRequired, in: context)
+
+        case .preview(let previewCEX):
+            return try await map(previewCEX: previewCEX, in: context)
+
+        case .ready(let ready):
+            return try await map(ready: ready, in: context)
+        }
+    }
+
+    func map(provider: ExpressProvider, quote: ExpressQuote) async throws -> Quote {
+        let highPriceImpact = try await calculateHighPriceImpact(provider: provider, quote: quote)
+        return Quote(fromAmount: quote.fromAmount, expectAmount: quote.expectAmount, highPriceImpact: highPriceImpact)
+    }
+
+    func calculateHighPriceImpact(provider: ExpressProvider, quote: ExpressQuote?) async throws -> HighPriceImpactCalculator.Result? {
+        guard let quote, let source = sourceToken.value?.tokenItem, let destination = receiveToken.value?.tokenItem else {
+            return nil
+        }
+
+        let priceImpactCalculator = HighPriceImpactCalculator(source: source, destination: destination)
+        let result = try await priceImpactCalculator.isHighPriceImpact(provider: provider, quote: quote)
+        return result
+    }
+
+    func hasPendingTransaction() -> Bool {
+        let hasPendingTransaction = false // sourceToken.value?.sendingRestrictions?.isHasPendingTransaction
+        return hasPendingTransaction ?? false
+    }
+
+    func map(restriction: ExpressRestriction, tokenFeeProvidersManager: TokenFeeProvidersManager) -> RestrictionType {
+        switch restriction {
+        case .tooSmallAmount(let minAmount):
+            return .tooSmallAmountForSwapping(minAmount: minAmount)
+
+        case .tooBigAmount(let maxAmount):
+            return .tooBigAmountForSwapping(maxAmount: maxAmount)
+
+        case .approveTransactionInProgress:
+            return .hasPendingApproveTransaction
+
+        case .insufficientBalance(let requiredAmount):
+            return .notEnoughBalanceForSwapping(requiredAmount: requiredAmount)
+
+        case .feeCurrencyHasZeroBalance(let isFeeCurrency):
+            let supportFeeSelection = tokenFeeProvidersManager.supportFeeSelection
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
+
+        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
+            return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
+        }
     }
 }
 
@@ -357,7 +459,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         case .failure(let error):
             return .failure(error)
 
-        case .loaded(let result):
+        case .loaded(let result, _):
             guard let quote = result.selected?.getState().quote else {
                 return .failure(SendAmountError.noAmount)
             }
@@ -427,7 +529,7 @@ extension SwapModel: SendSwapProvidersInput {
         case .failure(let error): return .failure(error)
         case .loading(.rates): return .loading
         case .loading: return .none
-        case .loaded(let result): return result.selected.map { .success($0) }
+        case .loaded(let result, _): return result.selected.map { .success($0) }
         }
     }
 }
@@ -514,14 +616,13 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> {
-        Publishers
-            .CombineLatest3(
-                selectedExpressProviderPublisher.compactMap { $0?.value?.manager.isFeeCurrency },
-                sourceTokenPublisher.compactMap(\.value),
-                receiveTokenPublisher.compactMap(\.value),
-            )
-            .map { $0 && $1.tokenItem.blockchain == $2.tokenItem.blockchain }
-            .eraseToAnyPublisher()
+        Publishers.CombineLatest3(
+            selectedExpressProviderPublisher.map { $0?.value?.manager.isFeeCurrency ?? true },
+            sourceTokenPublisher.compactMap(\.value),
+            receiveTokenPublisher.compactMap(\.value),
+        )
+        .map { $0 && $1.tokenItem.blockchain == $2.tokenItem.blockchain }
+        .eraseToAnyPublisher()
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
@@ -630,18 +731,11 @@ extension SwapModel {
         case loading(LoadingType)
         /// Error only for case when all providers didn't loaded
         case failure(Error)
-        case loaded(ExpressManagerUpdatingResult)
-
-        var selectedProvider: ExpressAvailableProvider? {
-            switch self {
-            case .loaded(let result): result.selected
-            default: nil
-            }
-        }
+        case loaded(ExpressManagerUpdatingResult, state: LoadedState)
 
         var providers: [ExpressAvailableProvider] {
             switch self {
-            case .loaded(let result): result.providers
+            case .loaded(let result, _): result.providers
             default: []
             }
         }
@@ -653,5 +747,68 @@ extension SwapModel {
         case rates
         case autoupdate
         case fee
+    }
+
+    enum LoadedState {
+        case idle
+        case requiredRefresh(occurredError: Error, quote: Quote?)
+        case restriction(RestrictionType, quote: Quote?)
+        case permissionRequired(PermissionRequiredState)
+        case previewCEX(PreviewCEXState)
+        case readyToSwap(ReadyToSwapState)
+    }
+
+    struct Quote: Hashable {
+        let fromAmount: Decimal
+        let expectAmount: Decimal
+        let highPriceImpact: HighPriceImpactCalculator.Result?
+    }
+
+    enum RestrictionType {
+        case tooSmallAmountForSwapping(minAmount: Decimal)
+        case tooBigAmountForSwapping(maxAmount: Decimal)
+        case hasPendingTransaction
+        case hasPendingApproveTransaction
+        case notEnoughBalanceForSwapping(requiredAmount: Decimal)
+        case notEnoughAmountForFee(isFeeCurrency: Bool, supportFeeSelection: Bool)
+        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
+        case validationError(error: ValidationError, context: ValidationErrorContext)
+        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+    }
+
+    struct PermissionRequiredState {
+        let quote: Quote
+        let policy: BSDKApprovePolicy
+        let data: ApproveTransactionData
+        let fee: ApproveInputFee
+    }
+
+    struct PreviewCEXState {
+        let quote: Quote
+        let subtractFee: SubtractFee
+        let isExemptFee: Bool
+        let notification: WithdrawalNotification?
+    }
+
+    struct SubtractFee {
+        let feeTokenItem: TokenItem
+        let subtractFee: Decimal
+    }
+
+    struct ReadyToSwapState {
+        let quote: Quote
+        let data: ExpressTransactionData
+    }
+}
+
+// MARK: - ExpressAvailableProvider+
+
+extension ExpressAvailableProvider {
+    func getTokenFeeProvidersManager() throws -> TokenFeeProvidersManager {
+        guard let tokenFeeProvidersManager = manager.feeProvider as? TokenFeeProvidersManager else {
+            throw ExpressInteractorError.feeNotFound
+        }
+
+        return tokenFeeProvidersManager
     }
 }
