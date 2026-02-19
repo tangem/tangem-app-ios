@@ -156,20 +156,27 @@ private extension CommonUserWalletModelDependencies {
         walletModelsManager: WalletModelsManager,
         derivationManager: DerivationManager?
     ) -> TotalBalanceProvider {
+        let analyticsLogger: TotalBalanceProviderAnalyticsLogger = hasAccounts
+            ? CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager
+            )
+            : CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager
+            )
+
         // Create base provider based on accounts mode
         // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
         // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
         hasAccounts
             ? AccountsAwareTotalBalanceProvider(
                 accountModelsManager: accountModelsManager,
-                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+                analyticsLogger: analyticsLogger
             )
             : WalletModelsTotalBalanceProvider(
                 walletModelsManager: walletModelsManager,
-                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
-                    userWalletId: userWalletId,
-                    walletModelsManager: walletModelsManager
-                ),
+                analyticsLogger: analyticsLogger,
                 derivationManager: derivationManager
             )
     }
