@@ -119,11 +119,10 @@ private extension SwapTokenSelectorViewModel {
 
     func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
-            coinSymbol: item.walletModel.tokenItem.currencySymbol,
             source: .portfolio,
-            userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
+            userHasSearchedDuringThisSession: false
         )
-        analyticsLogger.logTokenSelected()
+        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
     }
 }
 
