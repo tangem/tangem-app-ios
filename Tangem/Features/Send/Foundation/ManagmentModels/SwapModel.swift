@@ -13,6 +13,10 @@ import TangemExpress
 import TangemMacro
 import TangemFoundation
 
+protocol SwapModelStateProvider: AnyObject {
+    var statePublisher: AnyPublisher<SwapModel.ProvidersState, Never> { get }
+}
+
 protocol SwapModelRoutable: AnyObject {
     func openNetworkCurrency()
     func openApproveSheet()
@@ -412,6 +416,14 @@ extension SwapModel {
                 _sourceToken.send(.failure(error))
             }
         }
+    }
+}
+
+// MARK: - SwapModelStateProvider
+
+extension SwapModel: SwapModelStateProvider {
+    var statePublisher: AnyPublisher<ProvidersState, Never> {
+        _providersState.eraseToAnyPublisher()
     }
 }
 
@@ -829,6 +841,88 @@ extension SwapModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         false
+    }
+}
+
+// MARK: - NotificationTapDelegate
+
+extension SwapModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .refreshFee:
+            let tokenFeeProvidersManager = try? selectedExpressProvider?.get().getTokenFeeProvidersManager()
+            tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+        case .openFeeCurrency:
+            router?.openNetworkCurrency()
+        case .leaveAmount(let amount, _):
+            sourceToken.value?.availableBalanceProvider.balanceType.value.flatMap {
+                leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
+            }
+        case .reduceAmountBy(let amount, _, _):
+            _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
+        case .reduceAmountTo(let amount, _):
+            reduceAmountTo(amount)
+        case .refresh:
+            swappingPairDidChange()
+        case .givePermission:
+            router?.openApproveSheet()
+        case .generateAddresses,
+             .backupCard,
+             .goToProvider,
+             .addHederaTokenAssociation,
+             .retryKaspaTokenTransaction,
+             .stake,
+             .openLink,
+             .swap,
+             .openFeedbackMail,
+             .openAppStoreReview,
+             .empty,
+             .support,
+             .openCurrency,
+             .seedSupportYes,
+             .seedSupportNo,
+             .seedSupport2Yes,
+             .seedSupport2No,
+             .unlock,
+             .addTokenTrustline,
+             .openMobileFinishActivation,
+             .openMobileUpgrade,
+             .closeMobileUpgrade,
+             .tangemPaySync,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest,
+             .activate,
+             .openCloreMigration:
+            assertionFailure("Notification tap not handled")
+        }
+    }
+
+    private func leaveMinimalAmountOnBalance(amountToLeave amount: Decimal, balance: Decimal) {
+        var newAmount = balance - amount
+
+        if let fee = selectedFee?.value.value?.amount, sourceToken.value?.tokenItem.amountType == fee.type {
+            // In case when fee can be more that amount
+            newAmount = max(0, newAmount - fee.value)
+        }
+
+        // Amount will be changed automatically via SendAmountOutput
+        externalAmountUpdater.externalUpdate(amount: newAmount)
+    }
+
+    private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
+        var newAmount = source - amount
+
+        // if _isFeeIncluded.value, let feeValue = selectedFee?.value.value?.amount.value {
+        //     newAmount = newAmount - feeValue
+        // }
+
+        // Amount will be changed automatically via SendAmountOutput
+        externalAmountUpdater.externalUpdate(amount: newAmount)
+    }
+
+    private func reduceAmountTo(_ amount: Decimal) {
+        // Amount will be changed automatically via SendAmountOutput
+        externalAmountUpdater.externalUpdate(amount: amount)
     }
 }
 
