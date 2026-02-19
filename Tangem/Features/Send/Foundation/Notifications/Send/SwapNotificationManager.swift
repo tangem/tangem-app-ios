@@ -139,7 +139,7 @@ private extension CommonSwapNotificationManager {
                 ),
             ]
 
-        case .requiredRefresh(occurredError: let occurredError, _):
+        case .requiredRefresh:
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
         case .restriction(.tooSmallAmountForSwapping(let minAmount), _):
@@ -159,8 +159,11 @@ private extension CommonSwapNotificationManager {
             return []
 
         case .restriction(.validationError(let validationError, let context), _):
-            let event = mapValidationError(source: source, validationError: validationError, context: context)
-            return event.map { [$0] } ?? []
+            if let event = mapValidationError(source: source, validationError: validationError, context: context) {
+                return [event]
+            }
+
+            return []
 
         case .restriction(.notEnoughAmountForFee(let isFeeCurrency), _) where isFeeCurrency,
              .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency:
@@ -225,7 +228,6 @@ private extension CommonSwapNotificationManager {
     func mapValidationError(source: any SendSourceToken, validationError: ValidationError, context: ValidationErrorContext) -> ExpressNotificationEvent? {
         let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
-        let event: ExpressNotificationEvent
 
         switch validationErrorEvent {
         case .invalidNumber:

@@ -24,6 +24,7 @@ extension SwapFlowBaseDependenciesFactory {
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
+            analyticsLogger: analyticsLogger,
         )
     }
 

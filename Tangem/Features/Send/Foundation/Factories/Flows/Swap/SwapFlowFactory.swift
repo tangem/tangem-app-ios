@@ -14,7 +14,6 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
     lazy var swapModel = makeSwapModel(analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeSwapNotificationManager()
 
@@ -107,7 +106,7 @@ extension SwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 baseDataInput: swapModel,
-                approveDataInput: swapManager,
+                approveDataInput: swapModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
                     sourceTokenInput: swapModel,
