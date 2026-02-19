@@ -21,12 +21,11 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         additionRoutable: SwapMarketsTokenAdditionRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
-            coinSymbol: coinSymbol,
             source: source,
             userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
         )
 
-        analyticsLogger.logTokenSelected()
+        analyticsLogger.logTokenSelected(coinSymbol: coinSymbol)
 
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in

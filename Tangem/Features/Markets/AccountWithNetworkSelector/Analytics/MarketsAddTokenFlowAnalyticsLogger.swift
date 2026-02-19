@@ -31,6 +31,20 @@ final class MarketsAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
         }
     }
 
+    func logAddTokenScreenOpened() {
+        Analytics.log(
+            event: .marketsChartAddTokenScreenOpened,
+            params: [.source: Analytics.ParameterValue.markets.rawValue]
+        )
+    }
+
+    func logAddTokenButtonTapped() {
+        Analytics.log(
+            event: .marketsChartButtonAddToken,
+            params: [.source: Analytics.ParameterValue.markets.rawValue]
+        )
+    }
+
     // MARK: - GetTokenAnalyticsLogger
 
     func logBuyTapped() {
@@ -51,17 +65,7 @@ final class MarketsAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
 
     // MARK: - AccountSelectorAnalyticsLogger
 
-    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?) {
-        var params: [Analytics.ParameterKey: String] = [:]
-
-        if let walletsCount {
-            params[.walletsCount] = String(walletsCount)
-        }
-
-        if let accountsCount {
-            params[.accountsCount] = String(accountsCount)
-        }
-
-        Analytics.log(event: .marketsChartPopupChooseAccount, params: params)
+    func logAccountSelectorOpened() {
+        Analytics.log(.marketsChartPopupChooseAccount)
     }
 }
