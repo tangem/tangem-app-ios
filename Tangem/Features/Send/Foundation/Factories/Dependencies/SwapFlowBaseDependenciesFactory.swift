@@ -26,4 +26,8 @@ extension SwapFlowBaseDependenciesFactory {
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
         )
     }
+
+    func makeSwapNotificationManager() -> SwapNotificationManager {
+        CommonSwapNotificationManager(userWalletId: sourceToken.userWalletInfo.id)
+    }
 }
