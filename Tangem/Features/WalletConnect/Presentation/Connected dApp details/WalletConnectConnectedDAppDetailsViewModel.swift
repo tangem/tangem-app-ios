@@ -199,6 +199,9 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                             walletSection = nil
                             break outer
                         }
+
+                    case .tangemPay:
+                        break outer
                     }
                 }
             }
