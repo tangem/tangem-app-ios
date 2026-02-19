@@ -50,6 +50,7 @@ final class SwapModel {
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
+    private let analyticsLogger: SendAnalyticsLogger
 
     private let balanceConverter = BalanceConverter()
     private var updateTask: Task<Void, Never>?
@@ -61,13 +62,15 @@ final class SwapModel {
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
-        expressAPIProvider: ExpressAPIProvider
+        expressAPIProvider: ExpressAPIProvider,
+        analyticsLogger: SendAnalyticsLogger
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
+        self.analyticsLogger = analyticsLogger
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
@@ -533,6 +536,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         _providersState
+            .filter { $0.filter(loading: [.rates, .providers]) }
             .withWeakCaptureOf(self)
             .map { $0.mapToReceiveSendAmount(state: $1) }
             .eraseToAnyPublisher()
@@ -844,6 +848,87 @@ extension SwapModel: SendBaseDataBuilderInput {
     }
 }
 
+// MARK: - SendApproveDataBuilderInput
+
+extension SwapModel: SendApproveDataBuilderInput {
+    var approveRequestedByExpressProvider: ExpressProvider? {
+        guard case .loaded(let loadedResult, _) = _providersState.value else {
+            return nil
+        }
+
+        return loadedResult.selected?.provider
+    }
+
+    var approveViewModelInput: (any ApproveViewModelInput)? { self }
+
+    var approveRequestedWithSelectedPolicy: ApprovePolicy? {
+        guard case .loaded(_, state: .permissionRequired(let permissionRequired)) = _providersState.value else {
+            return nil
+        }
+
+        return permissionRequired.policy
+    }
+}
+
+// MARK: - ApproveViewModelInput
+
+extension SwapModel: ApproveViewModelInput {
+    func updateApprovePolicy(policy: ApprovePolicy) {
+        updateTask(loadingType: .fee) { manager in
+            try await manager.update(approvePolicy: policy)
+        }
+    }
+
+    func sendApproveTransaction() async throws {
+        guard case .loaded(let loadedResult, state: .permissionRequired(let state)) = _providersState.value else {
+            throw ExpressInteractorError.transactionDataNotFound
+        }
+
+        guard let allowanceService = sourceToken.value?.allowanceService else {
+            throw ExpressInteractorError.allowanceServiceNotFound
+        }
+
+        analyticsLogger.logApproveTransactionAnalyticsEvent(policy: state.policy)
+        let result = try await allowanceService.sendApproveTransaction(data: state.data)
+
+        ExpressLogger.info("Sent the approve transaction with result: \(result)")
+        analyticsLogger.logApproveTransactionSentAnalyticsEvent(
+            policy: state.policy,
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
+        )
+
+        update(providersState: .loaded(loadedResult, state: .restriction(.hasPendingTransaction, quote: state.quote)))
+    }
+
+    var approveFeeValue: LoadingResult<ApproveInputFee, any Error> {
+        mapToApproveFeeLoadingValue(state: _providersState.value)
+    }
+
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
+        _providersState
+            .withWeakCaptureOf(self)
+            .compactMap { interactor, state in
+                interactor.mapToApproveFeeLoadingValue(state: state)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToApproveFeeLoadingValue(state: ProvidersState) -> LoadingResult<ApproveInputFee, any Error> {
+        switch state {
+        case .loaded(_, state: .permissionRequired(let state)):
+            return .success(state.fee)
+        case .loading:
+            return .loading
+        case .failure(let error), .loaded(_, .requiredRefresh(let error, _)):
+            return .failure(error)
+        default:
+            // As default state
+            return .loading
+        }
+    }
+}
+
 // MARK: - NotificationTapDelegate
 
 extension SwapModel: NotificationTapDelegate {
@@ -912,9 +997,12 @@ extension SwapModel: NotificationTapDelegate {
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
         var newAmount = source - amount
 
-        // if _isFeeIncluded.value, let feeValue = selectedFee?.value.value?.amount.value {
-        //     newAmount = newAmount - feeValue
-        // }
+        switch _providersState.value {
+        case .loaded(_, state: .previewCEX(let preview)) where preview.subtractFee.subtractFee > 0:
+            newAmount = newAmount - preview.subtractFee.subtractFee
+        default:
+            break
+        }
 
         // Amount will be changed automatically via SendAmountOutput
         externalAmountUpdater.externalUpdate(amount: newAmount)
@@ -934,6 +1022,8 @@ extension SwapModel: CustomStringConvertible {
     }
 }
 
+// MARK: - Inner types
+
 extension SwapModel {
     @CaseFlagable
     enum ProvidersState {
@@ -947,6 +1037,15 @@ extension SwapModel {
             switch self {
             case .loaded(let result, _): result.providers
             default: []
+            }
+        }
+
+        /// Accepted `loading types` to show some loading UI
+        /// Other `loading types` will be filtered
+        func filter(loading types: [LoadingType]) -> Bool {
+            switch self {
+            case .loading(let type): types.contains(type)
+            default: true
             }
         }
     }
