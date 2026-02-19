@@ -4099,6 +4099,8 @@
 		EF48F7472F463CB300AF698B /* CommonSwapAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7462F463CB300AF698B /* CommonSwapAmountValidator.swift */; };
 		EF48F7492F466CD100AF698B /* SwapRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7482F466CD100AF698B /* SwapRoutable.swift */; };
 		EF48F74B2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F74A2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift */; };
+		EF48F7B62F473F6C00AF698B /* SendingRestrictionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */; };
+		EF48F7B92F4749D200AF698B /* ReceivingRestrictionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */; };
 		EF496EF82F39D81C003DFA2D /* TransactionDispatcherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF496EF72F39D81C003DFA2D /* TransactionDispatcherProvider.swift */; };
 		EF496EFA2F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF496EF92F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift */; };
 		EF49C05D2CAD70320062AF06 /* OnrampManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49C05C2CAD70310062AF06 /* OnrampManager.swift */; };
@@ -8984,6 +8986,8 @@
 		EF48F7462F463CB300AF698B /* CommonSwapAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwapAmountValidator.swift; sourceTree = "<group>"; };
 		EF48F7482F466CD100AF698B /* SwapRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapRoutable.swift; sourceTree = "<group>"; };
 		EF48F74A2F466EE800AF698B /* SwapTokenSelectorViewModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectorViewModelBuilder.swift; sourceTree = "<group>"; };
+		EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendingRestrictionsProvider.swift; sourceTree = "<group>"; };
+		EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivingRestrictionsProvider.swift; sourceTree = "<group>"; };
 		EF496EF72F39D81C003DFA2D /* TransactionDispatcherProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherProvider.swift; sourceTree = "<group>"; };
 		EF496EF92F39DA28003DFA2D /* WalletModelTransactionDispatcherProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelTransactionDispatcherProvider.swift; sourceTree = "<group>"; };
 		EF49C05C2CAD70310062AF06 /* OnrampManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampManager.swift; sourceTree = "<group>"; };
@@ -24018,6 +24022,8 @@
 				DAAA3C6E2B3D79FA0002DBB0 /* TransactionParamsBuilder.swift */,
 				EF700D6D2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift */,
 				EFBBA4972E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift */,
+				EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */,
+				EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -27737,6 +27743,7 @@
 				C25E10382DFF1B900050BC26 /* WalletConnectConnectedDAppRepository.swift in Sources */,
 				DA1D3B752B56C87200247393 /* PhotoSelectorView.swift in Sources */,
 				EA9D0CEA2E83F91400B1A968 /* YieldModuleFeeFormatter.swift in Sources */,
+				EF48F7B62F473F6C00AF698B /* SendingRestrictionsProvider.swift in Sources */,
 				EFC7AD682DD770B800AE78E1 /* StringPasteButton.swift in Sources */,
 				B6F1AE042CD166D900F99DC9 /* SwiftUITouchPassthroughView.swift in Sources */,
 				DC858A3928AA48B000D58EE7 /* EmailDataFactory.swift in Sources */,
@@ -29827,6 +29834,7 @@
 				DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */,
 				DA1010292CDA5A6700EE0D05 /* OnrampCurrencySkeletonView.swift in Sources */,
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
+				EF48F7B92F4749D200AF698B /* ReceivingRestrictionsProvider.swift in Sources */,
 				30C9C3262E76BF1400DC913B /* UserSettingsAccountsViewModel.swift in Sources */,
 				EFE31A352F3DEF750013FFEC /* SwapSummaryStep.swift in Sources */,
 				EAE484392EB0FB6700086EBD /* YieldModuleTransactionViewModel.swift in Sources */,
