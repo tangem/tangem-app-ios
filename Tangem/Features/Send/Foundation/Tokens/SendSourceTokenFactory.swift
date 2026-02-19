@@ -30,6 +30,9 @@ struct SendSourceTokenFactory {
 
         let possibleToConvertToFiat = walletModel.fiatAvailableBalanceProvider.balanceType.value != .none
 
+        let sendingRestrictionsProvider = CommonSendingRestrictionsProvider(walletModel: walletModel)
+        let receivingRestrictionsProvider = CommonReceivingRestrictionsProvider(walletModel: walletModel)
+
         let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel)
         let transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
@@ -58,6 +61,7 @@ struct SendSourceTokenFactory {
             tokenHeader: tokenHeader,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
+            isExemptFee: false,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
             isCustom: walletModel.isCustom,
@@ -70,6 +74,8 @@ struct SendSourceTokenFactory {
             transactionCreator: walletModel.transactionCreator,
             withdrawalNotificationProvider: walletModel.withdrawalNotificationProvider,
             tokenFeeProvidersManager: tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager(),
+            sendingRestrictionsProvider: sendingRestrictionsProvider,
+            receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: walletModel.account,
