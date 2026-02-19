@@ -13,9 +13,9 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapAmountCompactRoutable: AnyObject {
-    func userDidTapChangeSourceTokenButton()
+    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem)
     func userDidTapSwapSourceAndReceiveTokensButton()
-    func userDidTapChangeReceiveTokenButton()
+    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem)
 }
 
 final class SwapAmountViewModel: ObservableObject, Identifiable {
@@ -35,6 +35,9 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private let initialSourceToken: SendSourceToken
     private let interactor: SendAmountInteractor
 
+    private weak var sourceTokenInput: SendSourceTokenInput?
+    private weak var receiveTokenInput: SendReceiveTokenInput?
+
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
 
@@ -50,6 +53,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     ) {
         self.initialSourceToken = initialSourceToken
         self.interactor = interactor
+        self.sourceTokenInput = sourceTokenInput
+        self.receiveTokenInput = receiveTokenInput
 
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
@@ -117,7 +122,9 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapChangeSourceTokenButton() {
-        router?.userDidTapChangeSourceTokenButton()
+        if let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem {
+            router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
+        }
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
@@ -125,7 +132,9 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapChangeReceiveTokenButton() {
-        router?.userDidTapChangeReceiveTokenButton()
+        if let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem {
+            router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
+        }
     }
 
     func userDidTapNetworkFeeInfoButton(_ message: String) {
