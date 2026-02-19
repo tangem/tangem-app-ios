@@ -166,7 +166,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
-             .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
