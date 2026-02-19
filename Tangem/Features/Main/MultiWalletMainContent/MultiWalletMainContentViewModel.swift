@@ -36,7 +36,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
-    @Published var tangemPaySyncInProgress: Bool = false
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
@@ -318,27 +317,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        let tangemPayManager = userWalletModel.tangemPayManager
-
-        tangemPayManager
-            .statePublisher
-            .map(\.isSyncInProgress)
-            .receiveOnMain()
-            .assign(to: &$tangemPaySyncInProgress)
-
-        tangemPayManager
-            .statePublisher
-            .map(\.isInitial)
-            .removeDuplicates()
+        userWalletModel.accountModelsManager
+            .tangemPayAccountModelPublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, isInitial in
-                if isInitial {
-                    nil
+            .flatMapLatest { viewModel, accountModel -> AnyPublisher<TangemPayAccountViewModel?, Never> in
+                if let accountModel {
+                    accountModel.statePublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, state in
+                            TangemPayAccountViewModel(
+                                tangemPayLocalState: state,
+                                router: viewModel
+                            )
+                        }
+                        .eraseToAnyPublisher()
                 } else {
-                    TangemPayAccountViewModel(
-                        tangemPayManager: tangemPayManager,
-                        router: viewModel
-                    )
+                    Just(nil).eraseToAnyPublisher()
                 }
             }
             .receiveOnMain()
@@ -708,12 +702,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
-        coordinator?.openTangemPayKYCInProgressPopup(tangemPayManager: tangemPayManager)
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
-        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayManager: tangemPayManager)
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
     func openTangemPayIssuingYourCardPopup() {
@@ -798,8 +792,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openHardwareBackupTypes()
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
-        case .tangemPaySync:
-            userWalletModel.tangemPayManager.syncTokens(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
         case .openCloreMigration:
             openCloreMigration()
         default:
