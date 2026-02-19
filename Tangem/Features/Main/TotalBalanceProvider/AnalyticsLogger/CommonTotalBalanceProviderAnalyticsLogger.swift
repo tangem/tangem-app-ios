@@ -12,7 +12,7 @@ import TangemFoundation
 
 class CommonTotalBalanceProviderAnalyticsLogger {
     private let userWalletId: UserWalletId
-    private let walletModelsManager: WalletModelsManager
+    private let calculateWalletModels: () -> [any WalletModel]
 
     private var totalBalanceStateSubscription: AnyCancellable?
 
@@ -21,7 +21,21 @@ class CommonTotalBalanceProviderAnalyticsLogger {
         walletModelsManager: WalletModelsManager
     ) {
         self.userWalletId = userWalletId
-        self.walletModelsManager = walletModelsManager
+
+        calculateWalletModels = { [weak walletModelsManager] in
+            walletModelsManager?.walletModels ?? []
+        }
+    }
+
+    init(
+        userWalletId: UserWalletId,
+        accountModelsManager: any AccountModelsManager
+    ) {
+        self.userWalletId = userWalletId
+
+        calculateWalletModels = { [accountModelsManager] in
+            AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
+        }
     }
 }
 
@@ -43,7 +57,7 @@ extension CommonTotalBalanceProviderAnalyticsLogger: TotalBalanceProviderAnalyti
 
 private extension CommonTotalBalanceProviderAnalyticsLogger {
     func totalBalanceStateDidChange(state: TotalBalanceState) {
-        let walletModels = walletModelsManager.walletModels
+        let walletModels = calculateWalletModels()
 
         trackTokenBalanceStateChanged(state: state, tokensCount: walletModels.count)
         trackTokenBalanceLoaded(walletModels: walletModels)
