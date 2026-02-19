@@ -207,6 +207,36 @@ extension SwapModel {
 
 // MARK: - SendSourceTokenInput, SendSourceTokenOutput
 
+extension SwapModel: SwapTokenSelectorOutput {
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
+        let token = factory.makeSourceToken(
+            tokenHeaderProvider: SendTokenHeaderProvider(
+                userWalletInfo: item.userWalletInfo,
+                account: item.walletModel.account,
+                flowActionType: .swap
+            )
+        )
+
+        update(source: token)
+    }
+
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
+        let token = factory.makeSourceToken(
+            tokenHeaderProvider: SendTokenHeaderProvider(
+                userWalletInfo: item.userWalletInfo,
+                account: item.walletModel.account,
+                flowActionType: .swap
+            )
+        )
+
+        update(receive: token)
+    }
+}
+
+// MARK: - SendSourceTokenInput, SendSourceTokenOutput
+
 extension SwapModel: SendSourceTokenInput, SendSourceTokenOutput {
     var sourceToken: LoadingResult<SendSourceToken, any Error> { _sourceToken.value }
 
