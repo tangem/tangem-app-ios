@@ -82,16 +82,16 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - SwapAmountCompactRoutable
 
 extension SwapSummaryViewModel: SwapAmountCompactRoutable {
-    func userDidTapChangeSourceTokenButton() {
-        router?.summaryStepRequestEditSourceToken()
+    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem) {
+        router?.summaryStepRequestEditSourceToken(tokenItem: tokenItem)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
         interactor.userDidRequestSwapSourceAndReceiveToken()
     }
 
-    func userDidTapChangeReceiveTokenButton() {
-        router?.summaryStepRequestEditReceiveToken()
+    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem) {
+        router?.summaryStepRequestEditReceiveToken(tokenItem: tokenItem)
     }
 }
 
