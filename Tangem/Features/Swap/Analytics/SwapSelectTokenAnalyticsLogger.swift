@@ -10,16 +10,13 @@ import BlockchainSdk
 
 /// Swap-specific implementation of AddTokenFlowAnalyticsLogger
 final class SwapSelectTokenAnalyticsLogger: AddTokenFlowAnalyticsLogger {
-    private let coinSymbol: String
     private let source: SwapTokenSource
     private let userHasSearchedDuringThisSession: Bool
 
     init(
-        coinSymbol: String,
         source: SwapTokenSource,
         userHasSearchedDuringThisSession: Bool
     ) {
-        self.coinSymbol = coinSymbol
         self.source = source
         self.userHasSearchedDuringThisSession = userHasSearchedDuringThisSession
     }
@@ -28,10 +25,11 @@ final class SwapSelectTokenAnalyticsLogger: AddTokenFlowAnalyticsLogger {
 
     func logTokenAdded(tokenItem: TokenItem, isMainAccount: Bool) {
         Analytics.log(
-            event: .swapTokenAdded,
+            event: .marketsChartTokenAdded,
             params: [
-                .token: tokenItem.currencySymbol,
+                .token: tokenItem.currencySymbol.uppercased(),
                 .blockchain: tokenItem.blockchain.displayName,
+                .source: Analytics.ParameterValue.swap.rawValue,
             ]
         )
     }
@@ -45,39 +43,35 @@ final class SwapSelectTokenAnalyticsLogger: AddTokenFlowAnalyticsLogger {
 
     // MARK: - AccountSelectorAnalyticsLogger
 
-    func logAccountSelectorOpened(walletsCount: Int?, accountsCount: Int?) {
-        var params: [Analytics.ParameterKey: String] = [:]
-
-        if let walletsCount {
-            params[.walletsCount] = String(walletsCount)
-        }
-
-        if let accountsCount {
-            params[.accountsCount] = String(accountsCount)
-        }
-
-        Analytics.log(event: .swapChooseWalletScreenOpened, params: params)
+    func logAccountSelectorOpened() {
+        Analytics.log(.marketsChartPopupChooseAccount)
     }
 
     // MARK: - Additional Swap Events
 
-    func logTokenSelected() {
+    func logTokenSelected(coinSymbol: String) {
         Analytics.log(
             event: .swapTokenSelected,
             params: [
                 .source: source.parameterValue.rawValue,
                 .searched: Analytics.ParameterValue.boolState(for: userHasSearchedDuringThisSession).rawValue,
-                .token: coinSymbol,
+                .token: coinSymbol.uppercased(),
             ]
         )
     }
 
     func logAddTokenScreenOpened() {
-        Analytics.log(.swapAddTokenScreenOpened)
+        Analytics.log(
+            event: .marketsChartAddTokenScreenOpened,
+            params: [.source: Analytics.ParameterValue.swap.rawValue]
+        )
     }
 
     func logAddTokenButtonTapped() {
-        Analytics.log(.swapButtonAddToken)
+        Analytics.log(
+            event: .marketsChartButtonAddToken,
+            params: [.source: Analytics.ParameterValue.swap.rawValue]
+        )
     }
 }
 
