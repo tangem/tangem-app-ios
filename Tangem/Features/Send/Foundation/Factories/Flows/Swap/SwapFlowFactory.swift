@@ -65,11 +65,14 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(sendReceiveTokenInput: swapModel)
         analyticsLogger.setup(sendSwapProvidersInput: swapModel)
 
+        let tokenSelectorBuilder = SwapTokenSelectorViewModelBuilder(output: swapModel)
+
         let stepsManager = CommonSwapStepsManager(
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
+            tokenSelectorBuilder: tokenSelectorBuilder,
             router: router
         )
 

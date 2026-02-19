@@ -14,6 +14,7 @@ class CommonSwapStepsManager {
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
+    private let tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -28,12 +29,14 @@ class CommonSwapStepsManager {
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
+        tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder,
         router: SendRoutable
     ) {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
+        self.tokenSelectorBuilder = tokenSelectorBuilder
         self.router = router
 
         stack = [summaryStep]
@@ -92,12 +95,18 @@ extension CommonSwapStepsManager: SendStepsManager {
 // MARK: - SendSummaryStepsRoutable
 
 extension CommonSwapStepsManager: SwapSummaryStepRoutable {
-    func summaryStepRequestEditSourceToken() {
-        // [REDACTED_TODO_COMMENT]
+    func summaryStepRequestEditSourceToken(tokenItem: TokenItem) {
+        router?.openSwapTokenSelector(
+            swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
+            direction: .toDestination(tokenItem)
+        )
     }
 
-    func summaryStepRequestEditReceiveToken() {
-        // [REDACTED_TODO_COMMENT]
+    func summaryStepRequestEditReceiveToken(tokenItem: TokenItem) {
+        router?.openSwapTokenSelector(
+            swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
+            direction: .fromSource(tokenItem)
+        )
     }
 
     func summaryStepRequestEditFee() {

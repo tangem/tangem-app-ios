@@ -122,6 +122,32 @@ extension ExpressInteractor {
     }
 }
 
+// MARK: - SwapTokenSelectorOutput
+
+extension ExpressInteractor: SwapTokenSelectorOutput {
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: item.userWalletInfo,
+            walletModel: item.walletModel,
+            expressOperationType: .swap,
+            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
+        )
+
+        update(sender: expressInteractorWallet)
+    }
+
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: item.userWalletInfo,
+            walletModel: item.walletModel,
+            expressOperationType: .swap,
+            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
+        )
+
+        update(destination: expressInteractorWallet)
+    }
+}
+
 // MARK: - Updates
 
 extension ExpressInteractor {
