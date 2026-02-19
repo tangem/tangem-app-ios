@@ -41,7 +41,7 @@ struct TransactionNotificationsRowToggleView: View {
     // MARK: - Private UI
 
     private var readMoreText: Text {
-        let readMoreText = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: AppConstants.unbreakableSpace)
+        let readMoreText = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: String.unbreakableSpace)
         return Text(readMoreText).foregroundColor(Colors.Text.accent)
     }
 }
