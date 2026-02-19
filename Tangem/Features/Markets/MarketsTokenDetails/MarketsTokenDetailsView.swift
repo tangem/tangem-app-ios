@@ -390,7 +390,7 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var readMoreText: Text {
-        let readMoreText = Localization.commonReadMore.replacingOccurrences(of: " ", with: AppConstants.unbreakableSpace)
+        let readMoreText = Localization.commonReadMore.replacingOccurrences(of: " ", with: String.unbreakableSpace)
         return Text(readMoreText).foregroundColor(Colors.Text.accent)
     }
 }
