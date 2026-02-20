@@ -42,4 +42,5 @@ class SendRoutableMock: SendRoutable {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
     func closeFeeSelector() {}
     func openFeeSelectorLearnMoreURL(_ url: URL) {}
+    func openSwapTokenSelector(swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder, direction: SwapTokenSelectorViewModel.SwapDirection) {}
 }
