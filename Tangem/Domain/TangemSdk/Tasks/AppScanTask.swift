@@ -52,6 +52,7 @@ final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     let shouldAskForAccessCode: Bool
+    var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
 
     private let performDerivations: Bool
     private var walletData: DefaultWalletData = .none
