@@ -116,7 +116,7 @@ private extension SendAmountFinishViewModel {
 
         Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
-            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
