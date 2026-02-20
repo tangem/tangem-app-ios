@@ -292,7 +292,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
             analyticsParameters[.receiveToken] = token
 
-            if let provider = sendSwapProvidersInput?.selectedExpressProvider {
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
                 analyticsParameters[.provider] = provider.provider.name
             }
 
@@ -329,6 +329,91 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logUserDidTapOnValidator() {}
     func logUserDidTapOnProvider() {
         Analytics.log(.sendProviderClicked)
+    }
+}
+
+// MARK: - SendApproveAnalyticsLogger
+
+extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logSwapButtonPermissionApprove(policy: ApprovePolicy) {
+        var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+            analyticsParameters[.provider] = provider.provider.name
+        }
+
+        if let source = sendSourceTokenInput?.sourceToken.value {
+            analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+            analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        analyticsParameters[.type] = switch policy {
+        case .specified: Analytics.ParameterValue.oneTransactionApprove.rawValue
+        case .unlimited: Analytics.ParameterValue.unlimitedApprove.rawValue
+        }
+
+        Analytics.log(event: .swapButtonPermissionApprove, params: analyticsParameters)
+    }
+
+    func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
+        let permissionType: Analytics.ParameterValue = switch policy {
+        case .specified: .oneTransactionApprove
+        case .unlimited: .unlimitedApprove
+        }
+
+        Analytics.log(event: .transactionSent, params: [
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            .blockchain: tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+            .walletForm: signerType,
+            .selectedHost: currentProviderHost,
+        ], analyticsSystems: .all)
+    }
+}
+
+// MARK: - SendFinishAnalyticsLogger
+
+extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
+    func logSwapButtonSwap() {
+        var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+        if let source = sendSourceTokenInput?.sourceToken.value {
+            analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+            analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
+    }
+
+    func logSwapTransactionSent(result: TransactionDispatcherResult) {
+        var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+        if let fee = sendFeeInput?.selectedFee {
+            analyticsParameters[.feeType] = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee.option).rawValue
+            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: fee.tokenItem)
+        }
+
+        if let source = sendSourceTokenInput?.sourceToken.value {
+            analyticsParameters[.token] = SendAnalyticsHelper.makeAnalyticsTokenName(from: source.tokenItem)
+            analyticsParameters[.blockchain] = source.tokenItem.blockchain.displayName
+        }
+
+        analyticsParameters[.walletForm] = result.signerType
+        analyticsParameters[.selectedHost] = result.currentHost
+
+        Analytics.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
     }
 }
 
@@ -408,7 +493,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
 
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider {
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
             analyticsParameters[.provider] = provider.provider.name
         }
 
@@ -529,6 +614,7 @@ extension CommonSendAnalyticsLogger {
         case send
         case sell
         case nft
+        case swap
         case sendAndSwap
 
         var analytics: Analytics.ParameterValue {
@@ -536,6 +622,7 @@ extension CommonSendAnalyticsLogger {
             case .send: .send
             case .sell: .sell
             case .nft: .nft
+            case .swap: .swap
             case .sendAndSwap: .sendAndSwap
             }
         }

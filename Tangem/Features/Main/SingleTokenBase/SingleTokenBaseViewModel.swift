@@ -572,7 +572,11 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openExchange(walletModel: walletModel)
+        if FeatureProvider.isAvailable(.swapRefactoring) {
+            tokenRouter.openSwap(walletModel: walletModel)
+        } else {
+            tokenRouter.openExchange(walletModel: walletModel)
+        }
     }
 
     final func openStaking() {
