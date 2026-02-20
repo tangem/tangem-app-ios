@@ -169,7 +169,7 @@ private extension CommonUserWalletModelDependencies {
         // Create base provider based on accounts mode
         // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
         // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
-        hasAccounts
+        return hasAccounts
             ? AccountsAwareTotalBalanceProvider(
                 accountModelsManager: accountModelsManager,
                 analyticsLogger: analyticsLogger
