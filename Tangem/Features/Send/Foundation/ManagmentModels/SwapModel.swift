@@ -116,7 +116,9 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        updateTask(loadingType: .providers) { [weak self] expressManager in
+        let hasAmount = _amount.value?.crypto != nil
+
+        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
             guard let source = self?._sourceToken.value.value, let destination = self?._receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
@@ -369,7 +371,7 @@ extension SwapModel {
 extension SwapModel {
     func send() async throws -> TransactionDispatcherResult {
         let source = try sourceToken.get()
-        let destination = try receiveToken.get()
+        let receive = try receiveToken.get()
 
         analyticsLogger.logSwapButtonSwap()
 
@@ -386,10 +388,11 @@ extension SwapModel {
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
-                try addTransactionToPendingRepository(
+                addTransactionToPendingRepository(
                     source: source,
-                    destination: destination,
-                    provider: providers.selected,
+                    receive: receive,
+                    provider: providers.selected?.provider,
+                    fee: previewCEX.fee,
                     data: data,
                     result: result
                 )
@@ -403,10 +406,11 @@ extension SwapModel {
                 analyticsLogger.logSwapTransactionSent(result: result)
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
 
-                try addTransactionToPendingRepository(
+                addTransactionToPendingRepository(
                     source: source,
-                    destination: destination,
-                    provider: providers.selected,
+                    receive: receive,
+                    provider: providers.selected?.provider,
+                    fee: readyToSwap.fee,
                     data: data,
                     result: result
                 )
@@ -442,29 +446,27 @@ extension SwapModel {
 
     func addTransactionToPendingRepository(
         source: SendSourceToken,
-        destination: SendReceiveToken,
-        provider: ExpressAvailableProvider?,
+        receive: SendReceiveToken,
+        provider: ExpressProvider?,
+        fee: BSDKFee,
         data: ExpressTransactionData,
         result: TransactionDispatcherResult
-    ) throws {
-        guard let provider else {
-            throw ExpressInteractorError.providerNotFound
+    ) {
+        guard let receive = receive as? SendSourceToken, let provider else {
+            return
         }
 
-        /*
-         let feetokenFeeProvidersManager = try provider.getTokenFeeProvidersManager()
-         let sentTransactionData = SentExpressTransactionData(
-             result: result,
-             source: source as! ExpressInteractorSourceWallet,
-             destination: destination as! ExpressInteractorDestinationWallet,
-             fee: feetokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee,
-             provider: provider.provider,
-             date: Date(),
-             expressTransactionData: data
-         )
+        let sentTransactionData = SentSwapTransactionData(
+            result: result,
+            source: source,
+            receive: receive,
+            fee: fee,
+            provider: provider,
+            date: Date(),
+            expressTransactionData: data
+        )
 
-         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
-          */
+        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
     }
 }
 
@@ -809,16 +811,15 @@ extension SwapModel: SendFeeInput {
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
         _providersState
-            // Ignore all loading
-            .filter { $0.filter(loading: []) }
             .withWeakCaptureOf(self)
             .map { $0.mapToShouldShowFeeSelectorRow(providersState: $1) }
-            .eraseToAnyPublisher().eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loaded(_, state: .restriction(.notEnoughAmountForFee, _)),
+        case .loading(.fee),
+             .loaded(_, state: .restriction(.notEnoughAmountForFee, _)),
              .loaded(_, state: .previewCEX),
              .loaded(_, state: .readyToSwap):
             return true
@@ -1034,7 +1035,10 @@ extension SwapModel: ApproveViewModelInput {
             currentProviderHost: result.currentHost
         )
 
-        update(providersState: .loaded(loadedResult, state: .restriction(.hasPendingTransaction, quote: state.quote)))
+        update(providersState: .loaded(
+            loadedResult,
+            state: .restriction(.hasPendingApproveTransaction, quote: state.quote)
+        ))
     }
 
     var approveFeeValue: LoadingResult<ApproveInputFee, any Error> {
