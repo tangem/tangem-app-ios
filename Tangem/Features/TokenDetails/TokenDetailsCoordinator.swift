@@ -258,7 +258,14 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
+        let options = SendCoordinator.Options(input: input, type: .send, source: .tokenDetails)
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSwap(input: SendInput) {
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(input: input, type: .swap, source: .tokenDetails)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }

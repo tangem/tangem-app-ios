@@ -66,11 +66,13 @@ public extension ExpressProviderManagerState {
         public let provider: ExpressProvider
         public let subtractFee: Decimal
         public let quote: ExpressQuote
+        public let fee: Fee
     }
 
     struct Ready {
         public let provider: ExpressProvider
         public let data: ExpressTransactionData
+        public let fee: Fee
         public let quote: ExpressQuote
     }
 }
