@@ -122,6 +122,16 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
 
+        interactor
+            .isReadyToSendPublisher
+            .receiveOnMain()
+            .assign(to: &$mainButtonIsEnabled)
+
+        interactor
+            .isUpdatingPublisher
+            .receiveOnMain()
+            .assign(to: &$mainButtonIsLoading)
+
         notificationManager
             .notificationPublisher
             .receiveOnMain()
