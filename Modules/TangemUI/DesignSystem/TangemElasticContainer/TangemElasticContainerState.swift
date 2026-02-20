@@ -8,16 +8,18 @@
 
 import Foundation
 
-public enum TangemElasticContainerState: Equatable {
+enum TangemElasticContainerState: Equatable {
     case expanded
-    case collapsing(Item)
+    case collapsing(ratio: CGFloat)
     case collapsed
-    case expanding(Item)
+    case expanding(ratio: CGFloat)
 
-    public struct Item: Equatable {
-        public let ratio: CGFloat
-        let initialHeight: CGFloat
-
-        var offset: CGFloat { ratio * initialHeight }
+    var ratio: CGFloat {
+        switch self {
+        case .expanded: 1
+        case .collapsing(let ratio): 1 - ratio
+        case .collapsed: 0
+        case .expanding(let ratio): ratio
+        }
     }
 }

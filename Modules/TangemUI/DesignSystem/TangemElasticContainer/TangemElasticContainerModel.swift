@@ -18,10 +18,10 @@ final class TangemElasticContainerModel: NSObject, ObservableObject {
 
     var topPadding: CGFloat {
         switch state {
-        case .collapsing(let item):
-            return resistanceHeight(height: item.initialHeight, offset: item.offset)
-        case .expanding(let item):
-            return -huggingHeight(height: item.initialHeight, offset: item.offset)
+        case .collapsing(let ratio):
+            return resistanceHeight(ratio: ratio)
+        case .expanding(let ratio):
+            return -huggingHeight(ratio: ratio)
         case .expanded, .collapsed:
             return 0
         }
@@ -134,10 +134,10 @@ private extension TangemElasticContainerModel {
 
     func scrollToId(for state: State) -> AnyHashable? {
         switch state {
-        case .collapsing(let item):
-            item.ratio > collapseThreshold ? bottomAnchorId : topAnchorId
-        case .expanding(let item):
-            item.ratio > expandThreshold ? topAnchorId : bottomAnchorId
+        case .collapsing(let ratio):
+            ratio > collapseThreshold ? bottomAnchorId : topAnchorId
+        case .expanding(let ratio):
+            ratio > expandThreshold ? topAnchorId : bottomAnchorId
         case .expanded, .collapsed:
             nil
         }
@@ -149,11 +149,17 @@ private extension TangemElasticContainerModel {
 private extension TangemElasticContainerModel {
     func collapseState(initialHeight: CGFloat, offset: CGFloat) -> State {
         guard initialHeight > 0 else { return .collapsed }
-
         let resistanceHeight = resistanceHeight(height: initialHeight, offset: offset)
         let height = offset - resistanceHeight
         let ratio = height / initialHeight
-        return ratio < 1 ? .collapsing(.init(ratio: ratio, initialHeight: initialHeight)) : .collapsed
+        return ratio < 1 ? .collapsing(ratio: ratio) : .collapsed
+    }
+
+    func resistanceHeight(ratio: CGFloat) -> CGFloat {
+        guard let initialFrame else { return 0 }
+        let height = initialFrame.height
+        let offset = height * ratio
+        return resistanceHeight(height: height, offset: offset)
     }
 
     func resistanceHeight(height: CGFloat, offset: CGFloat) -> CGFloat {
@@ -173,11 +179,17 @@ private extension TangemElasticContainerModel {
 private extension TangemElasticContainerModel {
     func expandState(initialHeight: CGFloat, offset: CGFloat) -> State {
         guard initialHeight > 0 else { return .expanded }
-
         let huggingHeight = huggingHeight(height: initialHeight, offset: offset)
         let height = initialHeight - offset - huggingHeight
         let ratio = height / initialHeight
-        return ratio < 1 ? .expanding(.init(ratio: ratio, initialHeight: initialHeight)) : .expanded
+        return ratio < 1 ? .expanding(ratio: ratio) : .expanded
+    }
+
+    func huggingHeight(ratio: CGFloat) -> CGFloat {
+        guard let initialFrame else { return 0 }
+        let height = initialFrame.height
+        let offset = height * ratio
+        return huggingHeight(height: height, offset: offset)
     }
 
     func huggingHeight(height: CGFloat, offset: CGFloat) -> CGFloat {

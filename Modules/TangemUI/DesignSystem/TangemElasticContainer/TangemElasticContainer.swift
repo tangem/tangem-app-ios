@@ -10,14 +10,16 @@ import SwiftUI
 import Combine
 
 public struct TangemElasticContainer<Content: View>: View {
+    public typealias ContentBuilder = (_ expandRatio: CGFloat) -> Content
+
     @StateObject private var viewModel: TangemElasticContainerModel
 
-    private let content: (TangemElasticContainerState) -> Content
+    private let content: ContentBuilder
 
     public init(
         onAddScrollViewDelegate: @escaping (UIScrollViewDelegate) -> Void,
         onRemoveScrollViewDelegate: @escaping (UIScrollViewDelegate) -> Void,
-        @ViewBuilder content: @escaping (TangemElasticContainerState) -> Content
+        @ViewBuilder content: @escaping ContentBuilder
     ) {
         _viewModel = StateObject(wrappedValue: TangemElasticContainerModel(
             onAddScrollViewDelegate: onAddScrollViewDelegate,
@@ -27,17 +29,18 @@ public struct TangemElasticContainer<Content: View>: View {
     }
 
     public var body: some View {
-        ScrollViewReader { proxy in
+        ScrollViewReader { scrollProxy in
             bodyContent
                 .readGeometry { geometryInfo in
                     viewModel.onGeometry(frame: geometryInfo.frame)
                 }
                 .onReceive(viewModel.scrollToIdPublisher) { scrollToId in
                     withAnimation {
-                        proxy.scrollTo(scrollToId, anchor: .top)
+                        scrollProxy.scrollTo(scrollToId, anchor: .top)
                     }
                 }
         }
+        .preference(key: TangemElasticContainerStatePreference.self, value: viewModel.state)
     }
 }
 
@@ -48,7 +51,7 @@ private extension TangemElasticContainer {
         VStack(spacing: 0) {
             anchor(id: viewModel.topAnchorId)
 
-            content(viewModel.state)
+            content(viewModel.state.ratio)
                 .padding(.top, viewModel.topPadding)
 
             anchor(id: viewModel.bottomAnchorId)
