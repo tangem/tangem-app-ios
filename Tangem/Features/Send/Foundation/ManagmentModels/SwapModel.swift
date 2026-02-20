@@ -20,7 +20,7 @@ protocol SwapModelStateProvider: AnyObject {
 protocol SwapModelRoutable: AnyObject {
     func openNetworkCurrency()
     func openApproveSheet()
-    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
+    func performSwapAction()
 }
 
 final class SwapModel {
@@ -40,7 +40,7 @@ final class SwapModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
 
-    weak var router: SendModelRoutable?
+    weak var router: SwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
@@ -289,7 +289,7 @@ extension SwapModel {
             return .restriction(restriction, quote: quote)
         }
 
-        let readyToSwapState = ReadyToSwapState(quote: quote, data: ready.data)
+        let readyToSwapState = ReadyToSwapState(quote: quote, data: ready.data, fee: fee)
         return .readyToSwap(readyToSwapState)
     }
 
@@ -328,6 +328,7 @@ extension SwapModel {
         let previewCEXState = PreviewCEXState(
             quote: quote,
             subtractFee: subtractFee,
+            fee: fee,
             isExemptFee: source.isExemptFee,
             notification: notification
         )
@@ -360,6 +361,110 @@ extension SwapModel {
 
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> BSDKAmount {
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value)
+    }
+}
+
+// MARK: - Send transaction
+
+extension SwapModel {
+    func send() async throws -> TransactionDispatcherResult {
+        let source = try sourceToken.get()
+        let destination = try receiveToken.get()
+
+        analyticsLogger.logSwapButtonSwap()
+
+        let result = try await {
+            switch _providersState.value {
+            case .loaded(_, .permissionRequired):
+                assertionFailure("Should called sendApproveTransaction()")
+                throw ExpressInteractorError.transactionDataNotFound
+
+            case .loaded(let providers, .previewCEX(let previewCEX)):
+                let data = try await expressManager.requestData()
+                let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
+                let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
+                analyticsLogger.logSwapTransactionSent(result: result)
+
+                await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+                try addTransactionToPendingRepository(
+                    source: source,
+                    destination: destination,
+                    provider: providers.selected,
+                    data: data,
+                    result: result
+                )
+
+                return result
+
+            case .loaded(let providers, .readyToSwap(let readyToSwap)):
+                let data = readyToSwap.data
+                let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
+                let result = try await dispatcher.send(transaction: .dex(data: data, fee: readyToSwap.fee))
+                analyticsLogger.logSwapTransactionSent(result: result)
+                await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+
+                try addTransactionToPendingRepository(
+                    source: source,
+                    destination: destination,
+                    provider: providers.selected,
+                    data: data,
+                    result: result
+                )
+
+                return result
+
+            default:
+                throw ExpressInteractorError.transactionDataNotFound
+            }
+        }()
+
+        _transactionTime.send(.now)
+        _transactionURL.send(result.url)
+
+        return result
+    }
+
+    func notifyExpressAboutTransactionDidSent(
+        source: SendSourceToken,
+        data: ExpressTransactionData,
+        result: TransactionDispatcherResult
+    ) async {
+        let expressSentResult = ExpressTransactionSentResult(
+            hash: result.hash,
+            source: source.tokenItem.expressCurrency,
+            address: source.defaultAddressString,
+            data: data
+        )
+
+        // Ignore error here
+        try? await expressAPIProvider.exchangeSent(result: expressSentResult)
+    }
+
+    func addTransactionToPendingRepository(
+        source: SendSourceToken,
+        destination: SendReceiveToken,
+        provider: ExpressAvailableProvider?,
+        data: ExpressTransactionData,
+        result: TransactionDispatcherResult
+    ) throws {
+        guard let provider else {
+            throw ExpressInteractorError.providerNotFound
+        }
+
+        /*
+         let feetokenFeeProvidersManager = try provider.getTokenFeeProvidersManager()
+         let sentTransactionData = SentExpressTransactionData(
+             result: result,
+             source: source as! ExpressInteractorSourceWallet,
+             destination: destination as! ExpressInteractorDestinationWallet,
+             fee: feetokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee,
+             provider: provider.provider,
+             date: Date(),
+             expressTransactionData: data
+         )
+
+         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
+          */
     }
 }
 
@@ -744,9 +849,9 @@ extension SwapModel: FeeSelectorOutput {
 
 extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        receiveTokenPublisher
+        _providersState
             .withWeakCaptureOf(self)
-            .flatMapLatest { $0.0.isReadyToSend() }
+            .map { $0.mapToIsReadyToSend(providersState: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -761,7 +866,14 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        _providersState.map { $0.isLoading }.eraseToAnyPublisher()
+        Publishers.CombineLatest(
+            _isSending,
+            _providersState
+                .filter { $0.filter(loading: [.autoupdate]) }
+                .map { $0.isLoading },
+        )
+        .map { $0 || $1 }
+        .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
@@ -773,13 +885,15 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        receiveTokenPublisher
+        _providersState
             .withWeakCaptureOf(self)
-            .flatMapLatest { $0.0.summaryTransactionData() }
+            .map { $0.mapToSummaryTransactionData(providersState: $1) }
             .eraseToAnyPublisher()
     }
 
-    func userDidRequestSwap() {}
+    func userDidRequestSwap() {
+        router?.performSwapAction()
+    }
 
     func userDidRequestMaxAmount() {
         guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
@@ -801,12 +915,30 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         swappingPairDidChange()
     }
 
-    private func isReadyToSend() -> AnyPublisher<Bool, Never> {
-        .just(output: false)
+    private func mapToIsReadyToSend(providersState: ProvidersState) -> Bool {
+        switch providersState {
+        case .loaded(_, .previewCEX), .loaded(_, .readyToSwap): true
+        default: false
+        }
     }
 
-    private func summaryTransactionData() -> AnyPublisher<SendSummaryTransactionData?, Never> {
-        .just(output: .none)
+    private func mapToSummaryTransactionData(providersState: ProvidersState) -> SendSummaryTransactionData? {
+        switch providersState {
+        case .loaded(let providers, _):
+            guard let provider = providers.selected,
+                  let quote = providers.selected?.getState().quote,
+                  let tokenFeeProvidersManager = try? provider.getTokenFeeProvidersManager() else {
+                return nil
+            }
+
+            return .swap(
+                amount: quote.fromAmount,
+                fee: tokenFeeProvidersManager.selectedTokenFee,
+                provider: provider.provider
+            )
+        default:
+            return .none
+        }
     }
 }
 
@@ -825,16 +957,15 @@ extension SwapModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SwapModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {}
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
 
-    func actualizeInformation() {}
-
     func performAction() async throws -> TransactionDispatcherResult {
-        throw TransactionDispatcherResult.Error.actionNotSupported
+        _isSending.send(true)
+        defer { _isSending.send(false) }
+
+        return try await send()
     }
 }
 
@@ -984,7 +1115,6 @@ extension SwapModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
-             .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
@@ -1106,6 +1236,7 @@ extension SwapModel {
     struct PreviewCEXState {
         let quote: Quote
         let subtractFee: SubtractFee
+        let fee: BSDKFee
         let isExemptFee: Bool
         let notification: WithdrawalNotification?
     }
@@ -1118,6 +1249,14 @@ extension SwapModel {
     struct ReadyToSwapState {
         let quote: Quote
         let data: ExpressTransactionData
+        let fee: BSDKFee
+    }
+
+    struct TransactionSendResultState {
+        let dispatcherResult: TransactionDispatcherResult
+        let data: ExpressTransactionData
+        let fee: Fee
+        let provider: ExpressProvider
     }
 }
 
