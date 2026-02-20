@@ -24,7 +24,9 @@ struct SendReceiveTokenBuilder {
         return CommonSendReceiveToken(
             tokenItem: tokenItem,
             tokenIconInfo: tokenIconInfo,
-            fiatItem: fiatItem
+            fiatItem: fiatItem,
+            address: .none,
+            extraId: .none
         )
     }
 }
