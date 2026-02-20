@@ -25,23 +25,17 @@ class CommonSwapSummaryInteractor {
     private weak var input: SwapSummaryInput?
     private weak var output: SwapSummaryOutput?
 
-    private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
-    private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
 
     init(
         input: SwapSummaryInput,
         output: SwapSummaryOutput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
-        sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
-        stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
-        self.sendDescriptionBuilder = sendDescriptionBuilder
         self.swapDescriptionBuilder = swapDescriptionBuilder
-        self.stakingDescriptionBuilder = stakingDescriptionBuilder
     }
 }
 
@@ -114,18 +108,11 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
 
 private extension CommonSwapSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
-        switch data {
-        case .none:
+        guard case .swap(let provider) = data else {
             return nil
-        case .staking(let amount, let schedule):
-            let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
-            return description
-        case .send(let amount, let fee):
-            let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
-            return description
-        case .swap(let amount, let fee, let provider):
-            let description = swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
-            return description
         }
+
+        let description = swapDescriptionBuilder.makeDescription(provider: provider)
+        return description
     }
 }
