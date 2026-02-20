@@ -407,6 +407,14 @@ extension SendViewModel: OnrampModelRoutable {
     }
 }
 
+// MARK: - OnrampModelRoutable
+
+extension SendViewModel: SwapModelRoutable {
+    func performSwapAction() {
+        performAction()
+    }
+}
+
 // MARK: - SendViewAlertPresenter
 
 extension SendViewModel: SendViewAlertPresenter {
