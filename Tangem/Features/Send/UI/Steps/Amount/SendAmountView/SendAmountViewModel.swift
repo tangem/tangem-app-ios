@@ -138,6 +138,7 @@ private extension SendAmountViewModel {
 
         interactor
             .sourceTokenPublisher
+            .compactMap { $0.value }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { $0.updateSourceToken(sourceToken: $1) }

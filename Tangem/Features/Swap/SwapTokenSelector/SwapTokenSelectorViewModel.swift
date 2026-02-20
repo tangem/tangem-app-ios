@@ -11,6 +11,11 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 
+protocol SwapTokenSelectorOutput: AnyObject {
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool)
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool)
+}
+
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
@@ -20,7 +25,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
-    private let expressInteractor: ExpressInteractor
+    private weak var output: SwapTokenSelectorOutput?
 
     private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
     private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
@@ -38,14 +43,14 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
-        expressInteractor: ExpressInteractor,
+        output: SwapTokenSelectorOutput?,
         tokenSelectorCoordinator: SwapTokenSelectorRoutable,
         marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
-        self.expressInteractor = expressInteractor
+        self.output = output
         self.tokenSelectorCoordinator = tokenSelectorCoordinator
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
@@ -99,18 +104,11 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
 
 private extension SwapTokenSelectorViewModel {
     func selectToken(_ item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            expressOperationType: .swap,
-            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
-        )
-
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: expressInteractorWallet)
+            output?.swapTokenSelectorDidRequestUpdate(destination: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
         case .toDestination:
-            expressInteractor.update(sender: expressInteractorWallet)
+            output?.swapTokenSelectorDidRequestUpdate(sender: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
         }
 
         selectedTokenItem = item.walletModel.tokenItem

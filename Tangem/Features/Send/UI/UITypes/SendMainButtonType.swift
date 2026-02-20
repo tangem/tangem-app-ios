@@ -20,6 +20,7 @@ enum SendMainButtonType: Hashable {
 
 enum SendFlowActionType: Hashable {
     case send
+    case swap
     case approve
     case stake
     case unstake
@@ -41,6 +42,7 @@ enum SendFlowActionType: Hashable {
     var title: String {
         switch self {
         case .send: Localization.commonSend
+        case .swap: Localization.commonSwap
         case .approve: Localization.givePermissionTitle
         case .stake: Localization.commonStake
         case .unstake: Localization.commonUnstake
