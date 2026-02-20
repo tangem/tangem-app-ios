@@ -58,9 +58,7 @@ enum SwapSummaryStepBuilder {
             input: io.input,
             output: io.output,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
-            sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
             swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
-            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
         )
 
         let viewModel = SwapSummaryViewModel(

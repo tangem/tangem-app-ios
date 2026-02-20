@@ -925,17 +925,11 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     private func mapToSummaryTransactionData(providersState: ProvidersState) -> SendSummaryTransactionData? {
         switch providersState {
         case .loaded(let providers, _):
-            guard let provider = providers.selected,
-                  let quote = providers.selected?.getState().quote,
-                  let tokenFeeProvidersManager = try? provider.getTokenFeeProvidersManager() else {
+            guard let provider = providers.selected else {
                 return nil
             }
 
-            return .swap(
-                amount: quote.fromAmount,
-                fee: tokenFeeProvidersManager.selectedTokenFee,
-                provider: provider.provider
-            )
+            return .swap(provider: provider.provider)
         default:
             return .none
         }
@@ -1030,11 +1024,11 @@ extension SwapModel: ApproveViewModelInput {
             throw ExpressInteractorError.allowanceServiceNotFound
         }
 
-        analyticsLogger.logApproveTransactionAnalyticsEvent(policy: state.policy)
+        analyticsLogger.logSwapButtonPermissionApprove(policy: state.policy)
         let result = try await allowanceService.sendApproveTransaction(data: state.data)
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        analyticsLogger.logApproveTransactionSentAnalyticsEvent(
+        analyticsLogger.logApproveTransactionSent(
             policy: state.policy,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
