@@ -51,6 +51,9 @@ struct AppScanTaskResponse {
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
+
+    var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
+
     let shouldAskForAccessCode: Bool
     var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
 
