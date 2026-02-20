@@ -499,7 +499,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         Publishers.CombineLatest3(
             sourceAmountPublisher.compactMap { $0.value },
             receiveAmountPublisher.compactMap { $0.value },
-            selectedExpressProviderPublisher.compactMap { $0?.provider }
+            selectedExpressProviderPublisher.compactMap { $0?.value?.provider }
         )
         .withWeakCaptureOf(self)
         .setFailureType(to: Error.self)
@@ -575,16 +575,22 @@ extension SendModel: SendSwapProvidersInput {
         get async { await swapManager.providers }
     }
 
-    var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
+    var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         swapManager.providersPublisher
     }
 
-    var selectedExpressProvider: ExpressAvailableProvider? {
-        swapManager.state.context?.availableProvider
+    var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
+        guard let provider = swapManager.state.context?.availableProvider else {
+            return nil
+        }
+
+        return .success(provider)
     }
 
-    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+    var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
         swapManager.selectedProviderPublisher
+            .map { $0.map { .success($0) } }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -729,7 +735,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                     case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: fee,
                                 provider: provider.provider
@@ -737,7 +743,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .previewCEX(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
@@ -745,7 +751,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .readyToSwap(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
