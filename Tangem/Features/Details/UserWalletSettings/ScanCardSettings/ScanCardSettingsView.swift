@@ -19,18 +19,17 @@ struct ScanCardSettingsView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            GeometryReader { proxy in
-                ScrollView {
-                    VStack(alignment: .center, spacing: 40) {
-                        topView
-                            .frame(height: proxy.size.height / 2, alignment: .bottom)
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(alignment: .center, spacing: 40) {
+                    topView
+                        .frame(height: proxy.size.height / 2, alignment: .bottom)
 
-                        bottomView
-                    }
+                    bottomView
                 }
             }
-
+        }
+        .safeAreaInset(edge: .bottom, spacing: 16) {
             MainButton(
                 title: Localization.scanCardSettingsButton,
                 icon: .trailing(Assets.tangemIcon),
@@ -38,8 +37,9 @@ struct ScanCardSettingsView: View {
                 action: viewModel.scanCard
             )
             .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .bottomPaddingIfZeroSafeArea()
         }
-        .padding(.bottom, 16)
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.tertiary.ignoresSafeArea())
     }
