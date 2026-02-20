@@ -160,6 +160,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     private func accountHeader(accountData: AccountData) -> some View {
         AccountInlineHeaderView(iconData: accountData.iconInfo, name: accountData.name)
             .expandsHorizontally(true)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPortfolioAccountHeader(accountName: accountData.name))
     }
 
     // MARK: - Empty States
