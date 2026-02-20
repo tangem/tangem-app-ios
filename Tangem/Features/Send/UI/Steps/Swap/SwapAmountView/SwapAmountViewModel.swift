@@ -172,8 +172,9 @@ private extension SwapAmountViewModel {
                 if roundedAmount != textFieldValue {
                     _ = update(amount: roundedAmount)
                     sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
-                    sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
                 }
+
+                sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
             }
         }
     }
