@@ -145,7 +145,7 @@ extension CommonSwapManager: SwapManager {
 // MARK: - SendApproveDataBuilderInput
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
-    var selectedExpressProvider: ExpressProvider? {
+    var approveRequestedByExpressProvider: ExpressProvider? {
         state.context?.provider
     }
 
@@ -153,7 +153,7 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
         interactor
     }
 
-    var selectedPolicy: ApprovePolicy? {
+    var approveRequestedWithSelectedPolicy: ApprovePolicy? {
         guard case .permissionRequired(let permissionRequired, _, _) = interactor.getState() else {
             return nil
         }
