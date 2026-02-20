@@ -50,6 +50,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         )
 
         let finish = makeSendFinishStep(
+            sendAmountFinishViewModel: amount.finish,
             sendFeeFinishViewModel: fee.finish,
             router: router
         )
