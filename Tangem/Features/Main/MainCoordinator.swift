@@ -484,6 +484,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
+    func openSwap(input: SendInput) {
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(input: input, type: .swap, source: .main)
+
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {
         guard SendFeatureProvider.shared.isAvailable else {
             return

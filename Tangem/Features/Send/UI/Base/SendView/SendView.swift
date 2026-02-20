@@ -31,7 +31,7 @@ struct SendView: View {
                 // Important!!
                 // When the currentPage has removal transition
                 // It immediately disappears below `Colors.Background.tertiary.ignoresSafeArea()`
-                // Because lost the `zIndex`
+                // Because the `currentPage` lost the `zIndex`
                 .zIndex(1)
                 .focused($focused)
                 .allowsHitTesting(!viewModel.isUserInteractionDisabled)
@@ -141,6 +141,10 @@ struct SendView: View {
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .onramp(let onrampViewModel):
             OnrampSummaryView(viewModel: onrampViewModel, keyboardActive: $focused)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .swap(let swapSummaryViewModel):
+            SwapSummaryView(viewModel: swapSummaryViewModel, keyboardActive: $focused)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
