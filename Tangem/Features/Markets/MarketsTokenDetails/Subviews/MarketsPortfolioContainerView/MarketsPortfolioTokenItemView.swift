@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct MarketsPortfolioTokenItemView: View {
     @ObservedObject var viewModel: MarketsPortfolioTokenItemViewModel
@@ -101,6 +103,8 @@ struct MarketsPortfolioTokenItemView: View {
             })
         }
         .padding(.vertical, 16)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPortfolioTokenItem(tokenName: viewModel.name))
     }
 
     @ViewBuilder
@@ -128,6 +132,7 @@ struct MarketsPortfolioTokenItemView: View {
                     } label: {
                         makeQuickActionItem(for: action, at: index)
                     }
+                    .accessibilityIdentifier(action.accessibilityIdentifier)
 
                     // Lower indentation
                     if index == (viewModel.contextActions.count - 1) {
