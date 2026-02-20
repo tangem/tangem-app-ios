@@ -33,7 +33,11 @@ struct SendSourceTokenFactory {
         let sendingRestrictionsProvider = CommonSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = CommonReceivingRestrictionsProvider(walletModel: walletModel)
 
-        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel)
+        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .swap
+        )
+
         let transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
