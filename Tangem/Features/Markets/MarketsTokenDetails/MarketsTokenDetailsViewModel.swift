@@ -276,7 +276,10 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     func shareTokenDetails() {
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
-        let url = baseUrl.appendingPathComponent("\(Locale.appLanguageCode)/cryptocurrencies/\(tokenInfo.id.lowercased())")
+        let url = baseUrl
+            .appendingPathComponent(Locale.appLanguageCode)
+            .appendingPathComponent("cryptocurrencies")
+            .appendingPathComponent(tokenInfo.id.lowercased())
         coordinator?.shareTokenDetails(url: url)
     }
 
