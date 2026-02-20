@@ -62,6 +62,10 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
                     )
                 }
             },
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: coinId,
+                availableNetworks: networks
+            ),
             analyticsLogger: analyticsLogger
         )
     }
