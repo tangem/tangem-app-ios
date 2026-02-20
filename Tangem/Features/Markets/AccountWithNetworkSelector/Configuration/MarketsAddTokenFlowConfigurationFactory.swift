@@ -43,7 +43,10 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
                 }
             },
-            accountAvailabilityProvider: makeAccountAvailabilityProvider(inputData: inputData),
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: inputData.coinId,
+                availableNetworks: inputData.networks
+            ),
             analyticsLogger: analyticsLogger
         )
     }
@@ -159,22 +162,5 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
-    }
-
-    static func makeAccountAvailabilityProvider(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
-        { context in
-            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworks(
-                account: context.account,
-                coinId: inputData.coinId,
-                availableNetworks: inputData.networks,
-                supportedBlockchains: context.supportedBlockchains
-            )
-
-            return isAddedOnAll
-                ? .unavailable(reason: Localization.marketsTokenAdded)
-                : .available
-        }
     }
 }
