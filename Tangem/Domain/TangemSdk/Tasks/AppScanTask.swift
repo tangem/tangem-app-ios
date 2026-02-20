@@ -307,7 +307,7 @@ final class AppScanTask: CardSessionRunnable {
         let config = config(for: card)
 
         if let userWalletId = UserWalletId(config: config) {
-            if card.isAccessCodeSet, !isPersistentStorageInitialized(for: userWalletId) {
+            if card.isAccessCodeSet, shouldWarnWalletActivated(for: userWalletId) {
                 session.pause()
                 session.viewDelegate.setState(.empty)
                 let alert = AlertBuilder.makeActivatedCardAlertController {
@@ -356,9 +356,8 @@ final class AppScanTask: CardSessionRunnable {
         return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
     }
 
-    private func isPersistentStorageInitialized(for userWalletId: UserWalletId) -> Bool {
+    private func shouldWarnWalletActivated(for userWalletId: UserWalletId) -> Bool {
         let helper = PersistentStorageAppScanTaskHelper(userWalletId: userWalletId)
-
-        return helper.isPersistentStorageInitialized()
+        return helper.shouldWarnWalletActivated()
     }
 }
