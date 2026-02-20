@@ -193,13 +193,13 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.Ready {
-        _ = try await expressFeeProvider.transactionFee(data: .dex(data: data))
+        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
 
         try Task.checkCancellation()
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        return .init(provider: provider, data: data, quote: quoteData)
+        return .init(provider: provider, data: data, fee: fee, quote: quoteData)
     }
 }
 

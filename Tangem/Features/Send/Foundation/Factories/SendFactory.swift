@@ -19,8 +19,8 @@ struct SendFactory {
             walletModel: options.input.walletModel
         )
 
-        let provider = makeTokenHeaderProvider(options: options)
-        let sourceToken = sourceTokenFactory.makeSourceToken(tokenHeaderProvider: provider)
+        let flowActionType = makeFlowActionType(options: options)
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: flowActionType)
 
         let baseDataBuilderFactory = SendBaseDataBuilderFactory(
             walletModel: options.input.walletModel,
@@ -41,6 +41,17 @@ struct SendFactory {
                     userWalletInfo: sourceToken.userWalletInfo,
                     walletModel: options.input.walletModel,
                     expressOperationType: .swapAndSend
+                )
+            )
+
+        case .swap:
+            return SwapFlowFactory(
+                sourceToken: sourceToken,
+                baseDataBuilderFactory: baseDataBuilderFactory,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: sourceToken.userWalletInfo,
+                    walletModel: options.input.walletModel,
+                    expressOperationType: .swap
                 )
             )
 
@@ -141,26 +152,15 @@ struct SendFactory {
         }
     }
 
-    private func makeTokenHeaderProvider(options: SendCoordinator.Options) -> SendGenericTokenHeaderProvider {
+    private func makeFlowActionType(options: SendCoordinator.Options) -> SendFlowActionType {
         switch options.type {
-        case .unstaking:
-            return UnstakingTokenHeaderProvider()
-
-        default:
-            let flowActionType: SendFlowActionType = switch options.type {
-            case .send, .nft, .sell: .send
-            case .staking: .stake
-            case .restaking(_, let action): action.type.sendFlowActionType
-            case .unstaking: .unstake
-            case .stakingSingleAction(_, let action): action.type.sendFlowActionType
-            case .onramp: .onramp
-            }
-
-            return SendTokenHeaderProvider(
-                userWalletInfo: options.input.userWalletInfo,
-                account: options.input.walletModel.account,
-                flowActionType: flowActionType
-            )
+        case .send, .nft, .sell: .send
+        case .swap: .swap
+        case .staking: .stake
+        case .restaking(_, let action): action.type.sendFlowActionType
+        case .unstaking: .unstake
+        case .stakingSingleAction(_, let action): action.type.sendFlowActionType
+        case .onramp: .onramp
         }
     }
 }
