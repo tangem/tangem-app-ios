@@ -223,16 +223,13 @@ extension SendCoordinator: SwapRoutable {
         swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
         direction: SwapTokenSelectorViewModel.SwapDirection
     ) {
-        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(
-            screen: .mainScreen,
-            onTokenAdded: { [weak self] item in
-                guard let viewModel = self?.swapTokenSelectorViewModel else {
-                    AppLogger.debug("SwapTokenSelectorViewModel not found")
-                    return
-                }
-                viewModel.selectNewToken(item)
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(onTokenAdded: { [weak self] item in
+            guard let viewModel = self?.swapTokenSelectorViewModel else {
+                AppLogger.debug("SwapTokenSelectorViewModel not found")
+                return
             }
-        )
+            viewModel.selectNewToken(item)
+        })
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
