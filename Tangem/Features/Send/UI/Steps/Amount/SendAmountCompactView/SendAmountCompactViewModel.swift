@@ -92,7 +92,7 @@ private extension SendAmountCompactViewModel {
 
         Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
             swapProvidersInput.expressProvidersPublisher
         )
         .withWeakCaptureOf(self)
