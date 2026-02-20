@@ -20,7 +20,7 @@ extension SendAmountStepBuildable {
         SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
     }
 
-    func makeSwapAmountViewModel() -> (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater) {
+    func makeSwapAmountViewModel() -> SendAmountStepBuilder.SwapReturnValue {
         SendAmountStepBuilder.makeSwapAmountViewModel(io: amountIO, types: amountTypes, dependencies: amountDependencies)
     }
 }
@@ -60,6 +60,7 @@ enum SendAmountStepBuilder {
     }
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
+    typealias SwapReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
@@ -119,7 +120,7 @@ enum SendAmountStepBuilder {
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
     }
 
-    static func makeSwapAmountViewModel(io: IO, types: Types, dependencies: Dependencies) -> (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater) {
+    static func makeSwapAmountViewModel(io: IO, types: Types, dependencies: Dependencies) -> SendAmountStepBuilder.SwapReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
             sourceTokenAmountInput: io.sourceAmountIO.input,
             sourceTokenAmountOutput: io.sourceAmountIO.output,
@@ -147,9 +148,18 @@ enum SendAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
         )
 
+        let finish = SendAmountFinishViewModel(
+            initialSourceToken: types.initialSourceToken,
+            sourceTokenInput: io.sourceIO.input,
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            swapProvidersInput: io.swapProvidersInput,
+        )
+
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         interactorSaver.updater = amountUpdater
 
-        return (viewModel: viewModel, amountUpdater: amountUpdater)
+        return (viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
     }
 }
