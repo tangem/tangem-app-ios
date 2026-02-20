@@ -55,8 +55,7 @@ final class AppScanTask: CardSessionRunnable {
     var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
 
     let shouldAskForAccessCode: Bool
-    var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
-
+    
     private let performDerivations: Bool
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
