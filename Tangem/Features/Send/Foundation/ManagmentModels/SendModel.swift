@@ -735,7 +735,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                     case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: fee,
                                 provider: provider.provider
@@ -743,7 +743,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .previewCEX(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
@@ -751,7 +751,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .readyToSwap(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
