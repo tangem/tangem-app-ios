@@ -17,8 +17,6 @@ final class SolanaWCLinksUITests: BaseTestCase {
     func testOpenTangemAppFromSafari_ShowsWalletConnectSheet() throws {
         setAllureId(4025)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "WalletConnect deeplink does not load dapp data on cold start")
-
         getWcURI()
         let userTokensScenario = ScenarioConfig(
             name: "user_tokens_api",
@@ -29,7 +27,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.launch()
         CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
-            .allowPushNotificationsIfNeeded()
+            .skipPushNotificationsSetup()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
         app.terminate()
@@ -44,6 +42,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
             .selectWalletByName("Wallet")
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
+            .skipPushNotificationsSetup()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
