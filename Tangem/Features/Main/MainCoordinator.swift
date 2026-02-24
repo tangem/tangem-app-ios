@@ -392,10 +392,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCStatusPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
 
@@ -403,10 +403,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCDeclinedPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -479,6 +479,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(input: input, type: .send, source: .main)
+
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSwap(input: SendInput) {
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(input: input, type: .swap, source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator

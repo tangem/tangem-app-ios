@@ -101,7 +101,7 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
     private func mapToReceiveTokensListTokenViewModel(coin: CoinModel) -> SendReceiveTokensListTokenViewData? {
         let items = coin.items.map { $0.tokenItem }.filter { tokenItem -> Bool in
 
-            let isSameAsSource = switch (sourceTokenInput?.sourceToken.tokenItem, tokenItem) {
+            let isSameAsSource = switch (sourceTokenInput?.sourceToken.value?.tokenItem, tokenItem) {
             case (.blockchain(let lhs), .blockchain(let rhs)): lhs.blockchain.coinId == rhs.blockchain.coinId
             case (.token(let lhs, _), .token(let rhs, _)): lhs.contractAddress == rhs.contractAddress
             default: false
