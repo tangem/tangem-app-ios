@@ -13,15 +13,15 @@ import TangemExpress
 import BlockchainSdk
 
 enum SendType {
-    case send
-    case swap
-    case sell(parameters: PredefinedSellParameters)
-    case nft(parameters: PredefinedNFTParameters)
-    case staking(manager: StakingManager, blockchainParams: StakingBlockchainParams)
-    case unstaking(manager: StakingManager, action: UnstakingModel.Action)
-    case restaking(manager: StakingManager, action: RestakingModel.Action)
-    case stakingSingleAction(manager: StakingManager, action: StakingSingleActionModel.Action)
-    case onramp(parameters: PredefinedOnrampParameters = .none)
+    case send(SendSourceToken)
+    case swap(SendSourceToken)
+    case sell(SendSourceToken, parameters: PredefinedSellParameters)
+    case nft(SendSourceToken, parameters: PredefinedNFTParameters)
+    case staking(SendSourceToken, manager: StakingManager, blockchainParams: StakingBlockchainParams)
+    case unstaking(SendSourceToken, manager: StakingManager, action: UnstakingModel.Action)
+    case restaking(SendSourceToken, manager: StakingManager, action: RestakingModel.Action)
+    case stakingSingleAction(SendSourceToken, manager: StakingManager, action: StakingSingleActionModel.Action)
+    case onramp(SendSourceToken, parameters: PredefinedOnrampParameters = .none)
 }
 
 // MARK: - Parameters
