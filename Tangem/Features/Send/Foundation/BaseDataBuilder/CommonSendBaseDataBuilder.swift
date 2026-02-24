@@ -30,7 +30,6 @@ struct CommonSendBaseDataBuilder {
 
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
-    private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
     private let tangemIconProvider: TangemIconProvider
 
     init(
@@ -38,14 +37,12 @@ struct CommonSendBaseDataBuilder {
         approveDataInput: SendApproveDataBuilderInput,
         walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder,
         tangemIconProvider: TangemIconProvider
     ) {
         self.baseDataInput = baseDataInput
         self.approveDataInput = approveDataInput
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
-        self.sendReceiveTokensListBuilder = sendReceiveTokensListBuilder
         self.tangemIconProvider = tangemIconProvider
     }
 }
@@ -121,10 +118,6 @@ extension CommonSendBaseDataBuilder: SendBaseDataBuilder {
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
 
         return (dataCollector: emailDataCollector, recipient: recipient)
-    }
-
-    func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder {
-        return sendReceiveTokensListBuilder
     }
 }
 

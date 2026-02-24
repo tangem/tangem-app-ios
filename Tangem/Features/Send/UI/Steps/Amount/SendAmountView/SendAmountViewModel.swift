@@ -47,7 +47,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Router
 
-    weak var router: SendAmountRoutable?
+    weak var router: SendAmountStepRoutable?
 
     // MARK: - Dependencies
 

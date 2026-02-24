@@ -26,13 +26,21 @@ final class CommonSwapNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
     private weak var delegate: NotificationTapDelegate?
-    private var analyticsService: NotificationsAnalyticsService
+    private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
     private var setupCancellable: AnyCancellable?
     private var analyticsServiceCancellable: AnyCancellable?
 
-    init(userWalletId: UserWalletId) {
-        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
+    init() {}
+
+    private func analyticsService(for userWalletId: UserWalletId) -> NotificationsAnalyticsService {
+        if let analyticsService = analyticsServices.read()[userWalletId] {
+            return analyticsService
+        }
+
+        let analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
+        analyticsServices.mutate { $0[userWalletId] = analyticsService }
+        return analyticsService
     }
 }
 
@@ -47,20 +55,23 @@ private extension CommonSwapNotificationManager {
         setupCancellable = Publishers.CombineLatest3(
             sourceTokenInput.sourceTokenPublisher,
             receiveTokenInput.receiveTokenPublisher,
-            // Ignore all loading states
-            swapModelStateProvider.statePublisher.filter { !$0.isLoading }
+            swapModelStateProvider.statePublisher
+                .filter { $0.filter(loading: [.providers, .rates]) }
         )
         .withWeakCaptureOf(self)
         .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2) }
         .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
 
-        analyticsServiceCancellable = notificationPublisher
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { manager, notifications in
-                manager.analyticsService.sendEventsIfNeeded(for: notifications)
-            })
+        analyticsServiceCancellable = Publishers.CombineLatest(
+            sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
+            notificationPublisher.debounce(for: 0.1, scheduler: DispatchQueue.main)
+        )
+        .withWeakCaptureOf(self)
+        .sink(receiveValue: { manager, args in
+            let (source, notifications) = args
+            let analyticsService = manager.analyticsService(for: source.userWalletInfo.id)
+            analyticsService.sendEventsIfNeeded(for: notifications)
+        })
     }
 
     func mapToNotificationInputs(
