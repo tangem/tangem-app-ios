@@ -11,6 +11,7 @@ import TangemLocalization
 import Combine
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 class OnrampAmountViewModel: ObservableObject {
     @Published var fiatItem: FiatItem?

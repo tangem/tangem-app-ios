@@ -110,7 +110,7 @@ final class SendViewModel: ObservableObject {
             performApprove()
         case .action where flowActionType == .onramp:
             performOnramp()
-        case .action:
+        case .action, .holdAction:
             performAction()
         case .close:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
@@ -404,6 +404,14 @@ extension SendViewModel: OnrampModelRoutable {
 
     func openFinishStep() {
         stepsManager.performFinish()
+    }
+}
+
+// MARK: - OnrampModelRoutable
+
+extension SendViewModel: SwapModelRoutable {
+    func performSwapAction() {
+        performAction()
     }
 }
 
