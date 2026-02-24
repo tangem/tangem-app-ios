@@ -34,7 +34,6 @@ struct TangemSdkConfigFactory {
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
         config.style.colors.tint = Colors.Text.accent
         config.style.colors.tintUIColor = UIColor.textAccent
-        config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
         Config.useDevApi = FeatureStorage.instance.tangemAPIType != .prod
         return config
     }
