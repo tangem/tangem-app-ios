@@ -51,11 +51,10 @@ struct AppScanTaskResponse {
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-
     var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
 
     let shouldAskForAccessCode: Bool
-    
+
     private let performDerivations: Bool
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
@@ -316,10 +315,5 @@ final class AppScanTask: CardSessionRunnable {
     private func config(for card: CardDTO) -> UserWalletConfig {
         let cardInfo = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
         return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
-    }
-
-    private func shouldWarnWalletActivated(for userWalletId: UserWalletId) -> Bool {
-        let helper = PersistentStorageAppScanTaskHelper(userWalletId: userWalletId)
-        return helper.shouldWarnWalletActivated()
     }
 }
