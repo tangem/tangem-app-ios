@@ -47,7 +47,7 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     }
 
     private var contentStack: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 2.0) {
             Text(name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)

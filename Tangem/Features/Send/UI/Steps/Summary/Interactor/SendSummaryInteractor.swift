@@ -23,7 +23,7 @@ class CommonSendSummaryInteractor {
     private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
-    private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
+    private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
     private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
 
     init(
@@ -31,14 +31,14 @@ class CommonSendSummaryInteractor {
         output: SendSummaryOutput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
-        swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
+        sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
         stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.sendDescriptionBuilder = sendDescriptionBuilder
-        self.swapDescriptionBuilder = swapDescriptionBuilder
+        self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
     }
 }
@@ -92,7 +92,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 private extension CommonSendSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
-        case .none:
+        case .none, .swap:
             return nil
         case .staking(let amount, let schedule):
             let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
@@ -100,8 +100,8 @@ private extension CommonSendSummaryInteractor {
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
             return description
-        case .swap(let amount, let fee, let provider):
-            let description = swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+        case .sendWithSwap(let amount, let fee, let provider):
+            let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
             return description
         }
     }

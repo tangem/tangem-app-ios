@@ -65,4 +65,7 @@ protocol EarnWidgetAnalyticsProvider {
 
     /// Logs when user opens the earn token list from widget.
     func logEarnListOpened()
+
+    /// Logs when user taps on an opportunity in the widget (source: Markets).
+    func logEarnOpportunitySelected(token: String, blockchain: String)
 }
