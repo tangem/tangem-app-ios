@@ -14,28 +14,15 @@ protocol SendGenericFlowFactory {
 
 struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
-        let sourceTokenFactory = SendSourceTokenFactory(
-            userWalletInfo: options.input.userWalletInfo,
-            walletModel: options.input.walletModel
-        )
-
-        let flowActionType = makeFlowActionType(options: options)
-        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: flowActionType)
-
         let baseDataBuilderFactory = SendBaseDataBuilderFactory(
             walletModel: options.input.walletModel,
             userWalletInfo: options.input.userWalletInfo
         )
 
         switch options.type {
-        case .send:
+        case .send(let sourceToken):
             return SendFlowFactory(
                 sourceToken: sourceToken,
-                sendingWalletDestinationStepDataInput: .init(
-                    walletAddresses: options.input.walletModel.addresses.map(\.value),
-                    suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: options.input.walletModel),
-                    walletModelHistoryUpdater: options.input.walletModel
-                ),
                 baseDataBuilderFactory: baseDataBuilderFactory,
                 source: ExpressInteractorWalletModelWrapper(
                     userWalletInfo: sourceToken.userWalletInfo,
@@ -44,29 +31,19 @@ struct SendFactory {
                 )
             )
 
-        case .swap:
+        case .swap(let sourceToken):
             return SwapFlowFactory(
                 sourceToken: sourceToken,
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: sourceToken.userWalletInfo,
-                    walletModel: options.input.walletModel,
-                    expressOperationType: .swap
-                )
+                baseDataBuilderFactory: baseDataBuilderFactory
             )
 
-        case .nft(let parameters):
+        case .nft(let sourceToken, let parameters):
             return NFTFlowFactory(
                 sourceToken: sourceToken,
                 nftAssetStepBuilder: NFTAssetStepBuilder(
                     asset: parameters.asset,
                     collection: parameters.collection
                 ),
-                sendingWalletDestinationStepDataInput: .init(
-                    walletAddresses: options.input.walletModel.addresses.map(\.value),
-                    suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: options.input.walletModel),
-                    walletModelHistoryUpdater: options.input.walletModel
-                ),
                 baseDataBuilderFactory: baseDataBuilderFactory,
                 source: ExpressInteractorWalletModelWrapper(
                     userWalletInfo: sourceToken.userWalletInfo,
@@ -75,7 +52,7 @@ struct SendFactory {
                 )
             )
 
-        case .sell(let parameters):
+        case .sell(let sourceToken, let parameters):
             return SellFlowFactory(
                 sourceToken: sourceToken,
                 sellParameters: parameters,
@@ -88,20 +65,20 @@ struct SendFactory {
             )
 
         // We are using restaking flow here because it doesn't allow to edit amount
-        case .staking(let manager, let stakingParams) where !stakingParams.isStakingAmountEditable:
+        case .staking(let sourceToken, let manager, let stakingParams) where !stakingParams.isStakingAmountEditable:
             return RestakingFlowFactory(
                 sourceToken: sourceToken,
                 manager: manager,
                 // Default action with full available amount
                 action: StakingAction(
-                    amount: options.input.walletModel.availableBalanceProvider.balanceType.value ?? 0,
+                    amount: sourceToken.availableBalanceProvider.balanceType.value ?? 0,
                     targetType: .empty,
                     type: .stake
                 ),
                 baseDataBuilderFactory: baseDataBuilderFactory,
             )
 
-        case .staking(let manager, _):
+        case .staking(let sourceToken, let manager, _):
             return StakingFlowFactory(
                 sourceToken: sourceToken,
                 manager: manager,
@@ -113,7 +90,7 @@ struct SendFactory {
                 walletModelDependenciesProvider: options.input.walletModel
             )
 
-        case .restaking(let manager, let action):
+        case .restaking(let sourceToken, let manager, let action):
             return RestakingFlowFactory(
                 sourceToken: sourceToken,
                 manager: manager,
@@ -121,7 +98,7 @@ struct SendFactory {
                 baseDataBuilderFactory: baseDataBuilderFactory,
             )
 
-        case .unstaking(let manager, let action):
+        case .unstaking(let sourceToken, let manager, let action):
             return UnstakingFlowFactory(
                 sourceToken: sourceToken,
                 manager: manager,
@@ -129,7 +106,7 @@ struct SendFactory {
                 baseDataBuilderFactory: baseDataBuilderFactory,
             )
 
-        case .stakingSingleAction(let manager, let action):
+        case .stakingSingleAction(let sourceToken, let manager, let action):
             return StakingSingleActionFlowFactory(
                 sourceToken: sourceToken,
                 manager: manager,
@@ -137,30 +114,13 @@ struct SendFactory {
                 baseDataBuilderFactory: baseDataBuilderFactory,
             )
 
-        case .onramp(let parameters):
+        case .onramp(let sourceToken, let parameters):
             return OnrampFlowFactory(
                 sourceToken: sourceToken,
                 parameters: parameters,
                 coordinatorSource: options.source,
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: sourceToken.userWalletInfo,
-                    walletModel: options.input.walletModel,
-                    expressOperationType: .onramp
-                )
+                baseDataBuilderFactory: baseDataBuilderFactory
             )
-        }
-    }
-
-    private func makeFlowActionType(options: SendCoordinator.Options) -> SendFlowActionType {
-        switch options.type {
-        case .send, .nft, .sell: .send
-        case .swap: .swap
-        case .staking: .stake
-        case .restaking(_, let action): action.type.sendFlowActionType
-        case .unstaking: .unstake
-        case .stakingSingleAction(_, let action): action.type.sendFlowActionType
-        case .onramp: .onramp
         }
     }
 }
