@@ -4655,6 +4655,7 @@
 		EFE242852F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */; };
 		EFE242A72F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */; };
 		EFE255FA2C3D8C7C00B17DAC /* SendQRCodeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */; };
+		EFE280E22F4E4F3100475C95 /* TransferSellFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE280E12F4E4F3100475C95 /* TransferSellFlowFactory.swift */; };
 		EFE31A302F3DEE850013FFEC /* SwapFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A2F2F3DEE850013FFEC /* SwapFlowFactory.swift */; };
 		EFE31A332F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A322F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift */; };
 		EFE31A352F3DEF750013FFEC /* SwapSummaryStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE31A342F3DEF750013FFEC /* SwapSummaryStep.swift */; };
@@ -9563,6 +9564,7 @@
 		EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorSuggestedFeeProvider.swift; sourceTree = "<group>"; };
 		EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderMock.swift; sourceTree = "<group>"; };
 		EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRCodeService.swift; sourceTree = "<group>"; };
+		EFE280E12F4E4F3100475C95 /* TransferSellFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSellFlowFactory.swift; sourceTree = "<group>"; };
 		EFE31A2F2F3DEE850013FFEC /* SwapFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFlowFactory.swift; sourceTree = "<group>"; };
 		EFE31A322F3DEF5D0013FFEC /* SwapSummaryStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryStepBuildable.swift; sourceTree = "<group>"; };
 		EFE31A342F3DEF750013FFEC /* SwapSummaryStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryStep.swift; sourceTree = "<group>"; };
@@ -26443,6 +26445,7 @@
 				EFAF8A8E2E869D2F009C3CF9 /* SellFlowFactory.swift */,
 				EFAF8A8C2E85F06D009C3CF9 /* NFTFlowFactory.swift */,
 				EF2139082F4E4BDC0059C508 /* TransferFlowFactory.swift */,
+				EFE280E12F4E4F3100475C95 /* TransferSellFlowFactory.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -28454,6 +28457,7 @@
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				EF82F8162EAFAD77006A46BB /* OnrampSummaryRoutable.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
+				EFE280E22F4E4F3100475C95 /* TransferSellFlowFactory.swift in Sources */,
 				EAE484372EB0F59000086EBD /* YieldModuleTransactionView.swift in Sources */,
 				EA31CB202F0C01610016AABC /* GaslessTransactionsDTO.swift in Sources */,
 				0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */,
