@@ -37,7 +37,7 @@ extension SwapFlowBaseDependenciesFactory {
         CommonSwapNotificationManager()
     }
 
-    func makeSendAlertBuilder() -> SendAlertBuilder {
+    func makeSwapAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
     }
 }
