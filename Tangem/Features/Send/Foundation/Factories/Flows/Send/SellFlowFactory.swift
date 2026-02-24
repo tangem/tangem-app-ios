@@ -8,11 +8,11 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SellFlowFactory: SendFlowBaseDependenciesFactory {
+class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let sellParameters: PredefinedSellParameters
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let expressDependenciesFactory: any ExpressDependenciesFactory
+    let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
@@ -40,7 +40,10 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: expressDependenciesInput,
+            expressDependenciesFactory: CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        )
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
@@ -169,13 +172,6 @@ extension SellFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 baseDataInput: sendModel,
                 approveDataInput: swapManager,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),

@@ -22,7 +22,7 @@ struct SentExpressTransactionData {
 struct SentSwapTransactionData {
     let result: TransactionDispatcherResult
     let source: any SendSourceToken
-    let receive: any SendSourceToken
+    let receive: any SendReceiveToken
     let fee: BSDKFee
     let provider: ExpressProvider
     let date: Date
