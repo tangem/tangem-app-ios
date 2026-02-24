@@ -56,7 +56,6 @@ enum NotificationButtonActionType: Identifiable {
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case closeMobileUpgrade
-    case tangemPaySync(title: String, icon: MainButton.Icon?)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -93,7 +92,6 @@ enum NotificationButtonActionType: Identifiable {
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
-        case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
@@ -155,8 +153,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwUpgrade
         case .closeMobileUpgrade:
             return Localization.commonLater
-        case .tangemPaySync(let title, _):
-            return title
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
@@ -174,8 +170,7 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses(let icon),
              .retryKaspaTokenTransaction(let icon),
-             .unlock(let icon),
-             .tangemPaySync(_, let icon):
+             .unlock(let icon):
             return icon
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -220,8 +215,7 @@ enum NotificationButtonActionType: Identifiable {
              .unlock,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
-             .activate,
-             .tangemPaySync:
+             .activate:
             return .primary
         case .backupCard,
              .openFeeCurrency,
