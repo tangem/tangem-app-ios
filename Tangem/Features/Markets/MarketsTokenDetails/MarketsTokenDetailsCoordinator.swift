@@ -297,7 +297,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openExchange(input: ExpressDependenciesInput) {
+    func openExchange(input: ExpressDependenciesDestinationInput) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -326,8 +326,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
-            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.destination.tokenItem) {
+            openViaYieldNotice(tokenItem: input.destination.tokenItem, action: action)
         } else {
             action()
         }
