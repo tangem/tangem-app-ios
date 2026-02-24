@@ -24,6 +24,15 @@ struct SendFactory {
         case .swap(let sourceToken):
             return SwapFlowFactory(sourceToken: sourceToken)
 
+        case .nft(let sourceToken, _, let parameters) where FeatureProvider.isAvailable(.swapRefactoring):
+            return TransferNFTFlowFactory(
+                sourceToken: sourceToken,
+                nftAssetStepBuilder: NFTAssetStepBuilder(
+                    asset: parameters.asset,
+                    collection: parameters.collection
+                ),
+            )
+
         case .nft(let sourceToken, let source, let parameters):
             return NFTFlowFactory(
                 sourceToken: sourceToken,
