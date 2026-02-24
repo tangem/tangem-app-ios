@@ -110,7 +110,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                 availabilityProvider: .swap()
             ),
             marketsTokensViewModel: marketsTokensViewModel,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
+            output: expressDependenciesFactory.expressInteractor,
             tokenSelectorCoordinator: tokenSelectorCoordinator,
             marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )

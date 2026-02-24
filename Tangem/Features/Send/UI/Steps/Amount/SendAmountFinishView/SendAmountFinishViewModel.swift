@@ -28,21 +28,22 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        initialSourceToken: SendSourceToken,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        tokenHeader = sourceTokenInput.sourceToken.header
-        tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
-        amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
+        tokenHeader = initialSourceToken.header
+        tokenIconInfo = initialSourceToken.tokenIconInfo
+        amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: initialSourceToken.tokenItem.decimalCount)
         amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
-            cryptoCurrencyCode: sourceTokenInput.sourceToken.tokenItem.currencySymbol
+            cryptoCurrencyCode: initialSourceToken.tokenItem.currencySymbol
         )
         alternativeAmount = sourceTokenAmountInput.sourceAmount.value?.formatAlternative(
-            currencySymbol: sourceTokenInput.sourceToken.tokenItem.currencySymbol,
-            decimalCount: sourceTokenInput.sourceToken.tokenItem.decimalCount
+            currencySymbol: initialSourceToken.tokenItem.currencySymbol,
+            decimalCount: initialSourceToken.tokenItem.decimalCount
         )
 
         bind(
@@ -92,7 +93,7 @@ private extension SendAmountFinishViewModel {
         swapProvidersInput: SendSwapProvidersInput?
     ) {
         Publishers.CombineLatest(
-            sourceTokenInput.sourceTokenPublisher,
+            sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
             sourceTokenAmountInput.sourceAmountPublisher
         )
         .withWeakCaptureOf(self)
@@ -110,12 +111,12 @@ private extension SendAmountFinishViewModel {
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateView(receiveToken: $1.0, receiveAmount: $1.1) }
+        .sink { $0.updateView(receiveToken: $1.0.value, receiveAmount: $1.1) }
         .store(in: &bag)
 
         Publishers.CombineLatest(
-            sourceTokenInput.sourceTokenPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher,
+            sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
@@ -147,11 +148,11 @@ private extension SendAmountFinishViewModel {
         }
     }
 
-    private func updateView(receiveToken: SendReceiveTokenType, receiveAmount: LoadingResult<SendAmount, any Error>) {
+    private func updateView(receiveToken: SendReceiveToken?, receiveAmount: LoadingResult<SendAmount, any Error>) {
         switch (receiveToken, receiveAmount) {
-        case (.same, _):
+        case (.none, _):
             receiveSmallAmountViewModel = nil
-        case (.swap(let token), .success(let receiveAmount)):
+        case (.some(let token), .success(let receiveAmount)):
             let textField = DecimalNumberTextFieldViewModel(
                 maximumFractionDigits: token.tokenItem.decimalCount
             )
@@ -169,7 +170,7 @@ private extension SendAmountFinishViewModel {
                     decimalCount: token.tokenItem.decimalCount
                 )
             )
-        case (.swap, .failure), (.swap, .loading):
+        case (.some, .failure), (.some, .loading):
             // Do nothing to avoid incorrect view state
             break
         }

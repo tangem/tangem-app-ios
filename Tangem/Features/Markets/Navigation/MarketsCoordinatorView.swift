@@ -50,9 +50,12 @@ struct MarketsCoordinatorView: CoordinatorView {
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                backButton
-                            }
+                            NavigationToolbarButton.close(
+                                placement: .topBarLeading,
+                                action: {
+                                    dissmissMainTokenDetails()
+                                }
+                            )
                         }
                 }
                 .tint(Colors.Text.primary1)
@@ -89,22 +92,7 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
     }
 
-    private var backButton: some View {
-        BackButton(
-            height: Constants.backButtonHeight,
-            isVisible: true,
-            isEnabled: true,
-            hPadding: Constants.backButtonHorizontalPadding,
-            action: { UIApplication.dismissTop() }
-        )
-    }
-}
-
-// MARK: - Constants
-
-private extension MarketsCoordinatorView {
-    enum Constants {
-        static let backButtonHorizontalPadding: CGFloat = -6
-        static let backButtonHeight: CGFloat = 44.0
+    private func dissmissMainTokenDetails() {
+        coordinator.mainTokenDetailsCoordinator = nil
     }
 }
