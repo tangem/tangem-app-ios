@@ -20,6 +20,7 @@ protocol SendAmountInteractor {
 
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
     func update(amount: Decimal?) throws -> SendAmount?
     func update(type: SendAmountCalculationType) throws -> SendAmount?
@@ -234,6 +235,14 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
 
         return receiveTokenAmountInput.receiveAmountPublisher
+    }
+
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        guard let receiveTokenAmountInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenAmountInput.highPriceImpactPublisher
     }
 
     func update(amount: Decimal?) throws -> SendAmount? {

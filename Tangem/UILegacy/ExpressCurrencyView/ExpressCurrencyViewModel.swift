@@ -191,8 +191,8 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func updateHighPricePercentLabel(quote: ExpressInteractor.Quote?) {
-        guard let highPriceImpact = quote?.highPriceImpact else {
+    func updateHighPricePercentLabel(highPriceImpact: HighPriceImpactCalculator.Result?) {
+        guard let highPriceImpact else {
             priceChangeState = nil
             return
         }

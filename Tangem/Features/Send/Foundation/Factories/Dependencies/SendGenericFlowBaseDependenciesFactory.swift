@@ -24,13 +24,13 @@ extension SendGenericFlowBaseDependenciesFactory {
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
-    // Services
+    // MARK: - Services
 
     func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
         BlockchainSDKNotificationMapper(tokenItem: tokenItem)
     }
 
-    // TransactionSummaryDescriptionBuilders
+    // MARK: - TransactionSummaryDescriptionBuilders
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
@@ -59,5 +59,11 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
         CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+    }
+
+    // MARK: - Analytics
+
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: sendType)
     }
 }
