@@ -16,6 +16,7 @@ final class TangemElasticContainerModel: NSObject, ObservableObject {
 
     @Published private(set) var state: State = .expanded
 
+    /// Dynamic top padding used to simulate resistance / hugging effects
     var topPadding: CGFloat {
         switch state {
         case .collapsing(let ratio):
@@ -27,10 +28,12 @@ final class TangemElasticContainerModel: NSObject, ObservableObject {
         }
     }
 
+    /// Emits anchor IDs for snapping after scroll ends
     var scrollToIdPublisher: AnyPublisher<AnyHashable, Never> {
         scrollToIdSubject.eraseToAnyPublisher()
     }
 
+    /// Scroll anchors
     let topAnchorId: AnyHashable = UUID()
     let bottomAnchorId: AnyHashable = UUID()
 
@@ -38,9 +41,11 @@ final class TangemElasticContainerModel: NSObject, ObservableObject {
     private let scrollStateSubject = PassthroughSubject<ScrollState, Never>()
     private let scrollOffsetSubject = PassthroughSubject<CGPoint, Never>()
 
+    /// Snap thresholds
     private let collapseThreshold: Double = 0.5
     private let expandThreshold: Double = 0.1
 
+    /// Initial geometry snapshot
     private var initialFrame: CGRect?
     private var initialScrollOffset: CGPoint?
 
@@ -77,6 +82,7 @@ extension TangemElasticContainerModel {
 
 private extension TangemElasticContainerModel {
     func bind() {
+        // State machine driven by scroll offset
         scrollOffsetSubject
             .receiveOnMain()
             .scan(state) { [weak self] state, scrollOffset in
@@ -86,6 +92,7 @@ private extension TangemElasticContainerModel {
             .removeDuplicates()
             .assign(to: &$state)
 
+        // Detects transition from scrolling to idle
         let scrollIdleStatePublisher = scrollStateSubject
             .removeDuplicates()
             .scan((ScrollState?, ScrollState?)(nil, nil)) { previousStates, newState in
@@ -97,6 +104,7 @@ private extension TangemElasticContainerModel {
             }
             .map { _ in }
 
+        // Emits anchor to snap to when scrolling finishes
         scrollIdleStatePublisher
             .withLatestFrom($state)
             .compactMap { [weak self] state in
@@ -147,6 +155,16 @@ private extension TangemElasticContainerModel {
 // MARK: - Collapse state
 
 private extension TangemElasticContainerModel {
+    /// Calculates collapsing state with elastic resistance.
+    ///
+    /// The raw scroll offset is reduced by a non-linear resistance curve
+    /// to simulate a rubber-band effect while collapsing.
+    ///
+    /// - Parameters:
+    ///   - initialHeight: Full height of the container in expanded state
+    ///   - offset: Current scroll offset relative to initial position
+    ///
+    /// - Returns: `.collapsing` with normalized ratio or `.collapsed`
     func collapseState(initialHeight: CGFloat, offset: CGFloat) -> State {
         guard initialHeight > 0 else { return .collapsed }
         let resistanceHeight = resistanceHeight(height: initialHeight, offset: offset)
@@ -155,6 +173,8 @@ private extension TangemElasticContainerModel {
         return ratio < 1 ? .collapsing(ratio: ratio) : .collapsed
     }
 
+    /// Convenience helper that calculates resistance height
+    /// using a normalized ratio instead of raw offset.
     func resistanceHeight(ratio: CGFloat) -> CGFloat {
         guard let initialFrame else { return 0 }
         let height = initialFrame.height
@@ -162,12 +182,24 @@ private extension TangemElasticContainerModel {
         return resistanceHeight(height: height, offset: offset)
     }
 
+    /// Converts scroll offset into elastic resistance distance.
+    ///
+    /// The resistance grows non-linearly as the offset increases,
+    /// preventing the collapse from feeling linear or stiff.
     func resistanceHeight(height: CGFloat, offset: CGFloat) -> CGFloat {
         guard height > 0 else { return 0 }
         let resistance = resistanceCurve(x: offset / height)
         return resistance * height
     }
 
+    /// Resistance curve used during collapsing.
+    ///
+    /// - Uses a squared sine wave to:
+    ///   - start with zero resistance
+    ///   - peak smoothly in the middle
+    ///   - return to zero at the end
+    ///
+    /// This produces a soft, natural rubber-band feel.
     func resistanceCurve(x: CGFloat) -> CGFloat {
         let correctionFactor = 0.25
         return pow(sin(x * .pi), 2) * correctionFactor
@@ -177,6 +209,10 @@ private extension TangemElasticContainerModel {
 // MARK: - Expand state
 
 private extension TangemElasticContainerModel {
+    /// Calculates expanding state with elastic "hugging" effect.
+    ///
+    /// Hugging works opposite to resistance: instead of pushing back,
+    /// it softly pulls the content toward the expanded state.
     func expandState(initialHeight: CGFloat, offset: CGFloat) -> State {
         guard initialHeight > 0 else { return .expanded }
         let huggingHeight = huggingHeight(height: initialHeight, offset: offset)
@@ -185,6 +221,8 @@ private extension TangemElasticContainerModel {
         return ratio < 1 ? .expanding(ratio: ratio) : .expanded
     }
 
+    /// Convenience helper that calculates hugging height
+    /// using a normalized ratio instead of raw offset.
     func huggingHeight(ratio: CGFloat) -> CGFloat {
         guard let initialFrame else { return 0 }
         let height = initialFrame.height
@@ -192,12 +230,21 @@ private extension TangemElasticContainerModel {
         return huggingHeight(height: height, offset: offset)
     }
 
+    /// Converts scroll offset into elastic hugging distance.
+    ///
+    /// Hugging reduces the effective expansion distance,
+    /// making the container feel magnetically attached
+    /// to its expanded state.
     func huggingHeight(height: CGFloat, offset: CGFloat) -> CGFloat {
         guard height > 0 else { return 0 }
         let hugging = huggingCurve(x: offset / height)
         return hugging * height
     }
 
+    /// Hugging curve used during expansion.
+    ///
+    /// Similar to resistance curve but with a smaller correction factor
+    /// to keep expansion lighter and more responsive.
     func huggingCurve(x: CGFloat) -> CGFloat {
         let correctionFactor = 0.2
         return pow(sin(x * .pi), 2) * correctionFactor

@@ -14,6 +14,8 @@ enum TangemElasticContainerState: Equatable {
     case collapsed
     case expanding(ratio: CGFloat)
 
+    /// Normalized expansion ratio in range 0...1
+    /// 1 — fully expanded, 0 — fully collapsed
     var ratio: CGFloat {
         switch self {
         case .expanded: 1

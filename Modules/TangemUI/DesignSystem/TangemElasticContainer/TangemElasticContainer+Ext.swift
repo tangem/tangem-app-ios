@@ -9,6 +9,7 @@
 import SwiftUI
 
 public extension View {
+    /// Observes elastic container expansion ratio changes
     func onElasticContainerExpandRatioChange(perform: @escaping (CGFloat) -> Void) -> some View {
         onPreferenceChange(TangemElasticContainerStatePreference.self) { state in
             let ratio: CGFloat = switch state {
