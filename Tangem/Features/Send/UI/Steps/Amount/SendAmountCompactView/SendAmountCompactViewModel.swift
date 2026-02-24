@@ -134,12 +134,12 @@ private extension SendAmountCompactViewModel {
         case (.some, .none):
             return .init(provider: .loading)
         case (.some, .some(let selectedProvider)):
-            let availableProvidersCount = providers.filter(\.isAvailable).count
+            let canSelectAnother = providers.count > 1
 
             let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
-                canSelectAnother: availableProvidersCount > 1,
+                canSelectAnother: canSelectAnother,
                 badge: badge
             )
 
