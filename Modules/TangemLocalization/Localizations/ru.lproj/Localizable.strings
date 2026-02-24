@@ -29,7 +29,7 @@
 "account_could_not_create" = "Мы не смогли создать аккаунт. Пожалуйста, попробуйте позже.";
 "account_create_success_message" = "Аккаунт создан";
 "account_details_archive_description" = "Вы архивируете свой аккаунт, но в любое время можете вернуть его обратно";
-"account_details_archive" = "Архивный аккаунт";
+"account_details_archive" = "Архивировать аккаунт";
 "account_details_archiving" = "Архивация...";
 "account_details_title" = "Аккаунт";
 "account_edit_success_message" = "Аккаунт сохранен";
@@ -530,7 +530,6 @@
 "feedback_preface_support" = "Привет, команда поддержки,";
 "feedback_preface_tx_failed" = "Пожалуйста, расскажите нам больше о вашей проблеме. Каждая маленькая деталь может помочь.";
 "feedback_subject_backup_problem" = "Проблема резервного копирования";
-"feedback_subject_pre_activated_wallet" = "Ранее активированный кошелек";
 "feedback_subject_rate_negative" = "Мои предложения";
 "feedback_subject_scan_failed" = "Не могу отсканировать карту/кольцо";
 "feedback_subject_support_tangem" = "Обращение в поддержку Tangem";
@@ -1038,7 +1037,6 @@
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту или кольцо, чтобы изменить ее настройки. Изменения затронут только ту карту или кольцо, которые вы отсканировали, и не повлияют на другие устройства, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте устройство Tangem!";
-"security_alert_title" = "Уведомление безопасности";
 "seed_warning_no" = "Нет";
 "seed_warning_yes" = "Да";
 "selling_insufficient_balance_alert_message" = "На вашем балансе недостаточно средств для продажи криптовалюты. Пожалуйста, пополните нужный актив, чтобы продолжить.";
@@ -1361,7 +1359,7 @@
 "tangem_pay_freeze_card_success" = "Карта заморожена";
 "tangem_pay_get_help" = "Обратиться в поддержку";
 "tangem_pay_history_item_spend_mc_declined_reason" = "Reason: %@";
-"tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
+"tangem_pay_history_item_spend_mc_title_format" = "%@・%@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Другое";
 "tangem_pay_rooted_device_subtitle" = "Невозможно использовать на устройствах с root-доступом.";
@@ -1380,7 +1378,7 @@
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
 "tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
-"tangempay_cancel_kyc" = "Отменить KYC";
+"tangempay_cancel_kyc" = "Скрыть KYC с главной";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
 "tangempay_card_details_card_number" = "Номер";
@@ -1441,15 +1439,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "Если вы отмените KYC сейчас, вы сможете потом начать его заново";
 "tangempay_kyc_failed_description" = "Не удалось подтвердить ваш профиль. Если у вас есть вопросы, обратитесь в службу поддержки.";
 "tangempay_kyc_failed_title" = "К сожалению, нам не удалось подтвердить вашу личность";
-"tangempay_kyc_has_failed" = "KYC has failed";
+"tangempay_kyc_has_failed" = "KYC отклонено";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Обычно документы проверяются автоматически в течение 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_kyc_in_progress" = "KYC в процессе";
-"tangempay_kyc_rejected_button_text" = "Hide KYC block";
-"tangempay_kyc_rejected_description_span" = "your profile.";
-"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
-"tangempay_kyc_rejected" = "KYC отклонено";
+"tangempay_kyc_rejected_button_text" = "Скрыть KYC с главной";
+"tangempay_kyc_rejected_description_span" = "ваш профиль.";
+"tangempay_kyc_rejected_description" = "Извините, мы не смогли подтвердить";
+"tangempay_kyc_rejected" = "Отклонено";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
@@ -1476,7 +1474,6 @@
 "tangempay_withdrawal_note_description" = "Баланс ончейн-адреса (USDC Polygon) обновляется в течение 2 рабочих дней после покупки. При возвратах покупок средства не возвращаются на ончейн-баланс и недоступны для вывода, но отображаются на карте и могут быть использованы для покупок.";
 "tangempay_withdrawal_note_title" = "Обратите внимание";
 "tangempay_your_pin_code" = "Ваш PIN-код";
-"this_is_my_wallet_title" = "Это мой кошелек";
 "toast_balances_hidden" = "Балансы скрыты";
 "toast_balances_shown" = "Балансы показаны";
 "toast_undo" = "Отменить";
@@ -1640,7 +1637,6 @@
 "wallet_add_mobile_description" = "Восстановите кошелёк на телефоне или импортируйте из другого приложения — удобно, но менее безопасно, чем карта Tangem.";
 "wallet_add_support_title" = "Что выбрать?";
 "wallet_balance_missing_derivation" = "Отсканируйте карту или кольцо";
-"wallet_been_activated_message" = "Этот кошелек уже был активирован ранее.\nЕсли это сделали не вы, свяжитесь со службой поддержки.\nTangem никогда не продает кошелек вместе с предустановленным кодом доступа.";
 "wallet_connect_error_timeout" = "Не удалось установить сессию WalletConnect за отведённое время. Пожалуйста, повторите попытку позже.";
 "wallet_connect_multiple_transactions_description" = "Чтобы успешно обработать запрос, ваша транзакция будет разделена на несколько частей. Для завершения потребуется несколько приложений карты.";
 "wallet_connect_multiple_transactions" = "Транзакция в несколько шагов";
