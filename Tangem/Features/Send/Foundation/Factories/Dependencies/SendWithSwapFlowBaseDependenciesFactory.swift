@@ -38,6 +38,12 @@ extension SendWithSwapFlowBaseDependenciesFactory {
         )
     }
 
+    // MARK: - Receive token
+
+    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
+        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: sourceToken.fiatItem)
+    }
+
     // MARK: - Notifications
 
     func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
