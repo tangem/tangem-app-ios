@@ -23,11 +23,9 @@ class SendSwapProviderFinishViewModel: ObservableObject, Identifiable {
         providerType = provider.provider.type.title
         providerIcon = provider.provider.imageURL
 
-        Task { @MainActor in
-            if let quote = await provider.getState().quote {
-                let source = BalanceFormatter().formatCryptoBalance(1, currencyCode: tokenItem.currencySymbol)
-                subtitle = "\(source) \(AppConstants.approximatelyEqualSign) \(quote.rate.formatted())"
-            }
+        if let quote = provider.getState().quote {
+            let source = BalanceFormatter().formatCryptoBalance(1, currencyCode: tokenItem.currencySymbol)
+            subtitle = "\(source) \(AppConstants.approximatelyEqualSign) \(quote.rate.formatted())"
         }
     }
 }
