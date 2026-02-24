@@ -6,14 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-protocol SendWithSwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
-    var expressInteractorFactory: ExpressInteractorFactory { get }
-}
+protocol SendWithSwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory, SwapFlowBaseDependenciesFactory {}
 
 // MARK: - Shared dependencies
 
 extension SendWithSwapFlowBaseDependenciesFactory {
-    func makeSendWithSwapModel(
+    func makeSendModel(
         swapManager: SwapManager,
         analyticsLogger: any SendAnalyticsLogger,
         predefinedValues: SendModel.PredefinedValues
@@ -31,10 +29,27 @@ extension SendWithSwapFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> SwapManager {
+    func makeSwapManager(expressInteractor: ExpressInteractor) -> SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
-            interactor: expressInteractorFactory.expressInteractor
+            interactor: expressInteractor
+        )
+    }
+
+    func makeSendWithSwapModel(
+        transferModel: TransferModel,
+        swapModel: SwapModel,
+        analyticsLogger: any SendAnalyticsLogger,
+        predefinedValues: TransferModel.PredefinedValues,
+        autoupdatingTimer: AutoupdatingTimer,
+    ) -> SendWithSwapModel {
+        return SendWithSwapModel(
+            transferModel: transferModel,
+            swapModel: swapModel,
+            initialSourceToken: sourceToken,
+            transactionSigner: userWalletInfo.signer,
+            sendAlertBuilder: makeSendAlertBuilder(),
+            analyticsLogger: analyticsLogger
         )
     }
 
@@ -46,13 +61,13 @@ extension SendWithSwapFlowBaseDependenciesFactory {
 
     // MARK: - Notifications
 
-    func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
+    func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput, expressInteractor: ExpressInteractor) -> SendNotificationManager {
         SendWithSwapNotificationManager(
             receiveTokenInput: receiveTokenInput,
             sendNotificationManager: makeSendNotificationManager(),
             expressNotificationManager: ExpressNotificationManager(
                 userWalletId: userWalletInfo.id,
-                expressInteractor: expressInteractorFactory.expressInteractor
+                expressInteractor: expressInteractor
             )
         )
     }

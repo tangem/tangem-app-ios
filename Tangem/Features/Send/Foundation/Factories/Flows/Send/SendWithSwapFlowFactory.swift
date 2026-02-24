@@ -1,49 +1,40 @@
 //
-//  SendFlowBaseFactory.swift
+//  SendWithSwapFlowFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import struct TangemUI.TokenIconInfo
 
-class SendFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
+class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let expressDependenciesFactory: ExpressDependenciesFactory
-    let expressInteractorFactory: ExpressInteractorFactory
 
+    lazy var autoupdatingTimer = AutoupdatingTimer()
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
-    lazy var sendModel = makeSendModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
-    lazy var notificationManager = makeSendWithSwapNotificationManager(
-        receiveTokenInput: sendModel,
-        expressInteractor: expressInteractorFactory.expressInteractor
+    lazy var notificationManager = makeSwapNotificationManager()
+
+    lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
+    lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
+    lazy var sendWithSwapModel = makeSendWithSwapModel(
+        transferModel: transferModel,
+        swapModel: swapModel,
+        analyticsLogger: analyticsLogger,
+        predefinedValues: .init(),
+        autoupdatingTimer: autoupdatingTimer
     )
 
-    init(
-        sourceToken: SendSourceToken,
-        source: ExpressInteractorWalletModelWrapper
-    ) {
+    init(sourceToken: SendSourceToken) {
         self.sourceToken = sourceToken
-
-        let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: sourceToken.userWalletInfo,
-            source: source,
-            destination: .none
-        )
-
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
-        expressInteractorFactory = ExpressInteractorFactory(
-            input: expressDependenciesInput,
-            expressDependenciesFactory: expressDependenciesFactory
-        )
     }
 }
 
 // MARK: - SendGenericFlowFactory
 
-extension SendFlowFactory: SendGenericFlowFactory {
+extension SendWithSwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let amount = makeSendAmountStep()
         let destination = makeSendDestinationStep(router: router)
@@ -65,32 +56,46 @@ extension SendFlowFactory: SendGenericFlowFactory {
 
         // Model setup
         // We have to set dependencies here after all setups is completed
-        sendModel.externalAmountUpdater = amount.amountUpdater
-        sendModel.externalDestinationUpdater = destination.externalUpdater
+        sendWithSwapModel.externalAmountUpdater = amount.amountUpdater
+        sendWithSwapModel.externalDestinationUpdater = destination.externalUpdater
 
-        sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, provider: sendModel
+        // Forward external updaters to internal models
+        sendWithSwapModel.transferModelInternal.externalAmountUpdater = amount.amountUpdater
+        sendWithSwapModel.transferModelInternal.externalDestinationUpdater = destination.externalUpdater
+        sendWithSwapModel.swapModelInternal.externalAmountUpdater = amount.amountUpdater
+
+        sendWithSwapModel.informationRelevanceService = CommonInformationRelevanceService(
+            input: sendWithSwapModel, provider: sendWithSwapModel
+        )
+
+        // Forward information relevance service to transferModel
+        sendWithSwapModel.transferModelInternal.informationRelevanceService = CommonInformationRelevanceService(
+            input: sendWithSwapModel.transferModelInternal, provider: sendWithSwapModel.transferModelInternal
         )
 
         // Steps setup
-        fee.compact.bind(input: sendModel)
-        fee.finish.bind(input: sendModel)
+        fee.compact.bind(input: sendWithSwapModel)
+        fee.finish.bind(input: sendWithSwapModel)
 
         // Notifications setup
-        notificationManager.setup(input: sendModel)
-        notificationManager.setupManager(with: sendModel)
+        notificationManager.setupManager(with: sendWithSwapModel)
+        notificationManager.setup(
+            sourceTokenInput: swapModel,
+            receiveTokenInput: swapModel,
+            swapModelStateProvider: swapModel
+        )
 
         // Logger setup
-        analyticsLogger.setup(sendDestinationInput: sendModel)
-        analyticsLogger.setup(sendFeeInput: sendModel)
-        analyticsLogger.setup(sendSourceTokenInput: sendModel)
-        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
-        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
+        analyticsLogger.setup(sendDestinationInput: sendWithSwapModel)
+        analyticsLogger.setup(sendFeeInput: sendWithSwapModel)
+        analyticsLogger.setup(sendSourceTokenInput: sendWithSwapModel)
+        analyticsLogger.setup(sendReceiveTokenInput: sendWithSwapModel)
+        analyticsLogger.setup(sendSwapProvidersInput: sendWithSwapModel)
 
         let sendReceiveTokensListBuilder = SendReceiveTokensListBuilder(
             userWalletInfo: userWalletInfo,
-            sourceTokenInput: sendModel,
-            receiveTokenOutput: sendModel,
+            sourceTokenInput: sendWithSwapModel,
+            receiveTokenOutput: sendWithSwapModel,
             receiveTokenBuilder: makeSendReceiveTokenBuilder(),
             analyticsLogger: analyticsLogger
         )
@@ -103,7 +108,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             receiveTokensListBuilder: sendReceiveTokensListBuilder,
             providersSelector: providers.selector,
-            summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
+            summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             router: router
         )
@@ -114,8 +119,8 @@ extension SendFlowFactory: SendGenericFlowFactory {
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
-        sendModel.router = viewModel
-        sendModel.alertPresenter = viewModel
+        sendWithSwapModel.router = viewModel
+        sendWithSwapModel.alertPresenter = viewModel
 
         return viewModel
     }
@@ -123,22 +128,22 @@ extension SendFlowFactory: SendGenericFlowFactory {
 
 // MARK: - SendBaseBuildable
 
-extension SendFlowFactory: SendBaseBuildable {
+extension SendWithSwapFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: sendModel, output: sendModel)
+        SendViewModelBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
-                baseDataInput: sendModel,
+                baseDataInput: sendWithSwapModel,
                 emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
                 emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
                 sourceToken: sourceToken,
-                approveDataInput: swapManager
+                approveDataInput: sendWithSwapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceToken: sourceToken
@@ -152,14 +157,14 @@ extension SendFlowFactory: SendBaseBuildable {
 
 // MARK: - SendAmountStepBuildable
 
-extension SendFlowFactory: SendAmountStepBuildable {
+extension SendWithSwapFlowFactory: SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO {
         SendAmountStepBuilder.IO(
-            sourceIO: (input: sendModel, output: sendModel),
-            sourceAmountIO: (input: sendModel, output: sendModel),
-            receiveIO: (input: sendModel, output: sendModel),
-            receiveAmountIO: (input: sendModel, output: sendModel),
-            swapProvidersInput: sendModel,
+            sourceIO: (input: sendWithSwapModel, output: sendWithSwapModel),
+            sourceAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
+            receiveIO: (input: sendWithSwapModel, output: sendWithSwapModel),
+            receiveAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
+            swapProvidersInput: sendWithSwapModel,
         )
     }
 
@@ -169,7 +174,7 @@ extension SendFlowFactory: SendAmountStepBuildable {
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
-            sendAmountValidator: CommonSendAmountValidator(input: sendModel),
+            sendAmountValidator: CommonSendAmountValidator(input: sendWithSwapModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger
@@ -179,13 +184,13 @@ extension SendFlowFactory: SendAmountStepBuildable {
 
 // MARK: - SendDestinationStepBuildable
 
-extension SendFlowFactory: SendDestinationStepBuildable {
+extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO {
         SendDestinationStepBuilder.IO(
-            input: sendModel,
-            output: sendModel,
-            receiveTokenInput: sendModel,
-            destinationAccountOutput: sendModel
+            input: sendWithSwapModel,
+            output: sendWithSwapModel,
+            receiveTokenInput: sendWithSwapModel,
+            destinationAccountOutput: sendWithSwapModel
         )
     }
 
@@ -199,7 +204,7 @@ extension SendFlowFactory: SendDestinationStepBuildable {
             analyticsLogger: analyticsLogger,
             destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider(
                 sourceToken: sourceToken,
-                receivedToken: sendModel.receiveToken.value,
+                receivedToken: sendWithSwapModel.receiveToken.value,
                 analyticsLogger: analyticsLogger,
                 receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
             )
@@ -209,11 +214,11 @@ extension SendFlowFactory: SendDestinationStepBuildable {
 
 // MARK: - SendFeeStepBuildable
 
-extension SendFlowFactory: SendFeeStepBuildable {
+extension SendWithSwapFlowFactory: SendFeeStepBuildable {
     var feeDependencies: SendFeeStepBuilder.Dependencies {
         SendFeeStepBuilder.Dependencies(
-            tokenFeeManagerProviding: sendModel,
-            feeSelectorOutput: sendModel,
+            tokenFeeManagerProviding: sendWithSwapModel,
+            feeSelectorOutput: sendWithSwapModel,
             analyticsLogger: analyticsLogger
         )
     }
@@ -221,9 +226,9 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
 // MARK: - SendSwapProvidersBuildable
 
-extension SendFlowFactory: SendSwapProvidersBuildable {
+extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, sourceTokenInput: sendModel, receiveTokenInput: sendModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
@@ -241,9 +246,9 @@ extension SendFlowFactory: SendSwapProvidersBuildable {
 
 // MARK: - SendSummaryStepBuildable
 
-extension SendFlowFactory: SendSummaryStepBuildable {
+extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
+        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
@@ -252,7 +257,7 @@ extension SendFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendModel,
+            sendFeeProvider: sendWithSwapModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
@@ -264,9 +269,9 @@ extension SendFlowFactory: SendSummaryStepBuildable {
 
 // MARK: - SendFinishStepBuildable
 
-extension SendFlowFactory: SendFinishStepBuildable {
+extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
-        SendFinishStepBuilder.IO(input: sendModel)
+        SendFinishStepBuilder.IO(input: sendWithSwapModel)
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
