@@ -57,4 +57,20 @@ public enum MarketsAccessibilityIdentifiers {
     public static let securityScoreDetailsTitle = "marketsTokenDetailsSecurityScoreDetailsTitle"
     public static let securityScoreDetailsProviderLink = "marketsTokenDetailsSecurityScoreDetailsProviderLink"
     public static let marketsSeeAllButton = "marketsSeeAllButton"
+
+    // MARK: - Portfolio Account Header
+
+    /// Account header in Markets portfolio container.
+    /// Format: `marketsPortfolioAccountHeader_<accountName>`
+    public static func marketsPortfolioAccountHeader(accountName: String) -> String {
+        "marketsPortfolioAccountHeader_\(accountName)"
+    }
+
+    // MARK: - Portfolio Token Item
+
+    /// Token item button in Markets portfolio container (used to expand quick actions).
+    /// Format: `marketsPortfolioTokenItem_<tokenName>`
+    public static func marketsPortfolioTokenItem(tokenName: String) -> String {
+        "marketsPortfolioTokenItem_\(tokenName)"
+    }
 }
