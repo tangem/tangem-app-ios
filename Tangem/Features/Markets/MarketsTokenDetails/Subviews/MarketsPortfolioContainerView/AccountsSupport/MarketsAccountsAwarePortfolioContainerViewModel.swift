@@ -410,14 +410,9 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            let expressInput = ExpressDependenciesInput(
+            let expressInput = ExpressDependenciesDestinationInput(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModel: walletModel,
-                    expressOperationType: .swap
-                ),
-                destination: .loadingAndSet
+                walletModel: walletModel
             )
             Task { @MainActor in
                 coordinator.openExchange(input: expressInput)
