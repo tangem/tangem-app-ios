@@ -67,4 +67,22 @@ struct ExpressDependenciesDestinationInput {
         self.source = source
         self.destination = destination
     }
+
+    init(
+        userWalletInfo: UserWalletInfo,
+        walletModel: any WalletModel,
+        source: PredefinedSource = .loadingAndSet
+    ) {
+        let wrapper = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swap
+        )
+
+        self.init(
+            userWalletInfo: userWalletInfo,
+            source: source,
+            destination: wrapper
+        )
+    }
 }
