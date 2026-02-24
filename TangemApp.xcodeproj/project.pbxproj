@@ -4519,10 +4519,14 @@
 		EFB0194D2C417F01009EE857 /* YieldInfo+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB0194C2C417F01009EE857 /* YieldInfo+Mock.swift */; };
 		EFB0194F2C4187BB009EE857 /* TokenItem+StakingTokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB0194E2C4187BB009EE857 /* TokenItem+StakingTokenItem.swift */; };
 		EFB23F2D2CBE7F24005A6719 /* OnrampModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB23F2C2CBE7F1F005A6719 /* OnrampModel.swift */; };
+		EFB481552F48D90B006858AB /* AutoupdatingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB481542F48D90B006858AB /* AutoupdatingTimer.swift */; };
+		EFB481592F492C2E006858AB /* TangemPayExpressProviderTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB481582F492C2E006858AB /* TangemPayExpressProviderTransactionValidator.swift */; };
+		EFB4815B2F492CD0006858AB /* ExpressInteractorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4815A2F492CD0006858AB /* ExpressInteractorFactory.swift */; };
+		EFB4815D2F493083006858AB /* SendWithSwapFlowBaseDependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4815C2F493083006858AB /* SendWithSwapFlowBaseDependenciesFactory.swift */; };
 		EFB4CA532E0BE293003C1522 /* SendDestinationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA522E0BE293003C1522 /* SendDestinationInteractor.swift */; };
 		EFB4CA552E0BE2AF003C1522 /* SendDestinationInteractorDependenciesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA542E0BE2AF003C1522 /* SendDestinationInteractorDependenciesProvider.swift */; };
 		EFB4CA5A2E0C3CEC003C1522 /* SendReceiveTokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA592E0C3CEC003C1522 /* SendReceiveTokenType.swift */; };
-		EFB4CA5C2E0C41D0003C1522 /* SendAmountRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA5B2E0C41D0003C1522 /* SendAmountRoutable.swift */; };
+		EFB4CA5C2E0C41D0003C1522 /* SendAmountStepRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA5B2E0C41D0003C1522 /* SendAmountStepRoutable.swift */; };
 		EFB541CA2D1076A100330B5B /* ProviderItemSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */; };
 		EFB5925C2E3FE2B80099A8E0 /* HighPriceImpactWarningSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB5925B2E3FE2B60099A8E0 /* HighPriceImpactWarningSheetView.swift */; };
 		EFB6FF162E4F20930036731A /* SendSummaryTitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */; };
@@ -9409,10 +9413,14 @@
 		EFB0194C2C417F01009EE857 /* YieldInfo+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldInfo+Mock.swift"; sourceTree = "<group>"; };
 		EFB0194E2C4187BB009EE857 /* TokenItem+StakingTokenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItem+StakingTokenItem.swift"; sourceTree = "<group>"; };
 		EFB23F2C2CBE7F1F005A6719 /* OnrampModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampModel.swift; sourceTree = "<group>"; };
+		EFB481542F48D90B006858AB /* AutoupdatingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoupdatingTimer.swift; sourceTree = "<group>"; };
+		EFB481582F492C2E006858AB /* TangemPayExpressProviderTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayExpressProviderTransactionValidator.swift; sourceTree = "<group>"; };
+		EFB4815A2F492CD0006858AB /* ExpressInteractorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorFactory.swift; sourceTree = "<group>"; };
+		EFB4815C2F493083006858AB /* SendWithSwapFlowBaseDependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendWithSwapFlowBaseDependenciesFactory.swift; sourceTree = "<group>"; };
 		EFB4CA522E0BE293003C1522 /* SendDestinationInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInteractor.swift; sourceTree = "<group>"; };
 		EFB4CA542E0BE2AF003C1522 /* SendDestinationInteractorDependenciesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInteractorDependenciesProvider.swift; sourceTree = "<group>"; };
 		EFB4CA592E0C3CEC003C1522 /* SendReceiveTokenType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenType.swift; sourceTree = "<group>"; };
-		EFB4CA5B2E0C41D0003C1522 /* SendAmountRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountRoutable.swift; sourceTree = "<group>"; };
+		EFB4CA5B2E0C41D0003C1522 /* SendAmountStepRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountStepRoutable.swift; sourceTree = "<group>"; };
 		EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderItemSorter.swift; sourceTree = "<group>"; };
 		EFB5925B2E3FE2B60099A8E0 /* HighPriceImpactWarningSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighPriceImpactWarningSheetView.swift; sourceTree = "<group>"; };
 		EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryTitleProvider.swift; sourceTree = "<group>"; };
@@ -23277,7 +23285,6 @@
 			children = (
 				EF3045F62DD3636100E14B3B /* SendAmountView.swift */,
 				EFA696F62DD4971600370459 /* SendAmountViewModel.swift */,
-				EFB4CA5B2E0C41D0003C1522 /* SendAmountRoutable.swift */,
 				EFED25A52DD247D300C70863 /* SendAmountTokenView */,
 			);
 			path = SendAmountView;
@@ -24062,6 +24069,7 @@
 				EFBBA4972E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift */,
 				EF48F7B52F473F6C00AF698B /* SendingRestrictionsProvider.swift */,
 				EF48F7B82F4749D200AF698B /* ReceivingRestrictionsProvider.swift */,
+				EFB481542F48D90B006858AB /* AutoupdatingTimer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -25193,6 +25201,7 @@
 			children = (
 				EF9EA9692B110F4900AC1DA1 /* CommonExpressModulesFactory.swift */,
 				2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */,
+				EFB481582F492C2E006858AB /* TangemPayExpressProviderTransactionValidator.swift */,
 				2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */,
 				B06B62DF2B10D20C00042A39 /* ExpressAPIProviderFactory.swift */,
 				EF9EA9672B110EEB00AC1DA1 /* ExpressModulesFactory.swift */,
@@ -25341,6 +25350,7 @@
 			children = (
 				EFAF8A832E85EEBF009C3CF9 /* SendGenericFlowBaseDependenciesFactory.swift */,
 				EFF8F1D92E85AB3000A5EF0C /* SendFlowBaseDependenciesFactory.swift */,
+				EFB4815C2F493083006858AB /* SendWithSwapFlowBaseDependenciesFactory.swift */,
 				EFE31A3E2F3DF5980013FFEC /* SwapFlowBaseDependenciesFactory.swift */,
 				EFF8F1DD2E85B00A00A5EF0C /* StakingFlowDependenciesFactory.swift */,
 				EFAF8A982E86F17D009C3CF9 /* OnrampFlowBaseDependenciesFactory.swift */,
@@ -25872,6 +25882,7 @@
 			children = (
 				EFC7AD5C2DD4F44000AE78E1 /* SendAmountStep.swift */,
 				EFF8F1C12E8560B300A5EF0C /* SendAmountStepBuildable.swift */,
+				EFB4CA5B2E0C41D0003C1522 /* SendAmountStepRoutable.swift */,
 				EF82F80A2EAFA624006A46BB /* IO */,
 				EF3045F82DD3636700E14B3B /* SendAmountView */,
 				EF29E89A2DF99D3F00859AC7 /* SendAmountCompactView */,
@@ -26436,6 +26447,7 @@
 				EF90B7252E7877EC000C7FCF /* OnrampRepository+.swift */,
 				EFFA43702E03F565001E0E54 /* ExpressDependenciesFactory.swift */,
 				EFFA43732E03F5B1001E0E54 /* CommonExpressDependenciesFactory.swift */,
+				EFB4815A2F492CD0006858AB /* ExpressInteractorFactory.swift */,
 			);
 			path = ExpressDependenciesFactory;
 			sourceTree = "<group>";
@@ -27309,6 +27321,7 @@
 				B6F995F12D91CD1000F83C4D /* WalletModelFeaturesManager.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				B6F773B62E747F1E00F39290 /* CommonCryptoAccountsETagStorage.swift in Sources */,
+				EFB4815B2F492CD0006858AB /* ExpressInteractorFactory.swift in Sources */,
 				B0BB972A2B18653B00053954 /* ExpressInteractor.swift in Sources */,
 				C207D6112DE60F8800A5FB2E /* WalletConnectNetworksSelectorView.swift in Sources */,
 				C207D6122DE60F8800A5FB2E /* WalletConnectWalletSelectorView.swift in Sources */,
@@ -27643,7 +27656,7 @@
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
 				0FFA35072E05428C00ACB48F /* MobileOnboardingSeedPhraseRecoveryViewModel.swift in Sources */,
 				DCBF4D282D8B497F002C2B8E /* GenericWalletManagerFactory.swift in Sources */,
-				EFB4CA5C2E0C41D0003C1522 /* SendAmountRoutable.swift in Sources */,
+				EFB4CA5C2E0C41D0003C1522 /* SendAmountStepRoutable.swift in Sources */,
 				DCBF4D292D8B497F002C2B8E /* CardanoWalletManagerFactory.swift in Sources */,
 				EFF732592DE9C1BB0070A8FF /* SendDestinationCompactView.swift in Sources */,
 				DCBF4D2A2D8B497F002C2B8E /* XPUBGeneratorFactory.swift in Sources */,
@@ -28671,6 +28684,7 @@
 				2DB6488C2C35885D00DA100D /* WalletSelectorViewModel.swift in Sources */,
 				EFA90E462C88B56E00F34BE0 /* StakingDetailsStakeViewDataBuilder.swift in Sources */,
 				2DB6488D2C35885D00DA100D /* WalletSelectorView.swift in Sources */,
+				EFB4815D2F493083006858AB /* SendWithSwapFlowBaseDependenciesFactory.swift in Sources */,
 				DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				B0340B9E2C50C7C4008FF6FC /* ForegroundBlinkAnimationModifier.swift in Sources */,
 				C2C4DDDA2E38FA1F005835C5 /* WalletConnectDAppBlockchain.swift in Sources */,
@@ -29986,6 +30000,7 @@
 				EF42D7862D1D65D90065AFD1 /* FiatTokenBalanceProvider.swift in Sources */,
 				EF42D7872D1D65D90065AFD1 /* TokenBalanceType.swift in Sources */,
 				EF3FEF232EDF11020084488D /* CommonFiatRateProvider.swift in Sources */,
+				EFB481592F492C2E006858AB /* TangemPayExpressProviderTransactionValidator.swift in Sources */,
 				EF42D7882D1D65D90065AFD1 /* StakingTokenBalanceProvider.swift in Sources */,
 				DC8E03072DDEE057008967D8 /* WCEthPersonalSignTransactionView.swift in Sources */,
 				EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */,
@@ -30019,6 +30034,7 @@
 				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
 				B6202F952EEE68AC0097C2EB /* AccountsAwareOrganizeTokensListCornerRadiusParametersProvider.swift in Sources */,
 				EF95442D2C3C52A400041FCD /* SendStepsManagerInputOutput.swift in Sources */,
+				EFB481552F48D90B006858AB /* AutoupdatingTimer.swift in Sources */,
 				EF9156152D3E8CA40037521D /* GeoDefiner.swift in Sources */,
 				B04718FF2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift in Sources */,
 				2D57CA862C3D0B0D0070D477 /* MarketsWalletDataSource.swift in Sources */,
@@ -37792,8 +37808,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.11.0;
+				kind = exactVersion;
+				version = 5.11.1;
 			};
 		};
 		B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
@@ -37841,7 +37857,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.0.14;
+				version = 4.0.16;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
@@ -37896,8 +37912,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.0;
+				kind = exactVersion;
+				version = 15.0.3;
 			};
 		};
 		B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */ = {
@@ -37928,8 +37944,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CombineCommunity/CombineExt.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.1;
+				kind = exactVersion;
+				version = 1.9.0;
 			};
 		};
 		B6DDDE7C2CF39729008DEA94 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */ = {

@@ -550,7 +550,7 @@ extension SendModel: SendReceiveTokenAmountInput {
             destination: receiveToken.tokenItem
         )
 
-        let result = try await impactCalculator.isHighPriceImpact(
+        let result = impactCalculator.isHighPriceImpact(
             provider: provider,
             sourceFiatAmount: sourceTokenFiatAmount,
             destinationFiatAmount: receiveTokenFiatAmount

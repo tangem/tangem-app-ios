@@ -297,7 +297,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openExchange(input: ExpressDependenciesInput) {
+    func openExchange(input: ExpressDependenciesDestinationInput) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -326,8 +326,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
-            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.destination.tokenItem) {
+            openViaYieldNotice(tokenItem: input.destination.tokenItem, action: action)
         } else {
             action()
         }
@@ -338,8 +338,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             self?.sendCoordinator = nil
         }
 
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .onramp)
+
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(input: input, type: .onramp(parameters: parameters), source: .markets)
+        let options = SendCoordinator.Options(input: input, type: .onramp(sourceToken, parameters: parameters), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
