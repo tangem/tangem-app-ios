@@ -43,6 +43,12 @@ struct SendFactory {
                 source: source
             )
 
+        case .sell(let sourceToken, _, let parameters) where FeatureProvider.isAvailable(.swapRefactoring):
+            return TransferSellFlowFactory(
+                sourceToken: sourceToken,
+                sellParameters: parameters,
+            )
+
         case .sell(let sourceToken, let source, let parameters):
             return SellFlowFactory(
                 sourceToken: sourceToken,
