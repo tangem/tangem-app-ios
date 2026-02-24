@@ -23,7 +23,6 @@ struct EarnBestOpportunitiesListView: View {
 
     var body: some View {
         rootView
-            .transition(.opacity.animation(.easeInOut))
             .defaultRoundedBackground(
                 with: Color.Tangem.Surface.level4,
                 verticalPadding: Layout.innerContentPadding,
@@ -52,7 +51,6 @@ struct EarnBestOpportunitiesListView: View {
                 MarketsSkeletonItemView()
             }
         }
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private var opportunitiesList: some View {
@@ -63,6 +61,7 @@ struct EarnBestOpportunitiesListView: View {
 
             paginationFooter
         }
+        .transition(.opacity.animation(.easeInOut))
     }
 
     @ViewBuilder
