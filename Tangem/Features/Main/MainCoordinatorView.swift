@@ -29,8 +29,6 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationLinks(links)
                 }
 
-                marketsTooltipView
-
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
@@ -46,6 +44,9 @@ struct MainCoordinatorView: CoordinatorView {
                 }
             }
             .injectNavigationAssertionDelegate()
+        }
+        .overlay {
+            marketsTooltipView
         }
     }
 
