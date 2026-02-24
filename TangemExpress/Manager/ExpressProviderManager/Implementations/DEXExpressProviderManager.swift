@@ -17,7 +17,6 @@ final class DEXExpressProviderManager {
     private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
-    private let transactionValidator: ExpressProviderTransactionValidator
 
     // MARK: - State
 
@@ -28,15 +27,13 @@ final class DEXExpressProviderManager {
         swappingPair: ExpressManagerSwappingPair,
         expressFeeProvider: ExpressFeeProvider,
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper,
-        transactionValidator: ExpressProviderTransactionValidator
+        mapper: ExpressManagerMapper
     ) {
         self.provider = provider
         self.swappingPair = swappingPair
         self.expressFeeProvider = expressFeeProvider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
-        self.transactionValidator = transactionValidator
     }
 }
 
@@ -157,7 +154,7 @@ private extension DEXExpressProviderManager {
             return .restriction(estimateFee, quote: quote)
         }
 
-        if let txData = data.txData, !transactionValidator.validateTransactionSize(data: txData) {
+        if let txData = data.txData, !pair.source.providerTransactionValidator.validateTransactionSize(data: txData) {
             throw ExpressProviderError.transactionSizeNotSupported
         }
 

@@ -338,8 +338,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             self?.sendCoordinator = nil
         }
 
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .onramp)
+
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(input: input, type: .onramp(parameters: parameters), source: .markets)
+        let options = SendCoordinator.Options(input: input, type: .onramp(sourceToken, parameters: parameters), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
