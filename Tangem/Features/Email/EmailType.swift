@@ -15,7 +15,6 @@ enum EmailType {
     case failedToSendTx
     case failedToPushTx
     case appFeedback(subject: String)
-    case activatedCard
     case attestationFailed
     case visaFeedback(subject: VisaEmailSubject)
     case paeraSupport(subject: PaeraEmailSubject)
@@ -29,7 +28,6 @@ enum EmailType {
         case .appFeedback(let subject):
             return subject
         case .failedToPushTx: return Localization.feedbackSubjectTxPushFailed
-        case .activatedCard: return Localization.feedbackSubjectPreActivatedWallet
         case .attestationFailed: return "Card attestation failed"
         case .visaFeedback(let subject):
             return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
@@ -47,7 +45,6 @@ enum EmailType {
         case .failedToSendTx: return Localization.feedbackPrefaceTxFailed
         case .failedToPushTx: return Localization.feedbackPrefaceTxFailed
         case .appFeedback,
-             .activatedCard,
              .attestationFailed,
              .paeraSupport:
             return Localization.feedbackPrefaceSupport
