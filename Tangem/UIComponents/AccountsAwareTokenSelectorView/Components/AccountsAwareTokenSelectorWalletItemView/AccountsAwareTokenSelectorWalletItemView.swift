@@ -19,15 +19,27 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
             AccountsAwareTokenSelectorAccountView(viewModel: accountViewModel)
 
         case .accounts(let walletName, let accounts) where viewModel.contentVisibility?.isVisible == true:
-            LazyVStack(spacing: 8) {
+            LazyVStack(spacing: 0.0) {
                 header(walletName: walletName)
+                    // This padding is used instead of the spacing in the `LazyVStack` to prevent the content
+                    // (`AccountsAwareTokenSelectorAccountView`) from sliding under the `middle` of the header when the list is expanded
+                    .padding(.bottom, Constants.accountsListVerticalSpacing)
+                    .background(Colors.Background.tertiary)
+                    .zIndex(100.0) // Keeps the header above the expanding accounts list and other content within the stack
 
                 if viewModel.isOpen {
-                    ForEach(accounts) { AccountsAwareTokenSelectorAccountView(viewModel: $0) }
+                    ForEach(indexed: accounts.indexed()) { index, viewModel in
+                        AccountsAwareTokenSelectorAccountView(viewModel: viewModel)
+                            .padding(.bottom, index == accounts.count - 1 ? 0.0 : Constants.accountsListVerticalSpacing)
+                    }
+                    .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
+                    .transition(.move(edge: .top))
                 } else {
                     Separator(color: Colors.Stroke.primary)
+                        .transition(.opacity)
                 }
             }
+            .clipped() // Clips the content (`AccountsAwareTokenSelectorAccountView`) when the list is expanded
 
         case .wallet, .accounts:
             EmptyView()
@@ -40,11 +52,11 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
                 Text(walletName)
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: Constants.headerHorizontalSpacing)
 
                 isOpenButton
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, Constants.headerHorizontalSpacing)
             .padding(.vertical, 2)
         }
     }
@@ -57,7 +69,7 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
                         .foregroundStyle(Colors.Text.primary1)
                         .font(.title2)
                         .fontWeight(.medium)
-                        .frame(width: 20, height: 20)
+                        .frame(size: .init(bothDimensions: 20.0))
                         .padding(12)
                 }
                 // [REDACTED_USERNAME], important to place transform effect before glass effect.
@@ -71,5 +83,14 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
         }
         .allowsHitTesting(false)
         .animation(.spring(duration: 0.2), value: viewModel.isOpen)
+    }
+}
+
+// MARK: - Constants
+
+private extension AccountsAwareTokenSelectorWalletItemView {
+    enum Constants {
+        static let accountsListVerticalSpacing = 8.0
+        static let headerHorizontalSpacing = 8.0
     }
 }

@@ -45,6 +45,8 @@ enum MarketsAddTokenFlowConfigurationFactory {
             },
             accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
                 coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
                 availableNetworks: inputData.networks
             ),
             analyticsLogger: analyticsLogger
