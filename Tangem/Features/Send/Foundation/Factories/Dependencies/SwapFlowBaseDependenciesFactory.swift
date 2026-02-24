@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-protocol SwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
+protocol SwapFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -15,7 +15,11 @@ protocol SwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
 extension SwapFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
-    func makeSwapModel(analyticsLogger: any SendAnalyticsLogger) -> SwapModel {
+    func makeSwapModel(
+        sourceToken: SendSourceToken,
+        analyticsLogger: any SendAnalyticsLogger,
+        autoupdatingTimer: AutoupdatingTimer
+    ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
             receiveToken: .none,
@@ -25,10 +29,15 @@ extension SwapFlowBaseDependenciesFactory {
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
             analyticsLogger: analyticsLogger,
+            autoupdatingTimer: autoupdatingTimer
         )
     }
 
     func makeSwapNotificationManager() -> SwapNotificationManager {
-        CommonSwapNotificationManager(userWalletId: sourceToken.userWalletInfo.id)
+        CommonSwapNotificationManager()
+    }
+
+    func makeSendAlertBuilder() -> SendAlertBuilder {
+        CommonSendAlertBuilder()
     }
 }

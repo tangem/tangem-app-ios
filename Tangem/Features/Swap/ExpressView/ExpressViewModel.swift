@@ -462,7 +462,7 @@ private extension ExpressViewModel {
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: .none)
 
         case .runtimeRestriction(.tokenNotSupportedForSwap):
             isSwapButtonLoading = false
@@ -471,7 +471,7 @@ private extension ExpressViewModel {
             // Set destination to show "-"
             receiveCurrencyViewModel?.update(cryptoAmountState: .noData)
             receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .noData)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: .none)
 
         case .loading(let type):
             isSwapButtonLoading = true
@@ -481,17 +481,17 @@ private extension ExpressViewModel {
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: .none)
 
         case .restriction(.hasPendingApproveTransaction, _, let quote):
             isSwapButtonLoading = false
             updateFiatValue(expectAmount: quote?.expectAmount)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: quote?.highPriceImpact)
 
         case .requiredRefresh(_, let quote), .restriction(_, _, let quote):
             isSwapButtonLoading = false
             updateFiatValue(expectAmount: quote?.expectAmount)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: quote?.highPriceImpact)
             stopTimer()
 
         case .permissionRequired(_, _, let quote), .previewCEX(_, _, let quote), .readyToSwap(_, _, let quote):
@@ -499,7 +499,7 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateFiatValue(expectAmount: quote.expectAmount)
-            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: quote.highPriceImpact)
         }
     }
 
