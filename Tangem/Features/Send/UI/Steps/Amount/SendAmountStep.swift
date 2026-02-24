@@ -28,7 +28,7 @@ class SendAmountStep {
         self.analyticsLogger = analyticsLogger
     }
 
-    func set(router: SendAmountRoutable) {
+    func set(router: SendAmountStepRoutable) {
         viewModel.router = router
     }
 

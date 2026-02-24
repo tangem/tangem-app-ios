@@ -105,11 +105,11 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
                 isCustom: transaction.source.isCustom
             ),
             destinationTokenTxInfo: .init(
-                userWalletId: transaction.receive.userWalletInfo.id.stringValue,
+                userWalletId: (transaction.receive as? SendSourceToken)?.userWalletInfo.id.stringValue,
                 tokenItem: transaction.receive.tokenItem,
                 address: transaction.receive.address ?? .unknown,
                 amountString: transaction.expressTransactionData.toAmount.stringValue,
-                isCustom: transaction.receive.isCustom
+                isCustom: (transaction.receive as? SendSourceToken)?.isCustom ?? false
             ),
             feeString: transaction.fee.amount.value.stringValue,
             provider: .init(provider: transaction.provider),
