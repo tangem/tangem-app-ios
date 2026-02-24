@@ -15,11 +15,11 @@ protocol SendGenericFlowFactory {
 struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
         switch options.type {
+        case .send(let sourceToken, _) where FeatureProvider.isAvailable(.swapRefactoring):
+            return SendWithSwapFlowFactory(sourceToken: sourceToken)
+
         case .send(let sourceToken, let source):
-            return SendFlowFactory(
-                sourceToken: sourceToken,
-                source: source
-            )
+            return SendFlowFactory(sourceToken: sourceToken, source: source)
 
         case .swap(let sourceToken):
             return SwapFlowFactory(sourceToken: sourceToken)

@@ -4005,6 +4005,7 @@
 		EF2C5A622F0C2A05009F1B96 /* FeeSelectorTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2C5A612F0C2A05009F1B96 /* FeeSelectorTokensViewModel.swift */; };
 		EF2C5A642F0C341A009F1B96 /* FeeSelectorSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2C5A632F0C341A009F1B96 /* FeeSelectorSummaryView.swift */; };
 		EF2C5A672F0C34D9009F1B96 /* FeeSelectorTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2C5A662F0C34D9009F1B96 /* FeeSelectorTokensView.swift */; };
+		EF2D89A82F4E510300343FFD /* SendWithSwapFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2D89A72F4E510300343FFD /* SendWithSwapFlowFactory.swift */; };
 		EF2E71C32D9F2C95007440BE /* RadiantNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2E71C22D9F2C95007440BE /* RadiantNetworkParams.swift */; };
 		EF2FE4652C6671190015940A /* StakeKitDTO+EstimateGas.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2FE4642C6671190015940A /* StakeKitDTO+EstimateGas.swift */; };
 		EF3045F72DD3636100E14B3B /* SendAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3045F62DD3636100E14B3B /* SendAmountView.swift */; };
@@ -8906,6 +8907,7 @@
 		EF2C5A612F0C2A05009F1B96 /* FeeSelectorTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorTokensViewModel.swift; sourceTree = "<group>"; };
 		EF2C5A632F0C341A009F1B96 /* FeeSelectorSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorSummaryView.swift; sourceTree = "<group>"; };
 		EF2C5A662F0C34D9009F1B96 /* FeeSelectorTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorTokensView.swift; sourceTree = "<group>"; };
+		EF2D89A72F4E510300343FFD /* SendWithSwapFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendWithSwapFlowFactory.swift; sourceTree = "<group>"; };
 		EF2E71C22D9F2C95007440BE /* RadiantNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantNetworkParams.swift; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
@@ -26446,6 +26448,7 @@
 				EFAF8A8C2E85F06D009C3CF9 /* NFTFlowFactory.swift */,
 				EF2139082F4E4BDC0059C508 /* TransferFlowFactory.swift */,
 				EFE280E12F4E4F3100475C95 /* TransferSellFlowFactory.swift */,
+				EF2D89A72F4E510300343FFD /* SendWithSwapFlowFactory.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -28073,6 +28076,7 @@
 				EF2561122CC6A91900D3C16A /* CommonOnrampStorage.swift in Sources */,
 				EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */,
 				B60F98CE2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift in Sources */,
+				EF2D89A82F4E510300343FFD /* SendWithSwapFlowFactory.swift in Sources */,
 				693AC41700000001000FFFFF /* AccountsAnalyticsBuilder.swift in Sources */,
 				693AC41700000003001FFFFF /* SingleAccountAnalyticsBuilder.swift in Sources */,
 				693AC41700000005002FFFFF /* PairedAccountAnalyticsBuilder.swift in Sources */,
