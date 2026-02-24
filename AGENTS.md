@@ -25,7 +25,7 @@ Open `TangemApp.xcodeproj` in Xcode. There are three main schemes:
 - **Tangem Beta** - Beta testing
 - **Tangem Alpha** - Internal testing
 
-Always fetch installed iOS simulators (using appropriate command line tools like `simctl`) and select the one with the most recent iOS version to build and run the project
+Always prefer Xcode MCP for building and testing. If Xcode MCP is not available or not working - build the project using appropriate cli tools like `xcodebuild`. In this case, alwaus fetch installed iOS simulators first (using appropriate cli tools like `simctl`) and select the one with the most recent iOS version to build and run the project
 
 ### Testing
 ```bash
@@ -93,11 +93,12 @@ protocol CoordinatorObject: ObservableObject, Identifiable {
 
 ### Dependency Injection
 
-Uses a property wrapper based DI system:
+Uses a property wrapper based DI system for singletons:
 ```swift
 @Injected(\.someService) private var someService
 ```
-Dependencies are registered via `InjectionKey` protocol in extensions of `InjectedValues`.
+Singleton dependencies are registered via `InjectionKey` protocol in extensions of `InjectedValues`.
+Normal dependencies are injected using plain Swift constructors.
 
 ### Feature Organization
 
