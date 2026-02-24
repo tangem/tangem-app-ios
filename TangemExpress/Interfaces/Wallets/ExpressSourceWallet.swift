@@ -10,19 +10,14 @@ import Foundation
 import BlockchainSdk
 
 public protocol ExpressSourceWallet: ExpressDestinationWallet {
-    var feeProvider: FeeProvider { get }
     var allowanceProvider: AllowanceProvider? { get }
     var balanceProvider: BalanceProvider { get }
     var analyticsLogger: AnalyticsLogger { get }
 
     var operationType: ExpressOperationType { get }
     var supportedProvidersFilter: SupportedProvidersFilter { get }
-}
 
-public extension ExpressSourceWallet {
-    func isFeeCurrency(providerId: ExpressProvider.Id) -> Bool {
-        currency == feeProvider.feeCurrency(providerId: providerId)
-    }
+    var expressFeeProviderFactory: ExpressFeeProviderFactory { get }
 }
 
 public enum SupportedProvidersFilter {

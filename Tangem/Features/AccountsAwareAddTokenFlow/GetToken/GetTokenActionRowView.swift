@@ -52,33 +52,39 @@ struct GetTokenActionRowView: View {
 
     @ViewBuilder
     private var iconView: some View {
-        let iconImage = icon.image
-            .renderingMode(.template)
-            .frame(width: 20, height: 20)
-
         switch style {
         case .colored(let color):
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.12))
-                    .frame(width: 36, height: 36)
-
-                iconImage
-                    .foregroundColor(color)
-            }
-            .unreadNotificationBadge(showNotificationBadge, badgeColor: Colors.Icon.accent)
-
+            makeIconView(
+                backgroundColor: color.opacity(0.12),
+                foregroundColor: color
+            )
         case .solid:
-            iconImage
-                .foregroundStyle(Colors.Icon.primary1)
-                .padding(10)
-                .background(
-                    Circle()
-                        .fill(Colors.Background.tertiary)
-                )
-                .padding(.leading, 2)
-                .unreadNotificationBadge(showNotificationBadge, badgeColor: Colors.Icon.accent)
+            makeIconView(
+                backgroundColor: Colors.Background.tertiary,
+                foregroundColor: Colors.Icon.primary1
+            )
         }
+    }
+
+    @ViewBuilder
+    private func makeIconView(
+        backgroundColor: Color,
+        foregroundColor: Color
+    ) -> some View {
+        let iconImage = icon
+            .image
+            .renderingMode(.template)
+            .frame(size: .init(bothDimensions: 20.0))
+
+        ZStack {
+            Circle()
+                .fill(backgroundColor)
+                .frame(size: .init(bothDimensions: 36.0))
+
+            iconImage
+                .foregroundStyle(foregroundColor)
+        }
+        .unreadNotificationBadge(showNotificationBadge, badgeColor: Colors.Icon.accent)
     }
 }
 
