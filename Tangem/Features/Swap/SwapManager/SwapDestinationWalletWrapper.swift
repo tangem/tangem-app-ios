@@ -18,6 +18,8 @@ struct SwapDestinationWalletWrapper: ExpressInteractorDestinationWallet {
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
+    var coinCurrency: ExpressWalletCurrency { tokenItem.expressCurrency }
+
     let address: String?
     let extraId: String?
 
