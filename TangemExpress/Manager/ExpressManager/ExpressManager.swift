@@ -17,9 +17,9 @@ public protocol ExpressManager: Actor {
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressAvailableProvider?
     func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider?
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressAvailableProvider
-    func update(feeOption: ExpressFee.Option) async throws -> ExpressAvailableProvider
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressAvailableProvider?
+    func update(feeOption: ExpressFee.Option) async throws -> ExpressAvailableProvider?
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider?
     func update(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider?
 
     /// Use this method for CEX provider
