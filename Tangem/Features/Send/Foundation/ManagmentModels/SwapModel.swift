@@ -51,8 +51,10 @@ final class SwapModel {
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
     private let analyticsLogger: SendAnalyticsLogger
+    private let autoupdatingTimer: AutoupdatingTimer
 
     private let balanceConverter = BalanceConverter()
+    private var autoupdatingTimerSubscription: AnyCancellable?
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -63,7 +65,8 @@ final class SwapModel {
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
-        analyticsLogger: SendAnalyticsLogger
+        analyticsLogger: SendAnalyticsLogger,
+        autoupdatingTimer: AutoupdatingTimer
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -71,16 +74,45 @@ final class SwapModel {
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
         self.analyticsLogger = analyticsLogger
+        self.autoupdatingTimer = autoupdatingTimer
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _amount = .init(.none)
 
         Task { await initialLoading() }
+        setupAutoupdatingTimerSubscription()
     }
 
     deinit {
         ExpressLogger.debug("deinit SwapModel")
+    }
+}
+
+// MARK: - Autoupdating
+
+extension SwapModel {
+    func autoupdatingRates() {
+        updateTask(loadingType: .autoupdate) {
+            try await $0.update(by: .autoUpdate)
+        }
+    }
+
+    func setupAutoupdatingTimerSubscription() {
+        autoupdatingTimerSubscription = _providersState
+            .withWeakCaptureOf(self)
+            .sink { $0.updateAutoupdatingTimer(state: $1) }
+    }
+
+    func updateAutoupdatingTimer(state: ProvidersState) {
+        switch state {
+        case .loaded(_, .some, _):
+            autoupdatingTimer.restartTimer { [weak self] in
+                self?.autoupdatingRates()
+            }
+        default:
+            autoupdatingTimer.stopTimer()
+        }
     }
 }
 
@@ -456,10 +488,6 @@ extension SwapModel {
         data: ExpressTransactionData,
         result: TransactionDispatcherResult
     ) {
-        guard let receive = receive as? SendSourceToken else {
-            return
-        }
-
         let sentTransactionData = SentSwapTransactionData(
             result: result,
             source: source,
@@ -642,22 +670,10 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
-        Publishers.CombineLatest3(
-            sourceAmountPublisher.compactMap { $0.value },
-            receiveAmountPublisher.compactMap { $0.value },
-            selectedExpressProviderPublisher.compactMap { $0?.value?.provider }
-        )
-        .withWeakCaptureOf(self)
-        .setFailureType(to: Error.self)
-        .asyncTryMap {
-            try await $0.mapToHighPriceImpactCalculatorResult(
-                sourceTokenAmount: $1.0,
-                receiveTokenAmount: $1.1,
-                provider: $1.2
-            )
-        }
-        .replaceError(with: nil)
-        .eraseToAnyPublisher()
+        _providersState
+            .withWeakCaptureOf(self)
+            .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
+            .eraseToAnyPublisher()
     }
 
     private func mapToReceiveSendAmount(state: ProvidersState) -> LoadingResult<SendAmount, any Error> {
@@ -684,11 +700,19 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         }
     }
 
+    private func mapToHighPriceImpactCalculatorResult(providersState: ProvidersState) -> HighPriceImpactCalculator.Result? {
+        guard case .loaded(_, _, let state) = providersState else {
+            return nil
+        }
+
+        return state.quote?.highPriceImpact
+    }
+
     private func mapToHighPriceImpactCalculatorResult(
         sourceTokenAmount: SendAmount?,
         receiveTokenAmount: SendAmount?,
         provider: ExpressProvider?
-    ) async throws -> HighPriceImpactCalculator.Result? {
+    ) -> HighPriceImpactCalculator.Result? {
         guard let source = sourceToken.value,
               let receive = receiveToken.value,
               let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
@@ -702,7 +726,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             destination: receive.tokenItem
         )
 
-        let result = try await impactCalculator.isHighPriceImpact(
+        let result = impactCalculator.isHighPriceImpact(
             provider: provider,
             sourceFiatAmount: sourceTokenFiatAmount,
             destinationFiatAmount: receiveTokenFiatAmount
@@ -780,9 +804,13 @@ extension SwapModel: SendFeeInput {
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
-        tokenFeeProvidersManagerPublisher
-            .flatMapLatest { $0.selectedTokenFeePublisher }
-            .eraseToAnyPublisher()
+        Publishers.CombineLatest(
+            _providersState.filter { $0.filter(loading: [.fee]) },
+            tokenFeeProvidersManagerPublisher
+        )
+        .withWeakCaptureOf(self)
+        .compactMap { $0.mapToSelectedFee(providersState: $1.0, tokenFeeProvidersManager: $1.1) }
+        .eraseToAnyPublisher()
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
@@ -793,15 +821,32 @@ extension SwapModel: SendFeeInput {
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToShouldShowFeeSelectorRow(providersState: $1) }
             .eraseToAnyPublisher()
     }
 
+    private func mapToSelectedFee(providersState: ProvidersState, tokenFeeProvidersManager: TokenFeeProvidersManager) -> TokenFee? {
+        switch providersState {
+        case .loading(.fee):
+            return TokenFee(
+                option: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.option,
+                tokenItem: tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem,
+                value: .loading
+            )
+
+        case .loaded(_, .some(let selected), _):
+            return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
+
+        default:
+            return nil
+        }
+    }
+
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loading(.fee),
-             .loaded(_, _, state: .restriction(.notEnoughAmountForFee, _)),
+        case .loaded(_, _, state: .restriction(.notEnoughAmountForFee, _)),
              .loaded(_, _, state: .previewCEX),
              .loaded(_, _, state: .readyToSwap):
             return true
@@ -833,6 +878,7 @@ extension SwapModel: FeeSelectorOutput {
 extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToIsReadyToSend(providersState: $1) }
             .eraseToAnyPublisher()
@@ -1225,6 +1271,17 @@ extension SwapModel {
         case permissionRequired(PermissionRequiredState)
         case previewCEX(PreviewCEXState)
         case readyToSwap(ReadyToSwapState)
+
+        var quote: Quote? {
+            switch self {
+            case .idle: nil
+            case .requiredRefresh(_, let quote): quote
+            case .restriction(_, let quote): quote
+            case .permissionRequired(let state): state.quote
+            case .previewCEX(let state): state.quote
+            case .readyToSwap(let state): state.quote
+            }
+        }
     }
 
     struct Quote: Hashable {
