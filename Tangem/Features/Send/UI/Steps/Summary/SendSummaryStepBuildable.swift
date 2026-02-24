@@ -59,7 +59,7 @@ enum SendSummaryStepBuilder {
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
-        let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
+        let sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder
         let stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
     }
 
@@ -80,7 +80,7 @@ enum SendSummaryStepBuilder {
             output: io.output,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
             sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
-            swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
+            sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
             stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
         )
 
