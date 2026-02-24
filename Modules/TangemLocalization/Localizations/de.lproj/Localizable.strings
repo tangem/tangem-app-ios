@@ -530,7 +530,6 @@
 "feedback_preface_support" = "Hallo Support-Team,";
 "feedback_preface_tx_failed" = "Bitte erzähle uns mehr über dein Problem. Jedes kleine Detail kann helfen.";
 "feedback_subject_backup_problem" = "Problem mit der Sicherung";
-"feedback_subject_pre_activated_wallet" = "Zuvor aktivierte Wallet";
 "feedback_subject_rate_negative" = "Meine Vorschläge";
 "feedback_subject_scan_failed" = "Kann eine Karte oder Ring nicht scannen";
 "feedback_subject_support_tangem" = "Feedback zu Tangem";
@@ -1038,7 +1037,6 @@
 "scan_card_settings_button" = "Karte oder Ring scannen";
 "scan_card_settings_message" = "Scanne die Karte oder Ring, um ihre Einstellungen zu ändern. Die Änderungen wirken sich nur auf die von dir gescannte Karte oder Ring aus und haben keine Auswirkungen auf andere mit deiner Wallet verknüpften Geräte.";
 "scan_card_settings_title" = "Halte deine Karte oder Ring bereit!";
-"security_alert_title" = "Sicherheitswarnung";
 "seed_warning_no" = "Nein";
 "seed_warning_yes" = "Ja, leite mich";
 "selling_insufficient_balance_alert_message" = "Dein Konto verfügt nicht über ausreichend Guthaben, um Kryptowährungen zu verkaufen. Bitte zahle den gewünschten Vermögenswert ein, um fortzufahren.";
@@ -1380,7 +1378,7 @@
 "tangem_pay_unfreeze_card_success" = "Ihre Karte ist entsperrt.";
 "tangem_pay_withdrawal" = "Abhebung";
 "tangempay_account_unable_to_use_rooted" = "Auf gerooteten Geräten nicht nutzbar.";
-"tangempay_cancel_kyc" = "KYC abbrechen";
+"tangempay_cancel_kyc" = "KYC vom Hauptbildschirm ausblenden";
 "tangempay_card_details_add_funds_subtitle" = "Aufladeoptionen";
 "tangempay_card_details_add_funds" = "Guthaben hinzufügen";
 "tangempay_card_details_card_number" = "Kartennummer";
@@ -1447,9 +1445,9 @@
 "tangempay_kyc_in_progress_popup_description" = "Dokumente werden in der Regel innerhalb von 5 Minuten automatisch überprüft. In seltenen Fällen, wenn eine manuelle Überprüfung erforderlich ist, kann es bis zu 48 Stunden dauern.";
 "tangempay_kyc_in_progress" = "KYC in Bearbeitung";
 "tangempay_kyc_rejected_button_text" = "KYC-Sperre ausblenden";
-"tangempay_kyc_rejected_description_span" = "Dein Profil.";
-"tangempay_kyc_rejected_description" = "Entschuldigung, wir konnten dies nicht überprüfen.";
-"tangempay_kyc_rejected" = "KYC abgelehnt";
+"tangempay_kyc_rejected_description_span" = "nicht verifizieren.";
+"tangempay_kyc_rejected_description" = "Leider konnten wir Ihre Identität";
+"tangempay_kyc_rejected" = "Abgelehnt";
 "tangempay_onboarding_banner_description" = "Holen Sie sich Ihre kostenlose virtuelle Tangem Visa-Karte";
 "tangempay_onboarding_banner_title" = "Nutzen Sie USDC für alltägliche Zahlungen";
 "tangempay_onboarding_get_card_button_text" = "Karte erhalten";
@@ -1476,7 +1474,6 @@
 "tangempay_withdrawal_note_description" = "Ihr USDC Polygon On-Chain-Guthaben unterscheidet sich von Ihrem Kartenguthaben und wird innerhalb von 2 Werktagen nach einem Kauf aktualisiert. Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar.";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
 "tangempay_your_pin_code" = "Ihr PIN-Code";
-"this_is_my_wallet_title" = "Das ist meine Wallet";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
 "toast_undo" = "Rückgängig machen";
@@ -1640,7 +1637,6 @@
 "wallet_add_mobile_description" = "Stell Deine Wallet auf Deinem Smartphone wieder her oder importieren diese aus einer anderen App – praktisch, aber weniger sicher als eine Tangem-Karte.";
 "wallet_add_support_title" = "Was soll man wählen?";
 "wallet_balance_missing_derivation" = "Karte oder Ring scannen";
-"wallet_been_activated_message" = "Dieses Wallet wurde bereits früher aktiviert. \n Wenn dies nicht von Dir durchgeführt wurde, wende Dich bitte an den Support. \n Tangem verkauft niemals Wallets zusammen mit vorgenerierten Zugangscodes.";
 "wallet_connect_error_timeout" = "WalletConnect-Sitzung konnte nicht aufgebaut werden: Timeout-Fehler. Bitte versuche es später noch einmal.";
 "wallet_connect_multiple_transactions_description" = "Zur erfolgreichen Abwicklung wird Deine Transaktion in mehrere Teile aufgeteilt. Du musst Deine Karte mehrmals ans smartphone halten, um sie abzuschließen.";
 "wallet_connect_multiple_transactions" = "Mehrteilige Transaktion";
