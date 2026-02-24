@@ -13,8 +13,6 @@ import struct TangemSdk.DerivationPath
 
 /// Provides additional info and features for `AppScanTask` related to persistent storage.
 struct PersistentStorageAppScanTaskHelper {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     private let userWalletId: UserWalletId
 
     private var storageIdentifier: String {
@@ -23,19 +21,6 @@ struct PersistentStorageAppScanTaskHelper {
 
     init(userWalletId: UserWalletId) {
         self.userWalletId = userWalletId
-    }
-
-    func shouldWarnWalletActivated() -> Bool {
-        if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
-            return false
-        }
-
-        let tokenItemsRepository = CommonTokenItemsRepository(key: storageIdentifier)
-        if tokenItemsRepository.containsFile {
-            return false
-        }
-
-        return true
     }
 
     func extractDerivations(forWalletsOnCard card: CardDTO, config: UserWalletConfig) -> [EllipticCurve: [DerivationPath]] {
