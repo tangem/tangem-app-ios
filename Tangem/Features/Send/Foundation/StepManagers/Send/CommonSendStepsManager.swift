@@ -15,6 +15,8 @@ class CommonSendStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
+    private let receiveTokensListBuilder: SendReceiveTokensListBuilder
+
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let confirmTransactionPolicy: ConfirmTransactionPolicy
@@ -33,6 +35,7 @@ class CommonSendStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
+        receiveTokensListBuilder: SendReceiveTokensListBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
         confirmTransactionPolicy: ConfirmTransactionPolicy,
@@ -43,6 +46,7 @@ class CommonSendStepsManager {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.feeSelectorBuilder = feeSelectorBuilder
+        self.receiveTokensListBuilder = receiveTokensListBuilder
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
         self.confirmTransactionPolicy = confirmTransactionPolicy
@@ -178,6 +182,14 @@ extension CommonSendStepsManager: SendStepsManager {
         }
 
         back()
+    }
+}
+
+// MARK: - SendAmountRoutable
+
+extension CommonSendStepsManager: SendAmountStepRoutable {
+    func openReceiveTokensList() {
+        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder)
     }
 }
 
