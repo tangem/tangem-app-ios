@@ -15,6 +15,23 @@ protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory
 extension SendFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
+    func makeTransferModel(
+        analyticsLogger: any SendAnalyticsLogger,
+        predefinedValues: TransferModel.PredefinedValues
+    ) -> TransferModel {
+        TransferModel(
+            userWalletId: userWalletInfo.id,
+            userToken: sourceToken,
+            transactionSigner: userWalletInfo.signer,
+            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
+            analyticsLogger: analyticsLogger,
+            sendAlertBuilder: makeSendAlertBuilder(),
+            predefinedValues: predefinedValues
+        )
+    }
+
+    // MARK: - Services
+
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
     }
@@ -22,14 +39,6 @@ extension SendFlowBaseDependenciesFactory {
     func makeTransactionParametersBuilder() -> TransactionParamsBuilder {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
-
-    // MARK: - Receive token
-
-    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
-        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: sourceToken.fiatItem)
-    }
-
-    // MARK: - Services
 
     func makeSendQRCodeService() -> SendQRCodeService {
         CommonSendQRCodeService(
