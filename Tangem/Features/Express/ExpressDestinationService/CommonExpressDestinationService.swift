@@ -28,20 +28,36 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getSource(destination: any ExpressInteractorDestinationWallet) async throws -> any ExpressInteractorSourceWallet {
+    func getSource(destination: TokenItem) async throws -> any ExpressInteractorSourceWallet {
         guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
             throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
         }
 
-        return source
+        return source.asExpressInteractorWalletModelWrapper
     }
 
-    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet {
+    func getDestination(source: TokenItem) async throws -> any ExpressInteractorSourceWallet {
         guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
             throw ExpressDestinationServiceError.destinationNotFound(source: source)
         }
 
-        return destination
+        return destination.asExpressInteractorWalletModelWrapper
+    }
+
+    func getSource(destination: TokenItem) async throws -> any SendSourceToken {
+        guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
+            throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
+        }
+
+        return source.asSendSourceToken
+    }
+
+    func getDestination(source: TokenItem) async throws -> any SendSourceToken {
+        guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
+            throw ExpressDestinationServiceError.destinationNotFound(source: source)
+        }
+
+        return destination.asSendSourceToken
     }
 }
 
@@ -49,9 +65,9 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
 private extension CommonExpressDestinationService {
     func getExpressInteractorWallet(
-        base: any ExpressInteractorDestinationWallet,
+        base: TokenItem,
         searchType: SearchType
-    ) async -> (any ExpressInteractorSourceWallet)? {
+    ) async -> UserWalletInfoWalletModelPair? {
         let walletModels: [UserWalletInfoWalletModelPair] = {
             if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
                 let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
@@ -74,9 +90,9 @@ private extension CommonExpressDestinationService {
             }
         }()
 
-        let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
+        let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
-            let isNotSource = wallet.walletModel.id != base.id
+            let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
             let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
@@ -92,7 +108,7 @@ private extension CommonExpressDestinationService {
 
         if let lastSwappedWallet {
             ExpressLogger.info(self, "select lastSwappedWallet: \(lastSwappedWallet.walletModel.tokenItem.expressCurrency)")
-            return lastSwappedWallet.asExpressInteractorWalletModelWrapper
+            return lastSwappedWallet
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatBalance ?? 0) > 0 }
@@ -100,7 +116,7 @@ private extension CommonExpressDestinationService {
         // If all wallets without balance
         if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
             ExpressLogger.info(self, "has a zero wallets with positive balance then selected: \(first.walletModel.tokenItem.expressCurrency)")
-            return first.asExpressInteractorWalletModelWrapper
+            return first
         }
 
         // If user has wallets with balance then sort they
@@ -111,7 +127,7 @@ private extension CommonExpressDestinationService {
         // Start searching destination with available providers
         if let maxBalanceWallet = sortedWallets.first {
             ExpressLogger.info(self, "selected maxBalanceWallet: \(maxBalanceWallet.walletModel.tokenItem.expressCurrency)")
-            return maxBalanceWallet.asExpressInteractorWalletModelWrapper
+            return maxBalanceWallet
         }
 
         ExpressLogger.info(self, "couldn't find acceptable wallet")
@@ -149,6 +165,11 @@ extension CommonExpressDestinationService {
                 walletModel: walletModel,
                 expressOperationType: .swap
             )
+        }
+
+        var asSendSourceToken: SendSourceToken {
+            SendSourceTokenFactory(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                .makeSourceToken(flowActionType: .swap)
         }
     }
 
