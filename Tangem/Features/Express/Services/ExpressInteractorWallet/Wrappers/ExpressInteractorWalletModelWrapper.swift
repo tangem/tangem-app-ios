@@ -30,6 +30,7 @@ struct ExpressInteractorWalletModelWrapper {
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
+    let providerTransactionValidator: any ExpressProviderTransactionValidator
 
     private let walletModel: any WalletModel
     private let expressOperationType: ExpressOperationType
@@ -87,6 +88,11 @@ struct ExpressInteractorWalletModelWrapper {
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
             feeProvider: walletModel
+        )
+
+        providerTransactionValidator = CommonExpressProviderTransactionValidator(
+            tokenItem: walletModel.tokenItem,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
     }
 }

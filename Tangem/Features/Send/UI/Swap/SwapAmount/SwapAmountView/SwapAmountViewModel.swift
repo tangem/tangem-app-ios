@@ -45,7 +45,9 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var sourceExpressCurrencyStateCancellable: AnyCancellable?
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
+
     private var receiveTokenCancellable: AnyCancellable?
+    private var highPriceImpactCancellable: AnyCancellable?
 
     init(
         initialSourceToken: SendSourceToken,
@@ -124,9 +126,15 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             interactor.receivedTokenAmountPublisher,
             interactor.receivedTokenPublisher
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
+        .receiveOnMain()
         .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1) }
+
+        highPriceImpactCancellable = interactor
+            .highPriceImpactPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.receiveExpressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: $1) }
     }
 
     func textFieldDidTapped() {

@@ -188,12 +188,9 @@ private extension ExpressModulesFactoryMock {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let transactionValidator = ExpressProviderTransactionValidatorMock()
-
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository,
-            transactionValidator: transactionValidator
+            expressRepository: expressRepository
         )
 
         let sender = ExpressInteractorWalletModelWrapper(
