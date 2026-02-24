@@ -49,4 +49,14 @@ extension SendFlowBaseDependenciesFactory {
             )
         )
     }
+
+    // MARK: - Notifications
+
+    func makeSendNotificationManager() -> SendNotificationManager {
+        CommonSendNotificationManager(
+            userWalletId: userWalletInfo.id,
+            tokenItem: tokenItem,
+            withdrawalNotificationProvider: sourceToken.withdrawalNotificationProvider
+        )
+    }
 }
