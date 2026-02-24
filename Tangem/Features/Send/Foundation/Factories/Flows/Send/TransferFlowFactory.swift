@@ -8,7 +8,7 @@
 
 import struct TangemUI.TokenIconInfo
 
-class TransferFlowFactory: SendFlowBaseDependenciesFactory {
+class TransferNFTFlowFactory: SendFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
 
@@ -33,7 +33,7 @@ class TransferFlowFactory: SendFlowBaseDependenciesFactory {
 
 // MARK: - SendGenericFlowFactory
 
-extension TransferFlowFactory: SendGenericFlowFactory {
+extension TransferNFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let header = sourceToken.header.asSendTokenHeader(actionType: .send)
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
@@ -98,7 +98,7 @@ extension TransferFlowFactory: SendGenericFlowFactory {
 
 // MARK: - SendBaseBuildable
 
-extension TransferFlowFactory: SendBaseBuildable {
+extension TransferNFTFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
         SendViewModelBuilder.IO(input: sendModel, output: sendModel)
     }
@@ -124,7 +124,7 @@ extension TransferFlowFactory: SendBaseBuildable {
 
 // MARK: - SendDestinationStepBuildable
 
-extension TransferFlowFactory: SendDestinationStepBuildable {
+extension TransferNFTFlowFactory: SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO {
         SendDestinationStepBuilder.IO(
             input: sendModel,
@@ -154,7 +154,7 @@ extension TransferFlowFactory: SendDestinationStepBuildable {
 
 // MARK: - SendFeeStepBuildable
 
-extension TransferFlowFactory: SendFeeStepBuildable {
+extension TransferNFTFlowFactory: SendFeeStepBuildable {
     var feeDependencies: SendFeeStepBuilder.Dependencies {
         SendFeeStepBuilder.Dependencies(
             tokenFeeManagerProviding: sendModel,
@@ -166,7 +166,7 @@ extension TransferFlowFactory: SendFeeStepBuildable {
 
 // MARK: - SendSummaryStepBuildable
 
-extension TransferFlowFactory: SendSummaryStepBuildable {
+extension TransferNFTFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
         SendSummaryStepBuilder.IO(input: sendModel, output: sendModel)
     }
@@ -189,7 +189,7 @@ extension TransferFlowFactory: SendSummaryStepBuildable {
 
 // MARK: - SendFinishStepBuildable
 
-extension TransferFlowFactory: SendFinishStepBuildable {
+extension TransferNFTFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: sendModel)
     }
