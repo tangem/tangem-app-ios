@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 class FeeCompactViewModel: ObservableObject, Identifiable {
     @Published var selectedFeeTokenCurrencySymbol: String?
