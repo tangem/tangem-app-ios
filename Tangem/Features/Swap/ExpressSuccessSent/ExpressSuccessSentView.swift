@@ -13,6 +13,7 @@ import TangemUI
 
 struct ExpressSuccessSentView: View {
     @ObservedObject private var viewModel: ExpressSuccessSentViewModel
+    private let dragCloseThreshold: CGFloat = 60
 
     init(viewModel: ExpressSuccessSentViewModel) {
         self.viewModel = viewModel
@@ -53,6 +54,14 @@ struct ExpressSuccessSentView: View {
 
             buttonsView
         }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.height > dragCloseThreshold {
+                        viewModel.closeView()
+                    }
+                }
+        )
     }
 
     private var titleView: some View {

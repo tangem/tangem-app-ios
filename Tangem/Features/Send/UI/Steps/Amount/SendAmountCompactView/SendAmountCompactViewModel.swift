@@ -33,16 +33,17 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
     private let expressProviderFormatter: ExpressProviderFormatter = .init()
 
     init(
+        initialSourceToken: SendSourceToken,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
-        sendAmountCompactViewModel = .init(sourceToken: sourceTokenInput.sourceToken)
+        sendAmountCompactViewModel = .init(sourceToken: initialSourceToken)
         sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
         sendAmountCompactViewModel.bind(
-            balanceTypePublisher: sourceTokenInput.sourceToken.availableBalanceProvider.formattedBalanceTypePublisher
+            balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
         )
 
         bind(
@@ -83,7 +84,7 @@ private extension SendAmountCompactViewModel {
             .map {
                 $0.mapToSendAmountCompactTokenViewModel(
                     receiveTokenAmountInput: receiveTokenAmountInput,
-                    receiveToken: $1
+                    receiveToken: $1.value
                 )
             }
             .receiveOnMain()
@@ -91,13 +92,13 @@ private extension SendAmountCompactViewModel {
 
         Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
             swapProvidersInput.expressProvidersPublisher
         )
         .withWeakCaptureOf(self)
-        .asyncMap {
-            await $0.mapToSendSwapProviderCompactViewData(
-                receiveToken: $1.0,
+        .map {
+            $0.mapToSendSwapProviderCompactViewData(
+                receiveToken: $1.0.value,
                 availableProvider: $1.1,
                 providers: $1.2
             )
@@ -108,12 +109,12 @@ private extension SendAmountCompactViewModel {
 
     private func mapToSendAmountCompactTokenViewModel(
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
-        receiveToken: SendReceiveTokenType
+        receiveToken: SendReceiveToken?
     ) -> SendAmountCompactTokenViewModel? {
         switch receiveToken {
-        case .same:
+        case .none:
             return nil
-        case .swap(let receiveToken):
+        case .some(let receiveToken):
             let viewModel = SendAmountCompactTokenViewModel(receiveToken: receiveToken)
             viewModel.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
             viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
@@ -123,19 +124,19 @@ private extension SendAmountCompactViewModel {
     }
 
     private func mapToSendSwapProviderCompactViewData(
-        receiveToken: SendReceiveTokenType,
+        receiveToken: SendReceiveToken?,
         availableProvider: ExpressAvailableProvider?,
         providers: [ExpressAvailableProvider]
-    ) async -> SendSwapProviderCompactViewData? {
+    ) -> SendSwapProviderCompactViewData? {
         switch (receiveToken, availableProvider) {
-        case (.same, _):
+        case (.none, _):
             return nil
-        case (.swap, .none):
+        case (.some, .none):
             return .init(provider: .loading)
-        case (.swap, .some(let selectedProvider)):
+        case (.some, .some(let selectedProvider)):
             let availableProvidersCount = providers.filter(\.isAvailable).count
 
-            let badge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
                 canSelectAnother: availableProvidersCount > 1,
