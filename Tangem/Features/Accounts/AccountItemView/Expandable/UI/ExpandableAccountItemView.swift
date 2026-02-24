@@ -13,10 +13,14 @@ import TangemAccounts
 
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
+    let expandedView: ExpandedView
+
+    init(viewModel: ExpandableAccountItemViewModel, @ViewBuilder expandedView: () -> ExpandedView) {
+        self.viewModel = viewModel
+        self.expandedView = expandedView()
+    }
 
     @Namespace private var namespace
-
-    let expandedView: () -> ExpandedView
 
     // MARK: - Body
 
@@ -45,7 +49,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                 if viewModel.isEmptyContent {
                     EmptyContentAccountItemView()
                 } else {
-                    expandedView()
+                    expandedView
                 }
             },
             expandedViewHeader: {
