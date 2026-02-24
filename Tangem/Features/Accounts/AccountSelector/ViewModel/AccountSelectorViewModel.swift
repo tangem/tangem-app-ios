@@ -193,6 +193,10 @@ final class AccountSelectorViewModel: ObservableObject {
                 isLocked: userWallet.isUserWalletLocked,
                 accountAvailability: accountAvailability
             )
+
+        case .tangemPay:
+            // Currently it's not possible to add tokens to TangemPay account
+            return nil
         }
     }
 
@@ -232,6 +236,10 @@ final class AccountSelectorViewModel: ObservableObject {
                     self?.handleViewAction(.selectItem(.account(item)))
                 }
             )
+
+        case .tangemPay:
+            // Currently it's not possible to add tokens to TangemPay account
+            return nil
         }
     }
 }

@@ -15,7 +15,8 @@ struct YieldModuleBottomSheetContainerView<
     SubtitleFooter: View,
     BodyContent: View,
     HeaderContent: View,
-    TopContent: View
+    TopContent: View,
+    ButtonView: View
 >: View {
     // MARK: - Properties
 
@@ -31,14 +32,14 @@ struct YieldModuleBottomSheetContainerView<
     private let subtitleFooter: SubtitleFooter
     private let content: BodyContent
     private let header: HeaderContent
-    private let button: MainButton
+    private let button: ButtonView
 
     // MARK: - Init
 
     public init(
         title: String? = nil,
         subtitle: String? = nil,
-        button: MainButton,
+        button: ButtonView,
         @ViewBuilder header: () -> HeaderContent = { EmptyView() },
         @ViewBuilder topContent: () -> TopContent = { EmptyView() },
         @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
