@@ -128,14 +128,9 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
-                let expressInput = ExpressDependenciesInput(
+                let expressInput = ExpressDependenciesDestinationInput(
                     userWalletInfo: userWalletInfo,
-                    source: ExpressInteractorWalletModelWrapper(
-                        userWalletInfo: userWalletInfo,
-                        walletModel: walletModel,
-                        expressOperationType: .swap
-                    ),
-                    destination: .loadingAndSet
+                    walletModel: walletModel
                 )
 
                 coordinator.openExchange(input: expressInput)
