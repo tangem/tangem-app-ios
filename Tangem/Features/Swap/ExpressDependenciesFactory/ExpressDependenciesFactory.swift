@@ -13,9 +13,6 @@ protocol ExpressDependenciesFactory {
     var expressPairsRepository: ExpressPairsRepository { get }
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository { get }
     var expressDestinationService: ExpressDestinationService { get }
-
-    var expressInteractor: ExpressInteractor { get }
-
     var expressAPIProvider: ExpressAPIProvider { get }
     var expressRepository: ExpressRepository { get }
 

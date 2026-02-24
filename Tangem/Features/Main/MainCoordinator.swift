@@ -477,16 +477,28 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .send)
+
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
+        let options = SendCoordinator.Options(input: input, type: .send(sourceToken), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 
     func openSwap(input: SendInput) {
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .swap)
+
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(input: input, type: .swap, source: .main)
+        let options = SendCoordinator.Options(input: input, type: .swap(sourceToken), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -497,10 +509,16 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .send)
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: input,
-            type: .sell(parameters: sellParameters),
+            type: .sell(sourceToken, parameters: sellParameters),
             source: .main
         )
         coordinator.start(with: options)
@@ -549,10 +567,16 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let sourceTokenFactory = SendSourceTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .onramp)
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: input,
-            type: .onramp(parameters: parameters),
+            type: .onramp(sourceToken, parameters: parameters),
             source: .main
         )
         coordinator.start(with: options)
