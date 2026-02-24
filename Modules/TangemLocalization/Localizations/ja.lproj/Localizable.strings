@@ -362,7 +362,7 @@
 "common_unstake" = "ステーキング解除";
 "common_utxo_validate_withdrawal_message_warning" = "%1$@の制限により、1つのトランザクションに収まるUTXOは%2$li個のみです。つまり、 %3$@以下しか送信できません。量を減らす必要があります。";
 "common_value_copied" = "値がコピーされました";
-"common_wallets" = "Wallets";
+"common_wallets" = "ウォレット";
 "common_warning" = "警告";
 "common_week" = "週";
 "common_with" = "で";
@@ -530,7 +530,6 @@
 "feedback_preface_support" = "サポートチームの皆さん、こんにちは。";
 "feedback_preface_tx_failed" = "問題について詳しく教えてください。どんな些細なことでも役に立ちます。";
 "feedback_subject_backup_problem" = "バックアップの問題";
-"feedback_subject_pre_activated_wallet" = "以前に有効化されたウォレット";
 "feedback_subject_rate_negative" = "私の提案";
 "feedback_subject_scan_failed" = "カード / リングをスキャンできません";
 "feedback_subject_support_tangem" = "Tangemへのフィードバック";
@@ -1311,9 +1310,9 @@
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
-"swap_search_tooltip_title" = "Use search to find what you need";
+"swap_search_suggestion_hint" = "他のものをお探しですか？\n検索してみるか、別の暗号資産をチェックしてみましょう！";
+"swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
+"swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
 "swap_story_fifth_subtitle" = "24時間体制のサポートであらゆる問題に対応します。";
 "swap_story_fifth_title" = "いつもここに";
 "swap_story_first_subtitle" = "複数の信頼できるプロバイダーが一箇所に集結。ウォレット内で様々な暗号資産を簡単に交換できます。";
@@ -1380,7 +1379,7 @@
 "tangem_pay_unfreeze_card_success" = "カードの凍結が解除されました";
 "tangem_pay_withdrawal" = "出金";
 "tangempay_account_unable_to_use_rooted" = "Root化された端末では使用できません";
-"tangempay_cancel_kyc" = "KYCをキャンセル";
+"tangempay_cancel_kyc" = "メイン画面からKYCを非表示にする";
 "tangempay_card_details_add_funds_subtitle" = "入金オプション";
 "tangempay_card_details_add_funds" = "資金を追加";
 "tangempay_card_details_card_number" = "カード番号";
@@ -1441,15 +1440,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "KYC手続きを中止しますか？いつでも再開できます。";
 "tangempay_kyc_failed_description" = "プロフィールを確認できませんでした。ご不明な点があればサポートまでお問い合わせください。";
 "tangempay_kyc_failed_title" = "申し訳ございませんが、本人確認を行うことができませんでした";
-"tangempay_kyc_has_failed" = "KYCの認証に失敗しました";
+"tangempay_kyc_has_failed" = "KYCが承認されませんでした";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
 "tangempay_kyc_in_progress_notification_title" = "Tangem PayのKYC手続き進行中";
 "tangempay_kyc_in_progress_popup_description" = "書類は通常、5分以内に自動で確認されます。手動での審査が必要な稀な場合は、最大48時間かかることがあります。";
 "tangempay_kyc_in_progress" = "KYC進行中";
 "tangempay_kyc_rejected_button_text" = "KYCブロックを非表示";
-"tangempay_kyc_rejected_description_span" = "あなたのプロフィール。";
-"tangempay_kyc_rejected_description" = "申し訳ありません、確認できませんでした";
-"tangempay_kyc_rejected" = "KYCが承認されませんでした";
+"tangempay_kyc_rejected_description_span" = "本人確認ができませんでした。";
+"tangempay_kyc_rejected_description" = "申し訳ございませんが、";
+"tangempay_kyc_rejected" = "拒否されました";
 "tangempay_onboarding_banner_description" = "無料のTangem Visaバーチャルカードを入手";
 "tangempay_onboarding_banner_title" = "日常の支払いにUSDCを利用";
 "tangempay_onboarding_get_card_button_text" = "カードをGET";
@@ -1476,7 +1475,6 @@
 "tangempay_withdrawal_note_description" = "USDC Polygonのオンチェーン残高はカード残高とは異なり、購入後2営業日以内に更新されます。返金された購入資金はオンチェーン残高に戻らず、出金もできませんが、カード残高に残り、購入に使用できます。";
 "tangempay_withdrawal_note_title" = "ご注意ください";
 "tangempay_your_pin_code" = "PINコード";
-"this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
 "toast_undo" = "元に戻す";
@@ -1640,7 +1638,6 @@
 "wallet_add_mobile_description" = "スマートフォン上でウォレットを復元するか、他のアプリからインポートできますが、Tangemカードと比べるとセキュリティは劣ります。";
 "wallet_add_support_title" = "お選びください";
 "wallet_balance_missing_derivation" = "カードまたはリングをスキャン";
-"wallet_been_activated_message" = "このウォレットはすでに有効化されています。\nあなたが行ったのでない場合は、サポートに連絡してください。\nTangemは、事前に生成されたアクセスコードと一緒にウォレットを販売することはありません。";
 "wallet_connect_error_timeout" = "WalletConnectセッションの確立に失敗しました：タイムアウトエラー。しばらくしてもう一度お試しください。";
 "wallet_connect_multiple_transactions_description" = "正常に処理するため、取引は複数に分割されます。完了するにはカードを数回タップする必要があります。";
 "wallet_connect_multiple_transactions" = "マルチパート取引";
