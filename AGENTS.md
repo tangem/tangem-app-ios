@@ -179,8 +179,60 @@ struct MyView_Previews: PreviewProvider {
 
 Always use Context7 MCP for fetching library/API documentation, code generation, or configuration steps.
 
+## Xcode MCP Tools
+
+This project has Xcode MCP integration available. **Prefer Xcode MCP tools over shell commands when working with Xcode projects** as they provide direct integration with the IDE.
+
+### File Operations
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| `XcodeRead` | Read files from the project | Reading source files through Xcode's file system |
+| `XcodeWrite` | Write files to the project | Creating new files in the project |
+| `XcodeUpdate` | Edit files with str_replace-style patches | Modifying existing files |
+| `XcodeGlob` | Find files by pattern | Searching for files matching a glob pattern |
+| `XcodeGrep` | Search file contents | Finding code patterns across the project |
+| `XcodeLS` | List directory contents | Exploring project structure |
+| `XcodeMakeDir` | Create directories | Adding new folders to the project |
+| `XcodeRM` | Remove files | Deleting files from the project |
+| `XcodeMV` | Move/rename files | Reorganizing project files |
+
+### Building & Testing
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| `BuildProject` | Build the Xcode project | Compiling the app (prefer over `xcodebuild` CLI) |
+| `GetBuildLog` | Get build output | Retrieving build results and errors |
+| `RunAllTests` | Run all tests | Executing the full test suite |
+| `RunSomeTests` | Run specific tests | Running targeted test classes/methods |
+| `GetTestList` | List available tests | Discovering available test targets |
+
+### Diagnostics & Issues
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| `XcodeListNavigatorIssues` | Get Xcode issues/errors | Retrieving all project warnings and errors |
+| `XcodeRefreshCodeIssuesInFile` | Get live diagnostics | Getting real-time code issues for a specific file |
+
+### Development Utilities
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| `ExecuteSnippet` | Run code in a REPL-like environment | Testing Swift code snippets interactively |
+| `RenderPreview` | Render SwiftUI previews as images | Generating preview screenshots |
+| `DocumentationSearch` | Search Apple docs and WWDC videos | Finding official Apple documentation |
+| `XcodeListWindows` | List open Xcode windows | Getting info about open Xcode windows |
+
+### Usage Guidelines
+
+1. **Building:** Use `BuildProject` instead of `xcodebuild` CLI for better integration
+2. **Diagnostics:** Use `XcodeListNavigatorIssues` to get all project issues before attempting fixes
+3. **Testing:** Use `RunSomeTests` for targeted test runs instead of full suite runs
+4. **Previews:** Use `RenderPreview` to validate SwiftUI views without running the simulator
+5. **Documentation:** Use `DocumentationSearch` to find Apple API documentation and WWDC content
+
 ## Miscellaneous
 
 - DO NOT read, access or modify files at paths specified in the @.cursorignore file
-- When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly
+- When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly. Always prefer to use tools from Xcode MCP for modifying the project file.
 - Call `./bootstrap.sh` once in the beginning of current working session. It's absolutely required before starting you work on the project to install all dependencies, to perform codegen, etc
