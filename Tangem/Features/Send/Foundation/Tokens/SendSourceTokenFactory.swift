@@ -66,6 +66,11 @@ struct SendSourceTokenFactory {
             feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
         )
 
+        let providerTransactionValidator = CommonExpressProviderTransactionValidator(
+            tokenItem: walletModel.tokenItem,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
+        )
+
         return CommonSendSourceToken(
             userWalletInfo: userWalletInfo,
             id: walletModel.id,
@@ -74,6 +79,7 @@ struct SendSourceTokenFactory {
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             isExemptFee: false,
+            isFixedFee: !walletModel.shouldShowFeeSelector,
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
             isCustom: walletModel.isCustom,
@@ -94,7 +100,8 @@ struct SendSourceTokenFactory {
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,
             operationType: .swap,
-            supportedProvidersFilter: .swap
+            supportedProvidersFilter: .swap,
+            providerTransactionValidator: providerTransactionValidator
         )
     }
 }
