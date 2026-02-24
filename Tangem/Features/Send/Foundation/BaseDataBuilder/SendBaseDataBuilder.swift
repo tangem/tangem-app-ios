@@ -19,8 +19,6 @@ protocol SendBaseDataBuilder: SendGenericBaseDataBuilder,
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> MailData
     func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData
     func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData
-
-    func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
 }
 
 protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder,
