@@ -20,6 +20,7 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var tokenHeader: ExpressInteractorTokenHeader? { get }
     var feeTokenItem: TokenItem { get }
     var isExemptFee: Bool { get }
+    var isFixedFee: Bool { get }
     var isCustom: Bool { get }
     var possibleToConvertToFiat: Bool { get }
     var defaultAddressString: String { get }
@@ -66,6 +67,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let isExemptFee: Bool
+    let isFixedFee: Bool
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
     let isCustom: Bool
@@ -99,6 +101,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let analyticsLogger: any AnalyticsLogger
     let operationType: ExpressOperationType
     let supportedProvidersFilter: SupportedProvidersFilter
+    let providerTransactionValidator: any ExpressProviderTransactionValidator
 }
 
 // MARK: - Equatable
