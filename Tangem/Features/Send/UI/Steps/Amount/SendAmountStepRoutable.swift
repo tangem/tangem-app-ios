@@ -1,5 +1,5 @@
 //
-//  SendAmountRoutable.swift
+//  SendAmountStepRoutable.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol SendAmountRoutable: AnyObject {
+protocol SendAmountStepRoutable: AnyObject {
     func openReceiveTokensList()
 }
