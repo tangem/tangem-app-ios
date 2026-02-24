@@ -49,11 +49,7 @@ extension SendWithSwapFlowBaseDependenciesFactory {
     func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
         SendWithSwapNotificationManager(
             receiveTokenInput: receiveTokenInput,
-            sendNotificationManager: CommonSendNotificationManager(
-                userWalletId: userWalletInfo.id,
-                tokenItem: tokenItem,
-                withdrawalNotificationProvider: sourceToken.withdrawalNotificationProvider
-            ),
+            sendNotificationManager: makeSendNotificationManager(),
             expressNotificationManager: ExpressNotificationManager(
                 userWalletId: userWalletInfo.id,
                 expressInteractor: expressInteractorFactory.expressInteractor
