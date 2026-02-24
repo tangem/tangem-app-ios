@@ -25,6 +25,10 @@ final class SendWithSwapModel {
 
     // MARK: - Dependencies
 
+    var externalAmountUpdater: SendAmountExternalUpdater!
+    var externalDestinationUpdater: SendDestinationExternalUpdater!
+    var informationRelevanceService: InformationRelevanceService!
+
     weak var router: SendWithSwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -32,6 +36,11 @@ final class SendWithSwapModel {
 
     private let transferModel: TransferModel
     private let swapModel: SwapModel
+
+    // MARK: - Internal access for factory setup
+
+    var transferModelInternal: TransferModel { transferModel }
+    var swapModelInternal: SwapModel { swapModel }
 
     // MARK: - Private
 
@@ -72,6 +81,9 @@ final class SendWithSwapModel {
 
 private extension SendWithSwapModel {
     func bind() {
+        // Forward external updaters to transferModel
+        // These will be set after initialization by the factory
+
         // Routers and alert presenters will be set externally
         // No adapters needed - direct delegation
     }

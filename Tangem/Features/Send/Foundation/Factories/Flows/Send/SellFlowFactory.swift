@@ -11,17 +11,21 @@ import struct TangemUI.TokenIconInfo
 class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let sellParameters: PredefinedSellParameters
+    let expressDependenciesFactory: ExpressDependenciesFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
         predefinedValues: mapToPredefinedValues(sellParameters: sellParameters)
     )
 
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
         sourceToken: SendSourceToken,
@@ -37,9 +41,10 @@ class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             destination: .none
         )
 
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
         expressInteractorFactory = ExpressInteractorFactory(
             input: expressDependenciesInput,
-            expressDependenciesFactory: CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+            expressDependenciesFactory: expressDependenciesFactory
         )
     }
 

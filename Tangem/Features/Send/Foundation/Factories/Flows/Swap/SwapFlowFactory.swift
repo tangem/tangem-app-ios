@@ -94,7 +94,7 @@ extension SwapFlowFactory: SendBaseBuildable {
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
-            alertBuilder: makeSendAlertBuilder(),
+            alertBuilder: makeSwapAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: swapModel,
                 emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
