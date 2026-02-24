@@ -14,24 +14,17 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
-    lazy var swapModel = makeSwapModel(analyticsLogger: analyticsLogger)
+    lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
     lazy var notificationManager = makeSwapNotificationManager()
+    lazy var autoupdatingTimer = AutoupdatingTimer()
 
     init(
         sourceToken: SendSourceToken,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
-        source: ExpressInteractorWalletModelWrapper
+        baseDataBuilderFactory: SendBaseDataBuilderFactory
     ) {
         self.sourceToken = sourceToken
         self.baseDataBuilderFactory = baseDataBuilderFactory
-
-        let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: sourceToken.userWalletInfo,
-            source: source,
-            destination: .none
-        )
-
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 }
 
@@ -81,6 +74,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
+            autoupdatingTimer: autoupdatingTimer,
             router: router
         )
 
@@ -107,14 +101,7 @@ extension SwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 baseDataInput: swapModel,
-                approveDataInput: swapModel,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: swapModel,
-                    receiveTokenOutput: swapModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
+                approveDataInput: swapModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),

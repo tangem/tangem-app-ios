@@ -18,14 +18,13 @@ struct SwapSummaryProviderView: View {
             switch state {
             case .loading:
                 LoadingProvidersRow()
-                    .transition(.opacity.animation(.easeInOut))
             case .loaded(let data):
                 ProviderRowView(viewModel: data)
-                    .transition(.opacity.animation(.easeInOut))
             }
         }
         .innerContentPadding(12)
         .backgroundColor(Colors.Background.action)
+        .transition(.opacity.animation(.easeInOut))
         .animation(.easeInOut, value: viewModel.providerState?.id)
     }
 }

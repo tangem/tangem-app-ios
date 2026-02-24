@@ -37,6 +37,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
+    let providerTransactionValidator: ExpressProviderTransactionValidator
 
     private var _balanceProvider: any ExpressBalanceProvider
 
@@ -71,6 +72,8 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         _balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider,
         )
+
+        providerTransactionValidator = TangemPayExpressProviderTransactionValidator()
     }
 }
 

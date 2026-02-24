@@ -68,9 +68,16 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
+        let factory = SendSourceTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeSourceToken(flowActionType: .stake)
+
         openFlow(
             options: options,
             sendType: .staking(
+                sourceToken,
                 manager: options.manager,
                 blockchainParams: .init(blockchain: options.sendInput.walletModel.tokenItem.blockchain)
             )
@@ -99,19 +106,37 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openUnstakingFlow(action: UnstakingModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .unstaking(manager: options.manager, action: action))
+        let factory = SendSourceTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeSourceToken(flowActionType: .unstake)
+
+        openFlow(options: options, sendType: .unstaking(sourceToken, manager: options.manager, action: action))
     }
 
     func openRestakingFlow(action: RestakingModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .restaking(manager: options.manager, action: action))
+        let factory = SendSourceTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeSourceToken(flowActionType: .restake)
+
+        openFlow(options: options, sendType: .restaking(sourceToken, manager: options.manager, action: action))
     }
 
     func openStakingSingleActionFlow(action: StakingSingleActionModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .stakingSingleAction(manager: options.manager, action: action))
+        let factory = SendSourceTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeSourceToken(flowActionType: action.type.sendFlowActionType)
+
+        openFlow(options: options, sendType: .stakingSingleAction(sourceToken, manager: options.manager, action: action))
     }
 
     func openFlow(options: Options, sendType: SendType) {
