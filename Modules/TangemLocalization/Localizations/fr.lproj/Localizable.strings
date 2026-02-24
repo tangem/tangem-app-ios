@@ -530,7 +530,6 @@
 "feedback_preface_support" = "Chère équipe de support,";
 "feedback_preface_tx_failed" = "Veuillez nous en dire plus sur votre problème. Chaque petit détail peut nous aider.";
 "feedback_subject_backup_problem" = "Problème de sauvegarde";
-"feedback_subject_pre_activated_wallet" = "Portefeuille précédemment activé";
 "feedback_subject_rate_negative" = "Mes suggestions";
 "feedback_subject_scan_failed" = "Impossible de scanner une carte";
 "feedback_subject_support_tangem" = "Commentaires sur Tangem";
@@ -1038,7 +1037,6 @@
 "scan_card_settings_button" = "Scannez votre carte";
 "scan_card_settings_message" = "Scannez la carte pour modifier ses paramètres. Les modifications n'affecteront que la carte que vous avez scannée et n'affecteront pas les autres cartes liées à votre portefeuille.";
 "scan_card_settings_title" = "Préparez votre carte !";
-"security_alert_title" = "Alerte de sécurité";
 "seed_warning_no" = "Non";
 "seed_warning_yes" = "Oui, guidez-moi";
 "selling_insufficient_balance_alert_message" = "Vous n'avez pas assez de fonds sur votre solde pour vendre cette cryptomonnaie. Veuillez déposer l'actif souhaité pour continuer.";
@@ -1380,7 +1378,7 @@
 "tangem_pay_unfreeze_card_success" = "Votre carte est dégelée.";
 "tangem_pay_withdrawal" = "Retrait";
 "tangempay_account_unable_to_use_rooted" = "Impossible à utiliser sur un appareil rooté";
-"tangempay_cancel_kyc" = "Annuler KYC";
+"tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
 "tangempay_card_details_add_funds_subtitle" = "Options de recharge";
 "tangempay_card_details_add_funds" = "Ajouter des fonds";
 "tangempay_card_details_card_number" = "Numéro de carte";
@@ -1447,9 +1445,9 @@
 "tangempay_kyc_in_progress_popup_description" = "Les documents sont généralement vérifiés automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, le processus peut prendre jusqu’à 48 heures.";
 "tangempay_kyc_in_progress" = "KYC en cours";
 "tangempay_kyc_rejected_button_text" = "Masquer le bloc KYC";
-"tangempay_kyc_rejected_description_span" = "votre profil.";
-"tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier.";
-"tangempay_kyc_rejected" = "KYC rejeté";
+"tangempay_kyc_rejected_description_span" = "votre identité.";
+"tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier";
+"tangempay_kyc_rejected" = "Refusé";
 "tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
@@ -1476,7 +1474,6 @@
 "tangempay_withdrawal_note_description" = "Votre solde USDC Polygon on-chain diffère de votre solde de carte et se met à jour dans les 2 jours ouvrables suivant un achat. Les fonds des achats remboursés ne seront pas retournés à votre solde on-chain ni disponibles pour un retrait, mais resteront sur votre solde de carte pour vos achats.";
 "tangempay_withdrawal_note_title" = "Veuillez noter";
 "tangempay_your_pin_code" = "Votre code PIN";
-"this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
 "toast_balances_shown" = "Soldes affichés";
 "toast_undo" = "Annuler";
@@ -1640,7 +1637,6 @@
 "wallet_add_mobile_description" = "Restaurez votre portefeuille sur votre téléphone ou importez-le depuis une autre application — pratique, mais moins sécurisé qu'une carte Tangem.";
 "wallet_add_support_title" = "Que choisir ?";
 "wallet_balance_missing_derivation" = "Scanner la carte ou la bague";
-"wallet_been_activated_message" = "Ce portefeuille a déjà été activé auparavant.\nSi cela n'a pas été fait par vous, veuillez contacter le support.\nTangem ne vend jamais de portefeuilles avec le code d'accès pré-généré.";
 "wallet_connect_error_timeout" = "Échec de l'établissement de la session WalletConnect : erreur de délai d'attente. Veuillez réessayer plus tard.";
 "wallet_connect_multiple_transactions_description" = "Pour que le traitement soit effectué correctement, votre transaction sera divisée en plusieurs parties. Vous devrez passer votre carte plusieurs fois pour la finaliser.";
 "wallet_connect_multiple_transactions" = "Transaction en plusieurs parties";

@@ -530,7 +530,6 @@
 "feedback_preface_support" = "Hi support team,";
 "feedback_preface_tx_failed" = "Please tell us more about your issue. Every small detail can help.";
 "feedback_subject_backup_problem" = "Backup issue";
-"feedback_subject_pre_activated_wallet" = "Previously activated wallet";
 "feedback_subject_rate_negative" = "My suggestions";
 "feedback_subject_scan_failed" = "Can't scan a card/ring";
 "feedback_subject_support_tangem" = "Tangem feedback";
@@ -1038,7 +1037,6 @@
 "scan_card_settings_button" = "Scan card or ring";
 "scan_card_settings_message" = "Scan the card or ring to change its settings. The changes will impact only the card or ring you've scanned and will not affect other devices tied to your wallet.";
 "scan_card_settings_title" = "Get your Tangem ready!";
-"security_alert_title" = "Security Alert";
 "seed_warning_no" = "No, I did not";
 "seed_warning_yes" = "Yes, guide me";
 "selling_insufficient_balance_alert_message" = "You don’t have enough funds in your balance to sell cryptocurrency. Please deposit the desired asset to proceed.";
@@ -1380,7 +1378,7 @@
 "tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
-"tangempay_cancel_kyc" = "Cancel KYC";
+"tangempay_cancel_kyc" = "Hide KYC from main screen";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
 "tangempay_card_details_card_number" = "Card Number";
@@ -1441,7 +1439,7 @@
 "tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "We could not verify your profile. If you have any questions, please contact support.";
 "tangempay_kyc_failed_title" = "Unfortunately, we couldn't verify your identity ";
-"tangempay_kyc_has_failed" = "KYC has failed";
+"tangempay_kyc_has_failed" = "KYC rejected";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Documents are usually verified automatically within 5 minutes. In rare cases, if manual review is required, it may take up to 48 hours.";
@@ -1449,7 +1447,7 @@
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
 "tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
-"tangempay_kyc_rejected" = "KYC rejected";
+"tangempay_kyc_rejected" = "Rejected";
 "tangempay_onboarding_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_onboarding_banner_title" = "Use USDC for everyday payments";
 "tangempay_onboarding_get_card_button_text" = "Get card";
@@ -1476,7 +1474,6 @@
 "tangempay_withdrawal_note_description" = "Your on-chain USDC Polygon balance differs from your card balance and updates within 2 business days after a purchase. Funds from refunded purchases won’t be returned your on-chain balance or be available for withdrawal, but will stay on your card balance for purchases.";
 "tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "Your PIN code";
-"this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
 "toast_undo" = "Undo";
@@ -1640,7 +1637,6 @@
 "wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
 "wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "Scan card or ring";
-"wallet_been_activated_message" = "This wallet has already been activated earlier.\nIf it was not done by you, please contact support.\nTangem never sells wallets along with pre-generated access codes.";
 "wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. Please, try again later.";
 "wallet_connect_multiple_transactions_description" = "To process successfully, your transaction will be split into multiple parts. You'll need to tap your card several times to complete it.";
 "wallet_connect_multiple_transactions" = "Multi-Part Transaction";
