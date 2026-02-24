@@ -43,7 +43,12 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
                 }
             },
-            accountAvailabilityProvider: makeAccountAvailabilityProvider(inputData: inputData),
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
+                availableNetworks: inputData.networks
+            ),
             analyticsLogger: analyticsLogger
         )
     }
@@ -159,34 +164,5 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
-    }
-
-    static func makeAccountAvailabilityProvider(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
-        { context in
-            let tokenItems = MarketsTokenItemsProvider.calculateTokenItems(
-                coinId: inputData.coinId,
-                coinName: inputData.coinName,
-                coinSymbol: inputData.coinSymbol,
-                networks: inputData.networks,
-                supportedBlockchains: context.supportedBlockchains,
-                cryptoAccount: context.account
-            )
-
-            guard tokenItems.isNotEmpty else {
-                return .unavailable(reason: nil)
-            }
-
-            let allAdded = TokenAdditionChecker.areAllTokenItemsAdded(
-                in: context.account,
-                tokenItems: tokenItems,
-                supportedBlockchains: context.supportedBlockchains
-            )
-
-            return allAdded
-                ? .unavailable(reason: Localization.marketsTokenAdded)
-                : .available
-        }
     }
 }
