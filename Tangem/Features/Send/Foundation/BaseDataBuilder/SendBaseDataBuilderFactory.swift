@@ -14,15 +14,13 @@ struct SendBaseDataBuilderFactory {
 
     func makeSendBaseDataBuilder(
         baseDataInput: any SendBaseDataBuilderInput,
-        approveDataInput: any SendApproveDataBuilderInput,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
+        approveDataInput: any SendApproveDataBuilderInput
     ) -> SendBaseDataBuilder {
         CommonSendBaseDataBuilder(
             baseDataInput: baseDataInput,
             approveDataInput: approveDataInput,
             walletModel: walletModel,
             emailDataProvider: userWalletInfo.emailDataProvider,
-            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
