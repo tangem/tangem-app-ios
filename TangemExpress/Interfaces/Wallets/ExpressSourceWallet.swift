@@ -13,6 +13,7 @@ public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var allowanceProvider: AllowanceProvider? { get }
     var balanceProvider: BalanceProvider { get }
     var analyticsLogger: AnalyticsLogger { get }
+    var providerTransactionValidator: ExpressProviderTransactionValidator { get }
 
     var operationType: ExpressOperationType { get }
     var supportedProvidersFilter: SupportedProvidersFilter { get }
