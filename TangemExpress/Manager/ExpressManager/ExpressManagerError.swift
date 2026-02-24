@@ -18,6 +18,7 @@ public enum ExpressManagerError: String, LocalizedError {
     case availableQuotesForProviderNotFound
     case objectReleased
     case notEnoughAmountToSubtractFee
+    case unsupportedProviderType
 
     public var errorDescription: String? {
         switch self {
@@ -30,6 +31,7 @@ public enum ExpressManagerError: String, LocalizedError {
         case .availableQuotesForProviderNotFound: "Available quotes for provider not found"
         case .objectReleased: "Object released"
         case .notEnoughAmountToSubtractFee: "Not enough amount to subtract fee"
+        case .unsupportedProviderType: "Unsupported provider type"
         }
     }
 }
