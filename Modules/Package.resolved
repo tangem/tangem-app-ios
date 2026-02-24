@@ -1,13 +1,13 @@
 {
-  "originHash" : "3558a768cfd73f33a4881dae64e7e23c738a178b21ce3e4b3392bdaede75cb55",
+  "originHash" : "1c7ec132860f6155c2c82d19c757d824ee17e6d5455505c5c872d177a0664620",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
-        "version" : "5.11.0"
+        "revision" : "3f99050e75bbc6fe71fc323adabb039756680016",
+        "version" : "5.11.1"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CombineCommunity/CombineExt.git",
       "state" : {
-        "revision" : "d7b896fa9ca8b47fa7bcde6b43ef9b70bf8c1f56",
-        "version" : "1.8.1"
+        "revision" : "96a7610ca165e027b24710fc2f04c9ba8d2ce0e6",
+        "version" : "1.9.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Moya/Moya.git",
       "state" : {
-        "revision" : "9b906860e3c3c09032879465c471e6375829593f",
-        "version" : "15.0.0"
+        "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
+        "version" : "15.0.3"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "5e8d344f5a3a1854915b865e99076cadd1651b8d",
-        "version" : "4.0.15"
+        "revision" : "834250aacbcdddeaf90f5b335921a52cd1aa0fc9",
+        "version" : "4.0.16"
       }
     },
     {
