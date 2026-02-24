@@ -92,6 +92,41 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
         }
     }
 
+    func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {
+        let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
+            expressTransactionId: transaction.expressTransactionData.expressTransactionId,
+            transactionType: .type(from: transaction.expressTransactionData.transactionType),
+            transactionHash: transaction.result.hash,
+            sourceTokenTxInfo: .init(
+                userWalletId: transaction.source.userWalletInfo.id.stringValue,
+                tokenItem: transaction.source.tokenItem,
+                address: transaction.source.address ?? .unknown,
+                amountString: transaction.expressTransactionData.fromAmount.stringValue,
+                isCustom: transaction.source.isCustom
+            ),
+            destinationTokenTxInfo: .init(
+                userWalletId: transaction.receive.userWalletInfo.id.stringValue,
+                tokenItem: transaction.receive.tokenItem,
+                address: transaction.receive.address ?? .unknown,
+                amountString: transaction.expressTransactionData.toAmount.stringValue,
+                isCustom: transaction.receive.isCustom
+            ),
+            feeString: transaction.fee.amount.value.stringValue,
+            provider: .init(provider: transaction.provider),
+            date: transaction.date,
+            externalTxId: transaction.expressTransactionData.externalTxId,
+            externalTxURL: transaction.expressTransactionData.externalTxUrl,
+            averageDuration: nil, // Set nil because we don't have any data yet
+            createdAt: nil, // Set nil because we don't have any data yet
+            isHidden: false,
+            transactionStatus: .awaitingDeposit
+        )
+
+        lockQueue.async { [weak self] in
+            self?.addRecordIfNeeded(expressPendingTransactionRecord)
+        }
+    }
+
     func hideSwapTransaction(with id: String) {
         lockQueue.async { [weak self] in
             guard let self else { return }
