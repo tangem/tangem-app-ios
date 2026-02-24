@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
+import class UIKit.UIPasteboard
 import CombineExt
 import TangemFoundation
 import TangemStaking
@@ -24,28 +24,28 @@ import TangemPay
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var isLoadingTokenList: Bool = true
-    @Published var notificationInputs: [NotificationViewInput] = []
-    @Published var tokensNotificationInputs: [NotificationViewInput] = []
-    @Published var bannerNotificationInputs: [NotificationViewInput] = []
-    @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var isLoadingTokenList: Bool = true
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var bannerNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
-    @Published var accountSections: [MultiWalletMainContentAccountSection] = []
-    @Published var plainSections: [MultiWalletMainContentPlainSection] = []
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
+    @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+    @Published private(set) var tangemPayNotificationInputs: [NotificationViewInput] = []
 
-    @Published var isScannerBusy = false
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
+    @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
-    @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
+    @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
 
-    @Published var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
+    @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
     weak var delegate: MultiWalletMainContentDelegate?
 
