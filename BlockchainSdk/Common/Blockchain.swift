@@ -109,6 +109,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
     case monad(testnet: Bool)
+    case berachain(testnet: Bool)
     case arbitrumNova
     case plasma(testnet: Bool)
 
@@ -169,6 +170,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll(let testnet),
              .linea(let testnet),
              .monad(let testnet),
+             .berachain(let testnet),
              .plasma(let testnet):
             return testnet
         case .litecoin,
@@ -353,6 +355,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             return 18
@@ -559,6 +562,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "QUAI"
         case .monad:
             return "MON"
+        case .berachain:
+            return "BERA"
         case .plasma:
             return "XPL"
         }
@@ -661,6 +666,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "Quai Orchard Testnet" : "Quai Network"
         case .monad:
             return "Monad" + testnetSuffix
+        case .berachain:
+            return "Berachain" + (isTestnet ? " Bepolia Testnet" : "")
         case .arbitrumNova:
             return "Arbitrum Nova"
         default:
@@ -967,6 +974,7 @@ public extension Blockchain {
         case .scroll: return isTestnet ? 534351 : 534352
         case .linea: return isTestnet ? 59141 : 59144
         case .monad: return isTestnet ? 10143 : 143
+        case .berachain: return isTestnet ? 80069 : 80094
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
         default:
@@ -1056,6 +1064,7 @@ public extension Blockchain {
         case .scroll: return true
         case .linea: return true
         case .monad: return true
+        case .berachain: return true
         case .arbitrumNova: return true
         case .plasma: return true
         default:
@@ -1213,6 +1222,7 @@ extension Blockchain: Codable {
         case .scroll: return "scroll"
         case .linea: return "linea"
         case .monad: return "monad"
+        case .berachain: return "berachain"
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
         }
@@ -1330,6 +1340,7 @@ extension Blockchain: Codable {
         case "scroll": self = .scroll(testnet: isTestnet)
         case "linea": self = .linea(testnet: isTestnet)
         case "monad": self = .monad(testnet: isTestnet)
+        case "berachain": self = .berachain(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
         default:
@@ -1629,6 +1640,11 @@ private extension Blockchain {
             }
         case .monad:
             return "monad"
+        case .berachain:
+            switch type {
+            case .network: return "berachain"
+            case .coin: return "berachain-bera"
+            }
         case .arbitrumNova:
             switch type {
             case .network: return "arbitrum-nova"
@@ -1703,6 +1719,7 @@ extension Blockchain {
              .hyperliquidEVM,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             return EthereumWalletAssembly()

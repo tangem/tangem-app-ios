@@ -13,6 +13,7 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
     case accounts
+    case redesign
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
@@ -20,6 +21,7 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case experimentService
     case expressAllTokensSearch
+    case swapRefactoring
 
     var name: String {
         switch self {
@@ -27,6 +29,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
         case .accounts: return "Accounts"
+        case .redesign: return "Redesign"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
@@ -34,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
         case .expressAllTokensSearch: return "Express All Tokens Search"
+        case .swapRefactoring: return "Swap refactoring"
         }
     }
 
@@ -43,6 +47,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .accounts: return .version("5.33")
+        case .redesign: return .unspecified
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .version("5.33")
@@ -50,6 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .expressAllTokensSearch: return .unspecified
+        case .swapRefactoring: return .unspecified
         }
     }
 }

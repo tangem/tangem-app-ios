@@ -40,7 +40,6 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
-    var tangemPayManager: TangemPayManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
