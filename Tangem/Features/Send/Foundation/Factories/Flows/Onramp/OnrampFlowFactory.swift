@@ -46,8 +46,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         sourceToken: SendSourceToken,
         parameters: PredefinedOnrampParameters,
         coordinatorSource: SendCoordinator.Source,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
-        source: ExpressInteractorWalletModelWrapper
+        baseDataBuilderFactory: SendBaseDataBuilderFactory
     ) {
         self.sourceToken = sourceToken
         self.parameters = parameters
@@ -59,8 +58,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             tokenItem: sourceToken.tokenItem,
         )
 
-        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: sourceToken.userWalletInfo, source: source)
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 }
 
