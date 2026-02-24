@@ -8,11 +8,10 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SendFlowFactory: SendFlowBaseDependenciesFactory {
+class SendFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
-    let sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let expressDependenciesFactory: ExpressDependenciesFactory
+    let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
     lazy var swapManager = makeSwapManager()
@@ -21,12 +20,10 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
 
     init(
         sourceToken: SendSourceToken,
-        sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput,
         baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
-        self.sendingWalletDestinationStepDataInput = sendingWalletDestinationStepDataInput
         self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
@@ -35,7 +32,10 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: expressDependenciesInput,
+            expressDependenciesFactory: CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        )
     }
 }
 
@@ -85,12 +85,21 @@ extension SendFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
         analyticsLogger.setup(sendSwapProvidersInput: sendModel)
 
+        let sendReceiveTokensListBuilder = SendReceiveTokensListBuilder(
+            userWalletInfo: userWalletInfo,
+            sourceTokenInput: sendModel,
+            receiveTokenOutput: sendModel,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            analyticsLogger: analyticsLogger
+        )
+
         let stepsManager = CommonSendStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
+            receiveTokensListBuilder: sendReceiveTokensListBuilder,
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
@@ -99,7 +108,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
 
-        amount.step.set(router: viewModel)
+        amount.step.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
@@ -122,14 +131,7 @@ extension SendFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
+                approveDataInput: swapManager
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
@@ -185,37 +187,11 @@ extension SendFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.Dependencies(
             sendQRCodeService: makeSendQRCodeService(),
             analyticsLogger: analyticsLogger,
-            destinationInteractorDependenciesProvider: makeSendDestinationInteractorDependenciesProvider(
-                receiveTokenInput: sendModel,
-                analyticsLogger: analyticsLogger
-            ),
-        )
-    }
-
-    private func makeSendDestinationInteractorDependenciesProvider(
-        receiveTokenInput: SendReceiveTokenInput,
-        analyticsLogger: any SendDestinationAnalyticsLogger
-    ) -> SendDestinationInteractorDependenciesProvider {
-        SendDestinationInteractorDependenciesProvider(
-            initialSourceToken: sourceToken,
-            receivedToken: receiveTokenInput.receiveToken.value,
-            sourceWalletData: .init(
-                walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,
-                destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
-                    transactionHistoryUpdater: sendingWalletDestinationStepDataInput.walletModelHistoryUpdater,
-                    transactionHistoryMapper: TransactionHistoryMapper(
-                        currencySymbol: tokenItem.currencySymbol,
-                        walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                        showSign: false,
-                        isToken: tokenItem.isToken
-                    )
-                ),
-                analyticsLogger: analyticsLogger
-            ),
-            receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider(
-                userWalletInfo: userWalletInfo,
-                analyticsLogger: analyticsLogger
+            destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider(
+                sourceToken: sourceToken,
+                receivedToken: sendModel.receiveToken.value,
+                analyticsLogger: analyticsLogger,
+                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
             )
         )
     }
