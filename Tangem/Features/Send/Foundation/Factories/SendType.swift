@@ -14,6 +14,7 @@ import BlockchainSdk
 
 enum SendType {
     case send
+    case swap
     case sell(parameters: PredefinedSellParameters)
     case nft(parameters: PredefinedNFTParameters)
     case staking(manager: StakingManager, blockchainParams: StakingBlockchainParams)

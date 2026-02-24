@@ -54,6 +54,7 @@ struct ExpressCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
                 SwappingSuccessCoordinatorView(coordinator: $0)
+                    .interactiveDismissDisabled(true)
             }
     }
 }

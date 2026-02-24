@@ -91,6 +91,7 @@ public struct TransactionHistoryProviderFactory {
              .polygon,
              .polygonZkEVM,
              .sonic,
+             .berachain,
              .xdc,
              .zkSync,
              .bsc:
