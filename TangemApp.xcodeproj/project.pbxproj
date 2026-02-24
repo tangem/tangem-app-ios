@@ -3975,6 +3975,7 @@
 		EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E17672BF672AC000364AE /* DefaultTextFieldRowView.swift */; };
 		EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E176C2BF69065000364AE /* WalletConnectRowViewModel.swift */; };
 		EF1E97FD2B03F93300D4B511 /* CommonExpressDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */; };
+		EF2139092F4E4BDC0059C508 /* TransferFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2139082F4E4BDC0059C508 /* TransferFlowFactory.swift */; };
 		EF22B9912C66235900839110 /* StakingTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF22B9902C66235900839110 /* StakingTransactionSummaryDescriptionBuilder.swift */; };
 		EF2548BD2F4E1D3F00E056A5 /* EmptyApproveViewModelInputDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2548BC2F4E1D3F00E056A5 /* EmptyApproveViewModelInputDataBuilder.swift */; };
 		EF2548BF2F4E1DD500E056A5 /* EmptySendMailDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2548BE2F4E1DD500E056A5 /* EmptySendMailDataBuilder.swift */; };
@@ -8874,6 +8875,7 @@
 		EF1E17672BF672AC000364AE /* DefaultTextFieldRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextFieldRowView.swift; sourceTree = "<group>"; };
 		EF1E176C2BF69065000364AE /* WalletConnectRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRowViewModel.swift; sourceTree = "<group>"; };
 		EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressDestinationService.swift; sourceTree = "<group>"; };
+		EF2139082F4E4BDC0059C508 /* TransferFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferFlowFactory.swift; sourceTree = "<group>"; };
 		EF22B9902C66235900839110 /* StakingTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		EF2548BC2F4E1D3F00E056A5 /* EmptyApproveViewModelInputDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyApproveViewModelInputDataBuilder.swift; sourceTree = "<group>"; };
 		EF2548BE2F4E1DD500E056A5 /* EmptySendMailDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptySendMailDataBuilder.swift; sourceTree = "<group>"; };
@@ -26440,6 +26442,7 @@
 				EFF8F1D22E85747200A5EF0C /* SendFlowFactory.swift */,
 				EFAF8A8E2E869D2F009C3CF9 /* SellFlowFactory.swift */,
 				EFAF8A8C2E85F06D009C3CF9 /* NFTFlowFactory.swift */,
+				EF2139082F4E4BDC0059C508 /* TransferFlowFactory.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -28823,6 +28826,7 @@
 				EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */,
 				B07FDD402C23139200CBEFDE /* CustomTokenItemView.swift in Sources */,
 				EFC7B5EF2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift in Sources */,
+				EF2139092F4E4BDC0059C508 /* TransferFlowFactory.swift in Sources */,
 				30AD19A92E85673800EAE0A0 /* RecoverableAccountRoutable.swift in Sources */,
 				B601D3852D42ECEB002694AE /* PerformanceTracker.swift in Sources */,
 				DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */,
