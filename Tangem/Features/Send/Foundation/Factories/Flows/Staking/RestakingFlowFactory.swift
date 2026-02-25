@@ -14,7 +14,6 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     let sourceToken: SendSourceToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
 
     var actionType: StakingAction.ActionType { action.displayType }
 
@@ -25,13 +24,11 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         manager: any StakingManager,
-        action: RestakingModel.Action,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        action: RestakingModel.Action
     ) {
         self.sourceToken = sourceToken
         self.manager = manager
         self.action = action
-        self.baseDataBuilderFactory = baseDataBuilderFactory
     }
 }
 
@@ -62,12 +59,14 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
             initialSourceToken: sourceToken,
+            actionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
             initialSourceToken: sourceToken,
+            flowActionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
@@ -129,7 +128,15 @@ extension RestakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: restakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: restakingModel,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
+            ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
