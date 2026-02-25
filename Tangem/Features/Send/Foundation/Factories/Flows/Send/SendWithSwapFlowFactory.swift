@@ -56,22 +56,16 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
 
         // Model setup
         // We have to set dependencies here after all setups is completed
-        sendWithSwapModel.externalAmountUpdater = amount.amountUpdater
         sendWithSwapModel.externalDestinationUpdater = destination.externalUpdater
 
         // Forward external updaters to internal models
-        sendWithSwapModel.transferModelInternal.externalAmountUpdater = amount.amountUpdater
-        sendWithSwapModel.transferModelInternal.externalDestinationUpdater = destination.externalUpdater
-        sendWithSwapModel.swapModelInternal.externalAmountUpdater = amount.amountUpdater
-
-        sendWithSwapModel.informationRelevanceService = CommonInformationRelevanceService(
+        transferModel.externalAmountUpdater = amount.amountUpdater
+        transferModel.externalDestinationUpdater = destination.externalUpdater
+        transferModel.informationRelevanceService = CommonInformationRelevanceService(
             input: sendWithSwapModel, provider: sendWithSwapModel
         )
 
-        // Forward information relevance service to transferModel
-        sendWithSwapModel.transferModelInternal.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendWithSwapModel.transferModelInternal, provider: sendWithSwapModel.transferModelInternal
-        )
+        swapModel.externalAmountUpdater = amount.amountUpdater
 
         // Steps setup
         fee.compact.bind(input: sendWithSwapModel)
