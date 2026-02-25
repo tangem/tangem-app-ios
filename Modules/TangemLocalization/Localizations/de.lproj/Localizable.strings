@@ -1733,6 +1733,8 @@
 "warning_express_refresh_required_title" = "Service vorübergehend nicht verfügbar";
 "warning_express_too_maximum_amount_title" = "Die Menge der zu tauschenden Token darf folgende Werte nicht überschreiten %@";
 "warning_express_too_minimal_amount_title" = "Der zu tauschende Betrag muss mindestens %@ betragen";
+"warning_express_unsupported_pair_title" = "Unsupported token pair";
+"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
 "warning_express_wrong_amount_description" = "Bitte änder den zu tauschenden Betrag";
 "warning_failed_to_verify_card_message" = "Bei dieser Karte oder Ring kann es sich um ein Produktionsmuster oder eine Fälschung handeln";
 "warning_failed_to_verify_card_title" = "Echtheitsprüfung fehlgeschlagen";
