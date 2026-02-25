@@ -251,10 +251,8 @@ extension TokenActionAvailabilityProvider {
             return .available
         case (.unavailable, .updating), (.notLoaded, .updating):
             return .expressLoading
-        case (.notLoaded, .updated):
-            return .expressNotLoaded
-        case (.unavailable, .updated):
-            return .unavailable(tokenName: walletModel.tokenItem.name)
+        case (.notLoaded, .updated), (.unavailable, .updated):
+            return .available // validation happens on Express screen
         case (.notLoaded, .failed), (.unavailable, .failed):
             return .expressUnreachable
         }
