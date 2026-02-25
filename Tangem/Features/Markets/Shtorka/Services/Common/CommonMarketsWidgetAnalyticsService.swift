@@ -121,18 +121,17 @@ extension CommonMarketsWidgetAnalyticsService: EarnWidgetAnalyticsProvider {
     func logEarnLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
-            event: .marketsMarketsLoadError,
+            event: .marketsEarnLoadError,
             params: [
                 .errorCode: analyticsParams[.errorCode] ?? "",
                 .errorMessage: analyticsParams[.errorMessage] ?? "",
-                .source: Analytics.ParameterValue.markets.rawValue,
             ]
         )
     }
 
     func logEarnListOpened() {
         Analytics.log(
-            event: .marketsTokenListOpened,
+            event: .marketsEarnScreenOpened,
             params: [
                 .source: Analytics.ParameterValue.markets.rawValue,
             ]
