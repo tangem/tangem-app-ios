@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 
 final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
     private lazy var closeButton = button(.closeButton)
+    private lazy var storyContainer = image(.storyContainer)
 
     @discardableResult
     func assertStoriesDisplayed() -> Self {
@@ -32,6 +33,38 @@ final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
                 storiesShown,
                 "Stories overlay should not be displayed when stories API returns error"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertCloseButtonVisible() -> Self {
+        XCTContext.runActivity(named: "Assert close button is visible on current story page") { _ in
+            waitAndAssertTrue(
+                closeButton,
+                timeout: .robustUIUpdate,
+                "Close button should be visible on current story page"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapStoryForward() -> Self {
+        XCTContext.runActivity(named: "Tap forward on story (right side)") { _ in
+            waitAndAssertTrue(storyContainer, "Story container should exist")
+            let rightSide = storyContainer.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5))
+            rightSide.tap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapStoryBackward() -> Self {
+        XCTContext.runActivity(named: "Tap backward on story (left side)") { _ in
+            waitAndAssertTrue(storyContainer, "Story container should exist")
+            let leftSide = storyContainer.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.5))
+            leftSide.tap()
             return self
         }
     }
@@ -65,11 +98,14 @@ final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
 
 enum SwapStoriesScreenElement: String, UIElement {
     case closeButton
+    case storyContainer
 
     var accessibilityIdentifier: String {
         switch self {
         case .closeButton:
             StoriesAccessibilityIdentifiers.closeButton
+        case .storyContainer:
+            StoriesAccessibilityIdentifiers.storyContainer
         }
     }
 }
