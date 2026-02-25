@@ -30,7 +30,6 @@ struct SendSourceTokenFactory {
             fractionDigits: 2
         )
 
-        let possibleToConvertToFiat = walletModel.fiatAvailableBalanceProvider.balanceType.value != .none
         let sendingRestrictionsProvider = CommonSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = CommonReceivingRestrictionsProvider(walletModel: walletModel)
 
@@ -102,7 +101,6 @@ struct SendSourceTokenFactory {
             tokenIconInfo: tokenIconInfo,
             fiatItem: fiatItem,
             isCustom: walletModel.isCustom,
-            possibleToConvertToFiat: possibleToConvertToFiat,
             availableBalanceProvider: walletModel.availableBalanceProvider,
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
             allowanceService: allowanceService,
