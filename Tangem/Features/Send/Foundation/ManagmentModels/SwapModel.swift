@@ -136,7 +136,7 @@ extension SwapModel {
         swappingPairDidChange()
     }
 
-    func update(receive wallet: SendSourceToken) {
+    func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
 
         _receiveToken.send(.success(wallet))
@@ -642,10 +642,8 @@ extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
         swappingPairDidChange()
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
-        _receiveToken.send(.success(receiveToken))
-        swappingPairDidChange()
-        selected(true)
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        assertionFailure("userDidRequestSelect(receiveTokenItem:) don't supposed to be called. Call `update(receive:) instead.")
     }
 }
 
