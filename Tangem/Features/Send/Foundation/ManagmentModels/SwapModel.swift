@@ -53,7 +53,7 @@ final class SwapModel {
 
     init(
         sourceToken: SendSourceToken?,
-        receiveToken: SendSourceToken?,
+        receiveToken: SendReceiveToken?,
         expressManager: ExpressManager,
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -507,7 +507,12 @@ extension SwapModel {
     func initialLoading() async {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
-            case (.success, .success):
+            case (.success(let source), .success):
+                try await expressPairsRepository.updatePairs(
+                    for: source.tokenItem.expressCurrency,
+                    userWalletInfo: source.userWalletInfo
+                )
+
                 // All already set
                 swappingPairDidChange()
 

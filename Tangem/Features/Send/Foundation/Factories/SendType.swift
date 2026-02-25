@@ -14,7 +14,7 @@ import BlockchainSdk
 
 enum SendType {
     case send(SendSourceToken, source: ExpressInteractorWalletModelWrapper)
-    case swap(SendSourceToken)
+    case swap(PredefinedSwapParameters)
     case sell(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedSellParameters)
     case nft(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedNFTParameters)
     case staking(SendSourceToken, manager: StakingManager, walletModelDependenciesProvider: WalletModelDependenciesProvider, blockchainParams: StakingBlockchainParams)
@@ -25,6 +25,10 @@ enum SendType {
 }
 
 // MARK: - Parameters
+
+enum PredefinedSwapParameters {
+    case from(_ source: SendSourceToken, receive: SendReceiveToken? = nil)
+}
 
 struct PredefinedSellParameters {
     let amount: Decimal

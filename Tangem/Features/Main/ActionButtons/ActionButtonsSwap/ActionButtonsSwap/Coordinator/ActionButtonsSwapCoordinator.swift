@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemMacro
 
 typealias ActionButtonsTokenSelectorViewModel = TokenSelectorViewModel<
     ActionButtonsTokenSelectorItem,
@@ -100,6 +101,23 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
         viewType = .express(coordinator)
     }
 
+    func openSwap(input: PredefinedSwapParameters) {
+        let sendCoordinator = SendCoordinator(
+            dismissAction: { [weak self] dismissOptions in
+                switch dismissOptions {
+                case .openFeeCurrency(let feeCurrency):
+                    self?.dismissAction(feeCurrency)
+                default:
+                    break
+                }
+            },
+            popToRootAction: popToRootAction
+        )
+
+        sendCoordinator.start(with: .init(type: .swap(input), source: .actionButtons))
+        viewType = .swap(sendCoordinator)
+    }
+
     func dismiss() {
         ActionButtonsAnalyticsService.trackCloseButtonTap(source: .swap)
         dismiss(with: .none)
@@ -136,17 +154,11 @@ private extension ActionButtonsSwapCoordinator {
 }
 
 extension ActionButtonsSwapCoordinator {
+    @RawCaseName
     enum ViewType: Identifiable {
         case legacy(ActionButtonsSwapViewModel)
         case new(AccountsAwareActionButtonsSwapViewModel)
         case express(ExpressCoordinator)
-
-        var id: String {
-            switch self {
-            case .legacy: "legacy"
-            case .new: "new"
-            case .express: "express"
-            }
-        }
+        case swap(SendCoordinator)
     }
 }

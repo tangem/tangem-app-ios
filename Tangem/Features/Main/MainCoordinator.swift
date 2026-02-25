@@ -506,7 +506,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(sourceToken), source: .main)
+        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
