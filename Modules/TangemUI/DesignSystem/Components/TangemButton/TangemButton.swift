@@ -41,6 +41,22 @@ public struct TangemButton: View, Setupable {
         )
     }
 
+    public init(
+        model: Model
+    ) {
+        content = model.content
+        size = model.size
+        styleType = model.styleType
+        cornerStyle = model.cornerStyle
+        horizontalLayout = model.horizontalLayout
+        action = model.action
+
+        _iconSize = .init(
+            wrappedValue: model.size.iconSize,
+            relativeTo: model.size.textStyle
+        )
+    }
+
     public var body: some View {
         Button(action: action) {
             label
@@ -65,19 +81,19 @@ public struct TangemButton: View, Setupable {
             title(for: text)
 
         case .icon(let icon):
-            imageView(from: icon)
+            imageView(from: icon.image)
 
         case .combined(let text, let icon, let iconPosition):
             HStack(spacing: SizeUnit.x1.value) {
                 switch iconPosition {
                 case .left:
-                    imageView(from: icon)
+                    imageView(from: icon.image)
 
                     title(for: text)
                 case .right:
                     title(for: text)
 
-                    imageView(from: icon)
+                    imageView(from: icon.image)
                 }
             }
         }
