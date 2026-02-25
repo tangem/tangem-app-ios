@@ -16,8 +16,7 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var userWalletInfo: UserWalletInfo { get }
 
     var id: WalletModelId { get }
-    var header: SendTokenHeader { get }
-    var tokenHeader: ExpressInteractorTokenHeader? { get }
+    var header: TokenHeader { get }
     var feeTokenItem: TokenItem { get }
     var isExemptFee: Bool { get }
     var isFixedFee: Bool { get }
@@ -28,6 +27,7 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var availableBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
     var allowanceService: (any AllowanceService)? { get }
+    var emailDataCollectorBuilder: EmailDataCollectorBuilder { get }
 
     var transactionValidator: TransactionValidator { get }
     var transactionCreator: TransactionCreator { get }
@@ -62,8 +62,7 @@ struct CommonSendSourceToken: SendSourceToken {
     // Token info. Basically for UI
 
     let id: WalletModelId
-    let header: SendTokenHeader
-    let tokenHeader: ExpressInteractorTokenHeader?
+    let header: TokenHeader
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let isExemptFee: Bool
@@ -76,6 +75,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
     let allowanceService: (any AllowanceService)?
+    let emailDataCollectorBuilder: any EmailDataCollectorBuilder
 
     let defaultAddressString: String
 
