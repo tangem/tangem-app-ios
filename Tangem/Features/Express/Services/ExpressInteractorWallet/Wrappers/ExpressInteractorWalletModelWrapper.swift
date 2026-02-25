@@ -16,7 +16,6 @@ struct ExpressInteractorWalletModelWrapper {
     let isCustom: Bool
     let isMainToken: Bool
     let isExemptFee: Bool = false
-    let isNewlyAddedFromMarkets: Bool
 
     let tokenHeader: ExpressInteractorTokenHeader?
     let tokenItem: TokenItem
@@ -41,12 +40,10 @@ struct ExpressInteractorWalletModelWrapper {
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
-        expressOperationType: ExpressOperationType,
-        isNewlyAddedFromMarkets: Bool = false
+        expressOperationType: ExpressOperationType
     ) {
         self.walletModel = walletModel
         self.expressOperationType = expressOperationType
-        self.isNewlyAddedFromMarkets = isNewlyAddedFromMarkets
 
         id = walletModel.id
         userWalletId = userWalletInfo.id
