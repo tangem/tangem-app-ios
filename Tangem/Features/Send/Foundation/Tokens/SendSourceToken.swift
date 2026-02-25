@@ -42,6 +42,10 @@ protocol SendSourceToken: SendReceiveToken, ExpressSourceWallet {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
 }
 
+extension SendSourceToken {
+    var possibleToConvertToFiat: Bool { fiatAvailableBalanceProvider.balanceType.value != .none }
+}
+
 // MARK: ExpressSourceWallet + SendSourceToken
 
 extension ExpressSourceWallet where Self: SendSourceToken {
@@ -70,7 +74,6 @@ struct CommonSendSourceToken: SendSourceToken {
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
     let isCustom: Bool
-    let possibleToConvertToFiat: Bool
 
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
