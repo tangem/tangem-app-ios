@@ -2879,6 +2879,8 @@
 		C2E3ADD52D5F5D410042ADDA /* StoryDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCC2D5F5D410042ADDA /* StoryDTO.swift */; };
 		C2E3ADD62D5F5D410042ADDA /* StoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCD2D5F5D410042ADDA /* StoryMapper.swift */; };
 		C2E3ADD82D5F5D410042ADDA /* TangemStoriesEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCF2D5F5D410042ADDA /* TangemStoriesEnvironment.swift */; };
+		C2E503882F4EE37400CC4060 /* DataPipelines in Frameworks */ = {isa = PBXBuildFile; productRef = C2E503872F4EE37400CC4060 /* DataPipelines */; };
+		C2E5038A2F4EE37400CC4060 /* MessagingPushFCM in Frameworks */ = {isa = PBXBuildFile; productRef = C2E503892F4EE37400CC4060 /* MessagingPushFCM */; };
 		C2E60C912D8CA83E00093E35 /* AppIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C2E60C902D8CA83E00093E35 /* AppIcons.xcassets */; };
 		C2E60C952D8D80B900093E35 /* FloatingSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E60C942D8D80B900093E35 /* FloatingSheetViewModel.swift */; };
 		C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9212B2DD7A6CA00ACE654 /* WalletConnectDAppVerificationService.swift */; };
@@ -9678,6 +9680,7 @@
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
 				B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
+				C2E5038A2F4EE37400CC4060 /* MessagingPushFCM in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
 				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
@@ -9687,6 +9690,7 @@
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
 				B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */,
 				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
+				C2E503882F4EE37400CC4060 /* DataPipelines in Frameworks */,
 				B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */,
 				B62C24892CF48327003377F1 /* FirebaseCrashlytics in Frameworks */,
 				B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */,
@@ -26635,6 +26639,8 @@
 				2D67256A2EB0A6490035A4BC /* Experiment */,
 				B608020E2ECEA1E600CC5F4E /* AnyCodable */,
 				DCED46522EF04FD20021AC0D /* CryptoSwift */,
+				C2E503872F4EE37400CC4060 /* DataPipelines */,
+				C2E503892F4EE37400CC4060 /* MessagingPushFCM */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -27013,6 +27019,7 @@
 				2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */,
 				DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
+				C2E503862F4EE37400CC4060 /* XCRemoteSwiftPackageReference "customerio-ios" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -37996,6 +38003,14 @@
 				version = 6.17.8;
 			};
 		};
+		C2E503862F4EE37400CC4060 /* XCRemoteSwiftPackageReference "customerio-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/customerio/customerio-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 4.2.0;
+			};
+		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -38315,6 +38330,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
 			productName = "AppsFlyerLib-Strict";
+		};
+		C2E503872F4EE37400CC4060 /* DataPipelines */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2E503862F4EE37400CC4060 /* XCRemoteSwiftPackageReference "customerio-ios" */;
+			productName = DataPipelines;
+		};
+		C2E503892F4EE37400CC4060 /* MessagingPushFCM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2E503862F4EE37400CC4060 /* XCRemoteSwiftPackageReference "customerio-ios" */;
+			productName = MessagingPushFCM;
 		};
 		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
 			isa = XCSwiftPackageProductDependency;
