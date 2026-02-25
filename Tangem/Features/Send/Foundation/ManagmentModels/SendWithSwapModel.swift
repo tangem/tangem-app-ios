@@ -36,23 +36,21 @@ final class SendWithSwapModel {
     private let initialSourceToken: SendSourceToken
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
-    private let transactionSigner: TangemSigner
+    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private var bag: Set<AnyCancellable> = []
-
-    // MARK: - Public interface
 
     init(
         transferModel: TransferModel,
         swapModel: SwapModel,
         initialSourceToken: SendSourceToken,
-        transactionSigner: TangemSigner,
+        receiveTokenBuilder: SendReceiveTokenBuilder,
         sendAlertBuilder: SendAlertBuilder,
         analyticsLogger: SendAnalyticsLogger
     ) {
         self.transferModel = transferModel
         self.swapModel = swapModel
         self.initialSourceToken = initialSourceToken
-        self.transactionSigner = transactionSigner
+        self.receiveTokenBuilder = receiveTokenBuilder
         self.sendAlertBuilder = sendAlertBuilder
         self.analyticsLogger = analyticsLogger
     }
@@ -126,6 +124,28 @@ private extension SendWithSwapModel {
             )
         }
     }
+
+    func updateReceiveTokenIfNeeded() {
+        guard let receiveTokenItem = swapModel.receiveToken.value else {
+            return
+        }
+
+        let newDestination = transferModel.destination?.value.transactionAddress
+        let newExtraId = transferModel.destinationAdditionalField.extraId
+
+        guard newDestination != receiveTokenItem.address || newExtraId != receiveTokenItem.extraId else {
+            // Already set all
+            return
+        }
+
+        let receiveToken = receiveTokenBuilder.makeSendReceiveToken(
+            tokenItem: receiveTokenItem.tokenItem,
+            address: transferModel.destination?.value.transactionAddress,
+            extraId: transferModel.destinationAdditionalField.extraId
+        )
+
+        swapModel.update(receive: receiveToken)
+    }
 }
 
 // MARK: - SendDestinationInput
@@ -153,10 +173,12 @@ extension SendWithSwapModel: SendDestinationInput {
 extension SendWithSwapModel: SendDestinationOutput {
     func destinationDidChanged(_ address: SendDestination?) {
         transferModel.destinationDidChanged(address)
+        updateReceiveTokenIfNeeded()
     }
 
     func destinationAdditionalParametersDidChanged(_ type: SendDestinationAdditionalField) {
         transferModel.destinationAdditionalParametersDidChanged(type)
+        updateReceiveTokenIfNeeded()
     }
 }
 
@@ -245,9 +267,15 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
         })
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        let receiveToken = receiveTokenBuilder.makeSendReceiveToken(
+            tokenItem: receiveTokenItem,
+            address: transferModel.destination?.value.transactionAddress,
+            extraId: transferModel.destinationAdditionalField.extraId
+        )
+
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
-            self?.swapModel.userDidRequestSelect(receiveToken: receiveToken, selected: selected)
+            self?.swapModel.update(receive: receiveToken)
             self?.analyticsLogger.logAmountStepOpened()
             selected(true)
         }, cancel: { [weak self] in
@@ -458,17 +486,17 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     func performAction() async throws -> TransactionDispatcherResult {
         if isSwapMode {
             // Swap mode - check high price impact
-            let highPriceImpactResult = try? await swapModel.highPriceImpactPublisher.first().async()
-
-            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
-                let viewModel = HighPriceImpactWarningSheetViewModel(
-                    highPriceImpact: highPriceImpact,
-                    tangemIconProvider: CommonTangemIconProvider(signer: transactionSigner)
-                )
-                router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
-
-                return try await viewModel.process(send: { try await self.swapModel.performAction() })
-            }
+//            let highPriceImpactResult = try? await swapModel.highPriceImpactPublisher.first().async()
+//
+//            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
+//                let viewModel = HighPriceImpactWarningSheetViewModel(
+//                    highPriceImpact: highPriceImpact,
+//                    tangemIconProvider: CommonTangemIconProvider(signer: transactionSigner)
+//                )
+//                router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+//
+//                return try await viewModel.process(send: { try await self.swapModel.performAction() })
+//            }
 
             return try await swapModel.performAction()
         } else {
