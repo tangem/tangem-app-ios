@@ -10,7 +10,6 @@ import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
@@ -18,12 +17,9 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    init(
-        sourceToken: SendSourceToken,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory
-    ) {
+    init(sourceToken: SendSourceToken) {
         self.sourceToken = sourceToken
-        self.baseDataBuilderFactory = baseDataBuilderFactory
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 }
@@ -99,13 +95,21 @@ extension SwapFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: swapModel,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
                 approveDataInput: swapModel
             ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: sourceToken.tokenItem),
+            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )
     }
 }

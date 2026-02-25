@@ -11,7 +11,6 @@ import struct TangemUI.TokenIconInfo
 class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
@@ -29,12 +28,10 @@ class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         nftAssetStepBuilder: NFTAssetStepBuilder,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
         self.nftAssetStepBuilder = nftAssetStepBuilder
-        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: sourceToken.userWalletInfo,
@@ -53,7 +50,7 @@ class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let header = sourceToken.header
+        let header = sourceToken.header.asSendTokenHeader(actionType: .send)
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
@@ -126,9 +123,17 @@ extension NFTFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
+                approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),

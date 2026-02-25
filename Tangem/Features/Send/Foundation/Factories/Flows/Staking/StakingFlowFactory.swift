@@ -13,9 +13,6 @@ import struct TangemUI.TokenIconInfo
 class StakingFlowFactory: StakingFlowDependenciesFactory {
     let sourceToken: SendSourceToken
     let manager: any StakingManager
-
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let allowanceServiceFactory: AllowanceServiceFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
 
     var actionType: StakingAction.ActionType { .stake }
@@ -27,14 +24,10 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         manager: any StakingManager,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
-        allowanceServiceFactory: AllowanceServiceFactory,
-        walletModelDependenciesProvider: WalletModelDependenciesProvider,
+        walletModelDependenciesProvider: WalletModelDependenciesProvider
     ) {
         self.sourceToken = sourceToken
         self.manager = manager
-        self.baseDataBuilderFactory = baseDataBuilderFactory
-        self.allowanceServiceFactory = allowanceServiceFactory
         self.walletModelDependenciesProvider = walletModelDependenciesProvider
     }
 }
@@ -50,7 +43,6 @@ extension StakingFlowFactory {
             stakingManager: stakingManager,
             sendSourceToken: sourceToken,
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
-            allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
@@ -122,7 +114,18 @@ extension StakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: stakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: stakingModel,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
+                approveDataInput: stakingModel
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
+            ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
@@ -141,7 +144,10 @@ extension StakingFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(
+            initialSourceToken: sourceToken,
+            flowActionType: actionType.sendFlowActionType
+        )
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
