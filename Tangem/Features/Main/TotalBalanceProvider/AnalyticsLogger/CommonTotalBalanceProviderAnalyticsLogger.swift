@@ -86,6 +86,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                 .balance: balance.rawValue,
                 .tokensCount: tokensCount.description,
             ],
+            analyticsSystems: .all,
             contextParams: .userWallet(userWalletId),
             limit: .userWalletSession(userWalletId: userWalletId)
         )
