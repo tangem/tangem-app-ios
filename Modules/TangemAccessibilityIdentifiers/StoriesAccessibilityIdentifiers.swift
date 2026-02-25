@@ -12,4 +12,5 @@ public enum StoriesAccessibilityIdentifiers {
     public static let scanButton = "storiesScanButton"
     public static let getStartedButton = "storiesGetStartedButton"
     public static let closeButton = "storiesCloseButton"
+    public static let storyContainer = "storiesContainer"
 }
