@@ -922,6 +922,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToSummaryTransactionData(providersState: $1) }
             .eraseToAnyPublisher()
