@@ -21,7 +21,7 @@ final class SwapModel {
     // MARK: - Data
 
     private let _sourceToken: CurrentValueSubject<LoadingResult<SendSourceToken, any Error>, Never>
-    private let _receiveToken: CurrentValueSubject<LoadingResult<SendSourceToken, any Error>, Never>
+    private let _receiveToken: CurrentValueSubject<LoadingResult<SendReceiveToken, any Error>, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
@@ -100,6 +100,8 @@ extension SwapModel {
 
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
+        case .loaded(_, .some, .requiredRefresh):
+            autoupdatingTimer.stopTimer()
         case .loaded(_, .some, _):
             autoupdatingTimer.restartTimer { [weak self] in
                 self?.autoupdatingRates()
@@ -516,7 +518,7 @@ extension SwapModel {
                 let destination: SendSourceToken = try await expressDestinationService.getDestination(source: source.tokenItem)
                 update(receive: destination)
 
-            case (_, .success(let destination)):
+            case (_, .success(let destination as SendSourceToken)):
                 try await expressPairsRepository.updatePairs(
                     for: destination.tokenItem.expressCurrency,
                     userWalletInfo: destination.userWalletInfo
@@ -635,15 +637,14 @@ extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     }
 
     func userDidRequestClearSelection() {
-        assertionFailure("SwapModel doesn't support receiving token clearing")
+        // Endless loading, same as .none value
+        _receiveToken.send(.loading)
+        swappingPairDidChange()
     }
 
     func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
-        guard let receiveToken = receiveToken as? SendSourceToken else {
-            return selected(false)
-        }
-
         _receiveToken.send(.success(receiveToken))
+        swappingPairDidChange()
         selected(true)
     }
 }
@@ -854,7 +855,7 @@ extension SwapModel: SendFeeInput {
 
 extension SwapModel: FeeSelectorOutput {
     func userDidDismissFeeSelection() {
-        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+        updateFees()
     }
 
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
@@ -864,6 +865,14 @@ extension SwapModel: FeeSelectorOutput {
         updateTask(loadingType: .fee) { manager in
             try await manager.update(by: .autoUpdate)
         }
+    }
+}
+
+// MARK: - SendFeeUpdater
+
+extension SwapModel: SendFeeUpdater {
+    func updateFees() {
+        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
     }
 }
 
@@ -933,7 +942,8 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
-        guard let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value as? SendSourceToken else {
             ExpressLogger.info("Swap Source and Receive tokens is not possible")
             return
         }
