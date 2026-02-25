@@ -60,7 +60,8 @@ final class SwapModel {
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
         analyticsLogger: SendAnalyticsLogger,
-        autoupdatingTimer: AutoupdatingTimer
+        autoupdatingTimer: AutoupdatingTimer,
+        shouldStartInitialLoading: Bool
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -74,7 +75,9 @@ final class SwapModel {
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _amount = .init(.none)
 
-        Task { await initialLoading() }
+        if shouldStartInitialLoading {
+            Task { await initialLoading() }
+        }
         setupAutoupdatingTimerSubscription()
     }
 
