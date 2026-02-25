@@ -81,29 +81,11 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
-        selectToken(item, isNewlyAddedFromMarkets: true)
-    }
-}
-
-// MARK: - AccountsAwareTokenSelectorViewModelOutput
-
-extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
-        logPortfolioTokenSelected(item: item)
-        selectToken(item, isNewlyAddedFromMarkets: false)
-    }
-}
-
-// MARK: - Private
-
-private extension SwapTokenSelectorViewModel {
-    func selectToken(_ item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+    func selectToken(_ item: AccountsAwareTokenSelectorItem) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
             walletModel: item.walletModel,
-            expressOperationType: .swap,
-            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
+            expressOperationType: .swap
         )
 
         switch swapDirection {
@@ -116,7 +98,20 @@ private extension SwapTokenSelectorViewModel {
         selectedTokenItem = item.walletModel.tokenItem
         tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
+}
 
+// MARK: - AccountsAwareTokenSelectorViewModelOutput
+
+extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+        logPortfolioTokenSelected(item: item)
+        selectToken(item)
+    }
+}
+
+// MARK: - Private
+
+private extension SwapTokenSelectorViewModel {
     func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             source: .portfolio,

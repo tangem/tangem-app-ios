@@ -319,6 +319,7 @@ private extension ExpressViewModel {
 
                 let sameDestination = (currentDestination?.id == previousDestination?.id)
                     && (currentDestination?.userWalletId == previousDestination?.userWalletId)
+                    && (previous.destination?.isLoading == current.destination?.isLoading)
 
                 if !sameSender {
                     self?.updateSendView(wallet: current.sender)
@@ -410,7 +411,7 @@ private extension ExpressViewModel {
 
     func updateInputDisabled(state: ExpressInteractor.State) {
         switch state {
-        case .runtimeRestriction(.tokenNotSupportedForSwap):
+        case .runtimeRestriction:
             sendCurrencyViewModel?.update(isInputDisabled: true)
         default:
             sendCurrencyViewModel?.update(isInputDisabled: false)
@@ -464,7 +465,7 @@ private extension ExpressViewModel {
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .runtimeRestriction(.tokenNotSupportedForSwap):
+        case .runtimeRestriction:
             isSwapButtonLoading = false
             stopTimer()
 
@@ -820,7 +821,7 @@ private extension ExpressViewModel {
              .cexOperationFailed,
              .refunded,
              .longTimeAverageDuration,
-             .tokenNotSupportedForSwap:
+             .unsupportedPair:
             return nil
         }
     }
