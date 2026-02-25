@@ -25,6 +25,7 @@ struct EarnFilterHeaderView: View {
             filterButton(
                 title: networkFilterTitle,
                 action: onNetworksTap,
+                isLoading: isLoading,
                 isEnabled: isNetworksFilterEnabled
             )
 
@@ -33,6 +34,7 @@ struct EarnFilterHeaderView: View {
             filterButton(
                 title: typesFilterTitle,
                 action: onTypesTap,
+                isLoading: false,
                 isEnabled: isTypesFilterEnabled
             )
         }
@@ -40,7 +42,12 @@ struct EarnFilterHeaderView: View {
         .padding(.vertical, Layout.verticalPadding)
     }
 
-    private func filterButton(title: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
+    private func filterButton(
+        title: String,
+        action: @escaping () -> Void,
+        isLoading: Bool,
+        isEnabled: Bool
+    ) -> some View {
         Button {
             action()
         } label: {
@@ -56,11 +63,11 @@ struct EarnFilterHeaderView: View {
                 RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
                     .fill(Colors.Button.secondary)
             )
+            .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
             .skeletonable(isShown: isLoading, radius: Layout.buttonCornerRadius)
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled)
-        .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
+        .allowsHitTesting(isEnabled)
     }
 }
 
