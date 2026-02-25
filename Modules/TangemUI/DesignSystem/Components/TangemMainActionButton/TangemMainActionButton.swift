@@ -12,13 +12,13 @@ import TangemUIUtils
 
 public struct TangemMainActionButton: View {
     private let title: String
-    private let icon: Image
+    private let icon: ImageType
     private let buttonState: ButtonState
     private let action: () -> Void
 
     public init(
         title: String,
-        icon: Image,
+        icon: ImageType,
         buttonState: ButtonState = .normal,
         action: @escaping () -> Void
     ) {
@@ -44,57 +44,3 @@ public struct TangemMainActionButton: View {
         }
     }
 }
-
-#if DEBUG
-#Preview("Dark") {
-    HStack(spacing: 24) {
-        TangemMainActionButton(
-            title: "Buy",
-            icon: Assets.plusMini.image,
-            buttonState: .normal,
-            action: { print("Buy tapped") }
-        )
-
-        TangemMainActionButton(
-            title: "Swap",
-            icon: Assets.exchangeMini.image,
-            buttonState: .disabled,
-            action: { print("Swap tapped") }
-        )
-
-        TangemMainActionButton(
-            title: "Sell",
-            icon: Assets.dollarMini.image,
-            buttonState: .normal,
-            action: { print("Sell tapped") }
-        )
-    }
-    .preferredColorScheme(.dark)
-}
-
-#Preview("Light") {
-    HStack(spacing: 24) {
-        TangemMainActionButton(
-            title: "Buy",
-            icon: Assets.plusMini.image,
-            buttonState: .normal,
-            action: { print("Buy tapped") }
-        )
-
-        TangemMainActionButton(
-            title: "Swap",
-            icon: Assets.exchangeMini.image,
-            buttonState: .disabled,
-            action: { print("Swap tapped") }
-        )
-
-        TangemMainActionButton(
-            title: "Sell",
-            icon: Assets.dollarMini.image,
-            buttonState: .normal,
-            action: { print("Sell tapped") }
-        )
-    }
-    .preferredColorScheme(.light)
-}
-#endif
