@@ -1733,6 +1733,8 @@
 "warning_express_refresh_required_title" = "Service temporairement indisponible";
 "warning_express_too_maximum_amount_title" = "Le nombre de jetons à échanger ne doit pas dépasser %@";
 "warning_express_too_minimal_amount_title" = "Le montant à échanger doit être d'au moins %@";
+"warning_express_unsupported_pair_title" = "Unsupported token pair";
+"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
 "warning_express_wrong_amount_description" = "Veuillez modifier le montant à échanger";
 "warning_failed_to_verify_card_message" = "Cette carte pourrait être un échantillon de production ou une contrefaçon";
 "warning_failed_to_verify_card_title" = "Échec de la vérification d'authenticité";
