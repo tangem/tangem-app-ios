@@ -1733,6 +1733,8 @@
 "warning_express_refresh_required_title" = "Сервис временно недоступен";
 "warning_express_too_maximum_amount_title" = "Сумма для обмена должна быть не более %@";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
+"warning_express_unsupported_pair_title" = "Unsupported token pair";
+"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
 "warning_express_wrong_amount_description" = "Пожалуйста, измените сумму для обмена";
 "warning_failed_to_verify_card_message" = "Возможно, данная карта является образцом или подделкой";
 "warning_failed_to_verify_card_title" = "Ошибка проверки подлинности";

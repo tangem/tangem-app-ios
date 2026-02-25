@@ -153,14 +153,11 @@ extension AccountsAwareActionButtonsSwapViewModel {
 
             try? await Task.sleep(for: .seconds(Constants.floatingSheetDismissDelay))
 
-            await openExpressWithDestination(item: item, isNewlyAddedFromMarkets: true)
+            await openExpressWithDestination(item: item)
         }
     }
 
-    private func openExpressWithDestination(
-        item: AccountsAwareTokenSelectorItem,
-        isNewlyAddedFromMarkets: Bool = false
-    ) async {
+    private func openExpressWithDestination(item: AccountsAwareTokenSelectorItem) async {
         guard case .token(let sourceItem, _) = source else {
             return
         }
@@ -180,8 +177,7 @@ extension AccountsAwareActionButtonsSwapViewModel {
                         ExpressInteractorWalletModelWrapper(
                             userWalletInfo: item.userWalletInfo,
                             walletModel: item.walletModel,
-                            expressOperationType: .swap,
-                            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
+                            expressOperationType: .swap
                         )
                     )
                 )
@@ -193,17 +189,6 @@ extension AccountsAwareActionButtonsSwapViewModel {
 // MARK: - Private
 
 private extension AccountsAwareActionButtonsSwapViewModel {
-    func checkNoDestinationTokens(tokenItem: TokenItem) async {
-        guard await expressPairsRepository.getPairs(from: tokenItem.expressCurrency).isEmpty else {
-            await MainActor.run { show(notification: .none) }
-            return
-        }
-
-        await MainActor.run {
-            show(notification: .noAvailablePairs)
-        }
-    }
-
     func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
@@ -244,7 +229,6 @@ private extension AccountsAwareActionButtonsSwapViewModel {
 
             // We set the `filterTokenItem` after pairs is loading
             filterTokenItem.send(sourceItem.walletModel.tokenItem)
-            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem)
 
             await MainActor.run {
                 tokenSelectorState = .selector
