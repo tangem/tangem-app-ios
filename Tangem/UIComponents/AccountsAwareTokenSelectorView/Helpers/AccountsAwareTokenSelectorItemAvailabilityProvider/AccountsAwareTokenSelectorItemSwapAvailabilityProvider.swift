@@ -77,12 +77,6 @@ private extension AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
             return .unavailable(reason: .unavailableForSwap)
         }
 
-        // If we have direction we have to check available pairs
-        if let availableCurrencies {
-            let hasPair = availableCurrencies.contains(walletModel.tokenItem.expressCurrency.asCurrency)
-            return hasPair ? .available : .unavailable(reason: .unavailableForSwap)
-        }
-
         return .available
     }
 }
