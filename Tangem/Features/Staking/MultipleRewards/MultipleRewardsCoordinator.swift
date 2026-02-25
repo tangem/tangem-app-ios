@@ -59,9 +59,10 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
 
         let sourceTokenFactory = SendSourceTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel
+            walletModel: options.sendInput.walletModel,
+            flowType: .staking
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: action.type.sendFlowActionType)
+        let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
             self?.sendCoordinator = nil
@@ -69,7 +70,6 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
         })
 
         coordinator.start(with: .init(
-            input: options.sendInput,
             type: .stakingSingleAction(sourceToken, manager: options.manager, action: action),
             source: .stakingDetails
         ))
