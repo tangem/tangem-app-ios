@@ -115,8 +115,9 @@ private extension EarnWidgetViewModel {
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
-                case .failure:
+                case .failure(let error):
                     widgetLoadingState = .error
+                    viewModel.analyticsService.logEarnLoadError(error)
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -138,7 +139,6 @@ private extension EarnWidgetViewModel {
             resultState = .success(Array(viewModels))
         case .failure(let error):
             resultState = .failure(error)
-            analyticsService.logEarnLoadError(error)
         case .loading:
             resultState = .loading
         }
