@@ -190,11 +190,7 @@ private extension NewsWidgetViewModel {
                     Analytics.log(event: .marketsNewsListOpened, params: [.source: Analytics.ParameterValue.markets.rawValue])
                 case .failure(let error):
                     widgetLoadingState = .error
-                    viewModel.resultState = .failure(error)
-                    Analytics.log(
-                        event: .marketsNewsLoadError,
-                        params: error.marketsAnalyticsParams
-                    )
+                    viewModel.analyticsService.logNewsLoadError(error)
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -259,7 +255,6 @@ private extension NewsWidgetViewModel {
             resultState = .success(viewStateForLoadedItems())
         case .failure(let error):
             resultState = .failure(error)
-            analyticsService.logNewsLoadError(error)
         case .loading:
             resultState = .loading
         }
