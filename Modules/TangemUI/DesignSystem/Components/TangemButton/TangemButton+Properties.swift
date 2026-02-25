@@ -10,12 +10,51 @@ import SwiftUI
 import TangemAssets
 
 public extension TangemButton {
+    struct Model: Hashable, Sendable {
+        public let content: Content
+        public let size: Size
+        public let styleType: StyleType
+        public let cornerStyle: CornerStyle
+        public let horizontalLayout: HorizontalLayout
+        public let action: @Sendable () -> Void
+
+        public init(
+            content: Content,
+            size: Size = .x10,
+            styleType: StyleType = .primary,
+            cornerStyle: CornerStyle = .rectangular,
+            horizontalLayout: HorizontalLayout = .infinity,
+            action: @Sendable @escaping () -> Void
+        ) {
+            self.content = content
+            self.size = size
+            self.styleType = styleType
+            self.cornerStyle = cornerStyle
+            self.horizontalLayout = horizontalLayout
+            self.action = action
+        }
+
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(content)
+            hasher.combine(size)
+            hasher.combine(styleType)
+            hasher.combine(cornerStyle)
+            hasher.combine(horizontalLayout)
+        }
+    }
+}
+
+public extension TangemButton {
     enum CornerStyle: Equatable, Sendable {
         case rectangular
         case rounded
     }
 
-    enum StyleType: Equatable {
+    enum StyleType: Equatable, Sendable {
         case accent
         case primary
         case secondary
@@ -24,7 +63,7 @@ public extension TangemButton {
         case primaryInverse
         case positive
 
-        struct ColorScheme: Equatable {
+        struct ColorScheme: Equatable, Sendable {
             let background: Color
             let disabledBackground: Color
             let loadingOverlay: Color
@@ -109,7 +148,7 @@ public extension TangemButton {
         }
     }
 
-    enum ButtonState: Equatable {
+    enum ButtonState: Equatable, Sendable {
         case normal
         case disabled
         case loading
@@ -145,12 +184,12 @@ public extension TangemButton {
         }
     }
 
-    enum Content: Equatable, Sendable {
+    enum Content: Hashable, Sendable {
         case text(AttributedString)
-        case icon(Image)
+        case icon(ImageType)
         case combined(
             text: AttributedString,
-            icon: Image,
+            icon: ImageType,
             iconPosition: IconPosition
         )
 
@@ -172,7 +211,7 @@ public extension TangemButton {
         }
     }
 
-    enum Size {
+    enum Size: Sendable {
         case x15
         case x12
         case x10
