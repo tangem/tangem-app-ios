@@ -28,9 +28,9 @@ struct CommonOnrampBaseDataBuilder {
     }
 }
 
-// MARK: - OnrampBaseDataBuilder
+// MARK: - OnrampRouterDataBuilder
 
-extension CommonOnrampBaseDataBuilder: OnrampBaseDataBuilder {
+extension CommonOnrampBaseDataBuilder: OnrampRouterDataBuilder {
     func makeDataForOnrampCountryBottomSheet() -> (repository: OnrampRepository, dataRepository: OnrampDataRepository) {
         (repository: onrampRepository, dataRepository: onrampDataRepository)
     }
