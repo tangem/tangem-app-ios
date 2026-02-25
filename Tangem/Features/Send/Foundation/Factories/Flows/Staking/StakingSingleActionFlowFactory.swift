@@ -60,7 +60,6 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
             flowActionType: actionType.sendFlowActionType,
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel

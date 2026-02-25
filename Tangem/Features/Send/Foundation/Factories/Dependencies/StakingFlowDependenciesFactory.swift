@@ -34,10 +34,6 @@ extension StakingFlowDependenciesFactory {
         StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: sourceToken.transactionValidator)
     }
 
-    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
-        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
-    }
-
     func makeStakingSendAnalyticsLogger() -> StakingSendAnalyticsLogger {
         CommonStakingSendAnalyticsLogger(
             tokenItem: tokenItem,

@@ -25,7 +25,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     init(sourceToken: SendSourceToken) {
         self.sourceToken = sourceToken
-        self.initialTokenItem = sourceToken.tokenItem
+        initialTokenItem = sourceToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
@@ -136,7 +136,7 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     }
 
     var amountTypes: SwapAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(initialTokenItem: initialTokenItem)
     }
 
     var amountDependencies: SwapAmountStepBuilder.Dependencies {
