@@ -168,8 +168,11 @@ extension CommonExpressDestinationService {
         }
 
         var asSendSourceToken: SendSourceToken {
-            SendSourceTokenFactory(userWalletInfo: userWalletInfo, walletModel: walletModel)
-                .makeSourceToken(flowActionType: .swap)
+            SendSourceTokenFactory(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                flowType: .swap
+            ).makeSourceToken()
         }
     }
 
