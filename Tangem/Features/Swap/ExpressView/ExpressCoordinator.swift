@@ -82,7 +82,7 @@ extension ExpressCoordinator: ExpressRoutable {
                 AppLogger.debug("SwapTokenSelectorViewModel not found")
                 return
             }
-            viewModel.selectNewToken(item)
+            viewModel.selectToken(item)
         }
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
