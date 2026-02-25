@@ -31,7 +31,7 @@ final class StakingModel {
 
     // MARK: - Dependencies
 
-    weak var router: SendModelRoutable?
+    weak var router: StakingModelRoutable?
     var amountExternalUpdater: SendAmountExternalUpdater?
 
     // MARK: - Private injections
@@ -39,7 +39,6 @@ final class StakingModel {
     private let stakingManager: StakingManager
     private let sendSourceToken: SendSourceToken
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let allowanceService: AllowanceService?
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let accountInitializationService: BlockchainAccountInitializationService?
     private let minimalBalanceProvider: MinimalBalanceProvider?
@@ -49,6 +48,7 @@ final class StakingModel {
     private var accountInitializationFee: Fee?
 
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var allowanceService: AllowanceService? { sendSourceToken.allowanceService }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
     private var tokenIconInfo: TokenIconInfo { sendSourceToken.tokenIconInfo }
@@ -57,7 +57,6 @@ final class StakingModel {
         stakingManager: StakingManager,
         sendSourceToken: SendSourceToken,
         feeIncludedCalculator: FeeIncludedCalculator,
-        allowanceService: AllowanceService?,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
         minimalBalanceProvider: MinimalBalanceProvider?,
@@ -65,7 +64,6 @@ final class StakingModel {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
         self.minimalBalanceProvider = minimalBalanceProvider
@@ -603,18 +601,19 @@ extension StakingModel: ApproveViewModelInput {
 
 extension StakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.map { makeAmount(value: $0) } }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { _isFeeIncluded.value }
 
-    var selectedPolicy: ApprovePolicy? { _approvePolicy.value }
+    var stakingActionType: StakingAction.ActionType? { .stake }
+    var target: StakingTargetInfo? { _selectedTarget.value.value }
+}
 
+// MARK: - SendApproveDataBuilderInput
+
+extension StakingModel: SendApproveDataBuilderInput {
     var approveViewModelInput: (any ApproveViewModelInput)? { self }
 
-    var stakingActionType: StakingAction.ActionType? { .stake }
-
-    var target: StakingTargetInfo? { _selectedTarget.value.value }
+    var approveRequestedWithSelectedPolicy: ApprovePolicy? { _approvePolicy.value }
 }
 
 extension StakingModel {
