@@ -13,11 +13,11 @@ import TangemExpress
 import BlockchainSdk
 
 enum SendType {
-    case send(SendSourceToken)
+    case send(SendSourceToken, source: ExpressInteractorWalletModelWrapper)
     case swap(SendSourceToken)
-    case sell(SendSourceToken, parameters: PredefinedSellParameters)
-    case nft(SendSourceToken, parameters: PredefinedNFTParameters)
-    case staking(SendSourceToken, manager: StakingManager, blockchainParams: StakingBlockchainParams)
+    case sell(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedSellParameters)
+    case nft(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedNFTParameters)
+    case staking(SendSourceToken, manager: StakingManager, walletModelDependenciesProvider: WalletModelDependenciesProvider, blockchainParams: StakingBlockchainParams)
     case unstaking(SendSourceToken, manager: StakingManager, action: UnstakingModel.Action)
     case restaking(SendSourceToken, manager: StakingManager, action: RestakingModel.Action)
     case stakingSingleAction(SendSourceToken, manager: StakingManager, action: StakingSingleActionModel.Action)
