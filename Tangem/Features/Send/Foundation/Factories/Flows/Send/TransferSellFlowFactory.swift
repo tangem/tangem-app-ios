@@ -72,7 +72,6 @@ extension TransferSellFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
             flowActionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
