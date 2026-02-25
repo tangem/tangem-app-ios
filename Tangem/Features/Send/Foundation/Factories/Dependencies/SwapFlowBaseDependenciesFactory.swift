@@ -18,7 +18,8 @@ extension SwapFlowBaseDependenciesFactory {
     func makeSwapModel(
         sourceToken: SendSourceToken,
         analyticsLogger: any SendAnalyticsLogger,
-        autoupdatingTimer: AutoupdatingTimer
+        autoupdatingTimer: AutoupdatingTimer,
+        shouldStartInitialLoading: Bool
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -29,7 +30,8 @@ extension SwapFlowBaseDependenciesFactory {
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
             analyticsLogger: analyticsLogger,
-            autoupdatingTimer: autoupdatingTimer
+            autoupdatingTimer: autoupdatingTimer,
+            shouldStartInitialLoading: shouldStartInitialLoading
         )
     }
 

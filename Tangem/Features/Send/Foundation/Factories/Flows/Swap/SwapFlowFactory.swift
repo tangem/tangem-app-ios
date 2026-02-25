@@ -13,7 +13,12 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
-    lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
+    lazy var swapModel = makeSwapModel(
+        sourceToken: sourceToken,
+        analyticsLogger: analyticsLogger,
+        autoupdatingTimer: autoupdatingTimer,
+        shouldStartInitialLoading: true
+    )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
