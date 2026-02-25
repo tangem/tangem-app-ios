@@ -11,7 +11,7 @@ import TangemStaking
 import TangemLocalization
 
 /// Sharing between Staking / Restaking / Unstaking / StakingSingleAction
-protocol StakingFlowDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+protocol StakingFlowDependenciesFactory: SendFlowBaseDependenciesFactory {
     var actionType: StakingAction.ActionType { get }
 }
 

@@ -10,6 +10,7 @@ import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
+    let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
@@ -24,6 +25,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     init(sourceToken: SendSourceToken) {
         self.sourceToken = sourceToken
+        self.initialTokenItem = sourceToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
@@ -163,9 +165,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
         SwapSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
             swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }
 }
@@ -195,7 +195,7 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
-        SendSwapProvidersBuilder.Types(tokenItem: tokenItem)
+        SendSwapProvidersBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var swapProvidersDependencies: SendSwapProvidersBuilder.Dependencies {
@@ -215,7 +215,7 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

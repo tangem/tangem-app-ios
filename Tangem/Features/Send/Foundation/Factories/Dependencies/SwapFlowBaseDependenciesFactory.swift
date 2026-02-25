@@ -42,4 +42,8 @@ extension SwapFlowBaseDependenciesFactory {
     func makeSwapAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
     }
+
+    func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
+        CommonSwapTransactionSummaryDescriptionBuilder()
+    }
 }

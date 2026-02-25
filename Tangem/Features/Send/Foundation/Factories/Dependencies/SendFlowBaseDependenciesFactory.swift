@@ -8,7 +8,16 @@
 
 import TangemUI
 
-protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {}
+protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+    var sourceToken: SendSourceToken { get }
+}
+
+extension SendFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
+    var tokenItem: TokenItem { sourceToken.tokenItem }
+    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
+    var tokenIconInfo: TokenIconInfo { sourceToken.tokenIconInfo }
+}
 
 // MARK: - Shared dependencies
 
@@ -48,6 +57,27 @@ extension SendFlowBaseDependenciesFactory {
                 decimalCount: tokenItem.decimalCount
             )
         )
+    }
+
+    func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
+        BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+    }
+
+    // MARK: - TransactionSummaryDescriptionBuilders
+
+    func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        if case .nonFungible = tokenItem.token?.metadata.kind {
+            return NFTSendTransactionSummaryDescriptionBuilder()
+        }
+
+        switch tokenItem.blockchain {
+        case .koinos:
+            return KoinosSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+        case .tron where tokenItem.isToken:
+            return TronSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+        default:
+            return CommonSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+        }
     }
 
     // MARK: - Notifications
