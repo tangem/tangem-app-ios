@@ -343,18 +343,11 @@ extension StakingSingleActionModel: NotificationTapDelegate {
 
 extension StakingSingleActionModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { false }
 
     var target: StakingTargetInfo? { action.targetInfo }
-
-    var selectedPolicy: ApprovePolicy? { nil }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { nil }
-
-    var stakingActionType: TangemStaking.StakingAction.ActionType? { action.type }
+    var stakingActionType: StakingAction.ActionType? { action.type }
 }
 
 extension StakingSingleActionModel {

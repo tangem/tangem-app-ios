@@ -17,12 +17,6 @@ protocol SwapModelStateProvider: AnyObject {
     var statePublisher: AnyPublisher<SwapModel.ProvidersState, Never> { get }
 }
 
-protocol SwapModelRoutable: AnyObject {
-    func openNetworkCurrency()
-    func openApproveSheet()
-    func performSwapAction()
-}
-
 final class SwapModel {
     // MARK: - Data
 
@@ -573,15 +567,15 @@ extension SwapModel: SwapModelStateProvider {
 
 extension SwapModel: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
-        let token = factory.makeSourceToken(flowActionType: .swap)
+        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, flowType: .send)
+        let token = factory.makeSourceToken()
 
         update(source: token)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
-        let token = factory.makeSourceToken(flowActionType: .swap)
+        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, flowType: .send)
+        let token = factory.makeSourceToken()
 
         update(receive: token)
     }

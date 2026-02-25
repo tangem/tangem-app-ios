@@ -44,9 +44,9 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         )
     }
 
-    convenience init(sourceToken: SendSourceToken) {
+    convenience init(sourceToken: SendSourceToken, actionType: SendFlowActionType) {
         self.init(
-            title: .header(sourceToken.header),
+            title: .header(sourceToken.header.asSendTokenHeader(actionType: actionType)),
             tokenIconInfo: sourceToken.tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
             fiatItem: sourceToken.fiatItem,
