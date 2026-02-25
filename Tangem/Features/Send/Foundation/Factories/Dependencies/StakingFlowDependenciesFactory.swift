@@ -30,10 +30,6 @@ extension StakingFlowDependenciesFactory {
         StakingSendAlertBuilder()
     }
 
-    func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
-        baseDataBuilderFactory.makeStakingBaseDataBuilder(input: input)
-    }
-
     func makeStakingFeeIncludedCalculator() -> FeeIncludedCalculator {
         StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: sourceToken.transactionValidator)
     }
