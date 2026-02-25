@@ -51,21 +51,24 @@ struct AppScanTaskResponse {
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    var preflightReadMode: PreflightReadMode { .fullCardReadWithAccessCodeCheck }
+    var preflightReadMode: PreflightReadMode { shouldCheckAccessCode ? .fullCardReadWithAccessCodeCheck : .fullCardRead }
 
     let shouldAskForAccessCode: Bool
 
     private let performDerivations: Bool
+    private let shouldCheckAccessCode: Bool
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
     private var linkingCommand: StartPrimaryCardLinkingCommand?
 
     init(
         shouldAskForAccessCode: Bool = false,
-        performDerivations: Bool = true
+        performDerivations: Bool = true,
+        shouldCheckAccessCode: Bool = false
     ) {
         self.shouldAskForAccessCode = shouldAskForAccessCode
         self.performDerivations = performDerivations
+        self.shouldCheckAccessCode = shouldCheckAccessCode
     }
 
     deinit {
