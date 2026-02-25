@@ -7,12 +7,15 @@
 //
 
 import Foundation
+import TangemLocalization
 import struct TangemAccounts.AccountIconView
 
 enum SendTokenHeader: Hashable {
-    // In case when user has only one wallet without account
-    // We will write (You send, You stake)
+    /// In case when user has only one wallet without account
+    /// We will write (You send, You stake)
     case action(name: String)
+
+    /// Have to be name with `prefix` from
     case wallet(name: String)
-    case account(name: String, icon: AccountIconView.ViewData)
+    case account(prefix: String = Localization.commonFrom, name: String, icon: AccountIconView.ViewData)
 }

@@ -34,13 +34,14 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
 
     init(
         initialSourceToken: SendSourceToken,
+        actionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
-        sendAmountCompactViewModel = .init(sourceToken: initialSourceToken)
+        sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
         sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
