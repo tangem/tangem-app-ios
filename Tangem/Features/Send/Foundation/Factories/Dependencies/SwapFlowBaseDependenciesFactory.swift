@@ -16,14 +16,15 @@ extension SwapFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
     func makeSwapModel(
-        sourceToken: SendSourceToken,
+        sourceToken: SendSourceToken?,
+        receiveToken: SendReceiveToken?,
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         shouldStartInitialLoading: Bool
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
-            receiveToken: .none,
+            receiveToken: receiveToken,
             expressManager: expressDependenciesFactory.expressManager,
             expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,

@@ -9,13 +9,16 @@
 import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let sourceToken: SendSourceToken?
+    let receiveToken: SendReceiveToken?
+
     let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
+        receiveToken: receiveToken,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         shouldStartInitialLoading: true
@@ -23,11 +26,24 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    init(sourceToken: SendSourceToken) {
+    init(sourceToken: SendSourceToken, receiveToken: SendReceiveToken?) {
         self.sourceToken = sourceToken
+        self.receiveToken = receiveToken
         initialTokenItem = sourceToken.tokenItem
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: sourceToken.userWalletInfo
+        )
+    }
+
+    init(receiveToken: SendSourceToken) {
+        sourceToken = nil
+        self.receiveToken = receiveToken
+        initialTokenItem = receiveToken.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: receiveToken.userWalletInfo
+        )
     }
 }
 
@@ -102,21 +118,15 @@ extension SwapFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSwapAlertBuilder(),
-            mailDataBuilder: CommonSendMailDataBuilder(
-                baseDataInput: swapModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
-            ),
-            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceToken: sourceToken,
-                approveDataInput: swapModel
-            ),
-            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
-            ),
+            mailDataBuilder: EmptySendMailDataBuilder(),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: sourceToken.tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
+                tokenItem: initialTokenItem
+            ),
+            // Will not use in `swap`
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
         )
     }
 }
