@@ -32,7 +32,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     weak var router: SwapAmountCompactRoutable?
 
-    private let initialSourceToken: SendSourceToken
+    private let initialTokenItem: TokenItem
     private let interactor: SendAmountInteractor
 
     private weak var stateProvider: SwapModelStateProvider?
@@ -50,13 +50,13 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var highPriceImpactCancellable: AnyCancellable?
 
     init(
-        initialSourceToken: SendSourceToken,
+        initialTokenItem: TokenItem,
         interactor: SendAmountInteractor,
         stateProvider: SwapModelStateProvider,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
     ) {
-        self.initialSourceToken = initialSourceToken
+        self.initialTokenItem = initialTokenItem
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
@@ -65,7 +65,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
-            canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialSourceToken.tokenItem
+            canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialTokenItem
         )
 
         sourceDecimalNumberTextFieldViewModel = .init(
@@ -75,7 +75,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         receiveExpressCurrencyViewModel = .init(
             viewType: .receive,
             headerType: .action(name: Localization.swappingToTitle),
-            canChangeCurrency: receiveTokenInput?.receiveToken.value?.tokenItem != initialSourceToken.tokenItem
+            canChangeCurrency: receiveTokenInput?.receiveToken.value?.tokenItem != initialTokenItem
         )
 
         receiveCryptoAmountState = .initialized
@@ -187,7 +187,7 @@ private extension SwapAmountViewModel {
     private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
         sourceExpressCurrencyViewModel.update(
             wallet: sourceToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: initialSourceToken.id
+            initialWalletId: .init(tokenItem: initialTokenItem)
         )
 
         switch sourceToken {
@@ -230,7 +230,7 @@ private extension SwapAmountViewModel {
     private func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: initialSourceToken.id
+            initialWalletId: .init(tokenItem: initialTokenItem)
         )
 
         switch (receiveToken, amount) {

@@ -13,14 +13,6 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-protocol SendModelRoutable: AnyObject {
-    func openNetworkCurrency()
-    func openApproveSheet()
-    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
-    func resetFlow()
-    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
-}
-
 final class SendModel {
     // MARK: - Data
 
@@ -42,7 +34,7 @@ final class SendModel {
     var externalDestinationUpdater: SendDestinationExternalUpdater!
     var informationRelevanceService: InformationRelevanceService!
 
-    weak var router: SendModelRoutable?
+    weak var router: SendWithSwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
