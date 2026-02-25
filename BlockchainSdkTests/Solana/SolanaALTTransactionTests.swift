@@ -257,8 +257,60 @@ struct SolanaTransactionHistoryMapperTests {
 
         let records = try mapper.mapToTransactionRecords([details], walletAddress: walletAddress, amountType: .coin)
         #expect(records.count == 1)
-        #expect(records[0].type == .contractMethodName(name: "operation"))
+        #expect(records[0].type == .staking(type: .unstake, target: nil))
         #expect(records[0].status == .failed)
+    }
+
+    @Test
+    func mapStakeOperationAsStake() throws {
+        let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
+        let validatorAddress = "Validator11111111111111111111111111111111111"
+        let details = try decode(
+            SolanaTransactionHistoryDTO.TransactionDetails.self,
+            from: """
+            {
+              "blockTime": 1771579635,
+              "meta": {
+                "err": null,
+                "fee": 25000,
+                "innerInstructions": [],
+                "postBalances": [36523606, 20000000],
+                "preBalances": [56548606, 0],
+                "postTokenBalances": [],
+                "preTokenBalances": [],
+                "rewards": []
+              },
+              "transaction": {
+                "message": {
+                  "accountKeys": [
+                    { "pubkey": "\(walletAddress)" },
+                    { "pubkey": "\(destinationAddress)" }
+                  ],
+                  "instructions": [
+                    {
+                      "parsed": {
+                        "info": {
+                          "stakeAccount": "\(destinationAddress)",
+                          "stakeAuthority": "\(walletAddress)",
+                          "voteAccount": "\(validatorAddress)"
+                        },
+                        "type": "delegate"
+                      },
+                      "program": "stake",
+                      "programId": "Stake11111111111111111111111111111111111111"
+                    }
+                  ]
+                },
+                "signatures": ["hash_4"]
+              }
+            }
+            """
+        )
+
+        let records = try mapper.mapToTransactionRecords([details], walletAddress: walletAddress, amountType: .coin)
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .stake, target: validatorAddress))
+        #expect(records[0].isOutgoing)
     }
 
     private func decode<T: Decodable>(_ type: T.Type, from json: String) throws -> T {

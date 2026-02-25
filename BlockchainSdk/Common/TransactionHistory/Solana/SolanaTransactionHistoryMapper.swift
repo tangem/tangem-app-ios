@@ -37,15 +37,23 @@ private extension SolanaTransactionHistoryMapper {
     enum TransactionKind {
         case transfer(instruction: SolanaTransactionHistoryDTO.Instruction)
         case tokenOperation(instruction: SolanaTransactionHistoryDTO.Instruction?)
+        case stakeOperation(
+            stakingType: TransactionRecord.TransactionType.StakingTransactionType,
+            target: String?,
+            instruction: SolanaTransactionHistoryDTO.Instruction?
+        )
         case otherOperation
     }
 
     enum Constants {
         static let systemProgramId = "11111111111111111111111111111111"
         static let computeBudgetProgramId = "ComputeBudget111111111111111111111111111111"
+        static let stakeProgramId = "Stake11111111111111111111111111111111111111"
         static let tokenProgram = "spl-token"
         static let transferType = "transfer"
         static let transferCheckedType = "transferChecked"
+        static let stakeDelegateType = "delegate"
+        static let stakeDeactivateType = "deactivate"
         static let operationType = "operation"
     }
 
@@ -94,6 +102,14 @@ private extension SolanaTransactionHistoryMapper {
                 )
                 sourceAddress = amountDelta < 0 ? walletAddress : counterparty
                 destinationAddress = amountDelta < 0 ? counterparty : walletAddress
+            case .stakeOperation(_, _, let instruction):
+                let parsedInfo = instruction?.parsed?.info
+                let counterparty = fallbackCounterpartyAddress(
+                    accountKeys: transaction.transaction.message.accountKeys,
+                    walletAddress: walletAddress
+                )
+                sourceAddress = parsedInfo?.source ?? parsedInfo?.stakeAccount ?? (amountDelta < 0 ? walletAddress : counterparty)
+                destinationAddress = parsedInfo?.destination ?? parsedInfo?.newAccount ?? (amountDelta < 0 ? counterparty : walletAddress)
             }
         case .token(let token):
             amountDelta = tokenDelta(
@@ -134,6 +150,8 @@ private extension SolanaTransactionHistoryMapper {
             switch kind {
             case .transfer:
                 return .transfer
+            case .stakeOperation(let stakingType, let target, _):
+                return .staking(type: stakingType, target: target)
             case .tokenOperation, .otherOperation:
                 return .contractMethodName(name: Constants.operationType)
             }
@@ -198,6 +216,14 @@ private extension SolanaTransactionHistoryMapper {
             return operationType == Constants.transferType || operationType == Constants.transferCheckedType
         }
 
+        let stakeInstructions = instructions.filter { instruction in
+            instruction.programId == Constants.stakeProgramId
+        }
+
+        if !stakeInstructions.isEmpty {
+            return mapStakeOperation(stakeInstructions)
+        }
+
         let hasTransferShape =
             (transaction.meta?.innerInstructions.isEmpty ?? true) &&
             (transaction.meta?.preTokenBalances.isEmpty ?? true) &&
@@ -215,6 +241,22 @@ private extension SolanaTransactionHistoryMapper {
         }
 
         return .otherOperation
+    }
+
+    func mapStakeOperation(_ instructions: [SolanaTransactionHistoryDTO.Instruction]) -> TransactionKind {
+        if let instruction = instructions.first(where: { $0.parsed?.type == Constants.stakeDeactivateType }) {
+            return .stakeOperation(stakingType: .unstake, target: nil, instruction: instruction)
+        }
+
+        if let instruction = instructions.first(where: { $0.parsed?.type == Constants.stakeDelegateType }) {
+            return .stakeOperation(
+                stakingType: .stake,
+                target: instruction.parsed?.info?.voteAccount,
+                instruction: instruction
+            )
+        }
+
+        return .stakeOperation(stakingType: .stake, target: nil, instruction: instructions.first)
     }
 
     func solDelta(

@@ -189,6 +189,11 @@ enum SolanaTransactionHistoryDTO {
                 let lamports: UInt64?
                 let amount: String?
                 let tokenAmount: TransactionDetails.Meta.TokenAmount?
+                let stakeAccount: String?
+                let voteAccount: String?
+                let stakeAuthority: String?
+                let withdrawAuthority: String?
+                let newAccount: String?
             }
         }
 
