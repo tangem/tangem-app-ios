@@ -80,6 +80,16 @@ extension SendFlowBaseDependenciesFactory {
         }
     }
 
+    func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
+        CommonSendWithSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+    }
+
+    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
+        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+    }
+
     // MARK: - Notifications
 
     func makeSendNotificationManager() -> SendNotificationManager {
