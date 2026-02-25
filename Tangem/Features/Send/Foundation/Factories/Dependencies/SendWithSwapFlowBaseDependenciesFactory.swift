@@ -53,6 +53,14 @@ extension SendWithSwapFlowBaseDependenciesFactory {
         )
     }
 
+    // MARK: - Services
+
+    func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
+        CommonSendWithSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+    }
+
     // MARK: - Receive token
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {

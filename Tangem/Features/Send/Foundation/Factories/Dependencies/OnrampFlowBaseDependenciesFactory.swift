@@ -8,7 +8,7 @@
 
 import TangemExpress
 
-protocol OnrampFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+protocol OnrampFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactory {
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
