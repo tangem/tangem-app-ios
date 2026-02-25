@@ -29,3 +29,18 @@ extension ExpressCurrencyHeaderType {
         }
     }
 }
+
+// MARK: - SendTokenHeader+
+
+extension SendTokenHeader {
+    init(viewType: ExpressCurrencyViewType, tokenHeader: ExpressInteractorTokenHeader?) {
+        switch tokenHeader {
+        case .none:
+            self = .action(name: viewType.actionName())
+        case .wallet(let name):
+            self = .wallet(name: viewType.prefix(wallet: name))
+        case .account(let name, let icon):
+            self = .account(prefix: viewType.prefix(), name: name, icon: icon)
+        }
+    }
+}

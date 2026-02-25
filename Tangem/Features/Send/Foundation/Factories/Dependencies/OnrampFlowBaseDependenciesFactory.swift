@@ -81,7 +81,7 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampRepository: OnrampRepository,
         onrampDataRepository: OnrampDataRepository,
         onrampRedirectingBuilder: OnrampRedirectingBuilder
-    ) -> OnrampBaseDataBuilder {
+    ) -> OnrampRouterDataBuilder {
         CommonOnrampBaseDataBuilder(
             config: userWalletInfo.config,
             onrampRepository: onrampRepository,

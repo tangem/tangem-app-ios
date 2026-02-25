@@ -76,7 +76,6 @@ final class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
-        let input: SendInput
         let type: SendType
         let source: Source
     }
@@ -289,10 +288,10 @@ extension SendCoordinator: OnrampRoutable {
         )
     }
 
-    func openOnrampSettings(repository: any OnrampRepository) {
+    func openOnrampSettings(repository: any OnrampRepository, settingsRoutable: OnrampSettingsRoutable) {
         onrampSettingsViewModel = OnrampSettingsViewModel(
             repository: repository,
-            coordinator: self
+            coordinator: settingsRoutable
         )
     }
 
@@ -353,14 +352,6 @@ extension SendCoordinator: FeeSelectorRoutable {
 extension SendCoordinator: OnrampCountrySelectorRoutable {
     func dismissCountrySelector() {
         onrampCountrySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampSettingsRoutable
-
-extension SendCoordinator: OnrampSettingsRoutable {
-    func openOnrampCountrySelector() {
-        rootViewModel?.openOnrampCountrySelectorView()
     }
 }
 

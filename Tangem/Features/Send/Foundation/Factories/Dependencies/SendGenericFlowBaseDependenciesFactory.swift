@@ -11,7 +11,6 @@ import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
     var sourceToken: SendSourceToken { get }
-    var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
 }
 
 extension SendGenericFlowBaseDependenciesFactory {

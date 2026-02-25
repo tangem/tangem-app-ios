@@ -29,13 +29,14 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 
     init(
         initialSourceToken: SendSourceToken,
+        flowActionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        tokenHeader = initialSourceToken.header
+        tokenHeader = initialSourceToken.header.asSendTokenHeader(actionType: flowActionType)
         tokenIconInfo = initialSourceToken.tokenIconInfo
         amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: initialSourceToken.tokenItem.decimalCount)
         amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(

@@ -10,7 +10,6 @@ import struct TangemUI.TokenIconInfo
 
 class SendFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
@@ -20,11 +19,9 @@ class SendFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     init(
         sourceToken: SendSourceToken,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
-        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: sourceToken.userWalletInfo,
@@ -129,9 +126,17 @@ extension SendFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
                 approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
@@ -154,7 +159,7 @@ extension SendFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(initialSourceToken: sourceToken, flowActionType: .send)
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
