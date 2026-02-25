@@ -100,7 +100,7 @@ extension SwapModel {
 
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
-        case .loaded(_, .some, .requiredRefresh):
+        case .loaded(_, .some, .requiredRefresh), .loaded(_, .some, .restriction):
             autoupdatingTimer.stopTimer()
         case .loaded(_, .some, _):
             autoupdatingTimer.restartTimer { [weak self] in
