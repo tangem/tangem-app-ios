@@ -18,6 +18,7 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var isFirstLoading: Bool = true
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
     let widgetType: MarketsWidgetType
@@ -158,14 +159,16 @@ private extension NewsWidgetViewModel {
                 case .loaded:
                     viewModel.updateViewState()
                     viewModel.clearIsFirstLoadingFlag()
+                    viewModel.updateHeaderLoadingState()
                 case .initialLoading:
                     viewModel.resultState = .loading
+                    viewModel.updateHeaderLoadingState()
                 case .reloading(let widgetTypes):
                     if widgetTypes.contains(viewModel.widgetType) {
                         viewModel.resultState = .loading
+                        viewModel.updateHeaderLoadingState()
                     }
                 case .allFailed:
-                    // Global error UI is handled at a higher level
                     return
                 }
             }
@@ -265,6 +268,17 @@ private extension NewsWidgetViewModel {
     func clearIsFirstLoadingFlag() {
         if isFirstLoading {
             isFirstLoading = false
+        }
+    }
+
+    func updateHeaderLoadingState() {
+        switch resultState {
+        case .loading:
+            headerLoadingState = isFirstLoading ? .first : .retry
+        case .success:
+            headerLoadingState = .loaded
+        case .failure:
+            headerLoadingState = .failed
         }
     }
 }
