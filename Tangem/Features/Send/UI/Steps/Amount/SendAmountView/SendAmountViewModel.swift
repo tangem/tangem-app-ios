@@ -51,6 +51,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private var sendAmountFormatter: SendAmountFormatter
@@ -61,6 +62,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     init(
         sourceToken: SendSourceToken,
+        flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger
     ) {
@@ -78,6 +80,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
+        self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
 
@@ -190,7 +193,7 @@ private extension SendAmountViewModel {
 
 extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
-        tokenHeader = sourceToken.header
+        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
