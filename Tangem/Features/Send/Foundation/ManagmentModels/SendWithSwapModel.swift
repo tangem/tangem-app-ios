@@ -14,20 +14,14 @@ import TangemExpress
 import TangemFoundation
 
 /// A composition model that combines `TransferModel` and `SwapModel`,
-/// switching between them based on `_receivedToken` state.
+/// switching between them based on SwapModel's receive token state.
+/// When the receive token has a value, swap mode is active.
+/// Otherwise, it operates in simple send mode using TransferModel.
 /// This provides the same API as `SendModel` but with cleaner separation of concerns.
 final class SendWithSwapModel {
-    // MARK: - Data
-
-    /// When nil: simple send mode (.same)
-    /// When some: swap mode (.swap)
-    private let _receivedToken: CurrentValueSubject<SendReceiveToken?, Never>
-
     // MARK: - Dependencies
 
-    var externalAmountUpdater: SendAmountExternalUpdater!
     var externalDestinationUpdater: SendDestinationExternalUpdater!
-    var informationRelevanceService: InformationRelevanceService!
 
     weak var router: SendWithSwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
@@ -36,11 +30,6 @@ final class SendWithSwapModel {
 
     private let transferModel: TransferModel
     private let swapModel: SwapModel
-
-    // MARK: - Internal access for factory setup
-
-    var transferModelInternal: TransferModel { transferModel }
-    var swapModelInternal: SwapModel { swapModel }
 
     // MARK: - Private
 
@@ -66,10 +55,6 @@ final class SendWithSwapModel {
         self.transactionSigner = transactionSigner
         self.sendAlertBuilder = sendAlertBuilder
         self.analyticsLogger = analyticsLogger
-
-        _receivedToken = .init(nil) // Start in simple send mode
-
-        bind()
     }
 
     deinit {
@@ -80,12 +65,20 @@ final class SendWithSwapModel {
 // MARK: - Binding
 
 private extension SendWithSwapModel {
-    func bind() {
-        // Forward external updaters to transferModel
-        // These will be set after initialization by the factory
+    /// Determines if we're in swap mode based on SwapModel's receive token
+    /// Returns true if swap mode is active (receive token exists)
+    var isSwapMode: Bool {
+        switch swapModel.receiveToken {
+        case .success: true
+        case .loading, .failure: false
+        }
+    }
 
-        // Routers and alert presenters will be set externally
-        // No adapters needed - direct delegation
+    /// Publisher that emits true when in swap mode, false when in simple send mode
+    var isSwapModePublisher: AnyPublisher<Bool, Never> {
+        swapModel.receiveTokenPublisher
+            .map { $0.value != nil }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -104,22 +97,28 @@ private extension SendWithSwapModel {
         }
 
         // Check if both tokens have the same network
-        let currentBlockchain = _receivedToken.value?.tokenItem.blockchain ?? initialSourceToken.tokenItem.blockchain
+        let currentReceiveToken = swapModel.receiveToken.value
+        let currentBlockchain = currentReceiveToken?.tokenItem.blockchain ?? initialSourceToken.tokenItem.blockchain
         let newBlockchain = newReceiveToken?.tokenItem.blockchain ?? initialSourceToken.tokenItem.blockchain
-
-        if currentBlockchain == newBlockchain {
-            // Same network, safe to switch
-            reset()
-            return
-        }
+        let isSameNetwork = currentBlockchain == newBlockchain
 
         // Different networks, show confirmation
         switch newReceiveToken {
+        // If we don't have any destination address
+        // We can safely change the token
+        case _ where destination == nil:
+            reset()
+
+        // Same network, safe to switch
+        case _ where isSameNetwork:
+            reset()
+
         case .some:
             // Switching to swap mode
             alertPresenter?.showAlert(
                 sendAlertBuilder.makeChangeTokenFlowAlert(action: resetFlowAction, cancel: cancel)
             )
+
         case .none:
             // Switching back to simple send
             alertPresenter?.showAlert(
@@ -165,20 +164,14 @@ extension SendWithSwapModel: SendDestinationOutput {
 
 extension SendWithSwapModel: SendSourceTokenInput {
     var sourceToken: LoadingResult<SendSourceToken, any Error> {
-        switch _receivedToken.value {
-        case .none: transferModel.sourceToken
-        case .some: swapModel.sourceToken
-        }
+        isSwapMode ? swapModel.sourceToken : transferModel.sourceToken
     }
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.sourceTokenPublisher
-                case .some: model.swapModel.sourceTokenPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.sourceTokenPublisher : model.transferModel.sourceTokenPublisher
             }
             .eraseToAnyPublisher()
     }
@@ -188,10 +181,8 @@ extension SendWithSwapModel: SendSourceTokenInput {
 
 extension SendWithSwapModel: SendSourceTokenOutput {
     func userDidSelect(sourceToken: SendSourceToken) {
-        switch _receivedToken.value {
-        case .none: transferModel.userDidSelect(sourceToken: sourceToken)
-        case .some: swapModel.userDidSelect(sourceToken: sourceToken)
-        }
+        swapModel.userDidSelect(sourceToken: sourceToken)
+        transferModel.userDidSelect(sourceToken: sourceToken)
     }
 }
 
@@ -199,20 +190,14 @@ extension SendWithSwapModel: SendSourceTokenOutput {
 
 extension SendWithSwapModel: SendSourceTokenAmountInput {
     var sourceAmount: LoadingResult<SendAmount, any Error> {
-        switch _receivedToken.value {
-        case .none: transferModel.sourceAmount
-        case .some: swapModel.sourceAmount
-        }
+        isSwapMode ? swapModel.sourceAmount : transferModel.sourceAmount
     }
 
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.sourceAmountPublisher
-                case .some: model.swapModel.sourceAmountPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.sourceAmountPublisher : model.transferModel.sourceAmountPublisher
             }
             .eraseToAnyPublisher()
     }
@@ -222,10 +207,8 @@ extension SendWithSwapModel: SendSourceTokenAmountInput {
 
 extension SendWithSwapModel: SendSourceTokenAmountOutput {
     func sourceAmountDidChanged(amount: SendAmount?) {
-        switch _receivedToken.value {
-        case .none: transferModel.sourceAmountDidChanged(amount: amount)
-        case .some: swapModel.sourceAmountDidChanged(amount: amount)
-        }
+        swapModel.sourceAmountDidChanged(amount: amount)
+        transferModel.sourceAmountDidChanged(amount: amount)
     }
 }
 
@@ -237,20 +220,14 @@ extension SendWithSwapModel: SendReceiveTokenInput {
     }
 
     var receiveToken: LoadingResult<any SendReceiveToken, any Error> {
-        switch _receivedToken.value {
-        case .none: .loading
-        case .some: swapModel.receiveToken
-        }
+        isSwapMode ? swapModel.receiveToken : .loading
     }
 
     var receiveTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: Just(.loading as LoadingResult<any SendReceiveToken, any Error>).eraseToAnyPublisher()
-                case .some: model.swapModel.receiveTokenPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.receiveTokenPublisher : .just(output: .loading)
             }
             .eraseToAnyPublisher()
     }
@@ -260,20 +237,22 @@ extension SendWithSwapModel: SendReceiveTokenInput {
 
 extension SendWithSwapModel: SendReceiveTokenOutput {
     func userDidRequestClearSelection() {
-        resetFlow(newReceiveToken: nil, reset: { [weak self] in
-            self?._receivedToken.send(nil)
+        // When clearing, we need to reset the swap model back to the initial source token
+        // This effectively switches back to "simple send" mode
+        resetFlow(newReceiveToken: .none, reset: { [weak self] in
+            self?.swapModel.userDidRequestClearSelection()
             self?.analyticsLogger.logAmountStepOpened()
         })
     }
 
     func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
-            self?._receivedToken.send(receiveToken)
             self?.swapModel.userDidRequestSelect(receiveToken: receiveToken, selected: selected)
             self?.analyticsLogger.logAmountStepOpened()
+            selected(true)
         }, cancel: { [weak self] in
-            selected(false)
             self?.analyticsLogger.logAmountStepOpened()
+            selected(false)
         })
     }
 }
@@ -282,32 +261,23 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 
 extension SendWithSwapModel: SendReceiveTokenAmountInput {
     var receiveAmount: LoadingResult<SendAmount, any Error> {
-        switch _receivedToken.value {
-        case .none: .failure(SendAmountError.noAmount)
-        case .some: swapModel.receiveAmount
-        }
+        isSwapMode ? swapModel.receiveAmount : .failure(SendAmountError.noAmount)
     }
 
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: Just(.failure(SendAmountError.noAmount) as LoadingResult<SendAmount, any Error>).eraseToAnyPublisher()
-                case .some: model.swapModel.receiveAmountPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.receiveAmountPublisher : .just(output: .failure(SendAmountError.noAmount))
             }
             .eraseToAnyPublisher()
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token -> AnyPublisher<HighPriceImpactCalculator.Result?, Never> in
-                switch token {
-                case .none: .just(output: .none)
-                case .some: model.swapModel.highPriceImpactPublisher
-                }
+            .flatMapLatest { model, isSwap -> AnyPublisher<HighPriceImpactCalculator.Result?, Never> in
+                isSwap ? model.swapModel.highPriceImpactPublisher : .just(output: .none)
             }
             .eraseToAnyPublisher()
     }
@@ -317,10 +287,7 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
     func receiveAmountDidChanged(amount: SendAmount?) {
-        switch _receivedToken.value {
-        case .none: break // Not supported for simple sends
-        case .some: swapModel.receiveAmountDidChanged(amount: amount)
-        }
+        swapModel.receiveAmountDidChanged(amount: amount)
     }
 }
 
@@ -329,40 +296,28 @@ extension SendWithSwapModel: SendReceiveTokenAmountOutput {
 extension SendWithSwapModel: SendSwapProvidersInput {
     var expressProviders: [ExpressAvailableProvider] {
         get async {
-            switch _receivedToken.value {
-            case .none: []
-            case .some: swapModel.expressProviders
-            }
+            isSwapMode ? swapModel.expressProviders : []
         }
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: Just([ExpressAvailableProvider]()).eraseToAnyPublisher()
-                case .some: model.swapModel.expressProvidersPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.expressProvidersPublisher : .just(output: [])
             }
             .eraseToAnyPublisher()
     }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
-        switch _receivedToken.value {
-        case .none: nil
-        case .some: swapModel.selectedExpressProvider
-        }
+        isSwapMode ? swapModel.selectedExpressProvider : nil
     }
 
     var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: Just(nil as LoadingResult<ExpressAvailableProvider, any Error>?).eraseToAnyPublisher()
-                case .some: model.swapModel.selectedExpressProviderPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.selectedExpressProviderPublisher : .just(output: nil)
             }
             .eraseToAnyPublisher()
     }
@@ -372,10 +327,7 @@ extension SendWithSwapModel: SendSwapProvidersInput {
 
 extension SendWithSwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
-        switch _receivedToken.value {
-        case .none: break // Not supported
-        case .some: swapModel.userDidSelect(provider: provider)
-        }
+        swapModel.userDidSelect(provider: provider)
     }
 }
 
@@ -383,9 +335,10 @@ extension SendWithSwapModel: SendSwapProvidersOutput {
 
 extension SendWithSwapModel: SendFeeUpdater {
     func updateFees() {
-        switch _receivedToken.value {
-        case .none: transferModel.updateFees()
-        case .some: swapModel.userDidDismissFeeSelection()
+        if isSwapMode {
+            swapModel.updateFees()
+        } else {
+            transferModel.updateFees()
         }
     }
 }
@@ -394,44 +347,32 @@ extension SendWithSwapModel: SendFeeUpdater {
 
 extension SendWithSwapModel: SendFeeInput {
     var selectedFee: TokenFee? {
-        switch _receivedToken.value {
-        case .none: transferModel.selectedFee
-        case .some: swapModel.selectedFee
-        }
+        isSwapMode ? swapModel.selectedFee : transferModel.selectedFee
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.selectedFeePublisher
-                case .some: model.swapModel.selectedFeePublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.selectedFeePublisher : model.transferModel.selectedFeePublisher
             }
             .eraseToAnyPublisher()
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.supportFeeSelectionPublisher
-                case .some: model.swapModel.supportFeeSelectionPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.supportFeeSelectionPublisher : model.transferModel.supportFeeSelectionPublisher
             }
             .eraseToAnyPublisher()
     }
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.shouldShowFeeSelectorRow
-                case .some: model.swapModel.shouldShowFeeSelectorRow
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.shouldShowFeeSelectorRow : model.transferModel.shouldShowFeeSelectorRow
             }
             .eraseToAnyPublisher()
     }
@@ -441,37 +382,28 @@ extension SendWithSwapModel: SendFeeInput {
 
 extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.isReadyToSendPublisher
-                case .some: model.swapModel.isReadyToSendPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.isReadyToSendPublisher : model.transferModel.isReadyToSendPublisher
             }
             .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.isNotificationButtonIsLoading
-                case .some: model.swapModel.isNotificationButtonIsLoading
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.isNotificationButtonIsLoading : model.transferModel.isNotificationButtonIsLoading
             }
             .eraseToAnyPublisher()
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.summaryTransactionDataPublisher
-                case .some: model.swapModel.summaryTransactionDataPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.summaryTransactionDataPublisher : model.transferModel.summaryTransactionDataPublisher
             }
             .eraseToAnyPublisher()
     }
@@ -501,38 +433,30 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     func stopSwapProvidersAutoUpdateTimer() {
-        switch _receivedToken.value {
-        case .none: transferModel.stopSwapProvidersAutoUpdateTimer()
-        case .some: break // SwapModel handles this internally via autoupdatingTimer
+        if !isSwapMode {
+            transferModel.stopSwapProvidersAutoUpdateTimer()
         }
+        // SwapModel handles this internally via autoupdatingTimer
     }
 
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.actionInProcessing
-                case .some: model.swapModel.actionInProcessing
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.actionInProcessing : model.transferModel.actionInProcessing
             }
             .eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
-        switch _receivedToken.value {
-        case .none: transferModel.actualizeInformation()
-        case .some: break // SwapModel handles this differently
+        if !isSwapMode {
+            transferModel.actualizeInformation()
         }
+        // SwapModel handles this differently
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
-        switch _receivedToken.value {
-        case .none:
-            // Simple send mode
-            return try await transferModel.performAction()
-
-        case .some:
+        if isSwapMode {
             // Swap mode - check high price impact
             let highPriceImpactResult = try? await swapModel.highPriceImpactPublisher.first().async()
 
@@ -547,6 +471,9 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             }
 
             return try await swapModel.performAction()
+        } else {
+            // Simple send mode
+            return try await transferModel.performAction()
         }
     }
 }
@@ -555,48 +482,33 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
 
 extension SendWithSwapModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> {
-        switch _receivedToken.value {
-        case .none: transferModel.feeValues
-        case .some: Just([]).eraseToAnyPublisher() // SwapModel doesn't expose this
-        }
+        isSwapMode ? Just([]).eraseToAnyPublisher() : transferModel.feeValues
     }
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.selectedTokenFeePublisher
-                case .some: model.swapModel.selectedFeePublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.selectedFeePublisher : model.transferModel.selectedTokenFeePublisher
             }
             .eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.isFeeIncludedPublisher
-                case .some: Just(false).eraseToAnyPublisher() // Swap never includes fee
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? Just(false).eraseToAnyPublisher() : model.transferModel.isFeeIncludedPublisher
             }
             .eraseToAnyPublisher()
     }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> {
-        switch _receivedToken.value {
-        case .none: transferModel.bsdkTransactionPublisher
-        case .some: Just(nil).eraseToAnyPublisher() // SwapModel doesn't expose this
-        }
+        isSwapMode ? Just(nil).eraseToAnyPublisher() : transferModel.bsdkTransactionPublisher
     }
 
     var transactionCreationError: AnyPublisher<Error?, Never> {
-        switch _receivedToken.value {
-        case .none: transferModel.transactionCreationError
-        case .some: Just(nil).eraseToAnyPublisher() // SwapModel doesn't expose this
-        }
+        isSwapMode ? Just(nil).eraseToAnyPublisher() : transferModel.transactionCreationError
     }
 }
 
@@ -604,9 +516,10 @@ extension SendWithSwapModel: SendNotificationManagerInput {
 
 extension SendWithSwapModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
-        switch _receivedToken.value {
-        case .none: transferModel.didTapNotification(with: id, action: action)
-        case .some: swapModel.didTapNotification(with: id, action: action)
+        if isSwapMode {
+            swapModel.didTapNotification(with: id, action: action)
+        } else {
+            transferModel.didTapNotification(with: id, action: action)
         }
     }
 }
@@ -615,24 +528,15 @@ extension SendWithSwapModel: NotificationTapDelegate {
 
 extension SendWithSwapModel: SendBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? {
-        switch _receivedToken.value {
-        case .none: transferModel.bsdkAmount
-        case .some: swapModel.bsdkAmount
-        }
+        isSwapMode ? swapModel.bsdkAmount : transferModel.bsdkAmount
     }
 
     var bsdkFee: BSDKFee? {
-        switch _receivedToken.value {
-        case .none: transferModel.bsdkFee
-        case .some: swapModel.bsdkFee
-        }
+        isSwapMode ? swapModel.bsdkFee : transferModel.bsdkFee
     }
 
     var isFeeIncluded: Bool {
-        switch _receivedToken.value {
-        case .none: transferModel.isFeeIncluded
-        case .some: swapModel.isFeeIncluded
-        }
+        isSwapMode ? swapModel.isFeeIncluded : transferModel.isFeeIncluded
     }
 }
 
@@ -640,24 +544,15 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
 
 extension SendWithSwapModel: SendApproveDataBuilderInput {
     var approveRequestedByExpressProvider: ExpressProvider? {
-        switch _receivedToken.value {
-        case .none: nil
-        case .some: swapModel.approveRequestedByExpressProvider
-        }
+        isSwapMode ? swapModel.approveRequestedByExpressProvider : nil
     }
 
     var approveViewModelInput: (any ApproveViewModelInput)? {
-        switch _receivedToken.value {
-        case .none: nil
-        case .some: swapModel.approveViewModelInput
-        }
+        isSwapMode ? swapModel.approveViewModelInput : nil
     }
 
     var approveRequestedWithSelectedPolicy: ApprovePolicy? {
-        switch _receivedToken.value {
-        case .none: nil
-        case .some: swapModel.approveRequestedWithSelectedPolicy
-        }
+        isSwapMode ? swapModel.approveRequestedWithSelectedPolicy : nil
     }
 }
 
@@ -676,20 +571,14 @@ extension SendWithSwapModel: SendDestinationAccountOutput {
 
 extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? {
-        switch _receivedToken.value {
-        case .none: transferModel.tokenFeeProvidersManager
-        case .some: swapModel.tokenFeeProvidersManager
-        }
+        isSwapMode ? swapModel.tokenFeeProvidersManager : transferModel.tokenFeeProvidersManager
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<TokenFeeProvidersManager, Never> {
-        _receivedToken
+        isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .none: model.transferModel.tokenFeeProvidersManagerPublisher
-                case .some: model.swapModel.tokenFeeProvidersManagerPublisher
-                }
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.tokenFeeProvidersManagerPublisher : model.transferModel.tokenFeeProvidersManagerPublisher
             }
             .eraseToAnyPublisher()
     }
@@ -699,16 +588,18 @@ extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
 
 extension SendWithSwapModel: FeeSelectorOutput {
     func userDidDismissFeeSelection() {
-        switch _receivedToken.value {
-        case .none: transferModel.userDidDismissFeeSelection()
-        case .some: swapModel.userDidDismissFeeSelection()
+        if isSwapMode {
+            swapModel.userDidDismissFeeSelection()
+        } else {
+            transferModel.userDidDismissFeeSelection()
         }
     }
 
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
-        switch _receivedToken.value {
-        case .none: transferModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
-        case .some: swapModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
+        if isSwapMode {
+            swapModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
+        } else {
+            transferModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
         }
     }
 }
