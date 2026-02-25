@@ -285,7 +285,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(sourceToken), source: .tokenDetails)
+        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .tokenDetails)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
