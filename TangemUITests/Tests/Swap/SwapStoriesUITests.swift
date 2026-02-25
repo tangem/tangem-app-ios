@@ -83,6 +83,190 @@ final class SwapStoriesUITests: BaseTestCase {
             .assertSwapButtonHasNoBadge()
     }
 
+    func testSwapStories_StoriesDisplayOnMainScreen() {
+        setAllureId(5474)
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        // Step 1: Open swap from main screen → stories open
+        let storiesScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .waitActionButtonsEnabled()
+            .tapMainSwap()
+            .assertStoriesDisplayed()
+
+        // Step 2: Navigate stories forward and backward, verify close button on each page
+        storiesScreen
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryBackward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+
+        // Step 3: Close stories → swap token selector opens
+        storiesScreen
+            .closeStoriesAndReturnToMain()
+            .waitSwapTokenSelectorDisplayed()
+            .tapCloseButton()
+
+        // Step 4: Open swap again → stories should not show
+        MainScreen(app)
+            .waitActionButtonsEnabled()
+            .tapMainSwap()
+            .assertStoriesNotDisplayed()
+
+        SwapTokenSelectorScreen(app)
+            .waitSwapTokenSelectorDisplayed()
+            .tapCloseButton()
+    }
+
+    func testSwapStories_StoriesDisplayOnTokenDetailsScreen() {
+        setAllureId(5475)
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        // Step 1: Navigate to token details and open swap → stories open
+        let storiesScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .tapToken(ethereumTokenName)
+            .waitForActionButtons()
+            .tapSwapButton()
+            .assertStoriesDisplayed()
+
+        // Step 2: Navigate stories forward and backward, verify close button on each page
+        storiesScreen
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryBackward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+
+        // Step 3: Close stories → swap screen opens
+        storiesScreen
+            .closeStories()
+            .validateSwapScreenDisplayed()
+            .tapCloseButton()
+
+        // Step 4: Open swap again → stories should not show
+        TokenScreen(app)
+            .waitForActionButtons()
+            .tapSwapButton()
+            .assertStoriesNotDisplayed()
+
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
+            .tapCloseButton()
+    }
+
+    func testSwapStories_StoriesDisplayInMarkets() throws {
+        setAllureId(5476)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Auto-expand quick actions doesn't work for token in Markets portfolio")
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        // Step 1: Navigate to markets token and open swap → stories open
+        let storiesScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .openMarketsSheetWithSwipe()
+            .tapSeeAll()
+            .openTokenDetails(ethereumTokenName)
+            .expandTokenActionButtons(tokenName: ethereumTokenName)
+            .tapSwapButton()
+            .assertStoriesDisplayed()
+
+        // Step 2: Navigate stories forward and backward, verify close button on each page
+        storiesScreen
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryBackward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+
+        // Step 3: Close stories → swap screen opens
+        storiesScreen
+            .closeStories()
+            .validateSwapScreenDisplayed()
+            .tapCloseButtonAndReturnToMarkets()
+
+        // Step 4: Open swap again → stories should not show
+        MarketsTokenDetailsScreen(app)
+            .tapSwapButton()
+            .assertStoriesNotDisplayed()
+
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
+            .tapCloseButtonAndReturnToMarkets()
+    }
+
+    func testSwapStories_StoriesDisplayViaContextMenu() {
+        setAllureId(5477)
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        // Step 1: Open swap from main screen context menu → stories open
+        let storiesScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .longPressToken(ethereumTokenName)
+            .waitForActionButtons()
+            .tapSwap()
+            .assertStoriesDisplayed()
+
+        // Step 2: Navigate stories forward and backward, verify close button on each page
+        storiesScreen
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+            .assertCloseButtonVisible()
+            .tapStoryBackward()
+            .assertCloseButtonVisible()
+            .tapStoryForward()
+
+        // Step 3: Close stories → swap screen opens
+        storiesScreen
+            .closeStories()
+            .validateSwapScreenDisplayed()
+            .tapCloseButton()
+
+        // Step 4: Open swap via context menu again → stories should not show
+        MainScreen(app)
+            .waitActionButtonsEnabled()
+            .longPressToken(ethereumTokenName)
+            .waitForActionButtons()
+            .tapSwap()
+            .assertStoriesNotDisplayed()
+
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
+            .tapCloseButton()
+    }
+
     func testSwapStories_UnavailableStoriesOnMarketsTokenDetailsScreen() throws {
         setAllureId(5470)
 
