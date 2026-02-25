@@ -366,17 +366,10 @@ extension UnstakingModel: NotificationTapDelegate {
 
 extension UnstakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.flatMap { makeAmount(value: $0) } }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { false }
 
     var target: StakingTargetInfo? { initialAction.targetInfo }
-
-    var selectedPolicy: ApprovePolicy? { nil }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { nil }
-
     var stakingActionType: TangemStaking.StakingAction.ActionType? { .unstake }
 }
 

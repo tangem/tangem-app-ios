@@ -15,7 +15,6 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let sourceToken: SendSourceToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
 
     var actionType: StakingAction.ActionType { action.displayType }
 
@@ -26,13 +25,11 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         manager: any StakingManager,
-        action: RestakingModel.Action,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        action: RestakingModel.Action
     ) {
         self.sourceToken = sourceToken
         self.manager = manager
         self.action = action
-        self.baseDataBuilderFactory = baseDataBuilderFactory
     }
 }
 
@@ -130,7 +127,15 @@ extension UnstakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: unstakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: unstakingModel,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
+            ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
@@ -149,7 +154,10 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(
+            initialSourceToken: sourceToken,
+            flowActionType: actionType.sendFlowActionType
+        )
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {

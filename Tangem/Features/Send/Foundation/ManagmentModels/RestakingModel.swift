@@ -407,17 +407,10 @@ extension RestakingModel: NotificationTapDelegate {
 
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { false }
 
     var stakingActionType: TangemStaking.StakingAction.ActionType? { stakingAction.type }
-
-    var selectedPolicy: ApprovePolicy? { nil }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { nil }
-
     var target: StakingTargetInfo? { action.targetInfo }
 }
 
