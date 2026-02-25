@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemAssets
+import CioDataPipelines
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -26,6 +27,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
         servicesManager.initialize(delegate: self)
+
+        let cdpApiKey = "YOUR_CDP_API_KEY"
+        let config = SDKConfigBuilder(cdpApiKey: cdpApiKey)
+            .logLevel(CioLogLevel.debug)
+
+        CustomerIO.initialize(withConfig: config.build())
+
         return true
     }
 
