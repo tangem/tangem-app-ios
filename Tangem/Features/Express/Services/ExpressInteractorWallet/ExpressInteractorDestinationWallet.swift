@@ -14,11 +14,6 @@ protocol ExpressInteractorDestinationWallet: ExpressDestinationWallet {
     var userWalletId: UserWalletId { get }
     var tokenItem: TokenItem { get }
     var isCustom: Bool { get }
-    var isNewlyAddedFromMarkets: Bool { get }
     var tokenHeader: ExpressInteractorTokenHeader? { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
-}
-
-extension ExpressInteractorDestinationWallet {
-    var isNewlyAddedFromMarkets: Bool { false }
 }

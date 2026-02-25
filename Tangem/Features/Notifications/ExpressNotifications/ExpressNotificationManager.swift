@@ -120,8 +120,8 @@ final class ExpressNotificationManager {
         let event: ExpressNotificationEvent
 
         switch restriction {
-        case .tokenNotSupportedForSwap(let tokenItem):
-            event = .tokenNotSupportedForSwap(tokenName: tokenItem.name)
+        case .unsupportedPair:
+            event = .unsupportedPair
         }
 
         await setupNotification(for: event)
