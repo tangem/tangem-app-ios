@@ -11,7 +11,6 @@ import struct TangemUI.TokenIconInfo
 class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendSourceToken
     let sellParameters: PredefinedSellParameters
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
@@ -27,12 +26,10 @@ class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         sellParameters: PredefinedSellParameters,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
         self.sellParameters = sellParameters
-        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: sourceToken.userWalletInfo,
@@ -84,6 +81,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
 
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
             initialSourceToken: sourceToken,
+            actionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -93,6 +91,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
             initialSourceToken: sourceToken,
+            flowActionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -169,9 +168,17 @@ extension SellFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
+                approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
