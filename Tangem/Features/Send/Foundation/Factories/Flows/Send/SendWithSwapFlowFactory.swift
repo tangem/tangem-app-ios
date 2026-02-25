@@ -24,7 +24,12 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
-    lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
+    lazy var swapModel = makeSwapModel(
+        sourceToken: sourceToken,
+        analyticsLogger: analyticsLogger,
+        autoupdatingTimer: autoupdatingTimer,
+        shouldStartInitialLoading: false
+    )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
         swapModel: swapModel,
