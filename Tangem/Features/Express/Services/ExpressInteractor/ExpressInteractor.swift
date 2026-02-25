@@ -38,6 +38,7 @@ class ExpressInteractor {
     private let _state: CurrentValueSubject<State, Never> = .init(.idle)
     private let _swappingPair: CurrentValueSubject<SwappingPair, Never>
 
+    private var pairsLoadFailed = false
     private var updateStateTask: Task<Void, Error>?
 
     init(
@@ -584,22 +585,8 @@ private extension ExpressInteractor {
                 return try await interactor.mapState(state: state)
             }
 
-            // Validate destination support for newly-added tokens BEFORE updating
-            if let runtimeRestriction = await interactor.validateDestinationSupport() {
-                // Log unavailable swap pair analytics
-                if case .tokenNotSupportedForSwap(let tokenItem) = runtimeRestriction,
-                   let source = interactor.getSource().value {
-                    Analytics.log(
-                        event: .swapNoticeUnavailableToSwapPair,
-                        params: [
-                            .sendToken: source.tokenItem.currencySymbol,
-                            .receiveToken: tokenItem.currencySymbol,
-                            .sendBlockchain: source.tokenItem.blockchain.displayName,
-                            .receiveBlockchain: tokenItem.blockchain.displayName,
-                        ]
-                    )
-                }
-
+            if let runtimeRestriction = await interactor.validateSwapPairSupport() {
+                interactor.logUnavailableSwapPairAnalytics(restriction: runtimeRestriction)
                 return .runtimeRestriction(runtimeRestriction)
             }
 
@@ -612,6 +599,22 @@ private extension ExpressInteractor {
             let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
             let state = try await interactor.expressManager.update(pair: pair)
             return try await interactor.mapState(state: state)
+        }
+    }
+
+    func logUnavailableSwapPairAnalytics(restriction: RuntimeRestrictionType) {
+        switch restriction {
+        case .unsupportedPair:
+            guard let source = getSource().value else { return }
+            var params: [Analytics.ParameterKey: String] = [
+                .sendToken: source.tokenItem.currencySymbol,
+                .sendBlockchain: source.tokenItem.blockchain.displayName,
+            ]
+            if let destination = getDestination() {
+                params[.receiveToken] = destination.tokenItem.currencySymbol
+                params[.receiveBlockchain] = destination.tokenItem.blockchain.displayName
+            }
+            Analytics.log(event: .swapNoticeUnavailableToSwapPair, params: params)
         }
     }
 }
@@ -647,25 +650,25 @@ extension ExpressInteractor: FeeSelectorOutput {
 // MARK: - Helpers
 
 private extension ExpressInteractor {
-    /// Validates if the current destination token is supported for swap.
-    /// Returns `RuntimeRestrictionType.tokenNotSupportedForSwap` if a newly-added market token
-    /// has no available swap providers.
-    func validateDestinationSupport() async -> RuntimeRestrictionType? {
-        guard let destination = getDestination(),
-              destination.isNewlyAddedFromMarkets,
-              let source = getSource().value else {
+    func validateSwapPairSupport() async -> RuntimeRestrictionType? {
+        guard let source = getSource().value else {
+            return nil
+        }
+
+        // Only validate when destination is also selected
+        guard let destination = getDestination() else {
             return nil
         }
 
         let pairs = await expressPairsRepository.getPairs(from: source.tokenItem.expressCurrency)
 
-        // Check if there are any providers for this specific pair
-        let hasProviders = pairs.contains(where: { pair in
-            pair.destination == destination.tokenItem.expressCurrency.asCurrency
-        })
+        if pairs.isEmpty {
+            return pairsLoadFailed ? nil : .unsupportedPair
+        }
 
+        let hasProviders = pairs.contains { $0.destination == destination.tokenItem.expressCurrency.asCurrency }
         if !hasProviders {
-            return .tokenNotSupportedForSwap(tokenItem: destination.tokenItem)
+            return .unsupportedPair
         }
 
         return nil
@@ -728,10 +731,17 @@ private extension ExpressInteractor {
                 swappingPairDidChange()
 
             case (.success(let source), _):
-                try await expressPairsRepository.updatePairs(for: source.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
+                do {
+                    try await expressPairsRepository.updatePairs(for: source.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
+                    pairsLoadFailed = false
+                } catch {
+                    pairsLoadFailed = true
+                }
 
                 _swappingPair.value.destination = .loading
-                let destination = try await expressDestinationService.getDestination(source: source)
+                let destination = try await expressDestinationService.getDestination(
+                    source: source
+                )
                 update(destination: destination)
 
             case (_, .success(let destination)):
@@ -968,7 +978,7 @@ extension ExpressInteractor {
     }
 
     enum RuntimeRestrictionType {
-        case tokenNotSupportedForSwap(tokenItem: TokenItem)
+        case unsupportedPair
     }
 
     enum RestrictionType {
