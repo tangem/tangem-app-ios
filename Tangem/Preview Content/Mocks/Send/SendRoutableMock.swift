@@ -29,7 +29,7 @@ class SendRoutableMock: SendRoutable {
         onCountrySelected: @escaping () -> Void
     ) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
-    func openOnrampSettings(repository: any OnrampRepository) {}
+    func openOnrampSettings(repository: any OnrampRepository, settingsRoutable: any OnrampSettingsRoutable) {}
     func openOnrampCurrencySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCurrencySelector() {}
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {}

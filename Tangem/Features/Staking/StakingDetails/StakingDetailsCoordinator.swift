@@ -70,15 +70,17 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         let factory = SendSourceTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel
+            walletModel: options.sendInput.walletModel,
+            flowType: .staking
         )
-        let sourceToken = factory.makeSourceToken(flowActionType: .stake)
+        let sourceToken = factory.makeSourceToken()
 
         openFlow(
             options: options,
             sendType: .staking(
                 sourceToken,
                 manager: options.manager,
+                walletModelDependenciesProvider: options.sendInput.walletModel,
                 blockchainParams: .init(blockchain: options.sendInput.walletModel.tokenItem.blockchain)
             )
         )
@@ -108,9 +110,10 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         let factory = SendSourceTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel
+            walletModel: options.sendInput.walletModel,
+            flowType: .staking
         )
-        let sourceToken = factory.makeSourceToken(flowActionType: .unstake)
+        let sourceToken = factory.makeSourceToken()
 
         openFlow(options: options, sendType: .unstaking(sourceToken, manager: options.manager, action: action))
     }
@@ -120,9 +123,10 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         let factory = SendSourceTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel
+            walletModel: options.sendInput.walletModel,
+            flowType: .staking
         )
-        let sourceToken = factory.makeSourceToken(flowActionType: .restake)
+        let sourceToken = factory.makeSourceToken()
 
         openFlow(options: options, sendType: .restaking(sourceToken, manager: options.manager, action: action))
     }
@@ -132,9 +136,10 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         let factory = SendSourceTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel
+            walletModel: options.sendInput.walletModel,
+            flowType: .staking
         )
-        let sourceToken = factory.makeSourceToken(flowActionType: action.type.sendFlowActionType)
+        let sourceToken = factory.makeSourceToken()
 
         openFlow(options: options, sendType: .stakingSingleAction(sourceToken, manager: options.manager, action: action))
     }
@@ -144,7 +149,6 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         coordinator.start(
             with: .init(
-                input: options.sendInput,
                 type: sendType,
                 source: .stakingDetails
             )
