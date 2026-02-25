@@ -2858,6 +2858,7 @@
 		C28CF4042E9FC1920099797D /* NoMailAccountPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */; };
 		C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */; };
 		C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */ = {isa = PBXBuildFile; productRef = C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */; };
+		C291164D2F4F1078009ADB27 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C291164C2F4F1078009ADB27 /* SurveySparrowSdk */; };
 		C2A12FAF2F23C8D3002FF26E /* AuthViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A12FAE2F23C8CF002FF26E /* AuthViewState.swift */; };
 		C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */; };
 		C2B885522E1424510086B214 /* ReownWalletConnectDAppSessionExtensionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */; };
@@ -9701,6 +9702,7 @@
 				B6DDDE782CF39158008DEA94 /* CombineExt in Frameworks */,
 				B63BAA6C2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */,
+				C291164D2F4F1078009ADB27 /* SurveySparrowSdk in Frameworks */,
 				0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */,
 				B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
@@ -26641,6 +26643,7 @@
 				DCED46522EF04FD20021AC0D /* CryptoSwift */,
 				C2E503872F4EE37400CC4060 /* DataPipelines */,
 				C2E503892F4EE37400CC4060 /* MessagingPushFCM */,
+				C291164C2F4F1078009ADB27 /* SurveySparrowSdk */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -27020,6 +27023,7 @@
 				DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C2E503862F4EE37400CC4060 /* XCRemoteSwiftPackageReference "customerio-ios" */,
+				C26BF7342F4F0505002978BA /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -37995,6 +37999,14 @@
 				version = "5.1.0-tangem3";
 			};
 		};
+		C26BF7342F4F0505002978BA /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/surveysparrow/surveysparrow-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.2.6;
+			};
+		};
 		C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict";
@@ -38330,6 +38342,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
 			productName = "AppsFlyerLib-Strict";
+		};
+		C291164C2F4F1078009ADB27 /* SurveySparrowSdk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C26BF7342F4F0505002978BA /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */;
+			productName = SurveySparrowSdk;
 		};
 		C2E503872F4EE37400CC4060 /* DataPipelines */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -12,6 +12,7 @@ import class TangemUI.FloatingSheetRegistry
 import BlockchainSdk
 import TangemUIUtils
 import TangemFoundation
+import SurveySparrowSdk
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
@@ -116,6 +117,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appOverlaysManager.setMainWindow(window)
         window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.makeKeyAndVisible()
+
+        let ssSurveyViewController = SsSurveyViewController()
+        ssSurveyViewController.domain = "<account-domain>"
+        ssSurveyViewController.token = "<sdk-token>"
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            window.rootViewController?.present(ssSurveyViewController, animated: true)
+        }
     }
 
     private func hideLockView() {
