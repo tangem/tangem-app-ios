@@ -71,4 +71,16 @@ extension SendWithSwapFlowBaseDependenciesFactory {
             )
         )
     }
+
+    func makeCombinedSendWithSwapNotificationManager(
+        receiveTokenInput: SendReceiveTokenInput,
+        sendNotificationManager: SendNotificationManager,
+        swapNotificationManager: SwapNotificationManager
+    ) -> NotificationManager {
+        CombinedSendWithSwapNotificationManager(
+            receiveTokenInput: receiveTokenInput,
+            sendNotificationManager: sendNotificationManager,
+            swapNotificationManager: swapNotificationManager
+        )
+    }
 }

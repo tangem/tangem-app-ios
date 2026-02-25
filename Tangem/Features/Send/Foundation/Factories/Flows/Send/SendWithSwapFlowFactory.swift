@@ -14,7 +14,14 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var notificationManager = makeSwapNotificationManager()
+
+    lazy var sendNotificationManager = makeSendNotificationManager()
+    lazy var swapNotificationManager = makeSwapNotificationManager()
+    lazy var notificationManager = makeCombinedSendWithSwapNotificationManager(
+        receiveTokenInput: swapModel,
+        sendNotificationManager: sendNotificationManager,
+        swapNotificationManager: swapNotificationManager
+    )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
@@ -72,8 +79,11 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         fee.finish.bind(input: sendWithSwapModel)
 
         // Notifications setup
-        notificationManager.setupManager(with: sendWithSwapModel)
-        notificationManager.setup(
+        sendNotificationManager.setup(input: transferModel)
+        sendNotificationManager.setupManager(with: transferModel)
+
+        swapNotificationManager.setupManager(with: sendWithSwapModel)
+        swapNotificationManager.setup(
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             swapModelStateProvider: swapModel
