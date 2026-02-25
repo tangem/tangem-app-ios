@@ -1084,6 +1084,9 @@
 		A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */; };
 		A7C1B2D62F12345600ABCDE1 /* BerachainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
+		A7D8E8F52F48780C00C5111D /* SolanaTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D8E8F42F48780C00C5111D /* SolanaTransactionHistoryProvider.swift */; };
+		A7D8E8F72F48781D00C5111D /* SolanaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D8E8F62F48781D00C5111D /* SolanaTransactionHistoryMapper.swift */; };
+		A7D8E8F92F48786300C5111D /* SolanaTransactionHistoryTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D8E8F82F48786300C5111D /* SolanaTransactionHistoryTarget.swift */; };
 		A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */; };
 		A7F344B32F2CE3B400544085 /* CloreMigrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */; };
 		A7F344B52F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B42F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift */; };
@@ -6006,6 +6009,9 @@
 		A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonadExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerachainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		A7D8E8F42F48780C00C5111D /* SolanaTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHistoryProvider.swift; sourceTree = "<group>"; };
+		A7D8E8F62F48781D00C5111D /* SolanaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
+		A7D8E8F82F48786300C5111D /* SolanaTransactionHistoryTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHistoryTarget.swift; sourceTree = "<group>"; };
 		A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+CloreMigration.swift"; sourceTree = "<group>"; };
 		A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationView.swift; sourceTree = "<group>"; };
 		A7F344B42F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationModuleFlowFactory.swift; sourceTree = "<group>"; };
@@ -13189,6 +13195,16 @@
 			path = Scroll;
 			sourceTree = "<group>";
 		};
+		A7D8E8F32F4877F300C5111D /* Solana */ = {
+			isa = PBXGroup;
+			children = (
+				A7D8E8F42F48780C00C5111D /* SolanaTransactionHistoryProvider.swift */,
+				A7D8E8F62F48781D00C5111D /* SolanaTransactionHistoryMapper.swift */,
+				A7D8E8F82F48786300C5111D /* SolanaTransactionHistoryTarget.swift */,
+			);
+			path = Solana;
+			sourceTree = "<group>";
+		};
 		A7F344AE2F2CE34900544085 /* CloreMigration */ = {
 			isa = PBXGroup;
 			children = (
@@ -17307,6 +17323,7 @@
 		B62D3F422CBC79D900C2460E /* TransactionHistory */ = {
 			isa = PBXGroup;
 			children = (
+				A7D8E8F32F4877F300C5111D /* Solana */,
 				0A9AB28D2D76E90600DB203C /* Kaspa */,
 				B62D3F292CBC79D900C2460E /* Algorand */,
 				B62D3F2C2CBC79D900C2460E /* Ethereum */,
@@ -31043,6 +31060,7 @@
 				EFBAC3172D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift in Sources */,
 				2DB1D6F62D56978D00AD43A3 /* ALPH+GasPrice.swift in Sources */,
 				2DB1D6F72D56978D00AD43A3 /* ALPH+Tuples.swift in Sources */,
+				A7D8E8F92F48786300C5111D /* SolanaTransactionHistoryTarget.swift in Sources */,
 				2DB1D6F82D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift in Sources */,
 				2DB1D6F92D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift in Sources */,
 				2DB1D6FA2D56978D00AD43A3 /* AlephiumWalletAssembly.swift in Sources */,
@@ -31277,6 +31295,7 @@
 				305F5AF02D63797C00AB90EC /* ZKLinkNovaExternalLinkProvider.swift in Sources */,
 				B62D401A2CBC79DA00C2460E /* OP_OVER.swift in Sources */,
 				B62D3FC42CBC79DA00C2460E /* BitcoinScriptAddressesProvider.swift in Sources */,
+				A7D8E8F72F48781D00C5111D /* SolanaTransactionHistoryMapper.swift in Sources */,
 				B62D42B02CBC79DB00C2460E /* NetworkProviderAssembly.swift in Sources */,
 				B62D42CA2CBC79DB00C2460E /* Collection+.swift in Sources */,
 				B62D41E72CBC79DB00C2460E /* VeChainBlockInfo.swift in Sources */,
@@ -31443,6 +31462,7 @@
 				B62D418F2CBC79DA00C2460E /* SolanaSdk+.swift in Sources */,
 				B62D41122CBC79DA00C2460E /* KoinosTransferEvent.swift in Sources */,
 				EA5DC9DF2F1549BF00D09B9E /* GaslessTransactionAddressFactory.swift in Sources */,
+				A7D8E8F52F48780C00C5111D /* SolanaTransactionHistoryProvider.swift in Sources */,
 				B62D3FBD2CBC79DA00C2460E /* BinanceTransactionParams.swift in Sources */,
 				B62D42D02CBC79DB00C2460E /* JSONDecoder+.swift in Sources */,
 				B62D41042CBC79DA00C2460E /* KaspaTarget.swift in Sources */,

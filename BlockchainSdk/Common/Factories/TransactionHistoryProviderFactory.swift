@@ -128,6 +128,18 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
             )
+        case .solana:
+            guard let node = APIResolver(blockchain: blockchain, keysConfig: keysConfig)
+                .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in nodeInfo })
+                .first else {
+                return nil
+            }
+
+            return SolanaTransactionHistoryProvider(
+                node: node,
+                networkConfiguration: input.tangemProviderConfig,
+                mapper: SolanaTransactionHistoryMapper(blockchain: input.blockchain)
+            )
         default:
             return nil
         }
