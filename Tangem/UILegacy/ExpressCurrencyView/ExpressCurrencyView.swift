@@ -62,7 +62,7 @@ struct ExpressCurrencyView<Content: View>: View {
     var headerView: some View {
         switch (viewModel.headerType, viewModel.errorState) {
         case (_, .none):
-            ExpressCurrencyDefaultHeaderView(headerType: viewModel.headerType)
+            SendTokenHeaderView(header: viewModel.headerType)
         case (_, .some(let errorState)):
             ExpressCurrencyErrorHeaderView(errorState: errorState)
         }
