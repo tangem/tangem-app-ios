@@ -16,6 +16,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var isFirstLoading: Bool = true
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
     // MARK: - Properties
@@ -173,11 +174,14 @@ private extension TopMarketWidgetViewModel {
                 case .loaded:
                     viewModel.mapReadyForDisplay()
                     viewModel.clearIsFirstLoadingFlag()
+                    viewModel.updateHeaderLoadingState()
                 case .initialLoading:
                     viewModel.tokenViewModelsState = .loading
+                    viewModel.updateHeaderLoadingState()
                 case .reloading(let widgetTypes):
                     if widgetTypes.contains(viewModel.widgetType) {
                         viewModel.tokenViewModelsState = .loading
+                        viewModel.updateHeaderLoadingState()
                     }
                 case .allFailed:
                     return
@@ -222,16 +226,26 @@ private extension TopMarketWidgetViewModel {
 
     // MARK: - Actions
 
-    private func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+    func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
         }
     }
 
-    private func clearIsFirstLoadingFlag() {
-        // Remove duplicate publishing property
+    func clearIsFirstLoadingFlag() {
         if isFirstLoading {
             isFirstLoading = false
+        }
+    }
+
+    func updateHeaderLoadingState() {
+        switch tokenViewModelsState {
+        case .loading:
+            headerLoadingState = isFirstLoading ? .first : .retry
+        case .success:
+            headerLoadingState = .loaded
+        case .failure:
+            headerLoadingState = .failed
         }
     }
 }

@@ -16,11 +16,10 @@ struct MarketsCommonWidgetHeaderView: View {
     let headerImage: Image?
     let buttonTitle: String?
     let buttonAction: (() -> Void)?
-    let isLoading: Bool
-    var isLoadFailed: Bool = false
+    let isLoadingState: LoadingState
 
     private var isDisplayButton: Bool {
-        buttonTitle != nil && !isLoading && !isLoadFailed
+        return buttonTitle != nil && isLoadingState.isButtonVisibility
     }
 
     var body: some View {
@@ -29,7 +28,7 @@ struct MarketsCommonWidgetHeaderView: View {
                 Text(headerTitle)
                     .lineLimit(1)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    .skeletonable(isShown: isLoading)
+                    .skeletonable(isShown: isLoadingState.isHeaderSkeletonable)
 
                 if let headerImage = headerImage {
                     FixedSpacer(width: Layout.HeaderImage.spacing)
@@ -38,7 +37,7 @@ struct MarketsCommonWidgetHeaderView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(height: Layout.HeaderImage.height)
-                        .hidden(isLoading)
+                        .hidden(isLoadingState.isHeaderSkeletonable)
                 }
 
                 Spacer(minLength: 8)
@@ -69,6 +68,25 @@ struct MarketsCommonWidgetHeaderView: View {
             )
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
+    }
+}
+
+extension MarketsCommonWidgetHeaderView {
+    enum LoadingState: Hashable {
+        case first
+        case retry
+        case failed
+        case loaded
+
+        // UI Settings
+
+        var isButtonVisibility: Bool {
+            self == .loaded
+        }
+
+        var isHeaderSkeletonable: Bool {
+            self == .first
+        }
     }
 }
 
@@ -106,7 +124,7 @@ extension MarketsCommonWidgetHeaderView {
             headerImage: Image("TangemAI"),
             buttonTitle: "See All",
             buttonAction: {},
-            isLoading: false
+            isLoadingState: .loaded
         )
 
         MarketsCommonWidgetHeaderView(
@@ -114,7 +132,7 @@ extension MarketsCommonWidgetHeaderView {
             headerImage: Image(systemName: "chart.line.uptrend.xyaxis"),
             buttonTitle: "See All",
             buttonAction: {},
-            isLoading: false
+            isLoadingState: .loaded
         )
 
         MarketsCommonWidgetHeaderView(
@@ -122,7 +140,7 @@ extension MarketsCommonWidgetHeaderView {
             headerImage: Image(systemName: "star.fill"),
             buttonTitle: nil,
             buttonAction: nil,
-            isLoading: true
+            isLoadingState: .first
         )
     }
     .padding()
