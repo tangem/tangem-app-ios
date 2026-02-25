@@ -47,7 +47,7 @@ extension SendWithSwapFlowBaseDependenciesFactory {
             transferModel: transferModel,
             swapModel: swapModel,
             initialSourceToken: sourceToken,
-            transactionSigner: userWalletInfo.signer,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),
             analyticsLogger: analyticsLogger
         )

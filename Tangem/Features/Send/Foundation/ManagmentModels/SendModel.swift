@@ -449,7 +449,8 @@ extension SendModel: SendReceiveTokenOutput {
         })
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        let receiveToken = sendReceiveTokenBuilder.makeSendReceiveToken(tokenItem: receiveTokenItem)
         let newReceiveToken = SendReceiveTokenType.swap(receiveToken)
 
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
