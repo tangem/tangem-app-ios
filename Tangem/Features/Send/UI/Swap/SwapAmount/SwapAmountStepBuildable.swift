@@ -77,7 +77,7 @@ enum SwapAmountStepBuilder {
         )
 
         let viewModel = SwapAmountViewModel(
-            initialSourceToken: types.initialSourceToken,
+            initialTokenItem: types.initialSourceToken.tokenItem,
             interactor: interactor,
             stateProvider: io.stateProvider,
             sourceTokenInput: io.sourceIO.input,
@@ -86,6 +86,7 @@ enum SwapAmountStepBuilder {
 
         let finish = SendAmountFinishViewModel(
             initialSourceToken: types.initialSourceToken,
+            flowActionType: .swap,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
