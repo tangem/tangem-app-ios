@@ -33,6 +33,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published var sendAmountTokenViewData: SendAmountTokenViewData?
     @Published var receivedTokenViewType: ReceivedTokenViewType?
+    @Published var activeField: ActiveAmountField = .source
+    @Published var receiveTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
+    @Published var receiveFiatText: String?
 
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
@@ -51,11 +54,30 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    @Published var receiveAmountTextFieldViewModel: DecimalNumberTextFieldViewModel?
+
+    let isFixedRateMode: Bool
+
+    var compactSourceTokenViewData: SendAmountTokenViewData? {
+        sendAmountTokenViewData.map {
+            SendAmountTokenViewData(
+                tokenIconInfo: $0.tokenIconInfo,
+                title: $0.title,
+                subtitle: $0.subtitle,
+                detailsType: .none
+            )
+        }
+    }
+
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
+    private weak var receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
+    private var lastUpdateSource: UpdateSource?
+    private var currentReceiveToken: SendReceiveToken?
     private var sendAmountFormatter: SendAmountFormatter
     private var balanceFormatter: BalanceFormatter = .init()
+    private let balanceConverter = BalanceConverter()
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
 
     private var bag: Set<AnyCancellable> = []
@@ -64,7 +86,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         sourceToken: SendSourceToken,
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
-        analyticsLogger: SendAmountAnalyticsLogger
+        analyticsLogger: SendAmountAnalyticsLogger,
+        receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
+        isFixedRateMode: Bool = false
     ) {
         cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
         cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
@@ -83,6 +107,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
+        self.receiveAmountOutput = receiveAmountOutput
+        self.isFixedRateMode = isFixedRateMode
 
         bind()
     }
@@ -104,7 +130,21 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func removeReceivedToken() {
+        receiveAmountTextFieldViewModel = nil
+        lastUpdateSource = nil
+        activeField = .source
+        receiveTextFieldOptions = nil
+        receiveFiatText = nil
+        currentReceiveToken = nil
         interactor.userDidRequestClearReceiveToken()
+    }
+
+    func userDidTapCompactSource() {
+        activeField = .source
+    }
+
+    func userDidTapCompactReceive() {
+        activeField = .receive
     }
 }
 
@@ -161,6 +201,7 @@ private extension SendAmountViewModel {
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
+        lastUpdateSource = .source
         let amount = try? interactor.update(amount: amount)
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
 
@@ -232,16 +273,109 @@ extension SendAmountViewModel {
         case .none:
             receivedTokenViewType = .selectButton
         case .some(let receiveToken):
-            receivedTokenViewType = .selected(SendAmountTokenViewData(
-                tokenIconInfo: receiveToken.tokenIconInfo,
-                title: receiveToken.tokenItem.name,
-                subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
-                // The `individualAction` should be use when the fixed rate will available
-                detailsType: .select(individualAction: nil),
-                action: { [weak self] in
-                    self?.router?.openReceiveTokensList()
+            if isFixedRateMode {
+                let isFirstSelection = currentReceiveToken == nil
+                currentReceiveToken = receiveToken
+
+                let expandedReceiveData = SendAmountTokenViewData(
+                    tokenIconInfo: receiveToken.tokenIconInfo,
+                    title: receiveToken.tokenItem.name,
+                    subtitle: .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+                    detailsType: .select(individualAction: nil),
+                    action: { [weak self] in
+                        self?.router?.openReceiveTokensList()
+                    }
+                )
+
+                let compactReceiveData = SendAmountTokenViewData(
+                    tokenIconInfo: receiveToken.tokenIconInfo,
+                    title: receiveToken.tokenItem.name,
+                    subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
+                    detailsType: .none
+                )
+
+                let textFieldVM = receiveAmountTextFieldViewModel ?? createReceiveAmountTextField(for: receiveToken)
+                receiveTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: receiveToken.tokenItem.currencySymbol)
+
+                receivedTokenViewType = .accordion(
+                    expandedReceiveData: expandedReceiveData,
+                    compactReceiveData: compactReceiveData,
+                    textFieldVM: textFieldVM
+                )
+
+                if isFirstSelection {
+                    activeField = .receive
                 }
-            ))
+
+                // Update fiat text from external amount
+                if case .success(let sendAmount) = amount {
+                    updateReceiveFiatText(crypto: sendAmount.crypto, tokenItem: receiveToken.tokenItem)
+                }
+            } else {
+                let tokenViewData = SendAmountTokenViewData(
+                    tokenIconInfo: receiveToken.tokenIconInfo,
+                    title: receiveToken.tokenItem.name,
+                    subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
+                    detailsType: .select(individualAction: nil),
+                    action: { [weak self] in
+                        self?.router?.openReceiveTokensList()
+                    }
+                )
+                receivedTokenViewType = .selected(tokenViewData)
+            }
+        }
+    }
+
+    private func createReceiveAmountTextField(for receiveToken: SendReceiveToken) -> DecimalNumberTextFieldViewModel {
+        let textFieldVM = DecimalNumberTextFieldViewModel(maximumFractionDigits: receiveToken.tokenItem.decimalCount)
+        receiveAmountTextFieldViewModel = textFieldVM
+
+        textFieldVM.valuePublisher
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, value in
+                viewModel.lastUpdateSource = .receive
+                viewModel.receiveAmountDidChange(value)
+            }
+            .store(in: &bag)
+
+        return textFieldVM
+    }
+
+    private func receiveAmountDidChange(_ value: Decimal?) {
+        guard let value else {
+            receiveAmountOutput?.receiveAmountDidChanged(amount: nil)
+            receiveFiatText = nil
+            return
+        }
+
+        let fiat: Decimal?
+        if let currencyId = currentReceiveToken?.tokenItem.currencyId {
+            fiat = balanceConverter.convertToFiat(value, currencyId: currencyId)
+        } else {
+            fiat = nil
+        }
+
+        let amount = SendAmount(type: .typical(crypto: value, fiat: fiat))
+        receiveAmountOutput?.receiveAmountDidChanged(amount: amount)
+
+        if let fiat {
+            receiveFiatText = balanceFormatter.formatFiatBalance(fiat)
+        } else {
+            receiveFiatText = nil
+        }
+    }
+
+    private func updateReceiveFiatText(crypto: Decimal?, tokenItem: TokenItem) {
+        guard let crypto, let currencyId = tokenItem.currencyId else {
+            receiveFiatText = nil
+            return
+        }
+
+        if let fiat = balanceConverter.convertToFiat(crypto, currencyId: currencyId) {
+            receiveFiatText = balanceFormatter.formatFiatBalance(fiat)
+        } else {
+            receiveFiatText = nil
         }
     }
 
@@ -265,8 +399,13 @@ extension SendAmountViewModel {
 
 extension SendAmountViewModel: SendAmountExternalUpdatableViewModel {
     func externalUpdate(amount: SendAmount?) {
-        updateAmountsUI(amount: amount)
-        textFieldValueDidChanged(amount: amount?.main)
+        if isFixedRateMode, lastUpdateSource == .receive {
+            // When the user typed a receive amount, update source fields with the calculated source amount
+            updateAmountsUI(amount: amount)
+        } else {
+            updateAmountsUI(amount: amount)
+            textFieldValueDidChanged(amount: amount?.main)
+        }
     }
 }
 
@@ -281,5 +420,20 @@ extension SendAmountViewModel {
     enum ReceivedTokenViewType {
         case selectButton
         case selected(SendAmountTokenViewData)
+        case accordion(
+            expandedReceiveData: SendAmountTokenViewData,
+            compactReceiveData: SendAmountTokenViewData,
+            textFieldVM: DecimalNumberTextFieldViewModel
+        )
+    }
+
+    enum ActiveAmountField: Hashable {
+        case source
+        case receive
+    }
+
+    enum UpdateSource {
+        case source
+        case receive
     }
 }
