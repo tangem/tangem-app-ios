@@ -44,8 +44,8 @@ struct SendCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
-            .floatingSheetContent(for: ExpressApproveViewModel.self) {
-                ExpressApproveView(viewModel: $0)
+            .floatingSheetContent(for: ExpressApproveFlowViewModel.self) {
+                ExpressApproveFlowView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.onrampCountryDetectionCoordinator,
