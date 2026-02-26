@@ -16,6 +16,42 @@ struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 
     var body: some View {
+        content
+            .onAppear(perform: viewModel.onViewAppear)
+            .onDisappear(perform: viewModel.onViewDisappear)
+            .onDidAppear(perform: viewModel.onDidAppear)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+            .ignoresSafeArea(.keyboard)
+            .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            fullPagePagerContent
+        } else {
+            cardsInfoPagerContent
+        }
+    }
+
+    private var fullPagePagerContent: some View {
+        FullPagePagerView(
+            data: viewModel.pages,
+            selectedIndex: $viewModel.selectedCardIndex,
+            headerFactory: { page in
+                page.header
+            },
+            bodyFactory: { page in
+                page.body
+            }
+        )
+        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .onPageChange(viewModel.onPageChange(dueTo:))
+    }
+
+    private var cardsInfoPagerContent: some View {
         CardsInfoPagerView(
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
@@ -42,14 +78,6 @@ struct MainView: View {
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
-        .onAppear(perform: viewModel.onViewAppear)
-        .onDisappear(perform: viewModel.onViewDisappear)
-        .onDidAppear(perform: viewModel.onDidAppear)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .ignoresSafeArea(.keyboard)
-        .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
     }
 
     private var detailsNavigationButton: some View {
