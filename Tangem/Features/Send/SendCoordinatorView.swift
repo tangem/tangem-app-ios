@@ -44,10 +44,7 @@ struct SendCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.expressApproveViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
+            .floatingSheetContent(for: ExpressApproveViewModel.self) {
                 ExpressApproveView(viewModel: $0)
             }
             .bottomSheet(
