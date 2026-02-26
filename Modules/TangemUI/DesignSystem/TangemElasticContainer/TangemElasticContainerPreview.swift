@@ -37,19 +37,19 @@ struct TangemElasticContainerPreview: View {
     private func makeElasticContent(ratio: CGFloat) -> some View {
         HStack(spacing: 24) {
             TangemButton(
-                content: .icon(Assets.arrowDownMini.image),
+                content: .icon(Assets.arrowDownMini),
                 action: {}
             )
             .setStyleType(.primary)
 
             TangemButton(
-                content: .icon(Assets.swappingIcon.image),
+                content: .icon(Assets.swappingIcon),
                 action: {}
             )
             .setStyleType(.primary)
 
             TangemButton(
-                content: .icon(Assets.dollarMini.image),
+                content: .icon(Assets.dollarMini),
                 action: {}
             )
             .setStyleType(.primary)
