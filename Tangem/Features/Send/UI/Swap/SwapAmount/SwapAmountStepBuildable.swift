@@ -51,6 +51,20 @@ enum SwapAmountStepBuilder {
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
+        let isFixedRateMode: Bool
+
+        init(
+            sendAmountValidator: any SendAmountValidator,
+            analyticsLogger: any SendAmountAnalyticsLogger,
+            receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
+            isFixedRateMode: Bool = false
+        ) {
+            self.sendAmountValidator = sendAmountValidator
+            self.analyticsLogger = analyticsLogger
+            self.receiveAmountOutput = receiveAmountOutput
+            self.isFixedRateMode = isFixedRateMode
+        }
     }
 
     typealias ReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
@@ -82,6 +96,8 @@ enum SwapAmountStepBuilder {
             stateProvider: io.stateProvider,
             sourceTokenInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
+            receiveAmountOutput: dependencies.receiveAmountOutput,
+            isFixedRateMode: dependencies.isFixedRateMode
         )
 
         let finish = SendAmountFinishViewModel(
