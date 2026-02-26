@@ -63,7 +63,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
             }
 
             if items.count > 1 {
-                PageIndicatorView(
+                TangemPagination(
                     totalPages: items.count,
                     currentIndex: currentIndex
                 )

@@ -25,6 +25,7 @@ public extension Color {
         public enum Skeleton {}
         public enum Markers {}
         public enum Visa {}
+        public enum Tabs {}
     }
 }
 
@@ -213,6 +214,18 @@ private extension Color {
         }
         return Color(uiColor: uiColor)
     }
+}
+
+// MARK: - Tabs
+
+public extension Color.Tangem.Tabs {
+    static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
+    static let textSecondary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light5)
+    static let textTertiary: Color = .dynamic(light: Primitives.Base.black, dark: Primitives.Base.white)
+    static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
+    static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
+    static let backgroundTertiary: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.lightAlpha.opacity(0.1))
+    static let backgroundQuaternary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.2), dark: Primitives.lightAlpha.opacity(0.1))
 }
 
 // MARK: - Init with hex-value
