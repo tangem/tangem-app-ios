@@ -131,7 +131,7 @@ extension OnrampFlowFactory: SendBaseBuildable {
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )
     }
