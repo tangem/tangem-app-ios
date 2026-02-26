@@ -57,6 +57,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var sendAmountFormatter: SendAmountFormatter
     private var balanceFormatter: BalanceFormatter = .init()
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
 
     private var bag: Set<AnyCancellable> = []
 
@@ -201,8 +202,9 @@ extension SendAmountViewModel {
             balanceFormatted += " \(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
         }
 
+        let tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         sendAmountTokenViewData = .init(
-            tokenIconInfo: sourceToken.tokenIconInfo,
+            tokenIconInfo: tokenIconInfo,
             title: sourceToken.tokenItem.name,
             subtitle: .balance(state: .loaded(text: .string(balanceFormatted))),
             detailsType: .max { [weak self] in
@@ -210,7 +212,7 @@ extension SendAmountViewModel {
             }
         )
 
-        cryptoIconURL = sourceToken.tokenIconInfo.imageURL
+        cryptoIconURL = tokenIconInfo.imageURL
         fiatIconURL = sourceToken.fiatItem.iconURL
 
         cryptoTextFieldViewModel.update(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
@@ -232,8 +234,9 @@ extension SendAmountViewModel {
         case .none:
             receivedTokenViewType = .selectButton
         case .some(let receiveToken):
+            let tokenIconInfo = tokenIconInfoBuilder.build(from: receiveToken.tokenItem, isCustom: receiveToken.isCustom)
             receivedTokenViewType = .selected(SendAmountTokenViewData(
-                tokenIconInfo: receiveToken.tokenIconInfo,
+                tokenIconInfo: tokenIconInfo,
                 title: receiveToken.tokenItem.name,
                 subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
                 // The `individualAction` should be use when the fixed rate will available

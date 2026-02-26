@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import TangemLocalization
 import TangemFoundation
-import struct TangemUI.TokenIconInfo
 import struct TangemUIUtils.AlertBinder
 import TangemUI
 
@@ -31,13 +30,17 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
     private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private var amountPublisherSubscription: AnyCancellable?
     private var balancePublisherSubscription: AnyCancellable?
 
     convenience init(receiveToken: SendReceiveToken) {
+        let tokenIconInfoBuilder = TokenIconInfoBuilder()
+        let tokenIconInfo = tokenIconInfoBuilder.build(from: receiveToken.tokenItem, isCustom: receiveToken.isCustom)
+
         self.init(
             title: .text(Localization.sendWithSwapRecipientAmountTitle),
-            tokenIconInfo: receiveToken.tokenIconInfo,
+            tokenIconInfo: tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
             fiatItem: receiveToken.fiatItem,
             isApproximateAmount: true
@@ -45,9 +48,12 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     }
 
     convenience init(sourceToken: SendSourceToken, actionType: SendFlowActionType) {
+        let tokenIconInfoBuilder = TokenIconInfoBuilder()
+        let tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
+
         self.init(
             title: .header(sourceToken.header.asSendTokenHeader(actionType: actionType)),
-            tokenIconInfo: sourceToken.tokenIconInfo,
+            tokenIconInfo: tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
             fiatItem: sourceToken.fiatItem,
             isApproximateAmount: false

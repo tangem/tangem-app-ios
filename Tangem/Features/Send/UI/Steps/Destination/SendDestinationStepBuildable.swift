@@ -30,7 +30,7 @@ enum SendDestinationStepBuilder {
     struct IO {
         let input: SendDestinationInput
         let output: SendDestinationOutput
-        let receiveTokenInput: SendReceiveTokenInput
+        let receiveTokenInput: SendReceiveTokenInput?
         let destinationAccountOutput: SendDestinationAccountOutput
     }
 
