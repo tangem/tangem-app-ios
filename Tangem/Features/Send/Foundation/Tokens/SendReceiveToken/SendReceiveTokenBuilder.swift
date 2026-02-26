@@ -18,15 +18,13 @@ struct SendReceiveTokenBuilder {
         self.fiatItem = fiatItem
     }
 
-    func makeSendReceiveToken(tokenItem: TokenItem) -> SendReceiveToken {
-        let tokenIconInfo = tokenIconInfoBuilder.build(from: tokenItem, isCustom: false)
-
+    func makeSendReceiveToken(tokenItem: TokenItem, address: String? = nil, extraId: String? = nil) -> SendReceiveToken {
         return CommonSendReceiveToken(
             tokenItem: tokenItem,
-            tokenIconInfo: tokenIconInfo,
+            isCustom: false,
             fiatItem: fiatItem,
-            address: .none,
-            extraId: .none
+            address: address,
+            extraId: extraId
         )
     }
 }

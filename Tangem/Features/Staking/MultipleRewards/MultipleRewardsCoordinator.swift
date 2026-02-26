@@ -57,12 +57,11 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
     func openStakingSingleActionFlow(action: UnstakingModel.Action) {
         guard let options else { return }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceTokenFactory = CommonSendTransferableTokenFactory(
             userWalletInfo: options.sendInput.userWalletInfo,
-            walletModel: options.sendInput.walletModel,
-            flowType: .staking
+            walletModel: options.sendInput.walletModel
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+        let sourceToken = sourceTokenFactory.makeTransferableToken()
 
         let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
             self?.sendCoordinator = nil
