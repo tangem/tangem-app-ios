@@ -37,7 +37,7 @@ final class StakingModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
-    private let sendSourceToken: SendSourceToken
+    private let sendSourceToken: SendStakingableToken
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let accountInitializationService: BlockchainAccountInitializationService?
@@ -51,11 +51,10 @@ final class StakingModel {
     private var allowanceService: AllowanceService? { sendSourceToken.allowanceService }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
-    private var tokenIconInfo: TokenIconInfo { sendSourceToken.tokenIconInfo }
 
     init(
         stakingManager: StakingManager,
-        sendSourceToken: SendSourceToken,
+        sendSourceToken: SendStakingableToken,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
@@ -540,6 +539,7 @@ extension StakingModel: NotificationTapDelegate {
         }
 
         let transactionDispatcher = sendSourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: sendSourceToken.tokenItem, isCustom: sendSourceToken.isCustom)
 
         let viewModel = BlockchainAccountInitializationViewModel(
             accountInitializationService: accountInitializationService,

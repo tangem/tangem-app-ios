@@ -74,27 +74,37 @@ private extension DEXExpressProviderManager {
                 return restriction
             }
 
-            let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
-            try Task.checkCancellation()
+            do {
+                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
+                let data = try await expressAPIProvider.exchangeData(item: dataItem)
+                try Task.checkCancellation()
 
-            return try await proceed(request: request, quote: quote, data: data)
+                return try await proceed(request: request, quote: quote, data: data)
+            } catch {
+                return proceed(error: error, quote: quote)
+            }
+        } catch {
+            return proceed(error: error, quote: .none)
+        }
+    }
 
-        } catch let error as ExpressAPIError {
+    func proceed(error: Error, quote: ExpressQuote?) -> ExpressProviderManagerState {
+        switch error {
+        case let error as ExpressAPIError:
             guard let amount = error.value?.amount else {
-                return .error(error, quote: .none)
+                return .error(error, quote: quote)
             }
 
             switch error.errorCode {
             case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount), quote: .none)
+                return .restriction(.tooSmallAmount(amount), quote: quote)
             case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount), quote: .none)
+                return .restriction(.tooBigAmount(amount), quote: quote)
             default:
-                return .error(error, quote: .none)
+                return .error(error, quote: quote)
             }
-        } catch {
-            return .error(error, quote: .none)
+        case let error:
+            return .error(error, quote: quote)
         }
     }
 
