@@ -57,7 +57,7 @@ class CommonSendDestinationInteractor {
     init(
         initialSourceToken: SendSourceToken,
         input: SendDestinationInput,
-        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
         dependenciesBuilder: SendDestinationInteractorDependenciesProvider
     ) {

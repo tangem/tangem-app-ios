@@ -16,7 +16,6 @@ protocol SendSummaryTitleProvider {
 
 struct CommonSendSummaryTitleProvider: SendSummaryTitleProvider {
     let tokenItem: TokenItem
-    let walletName: String
 
     var title: String {
         switch tokenItem.token?.metadata.kind {

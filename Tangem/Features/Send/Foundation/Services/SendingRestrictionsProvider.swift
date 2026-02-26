@@ -15,3 +15,10 @@ struct CommonSendingRestrictionsProvider: SendingRestrictionsProvider {
 
     var sendingRestrictions: SendingRestrictions? { walletModel.sendingRestrictions }
 }
+
+struct TangemPaySendingRestrictionsProvider: SendingRestrictionsProvider {
+    var sendingRestrictions: SendingRestrictions? {
+        // TangemPay doesn't have sending restrictions
+        return nil
+    }
+}

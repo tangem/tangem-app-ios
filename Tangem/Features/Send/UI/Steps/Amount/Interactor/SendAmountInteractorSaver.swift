@@ -57,7 +57,7 @@ class CommonSendAmountInteractorSaver: SendAmountInteractorSaver {
             case .none:
                 receiveTokenOutput?.userDidRequestClearSelection()
             case .some(let receiveToken):
-                receiveTokenOutput?.userDidRequestSelect(receiveToken: receiveToken, selected: { _ in })
+                receiveTokenOutput?.userDidRequestSelect(receiveTokenItem: receiveToken.tokenItem, selected: { _ in })
             }
         }
     }
