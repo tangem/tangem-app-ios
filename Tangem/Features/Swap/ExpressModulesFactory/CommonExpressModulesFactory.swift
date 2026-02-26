@@ -164,6 +164,27 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
+    func makeExpressApproveFlowViewModel(
+        source: any ExpressInteractorSourceWallet,
+        providerName: String,
+        selectedPolicy: BSDKApprovePolicy,
+        coordinator: ExpressApproveRoutable
+    ) -> ExpressApproveFlowViewModel {
+        let tokenItem = source.tokenItem
+        let input = ExpressApproveViewModel.Input(
+            settings: .init(
+                subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
+                feeFooterText: Localization.swapGivePermissionFeeFooter,
+                tokenItem: tokenItem,
+                selectedPolicy: selectedPolicy,
+                tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            ),
+            feeFormatter: feeFormatter,
+            approveViewModelInput: expressInteractorFactory.expressInteractor
+        )
+        return ExpressApproveFlowViewModel(input: input, router: coordinator)
+    }
+
     func makeExpressProvidersSelectorViewModel(
         coordinator: ExpressProvidersSelectorRoutable
     ) -> ExpressProvidersSelectorViewModel {

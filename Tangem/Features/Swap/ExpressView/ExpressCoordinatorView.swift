@@ -38,8 +38,8 @@ struct ExpressCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
                 SendFeeSelectorView(viewModel: $0)
             }
-            .floatingSheetContent(for: ExpressApproveViewModel.self) {
-                ExpressApproveView(viewModel: $0)
+            .floatingSheetContent(for: ExpressApproveFlowViewModel.self) {
+                ExpressApproveFlowView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.expressProvidersSelectorViewModel,
