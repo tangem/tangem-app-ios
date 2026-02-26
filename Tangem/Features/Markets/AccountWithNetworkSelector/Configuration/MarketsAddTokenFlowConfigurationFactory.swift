@@ -126,6 +126,16 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
                 coordinator.openOnramp(input: sendInput, parameters: parameters)
 
+            case .exchange where FeatureProvider.isAvailable(.swapRefactoring):
+                analyticsLogger.logExchangeTapped()
+                let swapableToken = CommonSendSwapableTokenFactory(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: walletModel,
+                    operationType: .swap
+                ).makeSwapableToken()
+
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+
             case .exchange:
                 analyticsLogger.logExchangeTapped()
                 let expressInput = ExpressDependenciesDestinationInput(

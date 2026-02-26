@@ -9,13 +9,18 @@
 import struct TangemUI.TokenIconInfo
 
 class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
+    var transferableToken: SendTransferableToken { sourceToken }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+
+    let sourceToken: SendWithSwapToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
+    let expressDependenciesFactory: ExpressDependenciesFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
+        sourceToken: sourceToken,
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
         predefinedValues: .init(
@@ -23,10 +28,13 @@ class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         )
     )
 
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
-        sourceToken: SendSourceToken,
+        sourceToken: SendWithSwapToken,
         nftAssetStepBuilder: NFTAssetStepBuilder,
         source: ExpressInteractorWalletModelWrapper
     ) {
@@ -39,9 +47,10 @@ class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             destination: .none
         )
 
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
         expressInteractorFactory = ExpressInteractorFactory(
             input: expressDependenciesInput,
-            expressDependenciesFactory: CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+            expressDependenciesFactory: expressDependenciesFactory
         )
     }
 }
@@ -136,7 +145,7 @@ extension NFTFlowFactory: SendBaseBuildable {
                 sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }

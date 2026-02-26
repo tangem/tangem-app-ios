@@ -36,7 +36,7 @@ final class RestakingModel {
 
     private let stakingManager: StakingManager
     private let action: Action
-    private let sendSourceToken: SendSourceToken
+    private let sendSourceToken: SendStakingableToken
     private let sendAmountValidator: SendAmountValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
 
@@ -50,7 +50,7 @@ final class RestakingModel {
     init(
         stakingManager: StakingManager,
         action: Action,
-        sendSourceToken: SendSourceToken,
+        sendSourceToken: SendStakingableToken,
         sendAmountValidator: SendAmountValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
     ) {
