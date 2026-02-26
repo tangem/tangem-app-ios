@@ -40,9 +40,7 @@ enum SwapSummaryStepBuilder {
     struct Dependencies {
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
-        let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
         let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
-        let stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
     }
 
     typealias ReturnValue = SwapSummaryStep
