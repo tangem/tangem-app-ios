@@ -13,18 +13,26 @@ import TangemExpress
 import BlockchainSdk
 
 enum SendType {
-    case send(SendSourceToken, source: ExpressInteractorWalletModelWrapper)
-    case swap(SendSourceToken)
-    case sell(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedSellParameters)
-    case nft(SendSourceToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedNFTParameters)
-    case staking(SendSourceToken, manager: StakingManager, walletModelDependenciesProvider: WalletModelDependenciesProvider, blockchainParams: StakingBlockchainParams)
-    case unstaking(SendSourceToken, manager: StakingManager, action: UnstakingModel.Action)
-    case restaking(SendSourceToken, manager: StakingManager, action: RestakingModel.Action)
-    case stakingSingleAction(SendSourceToken, manager: StakingManager, action: StakingSingleActionModel.Action)
+    case send(SendWithSwapToken, source: ExpressInteractorWalletModelWrapper)
+    case sell(SendWithSwapToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedSellParameters)
+    case nft(SendWithSwapToken, source: ExpressInteractorWalletModelWrapper, parameters: PredefinedNFTParameters)
+
+    case swap(PredefinedSwapParameters)
+
+    case staking(SendStakingableToken, manager: StakingManager, walletModelDependenciesProvider: WalletModelDependenciesProvider, blockchainParams: StakingBlockchainParams)
+    case unstaking(SendStakingableToken, manager: StakingManager, action: UnstakingModel.Action)
+    case restaking(SendStakingableToken, manager: StakingManager, action: RestakingModel.Action)
+    case stakingSingleAction(SendStakingableToken, manager: StakingManager, action: StakingSingleActionModel.Action)
+
     case onramp(SendSourceToken, parameters: PredefinedOnrampParameters = .none)
 }
 
 // MARK: - Parameters
+
+enum PredefinedSwapParameters {
+    case from(_ source: SendSwapableToken, receive: SendReceiveToken? = nil)
+    case to(_ receive: SendSwapableToken)
+}
 
 struct PredefinedSellParameters {
     let amount: Decimal
