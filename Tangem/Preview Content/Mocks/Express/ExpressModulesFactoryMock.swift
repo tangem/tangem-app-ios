@@ -100,6 +100,26 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
+    func makeExpressApproveFlowViewModel(
+        source: any ExpressInteractorSourceWallet,
+        providerName: String,
+        selectedPolicy: BSDKApprovePolicy,
+        coordinator: any ExpressApproveRoutable
+    ) -> ExpressApproveFlowViewModel {
+        let input = ExpressApproveViewModel.Input(
+            settings: .init(
+                subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
+                feeFooterText: Localization.swapGivePermissionFeeFooter,
+                tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
+                selectedPolicy: selectedPolicy,
+                tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config)
+            ),
+            feeFormatter: feeFormatter,
+            approveViewModelInput: expressInteractor
+        )
+        return ExpressApproveFlowViewModel(input: input, router: coordinator)
+    }
+
     func makeExpressProvidersSelectorViewModel(
         coordinator: ExpressProvidersSelectorRoutable
     ) -> ExpressProvidersSelectorViewModel {
