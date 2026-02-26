@@ -16,20 +16,23 @@ extension SwapFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
     func makeSwapModel(
-        sourceToken: SendSourceToken,
+        sourceToken: SendSwapableToken?,
+        receiveToken: SendReceiveToken?,
         analyticsLogger: any SendAnalyticsLogger,
-        autoupdatingTimer: AutoupdatingTimer
+        autoupdatingTimer: AutoupdatingTimer,
+        shouldStartInitialLoading: Bool
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
-            receiveToken: .none,
+            receiveToken: receiveToken,
             expressManager: expressDependenciesFactory.expressManager,
             expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
             analyticsLogger: analyticsLogger,
-            autoupdatingTimer: autoupdatingTimer
+            autoupdatingTimer: autoupdatingTimer,
+            shouldStartInitialLoading: shouldStartInitialLoading
         )
     }
 
@@ -37,7 +40,7 @@ extension SwapFlowBaseDependenciesFactory {
         CommonSwapNotificationManager()
     }
 
-    func makeSendAlertBuilder() -> SendAlertBuilder {
+    func makeSwapAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
     }
 }

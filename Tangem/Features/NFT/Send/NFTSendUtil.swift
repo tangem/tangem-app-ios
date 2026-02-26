@@ -38,12 +38,12 @@ struct NFTSendUtil {
             transactionSendAvailabilityProvider: sendAvailabilityProvider
         )
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceTokenFactory = SendWithSwapTokenFactory(
             userWalletInfo: userWalletModel.userWalletInfo,
-            walletModel: walletModelProxy,
-            flowType: .send
+            walletModel: walletModelProxy
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+
+        let sourceToken = sourceTokenFactory.makeWithSwapToken()
         let source = ExpressInteractorWalletModelWrapper(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModelProxy,

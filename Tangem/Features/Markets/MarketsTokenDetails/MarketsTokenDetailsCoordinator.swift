@@ -333,17 +333,49 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
+    func openSwap(input: PredefinedSwapParameters, destination: TokenItem) {
+        let action = { [weak self] in
+            guard let self else { return }
+
+            let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] option in
+                self?.sendCoordinator = nil
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+            }
+
+            let openSwapBlock = { [weak self] in
+                guard let self else { return }
+                let coordinator = SendCoordinator(
+                    dismissAction: dismissAction,
+                    popToRootAction: popToRootAction
+                )
+
+                coordinator.start(with: .init(type: .swap(input), source: .markets))
+                sendCoordinator = coordinator
+            }
+
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
+        }
+
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: destination) {
+            openViaYieldNotice(tokenItem: destination, action: action)
+        } else {
+            action()
+        }
+    }
+
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            flowType: .onramp
-        )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+            walletModel: input.walletModel
+        ).makeTransferableToken()
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(type: .onramp(sourceToken, parameters: parameters), source: .markets)
