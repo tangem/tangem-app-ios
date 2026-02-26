@@ -38,7 +38,6 @@ final class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var expressApproveViewModel: ExpressApproveViewModel?
     @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
@@ -159,7 +158,8 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {
-        expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
+        let viewModel = ExpressApproveViewModel(input: expressApproveViewModelInput, coordinator: self)
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
     }
 
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {
@@ -327,11 +327,11 @@ extension SendCoordinator: OnrampRoutable {
 
 extension SendCoordinator: ExpressApproveRoutable {
     func didSendApproveTransaction() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func userDidCancel() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func openLearnMore() {
