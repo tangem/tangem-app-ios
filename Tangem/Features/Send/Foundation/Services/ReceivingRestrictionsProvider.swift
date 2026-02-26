@@ -28,3 +28,10 @@ struct CommonReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
         }
     }
 }
+
+struct TangemPayReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
+    func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
+        // TangemPay doesn't have receiving restrictions
+        return nil
+    }
+}

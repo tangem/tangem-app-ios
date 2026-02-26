@@ -16,12 +16,15 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
     private let userWalletInfo: UserWalletInfo
     private let address: String
+    private let swapableToken: SendSwapableToken
     private let tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper
+
     private weak var coordinator: TangemPayAddFundsSheetRoutable?
 
     init(input: Input, coordinator: TangemPayAddFundsSheetRoutable) {
         userWalletInfo = input.userWalletInfo
         address = input.address
+        swapableToken = input.swapableToken
         tangemPayWalletWrapper = input.tangemPayWalletWrapper
 
         self.coordinator = coordinator
@@ -48,6 +51,7 @@ extension TangemPayAddFundsSheetViewModel {
     struct Input {
         let userWalletInfo: UserWalletInfo
         let address: String
+        let swapableToken: SendSwapableToken
         let tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper
     }
 }
@@ -70,6 +74,11 @@ extension TangemPayAddFundsSheetViewModel {
     }
 
     func openSwap() {
+        if FeatureProvider.isAvailable(.swapRefactoring) {
+            coordinator?.addFundsSheetRequestSwap(input: .to(swapableToken))
+            return
+        }
+
         let expressInput = ExpressDependenciesDestinationInput(
             userWalletInfo: userWalletInfo,
             source: .loadingAndSet,
