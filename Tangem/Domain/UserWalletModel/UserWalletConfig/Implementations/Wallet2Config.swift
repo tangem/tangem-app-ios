@@ -54,6 +54,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var canSkipBackup: Bool {
+        return true
         if isDemo {
             return true
         }
