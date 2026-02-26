@@ -176,7 +176,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             sourceAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
             receiveIO: (input: sendWithSwapModel, output: sendWithSwapModel),
             receiveAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
-            swapProvidersInput: sendWithSwapModel,
+            swapProvidersInput: sendWithSwapModel
         )
     }
 
@@ -189,7 +189,9 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: CommonSendAmountValidator(input: sendWithSwapModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            receiveAmountOutput: sendWithSwapModel,
+            isFixedRateMode: FeatureProvider.isAvailable(.expressFixedRates)
         )
     }
 }

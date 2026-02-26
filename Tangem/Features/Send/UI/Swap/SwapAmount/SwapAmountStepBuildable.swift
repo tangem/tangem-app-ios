@@ -67,7 +67,7 @@ enum SwapAmountStepBuilder {
         }
     }
 
-    typealias ReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
+    typealias ReturnValue = (step: SwapAmountStep, viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
@@ -109,9 +109,16 @@ enum SwapAmountStepBuilder {
             swapProvidersInput: io.swapProvidersInput,
         )
 
+        let step = SwapAmountStep(
+            viewModel: viewModel,
+            interactor: interactor,
+            interactorSaver: interactorSaver,
+            analyticsLogger: dependencies.analyticsLogger
+        )
+
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         interactorSaver.updater = amountUpdater
 
-        return (viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
+        return (step: step, viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
     }
 }

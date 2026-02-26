@@ -57,6 +57,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     private var receiveTokenCancellable: AnyCancellable?
     private var receiveTokenAmountCancellable: AnyCancellable?
+    private var receiveTokenSelectionCancellable: AnyCancellable?
     private var highPriceImpactCancellable: AnyCancellable?
 
     init(
@@ -167,6 +168,16 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
                 .sink { viewModel, value in
                     viewModel.lastUpdateSource = .receive
                     viewModel.updateReceiveAmount(value)
+                }
+
+            receiveTokenSelectionCancellable = interactor.receivedTokenPublisher
+                .compactMap { $0.value?.tokenItem }
+                .removeDuplicates()
+                .dropFirst()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, _ in
+                    viewModel.activeField = .receive
                 }
         }
     }
