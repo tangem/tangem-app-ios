@@ -7,7 +7,9 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
+import TangemAssets
 
 struct ExpressApproveFlowView: View {
     @ObservedObject private var viewModel: ExpressApproveFlowViewModel
@@ -26,6 +28,8 @@ struct ExpressApproveFlowView: View {
         switch viewModel.state {
         case .approve(let approveViewModel):
             ExpressApproveView(viewModel: approveViewModel)
+        case .feeTokenSelection(let tokensViewModel):
+            FeeSelectorTokensView(viewModel: tokensViewModel)
         }
     }
 }

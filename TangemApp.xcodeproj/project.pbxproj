@@ -3939,6 +3939,7 @@
 		EF0DC11D2A0CE29E007E3DA7 /* ExpressApproveRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1182A0CE29E007E3DA7 /* ExpressApproveRoutable.swift */; };
 		EF0DC11E2A0CE29E007E3DA7 /* ExpressApproveFlowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC11F2A0CE29E007E3DA7 /* ExpressApproveFlowViewModel.swift */; };
 		EF0DC1222A0CE29E007E3DA7 /* ExpressApproveFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1212A0CE29E007E3DA7 /* ExpressApproveFlowView.swift */; };
+		EF0DC1232A0CE29E007E3DA7 /* ExpressApproveFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DC1242A0CE29E007E3DA7 /* ExpressApproveFlowFactory.swift */; };
 		EF0DD7952B026B3A0099527D /* ExpressDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7942B026B3A0099527D /* ExpressDestinationService.swift */; };
 		EF0E1DA62CE3A222003D47AA /* OnrampRedirectingInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0E1DA52CE3A21D003D47AA /* OnrampRedirectingInputOutput.swift */; };
 		EF0E1DAB2CE3A255003D47AA /* OnrampRedirectingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0E1DAA2CE3A255003D47AA /* OnrampRedirectingInteractor.swift */; };
@@ -8884,6 +8885,7 @@
 		EF0DC1182A0CE29E007E3DA7 /* ExpressApproveRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApproveRoutable.swift; sourceTree = "<group>"; };
 		EF0DC11F2A0CE29E007E3DA7 /* ExpressApproveFlowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApproveFlowViewModel.swift; sourceTree = "<group>"; };
 		EF0DC1212A0CE29E007E3DA7 /* ExpressApproveFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApproveFlowView.swift; sourceTree = "<group>"; };
+		EF0DC1242A0CE29E007E3DA7 /* ExpressApproveFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApproveFlowFactory.swift; sourceTree = "<group>"; };
 		EF0DD7942B026B3A0099527D /* ExpressDestinationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressDestinationService.swift; sourceTree = "<group>"; };
 		EF0E1DA52CE3A21D003D47AA /* OnrampRedirectingInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRedirectingInputOutput.swift; sourceTree = "<group>"; };
 		EF0E1DAA2CE3A255003D47AA /* OnrampRedirectingInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRedirectingInteractor.swift; sourceTree = "<group>"; };
@@ -23160,6 +23162,7 @@
 		EF0DC1202A0CE29E007E3DA7 /* ExpressApproveFlow */ = {
 			isa = PBXGroup;
 			children = (
+				EF0DC1242A0CE29E007E3DA7 /* ExpressApproveFlowFactory.swift */,
 				EF0DC11F2A0CE29E007E3DA7 /* ExpressApproveFlowViewModel.swift */,
 				EF0DC1212A0CE29E007E3DA7 /* ExpressApproveFlowView.swift */,
 			);
@@ -29511,6 +29514,7 @@
 				EF0DC11B2A0CE29E007E3DA7 /* ExpressApproveView.swift in Sources */,
 				EF0DC11E2A0CE29E007E3DA7 /* ExpressApproveFlowViewModel.swift in Sources */,
 				EF0DC1222A0CE29E007E3DA7 /* ExpressApproveFlowView.swift in Sources */,
+				EF0DC1232A0CE29E007E3DA7 /* ExpressApproveFlowFactory.swift in Sources */,
 				B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */,
 				0FF19C942E3CBCD800008D8E /* AuthWalletViewModel.swift in Sources */,
 				EF5A938C2E167AF900570ABE /* SendAmountFinishSmallAmountViewModel.swift in Sources */,
