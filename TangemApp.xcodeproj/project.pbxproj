@@ -3949,6 +3949,7 @@
 		EF197B102D8C92FA0004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B0F2D8C92F90004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift */; };
 		EF19FAF62C6D43BB002155F1 /* PendingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF19FAF52C6D43BB002155F1 /* PendingAction.swift */; };
 		EF19FAF82C6D575B002155F1 /* ActionGenericRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF19FAF72C6D575B002155F1 /* ActionGenericRequest.swift */; };
+		EF1BACED2F509E7600B8F523 /* SendReceiveTokenFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */; };
 		EF1C27BE2CEF9F7A00592DA9 /* OnrampPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1C27BD2CEF9F7A00592DA9 /* OnrampPreference.swift */; };
 		EF1C58792E3AA7EB007D8251 /* SendSummaryInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1C58782E3AA7EB007D8251 /* SendSummaryInteractor.swift */; };
 		EF1D1ADE2C270DDE000CB941 /* SendFeeInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1D1ADD2C270DDE000CB941 /* SendFeeInput.swift */; };
@@ -8802,6 +8803,7 @@
 		EF197B0F2D8C92F90004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchAndBoundPreImageTransactionBuilderTests.swift; sourceTree = "<group>"; };
 		EF19FAF52C6D43BB002155F1 /* PendingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingAction.swift; sourceTree = "<group>"; };
 		EF19FAF72C6D575B002155F1 /* ActionGenericRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionGenericRequest.swift; sourceTree = "<group>"; };
+		EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenFilter.swift; sourceTree = "<group>"; };
 		EF1C27BD2CEF9F7A00592DA9 /* OnrampPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampPreference.swift; sourceTree = "<group>"; };
 		EF1C58782E3AA7EB007D8251 /* SendSummaryInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryInteractor.swift; sourceTree = "<group>"; };
 		EF1D1ADD2C270DDE000CB941 /* SendFeeInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeInput.swift; sourceTree = "<group>"; };
@@ -26181,6 +26183,7 @@
 			isa = PBXGroup;
 			children = (
 				EFFA43552E02B319001E0E54 /* SendReceiveTokensListBuilder.swift */,
+				EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */,
 				EFFA43572E02D7C9001E0E54 /* SendReceiveTokenCoordinator.swift */,
 				EFFA436C2E02EA30001E0E54 /* SendReceiveTokenCoordinatorView.swift */,
 				EFBC4EF32E81A11A0080271D /* IO */,
@@ -28159,6 +28162,7 @@
 				EFA5683C2C480D120064EBA1 /* TransactionDispatcherTransactionType.swift in Sources */,
 				0F721C202EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift in Sources */,
 				EFA23E732DEF6CBE004ADD0A /* SendFinishStep.swift in Sources */,
+				EF1BACED2F509E7600B8F523 /* SendReceiveTokenFilter.swift in Sources */,
 				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				EF0423682E9933EA00D80B0B /* HotCryptoAddToPortfolioBottomSheetViewModel.swift in Sources */,
 				A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */,
