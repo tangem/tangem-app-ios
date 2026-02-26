@@ -10,6 +10,10 @@ import Combine
 import TangemExpress
 import TangemUI
 
+protocol ExpressApproveFlowRoutable: AnyObject {
+    func openFeeTokenSelection()
+}
+
 final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - ViewState
 
@@ -20,7 +24,11 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel?
     private let feeSelectorInteractor: CommonFeeSelectorInteractor?
+    
+    // MARK: - Navigation
+    
     private weak var feeSelectorOutput: (any FeeSelectorOutput)?
+    private weak var coordinatorRouter: ExpressApproveRoutable?
 
     // MARK: - Init
 
@@ -31,13 +39,51 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         feeSelectorInteractor: CommonFeeSelectorInteractor? = nil,
         feeSelectorOutput: (any FeeSelectorOutput)? = nil
     ) {
-        approveViewModel = ExpressApproveViewModel(input: input, coordinator: router)
-
+        self.coordinatorRouter = router
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
         self.feeSelectorOutput = feeSelectorOutput
 
+        approveViewModel = ExpressApproveViewModel(
+            input: input,
+            coordinator: router,
+            flowRouter: nil
+        )
+
         state = .approve(approveViewModel)
+        setupApproveViewModel()
+    }
+}
+
+// MARK: - Private
+
+private extension ExpressApproveFlowViewModel {
+    func setupApproveViewModel() {
+        approveViewModel.setFlowRouter(self)
+    }
+}
+
+// MARK: - ExpressApproveFlowRoutable
+
+extension ExpressApproveFlowViewModel: ExpressApproveFlowRoutable {
+    func openFeeTokenSelection() {
+        presentFeeTokenSelection()
+    }
+}
+
+// MARK: - ExpressApproveRoutable (Proxy to coordinator)
+
+extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
+    func didSendApproveTransaction() {
+        coordinatorRouter?.didSendApproveTransaction()
+    }
+
+    func userDidCancel() {
+        coordinatorRouter?.userDidCancel()
+    }
+
+    func openLearnMore() {
+        coordinatorRouter?.openLearnMore()
     }
 }
 
