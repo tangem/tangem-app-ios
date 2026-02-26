@@ -37,7 +37,6 @@ final class ExpressCoordinator: CoordinatorObject {
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
-    @Published var expressApproveViewModel: ExpressApproveViewModel?
 
     // MARK: - Properties
 
@@ -103,12 +102,13 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
-        expressApproveViewModel = factory.makeExpressApproveViewModel(
+        let viewModel = factory.makeExpressApproveViewModel(
             source: source,
             providerName: provider.name,
             selectedPolicy: selectedPolicy,
             coordinator: self
         )
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
     }
 
     func presentSuccessView(data: SentExpressTransactionData) {
@@ -184,12 +184,12 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
 
 extension ExpressCoordinator: ExpressApproveRoutable {
     func didSendApproveTransaction() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
         rootViewModel?.didCloseApproveSheet()
     }
 
     func userDidCancel() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
         rootViewModel?.didCloseApproveSheet()
     }
 

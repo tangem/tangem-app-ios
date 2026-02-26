@@ -8,12 +8,13 @@
 
 import Combine
 import TangemExpress
+import TangemUI
 import UIKit
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
-final class ExpressApproveViewModel: ObservableObject, Identifiable {
+final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - ViewState
 
     @Published var subtitle: String
