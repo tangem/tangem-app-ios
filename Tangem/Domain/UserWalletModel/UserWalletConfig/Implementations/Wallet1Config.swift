@@ -119,6 +119,7 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var canSkipBackup: Bool {
+        return true
         // Shiba cards have new firmware, but old config, except backup skipping.
         card.firmwareVersion < .keysImportAvailable
     }
