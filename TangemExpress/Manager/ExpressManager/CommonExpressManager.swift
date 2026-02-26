@@ -18,13 +18,14 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
+    private let rateType: ExpressProviderRateType
 
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
     private var _approvePolicy: ApprovePolicy = .unlimited
     private var _feeOption: ExpressFee.Option = .market
-    private var _amount: Decimal?
+    private var _amountType: ExpressAmountType?
 
     private var availableProviders: [ExpressAvailableProvider] = []
     private var selectedProvider: ExpressAvailableProvider?
@@ -32,11 +33,13 @@ actor CommonExpressManager {
     init(
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
-        expressRepository: ExpressRepository
+        expressRepository: ExpressRepository,
+        rateType: ExpressProviderRateType = .float
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
+        self.rateType = rateType
     }
 }
 
@@ -47,8 +50,8 @@ extension CommonExpressManager: ExpressManager {
         return _pair
     }
 
-    func getAmount() -> Decimal? {
-        return _amount
+    func getAmountType() -> ExpressAmountType? {
+        return _amountType
     }
 
     func getSelectedProvider() -> ExpressAvailableProvider? {
@@ -74,8 +77,8 @@ extension CommonExpressManager: ExpressManager {
         return try await update(by: .pairChange)
     }
 
-    func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
-        _amount = amount
+    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
+        _amountType = amountType
 
         return try await update(by: source)
     }
@@ -138,7 +141,7 @@ private extension CommonExpressManager {
 
         try Task.checkCancellation()
 
-        guard let amount = _amount, amount > 0 else {
+        guard let amountType = _amountType, amountType.amount > 0 else {
             ExpressLogger.warning(self, "Amount isn't set. Return nil as `selectedProvider`")
             return nil
         }
@@ -161,7 +164,7 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
-        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair).toSet()
+        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair, rateType: rateType).toSet()
         let providers = try await expressRepository.providers()
 
         availableProviders = try providers.compactMap { provider in
@@ -278,15 +281,16 @@ private extension CommonExpressManager {
             throw ExpressManagerError.pairNotFound
         }
 
-        guard let amount = _amount, amount > 0 else {
+        guard let amountType = _amountType, amountType.amount > 0 else {
             throw ExpressManagerError.amountNotFound
         }
 
         return ExpressManagerSwappingPairRequest(
-            amount: amount,
+            amountType: amountType,
             feeOption: _feeOption,
             approvePolicy: _approvePolicy,
-            operationType: pair.source.operationType
+            operationType: pair.source.operationType,
+            rateType: rateType
         )
     }
 

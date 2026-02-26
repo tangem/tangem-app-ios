@@ -128,7 +128,32 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            return try await expressManager.update(amount: sourceAmount?.crypto, by: .amountChange)
+            let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
+            return try await expressManager.update(amountType: amountType, by: .amountChange)
+        }
+    }
+
+    func update(receiveAmount: SendAmount?) {
+        ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
+        _amount.send(receiveAmount)
+
+        updateTask(loadingType: .rates) { [weak self] expressManager in
+            if receiveAmount != nil {
+                // Add some debounce
+                try await Task.sleep(for: .seconds(1))
+            }
+
+            let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType, by: .amountChange)
+
+            // Push the calculated fromAmount back to the source text field
+            if let quote = result.selected?.getState().quote {
+                await MainActor.run {
+                    self?.externalAmountUpdater.externalUpdate(amount: quote.fromAmount)
+                }
+            }
+
+            return result
         }
     }
 
@@ -736,7 +761,9 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         return result
     }
 
-    func receiveAmountDidChanged(amount: SendAmount?) {}
+    func receiveAmountDidChanged(amount: SendAmount?) {
+        update(receiveAmount: amount)
+    }
 }
 
 // MARK: - SendSwapProvidersInput

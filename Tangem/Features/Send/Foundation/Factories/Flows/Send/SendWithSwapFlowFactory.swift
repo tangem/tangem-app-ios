@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemExpress
 import struct TangemUI.TokenIconInfo
 
 class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
@@ -41,7 +42,8 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     init(sourceToken: SendSourceToken) {
         self.sourceToken = sourceToken
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        let rateType: ExpressProviderRateType = FeatureProvider.isAvailable(.expressFixedRates) ? .fixed : .float
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo, rateType: rateType)
     }
 }
 

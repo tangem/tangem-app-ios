@@ -52,22 +52,42 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
+        let fromAmount: String?
+        let toAmount: String?
+
+        switch item.amountType {
+        case .from:
+            fromAmount = item.sourceAmountWEI()
+            toAmount = nil
+        case .to:
+            fromAmount = nil
+            toAmount = item.destinationAmountWEI()
+        }
+
+        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.rateType {
+        case .float: .float
+        case .fixed: .fixed
+        }
+
         let request = ExpressDTO.Swap.ExchangeQuote.Request(
             fromContractAddress: item.source.contractAddress,
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
             toDecimals: item.destination.decimalCount,
-            fromAmount: item.sourceAmountWEI(),
+            fromAmount: fromAmount,
+            toAmount: toAmount,
             fromDecimals: item.source.decimalCount,
             providerId: item.providerInfo.id,
-            rateType: .float
+            rateType: rateType
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
         var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+
         // We have to check the "fromAmount" because sometimes we can receive it more then was sent
-        if quote.fromAmount > item.amount {
+        // Only applicable for .from quotes where the user specified the source amount
+        if case .from = item.amountType, quote.fromAmount > item.amount {
             quote.fromAmount = item.amount
         }
 
@@ -76,6 +96,24 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
         let requestId: String = UUID().uuidString
+
+        let fromAmount: String?
+        let toAmount: String?
+
+        switch item.amountType {
+        case .from:
+            fromAmount = item.sourceAmountWEI()
+            toAmount = nil
+        case .to:
+            fromAmount = nil
+            toAmount = item.destinationAmountWEI()
+        }
+
+        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.rateType {
+        case .float: .float
+        case .fixed: .fixed
+        }
+
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
             fromAddress: item.source.address,
@@ -84,10 +122,11 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toContractAddress: item.destination.currency.contractAddress,
             toNetwork: item.destination.currency.network,
             toDecimals: item.destination.currency.decimalCount,
-            fromAmount: item.sourceAmountWEI(),
+            fromAmount: fromAmount,
+            toAmount: toAmount,
             fromDecimals: item.source.currency.decimalCount,
             providerId: item.providerInfo.id,
-            rateType: .float,
+            rateType: rateType,
             toAddress: item.destination.address,
             toExtraId: item.destination.extraId,
             refundAddress: item.source.address,

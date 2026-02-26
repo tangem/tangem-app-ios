@@ -65,7 +65,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         try await pairs.formUnion(pairsFrom.toSet())
     }
 
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
+    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws -> [ExpressProvider.Id] {
         let source = pair.source.currency.asCurrency
         let destination = pair.destination.currency.asCurrency
 
@@ -76,8 +76,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
             return []
         }
 
-        // Currently support only `.float` rate
-        return availablePair.providers.filter { $0.rates.contains(.float) }.map { $0.id }
+        return availablePair.providers.filter { $0.rates.contains(rateType) }.map { $0.id }
     }
 
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {

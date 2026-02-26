@@ -18,7 +18,8 @@ struct ExpressManagerMapper {
         return ExpressSwappableQuoteItem(
             source: pair.source.currency,
             destination: pair.destination.currency,
-            amount: request.amount,
+            amountType: request.amountType,
+            rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType)
         )
     }
@@ -52,7 +53,8 @@ struct ExpressManagerMapper {
         return ExpressSwappableDataItem(
             source: source,
             destination: destination,
-            amount: request.amount,
+            amountType: request.amountType,
+            rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType),
             operationType: request.operationType
         )
