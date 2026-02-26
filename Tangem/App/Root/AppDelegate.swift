@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemAssets
+import MeaPushProvisioning
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -26,6 +27,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
         servicesManager.initialize(delegate: self)
+        MeaPushProvisioning.setDebugLoggingEnabled(true)
+
         return true
     }
 

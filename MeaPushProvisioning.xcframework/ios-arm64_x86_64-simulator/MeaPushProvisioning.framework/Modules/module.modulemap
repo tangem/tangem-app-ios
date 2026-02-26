@@ -1,0 +1,6 @@
+framework module MeaPushProvisioning {
+  umbrella header "MeaPushProvisioning.h"
+  export *
+
+  module * { export * }
+}
