@@ -19,13 +19,25 @@ struct SendAmountView: View {
 
     @FocusState private var focused: SendAmountCalculationType?
     @State private var convertButtonSize: CGSize = .zero
+    @State private var isCompactContentVisible: Bool = true
 
     private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
-            content
-            receiveTokenView
+            if case .accordion = viewModel.receivedTokenViewType {
+                accordionContent
+            } else {
+                content
+                receiveTokenView
+            }
+        }
+        .animation(.easeInOut(duration: 0.45), value: viewModel.activeField)
+        .onChange(of: viewModel.activeField) { _ in
+            isCompactContentVisible = false
+            withAnimation(.easeInOut(duration: 0.25).delay(0.2)) {
+                isCompactContentVisible = true
+            }
         }
         .onAppear(perform: viewModel.onAppear)
     }
@@ -86,11 +98,123 @@ struct SendAmountView: View {
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(0)
 
-                CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
-                    .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                convertButton
+            }
+
+        case .accordion:
+            EmptyView() // Handled by accordionContent
+        }
+    }
+
+    // MARK: - Accordion
+
+    @ViewBuilder
+    private var accordionContent: some View {
+        if case .accordion(let expandedData, let compactData, let textFieldVM) = viewModel.receivedTokenViewType {
+            // Source section with convert button overlaid at the bottom edge
+            Group {
+                if viewModel.activeField == .source {
+                    content
+                } else {
+                    compactSourceView
+                        .opacity(isCompactContentVisible ? 1 : 0)
+                }
+            }
+            .overlay(alignment: .bottom) {
+                convertButton
+                    .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
+            }
+            .zIndex(1)
+
+            // Receive section
+            if viewModel.activeField == .receive {
+                expandedReceiveView(data: expandedData, textFieldVM: textFieldVM)
+            } else {
+                compactReceiveView(data: compactData)
+                    .opacity(isCompactContentVisible ? 1 : 0)
             }
         }
+    }
+
+    @ViewBuilder
+    private var compactSourceView: some View {
+        if let data = viewModel.compactSourceTokenViewData {
+            GroupedSection(data) { data in
+                SendAmountTokenView(data: data)
+            }
+            .backgroundColor(Colors.Background.action)
+            .innerContentPadding(0)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                FeedbackGenerator.heavy()
+                viewModel.userDidTapCompactSource()
+            }
+        }
+    }
+
+    private func expandedReceiveView(data: SendAmountTokenViewData, textFieldVM: DecimalNumberTextFieldViewModel) -> some View {
+        VStack(alignment: .center, spacing: .zero) {
+            VStack(alignment: .center, spacing: 12) {
+                Text(Localization.sendWithSwapRecipientAmountTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                VStack(alignment: .center, spacing: .zero) {
+                    SendDecimalNumberTextField(viewModel: textFieldVM)
+                        .prefixSuffixOptions(viewModel.receiveTextFieldOptions)
+                        .alignment(.center)
+                        .minTextScale(SendAmountStep.Constants.amountMinTextScale)
+                        .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                        .frame(height: 42)
+
+                    receiveAlternativeView
+                }
+            }
+            .padding(.vertical, 45)
+
+            Separator(color: Colors.Stroke.primary)
+
+            SendAmountTokenView(data: data)
+        }
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+    }
+
+    @ViewBuilder
+    private var receiveAlternativeView: some View {
+        if let fiatText = viewModel.receiveFiatText {
+            HStack(spacing: 4) {
+                Text("≈ \(fiatText)")
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                    .lineLimit(1)
+
+                IconView(
+                    url: viewModel.fiatIconURL,
+                    size: CGSize(width: 14, height: 14)
+                )
+            }
+            .padding(.all, 8)
+        } else {
+            Text(" ")
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .padding(.vertical, 8)
+        }
+    }
+
+    private func compactReceiveView(data: SendAmountTokenViewData) -> some View {
+        GroupedSection(data) { data in
+            SendAmountTokenView(data: data)
+        }
+        .backgroundColor(Colors.Background.action)
+        .innerContentPadding(0)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            FeedbackGenerator.heavy()
+            viewModel.userDidTapCompactReceive()
+        }
+    }
+
+    private var convertButton: some View {
+        CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
     }
 
     @ViewBuilder

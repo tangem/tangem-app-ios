@@ -54,6 +54,24 @@ enum SendAmountStepBuilder {
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
+        let isFixedRateMode: Bool
+
+        init(
+            sendAmountValidator: any SendAmountValidator,
+            amountModifier: (any SendAmountModifier)?,
+            notificationService: (any SendAmountNotificationService)?,
+            analyticsLogger: any SendAmountAnalyticsLogger,
+            receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
+            isFixedRateMode: Bool = false
+        ) {
+            self.sendAmountValidator = sendAmountValidator
+            self.amountModifier = amountModifier
+            self.notificationService = notificationService
+            self.analyticsLogger = analyticsLogger
+            self.receiveAmountOutput = receiveAmountOutput
+            self.isFixedRateMode = isFixedRateMode
+        }
     }
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
@@ -83,7 +101,9 @@ enum SendAmountStepBuilder {
             sourceToken: types.initialSourceToken,
             flowActionType: types.flowActionType,
             interactor: interactor,
-            analyticsLogger: dependencies.analyticsLogger
+            analyticsLogger: dependencies.analyticsLogger,
+            receiveAmountOutput: dependencies.receiveAmountOutput,
+            isFixedRateMode: dependencies.isFixedRateMode
         )
 
         let step = SendAmountStep(
