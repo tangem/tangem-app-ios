@@ -117,7 +117,14 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             feeFormatter: feeFormatter,
             approveViewModelInput: expressInteractor
         )
-        return ExpressApproveFlowViewModel(input: input, router: coordinator)
+
+        let flowFactory = ExpressApproveFlowFactory(
+            tokenFeeManagerProviding: expressInteractor,
+            feeSelectorOutput: expressInteractor,
+            analyticsLogger: nil
+        )
+
+        return flowFactory.make(input: input, router: coordinator)
     }
 
     func makeExpressProvidersSelectorViewModel(
