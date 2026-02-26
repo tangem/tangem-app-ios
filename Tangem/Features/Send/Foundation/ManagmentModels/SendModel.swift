@@ -16,7 +16,7 @@ import TangemFoundation
 final class SendModel {
     // MARK: - Data
 
-    private let _sourceToken: SendSourceToken
+    private let _sourceToken: SendWithSwapToken
     private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
@@ -57,7 +57,7 @@ final class SendModel {
 
     init(
         userWalletId: UserWalletId,
-        userToken: SendSourceToken,
+        userToken: SendWithSwapToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
@@ -449,7 +449,8 @@ extension SendModel: SendReceiveTokenOutput {
         })
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        let receiveToken = sendReceiveTokenBuilder.makeSendReceiveToken(tokenItem: receiveTokenItem)
         let newReceiveToken = SendReceiveTokenType.swap(receiveToken)
 
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
@@ -939,8 +940,15 @@ extension SendModel: TokenFeeProvidersManagerProviding {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
                 switch receiveToken {
-                case .same: model.sourceTokenPublisher.compactMap { $0.value }.map(\.tokenFeeProvidersManager).eraseToAnyPublisher()
-                case .swap: model.swapManager.tokenFeeProvidersManagerPublisher.eraseToAnyPublisher()
+                case .same:
+                    model.sourceTokenPublisher
+                        .compactMap { $0.value as? SendTransferableToken }
+                        .map(\.tokenFeeProvidersManager)
+                        .eraseToAnyPublisher()
+                case .swap:
+                    model.swapManager
+                        .tokenFeeProvidersManagerPublisher
+                        .eraseToAnyPublisher()
                 }
             }
             .eraseToAnyPublisher()
