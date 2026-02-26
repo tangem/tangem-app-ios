@@ -8,8 +8,15 @@
 
 import TangemExpress
 
-protocol OnrampFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+protocol OnrampFlowBaseDependenciesFactory {
+    var sourceToken: SendSourceToken { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
+}
+
+extension OnrampFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
+    var tokenItem: TokenItem { sourceToken.tokenItem }
+    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
 }
 
 extension OnrampFlowBaseDependenciesFactory {

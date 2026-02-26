@@ -37,6 +37,9 @@ struct ActionButtonsSwapCoordinatorView: View {
             case .express(let expressCoordinator):
                 ExpressCoordinatorView(coordinator: expressCoordinator)
                     .transition(SendTransitions.transition)
+            case .swap(let sendCoordinator):
+                SendCoordinatorView(coordinator: sendCoordinator)
+                    .transition(SendTransitions.transition)
             }
         }
         .animation(SendTransitions.animation, value: coordinator.viewType?.id)
