@@ -11,7 +11,7 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class RestakingFlowFactory: StakingFlowDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
 
@@ -22,11 +22,11 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        sourceToken: SendSourceToken,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
         action: RestakingModel.Action
     ) {
-        self.sourceToken = sourceToken
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.action = action
     }
@@ -42,7 +42,7 @@ extension RestakingFlowFactory {
         RestakingModel(
             stakingManager: stakingManager,
             action: action,
-            sendSourceToken: sourceToken,
+            sendSourceToken: stakingableToken,
             sendAmountValidator: RestakingAmountValidator(
                 tokenItem: tokenItem,
                 action: actionType,
@@ -58,14 +58,13 @@ extension RestakingFlowFactory {
 extension RestakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
-            initialSourceToken: sourceToken,
+            initialSourceToken: stakingableToken,
             actionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
             flowActionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
@@ -130,15 +129,15 @@ extension RestakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: restakingModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+                emailDataCollectorBuilder: stakingableToken.emailDataCollectorBuilder,
+                emailDataProvider: stakingableToken.userWalletInfo.emailDataProvider,
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
+                sourceToken: stakingableToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }

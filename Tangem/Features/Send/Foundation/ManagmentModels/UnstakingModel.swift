@@ -36,7 +36,7 @@ class UnstakingModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
-    private let sendSourceToken: SendSourceToken
+    private let sendSourceToken: SendStakingableToken
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
 
@@ -47,7 +47,7 @@ class UnstakingModel {
     private var estimatedFeeTask: Task<Void, Never>?
     init(
         stakingManager: StakingManager,
-        sendSourceToken: SendSourceToken,
+        sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action
     ) {
