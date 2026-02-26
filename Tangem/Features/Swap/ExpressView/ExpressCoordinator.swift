@@ -102,7 +102,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
-        let viewModel = factory.makeExpressApproveViewModel(
+        let viewModel = factory.makeExpressApproveFlowViewModel(
             source: source,
             providerName: provider.name,
             selectedPolicy: selectedPolicy,

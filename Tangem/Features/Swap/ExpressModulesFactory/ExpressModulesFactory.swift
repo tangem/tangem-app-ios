@@ -33,6 +33,13 @@ protocol ExpressModulesFactory {
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel
 
+    func makeExpressApproveFlowViewModel(
+        source: any ExpressInteractorSourceWallet,
+        providerName: String,
+        selectedPolicy: BSDKApprovePolicy,
+        coordinator: ExpressApproveRoutable
+    ) -> ExpressApproveFlowViewModel
+
     func makeExpressProvidersSelectorViewModel(coordinator: ExpressProvidersSelectorRoutable) -> ExpressProvidersSelectorViewModel
 
     func makeExpressSuccessSentViewModel(
