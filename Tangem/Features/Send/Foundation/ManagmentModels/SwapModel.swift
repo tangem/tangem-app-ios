@@ -20,8 +20,8 @@ protocol SwapModelStateProvider: AnyObject {
 final class SwapModel {
     // MARK: - Data
 
-    private let _sourceToken: CurrentValueSubject<LoadingResult<SendSourceToken, any Error>, Never>
-    private let _receiveToken: CurrentValueSubject<LoadingResult<SendSourceToken, any Error>, Never>
+    private let _sourceToken: CurrentValueSubject<LoadingResult<SendSwapableToken, any Error>, Never>
+    private let _receiveToken: CurrentValueSubject<LoadingResult<SendReceiveToken, any Error>, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
@@ -52,15 +52,16 @@ final class SwapModel {
     private var updateTask: Task<Void, Never>?
 
     init(
-        sourceToken: SendSourceToken?,
-        receiveToken: SendSourceToken?,
+        sourceToken: SendSwapableToken?,
+        receiveToken: SendReceiveToken?,
         expressManager: ExpressManager,
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
         analyticsLogger: SendAnalyticsLogger,
-        autoupdatingTimer: AutoupdatingTimer
+        autoupdatingTimer: AutoupdatingTimer,
+        shouldStartInitialLoading: Bool
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -74,7 +75,9 @@ final class SwapModel {
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _amount = .init(.none)
 
-        Task { await initialLoading() }
+        if shouldStartInitialLoading {
+            Task { await initialLoading() }
+        }
         setupAutoupdatingTimerSubscription()
     }
 
@@ -100,6 +103,8 @@ extension SwapModel {
 
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
+        case .loaded(_, .some, .requiredRefresh), .loaded(_, .some, .restriction):
+            autoupdatingTimer.stopTimer()
         case .loaded(_, .some, _):
             autoupdatingTimer.restartTimer { [weak self] in
                 self?.autoupdatingRates()
@@ -127,14 +132,14 @@ extension SwapModel {
         }
     }
 
-    func update(source wallet: SendSourceToken) {
+    func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
 
         _sourceToken.send(.success(wallet))
         swappingPairDidChange()
     }
 
-    func update(receive wallet: SendSourceToken) {
+    func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
 
         _receiveToken.send(.success(wallet))
@@ -261,7 +266,7 @@ extension SwapModel {
     }
 
     func hasPendingTransaction() -> Bool {
-        let sendingRestrictionsProvider = sourceToken.value?.sendingRestrictionsProvider
+        let sendingRestrictionsProvider = _sourceToken.value.value?.sendingRestrictionsProvider
         let hasPendingTransaction = sendingRestrictionsProvider?.sendingRestrictions?.isHasPendingTransaction
         return hasPendingTransaction ?? false
     }
@@ -326,7 +331,7 @@ extension SwapModel {
     }
 
     func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.PreviewCEX) async throws -> LoadedState {
-        let source = try sourceToken.get()
+        let source = try _sourceToken.value.get()
         let fee = previewCEX.fee
 
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
@@ -337,7 +342,7 @@ extension SwapModel {
 
         // Check on the minimum received amount
         // Almost impossible case because the providers check it on their side
-        if let destination = receiveToken.value as? SendSourceToken {
+        if let destination = receiveToken.value as? SendSwapableToken {
             let restriction = destination.receivingRestrictionsProvider.restriction(expectAmount: previewCEX.quote.expectAmount)
             switch restriction {
             case .none:
@@ -372,8 +377,8 @@ extension SwapModel {
         let isFeeCurrency = fee.amount.type == amount.type
 
         do {
-            let source = try sourceToken.get()
-            let transactionValidator = source.transactionValidator
+            let source = try _sourceToken.value.get()
+            let transactionValidator = source.expressTransactionValidator
             try transactionValidator.validate(amount: amount, fee: fee)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .notEnoughBalanceForSwapping(requiredAmount: amount.value)
@@ -400,7 +405,7 @@ extension SwapModel {
 
 extension SwapModel {
     func send() async throws -> TransactionDispatcherResult {
-        let source = try sourceToken.get()
+        let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
 
         analyticsLogger.logSwapButtonSwap()
@@ -459,7 +464,7 @@ extension SwapModel {
     }
 
     func notifyExpressAboutTransactionDidSent(
-        source: SendSourceToken,
+        source: SendSwapableToken,
         data: ExpressTransactionData,
         result: TransactionDispatcherResult
     ) async {
@@ -475,7 +480,7 @@ extension SwapModel {
     }
 
     func addTransactionToPendingRepository(
-        source: SendSourceToken,
+        source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
         fee: BSDKFee,
@@ -502,7 +507,12 @@ extension SwapModel {
     func initialLoading() async {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
-            case (.success, .success):
+            case (.success(let source), .success):
+                try await expressPairsRepository.updatePairs(
+                    for: source.tokenItem.expressCurrency,
+                    userWalletInfo: source.userWalletInfo
+                )
+
                 // All already set
                 swappingPairDidChange()
 
@@ -513,17 +523,17 @@ extension SwapModel {
                 )
 
                 _receiveToken.send(.loading)
-                let destination: SendSourceToken = try await expressDestinationService.getDestination(source: source.tokenItem)
+                let destination: SendSwapableToken = try await expressDestinationService.getDestination(source: source.tokenItem)
                 update(receive: destination)
 
-            case (_, .success(let destination)):
+            case (_, .success(let destination as SendSwapableToken)):
                 try await expressPairsRepository.updatePairs(
                     for: destination.tokenItem.expressCurrency,
                     userWalletInfo: destination.userWalletInfo
                 )
 
                 _sourceToken.send(.loading)
-                let source: SendSourceToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
+                let source: SendSwapableToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
                 update(source: source)
 
             default:
@@ -567,15 +577,15 @@ extension SwapModel: SwapModelStateProvider {
 
 extension SwapModel: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, flowType: .send)
-        let token = factory.makeSourceToken()
+        let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
+        let token = factory.makeSwapableToken()
 
         update(source: token)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let factory = SendSourceTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, flowType: .send)
-        let token = factory.makeSourceToken()
+        let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
+        let token = factory.makeSwapableToken()
 
         update(receive: token)
     }
@@ -584,14 +594,20 @@ extension SwapModel: SwapTokenSelectorOutput {
 // MARK: - SendSourceTokenInput, SendSourceTokenOutput
 
 extension SwapModel: SendSourceTokenInput, SendSourceTokenOutput {
-    var sourceToken: LoadingResult<SendSourceToken, any Error> { _sourceToken.value }
+    var sourceToken: LoadingResult<SendSourceToken, any Error> {
+        _sourceToken.value.mapValue { $0 as SendSourceToken }
+    }
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> {
-        _sourceToken.eraseToAnyPublisher()
+        _sourceToken.map { $0.mapValue { $0 as SendSourceToken }}.eraseToAnyPublisher()
     }
 
     func userDidSelect(sourceToken: SendSourceToken) {
-        _sourceToken.send(.success(sourceToken))
+        guard let swapableToken = sourceToken as? SendSwapableToken else {
+            assertionFailure("SwapModel expects SendSwapableToken")
+            return
+        }
+        _sourceToken.send(.success(swapableToken))
     }
 }
 
@@ -635,16 +651,13 @@ extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     }
 
     func userDidRequestClearSelection() {
-        assertionFailure("SwapModel doesn't support receiving token clearing")
+        // Endless loading, same as .none value
+        _receiveToken.send(.loading)
+        swappingPairDidChange()
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
-        guard let receiveToken = receiveToken as? SendSourceToken else {
-            return selected(false)
-        }
-
-        _receiveToken.send(.success(receiveToken))
-        selected(true)
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        assertionFailure("userDidRequestSelect(receiveTokenItem:) don't supposed to be called. Call `update(receive:) instead.")
     }
 }
 
@@ -841,8 +854,9 @@ extension SwapModel: SendFeeInput {
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
         case .loaded(_, _, state: .restriction(.notEnoughAmountForFee, _)),
-             .loaded(_, _, state: .previewCEX),
              .loaded(_, _, state: .readyToSwap):
+            return true
+        case .loaded(_, _, state: .previewCEX(let previewCEX)) where !previewCEX.isExemptFee:
             return true
         default:
             return false
@@ -854,7 +868,7 @@ extension SwapModel: SendFeeInput {
 
 extension SwapModel: FeeSelectorOutput {
     func userDidDismissFeeSelection() {
-        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+        updateFees()
     }
 
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
@@ -864,6 +878,14 @@ extension SwapModel: FeeSelectorOutput {
         updateTask(loadingType: .fee) { manager in
             try await manager.update(by: .autoUpdate)
         }
+    }
+}
+
+// MARK: - SendFeeUpdater
+
+extension SwapModel: SendFeeUpdater {
+    func updateFees() {
+        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
     }
 }
 
@@ -915,6 +937,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToSummaryTransactionData(providersState: $1) }
             .eraseToAnyPublisher()
@@ -933,7 +956,8 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
-        guard let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value as? SendSwapableToken else {
             ExpressLogger.info("Swap Source and Receive tokens is not possible")
             return
         }
