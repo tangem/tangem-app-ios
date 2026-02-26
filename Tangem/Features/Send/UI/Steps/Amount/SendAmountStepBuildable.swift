@@ -105,7 +105,6 @@ enum SendAmountStepBuilder {
 
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         let finish = SendAmountFinishViewModel(
-            initialSourceToken: types.initialSourceToken,
             flowActionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
