@@ -38,6 +38,14 @@ protocol FeeCurrencyNavigating where Self: AnyObject, Self: CoordinatorObject {
 extension FeeCurrencyNavigating {
     static var feeCurrencyNavigationDelay: TimeInterval { 0.6 }
 
+    func proceedFeeCurrencyNavigatingDismissOption(option: SendCoordinator.DismissOptions?) {
+        guard case .openFeeCurrency(let feeCurrency) = option else {
+            return
+        }
+
+        proceedFeeCurrencyNavigatingDismissOption(option: feeCurrency)
+    }
+
     func proceedFeeCurrencyNavigatingDismissOption(option: FeeCurrencyNavigatingDismissOption?) {
         guard let feeCurrencyOption = option else {
             return
