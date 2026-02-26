@@ -13,18 +13,10 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-protocol SendModelRoutable: AnyObject {
-    func openNetworkCurrency()
-    func openApproveSheet()
-    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
-    func resetFlow()
-    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
-}
-
 final class SendModel {
     // MARK: - Data
 
-    private let _sourceToken: SendSourceToken
+    private let _sourceToken: SendWithSwapToken
     private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
@@ -42,7 +34,7 @@ final class SendModel {
     var externalDestinationUpdater: SendDestinationExternalUpdater!
     var informationRelevanceService: InformationRelevanceService!
 
-    weak var router: SendModelRoutable?
+    weak var router: SendWithSwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
@@ -65,7 +57,7 @@ final class SendModel {
 
     init(
         userWalletId: UserWalletId,
-        userToken: SendSourceToken,
+        userToken: SendWithSwapToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
@@ -457,7 +449,8 @@ extension SendModel: SendReceiveTokenOutput {
         })
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        let receiveToken = sendReceiveTokenBuilder.makeSendReceiveToken(tokenItem: receiveTokenItem)
         let newReceiveToken = SendReceiveTokenType.swap(receiveToken)
 
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
@@ -550,7 +543,7 @@ extension SendModel: SendReceiveTokenAmountInput {
             destination: receiveToken.tokenItem
         )
 
-        let result = try await impactCalculator.isHighPriceImpact(
+        let result = impactCalculator.isHighPriceImpact(
             provider: provider,
             sourceFiatAmount: sourceTokenFiatAmount,
             destinationFiatAmount: receiveTokenFiatAmount
@@ -947,8 +940,15 @@ extension SendModel: TokenFeeProvidersManagerProviding {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
                 switch receiveToken {
-                case .same: model.sourceTokenPublisher.compactMap { $0.value }.map(\.tokenFeeProvidersManager).eraseToAnyPublisher()
-                case .swap: model.swapManager.tokenFeeProvidersManagerPublisher.eraseToAnyPublisher()
+                case .same:
+                    model.sourceTokenPublisher
+                        .compactMap { $0.value as? SendTransferableToken }
+                        .map(\.tokenFeeProvidersManager)
+                        .eraseToAnyPublisher()
+                case .swap:
+                    model.swapManager
+                        .tokenFeeProvidersManagerPublisher
+                        .eraseToAnyPublisher()
                 }
             }
             .eraseToAnyPublisher()

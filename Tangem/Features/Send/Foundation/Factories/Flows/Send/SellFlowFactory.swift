@@ -8,31 +8,36 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SellFlowFactory: SendFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
+class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
+    var transferableToken: SendTransferableToken { sourceToken }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+
+    let sourceToken: SendWithSwapToken
     let sellParameters: PredefinedSellParameters
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let expressDependenciesFactory: any ExpressDependenciesFactory
+    let expressDependenciesFactory: ExpressDependenciesFactory
+    let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
+        sourceToken: sourceToken,
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
         predefinedValues: mapToPredefinedValues(sellParameters: sellParameters)
     )
 
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
-        sourceToken: SendSourceToken,
+        sourceToken: SendWithSwapToken,
         sellParameters: PredefinedSellParameters,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
         self.sellParameters = sellParameters
-        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: sourceToken.userWalletInfo,
@@ -40,7 +45,11 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: expressDependenciesInput,
+            expressDependenciesFactory: expressDependenciesFactory
+        )
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
@@ -81,6 +90,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
 
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
             initialSourceToken: sourceToken,
+            actionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -89,7 +99,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
+            flowActionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -166,19 +176,20 @@ extension SellFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
+                approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }

@@ -32,7 +32,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     weak var router: SwapAmountCompactRoutable?
 
-    private let initialSourceToken: SendSourceToken
+    private let initialTokenItem: TokenItem
     private let interactor: SendAmountInteractor
 
     private weak var stateProvider: SwapModelStateProvider?
@@ -45,16 +45,18 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var sourceExpressCurrencyStateCancellable: AnyCancellable?
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
+
     private var receiveTokenCancellable: AnyCancellable?
+    private var highPriceImpactCancellable: AnyCancellable?
 
     init(
-        initialSourceToken: SendSourceToken,
+        initialTokenItem: TokenItem,
         interactor: SendAmountInteractor,
         stateProvider: SwapModelStateProvider,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
     ) {
-        self.initialSourceToken = initialSourceToken
+        self.initialTokenItem = initialTokenItem
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
@@ -63,7 +65,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
-            canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialSourceToken.tokenItem
+            canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialTokenItem
         )
 
         sourceDecimalNumberTextFieldViewModel = .init(
@@ -73,7 +75,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         receiveExpressCurrencyViewModel = .init(
             viewType: .receive,
             headerType: .action(name: Localization.swappingToTitle),
-            canChangeCurrency: receiveTokenInput?.receiveToken.value?.tokenItem != initialSourceToken.tokenItem
+            canChangeCurrency: receiveTokenInput?.receiveToken.value?.tokenItem != initialTokenItem
         )
 
         receiveCryptoAmountState = .initialized
@@ -124,9 +126,15 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             interactor.receivedTokenAmountPublisher,
             interactor.receivedTokenPublisher
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
+        .receiveOnMain()
         .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1) }
+
+        highPriceImpactCancellable = interactor
+            .highPriceImpactPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.receiveExpressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: $1) }
     }
 
     func textFieldDidTapped() {
@@ -179,7 +187,7 @@ private extension SwapAmountViewModel {
     private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
         sourceExpressCurrencyViewModel.update(
             wallet: sourceToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: initialSourceToken.id
+            initialWalletId: .init(tokenItem: initialTokenItem)
         )
 
         switch sourceToken {
@@ -193,17 +201,16 @@ private extension SwapAmountViewModel {
         case .success(let token):
             sourceDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
 
-            if let textFieldValue = sourceDecimalNumberTextFieldViewModel.value {
-                let roundedAmount = textFieldValue.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+            let textFieldValue = sourceDecimalNumberTextFieldViewModel.value
+            let roundedAmount = textFieldValue?.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
 
-                // If we have amount then we should round and update it with new decimalCount
-                if roundedAmount != textFieldValue {
-                    _ = update(amount: roundedAmount)
-                    sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
-                }
-
-                sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
+            // If we have amount then we should round and update it with new decimalCount
+            if roundedAmount != textFieldValue {
+                _ = update(amount: roundedAmount)
+                sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
             }
+
+            sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
         }
     }
 
@@ -222,7 +229,7 @@ private extension SwapAmountViewModel {
     private func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: initialSourceToken.id
+            initialWalletId: .init(tokenItem: initialTokenItem)
         )
 
         switch (receiveToken, amount) {

@@ -16,7 +16,7 @@ import TangemUI
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
     @Published private(set) var viewType: ExpressCurrencyViewType
-    @Published private(set) var headerType: ExpressCurrencyHeaderType
+    @Published private(set) var headerType: SendTokenHeader
     @Published private(set) var errorState: ErrorState?
     @Published private(set) var balanceState: LoadableBalanceView.State
 
@@ -37,7 +37,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     init(
         viewType: ExpressCurrencyViewType,
-        headerType: ExpressCurrencyHeaderType,
+        headerType: SendTokenHeader,
         balanceState: LoadableBalanceView.State = .empty,
         fiatAmountState: LoadableTextView.State = .initialized,
         priceChangeState: PriceChangeState? = nil,
@@ -64,7 +64,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             balanceState = .loading(cached: .none)
 
         case .success(let wallet as ExpressInteractorSourceWallet):
-            headerType = ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: wallet.tokenHeader)
+            headerType = SendTokenHeader(viewType: viewType, tokenHeader: wallet.tokenHeader)
             canChangeCurrency = wallet.id != initialWalletId
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
             tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
@@ -116,22 +116,10 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             balanceState = .loading(cached: .none)
 
         case .success(let wallet as SendSourceToken):
-            headerType = ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: wallet.tokenHeader)
+            headerType = wallet.header.asSendTokenHeader(actionType: .swap, isSource: viewType == .send)
             canChangeCurrency = wallet.id != initialWalletId
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
             tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
-            wallet.availableBalanceProvider.formattedBalanceTypePublisher
-                .withWeakCaptureOf(self)
-                .map { $0.loadableBalanceViewStateBuilder.build(type: $1) }
-                .receiveOnMain()
-                .assign(to: &$balanceState)
-
-        case .success(let wallet as ExpressInteractorTangemPayWallet):
-            headerType = .action(name: viewType.actionName())
-            canChangeCurrency = false
-            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
-            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
-
             wallet.availableBalanceProvider.formattedBalanceTypePublisher
                 .withWeakCaptureOf(self)
                 .map { $0.loadableBalanceViewStateBuilder.build(type: $1) }
@@ -191,8 +179,8 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func updateHighPricePercentLabel(quote: ExpressInteractor.Quote?) {
-        guard let highPriceImpact = quote?.highPriceImpact else {
+    func updateHighPricePercentLabel(highPriceImpact: HighPriceImpactCalculator.Result?) {
+        guard let highPriceImpact else {
             priceChangeState = nil
             return
         }

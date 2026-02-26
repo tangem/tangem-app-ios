@@ -46,6 +46,7 @@ enum SendAmountStepBuilder {
 
     struct Types {
         let initialSourceToken: SendSourceToken
+        let flowActionType: SendFlowActionType
     }
 
     struct Dependencies {
@@ -80,6 +81,7 @@ enum SendAmountStepBuilder {
 
         let viewModel = SendAmountViewModel(
             sourceToken: types.initialSourceToken,
+            flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger
         )
@@ -93,6 +95,7 @@ enum SendAmountStepBuilder {
 
         let compact = SendAmountCompactViewModel(
             initialSourceToken: types.initialSourceToken,
+            actionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
@@ -102,7 +105,7 @@ enum SendAmountStepBuilder {
 
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         let finish = SendAmountFinishViewModel(
-            initialSourceToken: types.initialSourceToken,
+            flowActionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,

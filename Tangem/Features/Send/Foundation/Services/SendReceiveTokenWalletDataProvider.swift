@@ -15,23 +15,14 @@ import TangemAccounts
 final class SendReceiveTokenWalletDataProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let userWalletInfo: UserWalletInfo
-    private let analyticsLogger: any SendDestinationAnalyticsLogger
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        analyticsLogger: any SendDestinationAnalyticsLogger
-    ) {
-        self.userWalletInfo = userWalletInfo
-        self.analyticsLogger = analyticsLogger
-    }
+    init() {}
 }
 
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func walletData(for receiveToken: SendReceiveToken) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
-        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
+    func walletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+        guard let walletModel = findWalletModel(for: tokenItem) else {
             return nil
         }
 
@@ -72,8 +63,7 @@ private extension SendReceiveTokenWalletDataProvider {
                     showSign: false,
                     isToken: walletModel.tokenItem.isToken
                 )
-            ),
-            analyticsLogger: analyticsLogger
+            )
         )
     }
 }

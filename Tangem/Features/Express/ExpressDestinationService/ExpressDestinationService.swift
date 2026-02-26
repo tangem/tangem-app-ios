@@ -12,8 +12,8 @@ protocol ExpressDestinationService {
     func getSource(destination: TokenItem) async throws -> any ExpressInteractorSourceWallet
     func getDestination(source: TokenItem) async throws -> any ExpressInteractorSourceWallet
 
-    func getSource(destination: TokenItem) async throws -> any SendSourceToken
-    func getDestination(source: TokenItem) async throws -> any SendSourceToken
+    func getSource(destination: TokenItem) async throws -> any SendSwapableToken
+    func getDestination(source: TokenItem) async throws -> any SendSwapableToken
 }
 
 enum ExpressDestinationServiceError: Error {

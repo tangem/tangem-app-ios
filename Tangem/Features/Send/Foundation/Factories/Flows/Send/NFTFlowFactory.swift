@@ -8,16 +8,19 @@
 
 import struct TangemUI.TokenIconInfo
 
-class NFTFlowFactory: SendFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
+class NFTFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
+    var transferableToken: SendTransferableToken { sourceToken }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+
+    let sourceToken: SendWithSwapToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
-    let sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
+        sourceToken: sourceToken,
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
         predefinedValues: .init(
@@ -25,19 +28,18 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         )
     )
 
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
-        sourceToken: SendSourceToken,
+        sourceToken: SendWithSwapToken,
         nftAssetStepBuilder: NFTAssetStepBuilder,
-        sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
         source: ExpressInteractorWalletModelWrapper
     ) {
         self.sourceToken = sourceToken
         self.nftAssetStepBuilder = nftAssetStepBuilder
-        self.sendingWalletDestinationStepDataInput = sendingWalletDestinationStepDataInput
-        self.baseDataBuilderFactory = baseDataBuilderFactory
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: sourceToken.userWalletInfo,
@@ -45,7 +47,11 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: expressDependenciesInput,
+            expressDependenciesFactory: expressDependenciesFactory
+        )
     }
 }
 
@@ -53,7 +59,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let header = sourceToken.header
+        let header = sourceToken.header.asSendTokenHeader(actionType: .send)
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
@@ -126,19 +132,20 @@ extension NFTFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sourceToken,
+                approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -164,33 +171,11 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.Dependencies(
             sendQRCodeService: makeSendQRCodeService(),
             analyticsLogger: analyticsLogger,
-            destinationInteractorDependenciesProvider: makeSendDestinationInteractorDependenciesProvider(
-                receiveTokenInput: sendModel,
-                analyticsLogger: analyticsLogger
-            ),
-        )
-    }
-
-    private func makeSendDestinationInteractorDependenciesProvider(
-        receiveTokenInput: SendReceiveTokenInput,
-        analyticsLogger: any SendDestinationAnalyticsLogger
-    ) -> SendDestinationInteractorDependenciesProvider {
-        SendDestinationInteractorDependenciesProvider(
-            initialSourceToken: sourceToken,
-            receivedToken: receiveTokenInput.receiveToken.value,
-            sourceWalletData: .init(
-                walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,
-                destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
-                    transactionHistoryUpdater: sendingWalletDestinationStepDataInput.walletModelHistoryUpdater,
-                    transactionHistoryMapper: TransactionHistoryMapper(
-                        currencySymbol: tokenItem.currencySymbol,
-                        walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                        showSign: false,
-                        isToken: tokenItem.isToken
-                    )
-                ),
-                analyticsLogger: analyticsLogger
+            destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider(
+                sourceToken: sourceToken,
+                receivedToken: sendModel.receiveToken.value,
+                analyticsLogger: analyticsLogger,
+                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
             )
         )
     }

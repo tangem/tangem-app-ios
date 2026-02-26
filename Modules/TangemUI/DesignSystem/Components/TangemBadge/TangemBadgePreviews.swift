@@ -9,29 +9,19 @@
 import SwiftUI
 import TangemAssets
 
-// MARK: - Previews
+// MARK: - Showcase
 
-#if DEBUG
-
-private typealias _Badge = TangemBadge
-
-// MARK: - Interactive Demo View
-
-private struct BadgeDemoView: View {
-    @State private var size: _Badge.Size = .x9
-    @State private var shape: _Badge.Shape = .rectangular
-    @State private var color: _Badge.BadgeColor = .blue
-    @State private var type: _Badge.BadgeType = .solid
+public struct TangemBadgeShowcase: View {
+    @State private var size: TangemBadge.Size = .x9
+    @State private var shape: TangemBadge.Shape = .rectangular
+    @State private var color: TangemBadge.BadgeColor = .blue
+    @State private var type: TangemBadge.BadgeType = .solid
     @State private var showIcon = true
-    @State private var iconPosition: _Badge.IconPosition = .leading
+    @State private var iconPosition: TangemBadge.IconPosition = .leading
 
-    private let sizes: [_Badge.Size] = [.x4, .x6, .x9]
-    private let shapes: [_Badge.Shape] = [.rectangular, .rounded]
-    private let colors: [_Badge.BadgeColor] = [.blue, .red, .gray]
-    private let types: [_Badge.BadgeType] = [.solid, .tinted, .outline]
-    private let iconPositions: [_Badge.IconPosition] = [.leading, .trailing]
+    public init() {}
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 16) {
             pickerSection
 
@@ -47,29 +37,29 @@ private struct BadgeDemoView: View {
     private var pickerSection: some View {
         VStack(spacing: 8) {
             Picker("Size", selection: $size) {
-                Text("x4").tag(_Badge.Size.x4)
-                Text("x6").tag(_Badge.Size.x6)
-                Text("x9").tag(_Badge.Size.x9)
+                Text("x4").tag(TangemBadge.Size.x4)
+                Text("x6").tag(TangemBadge.Size.x6)
+                Text("x9").tag(TangemBadge.Size.x9)
             }
             .pickerStyle(.segmented)
 
             Picker("Shape", selection: $shape) {
-                Text("default").tag(_Badge.Shape.rectangular)
-                Text("rounded").tag(_Badge.Shape.rounded)
+                Text("default").tag(TangemBadge.Shape.rectangular)
+                Text("rounded").tag(TangemBadge.Shape.rounded)
             }
             .pickerStyle(.segmented)
 
             Picker("Color", selection: $color) {
-                Text("blue").tag(_Badge.BadgeColor.blue)
-                Text("red").tag(_Badge.BadgeColor.red)
-                Text("gray").tag(_Badge.BadgeColor.gray)
+                Text("blue").tag(TangemBadge.BadgeColor.blue)
+                Text("red").tag(TangemBadge.BadgeColor.red)
+                Text("gray").tag(TangemBadge.BadgeColor.gray)
             }
             .pickerStyle(.segmented)
 
             Picker("Type", selection: $type) {
-                Text("solid").tag(_Badge.BadgeType.solid)
-                Text("tinted").tag(_Badge.BadgeType.tinted)
-                Text("outline").tag(_Badge.BadgeType.outline)
+                Text("solid").tag(TangemBadge.BadgeType.solid)
+                Text("tinted").tag(TangemBadge.BadgeType.tinted)
+                Text("outline").tag(TangemBadge.BadgeType.outline)
             }
             .pickerStyle(.segmented)
 
@@ -77,8 +67,8 @@ private struct BadgeDemoView: View {
 
             if showIcon {
                 Picker("Icon Position", selection: $iconPosition) {
-                    Text("leading").tag(_Badge.IconPosition.leading)
-                    Text("trailing").tag(_Badge.IconPosition.trailing)
+                    Text("leading").tag(TangemBadge.IconPosition.leading)
+                    Text("trailing").tag(TangemBadge.IconPosition.trailing)
                 }
                 .pickerStyle(.segmented)
             }
@@ -86,7 +76,7 @@ private struct BadgeDemoView: View {
     }
 
     private var badgePreview: some View {
-        _Badge(text: "Badge", size: size)
+        TangemBadge(text: "Badge", size: size)
             .shape(shape)
             .color(color)
             .type(type)
@@ -94,6 +84,12 @@ private struct BadgeDemoView: View {
             .iconPosition(iconPosition)
     }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+
+private typealias _Badge = TangemBadge
 
 // MARK: - Matrix Preview
 
@@ -239,7 +235,7 @@ private struct BadgeConstrainedWidthView: View {
 }
 
 #Preview("Interactive Demo") {
-    BadgeDemoView()
+    TangemBadgeShowcase()
 }
 
 #Preview("Color & Type Matrix") {
@@ -269,4 +265,4 @@ private struct BadgeConstrainedWidthView: View {
     BadgeConstrainedWidthView()
 }
 
-#endif
+#endif // DEBUG
