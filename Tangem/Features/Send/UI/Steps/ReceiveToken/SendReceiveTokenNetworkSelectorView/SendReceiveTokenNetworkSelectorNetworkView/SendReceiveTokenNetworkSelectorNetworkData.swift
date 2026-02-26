@@ -7,12 +7,15 @@
 //
 
 import Foundation
+import TangemFoundation
 
-struct SendReceiveTokenNetworkSelectorNetworkViewData: Identifiable {
+struct SendReceiveTokenNetworkSelectorNetworkViewData: Identifiable, Equatable {
     let id: String
     let iconURL: URL
     let name: String
     let network: String?
     let isMainNetwork: Bool
-    let tapAction: () -> Void
+
+    @IgnoredEquatable
+    var tapAction: () -> Void
 }
