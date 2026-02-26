@@ -9,22 +9,30 @@
 import struct TangemUI.TokenIconInfo
 
 class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
+    var transferableToken: SendTransferableToken { sourceToken }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+
+    let sourceToken: SendWithSwapToken
     let sellParameters: PredefinedSellParameters
+    let expressDependenciesFactory: ExpressDependenciesFactory
     let expressInteractorFactory: ExpressInteractorFactory
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
+        sourceToken: sourceToken,
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
         predefinedValues: mapToPredefinedValues(sellParameters: sellParameters)
     )
 
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
-        sourceToken: SendSourceToken,
+        sourceToken: SendWithSwapToken,
         sellParameters: PredefinedSellParameters,
         source: ExpressInteractorWalletModelWrapper
     ) {
@@ -37,9 +45,10 @@ class SellFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             destination: .none
         )
 
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
         expressInteractorFactory = ExpressInteractorFactory(
             input: expressDependenciesInput,
-            expressDependenciesFactory: CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+            expressDependenciesFactory: expressDependenciesFactory
         )
     }
 
@@ -90,7 +99,6 @@ extension SellFlowFactory: SendGenericFlowFactory {
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
             flowActionType: .send,
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
@@ -181,7 +189,7 @@ extension SellFlowFactory: SendBaseBuildable {
                 sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
