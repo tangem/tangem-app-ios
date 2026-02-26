@@ -184,7 +184,8 @@ extension ExpressInteractor {
 
         updateState(.loading(type: .full))
         updateTask { interactor in
-            let state = try await interactor.expressManager.update(amount: amount, by: source)
+            let amountType: ExpressAmountType? = amount.map { .from($0) }
+            let state = try await interactor.expressManager.update(amountType: amountType, by: source)
             return try await interactor.mapState(state: state)
         }
     }
@@ -634,7 +635,7 @@ private extension ExpressInteractor {
             }
 
             // If we have an amount to we will start the full update
-            if let amount = await interactor.expressManager.getAmount(), amount > 0 {
+            if let amountType = await interactor.expressManager.getAmountType(), amountType.amount > 0 {
                 interactor.updateState(.loading(type: .full))
             }
 

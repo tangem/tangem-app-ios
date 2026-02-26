@@ -20,6 +20,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletInfo: UserWalletInfo
+    private let rateType: ExpressProviderRateType
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressManager = makeExpressManager()
@@ -28,8 +29,9 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressRepository = makeExpressRepository()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
-    init(userWalletInfo: UserWalletInfo) {
+    init(userWalletInfo: UserWalletInfo, rateType: ExpressProviderRateType = .float) {
         self.userWalletInfo = userWalletInfo
+        self.rateType = rateType
     }
 }
 
@@ -39,7 +41,8 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressManager() -> ExpressManager {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository
+            expressRepository: expressRepository,
+            rateType: rateType
         )
     }
 
