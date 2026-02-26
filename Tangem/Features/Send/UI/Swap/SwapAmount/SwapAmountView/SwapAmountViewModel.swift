@@ -201,17 +201,16 @@ private extension SwapAmountViewModel {
         case .success(let token):
             sourceDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
 
-            if let textFieldValue = sourceDecimalNumberTextFieldViewModel.value {
-                let roundedAmount = textFieldValue.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+            let textFieldValue = sourceDecimalNumberTextFieldViewModel.value
+            let roundedAmount = textFieldValue?.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
 
-                // If we have amount then we should round and update it with new decimalCount
-                if roundedAmount != textFieldValue {
-                    _ = update(amount: roundedAmount)
-                    sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
-                }
-
-                sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
+            // If we have amount then we should round and update it with new decimalCount
+            if roundedAmount != textFieldValue {
+                _ = update(amount: roundedAmount)
+                sourceDecimalNumberTextFieldViewModel.update(value: roundedAmount)
             }
+
+            sourceExpressCurrencyViewModel.updateFiatValue(expectAmount: roundedAmount, tokenItem: token.tokenItem)
         }
     }
 
