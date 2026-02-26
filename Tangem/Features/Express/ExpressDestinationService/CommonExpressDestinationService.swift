@@ -44,20 +44,20 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         return destination.asExpressInteractorWalletModelWrapper
     }
 
-    func getSource(destination: TokenItem) async throws -> any SendSourceToken {
+    func getSource(destination: TokenItem) async throws -> any SendSwapableToken {
         guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
             throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
         }
 
-        return source.asSendSourceToken
+        return source.asSendSwapableToken
     }
 
-    func getDestination(source: TokenItem) async throws -> any SendSourceToken {
+    func getDestination(source: TokenItem) async throws -> any SendSwapableToken {
         guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
             throw ExpressDestinationServiceError.destinationNotFound(source: source)
         }
 
-        return destination.asSendSourceToken
+        return destination.asSendSwapableToken
     }
 }
 
@@ -167,12 +167,12 @@ extension CommonExpressDestinationService {
             )
         }
 
-        var asSendSourceToken: SendSourceToken {
-            SendSourceTokenFactory(
+        var asSendSwapableToken: SendSwapableToken {
+            CommonSendSwapableTokenFactory(
                 userWalletInfo: userWalletInfo,
                 walletModel: walletModel,
-                flowType: .swap
-            ).makeSourceToken()
+                operationType: .swap
+            ).makeSwapableToken()
         }
     }
 

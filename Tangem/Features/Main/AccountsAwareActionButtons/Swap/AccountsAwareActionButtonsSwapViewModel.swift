@@ -107,8 +107,13 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
         switch source {
         case .placeholder:
             Task { await updateSourceToken(item: item) }
-        case .token:
+        case .token(let sourceItem, _):
             logPortfolioTokenSelected(item: item)
+
+            if FeatureProvider.isAvailable(.swapRefactoring) {
+                return openSwap(source: sourceItem, receive: item)
+            }
+
             Task { await openExpressWithDestination(item: item) }
         }
     }
@@ -148,6 +153,10 @@ extension AccountsAwareActionButtonsSwapViewModel {
             return
         }
 
+        if FeatureProvider.isAvailable(.swapRefactoring) {
+            return openSwap(source: sourceItem, receive: item)
+        }
+
         Task {
             await updatePairs(sourceItem: sourceItem)
 
@@ -155,6 +164,26 @@ extension AccountsAwareActionButtonsSwapViewModel {
 
             await openExpressWithDestination(item: item, isNewlyAddedFromMarkets: true)
         }
+    }
+
+    private func openSwap(
+        source: AccountsAwareTokenSelectorItem,
+        receive: AccountsAwareTokenSelectorItem,
+    ) {
+        let source = CommonSendSwapableTokenFactory(
+            userWalletInfo: source.userWalletInfo,
+            walletModel: source.walletModel,
+            operationType: .swap
+        ).makeSwapableToken()
+
+        let receive = CommonSendSwapableTokenFactory(
+            userWalletInfo: receive.userWalletInfo,
+            walletModel: receive.walletModel,
+            operationType: .swap
+        ).makeSwapableToken()
+
+        let input = PredefinedSwapParameters.from(source, receive: receive)
+        coordinator?.openSwap(input: input)
     }
 
     private func openExpressWithDestination(
