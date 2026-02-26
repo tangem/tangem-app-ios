@@ -4157,6 +4157,7 @@
 		EF536B822CAFD2CA00FDC3E7 /* StakingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */; };
 		EF56B3D12A03AFDB002CCE27 /* DefaultMenuRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */; };
 		EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */; };
+		233E93C8A7DB5F2278ADCF45 /* SwapAmountStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E2EF2D33AAFEAB111D710D /* SwapAmountStep.swift */; };
 		EF5758CD2F48B4800069BBEA /* SwapAmountStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5758CC2F48B4800069BBEA /* SwapAmountStepBuildable.swift */; };
 		EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57693D2A8BAF6700901571 /* TransactionHistoryService.swift */; };
 		EF5769402A8BAF7900901571 /* TransactionHistoryServiceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */; };
@@ -9069,6 +9070,7 @@
 		EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConstants.swift; sourceTree = "<group>"; };
 		EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowViewModel.swift; sourceTree = "<group>"; };
 		EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowView.swift; sourceTree = "<group>"; };
+		58E2EF2D33AAFEAB111D710D /* SwapAmountStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAmountStep.swift; sourceTree = "<group>"; };
 		EF5758CC2F48B4800069BBEA /* SwapAmountStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAmountStepBuildable.swift; sourceTree = "<group>"; };
 		EF57693D2A8BAF6700901571 /* TransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryService.swift; sourceTree = "<group>"; };
 		EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryServiceState.swift; sourceTree = "<group>"; };
@@ -26445,6 +26447,7 @@
 		EFF3D7562F433895006AA205 /* SwapAmount */ = {
 			isa = PBXGroup;
 			children = (
+				58E2EF2D33AAFEAB111D710D /* SwapAmountStep.swift */,
 				EF5758CC2F48B4800069BBEA /* SwapAmountStepBuildable.swift */,
 				EF5758CF2F48B4E30069BBEA /* SwapAmountView */,
 			);
@@ -28388,6 +28391,7 @@
 				B06CF2932993BF77000C7D93 /* TransactionsListView.swift in Sources */,
 				B012A1192AA5CDE00079BAB4 /* NotificationButtonActionType.swift in Sources */,
 				EF22B9912C66235900839110 /* StakingTransactionSummaryDescriptionBuilder.swift in Sources */,
+				233E93C8A7DB5F2278ADCF45 /* SwapAmountStep.swift in Sources */,
 				EF5758CD2F48B4800069BBEA /* SwapAmountStepBuildable.swift in Sources */,
 				DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */,
 				B62FAA602F281ADC007B4336 /* TokenItemsEnricher.swift in Sources */,
