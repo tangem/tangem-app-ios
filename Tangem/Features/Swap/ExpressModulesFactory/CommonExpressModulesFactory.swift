@@ -182,7 +182,14 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             feeFormatter: feeFormatter,
             approveViewModelInput: expressInteractorFactory.expressInteractor
         )
-        return ExpressApproveFlowViewModel(input: input, router: coordinator)
+
+        let flowFactory = ExpressApproveFlowFactory(
+            tokenFeeManagerProviding: expressInteractorFactory.expressInteractor,
+            feeSelectorOutput: expressInteractorFactory.expressInteractor,
+            analyticsLogger: source.interactorAnalyticsLogger
+        )
+
+        return flowFactory.make(input: input, router: coordinator)
     }
 
     func makeExpressProvidersSelectorViewModel(

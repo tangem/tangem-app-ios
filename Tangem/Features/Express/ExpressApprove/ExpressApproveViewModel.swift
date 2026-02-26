@@ -36,17 +36,20 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveRoutable?
+    private weak var flowRouter: ExpressApproveFlowRoutable?
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
         input: Input,
-        coordinator: ExpressApproveRoutable
+        coordinator: ExpressApproveRoutable,
+        flowRouter: ExpressApproveFlowRoutable?
     ) {
         feeFormatter = input.feeFormatter
         approveViewModelInput = input.approveViewModelInput
         self.coordinator = coordinator
+        self.flowRouter = flowRouter
 
         tokenItem = input.settings.tokenItem
 
@@ -63,6 +66,14 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
         feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
         updateView(state: approveViewModelInput.approveFeeValue)
         bind()
+    }
+
+    func setFlowRouter(_ router: ExpressApproveFlowRoutable) {
+        flowRouter = router
+    }
+    
+    func didTapFeeSelectorButton() {
+        flowRouter?.openFeeTokenSelection()
     }
 
     func didTapInfoButton() {
