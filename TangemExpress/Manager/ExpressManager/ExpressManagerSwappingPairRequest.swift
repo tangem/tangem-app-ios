@@ -10,8 +10,13 @@ import Foundation
 import BlockchainSdk
 
 public struct ExpressManagerSwappingPairRequest {
-    public let amount: Decimal
+    public let amountType: ExpressAmountType
     public let feeOption: ExpressFee.Option
     public let approvePolicy: ApprovePolicy
     public let operationType: ExpressOperationType
+    public let rateType: ExpressProviderRateType
+
+    public var amount: Decimal {
+        amountType.amount
+    }
 }
