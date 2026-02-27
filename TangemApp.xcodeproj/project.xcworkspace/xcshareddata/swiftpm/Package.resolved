@@ -1,5 +1,5 @@
 {
-  "originHash" : "f663a13208537176259473f38ac32268992a04d25dbf4ca2a8ba9fa631f8e6ff",
+  "originHash" : "17804974ac7484b504bbe7b35e3777095f5e072512497b8e7fde0740fff5a8cc",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -107,6 +107,15 @@
       "state" : {
         "revision" : "c262694df4e5290a711cff291124ae4da76d8bd4",
         "version" : "0.1.2-tangem1"
+      }
+    },
+    {
+      "identity" : "bluruikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TimOliver/BlurUIKit.git",
+      "state" : {
+        "revision" : "c25ddfec89088dd8e7dac1f85bbe84bb91b449a2",
+        "version" : "1.4.0"
       }
     },
     {

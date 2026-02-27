@@ -55,13 +55,13 @@ struct EarnMostlyUsedTileView: View {
         TokenIcon(
             tokenIconInfo: TokenIconInfo(
                 name: viewModel.name,
-                blockchainIconAsset: nil,
+                blockchainIconAsset: viewModel.blockchainIconAsset,
                 imageURL: viewModel.imageUrl,
                 isCustom: false,
                 customTokenColor: nil
             ),
             size: Layout.imageSize,
-            isWithOverlays: false,
+            isWithOverlays: true,
             forceKingfisher: true
         )
     }
