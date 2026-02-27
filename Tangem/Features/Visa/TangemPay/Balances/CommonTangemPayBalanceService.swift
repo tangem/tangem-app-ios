@@ -28,6 +28,11 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         keyPath: \.availableForWithdrawal.amount
     )
 
+    lazy var fiatAvailableBalanceProvider: any TokenBalanceProvider = FiatTokenBalanceProvider(
+        input: fiatRateProvider,
+        cryptoBalanceProvider: availableBalanceProvider
+    )
+
     lazy var fiatTotalTokenBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
         input: fiatRateProvider,
         cryptoBalanceProvider: totalTokenBalanceProvider

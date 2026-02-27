@@ -304,8 +304,16 @@ private extension AccountsAwareAddTokenFlowViewModel {
         accountSelectorCell: AccountSelectorCellModel,
         tokenItem: TokenItem
     ) -> AccountsAwareAddTokenAccountWalletSelectorDataProvider {
-        AccountsAwareAddTokenAccountDataProvider(
-            isSelectionAvailable: oneAndOnlyAccount == nil,
+        let isSelectionAvailable: Bool
+        switch configuration.accountSelectionAvailability {
+        case .disabled:
+            isSelectionAvailable = false
+        case .enabledWhenNotSingleAccount:
+            isSelectionAvailable = oneAndOnlyAccount == nil
+        }
+
+        return AccountsAwareAddTokenAccountDataProvider(
+            isSelectionAvailable: isSelectionAvailable,
             accountSelectorCell: accountSelectorCell,
             handleSelection: { [weak self] in
                 self?.handleAccountWalletSelection(

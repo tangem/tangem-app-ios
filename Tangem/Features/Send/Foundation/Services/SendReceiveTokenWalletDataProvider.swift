@@ -15,23 +15,14 @@ import TangemAccounts
 final class SendReceiveTokenWalletDataProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let userWalletInfo: UserWalletInfo
-    private let analyticsLogger: any SendDestinationAnalyticsLogger
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        analyticsLogger: any SendDestinationAnalyticsLogger
-    ) {
-        self.userWalletInfo = userWalletInfo
-        self.analyticsLogger = analyticsLogger
-    }
+    init() {}
 }
 
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func walletData(for receiveToken: SendReceiveToken) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
-        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
+    func walletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+        guard let walletModel = findWalletModel(for: tokenItem) else {
             return nil
         }
 
@@ -43,9 +34,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
 
 private extension SendReceiveTokenWalletDataProvider {
     func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
-        let targetNetworkId = tokenItem.blockchain.networkId
-
-        return userWalletRepository.models
+        userWalletRepository.models
             .flatMap { userWalletModel -> [any WalletModel] in
                 if FeatureProvider.isAvailable(.accounts) {
                     return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
@@ -54,7 +43,7 @@ private extension SendReceiveTokenWalletDataProvider {
                 }
             }
             .first { walletModel in
-                walletModel.tokenItem.blockchain.networkId == targetNetworkId && walletModel.isMainToken
+                walletModel.tokenItem == tokenItem
             }
     }
 
@@ -72,8 +61,7 @@ private extension SendReceiveTokenWalletDataProvider {
                     showSign: false,
                     isToken: walletModel.tokenItem.isToken
                 )
-            ),
-            analyticsLogger: analyticsLogger
+            )
         )
     }
 }

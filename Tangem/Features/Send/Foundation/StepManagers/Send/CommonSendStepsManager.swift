@@ -15,8 +15,11 @@ class CommonSendStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
+    private let receiveTokensListBuilder: SendReceiveTokensListBuilder
+
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -32,8 +35,10 @@ class CommonSendStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
+        receiveTokensListBuilder: SendReceiveTokensListBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
         router: SendRoutable
     ) {
         self.amountStep = amountStep
@@ -41,8 +46,10 @@ class CommonSendStepsManager {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.feeSelectorBuilder = feeSelectorBuilder
+        self.receiveTokensListBuilder = receiveTokensListBuilder
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.router = router
 
         stack = [amountStep]
@@ -111,7 +118,7 @@ extension CommonSendStepsManager: SendStepsManager {
         case .destination where isEditAction: .init(action: .continue)
         case .amount: .init(action: .next)
         case .destination: .init(action: .next)
-        case .summary: .init(action: .action)
+        case .summary: .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
         case .finish: .init(action: .close)
         default: .empty
         }
@@ -175,6 +182,14 @@ extension CommonSendStepsManager: SendStepsManager {
         }
 
         back()
+    }
+}
+
+// MARK: - SendAmountRoutable
+
+extension CommonSendStepsManager: SendAmountStepRoutable {
+    func openReceiveTokensList() {
+        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder)
     }
 }
 

@@ -234,59 +234,6 @@ struct CompiledExpressDataCollector: EmailDataCollector {
     }
 }
 
-// MARK: - PushScreenDataCollector
-
-struct PushScreenDataCollector: EmailDataCollector {
-    var logData: Data? {
-        var data = userWalletEmailData
-        data.append(.separator(.dashes))
-        switch amount.type {
-        case .coin:
-            data.append(EmailCollectedData(type: .card(.blockchain), data: amount.currencySymbol))
-        case .token(let token):
-            data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
-        default:
-            break
-        }
-
-        data.append(contentsOf: [
-            EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost),
-            EmailCollectedData(type: .error, data: lastError?.toUniversalError().localizedDescription ?? "Unknown error"),
-            .separator(.dashes),
-            EmailCollectedData(type: .send(.pushingTxHash), data: pushingTxHash),
-            EmailCollectedData(type: .send(.pushingFee), data: pushingFee?.description ?? "[unknown]"),
-            EmailCollectedData(type: .send(.sourceAddress), data: source),
-            EmailCollectedData(type: .send(.destinationAddress), data: destination),
-            EmailCollectedData(type: .send(.amount), data: amount.description),
-            EmailCollectedData(type: .send(.fee), data: fee?.description ?? "[unknown]"),
-        ])
-
-        return formatData(data)
-    }
-
-    private let userWalletEmailData: [EmailCollectedData]
-    private let walletModel: any WalletModel
-    private let fee: Amount?
-    private let pushingFee: Amount?
-    private let destination: String
-    private let source: String
-    private let amount: Amount
-    private let pushingTxHash: String
-    private let lastError: Error?
-
-    init(userWalletEmailData: [EmailCollectedData], walletModel: any WalletModel, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
-        self.userWalletEmailData = userWalletEmailData
-        self.walletModel = walletModel
-        self.fee = fee
-        self.pushingFee = pushingFee
-        self.destination = destination
-        self.source = source
-        self.amount = amount
-        self.pushingTxHash = pushingTxHash
-        self.lastError = lastError
-    }
-}
-
 // MARK: - DetailsFeedbackDataCollector
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {

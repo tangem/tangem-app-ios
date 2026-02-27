@@ -286,12 +286,14 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            let expressInput = ExpressDependenciesDestinationInput(
+            let swapableToken = CommonSendSwapableTokenFactory(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel
-            )
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
+
             Task { @MainActor in
-                coordinator.openExchange(input: expressInput)
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
             }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)

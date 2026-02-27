@@ -471,8 +471,22 @@ extension Analytics {
         case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
         case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
         case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
+        case marketsEarnLoadError = "[Markets] Earn Load Error"
+        case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+
+        // MARK: - Earn
+
+        case earnPageOpened = "[Earn] Page Opened"
+        case earnMostlyUsedCarouselScrolled = "[Earn] Mostly Used Carousel Scrolled"
+        case earnBestOpportunitiesFilterNetworkApplied = "[Earn] Best Opportunities Filter Network Applied"
+        case earnBestOpportunitiesFilterTypeApplied = "[Earn] Best Opportunities Filter Type Applied"
+        case earnOpportunitySelected = "[Earn] Opportunity selected"
+        case earnAddTokenScreenOpened = "[Earn] Add Token Screen Opened"
+        case earnTokenAdded = "[Earn] Token Added"
+        case earnPageLoadError = "[Earn] Page Load Error"
+        case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
 
         // MARK: - Markets / Chart
 
