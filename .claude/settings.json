@@ -138,7 +138,9 @@
       "mcp__atlassian__search",
       "mcp__atlassian__fetch",
       "mcp__plugin_context7_context7__resolve-library-id",
-      "mcp__plugin_context7_context7__query-docs"
+      "mcp__plugin_context7_context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ],
     "deny": [
       "Read(./tangem-app-config/**)",
@@ -164,7 +166,6 @@
   },
   "enabledPlugins": {
     "axiom@axiom-marketplace": true,
-    "context7@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true
   },
   "enableAllProjectMcpServers": true,

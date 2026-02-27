@@ -32,6 +32,14 @@
       "headers": {
         "Authorization": "This MCP server should be overriden with a local one, see `Agents-and-LLMs` Notion page for installation guide"
       }
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }
