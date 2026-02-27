@@ -41,6 +41,7 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Properties
 
     private let factory: ExpressModulesFactory
+    private var safariHandle: SafariHandle?
 
     required init(
         factory: ExpressModulesFactory,
@@ -194,7 +195,15 @@ extension ExpressCoordinator: ExpressApproveRoutable {
     }
 
     func openLearnMore() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                TangemBlogUrlBuilder().url(post: .giveRevokePermission),
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
     }
 }
 
