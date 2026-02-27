@@ -95,9 +95,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressInteractor,
-            ),
-            coordinator: coordinator,
-            flowRouter: nil
+            )
         )
     }
 

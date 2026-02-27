@@ -37,8 +37,10 @@ struct ExpressApproveView: View {
                 }
                 .backgroundColor(Colors.Background.action)
 
-                GroupedSection(viewModel.feeRowViewModel) {
-                    DefaultRowView(viewModel: $0)
+                GroupedSection(viewModel.feeCompactViewModel) { feeViewModel in
+                    FeeCompactView(viewModel: feeViewModel) {
+                        viewModel.didTapFeeSelectorButton()
+                    }
                 } footer: {
                     DefaultFooterView(viewModel.feeFooterText)
                 }
