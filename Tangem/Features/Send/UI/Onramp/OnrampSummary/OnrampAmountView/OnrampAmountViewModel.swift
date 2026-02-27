@@ -33,6 +33,7 @@ class OnrampAmountViewModel: ObservableObject {
     init(
         tokenItem: TokenItem,
         initialAmount: Decimal?,
+        initialCurrency: OnrampFiatCurrency?,
         interactor: OnrampSummaryInteractor
     ) {
         self.tokenItem = tokenItem
@@ -42,6 +43,8 @@ class OnrampAmountViewModel: ObservableObject {
         formatter = BalanceFormatter()
 
         decimalNumberTextFieldViewModel.update(value: initialAmount)
+        update(currency: initialCurrency)
+
         bind()
     }
 
