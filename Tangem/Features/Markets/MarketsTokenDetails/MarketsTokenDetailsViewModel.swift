@@ -274,6 +274,15 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         }
     }
 
+    func shareTokenDetails() {
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl
+            .appendingPathComponent(Locale.shareLinkLanguageCode)
+            .appendingPathComponent("cryptocurrencies")
+            .appendingPathComponent(tokenInfo.id.lowercased())
+        coordinator?.shareTokenDetails(url: url)
+    }
+
     func logCarouselScrolledIfNeeded() {
         guard !Self.loggedNewsCarouselScrolledTokenIds.contains(tokenInfo.id) else { return }
         Self.loggedNewsCarouselScrolledTokenIds.insert(tokenInfo.id)
