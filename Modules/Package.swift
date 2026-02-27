@@ -37,6 +37,7 @@ let package = Package(
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.9.0"),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", exact: "602.0.0"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", exact: "1.39.0"),
+        .package(url: "https://github.com/TimOliver/BlurUIKit.git", exact: "1.4.0"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -135,6 +136,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
+                .product(name: "BlurSwiftUI", package: "BlurUIKit"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
