@@ -29,23 +29,29 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var alternativeAmount: String
 
     @Published var bottomInfoText: BottomInfoTextType?
+    @Published var receiveBottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
 
     @Published var sendAmountTokenViewData: SendAmountTokenViewData?
     @Published var receivedTokenViewType: ReceivedTokenViewType?
     @Published var activeField: ActiveAmountField = .source
     @Published var receiveTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
-    @Published var receiveFiatText: String?
+    @Published var receiveFiatTextFieldViewModel: DecimalNumberTextFieldViewModel?
+    @Published var receiveFiatTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
+    @Published var receiveAmountType: SendAmountCalculationType = .crypto
+    @Published var receiveAlternativeAmount: String?
+    @Published var receiveCryptoIconURL: URL?
+    @Published var receivePossibleToConvertToFiat: Bool = false
+    @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
 
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
         set { amountType = newValue ? .fiat : .crypto }
     }
 
-    var alternativeAmountAccessibilityIdentifier: String {
-        useFiatCalculation
-            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
-            : SendAccessibilityIdentifiers.alternativeFiatAmount
+    var useReceiveFiatCalculation: Bool {
+        get { receiveAmountType == .fiat }
+        set { receiveAmountType = newValue ? .fiat : .crypto }
     }
 
     // MARK: - Router
@@ -63,7 +69,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             SendAmountTokenViewData(
                 tokenIconInfo: $0.tokenIconInfo,
                 title: $0.title,
-                subtitle: $0.subtitle,
+                subtitle: compactSourceSubtitle ?? $0.subtitle,
                 detailsType: .none
             )
         }
@@ -80,7 +86,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let balanceConverter = BalanceConverter()
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
 
+    private var sourceCurrencySymbol: String = ""
+    private var receiveAmountFormatter: SendAmountFormatter?
     private var bag: Set<AnyCancellable> = []
+    private var receiveBag: Set<AnyCancellable> = []
 
     init(
         sourceToken: SendSourceToken,
@@ -130,12 +139,21 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func removeReceivedToken() {
+        receiveBag.removeAll()
         receiveAmountTextFieldViewModel = nil
+        receiveFiatTextFieldViewModel = nil
+        receiveFiatTextFieldOptions = nil
+        receiveAmountType = .crypto
+        receiveAlternativeAmount = nil
+        receiveCryptoIconURL = nil
+        receivePossibleToConvertToFiat = false
+        receiveAmountFormatter = nil
         lastUpdateSource = nil
         activeField = .source
         receiveTextFieldOptions = nil
-        receiveFiatText = nil
         currentReceiveToken = nil
+        receiveBottomInfoText = nil
+        compactSourceSubtitle = nil
         interactor.userDidRequestClearReceiveToken()
     }
 
@@ -175,8 +193,15 @@ private extension SendAmountViewModel {
 
         interactor
             .infoTextPublisher
+            .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
-            .assign(to: \.bottomInfoText, on: self, ownership: .weak)
+            .sink { viewModel, infoText in
+                if viewModel.receiveBottomInfoText != nil {
+                    viewModel.bottomInfoText = nil
+                } else {
+                    viewModel.bottomInfoText = infoText
+                }
+            }
             .store(in: &bag)
 
         interactor
@@ -185,6 +210,16 @@ private extension SendAmountViewModel {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { $0.updateSourceToken(sourceToken: $1) }
+            .store(in: &bag)
+
+        $receiveAmountType
+            .dropFirst()
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, _ in
+                viewModel.refreshReceiveAlternativeAmount()
+            }
             .store(in: &bag)
 
         Publishers.CombineLatest(
@@ -236,6 +271,7 @@ extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
         tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
+        sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
         if sourceToken.fiatAvailableBalanceProvider.balanceType.value != nil {
@@ -277,6 +313,21 @@ extension SendAmountViewModel {
                 let isFirstSelection = currentReceiveToken == nil
                 currentReceiveToken = receiveToken
 
+                // Update compact source subtitle based on loading state
+                switch amount {
+                case .loading:
+                    compactSourceSubtitle = .receive(state: .loading)
+                case .success:
+                    if let crypto = cryptoTextFieldViewModel.value {
+                        let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
+                        compactSourceSubtitle = .receive(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+                    } else {
+                        compactSourceSubtitle = nil
+                    }
+                case .failure:
+                    compactSourceSubtitle = nil
+                }
+
                 let expandedReceiveData = SendAmountTokenViewData(
                     tokenIconInfo: receiveToken.tokenIconInfo,
                     title: receiveToken.tokenItem.name,
@@ -307,9 +358,16 @@ extension SendAmountViewModel {
                     activeField = .receive
                 }
 
-                // Update fiat text from external amount
+                // Update receive fields from external amount
                 if case .success(let sendAmount) = amount {
-                    updateReceiveFiatText(crypto: sendAmount.crypto, tokenItem: receiveToken.tokenItem)
+                    updateReceiveFields(from: sendAmount, tokenItem: receiveToken.tokenItem)
+                    receiveBottomInfoText = nil
+                } else if case .failure(let error) = amount,
+                          let sendAmountError = error as? SendAmountError,
+                          case .receiveRestriction(let restriction) = sendAmountError {
+                    updateReceiveRestriction(restriction, token: receiveToken)
+                } else {
+                    receiveBottomInfoText = nil
                 }
             } else {
                 let tokenViewData = SendAmountTokenViewData(
@@ -327,25 +385,52 @@ extension SendAmountViewModel {
     }
 
     private func createReceiveAmountTextField(for receiveToken: SendReceiveToken) -> DecimalNumberTextFieldViewModel {
-        let textFieldVM = DecimalNumberTextFieldViewModel(maximumFractionDigits: receiveToken.tokenItem.decimalCount)
-        receiveAmountTextFieldViewModel = textFieldVM
+        receiveBag.removeAll()
 
-        textFieldVM.valuePublisher
+        let cryptoVM = DecimalNumberTextFieldViewModel(maximumFractionDigits: receiveToken.tokenItem.decimalCount)
+        receiveAmountTextFieldViewModel = cryptoVM
+
+        let fiatVM = DecimalNumberTextFieldViewModel(maximumFractionDigits: receiveToken.fiatItem.fractionDigits)
+        receiveFiatTextFieldViewModel = fiatVM
+        receiveFiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: receiveToken.fiatItem.currencyCode)
+        receiveCryptoIconURL = receiveToken.tokenIconInfo.imageURL
+        receivePossibleToConvertToFiat = receiveToken.tokenItem.currencyId != nil
+
+        receiveAmountFormatter = SendAmountFormatter(
+            tokenItem: receiveToken.tokenItem,
+            fiatItem: receiveToken.fiatItem,
+            balanceFormatter: balanceFormatter
+        )
+
+        // Subscribe crypto VM — gated on receiveAmountType == .crypto
+        cryptoVM.valuePublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, value in
+                guard viewModel.receiveAmountType == .crypto else { return }
                 viewModel.lastUpdateSource = .receive
                 viewModel.receiveAmountDidChange(value)
             }
-            .store(in: &bag)
+            .store(in: &receiveBag)
 
-        return textFieldVM
+        // Subscribe fiat VM — gated on receiveAmountType == .fiat
+        fiatVM.valuePublisher
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, value in
+                guard viewModel.receiveAmountType == .fiat else { return }
+                viewModel.lastUpdateSource = .receive
+                viewModel.receiveFiatAmountDidChange(value)
+            }
+            .store(in: &receiveBag)
+
+        return cryptoVM
     }
 
     private func receiveAmountDidChange(_ value: Decimal?) {
         guard let value else {
             receiveAmountOutput?.receiveAmountDidChanged(amount: nil)
-            receiveFiatText = nil
+            receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: .none, type: .crypto)
             return
         }
 
@@ -358,24 +443,93 @@ extension SendAmountViewModel {
 
         let amount = SendAmount(type: .typical(crypto: value, fiat: fiat))
         receiveAmountOutput?.receiveAmountDidChanged(amount: amount)
-
-        if let fiat {
-            receiveFiatText = balanceFormatter.formatFiatBalance(fiat)
-        } else {
-            receiveFiatText = nil
-        }
+        receiveFiatTextFieldViewModel?.update(value: fiat)
+        receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: amount, type: .crypto)
     }
 
-    private func updateReceiveFiatText(crypto: Decimal?, tokenItem: TokenItem) {
-        guard let crypto, let currencyId = tokenItem.currencyId else {
-            receiveFiatText = nil
+    private func receiveFiatAmountDidChange(_ value: Decimal?) {
+        guard let value else {
+            receiveAmountOutput?.receiveAmountDidChanged(amount: nil)
+            receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: .none, type: .fiat)
             return
         }
 
-        if let fiat = balanceConverter.convertToFiat(crypto, currencyId: currencyId) {
-            receiveFiatText = balanceFormatter.formatFiatBalance(fiat)
+        let crypto: Decimal?
+        if let currencyId = currentReceiveToken?.tokenItem.currencyId {
+            crypto = balanceConverter.convertToCryptoFrom(fiatValue: value, currencyId: currencyId)
         } else {
-            receiveFiatText = nil
+            crypto = nil
+        }
+
+        let amount = SendAmount(type: .alternative(fiat: value, crypto: crypto))
+        receiveAmountOutput?.receiveAmountDidChanged(amount: amount)
+        receiveAmountTextFieldViewModel?.update(value: crypto)
+        receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: amount, type: .fiat)
+    }
+
+    private func refreshReceiveAlternativeAmount() {
+        guard let currentReceiveToken, let receiveAmountFormatter else { return }
+
+        switch receiveAmountType {
+        case .crypto:
+            // Switching to crypto mode — derive fiat from the current crypto value
+            let crypto = receiveAmountTextFieldViewModel?.value
+            let fiat = crypto.flatMap { value in
+                currentReceiveToken.tokenItem.currencyId.flatMap {
+                    balanceConverter.convertToFiat(value, currencyId: $0)
+                }
+            }
+            receiveFiatTextFieldViewModel?.update(value: fiat)
+            let amount = crypto.map { SendAmount(type: .typical(crypto: $0, fiat: fiat)) }
+            receiveAlternativeAmount = receiveAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+        case .fiat:
+            // Switching to fiat mode — derive fiat from the current crypto value
+            let crypto = receiveAmountTextFieldViewModel?.value
+            let fiat = crypto.flatMap { value in
+                currentReceiveToken.tokenItem.currencyId.flatMap {
+                    balanceConverter.convertToFiat(value, currencyId: $0)
+                }
+            }
+            receiveFiatTextFieldViewModel?.update(value: fiat)
+            receiveAmountTextFieldViewModel?.update(value: crypto)
+            let amount = fiat.map { SendAmount(type: .alternative(fiat: $0, crypto: crypto)) }
+            receiveAlternativeAmount = receiveAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
+        }
+    }
+
+    private func updateReceiveRestriction(_ restriction: ReceiveAmountRestriction, token: SendReceiveToken) {
+        let symbol = token.tokenItem.currencySymbol
+        switch restriction {
+        case .tooSmallAmount(let amount):
+            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
+            receiveBottomInfoText = .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
+        case .tooBigAmount(let amount):
+            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
+            receiveBottomInfoText = .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
+        case .balanceExceeded:
+            receiveBottomInfoText = .error(Localization.sendNotificationExceedBalanceTitle)
+        }
+    }
+
+    private func updateReceiveFields(from amount: SendAmount?, tokenItem: TokenItem) {
+        guard let currencyId = tokenItem.currencyId else {
+            receiveAlternativeAmount = nil
+            return
+        }
+
+        let crypto = amount?.crypto
+        let fiat = crypto.flatMap { balanceConverter.convertToFiat($0, currencyId: currencyId) }
+
+        switch receiveAmountType {
+        case .crypto:
+            receiveFiatTextFieldViewModel?.update(value: fiat)
+            let displayAmount = crypto.map { SendAmount(type: .typical(crypto: $0, fiat: fiat)) }
+            receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: displayAmount, type: .crypto)
+        case .fiat:
+            receiveAmountTextFieldViewModel?.update(value: crypto)
+            receiveFiatTextFieldViewModel?.update(value: fiat)
+            let displayAmount = fiat.map { SendAmount(type: .alternative(fiat: $0, crypto: crypto)) }
+            receiveAlternativeAmount = receiveAmountFormatter?.formattedAlternative(sendAmount: displayAmount, type: .fiat)
         }
     }
 

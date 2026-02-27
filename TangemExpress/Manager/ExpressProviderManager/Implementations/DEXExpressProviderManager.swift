@@ -75,7 +75,7 @@ private extension DEXExpressProviderManager {
             }
 
             do {
-                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
+                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type, quoteId: quote.quoteId)
                 let data = try await expressAPIProvider.exchangeData(item: dataItem)
                 try Task.checkCancellation()
 
@@ -205,7 +205,7 @@ private extension DEXExpressProviderManager {
         try Task.checkCancellation()
 
         // better to make the quote from the data
-        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
+        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId)
         return .init(provider: provider, data: data, fee: fee, quote: quoteData)
     }
 }

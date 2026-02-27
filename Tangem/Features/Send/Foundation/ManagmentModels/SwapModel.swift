@@ -137,24 +137,39 @@ extension SwapModel {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
         _amount.send(receiveAmount)
 
-        updateTask(loadingType: .rates) { [weak self] expressManager in
-            if receiveAmount != nil {
-                // Add some debounce
-                try await Task.sleep(for: .seconds(1))
-            }
+        updateTask?.cancel()
+        updateTask = runTask(in: self, code: { input in
+            do {
+                input._providersState.send(.loading(.rates))
 
-            let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType, by: .amountChange)
-
-            // Push the calculated fromAmount back to the source text field
-            if let quote = result.selected?.getState().quote {
-                await MainActor.run {
-                    self?.externalAmountUpdater.externalUpdate(amount: quote.fromAmount)
+                if receiveAmount != nil {
+                    // Add some debounce
+                    try await Task.sleep(for: .seconds(1))
                 }
-            }
 
-            return result
-        }
+                let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
+                let result: ExpressManagerUpdatingResult = try await input.expressManager.update(amountType: amountType, by: .amountChange)
+
+                // First: update providers state (including restriction detection)
+                let state = try await input.mapToLoadedState(result: result)
+                input.update(providersState: .loaded(
+                    providers: result.providers,
+                    selected: result.selected,
+                    state: state
+                ))
+
+                // Then: push fromAmount to source text field
+                if let quote = result.selected?.getState().quote {
+                    await MainActor.run {
+                        input.externalAmountUpdater.externalUpdate(amount: quote.fromAmount)
+                    }
+                }
+            } catch is CancellationError {
+                ExpressLogger.debug("updateTask was cancelled")
+            } catch {
+                input.update(providersState: .failure(error))
+            }
+        })
     }
 
     func update(source wallet: SendSourceToken) {
@@ -361,6 +376,10 @@ extension SwapModel {
 
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: previewCEX.quote)
+
+        if let restriction = try validate(amount: amount, fee: fee) {
+            return .restriction(restriction, quote: quote)
+        }
 
         let withdrawalNotificationProvider = source.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
@@ -650,6 +669,15 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     }
 
     func sourceAmountDidChanged(amount: SendAmount?) {
+        // When a .to() call detected a restriction (e.g. balance exceeded),
+        // don't overwrite it with a redundant .from() call.
+        // The amount may be nil when the interactor's validator rejects it
+        // for the same reason (balance exceeded), or it may match the quote's fromAmount.
+        if case .loaded(_, _, .restriction(_, let quote)) = _providersState.value,
+           let quote, amount == nil || amount?.crypto == quote.fromAmount {
+            return
+        }
+
         update(sourceAmount: amount)
     }
 }
@@ -714,7 +742,20 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         case .failure(let error):
             return .failure(error)
 
-        case .loaded(_, let selected, _):
+        case .loaded(_, let selected, let loadedState):
+            if case .restriction(let restriction, _) = loadedState {
+                switch restriction {
+                case .tooSmallAmountForSwapping(let amount):
+                    return .failure(SendAmountError.receiveRestriction(.tooSmallAmount(amount)))
+                case .tooBigAmountForSwapping(let amount):
+                    return .failure(SendAmountError.receiveRestriction(.tooBigAmount(amount)))
+                case .notEnoughBalanceForSwapping:
+                    return .failure(SendAmountError.receiveRestriction(.balanceExceeded))
+                default:
+                    break
+                }
+            }
+
             guard let quote = selected?.getState().quote else {
                 return .failure(SendAmountError.noAmount)
             }
