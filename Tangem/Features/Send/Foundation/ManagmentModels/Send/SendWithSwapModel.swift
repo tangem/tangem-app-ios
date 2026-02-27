@@ -91,6 +91,12 @@ private extension SendWithSwapModel {
         func resetFlowAction() {
             reset()
             transferModel.externalDestinationUpdater.externalUpdate(address: .init(value: .plain(""), source: .textField))
+
+            if let tokenItem = newReceiveToken?.tokenItem {
+                externalDestinationUpdater.externalUpdate(additionalField: .field(for: tokenItem.blockchain))
+            } else {
+                externalDestinationUpdater.externalUpdate(additionalField: .notSupported)
+            }
             router?.resetFlow()
         }
 
@@ -430,8 +436,25 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, isSwap in
-                isSwap ? model.swapModel.summaryTransactionDataPublisher : model.transferModel.summaryTransactionDataPublisher
+            .flatMapLatest { model, isSwap -> AnyPublisher<SendSummaryTransactionData?, Never> in
+                if isSwap {
+                    return Publishers
+                        .CombineLatest(
+                            model.transferModel.summaryTransactionDataPublisher,
+                            model.swapModel.summaryTransactionDataPublisher
+                        )
+                        .map { transferData, swapData -> SendSummaryTransactionData? in
+                            guard case .send(let amount, let fee) = transferData,
+                                  case .swap(let provider) = swapData else {
+                                return nil
+                            }
+
+                            return .sendWithSwap(amount: amount, fee: fee, provider: provider)
+                        }
+                        .eraseToAnyPublisher()
+                } else {
+                    return model.transferModel.summaryTransactionDataPublisher
+                }
             }
             .eraseToAnyPublisher()
     }
@@ -486,17 +509,18 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     func performAction() async throws -> TransactionDispatcherResult {
         if isSwapMode {
             // Swap mode - check high price impact
-//            let highPriceImpactResult = try? await swapModel.highPriceImpactPublisher.first().async()
-//
-//            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
-//                let viewModel = HighPriceImpactWarningSheetViewModel(
-//                    highPriceImpact: highPriceImpact,
-//                    tangemIconProvider: CommonTangemIconProvider(signer: transactionSigner)
-//                )
-//                router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
-//
-//                return try await viewModel.process(send: { try await self.swapModel.performAction() })
-//            }
+            let highPriceImpactResult = try await swapModel.highPriceImpactPublisher.first().async()
+            let source = try swapModel.sourceToken.get()
+
+            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
+                let viewModel = HighPriceImpactWarningSheetViewModel(
+                    highPriceImpact: highPriceImpact,
+                    tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
+                )
+                router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+
+                return try await viewModel.process(send: { try await self.swapModel.performAction() })
+            }
 
             return try await swapModel.performAction()
         } else {
@@ -510,7 +534,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
 
 extension SendWithSwapModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> {
-        isSwapMode ? Just([]).eraseToAnyPublisher() : transferModel.feeValues
+        isSwapMode ? .just(output: []) : transferModel.feeValues
     }
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
@@ -526,17 +550,17 @@ extension SendWithSwapModel: SendNotificationManagerInput {
         isSwapModePublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
-                isSwap ? Just(false).eraseToAnyPublisher() : model.transferModel.isFeeIncludedPublisher
+                isSwap ? .just(output: false) : model.transferModel.isFeeIncludedPublisher
             }
             .eraseToAnyPublisher()
     }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> {
-        isSwapMode ? Just(nil).eraseToAnyPublisher() : transferModel.bsdkTransactionPublisher
+        isSwapMode ? .just(output: nil) : transferModel.bsdkTransactionPublisher
     }
 
     var transactionCreationError: AnyPublisher<Error?, Never> {
-        isSwapMode ? Just(nil).eraseToAnyPublisher() : transferModel.transactionCreationError
+        isSwapMode ? .just(output: nil) : transferModel.transactionCreationError
     }
 }
 
