@@ -576,14 +576,14 @@ extension SwapModel: SwapModelStateProvider {
 // MARK: - SendSourceTokenInput, SendSourceTokenOutput
 
 extension SwapModel: SwapTokenSelectorOutput {
-    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem) {
         let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
         let token = factory.makeSwapableToken()
 
         update(source: token)
     }
 
-    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem) {
         let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
         let token = factory.makeSwapableToken()
 
