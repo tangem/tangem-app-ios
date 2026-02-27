@@ -75,6 +75,12 @@ struct MarketsTokenDetailsView: View {
                     ToolbarItem(placement: .principal) {
                         navigationBarTitle
                     }
+
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: viewModel.shareTokenDetails) {
+                            Assets.Glyphs.moreVertical.image
+                        }
+                    }
                 })
         } else {
             rootView
@@ -96,7 +102,13 @@ struct MarketsTokenDetailsView: View {
     private var navigationBar: some View {
         MarketsNavigationBar(
             titleView: { navigationBarTitle },
-            onBackButtonAction: viewModel.onBackButtonTap
+            onBackButtonAction: viewModel.onBackButtonTap,
+            rightButtons: {
+                Button(action: viewModel.shareTokenDetails) {
+                    Assets.Glyphs.moreVertical.image
+                        .padding(.trailing, 16)
+                }
+            }
         )
         .background(
             MarketsNavigationBarBackgroundView(
