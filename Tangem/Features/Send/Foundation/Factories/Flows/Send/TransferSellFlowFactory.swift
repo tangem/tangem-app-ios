@@ -146,12 +146,11 @@ extension TransferSellFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                emailDataCollectorBuilder: transferableToken.emailDataCollectorBuilder,
-                emailDataProvider: transferableToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: sendModel
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: transferableToken
+                sourceTokenInput: sendModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
