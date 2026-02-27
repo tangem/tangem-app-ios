@@ -294,7 +294,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
             if hasExternalURL {
                 let input = notificationFactory.buildNotificationInput(
-                    for: ExpressNotificationEvent.cexOperationFailed,
+                    for: SwapNotificationEvent.cexOperationFailed,
                     buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
                 )
 
@@ -304,7 +304,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         case .verificationRequired:
             showGoToProviderHeaderButton = false
             let input = notificationFactory.buildNotificationInput(
-                for: ExpressNotificationEvent.verificationRequired,
+                for: SwapNotificationEvent.verificationRequired,
                 buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
             )
 
@@ -327,7 +327,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
         if let refundedTokenItem {
             let input = notificationFactory.buildNotificationInput(
-                for: ExpressNotificationEvent.refunded(tokenItem: refundedTokenItem),
+                for: SwapNotificationEvent.refunded(tokenItem: refundedTokenItem),
                 buttonAction: { [weak self] id, action in
                     self?.didTapNotification(with: id, action: action)
                 }
@@ -374,7 +374,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         let fifteenMinutes: TimeInterval = 15 * 60
         if Date().timeIntervalSince(createdAt) > fifteenMinutes {
             let input = notificationFactory.buildNotificationInput(
-                for: ExpressNotificationEvent.longTimeAverageDuration,
+                for: SwapNotificationEvent.longTimeAverageDuration,
                 buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
             )
 
@@ -397,7 +397,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 extension PendingExpressTxStatusBottomSheetViewModel {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         guard let notificationViewInput = notificationViewInputs.first(where: { $0.id == id }),
-              let event = notificationViewInput.settings.event as? ExpressNotificationEvent else {
+              let event = notificationViewInput.settings.event as? SwapNotificationEvent else {
             return
         }
 

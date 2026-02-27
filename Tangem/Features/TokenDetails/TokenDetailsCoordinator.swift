@@ -27,7 +27,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
@@ -262,14 +261,8 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             walletModel: input.walletModel
         ).makeWithSwapToken()
 
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            expressOperationType: .swapAndSend
-        )
-
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .send(sourceToken, source: source), source: .tokenDetails)
+        let options = SendCoordinator.Options(type: .send(sourceToken), source: .tokenDetails)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
@@ -292,43 +285,18 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceToken = SendWithSwapTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-        ).makeWithSwapToken()
-
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            expressOperationType: .swapAndSend
-        )
+            walletModel: input.walletModel
+        ).makeTransferableToken()
 
         let coordinator = makeSendCoordinator()
-
         let options = SendCoordinator.Options(
-            type: .sell(sourceToken, source: source, parameters: sellParameters),
+            type: .sell(sourceToken, parameters: sellParameters),
             source: .tokenDetails
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
-    }
-
-    func openExpress(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory)
-
-        let showExpressBlock = { [weak self] in
-            coordinator.start(with: .default)
-            self?.expressCoordinator = coordinator
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .token,
-                presentCompletion: showExpressBlock
-            )
-        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
@@ -386,6 +354,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating
+// MARK: - SendFeeCurrencyNavigating
 
-extension TokenDetailsCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {}
+extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}

@@ -11,32 +11,6 @@ protocol SendWithSwapFlowBaseDependenciesFactory: SendFlowBaseDependenciesFactor
 // MARK: - Shared dependencies
 
 extension SendWithSwapFlowBaseDependenciesFactory {
-    func makeSendModel(
-        sourceToken: SendWithSwapToken,
-        swapManager: SwapManager,
-        analyticsLogger: any SendAnalyticsLogger,
-        predefinedValues: SendModel.PredefinedValues
-    ) -> SendModel {
-        SendModel(
-            userWalletId: userWalletInfo.id,
-            userToken: sourceToken,
-            transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
-            analyticsLogger: analyticsLogger,
-            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
-            sendAlertBuilder: makeSendAlertBuilder(),
-            swapManager: swapManager,
-            predefinedValues: predefinedValues
-        )
-    }
-
-    func makeSwapManager(expressInteractor: ExpressInteractor) -> SwapManager {
-        CommonSwapManager(
-            userWalletConfig: userWalletInfo.config,
-            interactor: expressInteractor
-        )
-    }
-
     func makeSendWithSwapModel(
         transferModel: TransferModel,
         swapModel: SwapModel,
@@ -62,23 +36,12 @@ extension SendWithSwapFlowBaseDependenciesFactory {
 
     // MARK: - Notifications
 
-    func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput, expressInteractor: ExpressInteractor) -> SendNotificationManager {
-        SendWithSwapNotificationManager(
-            receiveTokenInput: receiveTokenInput,
-            sendNotificationManager: makeSendNotificationManager(),
-            expressNotificationManager: ExpressNotificationManager(
-                userWalletId: userWalletInfo.id,
-                expressInteractor: expressInteractor
-            )
-        )
-    }
-
-    func makeCombinedSendWithSwapNotificationManager(
+    func makeSendWithSwapNotificationManager(
         receiveTokenInput: SendReceiveTokenInput,
         sendNotificationManager: SendNotificationManager,
         swapNotificationManager: SwapNotificationManager
     ) -> NotificationManager {
-        CombinedSendWithSwapNotificationManager(
+        SendWithSwapNotificationManager(
             receiveTokenInput: receiveTokenInput,
             sendNotificationManager: sendNotificationManager,
             swapNotificationManager: swapNotificationManager

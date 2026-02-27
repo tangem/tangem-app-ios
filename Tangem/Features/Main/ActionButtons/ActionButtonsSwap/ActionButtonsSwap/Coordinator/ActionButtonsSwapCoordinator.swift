@@ -15,7 +15,7 @@ typealias ActionButtonsTokenSelectorViewModel = TokenSelectorViewModel<
 >
 
 final class ActionButtonsSwapCoordinator: CoordinatorObject {
-    let dismissAction: Action<ExpressCoordinator.DismissOptions?>
+    let dismissAction: Action<FeeCurrencyNavigatingDismissOption?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Injected
@@ -36,7 +36,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     required init(
         expressTokensListAdapter: some ExpressTokensListAdapter,
         userWalletModel: some UserWalletModel,
-        dismissAction: @escaping Action<ExpressCoordinator.DismissOptions?>,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
         tokenSorter: some TokenAvailabilitySorter,
         yieldModuleNotificationInteractor: YieldModuleNoticeInteractor,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
@@ -89,18 +89,6 @@ extension ActionButtonsSwapCoordinator {
 // MARK: - ActionButtonsSwapRoutable
 
 extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
-    func openExpress(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-        viewType = .express(coordinator)
-    }
-
     func openSwap(input: PredefinedSwapParameters) {
         let sendCoordinator = SendCoordinator(
             dismissAction: { [weak self] dismissOptions in
@@ -158,7 +146,6 @@ extension ActionButtonsSwapCoordinator {
     enum ViewType: Identifiable {
         case legacy(ActionButtonsSwapViewModel)
         case new(AccountsAwareActionButtonsSwapViewModel)
-        case express(ExpressCoordinator)
         case swap(SendCoordinator)
     }
 }
