@@ -34,9 +34,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
 
 private extension SendReceiveTokenWalletDataProvider {
     func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
-        let targetNetworkId = tokenItem.blockchain.networkId
-
-        return userWalletRepository.models
+        userWalletRepository.models
             .flatMap { userWalletModel -> [any WalletModel] in
                 if FeatureProvider.isAvailable(.accounts) {
                     return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
@@ -45,7 +43,7 @@ private extension SendReceiveTokenWalletDataProvider {
                 }
             }
             .first { walletModel in
-                walletModel.tokenItem.blockchain.networkId == targetNetworkId && walletModel.isMainToken
+                walletModel.tokenItem == tokenItem
             }
     }
 
