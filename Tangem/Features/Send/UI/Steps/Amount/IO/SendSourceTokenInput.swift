@@ -10,8 +10,8 @@ import Combine
 import TangemFoundation
 
 protocol SendSourceTokenInput: AnyObject {
-    var sourceToken: SendSourceToken { get }
-    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> { get }
+    var sourceToken: LoadingResult<SendSourceToken, any Error> { get }
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<SendSourceToken, any Error>, Never> { get }
 }
 
 /// Will be useful for swap

@@ -16,7 +16,6 @@ protocol SendSummaryTitleProvider {
 
 struct CommonSendSummaryTitleProvider: SendSummaryTitleProvider {
     let tokenItem: TokenItem
-    let walletName: String
 
     var title: String {
         switch tokenItem.token?.metadata.kind {
@@ -41,10 +40,8 @@ struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {
 
     var title: String {
         switch receiveTokenInput?.receiveToken {
-        case .none, .same:
-            Localization.commonSend
-        case .swap:
-            Localization.sendWithSwapTitle
+        case .none: Localization.commonSend
+        case .some: Localization.sendWithSwapTitle
         }
     }
 }
