@@ -118,12 +118,11 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: actionModel,
-                emailDataCollectorBuilder: stakingableToken.emailDataCollectorBuilder,
-                emailDataProvider: stakingableToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: actionModel
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: stakingableToken
+                sourceTokenInput: actionModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
