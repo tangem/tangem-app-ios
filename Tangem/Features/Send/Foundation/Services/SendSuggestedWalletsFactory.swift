@@ -8,6 +8,8 @@
 
 import Foundation
 import TangemAccounts
+import TangemPay
+import TangemLocalization
 
 struct SendSuggestedWalletsFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -34,7 +36,7 @@ struct SendSuggestedWalletsFactory {
                 return sameNetwork && walletModel.isMainToken && shouldBeIncluded()
             }
 
-            return suggestedWalletModels.map { walletModel in
+            var results = suggestedWalletModels.map { walletModel in
                 let account: SendDestinationSuggestedWallet.Account? = walletModel.account.map { accountModel in
                     let icon = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
                     return .init(icon: icon, name: accountModel.name)
@@ -53,6 +55,30 @@ struct SendSuggestedWalletsFactory {
                     accountModelAnalyticsProvider: walletModel.account
                 )
             }
+
+            if walletModel.tokenItem.token == TangemPayUtilities.usdcTokenItem.token,
+               walletModel.tokenItem.blockchain == TangemPayUtilities.usdcTokenItem.blockchain,
+               let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
+               let depositAddress = tangemPayAccount.depositAddress {
+                results.append(
+                    SendDestinationSuggestedWallet(
+                        name: userWalletModel.name,
+                        address: depositAddress,
+                        account: SendDestinationSuggestedWallet.Account(
+                            icon: .init(backgroundColor: .clear, nameMode: .tangemPay),
+                            name: Localization.tangempayPaymentAccount
+                        ),
+                        tokenHeader: ExpressInteractorTokenHeaderProvider(
+                            userWalletInfo: userWalletModel.userWalletInfo,
+                            account: nil
+                        )
+                        .makeHeader(),
+                        accountModelAnalyticsProvider: nil
+                    )
+                )
+            }
+
+            return results
         }
 
         return wallets
