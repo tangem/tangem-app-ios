@@ -31,7 +31,6 @@ struct MainUserWalletHeader: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .stroked(color: .red, cornerRadius: 0, lineWidth: 2)
     }
 
     private var balance: some View {
