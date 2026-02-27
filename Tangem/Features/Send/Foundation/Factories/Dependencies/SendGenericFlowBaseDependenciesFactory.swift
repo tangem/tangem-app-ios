@@ -51,7 +51,8 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
         CommonSendWithSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
+            swapTransactionSummaryDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
         )
     }
 
