@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import TangemFoundation
 
 final class RefreshScrollViewDelegate: NSObject {
+    private typealias Observer = WeakRef<UIScrollViewDelegate>
+
     private let willEndDraggingAt: (CGPoint) -> TargetContentOffset?
 
     private weak var scrollView: UIScrollView?
@@ -17,6 +20,8 @@ final class RefreshScrollViewDelegate: NSObject {
     /// We can't use UIScrollView.isDragging here
     /// Because it's still true while scroll view is decelerating
     private(set) var dragging: Dragging?
+
+    private var observers: [AnyHashable: Observer] = [:]
 
     init(willEndDraggingAt: @escaping (CGPoint) -> TargetContentOffset?) {
         self.willEndDraggingAt = willEndDraggingAt
@@ -43,6 +48,16 @@ final class RefreshScrollViewDelegate: NSObject {
         let topInset = topInset(scrollView: scrollView)
         let top = CGPoint(x: scrollView.safeAreaInsets.left, y: -topInset)
         scrollView.setContentOffset(top, animated: true)
+    }
+
+    func addObserver(_ observer: UIScrollViewDelegate) {
+        let key = ObjectIdentifier(observer)
+        observers[key] = WeakRef(observer)
+    }
+
+    func removeObserver(_ observer: UIScrollViewDelegate) {
+        let key = ObjectIdentifier(observer)
+        observers.removeValue(forKey: key)
     }
 }
 
@@ -83,6 +98,10 @@ private extension RefreshScrollViewDelegate {
             scrollView.contentInset.top
         }
     }
+
+    func observersPerform(_ closure: (UIScrollViewDelegate?) -> Void) {
+        observers.values.forEach { closure($0.value) }
+    }
 }
 
 // MARK: - Models
@@ -102,6 +121,7 @@ extension RefreshScrollViewDelegate {
 extension RefreshScrollViewDelegate: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         internalScrollViewDelegate?.scrollViewDidScroll?(scrollView)
+        observersPerform { $0?.scrollViewDidScroll?(scrollView) }
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -111,6 +131,7 @@ extension RefreshScrollViewDelegate: UIScrollViewDelegate {
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         internalScrollViewDelegate?.scrollViewWillBeginDragging?(scrollView)
         willBeginDragging(scrollView)
+        observersPerform { $0?.scrollViewWillBeginDragging?(scrollView) }
     }
 
     func scrollViewWillEndDragging(
@@ -124,14 +145,17 @@ extension RefreshScrollViewDelegate: UIScrollViewDelegate {
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         internalScrollViewDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
+        observersPerform { $0?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate) }
     }
 
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         internalScrollViewDelegate?.scrollViewWillBeginDecelerating?(scrollView)
+        observersPerform { $0?.scrollViewWillBeginDecelerating?(scrollView) }
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         internalScrollViewDelegate?.scrollViewDidEndDecelerating?(scrollView)
+        observersPerform { $0?.scrollViewDidEndDecelerating?(scrollView) }
     }
 
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
