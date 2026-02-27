@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
@@ -39,9 +40,18 @@ struct MainView: View {
     private var fullPagePagerContent: some View {
         FullPagePagerView(
             data: viewModel.pages,
+            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
             headerFactory: { page in
-                page.header
+                TangemElasticContainer(
+                    onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
+                    onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
+                    content: { ratio in
+                        page.header
+                            .scaleEffect(ratio)
+                            .opacity(ratio)
+                    }
+                )
             },
             bodyFactory: { page in
                 page.body
