@@ -414,7 +414,7 @@ extension SwapModel {
             switch _providersState.value {
             case .loaded(_, _, state: .permissionRequired):
                 assertionFailure("Should called sendApproveTransaction()")
-                throw ExpressInteractorError.transactionDataNotFound
+                throw SwapModel.SwapModelError.transactionDataNotFound
 
             case .loaded(_, .some(let selected), state: .previewCEX(let previewCEX)):
                 let data = try await expressManager.requestData()
@@ -453,7 +453,7 @@ extension SwapModel {
                 return result
 
             default:
-                throw ExpressInteractorError.transactionDataNotFound
+                throw SwapModel.SwapModelError.transactionDataNotFound
             }
         }()
 
@@ -538,8 +538,8 @@ extension SwapModel {
 
             default:
                 assertionFailure("Wrong case. Check implementation")
-                _sourceToken.send(.failure(ExpressInteractorError.sourceNotFound))
-                _receiveToken.send(.failure(ExpressInteractorError.destinationNotFound))
+                _sourceToken.send(.failure(SwapModel.SwapModelError.sourceNotFound))
+                _receiveToken.send(.failure(SwapModel.SwapModelError.destinationNotFound))
             }
         } catch ExpressDestinationServiceError.sourceNotFound(let destination) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
@@ -1070,11 +1070,11 @@ extension SwapModel: ApproveViewModelInput {
 
     func sendApproveTransaction() async throws {
         guard case .loaded(let providers, let selected, state: .permissionRequired(let state)) = _providersState.value else {
-            throw ExpressInteractorError.transactionDataNotFound
+            throw SwapModel.SwapModelError.transactionDataNotFound
         }
 
         guard let allowanceService = sourceToken.value?.allowanceService else {
-            throw ExpressInteractorError.allowanceServiceNotFound
+            throw SwapModel.SwapModelError.allowanceServiceNotFound
         }
 
         analyticsLogger.logSwapButtonPermissionApprove(policy: state.policy)
@@ -1352,6 +1352,16 @@ extension SwapModel {
         let fee: Fee
         let provider: ExpressProvider
     }
+
+    enum SwapModelError: String, LocalizedError {
+        case feeNotFound
+        case allowanceServiceNotFound
+        case transactionDataNotFound
+        case sourceNotFound
+        case destinationNotFound
+
+        var errorDescription: String? { rawValue }
+    }
 }
 
 // MARK: - ExpressAvailableProvider+
@@ -1359,7 +1369,7 @@ extension SwapModel {
 extension ExpressAvailableProvider {
     func getTokenFeeProvidersManager() throws -> TokenFeeProvidersManager {
         guard let tokenFeeProvidersManager = manager.feeProvider as? TokenFeeProvidersManager else {
-            throw ExpressInteractorError.feeNotFound
+            throw SwapModel.SwapModelError.feeNotFound
         }
 
         return tokenFeeProvidersManager
