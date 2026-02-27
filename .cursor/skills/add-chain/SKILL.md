@@ -15,7 +15,8 @@ Add new chain into the app using the provided intructions.
 - Configure RPCs and API keys: `TestnetAPINodeInfoProvider`, `QuickNodeAPIResolver`, `BlockchainSdkKeysConfig`, `CommonKeysManager`, and `BlockchainSdkExample/APIListUtils`.
 - Add explorer/faucet links via `<Chain>ExternalLinkProvider` and `ExternalLinkProviderFactory`.
 - Wire network services in `WalletNetworkServiceFactory` (typically `makeEthereumNetworkService` for EVM chains).
-- Update app features: `AccountDerivationPathHelper`, `ReceiveBottomSheetNotificationInputsFactory`, `TransactionParamsBuilder`, `CustomTokenContractAddressConverter`, `NFTChainConverter`, `TransactionHistoryProviderFactory`, and `MoonPayService`.
+- Update app features: `AccountDerivationPathHelper`, `ReceiveBottomSheetNotificationInputsFactory`, `TransactionParamsBuilder`, `CustomTokenContractAddressConverter`, `NFTChainConverter`, `TransactionHistoryProviderFactory`.
+- Fetch response by https://api.moonpay.com/v3/currencies and map new chain in `MoonPayService` if available in response.
 - Update `SupportedBlockchains`, add only to testable blockchains and testnet blockchains if avilable.
 - Add assets and UI mapping: `Modules/TangemAssets/Assets/Tokens.xcassets` and `NetworkImageProvider`.
 - Add new source files to `TangemApp.xcodeproj/project.pbxproj`.

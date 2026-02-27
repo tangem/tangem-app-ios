@@ -12,43 +12,35 @@ import TangemFoundation
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
     public let manager: ExpressProviderManager
-
     public var isBest: Bool { _isBest.read() }
-    public var isAvailable: Bool { _isAvailable.read() }
 
     private let _isBest: ThreadSafeContainer<Bool>
-    private let _isAvailable: ThreadSafeContainer<Bool>
 
-    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool, isAvailable: Bool) {
+    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool) {
         self.provider = provider
         self.manager = manager
 
         _isBest = .init(isBest)
-        _isAvailable = .init(isAvailable)
     }
 
     func update(isBest: Bool) {
         _isBest.mutate { $0 = isBest }
     }
 
-    func update(isAvailable: Bool) {
-        _isAvailable.mutate { $0 = isAvailable }
+    deinit {
+        ExpressLogger.debug("deinit \(objectDescription(self))")
     }
 
-    public func getState() async -> ExpressProviderManagerState {
-        await manager.getState()
+    public func getState() -> ExpressProviderManagerState {
+        manager.getState()
     }
 
-    public func getPriority() async -> Priority {
-        guard isAvailable else {
-            return .lowest
-        }
-
+    public func getPriority() -> Priority {
         if isBest {
             return .highest
         }
 
-        switch await getState() {
+        switch getState() {
         case .permissionRequired(let state):
             return .high(rate: state.quote.rate)
         case .preview(let state):
@@ -68,34 +60,29 @@ public class ExpressAvailableProvider {
 }
 
 public extension [ExpressAvailableProvider] {
-    func sortedByPriorityAndQuotes() async -> [ExpressAvailableProvider] {
+    func sortedByPriorityAndQuotes() -> [ExpressAvailableProvider] {
         typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
 
-        return await asyncSorted(
-            sort: { (lhsProvider: SortableProvider, rhsProvider: SortableProvider) in
-                if lhsProvider.priority == rhsProvider.priority {
-                    return lhsProvider.amount > rhsProvider.amount
-                }
+        return sorted { lhsProvider, rhsProvider in
+            let lhsPriority = lhsProvider.getPriority()
+            let lhsExpectedAmount = lhsProvider.getState().quote?.expectAmount ?? 0
 
-                return lhsProvider.priority > rhsProvider.priority
-            },
-            by: { provider in
-                let priority = await provider.getPriority()
-                let expectedAmount = await provider.getState().quote?.expectAmount ?? 0
-                return (priority, expectedAmount)
+            let rhsPriority = rhsProvider.getPriority()
+            let rhsExpectedAmount = rhsProvider.getState().quote?.expectAmount ?? 0
+
+            if lhsPriority == rhsPriority {
+                return lhsExpectedAmount > rhsExpectedAmount
             }
-        )
+
+            return lhsPriority > rhsPriority
+        }
     }
 
-    func showableProviders(selectedProviderId: String?) async -> [ExpressAvailableProvider] {
-        await asyncFilter { provider in
-            guard provider.isAvailable else {
-                return false
-            }
-
+    func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
+        filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
-            let isAvailableToShow = await !provider.getState().isError
+            let isAvailableToShow = !provider.getState().isError
 
             return isSelected || isAvailableToShow
         }
