@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 struct YieldFeeSectionState: Equatable {
     private(set) var feeState: LoadableTextView.State
