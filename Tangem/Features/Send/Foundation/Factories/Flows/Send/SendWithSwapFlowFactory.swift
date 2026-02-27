@@ -20,7 +20,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     lazy var sendNotificationManager = makeSendNotificationManager()
     lazy var swapNotificationManager = makeSwapNotificationManager()
-    lazy var notificationManager = makeCombinedSendWithSwapNotificationManager(
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
         receiveTokenInput: swapModel,
         sendNotificationManager: sendNotificationManager,
         swapNotificationManager: swapNotificationManager
