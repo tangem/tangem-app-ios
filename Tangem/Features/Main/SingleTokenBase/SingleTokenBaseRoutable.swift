@@ -16,7 +16,6 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openSend(input: SendInput)
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters)
     func openSwap(input: SendInput)
-    func openExpress(input: ExpressDependenciesInput)
     func openStaking(options: StakingDetailsCoordinator.Options)
     func openInSafari(url: URL)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
