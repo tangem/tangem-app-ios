@@ -28,24 +28,8 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getSource(destination: TokenItem) async throws -> any ExpressInteractorSourceWallet {
-        guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
-            throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
-        }
-
-        return source.asExpressInteractorWalletModelWrapper
-    }
-
-    func getDestination(source: TokenItem) async throws -> any ExpressInteractorSourceWallet {
-        guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
-            throw ExpressDestinationServiceError.destinationNotFound(source: source)
-        }
-
-        return destination.asExpressInteractorWalletModelWrapper
-    }
-
     func getSource(destination: TokenItem) async throws -> any SendSwapableToken {
-        guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
+        guard let source = await getWalletModelPair(base: destination, searchType: .source) else {
             throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
         }
 
@@ -53,7 +37,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
     }
 
     func getDestination(source: TokenItem) async throws -> any SendSwapableToken {
-        guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
+        guard let destination = await getWalletModelPair(base: source, searchType: .destination) else {
             throw ExpressDestinationServiceError.destinationNotFound(source: source)
         }
 
@@ -64,7 +48,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 // MARK: - Private
 
 private extension CommonExpressDestinationService {
-    func getExpressInteractorWallet(
+    func getWalletModelPair(
         base: TokenItem,
         searchType: SearchType
     ) async -> UserWalletInfoWalletModelPair? {
@@ -157,14 +141,6 @@ extension CommonExpressDestinationService {
 
         var fiatBalance: Decimal? {
             walletModel.fiatAvailableBalanceProvider.balanceType.value
-        }
-
-        var asExpressInteractorWalletModelWrapper: ExpressInteractorWalletModelWrapper {
-            ExpressInteractorWalletModelWrapper(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel,
-                expressOperationType: .swap
-            )
         }
 
         var asSendSwapableToken: SendSwapableToken {

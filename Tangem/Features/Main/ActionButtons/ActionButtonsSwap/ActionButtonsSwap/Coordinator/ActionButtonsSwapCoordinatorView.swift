@@ -34,9 +34,6 @@ struct ActionButtonsSwapCoordinatorView: View {
                     AccountsAwareActionButtonsSwapView(viewModel: viewModel)
                 }
                 .transition(SendTransitions.transition)
-            case .express(let expressCoordinator):
-                ExpressCoordinatorView(coordinator: expressCoordinator)
-                    .transition(SendTransitions.transition)
             case .swap(let sendCoordinator):
                 SendCoordinatorView(coordinator: sendCoordinator)
                     .transition(SendTransitions.transition)
