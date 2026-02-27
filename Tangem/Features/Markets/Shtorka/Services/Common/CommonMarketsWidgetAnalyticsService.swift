@@ -8,10 +8,7 @@
 
 import Foundation
 
-final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider,
-    PulseMarketWidgetAnalyticsProvider,
-    NewsWidgetAnalyticsProvider,
-    EarnWidgetAnalyticsProvider {
+final class CommonMarketsWidgetAnalyticsService {
     // MARK: - Generic Implementation
 
     func logMarketsChartScreenOpened(tokenSymbol: String) {
@@ -23,8 +20,7 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
-
-    // MARK: - TopMarketWidgetAnalyticsProvider
+}
 
 // MARK: - TopMarketWidgetAnalyticsProvider
 
