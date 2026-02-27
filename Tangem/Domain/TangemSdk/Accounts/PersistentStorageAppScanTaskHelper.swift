@@ -23,18 +23,6 @@ struct PersistentStorageAppScanTaskHelper {
         self.userWalletId = userWalletId
     }
 
-    func isPersistentStorageInitialized() -> Bool {
-        if FeatureProvider.isAvailable(.accounts) {
-            let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: storageIdentifier)
-
-            return !storage.isMigrationNeeded()
-        } else {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: storageIdentifier)
-
-            return tokenItemsRepository.containsFile
-        }
-    }
-
     func extractDerivations(forWalletsOnCard card: CardDTO, config: UserWalletConfig) -> [EllipticCurve: [DerivationPath]] {
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
         let persistentBlockchains = config.persistentBlockchains

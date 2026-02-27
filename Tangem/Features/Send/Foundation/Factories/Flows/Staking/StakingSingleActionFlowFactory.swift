@@ -11,10 +11,9 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
 
     var actionType: StakingAction.ActionType { action.displayType }
 
@@ -23,15 +22,13 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        sourceToken: SendSourceToken,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
-        action: RestakingModel.Action,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        action: RestakingModel.Action
     ) {
-        self.sourceToken = sourceToken
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.action = action
-        self.baseDataBuilderFactory = baseDataBuilderFactory
     }
 }
 
@@ -44,7 +41,7 @@ extension StakingSingleActionFlowFactory {
     ) -> StakingSingleActionModel {
         StakingSingleActionModel(
             stakingManager: stakingManager,
-            sendSourceToken: sourceToken,
+            sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
         )
@@ -56,13 +53,14 @@ extension StakingSingleActionFlowFactory {
 extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
-            initialSourceToken: sourceToken,
+            initialSourceToken: stakingableToken,
+            actionType: actionType.sendFlowActionType,
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
-            initialSourceToken: sourceToken,
+            flowActionType: actionType.sendFlowActionType,
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
@@ -118,9 +116,17 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: actionModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: actionModel,
+                emailDataCollectorBuilder: stakingableToken.emailDataCollectorBuilder,
+                emailDataProvider: stakingableToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: stakingableToken
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -148,7 +154,7 @@ extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }

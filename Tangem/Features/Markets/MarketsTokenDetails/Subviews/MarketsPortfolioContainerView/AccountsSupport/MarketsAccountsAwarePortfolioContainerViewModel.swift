@@ -408,16 +408,21 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
+        case .exchange where FeatureProvider.isAvailable(.swapRefactoring):
+            let swapableToken = CommonSendSwapableTokenFactory(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
+
+            Task { @MainActor in
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+            }
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            let expressInput = ExpressDependenciesInput(
+            let expressInput = ExpressDependenciesDestinationInput(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModel: walletModel,
-                    expressOperationType: .swap
-                ),
-                destination: .loadingAndSet
+                walletModel: walletModel
             )
             Task { @MainActor in
                 coordinator.openExchange(input: expressInput)

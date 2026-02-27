@@ -20,7 +20,9 @@ class CommonExpressModulesFactory {
 
     private let userWalletInfo: UserWalletInfo
     private let initialTokenItem: TokenItem
+
     private let expressDependenciesFactory: ExpressDependenciesFactory
+    private let expressInteractorFactory: ExpressInteractorFactory
 
     // MARK: - Internal
 
@@ -40,15 +42,23 @@ class CommonExpressModulesFactory {
     init(input: ExpressDependenciesInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.source.tokenItem
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: input.userWalletInfo)
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: input,
+            expressDependenciesFactory: expressDependenciesFactory
+        )
     }
 
     init(input: ExpressDependenciesDestinationInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.destination.tokenItem
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: input.userWalletInfo)
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: input,
+            expressDependenciesFactory: expressDependenciesFactory
+        )
     }
 }
 
@@ -58,7 +68,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = ExpressNotificationManager(
             userWalletId: userWalletInfo.id,
-            expressInteractor: expressDependenciesFactory.expressInteractor
+            expressInteractor: expressInteractorFactory.expressInteractor
         )
 
         let model = ExpressViewModel(
@@ -69,7 +79,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
             expressRepository: expressDependenciesFactory.expressRepository,
-            interactor: expressDependenciesFactory.expressInteractor,
+            interactor: expressInteractorFactory.expressInteractor,
             coordinator: coordinator
         )
         notificationManager.setupManager(with: model)
@@ -84,7 +94,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             swapDirection: swapDirection,
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id),
             expressPairsRepository: expressPairsRepository,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
+            expressInteractor: expressInteractorFactory.expressInteractor,
             coordinator: coordinator,
             userWalletInfo: userWalletInfo
         )
@@ -110,20 +120,20 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                 availabilityProvider: .swap()
             ),
             marketsTokensViewModel: marketsTokensViewModel,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
+            output: expressInteractorFactory.expressInteractor,
             tokenSelectorCoordinator: tokenSelectorCoordinator,
             marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )
     }
 
     func makeFeeSelectorViewModel(coordinator: SendFeeSelectorRoutable) -> SendFeeSelectorViewModel? {
-        guard let source = expressDependenciesFactory.expressInteractor.getSource().value else {
+        guard let source = expressInteractorFactory.expressInteractor.getSource().value else {
             return nil
         }
 
         let builder = SendFeeSelectorBuilder(
-            tokenFeeManagerProviding: expressDependenciesFactory.expressInteractor,
-            feeSelectorOutput: expressDependenciesFactory.expressInteractor,
+            tokenFeeManagerProviding: expressInteractorFactory.expressInteractor,
+            feeSelectorOutput: expressInteractorFactory.expressInteractor,
             analyticsLogger: source.interactorAnalyticsLogger,
         )
 
@@ -148,7 +158,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                     tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
                 ),
                 feeFormatter: feeFormatter,
-                approveViewModelInput: expressDependenciesFactory.expressInteractor,
+                approveViewModelInput: expressInteractorFactory.expressInteractor,
             ),
             coordinator: coordinator
         )
@@ -161,7 +171,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             priceChangeFormatter: priceChangeFormatter,
             expressProviderFormatter: expressProviderFormatter,
             expressRepository: expressDependenciesFactory.expressRepository,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
+            expressInteractor: expressInteractorFactory.expressInteractor,
             coordinator: coordinator
         )
     }

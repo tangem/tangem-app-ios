@@ -22,7 +22,6 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
-    let tangemPayManager: TangemPayManager
 
     private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
     private var innerDependencies: InnerDependenciesConfigurable
@@ -77,6 +76,13 @@ struct CommonUserWalletModelDependencies {
 
         let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
 
+        let tangemPayManager = TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: config.tangemSigner
+        )
+        .buildTangemPayManager()
+
         if hasAccounts {
             let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
                 userWalletId: userWalletId,
@@ -89,6 +95,7 @@ struct CommonUserWalletModelDependencies {
                 walletManagerFactory: walletManagerFactory,
                 keysRepository: keysRepository,
                 cryptoAccountsRepository: accountModelsManagerDependencies.repository,
+                tangemPayManager: tangemPayManager,
                 cryptoAccountsNetworkMapper: accountModelsManagerDependencies.mapper,
                 archivedCryptoAccountsProvider: accountModelsManagerDependencies.provider,
                 derivationManager: derivationManager,
@@ -100,13 +107,6 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager = DummyCommonAccountModelsManager()
             remoteStatusSyncing = userTokensManager
         }
-
-        tangemPayManager = TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: config.tangemSigner
-        )
-        .buildTangemPayManager()
 
         let userTokensPushNotificationsManager = Self.makeUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
@@ -156,27 +156,29 @@ private extension CommonUserWalletModelDependencies {
         walletModelsManager: WalletModelsManager,
         derivationManager: DerivationManager?
     ) -> TotalBalanceProvider {
+        let analyticsLogger: TotalBalanceProviderAnalyticsLogger = hasAccounts
+            ? CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager
+            )
+            : CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager
+            )
+
         // Create base provider based on accounts mode
         // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
         // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
-        let baseProvider: TotalBalanceProvider = hasAccounts
+        return hasAccounts
             ? AccountsAwareTotalBalanceProvider(
                 accountModelsManager: accountModelsManager,
-                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+                analyticsLogger: analyticsLogger
             )
             : WalletModelsTotalBalanceProvider(
                 walletModelsManager: walletModelsManager,
-                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
-                    userWalletId: userWalletId,
-                    walletModelsManager: walletModelsManager
-                ),
+                analyticsLogger: analyticsLogger,
                 derivationManager: derivationManager
             )
-
-        return TangemPayAwareTotalBalanceProvider(
-            totalBalanceProvider: baseProvider,
-            tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(tangemPayManager: tangemPayManager)
-        )
     }
 
     static func makeNFTManager(
@@ -315,6 +317,7 @@ private extension CommonUserWalletModelDependencies {
         walletManagerFactory: AnyWalletManagerFactory,
         keysRepository: KeysRepository,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
+        tangemPayManager: TangemPayManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -342,6 +345,7 @@ private extension CommonUserWalletModelDependencies {
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
             cryptoAccountsRepository: cryptoAccountsRepository,
+            tangemPayManager: tangemPayManager,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported

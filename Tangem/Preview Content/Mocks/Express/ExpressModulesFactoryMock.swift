@@ -66,7 +66,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             swapDirection: swapDirection,
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             marketsTokensViewModel: nil,
-            expressInteractor: expressInteractor,
+            output: expressInteractor,
             tokenSelectorCoordinator: tokenSelectorCoordinator,
             marketsTokenAdditionCoordinator: marketsTokenAdditionCoordinator
         )
@@ -188,12 +188,9 @@ private extension ExpressModulesFactoryMock {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let transactionValidator = ExpressProviderTransactionValidatorMock()
-
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository,
-            transactionValidator: transactionValidator
+            expressRepository: expressRepository
         )
 
         let sender = ExpressInteractorWalletModelWrapper(

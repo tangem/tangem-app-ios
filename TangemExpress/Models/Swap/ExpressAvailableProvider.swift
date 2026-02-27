@@ -11,15 +11,20 @@ import TangemFoundation
 
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
-    public var isBest: Bool
-    public var isAvailable: Bool
     public let manager: ExpressProviderManager
+    public var isBest: Bool { _isBest.read() }
 
-    init(provider: ExpressProvider, isBest: Bool, isAvailable: Bool, manager: ExpressProviderManager) {
+    private let _isBest: ThreadSafeContainer<Bool>
+
+    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool) {
         self.provider = provider
-        self.isBest = isBest
-        self.isAvailable = isAvailable
         self.manager = manager
+
+        _isBest = .init(isBest)
+    }
+
+    func update(isBest: Bool) {
+        _isBest.mutate { $0 = isBest }
     }
 
     deinit {
@@ -31,10 +36,6 @@ public class ExpressAvailableProvider {
     }
 
     public func getPriority() -> Priority {
-        guard isAvailable else {
-            return .lowest
-        }
-
         if isBest {
             return .highest
         }
@@ -79,10 +80,6 @@ public extension [ExpressAvailableProvider] {
 
     func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
         filter { provider in
-            guard provider.isAvailable else {
-                return false
-            }
-
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
             let isAvailableToShow = !provider.getState().isError

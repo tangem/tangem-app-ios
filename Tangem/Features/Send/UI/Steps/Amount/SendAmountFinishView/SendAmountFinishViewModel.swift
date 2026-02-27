@@ -13,40 +13,31 @@ import TangemFoundation
 import TangemExpress
 
 class SendAmountFinishViewModel: ObservableObject, Identifiable {
-    var viewType: ViewType { getViewType() }
+    var viewType: ViewType? { getViewType() }
 
-    @Published private var tokenHeader: SendTokenHeader
-    @Published private var tokenIconInfo: TokenIconInfo
-    @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
-    @Published private var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    @Published private var tokenHeader: SendTokenHeader?
+    @Published private var tokenIconInfo: TokenIconInfo?
+    @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel?
+    @Published private var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
     @Published private var alternativeAmount: String?
 
     @Published private var receiveSmallAmountViewModel: SendAmountFinishSmallAmountViewModel?
     @Published private var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
 
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private var bag: Set<AnyCancellable> = []
 
     init(
-        initialSourceToken: SendSourceToken,
+        flowActionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        tokenHeader = initialSourceToken.header
-        tokenIconInfo = initialSourceToken.tokenIconInfo
-        amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: initialSourceToken.tokenItem.decimalCount)
-        amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
-            cryptoCurrencyCode: initialSourceToken.tokenItem.currencySymbol
-        )
-        alternativeAmount = sourceTokenAmountInput.sourceAmount.value?.formatAlternative(
-            currencySymbol: initialSourceToken.tokenItem.currencySymbol,
-            decimalCount: initialSourceToken.tokenItem.decimalCount
-        )
-
         bind(
+            flowActionType: flowActionType,
             sourceTokenInput: sourceTokenInput,
             sourceTokenAmountInput: sourceTokenAmountInput,
             receiveTokenInput: receiveTokenInput,
@@ -59,7 +50,16 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 // MARK: - Private
 
 private extension SendAmountFinishViewModel {
-    func getViewType() -> ViewType {
+    func getViewType() -> ViewType? {
+        guard
+            let tokenHeader,
+            let tokenIconInfo,
+            let amountDecimalNumberTextFieldViewModel,
+            let amountFieldOptions
+        else {
+            return nil
+        }
+
         guard let receiveSmallAmountViewModel, let sendSwapProviderFinishViewModel else {
             return .one(
                 .init(
@@ -86,6 +86,7 @@ private extension SendAmountFinishViewModel {
     }
 
     func bind(
+        flowActionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput?,
@@ -98,7 +99,9 @@ private extension SendAmountFinishViewModel {
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateView(sourceToken: $1.0, sourceAmount: $1.1) }
+        .sink { viewModel, tuple in
+            viewModel.updateView(sourceToken: tuple.0, flowActionType: flowActionType, sourceAmount: tuple.1)
+        }
         .store(in: &bag)
 
         guard let receiveTokenInput, let receiveTokenAmountInput, let swapProvidersInput else {
@@ -111,12 +114,14 @@ private extension SendAmountFinishViewModel {
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateView(receiveToken: $1.0.value, receiveAmount: $1.1) }
+        .sink { viewModel, tuple in
+            viewModel.updateView(receiveToken: tuple.0.value, flowActionType: flowActionType, receiveAmount: tuple.1)
+        }
         .store(in: &bag)
 
         Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
-            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
@@ -124,8 +129,9 @@ private extension SendAmountFinishViewModel {
         .store(in: &bag)
     }
 
-    private func updateView(sourceToken: SendSourceToken, sourceAmount: LoadingResult<SendAmount, any Error>) {
-        tokenIconInfo = sourceToken.tokenIconInfo
+    private func updateView(sourceToken: SendSourceToken, flowActionType: SendFlowActionType, sourceAmount: LoadingResult<SendAmount, any Error>) {
+        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
+        tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
         alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
@@ -137,30 +143,35 @@ private extension SendAmountFinishViewModel {
             amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
                 cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol
             )
-            amountDecimalNumberTextFieldViewModel.update(value: crypto)
+            amountDecimalNumberTextFieldViewModel?.update(value: crypto)
         case .alternative(let fiat, _):
             amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(
                 fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode
             )
-            amountDecimalNumberTextFieldViewModel.update(value: fiat)
+            amountDecimalNumberTextFieldViewModel?.update(value: fiat)
         case nil:
             break
         }
     }
 
-    private func updateView(receiveToken: SendReceiveToken?, receiveAmount: LoadingResult<SendAmount, any Error>) {
+    private func updateView(receiveToken: SendReceiveToken?, flowActionType: SendFlowActionType, receiveAmount: LoadingResult<SendAmount, any Error>) {
         switch (receiveToken, receiveAmount) {
         case (.none, _):
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
-            let textField = DecimalNumberTextFieldViewModel(
-                maximumFractionDigits: token.tokenItem.decimalCount
-            )
+            let textField = DecimalNumberTextFieldViewModel(maximumFractionDigits: token.tokenItem.decimalCount)
             textField.update(value: receiveAmount.crypto)
 
+            let header: SendTokenHeader = if let token = token as? SendSourceToken {
+                token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
+            } else {
+                .action(name: Localization.sendWithSwapRecipientAmountTitle)
+            }
+
+            let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
             receiveSmallAmountViewModel = .init(
-                tokenHeader: tokenHeader,
-                tokenIconInfo: token.tokenIconInfo,
+                tokenHeader: header,
+                tokenIconInfo: tokenIconInfo,
                 amountDecimalNumberTextFieldViewModel: textField,
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
                     cryptoCurrencyCode: token.tokenItem.currencySymbol

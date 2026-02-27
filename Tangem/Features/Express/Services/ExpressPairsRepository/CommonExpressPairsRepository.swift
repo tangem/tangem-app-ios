@@ -66,14 +66,18 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     }
 
     func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
-        if let availablePair = pairs.first(where: {
-            $0.source == pair.source.currency.asCurrency &&
-                $0.destination == pair.destination.currency.asCurrency
-        }) {
-            return availablePair.providers
+        let source = pair.source.currency.asCurrency
+        let destination = pair.destination.currency.asCurrency
+
+        let availablePair = pairs
+            .first(where: { $0.source == source && $0.destination == destination })
+
+        guard let availablePair else {
+            return []
         }
 
-        throw ExpressRepositoryError.availableProvidersDoesNotFound
+        // Currently support only `.float` rate
+        return availablePair.providers.filter { $0.rates.contains(.float) }.map { $0.id }
     }
 
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {

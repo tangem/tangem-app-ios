@@ -66,12 +66,12 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
 
         let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
 
-        guard let paymentAccount = customerInfo.paymentAccount else {
+        guard let address = customerInfo.paymentAccount?.address else {
             throw VisaPaymentAccountAddressProviderError.missingPaymentAccountForCard
         }
 
         return VisaCustomerCardInfo(
-            paymentAccount: paymentAccount.address,
+            paymentAccount: address,
             cardWalletAddress: cardWalletAddress,
             customerInfo: customerInfo
         )

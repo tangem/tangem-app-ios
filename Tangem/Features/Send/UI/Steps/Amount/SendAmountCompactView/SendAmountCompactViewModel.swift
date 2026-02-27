@@ -34,13 +34,14 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
 
     init(
         initialSourceToken: SendSourceToken,
+        actionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
-        sendAmountCompactViewModel = .init(sourceToken: initialSourceToken)
+        sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
         sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
@@ -92,7 +93,7 @@ private extension SendAmountCompactViewModel {
 
         Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
             swapProvidersInput.expressProvidersPublisher
         )
         .withWeakCaptureOf(self)
@@ -134,12 +135,12 @@ private extension SendAmountCompactViewModel {
         case (.some, .none):
             return .init(provider: .loading)
         case (.some, .some(let selectedProvider)):
-            let availableProvidersCount = providers.filter(\.isAvailable).count
+            let canSelectAnother = providers.count > 1
 
             let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
-                canSelectAnother: availableProvidersCount > 1,
+                canSelectAnother: canSelectAnother,
                 badge: badge
             )
 

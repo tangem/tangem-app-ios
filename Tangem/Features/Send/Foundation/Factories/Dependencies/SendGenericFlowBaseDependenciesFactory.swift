@@ -10,27 +10,21 @@ import Foundation
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
-    var sourceToken: SendSourceToken { get }
-    var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
+    var tokenItem: TokenItem { get }
 }
 
-extension SendGenericFlowBaseDependenciesFactory {
-    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
-    var tokenItem: TokenItem { sourceToken.tokenItem }
-    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
-    var tokenIconInfo: TokenIconInfo { sourceToken.tokenIconInfo }
+extension SendGenericFlowBaseDependenciesFactory where Self: SendFlowBaseDependenciesFactory {
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+}
+
+extension SendGenericFlowBaseDependenciesFactory where Self: StakingFlowDependenciesFactory {
+    var tokenItem: TokenItem { stakingableToken.tokenItem }
 }
 
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
-    // Services
-
-    func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
-        BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-    }
-
-    // TransactionSummaryDescriptionBuilders
+    // MARK: - TransactionSummaryDescriptionBuilders
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
@@ -48,12 +42,22 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
-        CommonSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
-        )
+        CommonSwapTransactionSummaryDescriptionBuilder()
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
         CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+    }
+
+    func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
+        CommonSendWithSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+    }
+
+    // MARK: - Analytics
+
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: sendType)
     }
 }

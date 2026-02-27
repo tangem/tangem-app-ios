@@ -34,7 +34,7 @@ class StakingSingleActionModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
-    private let sendSourceToken: SendSourceToken
+    private let sendSourceToken: SendStakingableToken
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
 
@@ -45,7 +45,7 @@ class StakingSingleActionModel {
     private var estimatedFeeTask: Task<Void, Never>?
     init(
         stakingManager: StakingManager,
-        sendSourceToken: SendSourceToken,
+        sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
     ) {
@@ -343,18 +343,11 @@ extension StakingSingleActionModel: NotificationTapDelegate {
 
 extension StakingSingleActionModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { false }
 
     var target: StakingTargetInfo? { action.targetInfo }
-
-    var selectedPolicy: ApprovePolicy? { nil }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { nil }
-
-    var stakingActionType: TangemStaking.StakingAction.ActionType? { action.type }
+    var stakingActionType: StakingAction.ActionType? { action.type }
 }
 
 extension StakingSingleActionModel {

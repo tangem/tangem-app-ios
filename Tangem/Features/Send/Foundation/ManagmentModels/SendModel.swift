@@ -13,18 +13,10 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-protocol SendModelRoutable: AnyObject {
-    func openNetworkCurrency()
-    func openApproveSheet()
-    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
-    func resetFlow()
-    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
-}
-
 final class SendModel {
     // MARK: - Data
 
-    private let _sourceToken: SendSourceToken
+    private let _sourceToken: SendWithSwapToken
     private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
@@ -42,7 +34,7 @@ final class SendModel {
     var externalDestinationUpdater: SendDestinationExternalUpdater!
     var informationRelevanceService: InformationRelevanceService!
 
-    weak var router: SendModelRoutable?
+    weak var router: SendWithSwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
@@ -65,7 +57,7 @@ final class SendModel {
 
     init(
         userWalletId: UserWalletId,
-        userToken: SendSourceToken,
+        userToken: SendWithSwapToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
@@ -457,7 +449,8 @@ extension SendModel: SendReceiveTokenOutput {
         })
     }
 
-    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+    func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
+        let receiveToken = sendReceiveTokenBuilder.makeSendReceiveToken(tokenItem: receiveTokenItem)
         let newReceiveToken = SendReceiveTokenType.swap(receiveToken)
 
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
@@ -499,7 +492,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         Publishers.CombineLatest3(
             sourceAmountPublisher.compactMap { $0.value },
             receiveAmountPublisher.compactMap { $0.value },
-            selectedExpressProviderPublisher.compactMap { $0?.provider }
+            selectedExpressProviderPublisher.compactMap { $0?.value?.provider }
         )
         .withWeakCaptureOf(self)
         .setFailureType(to: Error.self)
@@ -550,7 +543,7 @@ extension SendModel: SendReceiveTokenAmountInput {
             destination: receiveToken.tokenItem
         )
 
-        let result = try await impactCalculator.isHighPriceImpact(
+        let result = impactCalculator.isHighPriceImpact(
             provider: provider,
             sourceFiatAmount: sourceTokenFiatAmount,
             destinationFiatAmount: receiveTokenFiatAmount
@@ -575,16 +568,22 @@ extension SendModel: SendSwapProvidersInput {
         get async { await swapManager.providers }
     }
 
-    var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
+    var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         swapManager.providersPublisher
     }
 
-    var selectedExpressProvider: ExpressAvailableProvider? {
-        swapManager.state.context?.availableProvider
+    var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
+        guard let provider = swapManager.state.context?.availableProvider else {
+            return nil
+        }
+
+        return .success(provider)
     }
 
-    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+    var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> {
         swapManager.selectedProviderPublisher
+            .map { $0.map { .success($0) } }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -729,7 +728,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                     case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: fee,
                                 provider: provider.provider
@@ -737,7 +736,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .previewCEX(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
@@ -745,7 +744,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                         )
                     case .readyToSwap(_, let context, let quote):
                         return .just(
-                            output: .swap(
+                            output: .sendWithSwap(
                                 amount: quote.fromAmount,
                                 fee: context.tokenFeeProvidersManager.selectedTokenFee,
                                 provider: context.provider
@@ -860,7 +859,6 @@ extension SendModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
-             .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
@@ -942,8 +940,15 @@ extension SendModel: TokenFeeProvidersManagerProviding {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
                 switch receiveToken {
-                case .same: model.sourceTokenPublisher.compactMap { $0.value }.map(\.tokenFeeProvidersManager).eraseToAnyPublisher()
-                case .swap: model.swapManager.tokenFeeProvidersManagerPublisher.eraseToAnyPublisher()
+                case .same:
+                    model.sourceTokenPublisher
+                        .compactMap { $0.value as? SendTransferableToken }
+                        .map(\.tokenFeeProvidersManager)
+                        .eraseToAnyPublisher()
+                case .swap:
+                    model.swapManager
+                        .tokenFeeProvidersManagerPublisher
+                        .eraseToAnyPublisher()
                 }
             }
             .eraseToAnyPublisher()

@@ -16,10 +16,11 @@ protocol SendAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
-    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> { get }
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { get }
 
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
     func update(amount: Decimal?) throws -> SendAmount?
     func update(type: SendAmountCalculationType) throws -> SendAmount?
@@ -212,12 +213,12 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             .eraseToAnyPublisher()
     }
 
-    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> {
         guard let sourceTokenInput else {
             return Empty().eraseToAnyPublisher()
         }
 
-        return sourceTokenInput.sourceTokenPublisher.compactMap { $0.value }.eraseToAnyPublisher()
+        return sourceTokenInput.sourceTokenPublisher.eraseToAnyPublisher()
     }
 
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
@@ -234,6 +235,14 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
 
         return receiveTokenAmountInput.receiveAmountPublisher
+    }
+
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        guard let receiveTokenAmountInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenAmountInput.highPriceImpactPublisher
     }
 
     func update(amount: Decimal?) throws -> SendAmount? {

@@ -8,34 +8,44 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SendFlowFactory: SendFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
-    let sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
+class SendFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
+    let sendWithSwapToken: SendWithSwapToken
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let expressInteractorFactory: ExpressInteractorFactory
+
+    var transferableToken: SendTransferableToken { sendWithSwapToken }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
-    lazy var swapManager = makeSwapManager()
-    lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
-    lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
+    lazy var swapManager = makeSwapManager(expressInteractor: expressInteractorFactory.expressInteractor)
+    lazy var sendModel = makeSendModel(
+        sourceToken: sendWithSwapToken,
+        swapManager: swapManager,
+        analyticsLogger: analyticsLogger,
+        predefinedValues: .init()
+    )
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
+        receiveTokenInput: sendModel,
+        expressInteractor: expressInteractorFactory.expressInteractor
+    )
 
     init(
-        sourceToken: SendSourceToken,
-        sendingWalletDestinationStepDataInput: SendDestinationInteractorDependenciesProvider.SendingWalletDataInput,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
+        sendWithSwapToken: SendWithSwapToken,
         source: ExpressInteractorWalletModelWrapper
     ) {
-        self.sourceToken = sourceToken
-        self.sendingWalletDestinationStepDataInput = sendingWalletDestinationStepDataInput
-        self.baseDataBuilderFactory = baseDataBuilderFactory
+        self.sendWithSwapToken = sendWithSwapToken
 
         let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: sourceToken.userWalletInfo,
+            userWalletInfo: sendWithSwapToken.userWalletInfo,
             source: source,
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sendWithSwapToken.userWalletInfo)
+        expressInteractorFactory = ExpressInteractorFactory(
+            input: expressDependenciesInput,
+            expressDependenciesFactory: expressDependenciesFactory
+        )
     }
 }
 
@@ -85,13 +95,22 @@ extension SendFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
         analyticsLogger.setup(sendSwapProvidersInput: sendModel)
 
+        let sendReceiveTokensListBuilder = SendReceiveTokensListBuilder(
+            userWalletInfo: userWalletInfo,
+            sourceTokenInput: sendModel,
+            receiveTokenOutput: sendModel,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            analyticsLogger: analyticsLogger
+        )
+
         let stepsManager = CommonSendStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
-            providersSelector: providers,
+            receiveTokensListBuilder: sendReceiveTokensListBuilder,
+            providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             router: router
@@ -99,7 +118,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
 
-        amount.step.set(router: viewModel)
+        amount.step.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
@@ -120,19 +139,20 @@ extension SendFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendModel,
-                approveDataInput: swapManager,
-                sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
-                    userWalletInfo: userWalletInfo,
-                    sourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-                    analyticsLogger: analyticsLogger
-                )
+                emailDataCollectorBuilder: sendWithSwapToken.emailDataCollectorBuilder,
+                emailDataProvider: sendWithSwapToken.userWalletInfo.emailDataProvider,
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceToken: sendWithSwapToken,
+                approveDataInput: swapManager
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceToken: sendWithSwapToken
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -152,7 +172,7 @@ extension SendFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(initialSourceToken: sendWithSwapToken, flowActionType: .send)
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
@@ -178,44 +198,18 @@ extension SendFlowFactory: SendDestinationStepBuildable {
     }
 
     var destinationTypes: SendDestinationStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(initialSourceToken: sendWithSwapToken)
     }
 
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {
         SendDestinationStepBuilder.Dependencies(
             sendQRCodeService: makeSendQRCodeService(),
             analyticsLogger: analyticsLogger,
-            destinationInteractorDependenciesProvider: makeSendDestinationInteractorDependenciesProvider(
-                receiveTokenInput: sendModel,
-                analyticsLogger: analyticsLogger
-            ),
-        )
-    }
-
-    private func makeSendDestinationInteractorDependenciesProvider(
-        receiveTokenInput: SendReceiveTokenInput,
-        analyticsLogger: any SendDestinationAnalyticsLogger
-    ) -> SendDestinationInteractorDependenciesProvider {
-        SendDestinationInteractorDependenciesProvider(
-            initialSourceToken: sourceToken,
-            receivedToken: receiveTokenInput.receiveToken.value,
-            sourceWalletData: .init(
-                walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                suggestedWallets: sendingWalletDestinationStepDataInput.suggestedWallets,
-                destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
-                    transactionHistoryUpdater: sendingWalletDestinationStepDataInput.walletModelHistoryUpdater,
-                    transactionHistoryMapper: TransactionHistoryMapper(
-                        currencySymbol: tokenItem.currencySymbol,
-                        walletAddresses: sendingWalletDestinationStepDataInput.walletAddresses,
-                        showSign: false,
-                        isToken: tokenItem.isToken
-                    )
-                ),
-                analyticsLogger: analyticsLogger
-            ),
-            receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider(
-                userWalletInfo: userWalletInfo,
-                analyticsLogger: analyticsLogger
+            destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider(
+                sourceToken: sendWithSwapToken,
+                receivedToken: sendModel.receiveToken.value,
+                analyticsLogger: analyticsLogger,
+                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
             )
         )
     }
@@ -237,7 +231,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
 extension SendFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendSwapProvidersBuilder.IO(input: sendModel, output: sendModel, sourceTokenInput: sendModel, receiveTokenInput: sendModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
@@ -270,7 +264,7 @@ extension SendFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }

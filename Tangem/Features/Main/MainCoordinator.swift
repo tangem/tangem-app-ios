@@ -392,10 +392,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCStatusPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
 
@@ -403,10 +403,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCDeclinedPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -477,8 +477,35 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceTokenFactory = SendWithSwapTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
+        let options = SendCoordinator.Options(type: .send(sourceToken, source: source), source: .main)
+
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSwap(input: SendInput) {
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swap
+        )
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -489,10 +516,21 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceTokenFactory = SendWithSwapTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: input,
-            type: .sell(parameters: sellParameters),
+            type: .sell(sourceToken, source: source, parameters: sellParameters),
             source: .main
         )
         coordinator.start(with: options)
@@ -501,7 +539,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openExpress(input: ExpressDependenciesInput) {
         let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory, analyticsScreen: .mainScreen)
+        let coordinator = makeExpressCoordinator(factory: factory)
 
         let openExpressBlock = { [weak self] in
             coordinator.start(with: .default)
@@ -541,10 +579,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: input,
-            type: .onramp(parameters: parameters),
+            type: .onramp(sourceToken, parameters: parameters),
             source: .main
         )
         coordinator.start(with: options)

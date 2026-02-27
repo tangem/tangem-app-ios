@@ -9,7 +9,10 @@
 import TangemExpress
 
 protocol ExpressDependenciesFactory {
-    var expressInteractor: ExpressInteractor { get }
+    var expressManager: ExpressManager { get }
+    var expressPairsRepository: ExpressPairsRepository { get }
+    var expressPendingTransactionRepository: ExpressPendingTransactionRepository { get }
+    var expressDestinationService: ExpressDestinationService { get }
     var expressAPIProvider: ExpressAPIProvider { get }
     var expressRepository: ExpressRepository { get }
 
@@ -60,5 +63,23 @@ struct ExpressDependenciesDestinationInput {
         self.userWalletInfo = userWalletInfo
         self.source = source
         self.destination = destination
+    }
+
+    init(
+        userWalletInfo: UserWalletInfo,
+        walletModel: any WalletModel,
+        source: PredefinedSource = .loadingAndSet
+    ) {
+        let wrapper = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swap
+        )
+
+        self.init(
+            userWalletInfo: userWalletInfo,
+            source: source,
+            destination: wrapper
+        )
     }
 }

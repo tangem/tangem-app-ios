@@ -9,7 +9,13 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var expressDependenciesFactory: ExpressDependenciesFactory { get }
+    var transferableToken: SendTransferableToken { get }
+}
+
+extension SendFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { transferableToken.userWalletInfo }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+    var feeTokenItem: TokenItem { transferableToken.feeTokenItem }
 }
 
 // MARK: - Shared dependencies
@@ -17,30 +23,22 @@ protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory
 extension SendFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
-    func makeSendWithSwapModel(
-        swapManager: SwapManager,
+    func makeTransferModel(
         analyticsLogger: any SendAnalyticsLogger,
-        predefinedValues: SendModel.PredefinedValues
-    ) -> SendModel {
-        SendModel(
+        predefinedValues: TransferModel.PredefinedValues
+    ) -> TransferModel {
+        TransferModel(
             userWalletId: userWalletInfo.id,
-            userToken: sourceToken,
+            userToken: transferableToken,
             transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: sourceToken.transactionValidator),
+            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: transferableToken.transactionValidator),
             analyticsLogger: analyticsLogger,
-            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),
-            swapManager: swapManager,
             predefinedValues: predefinedValues
         )
     }
 
-    func makeSwapManager() -> SwapManager {
-        CommonSwapManager(
-            userWalletConfig: userWalletInfo.config,
-            interactor: expressDependenciesFactory.expressInteractor
-        )
-    }
+    // MARK: - Services
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
@@ -49,31 +47,6 @@ extension SendFlowBaseDependenciesFactory {
     func makeTransactionParametersBuilder() -> TransactionParamsBuilder {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
-
-    // MARK: - Notifications
-
-    func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
-        SendWithSwapNotificationManager(
-            receiveTokenInput: receiveTokenInput,
-            sendNotificationManager: CommonSendNotificationManager(
-                userWalletId: userWalletInfo.id,
-                tokenItem: tokenItem,
-                withdrawalNotificationProvider: sourceToken.withdrawalNotificationProvider
-            ),
-            expressNotificationManager: ExpressNotificationManager(
-                userWalletId: userWalletInfo.id,
-                expressInteractor: expressDependenciesFactory.expressInteractor
-            )
-        )
-    }
-
-    // MARK: - Receive token
-
-    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
-        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: sourceToken.fiatItem)
-    }
-
-    // MARK: - Services
 
     func makeSendQRCodeService() -> SendQRCodeService {
         CommonSendQRCodeService(
@@ -85,14 +58,13 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    // MARK: - Analytics
+    // MARK: - Notifications
 
-    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
-        CommonSendAnalyticsLogger(
+    func makeSendNotificationManager() -> SendNotificationManager {
+        CommonSendNotificationManager(
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !sourceToken.tokenFeeProvidersManager.supportFeeSelection),
-            sendType: sendType
+            withdrawalNotificationProvider: transferableToken.withdrawalNotificationProvider
         )
     }
 }

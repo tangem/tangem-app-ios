@@ -36,7 +36,7 @@ final class RestakingModel {
 
     private let stakingManager: StakingManager
     private let action: Action
-    private let sendSourceToken: SendSourceToken
+    private let sendSourceToken: SendStakingableToken
     private let sendAmountValidator: SendAmountValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
 
@@ -50,7 +50,7 @@ final class RestakingModel {
     init(
         stakingManager: StakingManager,
         action: Action,
-        sendSourceToken: SendSourceToken,
+        sendSourceToken: SendStakingableToken,
         sendAmountValidator: SendAmountValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
     ) {
@@ -407,17 +407,10 @@ extension RestakingModel: NotificationTapDelegate {
 
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
-
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
-
     var isFeeIncluded: Bool { false }
 
     var stakingActionType: TangemStaking.StakingAction.ActionType? { stakingAction.type }
-
-    var selectedPolicy: ApprovePolicy? { nil }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { nil }
-
     var target: StakingTargetInfo? { action.targetInfo }
 }
 

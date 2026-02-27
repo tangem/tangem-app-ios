@@ -16,19 +16,16 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        source: SwapAddTokenFlowAnalyticsLogger.SwapTokenSource,
-        screen: SwapAddTokenFlowAnalyticsLogger.SwapTokenScreen,
+        source: SwapSelectTokenAnalyticsLogger.SwapTokenSource,
         userHasSearchedDuringThisSession: Bool,
         additionRoutable: SwapMarketsTokenAdditionRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        let analyticsLogger = SwapAddTokenFlowAnalyticsLogger(
-            coinSymbol: coinSymbol,
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             source: source,
-            screen: screen,
             userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
         )
 
-        analyticsLogger.logTokenSelected()
+        analyticsLogger.logTokenSelected(coinSymbol: coinSymbol)
 
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
@@ -65,6 +62,12 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
                     )
                 }
             },
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: coinId,
+                coinName: coinName,
+                coinSymbol: coinSymbol,
+                availableNetworks: networks
+            ),
             analyticsLogger: analyticsLogger
         )
     }

@@ -9,37 +9,22 @@
 import SwiftUI
 import TangemAssets
 
-#if DEBUG
-private typealias _Button = TangemButton
+// MARK: - Showcase
 
-struct PickerView: View {
-    let contents: [String]
-    @Binding var selection: Int
+public struct TangemButtonShowcase: View {
+    @State private var cornerStyle: TangemButton.CornerStyle = .rectangular
+    @State private var styleType: TangemButton.StyleType = .accent
+    @State private var buttonState: TangemButton.ButtonState = .normal
+    @State private var content: TangemButton.Content = .text("Button")
+    @State private var horLayout: TangemButton.HorizontalLayout = .intrinsic
+    @State private var size: TangemButton.Size = .x12
 
-    var body: some View {
-        Picker("", selection: $selection) {
-            ForEach(0 ..< contents.count, id: \.self) {
-                Text(contents[$0]).tag($0)
-            }
-        }
-        .pickerStyle(SegmentedPickerStyle())
-    }
-}
-
-private struct ButtonComponentDemoView: View {
-    @State private var cornerStyle: _Button.CornerStyle = .rectangular
-    @State private var styleType: _Button.StyleType = .accent
-    @State private var buttonState: _Button.ButtonState = .normal
-    @State private var content: _Button.Content = .text("Button")
-    @State private var horLayout: _Button.HorizontalLayout = .intrinsic
-    @State private var size: _Button.Size = .x12
-
-    let cornerStyles: [_Button.CornerStyle] = [
+    private let cornerStyles: [TangemButton.CornerStyle] = [
         .rectangular,
         .rounded,
     ]
 
-    let styleTypes: [_Button.StyleType] = [
+    private let styleTypes: [TangemButton.StyleType] = [
         .accent,
         .primary,
         .secondary,
@@ -49,18 +34,18 @@ private struct ButtonComponentDemoView: View {
         .positive,
     ]
 
-    let buttonStates: [_Button.ButtonState] = [
+    private let buttonStates: [TangemButton.ButtonState] = [
         .normal,
         .disabled,
         .loading,
     ]
 
-    let horizontalLayouts: [_Button.HorizontalLayout] = [
+    private let horizontalLayouts: [TangemButton.HorizontalLayout] = [
         .intrinsic,
         .infinity,
     ]
 
-    let sizes: [_Button.Size] = [
+    private let sizes: [TangemButton.Size] = [
         .x15,
         .x12,
         .x10,
@@ -69,84 +54,67 @@ private struct ButtonComponentDemoView: View {
         .x7,
     ]
 
-    let contents: [_Button.Content] = [
+    private let contents: [TangemButton.Content] = [
         .text("Button"),
-        .icon(demoIcon),
-        .combined(text: "Button", icon: demoIcon, iconPosition: .left),
-        .combined(text: "Button", icon: demoIcon, iconPosition: .right),
+        .icon(Assets.crossedEyeIcon),
+        .combined(text: "Button", icon: Assets.crossedEyeIcon, iconPosition: .left),
+        .combined(text: "Button", icon: Assets.crossedEyeIcon, iconPosition: .right),
         .text("Button alskjdhlkaujshdlagsdhaiusjcklsxcbvhjksfdskagfgasjkhdfajksdfhjkasfasdfkasdfl;a"),
     ]
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         VStack(spacing: 8) {
-            PickerView(contents: [
-                "rectangular",
-                "rounded",
-            ], selection: .init(get: {
-                cornerStyles.firstIndex(of: cornerStyle)!
-            }, set: { index in
-                cornerStyle = cornerStyles[index]
-            }))
+            pickerView(
+                contents: ["rectangular", "rounded"],
+                selection: .init(
+                    get: { cornerStyles.firstIndex(of: cornerStyle) ?? 0 },
+                    set: { cornerStyle = cornerStyles[$0] }
+                )
+            )
 
-            PickerView(contents: [
-                "accent",
-                "primary",
-                "secondary",
-                "outline",
-                "ghost",
-                "primaryInverse",
-                "positive",
-            ], selection: .init(get: {
-                styleTypes.firstIndex(of: styleType)!
-            }, set: { index in
-                styleType = styleTypes[index]
-            }))
+            pickerView(
+                contents: ["accent", "primary", "secondary", "outline", "ghost", "primaryInverse", "positive"],
+                selection: .init(
+                    get: { styleTypes.firstIndex(of: styleType) ?? 0 },
+                    set: { styleType = styleTypes[$0] }
+                )
+            )
 
-            PickerView(contents: [
-                "normal",
-                "disabled",
-                "loading",
-            ], selection: .init(get: {
-                buttonStates.firstIndex(of: buttonState)!
-            }, set: { index in
-                buttonState = buttonStates[index]
-            }))
+            pickerView(
+                contents: ["normal", "disabled", "loading"],
+                selection: .init(
+                    get: { buttonStates.firstIndex(of: buttonState) ?? 0 },
+                    set: { buttonState = buttonStates[$0] }
+                )
+            )
 
-            PickerView(contents: [
-                "intrinsic",
-                "infinity",
-            ], selection: .init(get: {
-                horizontalLayouts.firstIndex(of: horLayout)!
-            }, set: { index in
-                horLayout = horizontalLayouts[index]
-            }))
+            pickerView(
+                contents: ["intrinsic", "infinity"],
+                selection: .init(
+                    get: { horizontalLayouts.firstIndex(of: horLayout) ?? 0 },
+                    set: { horLayout = horizontalLayouts[$0] }
+                )
+            )
 
-            PickerView(contents: [
-                "x15",
-                "x12",
-                "x10",
-                "x9",
-                "x8",
-                "x7",
-            ], selection: .init(get: {
-                sizes.firstIndex(of: size)!
-            }, set: { index in
-                size = sizes[index]
-            }))
+            pickerView(
+                contents: ["x15", "x12", "x10", "x9", "x8", "x7"],
+                selection: .init(
+                    get: { sizes.firstIndex(of: size) ?? 0 },
+                    set: { size = sizes[$0] }
+                )
+            )
 
-            PickerView(contents: [
-                "text",
-                "icon",
-                "combinedLeft",
-                "combinedRight",
-                "gigaText",
-            ], selection: .init(get: {
-                contents.firstIndex(of: content)!
-            }, set: { index in
-                content = contents[index]
-            }))
+            pickerView(
+                contents: ["text", "icon", "combinedLeft", "combinedRight", "gigaText"],
+                selection: .init(
+                    get: { contents.firstIndex(of: content) ?? 0 },
+                    set: { content = contents[$0] }
+                )
+            )
 
-            _Button(
+            TangemButton(
                 content: content,
                 action: { print("action") }
             )
@@ -161,14 +129,23 @@ private struct ButtonComponentDemoView: View {
         }
         .padding()
     }
+
+    private func pickerView(contents: [String], selection: Binding<Int>) -> some View {
+        Picker("", selection: selection) {
+            ForEach(0 ..< contents.count, id: \.self) {
+                Text(contents[$0]).tag($0)
+            }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+    }
 }
 
-private let demoIcon = Assets.crossedEyeIcon.image
+// MARK: - Previews
+
+#if DEBUG
 
 #Preview {
-    VStack(spacing: 8) {
-        ButtonComponentDemoView()
-    }
-    .padding()
+    TangemButtonShowcase()
 }
-#endif
+
+#endif // DEBUG

@@ -26,17 +26,18 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.11.0")),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.6.2")),
-        .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
-        .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "4.0.13")),
+        .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", exact: "5.11.1"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "8.6.2"),
+        .package(url: "https://github.com/Flight-School/AnyCodable.git", exact: "0.6.7"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", exact: "0.9.19"),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.5.2"),
+        .package(url: "https://github.com/CombineCommunity/CombineExt.git", exact: "1.9.0"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.0.16"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.9.0"),
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", exact: "602.0.0"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", exact: "1.39.0"),
+        .package(url: "https://github.com/TimOliver/BlurUIKit.git", exact: "1.4.0"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -128,12 +129,14 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemUI",
             dependencies: [
+                "CombineExt",
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
                 "TangemLocalization",
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
+                .product(name: "BlurSwiftUI", package: "BlurUIKit"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
