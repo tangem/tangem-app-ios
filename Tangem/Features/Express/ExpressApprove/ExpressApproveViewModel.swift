@@ -13,6 +13,7 @@ import UIKit
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
+import TangemAssets
 
 final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - ViewState
@@ -70,10 +71,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     }
 
     func didTapInfoButton() {
-        errorAlert = AlertBinder(
-            title: Localization.swappingApproveInformationTitle,
-            message: Localization.swappingApproveInformationText
-        )
+        coordinator?.didTapInfoButton()
     }
 
     func didTapApprove() {
@@ -96,6 +94,19 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
             )
         }
         coordinator?.openLearnMore()
+    }
+
+    func approveInfoSubtitle() -> AttributedString {
+        var attr = AttributedString(Localization.givePermissionPolicyTypeFooter + " " + Localization.commonLearnMore)
+        attr.font = Fonts.Regular.footnote
+        attr.foregroundColor = Colors.Text.tertiary
+
+        if let range = attr.range(of: Localization.commonLearnMore) {
+            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].link = URL(string: " ")
+        }
+
+        return attr
     }
 }
 
