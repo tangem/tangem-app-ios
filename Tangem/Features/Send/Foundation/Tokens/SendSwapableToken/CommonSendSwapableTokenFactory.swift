@@ -38,10 +38,7 @@ struct CommonSendSwapableTokenFactory {
             feeProvider: walletModel
         )
 
-        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: walletModel.tokenItem,
-            feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
-        )
+        let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
         let providerTransactionValidator = CommonExpressProviderTransactionValidator(
             tokenItem: walletModel.tokenItem,
