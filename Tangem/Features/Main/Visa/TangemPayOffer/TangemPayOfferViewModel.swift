@@ -87,21 +87,10 @@ final class TangemPayOfferViewModel: ObservableObject {
     func acceptOffer(on userWalletModel: UserWalletModel) {
         isLoading = true
         runTask(in: self) { viewModel in
-            do {
-                let tangemPayManager = userWalletModel.tangemPayManager
-                await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
-
-                switch tangemPayManager.state {
-                case .kycRequired:
-                    try await tangemPayManager.launchKYC {
-                        await viewModel.closeOfferScreen()
-                    }
-                default:
-                    await viewModel.closeOfferScreen()
-                }
-            } catch {
-                await viewModel.closeOfferScreen()
-            }
+            await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+            )
+            await viewModel.closeOfferScreen()
         }
     }
 

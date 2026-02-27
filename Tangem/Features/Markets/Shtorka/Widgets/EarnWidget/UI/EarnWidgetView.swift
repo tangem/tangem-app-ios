@@ -28,7 +28,7 @@ struct EarnWidgetView: View {
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.isFirstLoading
+            isLoadingState: viewModel.headerLoadingState
         )
     }
 
