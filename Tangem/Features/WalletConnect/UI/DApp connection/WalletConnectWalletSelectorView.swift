@@ -64,8 +64,7 @@ struct WalletConnectWalletSelectorView: View {
         Button(action: { viewModel.handle(viewEvent: .selectedUserWalletUpdated(walletViewModel.domainModel)) }) {
             HStack(spacing: 12) {
                 walletImage(walletViewModel)
-                    .frame(width: 36, height: 22)
-                    .clipShape(RoundedRectangle(cornerRadius: 2))
+                    .frame(size: .init(bothDimensions: 36.0))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(walletViewModel.name)
