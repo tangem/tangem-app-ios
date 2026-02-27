@@ -19,75 +19,36 @@ struct ExpressApproveView: View {
     }
 
     var body: some View {
-        VStack(spacing: .zero) {
-            headerView
-
-            VStack(spacing: 22) {
-                GroupedSection(viewModel.menuRowViewModel) {
-                    DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
-                } footer: {
-                    Button(action: viewModel.didTapLearnMore) {
-                        Group {
-                            Text("\(Localization.givePermissionPolicyTypeFooter) ")
-                                + Text(Localization.commonLearnMore).foregroundColor(Colors.Text.accent)
-                        }
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                        .multilineTextAlignment(.leading)
-                    }
-                }
-                .backgroundColor(Colors.Background.action)
-
-                GroupedSection(viewModel.feeCompactViewModel) { feeViewModel in
-                    FeeCompactView(viewModel: feeViewModel) {
-                        viewModel.didTapFeeSelectorButton()
-                    }
-                } footer: {
-                    DefaultFooterView(viewModel.feeFooterText)
-                }
-                .backgroundColor(Colors.Background.action)
-
-                buttons
+        VStack(spacing: 22) {
+            GroupedSection(viewModel.menuRowViewModel) {
+                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
+            } footer: {
+                approveInfoDescriptionView
             }
-            .padding(.top, 10)
-            .padding(.bottom, 6)
+            .backgroundColor(Colors.Background.action)
+
+            GroupedSection(viewModel.feeCompactViewModel) { feeViewModel in
+                FeeCompactView(viewModel: feeViewModel) {
+                    viewModel.didTapFeeSelectorButton()
+                }
+            } footer: {
+                DefaultFooterView(viewModel.feeFooterText)
+            }
+            .backgroundColor(Colors.Background.action)
         }
+        .padding(.top, 10)
+        .padding(.bottom, 6)
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
-        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
-    private var headerView: some View {
-        ZStack(alignment: .topTrailing) {
-            BottomSheetHeaderView(title: Localization.swappingPermissionHeader, subtitle: viewModel.subtitle)
-                .padding(.horizontal, 16)
-
-            Button(action: viewModel.didTapInfoButton) {
-                Assets.infoIconMini.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
-                    .padding(.top, 4)
-            }
-        }
-    }
-
-    private var buttons: some View {
-        VStack(spacing: 10) {
-            MainButton(
-                title: Localization.commonApprove,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-                isLoading: viewModel.isLoading,
-                isDisabled: viewModel.mainButtonIsDisabled,
-                action: viewModel.didTapApprove
-            )
-
-            MainButton(
-                title: Localization.commonCancel,
-                style: .secondary,
-                action: viewModel.didTapCancel
-            )
-        }
-        // This fix for text's font in the cancel button, it shrink with no reason
-        .minimumScaleFactor(1)
+    private var approveInfoDescriptionView: some View {
+        Text(viewModel.approveInfoSubtitle())
+            .environment(\.openURL, OpenURLAction { _ in
+                viewModel.didTapLearnMore()
+                return .handled
+            })
+            .multilineTextAlignment(.leading)
     }
 }
 
