@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemUIUtils
 
 /// A full-width pager view that shows adjacent pages during swipe gestures.
@@ -28,6 +29,7 @@ struct FullPagePagerView<Data, Header, Body>: View
     // MARK: - Dependencies
 
     private let data: Data
+    private let refreshScrollViewStateObject: RefreshScrollViewStateObject
     private let headerFactory: HeaderFactory
     private let bodyFactory: BodyFactory
 
@@ -44,11 +46,13 @@ struct FullPagePagerView<Data, Header, Body>: View
 
     init(
         data: Data,
+        refreshScrollViewStateObject: RefreshScrollViewStateObject,
         selectedIndex: Binding<Int>,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
     ) {
         self.data = data
+        self.refreshScrollViewStateObject = refreshScrollViewStateObject
         _selectedIndex = selectedIndex
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -57,6 +61,19 @@ struct FullPagePagerView<Data, Header, Body>: View
     // MARK: - Body
 
     var body: some View {
+        RefreshScrollView(
+            stateObject: refreshScrollViewStateObject,
+            contentSettings: .simpleContent,
+            content: makePageContent
+        )
+    }
+}
+
+// MARK: - Subviews
+
+private extension FullPagePagerView {
+    @ViewBuilder
+    func makePageContent() -> some View {
         if #available(iOS 17.0, *) {
             FullPagePagerViewModern(
                 data: data,
