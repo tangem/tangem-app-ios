@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 class DefaultRowViewModel: ObservableObject, Identifiable {
     @Published private(set) var title: String
