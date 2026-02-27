@@ -128,6 +128,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemUI",
             dependencies: [
+                "CombineExt",
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
