@@ -29,9 +29,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.expressCoordinator) { coordinator in
-                ExpressCoordinatorView(coordinator: coordinator)
-            }
             .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()

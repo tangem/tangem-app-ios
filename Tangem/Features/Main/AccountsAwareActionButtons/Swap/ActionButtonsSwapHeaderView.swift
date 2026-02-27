@@ -11,12 +11,12 @@ import TangemAssets
 import TangemLocalization
 
 struct ActionButtonsSwapHeaderView: View {
-    let headerType: ExpressCurrencyHeaderType
+    let headerType: SendTokenHeader
     let remove: (() -> Void)?
 
     var body: some View {
         HStack(spacing: .zero) {
-            ExpressCurrencyDefaultHeaderView(headerType: headerType)
+            SendTokenHeaderView(header: headerType)
 
             Spacer()
 
