@@ -186,6 +186,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     self?.coordinator?.openAddressesInfo()
                 }
             ),
+            DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
+                self?.coordinator?.openDesignSystemDemo()
+            }),
         ]
 
         updateCurrentPromoCode()

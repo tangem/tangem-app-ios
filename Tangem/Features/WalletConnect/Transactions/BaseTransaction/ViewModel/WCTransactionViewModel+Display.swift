@@ -33,6 +33,10 @@ extension WCTransactionViewModel {
         displayModel.tangemIconProvider
     }
 
+    var confirmTransactionPolicy: ConfirmTransactionPolicy {
+        displayModel.confirmTransactionPolicy
+    }
+
     private var isDataReady: Bool {
         displayModel.isDataReady
     }

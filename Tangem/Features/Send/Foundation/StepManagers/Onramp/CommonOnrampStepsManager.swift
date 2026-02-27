@@ -18,7 +18,7 @@ final class CommonOnrampStepsManager {
     private let offersSelectorViewModel: OnrampOffersSelectorViewModel
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
-    private let onrampBaseDataBuilder: OnrampBaseDataBuilder
+    private let onrampBaseDataBuilder: OnrampRouterDataBuilder
     private let shouldActivateKeyboard: Bool
     private weak var router: SendRoutable?
 
@@ -30,7 +30,7 @@ final class CommonOnrampStepsManager {
         offersSelectorViewModel: OnrampOffersSelectorViewModel,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
-        onrampBaseDataBuilder: OnrampBaseDataBuilder,
+        onrampBaseDataBuilder: OnrampRouterDataBuilder,
         shouldActivateKeyboard: Bool,
         router: SendRoutable,
     ) {
@@ -146,11 +146,19 @@ extension CommonOnrampStepsManager: OnrampSummaryRoutable {
 
     func openOnrampSettingsView() {
         let (repository, _) = onrampBaseDataBuilder.makeDataForOnrampCountrySelectorView()
-        router?.openOnrampSettings(repository: repository)
+        router?.openOnrampSettings(repository: repository, settingsRoutable: self)
     }
 
     func openOnrampCurrencySelector() {
         let (repository, dataRepository) = onrampBaseDataBuilder.makeDataForOnrampCountrySelectorView()
         router?.openOnrampCurrencySelector(repository: repository, dataRepository: dataRepository)
+    }
+}
+
+// MARK: - OnrampSettingsRoutable
+
+extension CommonOnrampStepsManager: OnrampSettingsRoutable {
+    func openOnrampCountrySelector() {
+        openOnrampCountrySelectorView()
     }
 }
