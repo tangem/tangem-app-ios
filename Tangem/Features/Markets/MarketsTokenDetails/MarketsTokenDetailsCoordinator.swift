@@ -263,6 +263,10 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
+    func shareTokenDetails(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int) {
         let viewModel = NewsPagerViewModel(
