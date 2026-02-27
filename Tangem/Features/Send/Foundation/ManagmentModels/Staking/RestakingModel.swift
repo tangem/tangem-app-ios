@@ -1,5 +1,5 @@
 //
-//  StakingSingleActionModel.swift
+//  RestakingModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,21 +7,22 @@
 //
 
 import Foundation
+import TangemStaking
 import Combine
 import BlockchainSdk
 import TangemFoundation
-import TangemStaking
 
-protocol StakingSingleActionModelStateProvider {
-    var stakingAction: StakingSingleActionModel.Action { get }
+protocol RestakingModelStateProvider {
+    var stakingAction: RestakingModel.Action { get }
 
-    var state: StakingSingleActionModel.State { get }
-    var statePublisher: AnyPublisher<StakingSingleActionModel.State, Never> { get }
+    var state: RestakingModel.State { get }
+    var statePublisher: AnyPublisher<RestakingModel.State, Never> { get }
 }
 
-class StakingSingleActionModel {
+final class RestakingModel {
     // MARK: - Data
 
+    private let _selectedTarget = CurrentValueSubject<LoadingResult<StakingTargetInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State, Never>(.loading)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -29,38 +30,43 @@ class StakingSingleActionModel {
 
     // MARK: - Dependencies
 
-    weak var router: SendModelRoutable?
+    weak var router: TransferModelRoutable?
 
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
-    private let sendSourceToken: SendStakingableToken
-    private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
+    private let sendSourceToken: SendStakingableToken
+    private let sendAmountValidator: SendAmountValidator
+    private let analyticsLogger: StakingSendAnalyticsLogger
 
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
+    private var bag: Set<AnyCancellable> = []
+
     init(
         stakingManager: StakingManager,
-        sendSourceToken: SendStakingableToken,
-        analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
+        sendSourceToken: SendStakingableToken,
+        sendAmountValidator: SendAmountValidator,
+        analyticsLogger: StakingSendAnalyticsLogger,
     ) {
         self.stakingManager = stakingManager
-        self.sendSourceToken = sendSourceToken
-        self.analyticsLogger = analyticsLogger
         self.action = action
+        self.sendSourceToken = sendSourceToken
+        self.sendAmountValidator = sendAmountValidator
+        self.analyticsLogger = analyticsLogger
 
-        updateState()
+        bind()
     }
 }
 
-// MARK: - UnstakingModelStateProvider
+// MARK: - RestakingModelStateProvider
 
-extension StakingSingleActionModel: StakingSingleActionModelStateProvider {
+extension RestakingModel: RestakingModelStateProvider {
     var stakingAction: Action {
         action
     }
@@ -76,35 +82,74 @@ extension StakingSingleActionModel: StakingSingleActionModelStateProvider {
 
 // MARK: - Private
 
-private extension StakingSingleActionModel {
+private extension RestakingModel {
+    func bind() {
+        _selectedTarget
+            .removeDuplicates()
+            .compactMap { $0.value }
+            .first()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in
+                model.updateState()
+            }
+            .store(in: &bag)
+    }
+
     func updateState() {
+        guard let target = _selectedTarget.value.value else {
+            return
+        }
+
+        do {
+            try validateMinimumStakingAmountRequirement()
+        } catch {
+            update(state: .stakingValidationError(error))
+            return
+        }
+
         estimatedFeeTask?.cancel()
 
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
-                let estimateFee = try await model.stakingManager.estimateFee(action: model.action)
-                let state = model.makeState(fee: estimateFee)
+                let estimateFee = try await model.stakingManager.estimateFee(
+                    action: StakingAction(
+                        amount: model.action.amount,
+                        targetType: .target(target),
+                        type: model.action.type
+                    )
+                )
+                let state = model.makeState(amount: model.action.amount, fee: estimateFee)
                 model.update(state: state)
+            } catch is CancellationError {
+                // Do nothing
             } catch {
-                StakingLogger.error(error: error)
+                AppLogger.error(error: error)
                 model.update(state: .networkError(error))
             }
         }
     }
 
-    func makeState(fee: Decimal) -> StakingSingleActionModel.State {
+    func makeState(amount: Decimal, fee: Decimal) -> RestakingModel.State {
         if let error = validate(amount: action.amount, fee: fee) {
             return error
         }
 
-        return .ready(
-            fee: fee,
-            stakesCount: action.targetInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
-        )
+        return .ready(fee: fee)
     }
 
-    func validate(amount: Decimal, fee: Decimal) -> StakingSingleActionModel.State? {
+    func validateMinimumStakingAmountRequirement() throws(StakingValidationError) {
+        do {
+            try sendAmountValidator.validate(amount: action.amount)
+        } catch let error as StakingValidationError {
+            AppLogger.error(error: error)
+            throw error
+        } catch {
+            AppLogger.error(error: error)
+        }
+    }
+
+    func validate(amount: Decimal, fee: Decimal) -> RestakingModel.State? {
         do {
             try transactionValidator.validate(amount: makeAmount(value: .zero), fee: makeFee(value: fee))
             return nil
@@ -117,7 +162,7 @@ private extension StakingSingleActionModel {
         }
     }
 
-    func update(state: StakingSingleActionModel.State) {
+    func update(state: RestakingModel.State) {
         _state.send(state)
     }
 
@@ -135,7 +180,9 @@ private extension StakingSingleActionModel {
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .networkError(let error):
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
-        case .validationError(_, let fee), .ready(let fee, _):
+        case .stakingValidationError(let error):
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+        case .validationError(_, let fee), .ready(let fee):
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         }
     }
@@ -143,8 +190,18 @@ private extension StakingSingleActionModel {
 
 // MARK: - Send
 
-private extension StakingSingleActionModel {
+private extension RestakingModel {
     private func send() async throws -> TransactionDispatcherResult {
+        guard let target = _selectedTarget.value.value else {
+            throw StakingModelError.targetNotFound
+        }
+
+        let action = StakingAction(
+            amount: action.amount,
+            targetType: .target(target),
+            type: action.type
+        )
+
         do {
             let transaction = try await stakingManager.transaction(action: action)
             let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
@@ -157,7 +214,7 @@ private extension StakingSingleActionModel {
             proceed(error: error)
             throw error
         } catch P2PStakingError.feeIncreased(let newFee) {
-            update(state: makeState(fee: newFee))
+            update(state: makeState(amount: action.amount, fee: newFee))
             throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
@@ -192,7 +249,7 @@ private extension StakingSingleActionModel {
 
 // MARK: - SendFeeUpdater
 
-extension StakingSingleActionModel: SendFeeUpdater {
+extension RestakingModel: SendFeeUpdater {
     func updateFees() {
         updateState()
     }
@@ -200,7 +257,7 @@ extension StakingSingleActionModel: SendFeeUpdater {
 
 // MARK: - SendSourceTokenInput
 
-extension StakingSingleActionModel: SendSourceTokenInput {
+extension RestakingModel: SendSourceTokenInput {
     var sourceToken: LoadingResult<SendSourceToken, any Error> {
         .success(sendSourceToken)
     }
@@ -212,13 +269,13 @@ extension StakingSingleActionModel: SendSourceTokenInput {
 
 // MARK: - SendSourceTokenOutput
 
-extension StakingSingleActionModel: SendSourceTokenOutput {
+extension RestakingModel: SendSourceTokenOutput {
     func userDidSelect(sourceToken: SendSourceToken) {}
 }
 
 // MARK: - SendSourceTokenAmountInput
 
-extension StakingSingleActionModel: SendSourceTokenAmountInput {
+extension RestakingModel: SendSourceTokenAmountInput {
     var sourceAmount: LoadingResult<SendAmount, any Error> {
         let fiat = tokenItem.currencyId.flatMap {
             BalanceConverter().convertToFiat(action.amount, currencyId: $0)
@@ -234,15 +291,32 @@ extension StakingSingleActionModel: SendSourceTokenAmountInput {
 
 // MARK: - SendSourceTokenAmountOutput
 
-extension StakingSingleActionModel: SendSourceTokenAmountOutput {
+extension RestakingModel: SendSourceTokenAmountOutput {
     func sourceAmountDidChanged(amount: SendAmount?) {
-        assertionFailure("We can not change amount in single action model")
+        assertionFailure("We can not change amount in restaking")
+    }
+}
+
+// MARK: - StakingValidatorsInput
+
+extension RestakingModel: StakingTargetsInput {
+    var selectedTarget: StakingTargetInfo? { _selectedTarget.value.value }
+    var selectedTargetPublisher: AnyPublisher<TangemStaking.StakingTargetInfo, Never> {
+        _selectedTarget.compactMap { $0.value }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - StakingValidatorsOutput
+
+extension RestakingModel: StakingTargetsOutput {
+    func userDidSelect(target: TangemStaking.StakingTargetInfo) {
+        _selectedTarget.send(.success(target))
     }
 }
 
 // MARK: - SendFeeInput
 
-extension StakingSingleActionModel: SendFeeInput {
+extension RestakingModel: SendFeeInput {
     var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
@@ -261,11 +335,11 @@ extension StakingSingleActionModel: SendFeeInput {
 
 // MARK: - SendSummaryInput, SendSummaryOutput
 
-extension StakingSingleActionModel: SendSummaryInput, SendSummaryOutput {
+extension RestakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         _state.map { state in
             switch state {
-            case .loading, .validationError, .networkError:
+            case .loading, .validationError, .networkError, .stakingValidationError:
                 return false
             case .ready:
                 return true
@@ -274,24 +348,14 @@ extension StakingSingleActionModel: SendSummaryInput, SendSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        // Do not show any text in the unstaking flow
+        // Do not show any text in the restaking flow
         .just(output: nil)
-    }
-}
-
-// MARK: - StakingValidatorsInput
-
-extension StakingSingleActionModel: StakingTargetsInput {
-    var selectedTarget: StakingTargetInfo? { action.targetInfo }
-
-    var selectedTargetPublisher: AnyPublisher<StakingTargetInfo, Never> {
-        Just(action.targetInfo).compactMap { $0 }.eraseToAnyPublisher()
     }
 }
 
 // MARK: - SendFinishInput
 
-extension StakingSingleActionModel: SendFinishInput {
+extension RestakingModel: SendFinishInput {
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
     }
@@ -303,7 +367,7 @@ extension StakingSingleActionModel: SendFinishInput {
 
 // MARK: - SendBaseInput, SendBaseOutput
 
-extension StakingSingleActionModel: SendBaseInput, SendBaseOutput {
+extension RestakingModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isLoading.eraseToAnyPublisher()
     }
@@ -318,7 +382,7 @@ extension StakingSingleActionModel: SendBaseInput, SendBaseOutput {
 
 // MARK: - StakingNotificationManagerInput
 
-extension StakingSingleActionModel: StakingNotificationManagerInput {
+extension RestakingModel: StakingNotificationManagerInput {
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> {
         stakingManager.statePublisher
     }
@@ -326,7 +390,7 @@ extension StakingSingleActionModel: StakingNotificationManagerInput {
 
 // MARK: - NotificationTapDelegate
 
-extension StakingSingleActionModel: NotificationTapDelegate {
+extension RestakingModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
@@ -341,16 +405,23 @@ extension StakingSingleActionModel: NotificationTapDelegate {
 
 // MARK: - StakingBaseDataBuilderInput
 
-extension StakingSingleActionModel: StakingBaseDataBuilderInput {
+extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
     var bsdkFee: BSDKFee? { selectedFee?.value.value }
     var isFeeIncluded: Bool { false }
 
+    var stakingActionType: TangemStaking.StakingAction.ActionType? { stakingAction.type }
     var target: StakingTargetInfo? { action.targetInfo }
-    var stakingActionType: StakingAction.ActionType? { action.type }
 }
 
-extension StakingSingleActionModel {
+extension RestakingModel {
     typealias Action = StakingAction
-    typealias State = UnstakingModel.State
+
+    enum State {
+        case loading
+        case ready(fee: Decimal)
+        case validationError(ValidationError, fee: Decimal)
+        case networkError(Error)
+        case stakingValidationError(StakingValidationError)
+    }
 }
