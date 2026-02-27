@@ -12,6 +12,7 @@ struct ExpressApproveFlowFactory {
     let tokenFeeManagerProviding: (any TokenFeeProvidersManagerProviding)?
     let feeSelectorOutput: (any FeeSelectorOutput)?
     let analyticsLogger: (any FeeSelectorAnalytics)?
+    let input: ExpressApproveViewModel.Input
 
     func make(
         input: ExpressApproveViewModel.Input,

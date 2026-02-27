@@ -17,11 +17,12 @@ struct FeeCompactView: View {
     let tapAction: (() -> Void)?
 
     var body: some View {
-        if let tapAction, viewModel.canEditFee {
-            Button(action: tapAction) { content }
-        } else {
-            content
-        }
+        Button(action: tapAction ?? {}) { content }
+//        if let tapAction, viewModel.canEditFee {
+//            Button(action: tapAction) { content }
+//        } else {
+//            content
+//        }
     }
 
     private var content: some View {
