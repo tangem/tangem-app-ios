@@ -10,6 +10,7 @@ import Combine
 import TangemPay
 
 protocol TangemPayAccountModel {
+    var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
     var customerId: String? { get }
