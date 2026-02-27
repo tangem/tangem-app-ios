@@ -60,7 +60,7 @@ struct HotCryptoView: View {
                 Text(priceUtility.formatFiatPrice(item.currentPrice))
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                TokenPriceChangeView(state: priceUtility.convertToPriceChangeState(from: item.priceChangePercentage24h))
+                PriceChangeView(state: priceUtility.convertToPriceChangeState(from: item.priceChangePercentage24h))
             }
         }
         .lineLimit(1)

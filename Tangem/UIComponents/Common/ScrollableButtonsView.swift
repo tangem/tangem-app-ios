@@ -39,8 +39,14 @@ struct ScrollableButtonsView: View {
                     )
                     .allowsHitTesting(!button.loading)
                     .disabled(button.disabled)
-                    .unreadNotificationBadge(button.shouldShowBadge, badgeColor: Colors.Icon.accent)
                     .accessibilityIdentifier(button.accessibilityIdentifier)
+                    .unreadNotificationBadge(
+                        button.shouldShowBadge,
+                        badgeColor: Colors.Icon.accent,
+                        accessibilityIdentifier: button.accessibilityIdentifier == ActionButtonsAccessibilityIdentifiers.swapButton
+                            ? ActionButtonsAccessibilityIdentifiers.swapButtonBadge
+                            : nil
+                    )
                 }
             }
             .accessibilityElement(children: .contain)

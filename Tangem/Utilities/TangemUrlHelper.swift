@@ -12,7 +12,7 @@ import FirebaseAnalytics
 enum TangemUrlHelper {
     static func queryItems(utmCampaign: TangemUTM.Campaign) -> [URLQueryItem] {
         let appLanguageCode = Locale.current.language.languageCode?.identifier(.alpha2) ?? Locale.enLanguageCode
-        let deviceLanguageCode = Locale.deviceLanguageCode
+        let deviceLanguageCode = Locale.deviceLanguageCode()
 
         let utmCampaignValue = "\(queryItemString(utmCampaign: utmCampaign))-\(appLanguageCode)"
         let utmContentValue = "devicelang-\(deviceLanguageCode)"
