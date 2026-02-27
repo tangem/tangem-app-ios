@@ -111,7 +111,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             userWalletInfo: options.sendInput.userWalletInfo,
             walletModel: options.sendInput.walletModel
         )
-        let sourceToken = factory.makeTransferableToken()
+        let sourceToken = factory.makeTransferableToken(balanceType: .staked)
 
         openFlow(options: options, sendType: .unstaking(sourceToken, manager: options.manager, action: action))
     }
