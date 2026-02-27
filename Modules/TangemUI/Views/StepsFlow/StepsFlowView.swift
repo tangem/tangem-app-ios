@@ -7,106 +7,90 @@
 //
 
 import SwiftUI
-import TangemAssets
+import TangemUIUtils
 
 public struct StepsFlowView: View {
-    @StateObject private var environment = StepsFlowEnvironment()
+    @StateObject private var viewModel: StepsFlowViewModel
 
-    private var navBarTitle: String {
-        environment.navigationTitle ?? .empty
-    }
+    @Binding private var shouldFireConfetti: Bool
 
-    private var progressValue: Double {
-        guard
-            let position = builder.currentPosition,
-            position.total > 0
-        else {
-            return 0
-        }
+    @State private var navigationTitle: String?
+    @State private var navigationLeadingItem: StepsFlowNavBarItem?
+    @State private var navigationTrailingItem: StepsFlowNavBarItem?
+    @State private var isLoading: Bool = false
 
-        return Double(position.index + 1) / Double(position.total)
-    }
-
-    private let builder: StepsFlowBuilder
+    private let navigationRouter: NavigationRouter
     private let configuration: StepsFlowConfiguration
 
-    public init(builder: StepsFlowBuilder, configuration: StepsFlowConfiguration) {
-        self.builder = builder
+    public init(
+        builder: StepsFlowBuilder,
+        navigationRouter: NavigationRouter,
+        shouldFireConfetti: Binding<Bool>,
+        configuration: StepsFlowConfiguration
+    ) {
+        _viewModel = StateObject(wrappedValue: StepsFlowViewModel(builder: builder))
+        _shouldFireConfetti = shouldFireConfetti
+        self.navigationRouter = navigationRouter
         self.configuration = configuration
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            flowBar
-            flowContent
-        }
-        .overlay(loadingOverlay)
+        rootView
+            .navigationDestination(for: StepsFlowRoute.self, destination: destination)
+            .overlay(StepsFlowLoading(isLoading: isLoading))
+            .onReceive(viewModel.actionPublisher, perform: handleAction)
     }
 }
 
 // MARK: - Subviews
 
 private extension StepsFlowView {
-    var flowBar: some View {
-        VStack(spacing: 4) {
-            navBar
-
-            if configuration.hasProgressBar {
-                makeProgressBar(value: progressValue)
-                    .padding(.horizontal, configuration.progressBarPadding)
-                    .animation(.default, value: progressValue)
-            }
-        }
-    }
-
-    var flowContent: some View {
-        StepsFlowContent(builder: builder)
-            .environmentObject(environment)
-    }
-
     @ViewBuilder
-    var loadingOverlay: some View {
-        if environment.isLoading {
-            ZStack {
-                Colors.Overlays.overlayPrimary
-                    .ignoresSafeArea()
-                ActivityIndicatorView()
+    var rootView: some View {
+        if let step = viewModel.headStep {
+            stepView(step)
+        }
+    }
+
+    func destination(route: StepsFlowRoute) -> some View {
+        stepView(route.step)
+            .overlay {
+                ConfettiView(shouldFireConfetti: $shouldFireConfetti)
             }
+    }
+
+    func stepView(_ step: StepsFlowStep) -> some View {
+        VStack(spacing: 0) {
+            StepsFlowBar(
+                title: navigationTitle,
+                leadingItem: navigationLeadingItem,
+                trailingItem: navigationTrailingItem,
+                progressBarValue: viewModel.progressValue,
+                configuration: configuration
+            )
+
+            StepsFlowContent(
+                step: step,
+                onTitle: { navigationTitle = $0 },
+                onLeadingItem: { navigationLeadingItem = $0 },
+                onTrailingItem: { navigationTrailingItem = $0 },
+                onLoading: { isLoading = $0 }
+            )
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 }
 
-// MARK: - navBar
+// MARK: - Navigation
 
 private extension StepsFlowView {
-    var navBar: some View {
-        NavigationBar(
-            title: navBarTitle,
-            settings: NavigationBar.Settings(
-                backgroundColor: .clear,
-                height: configuration.navigationBarHeight
-            ),
-            leftButtons: navBarLeadingItemView,
-            rightButtons: navBarTrailingItemView
-        )
-    }
-
-    func navBarLeadingItemView() -> some View {
-        environment.navigationLeadingItem.map { $0.content() }
-    }
-
-    func navBarTrailingItemView() -> some View {
-        environment.navigationTrailingItem.map { $0.content() }
-    }
-}
-
-// MARK: - Progress bar
-
-private extension StepsFlowView {
-    func makeProgressBar(value: Double) -> some View {
-        ProgressBar(
-            height: configuration.progressBarHeight,
-            currentProgress: value
-        )
+    func handleAction(_ action: StepsFlowAction) {
+        switch action {
+        case .push(let node):
+            let route = StepsFlowRoute(step: node.element)
+            navigationRouter.push(route: route, animated: false)
+        case .pop:
+            navigationRouter.pop(animated: false)
+        }
     }
 }

@@ -8,13 +8,25 @@
 
 import SwiftUI
 
-struct ConfettiView: UIViewRepresentable {
-    var shouldFireConfetti: Binding<Bool>
-    var position: ConfettiGeneratorPosition = .aboveTop
-    var confettiLifetime: Float = 4
-    var generationDuration: Double = 0.3
+public struct ConfettiView: UIViewRepresentable {
+    private let shouldFireConfetti: Binding<Bool>
+    private let position: ConfettiGeneratorPosition
+    private let confettiLifetime: Float
+    private let generationDuration: Double
 
-    func makeUIView(context: Context) -> UIView {
+    public init(
+        shouldFireConfetti: Binding<Bool>,
+        position: ConfettiGeneratorPosition = .aboveTop,
+        confettiLifetime: Float = 4,
+        generationDuration: Double = 0.3
+    ) {
+        self.shouldFireConfetti = shouldFireConfetti
+        self.position = position
+        self.confettiLifetime = confettiLifetime
+        self.generationDuration = generationDuration
+    }
+
+    public func makeUIView(context: Context) -> UIView {
         let view = UIView()
         view.backgroundColor = .clear
         view.frame = UIScreen.main.bounds
@@ -22,7 +34,7 @@ struct ConfettiView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
+    public func updateUIView(_ uiView: UIView, context: Context) {
         if shouldFireConfetti.wrappedValue {
             launchConfetti(for: uiView)
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {

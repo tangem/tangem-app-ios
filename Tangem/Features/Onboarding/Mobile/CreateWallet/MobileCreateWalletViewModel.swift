@@ -140,8 +140,7 @@ private extension MobileCreateWalletViewModel {
             flow: .walletImport(source: source),
             shouldLogOnboardingStartedAnalytics: false
         )
-        let options = OnboardingCoordinator.Options.mobileInput(input)
-        coordinator?.openOnboarding(options: options)
+        coordinator?.openMobileOnboarding(input: input)
     }
 
     func close() {

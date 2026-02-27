@@ -10,73 +10,70 @@ import SwiftUI
 
 public extension View {
     func stepsFlowNavBar(title: String?) -> some View {
-        modifier(StepsFlowNavTitleModifier(title: title))
+        background { Color.clear.preference(
+            key: StepsFlowNavTitlePreferenceKey.self,
+            value: title
+        ) }
+    }
+
+    func stepsFlowNavBar<L: View>(leading: @escaping () -> L) -> some View {
+        background { Color.clear.preference(
+            key: StepsFlowNavLeadingItemPreferenceKey.self,
+            value: StepsFlowNavBarItem(content: leading)
+        ) }
+    }
+
+    func stepsFlowNavBar<T: View>(trailing: @escaping () -> T) -> some View {
+        background { Color.clear.preference(
+            key: StepsFlowNavTrailingItemPreferenceKey.self,
+            value: StepsFlowNavBarItem(content: trailing)
+        ) }
     }
 
     func stepsFlowNavBar<L: View, T: View>(
-        leading: @escaping () -> L = { EmptyView() },
-        trailing: @escaping () -> T = { EmptyView() }
+        leading: @escaping () -> L,
+        trailing: @escaping () -> T
     ) -> some View {
-        modifier(StepsFlowNavBarModifier(
-            leadingItem: StepsFlowNavBarItem(content: leading),
-            trailingItem: StepsFlowNavBarItem(content: trailing)
-        ))
+        stepsFlowNavBar(leading: leading).stepsFlowNavBar(trailing: trailing)
     }
 
     func stepsFlow(isLoading: Bool) -> some View {
-        modifier(StepsFlowLoadingModifier(isLoading: isLoading))
+        background { Color.clear.preference(
+            key: StepsFlowLoadingPreferenceKey.self,
+            value: isLoading
+        ) }
     }
 }
 
-private struct StepsFlowNavTitleModifier: ViewModifier {
-    @EnvironmentObject private var environment: StepsFlowEnvironment
+struct StepsFlowNavTitlePreferenceKey: PreferenceKey {
+    static var defaultValue: String?
 
-    let title: String?
-
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                environment.navigationTitle = title
-            }
-            .onChange(of: title) { title in
-                environment.navigationTitle = title
-            }
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        guard let nextValue = nextValue() else { return }
+        value = nextValue
     }
 }
 
-private struct StepsFlowNavBarModifier: ViewModifier {
-    @EnvironmentObject private var environment: StepsFlowEnvironment
+struct StepsFlowNavLeadingItemPreferenceKey: PreferenceKey {
+    static var defaultValue: StepsFlowNavBarItem?
 
-    let leadingItem: StepsFlowNavBarItem
-    let trailingItem: StepsFlowNavBarItem
-
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                environment.navigationLeadingItem = leadingItem
-                environment.navigationTrailingItem = trailingItem
-            }
-            .onChange(of: leadingItem) { item in
-                environment.navigationLeadingItem = item
-            }
-            .onChange(of: trailingItem) { item in
-                environment.navigationTrailingItem = item
-            }
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        guard let nextValue = nextValue() else { return }
+        value = nextValue
     }
 }
 
-private struct StepsFlowLoadingModifier: ViewModifier {
-    @EnvironmentObject private var environment: StepsFlowEnvironment
+struct StepsFlowNavTrailingItemPreferenceKey: PreferenceKey {
+    static var defaultValue: StepsFlowNavBarItem?
 
-    let isLoading: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                environment.isLoading = isLoading
-            }
-            .onChange(of: isLoading) { isLoading in
-                environment.isLoading = isLoading
-            }
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        guard let nextValue = nextValue() else { return }
+        value = nextValue
     }
+}
+
+struct StepsFlowLoadingPreferenceKey: PreferenceKey {
+    static var defaultValue: Bool = false
+
+    static func reduce(value: inout Value, nextValue: () -> Value) {}
 }

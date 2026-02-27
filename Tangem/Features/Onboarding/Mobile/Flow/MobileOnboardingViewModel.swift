@@ -18,10 +18,6 @@ final class MobileOnboardingViewModel: ObservableObject {
 
     lazy var flowBuilder = makeFlowBuilder()
 
-    var flowId: AnyHashable {
-        ObjectIdentifier(flowBuilder)
-    }
-
     private let input: MobileOnboardingInput
     private weak var coordinator: MobileOnboardingRoutable?
 

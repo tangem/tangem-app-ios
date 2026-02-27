@@ -540,7 +540,7 @@ private extension UserWalletSettingsViewModel {
             context: context
         )
         let input = MobileOnboardingInput(flow: flow)
-        openOnboarding(with: .mobileInput(input))
+        openOnboarding(with: .mobileInput(input, nil))
     }
 
     func openMobileBackupTypes() {

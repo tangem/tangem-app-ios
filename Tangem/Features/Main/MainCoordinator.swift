@@ -923,7 +923,7 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
                 userWalletModel: userWalletModel,
                 source: .main(action: .backup)
             ))
-            openOnboardingModal(with: .mobileInput(backupInput))
+            openOnboardingModal(with: .mobileInput(backupInput, nil))
         }
     }
 }

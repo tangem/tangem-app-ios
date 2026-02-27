@@ -13,10 +13,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
-        NavigationStack {
-            content
-                .navigationLinks(links)
-        }
+        NavigationContainer(root: content, router: coordinator.navigationRouter)
     }
 
     private var content: some View {
@@ -34,12 +31,20 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 }
             }
         }
+        .navigationLinks(links)
     }
 
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.createWalletSelectorCoordinator) {
+            .navigationDestination(for: CreateWalletSelectorCoordinator.self) {
                 CreateWalletSelectorCoordinatorView(coordinator: $0)
+            }
+            .navigationDestination(for: OnboardingCoordinator.self) {
+                OnboardingCoordinatorView(coordinator: $0)
+                    .navigationBarHidden(true)
+            }
+            .navigationDestination(for: MobileCreateWalletCoordinator.self) {
+                MobileCreateWalletCoordinatorView(coordinator: $0)
             }
     }
 
