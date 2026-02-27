@@ -211,6 +211,13 @@ private extension SendModel {
         func resetFlowAction() {
             reset()
             externalDestinationUpdater.externalUpdate(address: .init(value: .plain(""), source: .textField))
+
+            if let type = SendDestinationAdditionalFieldType.type(for: newReceiveToken.tokenItem.blockchain) {
+                externalDestinationUpdater.externalUpdate(additionalField: .empty(type: type))
+            } else {
+                externalDestinationUpdater.externalUpdate(additionalField: .notSupported)
+            }
+
             router?.resetFlow()
         }
 
