@@ -77,7 +77,7 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
 
 extension SendWithSwapNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        switch receiveTokenInput?.receiveToken {
+        switch receiveTokenInput?.receiveToken.value {
         case .none:
             return sendNotificationManager.notificationInputs
         case .some:
