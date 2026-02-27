@@ -167,12 +167,20 @@ final class SendViewModel: ObservableObject {
 
 private extension SendViewModel {
     func performApprove() {
-        do {
-            let input = try approveViewModelInputDataBuilder.makeExpressApproveViewModelInput()
-            coordinator?.openApproveView(expressApproveViewModelInput: input)
-        } catch {
-            showAlert(error.alertBinder)
-        }
+//        do {
+//            let input = try approveViewModelInputDataBuilder.makeExpressApproveViewModelInput()
+//            
+//            let approveFlowFactory = ExpressApproveFlowFactory(
+//                tokenFeeManagerProviding: self,
+//                feeSelectorOutput: self,
+//                analyticsLogger: nil,
+//                input: input
+//            )
+//            
+//            coordinator?.openApproveView(expressApproveViewModelInput: input, flowFactory: flowFactory)
+//        } catch {
+//            showAlert(error.alertBinder)
+//        }
     }
 
     func performAction() {
