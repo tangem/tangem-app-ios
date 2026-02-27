@@ -14,33 +14,36 @@ import TangemAccessibilityIdentifiers
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
 
-    private let imageSize: CGSize = .init(width: 120, height: 106)
-    private let cornerRadius = 14.0
+    @ScaledMetric private var heightScaled = Size.height
+
+    @ScaledMetric private var titleStubWidthScaled = Size.titleStub.width
+    @ScaledMetric private var titleStubHeightScaled = Size.titleStub.height
+
+    @ScaledMetric private var subtitleStubWidthScaled = Size.subtitleStub.width
+    @ScaledMetric private var subtitleStubHeightScaled = Size.subtitleStub.height
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(viewModel.userWalletName)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            Spacer()
-                .frame(height: 6)
+            Spacer(minLength: 6)
 
             if viewModel.isUserWalletLocked {
                 Colors.Field.primary
-                    .frame(width: 102, height: 24)
+                    .frame(width: titleStubWidthScaled, height: titleStubHeightScaled)
                     .cornerRadiusContinuous(6)
                     .padding(.vertical, 5)
             } else {
                 LoadableBalanceView(
                     state: viewModel.balance,
                     style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
+                    loader: .init(size: CGSize(width: titleStubWidthScaled, height: titleStubHeightScaled), cornerRadius: 6),
                     accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
                 )
             }
 
-            Spacer()
-                .frame(height: 10)
+            Spacer(minLength: 10)
 
             HStack {
                 subtitleText
@@ -61,16 +64,16 @@ struct MainHeaderView: View {
                 // that breaks the view's structural identity (`if`, `switch`, etc)
                 (viewModel.cardImage ?? Assets.clearColor1px)
                     .image
-                    .frame(size: imageSize)
+                    .frame(width: Size.cardImage.width, height: Size.cardImage.height)
                     .accessibilityIdentifier(MainAccessibilityIdentifiers.headerCardImage)
             }
             .hidden(viewModel.cardImage == nil)
         }
         .padding(.horizontal, 14)
+        .frame(height: heightScaled)
         .background(Colors.Background.primary)
-        .cornerRadiusContinuous(cornerRadius)
-        .previewContentShape(cornerRadius: cornerRadius)
-        .frame(minHeight: imageSize.height)
+        .cornerRadiusContinuous(Size.cornerRadius)
+        .previewContentShape(cornerRadius: Size.cornerRadius)
     }
 
     private var subtitleText: some View {
@@ -93,7 +96,11 @@ struct MainHeaderView: View {
         )
         .truncationMode(.middle)
         .if(!viewModel.isUserWalletLocked) {
-            $0.skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
+            $0.skeletonable(
+                isShown: viewModel.isLoadingSubtitle,
+                size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
+                radius: 3
+            )
         }
     }
 }
@@ -105,6 +112,18 @@ private extension MainHeaderView {
                 .clipShape(Circle())
                 .frame(size: .init(bothDimensions: 2.5))
         }
+    }
+}
+
+extension MainHeaderView {
+    private enum Size {
+        static let height: CGFloat = 106
+
+        static let cardImage = CGSize(width: 120, height: Self.height)
+        static let titleStub = CGSize(width: 102, height: 24)
+        static let subtitleStub = CGSize(width: 52, height: 12)
+
+        static let cornerRadius: CGFloat = 14
     }
 }
 

@@ -436,6 +436,7 @@ final class MainViewModel: ObservableObject {
 
         var params: [Analytics.ParameterKey: String] = [
             .appTheme: AppSettings.shared.appTheme.analyticsParamValue.rawValue,
+            .appCurrency: AppSettings.shared.selectedCurrencyCode,
         ]
 
         let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
