@@ -15,7 +15,6 @@ protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
     func openSend(walletModel: any WalletModel)
     func openSwap(walletModel: any WalletModel)
-    func openExchange(walletModel: any WalletModel)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
@@ -85,26 +84,6 @@ final class SingleTokenRouter: SingleTokenRoutable {
             openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSwapAction() })
         } else {
             openSwapAction()
-        }
-    }
-
-    func openExchange(walletModel: any WalletModel) {
-        let input = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel,
-                expressOperationType: .swap
-            ),
-            destination: .loadingAndSet
-        )
-
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem) { [weak self] in
-                self?.coordinator?.openExpress(input: input)
-            }
-        } else {
-            coordinator?.openExpress(input: input)
         }
     }
 

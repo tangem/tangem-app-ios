@@ -17,7 +17,7 @@ import TangemFoundation
 /// switching between them based on SwapModel's receive token state.
 /// When the receive token has a value, swap mode is active.
 /// Otherwise, it operates in simple send mode using TransferModel.
-/// This provides the same API as `SendModel` but with cleaner separation of concerns.
+/// This provides clean separation of concerns between send and swap functionality.
 final class SendWithSwapModel {
     // MARK: - Dependencies
 
@@ -588,10 +588,9 @@ extension SendWithSwapModel: SendApproveDataBuilderInput {
 
 extension SendWithSwapModel: SendDestinationAccountOutput {
     func setDestinationAccountInfo(
-        tokenHeader: ExpressInteractorTokenHeader?,
         analyticsProvider: (any AccountModelAnalyticsProviding)?
     ) {
-        transferModel.setDestinationAccountInfo(tokenHeader: tokenHeader, analyticsProvider: analyticsProvider)
+        transferModel.setDestinationAccountInfo(analyticsProvider: analyticsProvider)
     }
 }
 
