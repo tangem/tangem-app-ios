@@ -35,7 +35,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     @Published var tokenNetworkSelectorCoordinator: MarketsTokenNetworkSelectorCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
@@ -298,42 +297,6 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    func openExchange(input: ExpressDependenciesDestinationInput) {
-        let action = { [weak self] in
-            guard let self else { return }
-
-            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] option in
-                self?.expressCoordinator = nil
-                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
-            }
-
-            let openSwapBlock = { [weak self] in
-                guard let self else { return }
-                let factory = CommonExpressModulesFactory(input: input)
-                let coordinator = ExpressCoordinator(
-                    factory: factory,
-                    dismissAction: dismissAction,
-                    popToRootAction: popToRootAction
-                )
-
-                coordinator.start(with: .default)
-                expressCoordinator = coordinator
-            }
-
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .markets,
-                presentCompletion: openSwapBlock
-            )
-        }
-
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.destination.tokenItem) {
-            openViaYieldNotice(tokenItem: input.destination.tokenItem, action: action)
-        } else {
-            action()
         }
     }
 

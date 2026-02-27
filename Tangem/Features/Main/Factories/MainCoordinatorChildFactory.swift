@@ -17,7 +17,7 @@ protocol MainCoordinatorChildFactory {
 
     func makeSwapCoordinator(
         userWalletModel: UserWalletModel,
-        dismissAction: @escaping ExpressCoordinator.DismissAction,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator
 
     func makeReferralCoordinator(dismissAction: @escaping Action<Void>) -> ReferralCoordinator
