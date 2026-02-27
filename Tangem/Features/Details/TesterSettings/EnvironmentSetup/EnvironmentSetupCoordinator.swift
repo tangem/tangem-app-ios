@@ -23,6 +23,7 @@ class EnvironmentSetupCoordinator: CoordinatorObject {
 
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
+    @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -72,5 +73,18 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
 
     func openAddressesInfo() {
         addressesInfoViewModel = AddressesInfoViewModel()
+    }
+
+    func openDesignSystemDemo() {
+        designSystemDemoCoordinator = .init(
+            dismissAction: { [weak self] _ in
+                self?.designSystemDemoCoordinator = nil
+            },
+            popToRootAction: { [weak self] _ in
+                self?.designSystemDemoCoordinator = nil
+            }
+        )
+
+        designSystemDemoCoordinator?.start(with: ())
     }
 }
