@@ -25,7 +25,7 @@ struct MainView: View {
             .navigationBarBackButtonHidden(true)
             .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
             .ignoresSafeArea(.keyboard)
-            .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails))
     }
 
     @ViewBuilder
@@ -90,17 +90,6 @@ struct MainView: View {
         .onPageChange(viewModel.onPageChange(dueTo:))
     }
 
-    private var detailsNavigationButton: some View {
-        Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
-            NavbarDotsImage()
-                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        }
-        .buttonStyle(.plain)
-        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
-    }
-
     private var renameButton: some View {
         Button(action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet)) {
             HStack {
@@ -108,6 +97,39 @@ struct MainView: View {
                 Image(systemName: "pencil")
             }
         }
+    }
+}
+
+// MARK: - Navigation Modifier
+
+private struct MainViewNavigationModifier: ViewModifier {
+    let openDetailsAction: () -> Void
+
+    func body(content: Content) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            content
+                .tangemNavigationHeader(
+                    trailingAction: openDetailsAction,
+                    accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
+                        trailingButton: MainAccessibilityIdentifiers.detailsButton,
+                        trailingButtonLabel: Localization.voiceOverOpenCardDetails
+                    )
+                )
+        } else {
+            content
+                .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
+        }
+    }
+
+    private var detailsNavigationButton: some View {
+        Button(action: openDetailsAction) {
+            NavbarDotsImage()
+                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+        }
+        .buttonStyle(.plain)
+        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 }
 
