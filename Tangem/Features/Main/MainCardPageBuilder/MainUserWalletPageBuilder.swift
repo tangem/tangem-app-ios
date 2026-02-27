@@ -71,22 +71,10 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var actionButtonsViewModel: ActionButtonsViewModel? {
-        switch self {
-        case .multiWallet(_, _, let bodyModel):
-            return bodyModel.actionButtonsViewModel
-        case .singleWallet, .lockedWallet, .visaWallet:
-            return nil
-        }
-    }
-
     @ViewBuilder
     var header: some View {
         if FeatureProvider.isAvailable(.redesign) {
-            MainUserWalletHeader(model: MainUserWalletHeaderModel(
-                headerViewModel: headerModel,
-                actionButtonsViewModel: actionButtonsViewModel
-            ))
+            MainUserWalletHeader(viewModel: headerModel)
         } else {
             MainHeaderView(viewModel: headerModel)
         }
