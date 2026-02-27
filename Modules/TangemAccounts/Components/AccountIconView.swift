@@ -42,8 +42,8 @@ public struct AccountIconView: View {
     public var body: some View {
         label
             .matchedGeometryEffect(iconGeometryEffect)
-            .frame(width: scaledWidth, height: scaledHeight)
-            .padding(scaledPadding)
+            .frame(size: labelFrameSize)
+            .padding(labelPadding)
             .background(
                 GeometryReader { geo in
                     RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
@@ -52,6 +52,29 @@ public struct AccountIconView: View {
                 .matchedGeometryEffect(backgroundGeometryEffect)
             )
             .animation(.default, value: data.nameMode)
+    }
+
+    private var labelFrameSize: CGSize {
+        switch data.nameMode {
+        case .letter, .imageType:
+            CGSize(width: scaledWidth, height: scaledHeight)
+
+        case .tangemPay:
+            CGSize(
+                width: scaledWidth + scaledPadding * 2,
+                height: scaledHeight + scaledPadding * 2
+            )
+        }
+    }
+
+    private var labelPadding: CGFloat {
+        switch data.nameMode {
+        case .letter, .imageType:
+            scaledPadding
+
+        case .tangemPay:
+            .zero
+        }
     }
 
     @ViewBuilder
@@ -69,6 +92,11 @@ public struct AccountIconView: View {
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
+
+        case .tangemPay:
+            Assets.Visa.accountAvatar.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
         }
     }
 }
@@ -91,7 +119,7 @@ public extension AccountIconView {
             switch nameMode {
             case .letter(let letter, _):
                 return ViewData(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .imageType:
+            case .imageType, .tangemPay:
                 return self
             }
         }
@@ -112,6 +140,7 @@ public extension AccountIconView {
     enum NameMode: Hashable {
         case letter(String, LetterConfig = .default)
         case imageType(ImageType, ImageConfig = .default)
+        case tangemPay
     }
 }
 
