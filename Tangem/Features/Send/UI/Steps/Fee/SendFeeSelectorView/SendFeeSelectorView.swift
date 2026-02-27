@@ -87,9 +87,3 @@ struct SendFeeSelectorView: View {
         }
     }
 }
-
-// MARK: - Animation
-
-private extension Animation {
-    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
-}

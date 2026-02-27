@@ -14,7 +14,9 @@ protocol ExpressApproveFlowRoutable: AnyObject {
     func openFeeTokenSelection()
 }
 
-final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentViewModel {
+protocol ExpressApproveCoordinating: ExpressApproveFlowRoutable, ExpressApproveRoutable {}
+
+final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentViewModel, ExpressApproveCoordinating {
     // MARK: - ViewState
 
     @Published private(set) var state: ViewState
@@ -24,9 +26,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel?
     private let feeSelectorInteractor: CommonFeeSelectorInteractor?
-    
-    // MARK: - Navigation
-    
     private weak var feeSelectorOutput: (any FeeSelectorOutput)?
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
@@ -39,27 +38,18 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         feeSelectorInteractor: CommonFeeSelectorInteractor? = nil,
         feeSelectorOutput: (any FeeSelectorOutput)? = nil
     ) {
-        self.coordinatorRouter = router
+        coordinatorRouter = router
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
         self.feeSelectorOutput = feeSelectorOutput
 
-        approveViewModel = ExpressApproveViewModel(
-            input: input,
-            coordinator: router,
-            flowRouter: nil
-        )
+        // Create approveViewModel
+        approveViewModel = ExpressApproveViewModel(input: input)
 
         state = .approve(approveViewModel)
-        setupApproveViewModel()
-    }
-}
 
-// MARK: - Private
-
-private extension ExpressApproveFlowViewModel {
-    func setupApproveViewModel() {
-        approveViewModel.setFlowRouter(self)
+        // Now that self is fully initialized, set the coordinator
+        approveViewModel.setCoordinator(self)
     }
 }
 
@@ -122,8 +112,17 @@ extension ExpressApproveFlowViewModel {
 // MARK: - ViewState
 
 extension ExpressApproveFlowViewModel {
-    enum ViewState {
+    enum ViewState: Equatable {
         case approve(ExpressApproveViewModel)
         case feeTokenSelection(FeeSelectorTokensViewModel)
+
+        static func == (lhs: ViewState, rhs: ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.approve, .approve), (.feeTokenSelection, .feeTokenSelection):
+                return true
+            default:
+                return false
+            }
+        }
     }
 }

@@ -21,7 +21,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
     @Published var selectedAction: BSDKApprovePolicy
-    @Published var feeRowViewModel: DefaultRowViewModel?
+    @Published var feeCompactViewModel: FeeCompactViewModel?
 
     @Published var isLoading = false
     @Published var mainButtonIsDisabled = false
@@ -35,21 +35,14 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private let tokenItem: TokenItem
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
-    private weak var coordinator: ExpressApproveRoutable?
-    private weak var flowRouter: ExpressApproveFlowRoutable?
+    private weak var coordinator: ExpressApproveCoordinating?
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        input: Input,
-        coordinator: ExpressApproveRoutable,
-        flowRouter: ExpressApproveFlowRoutable?
-    ) {
+    init(input: Input) {
         feeFormatter = input.feeFormatter
         approveViewModelInput = input.approveViewModelInput
-        self.coordinator = coordinator
-        self.flowRouter = flowRouter
 
         tokenItem = input.settings.tokenItem
 
@@ -63,17 +56,17 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
             actions: [.unlimited, .specified]
         )
 
-        feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
+        feeCompactViewModel = FeeCompactViewModel(feeFormatter: feeFormatter)
         updateView(state: approveViewModelInput.approveFeeValue)
         bind()
     }
 
-    func setFlowRouter(_ router: ExpressApproveFlowRoutable) {
-        flowRouter = router
+    func setCoordinator(_ coordinator: ExpressApproveCoordinating) {
+        self.coordinator = coordinator
     }
-    
+
     func didTapFeeSelectorButton() {
-        flowRouter?.openFeeTokenSelection()
+        coordinator?.openFeeTokenSelection()
     }
 
     func didTapInfoButton() {
@@ -144,7 +137,7 @@ private extension ExpressApproveViewModel {
             isLoading = false
             mainButtonIsDisabled = false
         case .loading:
-            feeRowViewModel?.update(detailsType: .loader)
+            // [REDACTED_TODO_COMMENT]
             isLoading = true
             mainButtonIsDisabled = false
         case .failure(let error):
@@ -155,8 +148,8 @@ private extension ExpressApproveViewModel {
     }
 
     func updateFeeAmount(fee: ApproveInputFee) {
-        let formatted = feeFormatter.format(fee: fee.fee.amount.value, tokenItem: fee.feeTokenItem)
-        feeRowViewModel?.update(detailsType: .text(formatted))
+        // [REDACTED_TODO_COMMENT]
+        // For now, just keep the fee data
     }
 
     func sendApproveTransaction() {
