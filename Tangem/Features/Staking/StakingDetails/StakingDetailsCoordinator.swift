@@ -68,10 +68,18 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
+        let factory = CommonSendTransferableTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeTransferableToken()
+
         openFlow(
             options: options,
             sendType: .staking(
+                sourceToken,
                 manager: options.manager,
+                walletModelDependenciesProvider: options.sendInput.walletModel,
                 blockchainParams: .init(blockchain: options.sendInput.walletModel.tokenItem.blockchain)
             )
         )
@@ -99,19 +107,37 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openUnstakingFlow(action: UnstakingModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .unstaking(manager: options.manager, action: action))
+        let factory = CommonSendTransferableTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeTransferableToken()
+
+        openFlow(options: options, sendType: .unstaking(sourceToken, manager: options.manager, action: action))
     }
 
     func openRestakingFlow(action: RestakingModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .restaking(manager: options.manager, action: action))
+        let factory = CommonSendTransferableTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeTransferableToken()
+
+        openFlow(options: options, sendType: .restaking(sourceToken, manager: options.manager, action: action))
     }
 
     func openStakingSingleActionFlow(action: StakingSingleActionModel.Action) {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .stakingSingleAction(manager: options.manager, action: action))
+        let factory = CommonSendTransferableTokenFactory(
+            userWalletInfo: options.sendInput.userWalletInfo,
+            walletModel: options.sendInput.walletModel
+        )
+        let sourceToken = factory.makeTransferableToken()
+
+        openFlow(options: options, sendType: .stakingSingleAction(sourceToken, manager: options.manager, action: action))
     }
 
     func openFlow(options: Options, sendType: SendType) {
@@ -119,7 +145,6 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         coordinator.start(
             with: .init(
-                input: options.sendInput,
                 type: sendType,
                 source: .stakingDetails
             )

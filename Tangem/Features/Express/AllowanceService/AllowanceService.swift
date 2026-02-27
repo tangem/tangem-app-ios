@@ -18,8 +18,7 @@ protocol AllowanceService: ExpressAllowanceProvider {
 // MARK: - ExpressAllowanceProvider
 
 extension AllowanceService {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
-        let contractAddress = request.pair.source.currency.contractAddress
+    func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState {
         if contractAddress == ExpressConstants.coinContractAddress {
             return .enoughAllowance
         }

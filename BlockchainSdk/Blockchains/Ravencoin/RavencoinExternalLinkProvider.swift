@@ -24,7 +24,7 @@ extension RavencoinExternalLinkProvider: ExternalLinkProvider {
     private var explorerBaseURL: String {
         return isTestnet
             ? "https://rvnt.cryptoscope.io/"
-            : "https://blockbook.ravencoin.org/"
+            : "https://rvn.tokenview.io/"
     }
 
     func url(transaction hash: String) -> URL? {
