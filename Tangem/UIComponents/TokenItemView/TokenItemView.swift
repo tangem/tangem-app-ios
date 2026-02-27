@@ -62,7 +62,7 @@ struct TokenItemView: View {
                             loaderSize: .init(width: 52, height: 12)
                         )
 
-                        TokenPriceChangeView(
+                        PriceChangeView(
                             state: viewModel.priceChangeState,
                             showSkeletonWhenLoading: false
                         )

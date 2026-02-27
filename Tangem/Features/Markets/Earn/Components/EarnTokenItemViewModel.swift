@@ -7,42 +7,33 @@
 //
 
 import Foundation
+import TangemAssets
 
 // MARK: - EarnTokenItemViewModel
 
 struct EarnTokenItemViewModel: Identifiable, Hashable {
-    let tokenId: String
-    let name: String
-    let symbol: String
-    let imageUrl: URL?
-    let networkName: String
-    let networkImageUrl: URL?
-    let rateValue: Decimal
-    let rateType: RateType
-    let earnType: EarnType
     let onTapAction: () -> Void
 
     var id: String {
-        [tokenId, symbol, networkName, earnType.rawValue].joined(separator: "_")
+        [token.id, token.symbol, networkName, token.earnType.rawValue].joined(separator: "_")
     }
 
-    var rateText: String {
-        let formatted = percentFormatter.format(rateValue, option: .staking)
-        return "\(rateType.rawValue) \(formatted)"
-    }
+    var name: String { token.name }
+    var symbol: String { token.symbol }
+    var earnType: EarnType { token.earnType }
 
-    private let percentFormatter = PercentFormatter()
+    var networkName: String { token.networkName }
+
+    var imageUrl: URL? { token.imageUrl }
+
+    var rateText: String { token.rateText }
+
+    var blockchainIconAsset: ImageType? { token.blockchainIconAsset }
+
+    private let token: EarnTokenModel
 
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {
-        tokenId = token.id
-        name = token.name
-        symbol = token.symbol
-        imageUrl = token.imageUrl
-        networkName = token.networkName
-        networkImageUrl = token.networkImageUrl
-        rateValue = token.rateValue
-        rateType = token.rateType
-        earnType = token.earnType
+        self.token = token
         self.onTapAction = onTapAction
     }
 
