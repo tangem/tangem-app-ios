@@ -28,7 +28,8 @@ struct ExpressManagerMapper {
         pair: ExpressManagerSwappingPair,
         request: ExpressManagerSwappingPairRequest,
         providerId: ExpressProvider.Id,
-        providerType: ExpressProviderType
+        providerType: ExpressProviderType,
+        quoteId: String? = nil
     ) throws -> ExpressSwappableDataItem {
         guard let sourceAddress = pair.source.address else {
             throw Error.sourceAddressNotFound
@@ -56,7 +57,8 @@ struct ExpressManagerMapper {
             amountType: request.amountType,
             rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType),
-            operationType: request.operationType
+            operationType: request.operationType,
+            quoteId: quoteId
         )
     }
 }

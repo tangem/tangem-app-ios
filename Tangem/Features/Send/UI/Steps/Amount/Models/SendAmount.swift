@@ -84,6 +84,13 @@ extension SendAmount {
 
 enum SendAmountError: LocalizedError {
     case noAmount
+    case receiveRestriction(ReceiveAmountRestriction)
+}
+
+enum ReceiveAmountRestriction {
+    case tooSmallAmount(Decimal)
+    case tooBigAmount(Decimal)
+    case balanceExceeded
 }
 
 enum SendAmountCalculationType {
