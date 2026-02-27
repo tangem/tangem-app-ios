@@ -7,9 +7,10 @@
 //
 
 struct CommonSendFeeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder {
-    let sourceToken: SendSourceToken
+    let sourceTokenInput: SendSourceTokenInput
 
     func makeFeeCurrencyData() throws -> FeeCurrencyNavigatingDismissOption {
-        .init(userWalletId: sourceToken.userWalletInfo.id, tokenItem: sourceToken.feeTokenItem)
+        let sourceToken = try sourceTokenInput.sourceToken.get()
+        return .init(userWalletId: sourceToken.userWalletInfo.id, tokenItem: sourceToken.feeTokenItem)
     }
 }

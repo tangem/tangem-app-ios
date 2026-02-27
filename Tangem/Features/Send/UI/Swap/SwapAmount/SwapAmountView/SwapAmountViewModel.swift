@@ -23,10 +23,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var sourceExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var sourceDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
-
-    @Published private(set) var isSwapButtonLoading: Bool = false
     @Published private(set) var isSwapButtonDisabled: Bool = false
-
     @Published private(set) var receiveExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var receiveCryptoAmountState: LoadableTextView.State = .initialized
 
@@ -85,19 +82,11 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func bind() {
         // Buttons updating
-
         interactor.receivedTokenPublisher
             .map { ($0.value as? SendSourceToken) == nil }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
-
-        stateProvider?.statePublisher
-            .filter { $0.filter(loading: [.autoupdate]) }
-            .map { $0.isLoading }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$isSwapButtonLoading)
 
         sourceExpressCurrencyStateCancellable = stateProvider?.statePublisher
             .withWeakCaptureOf(self)
