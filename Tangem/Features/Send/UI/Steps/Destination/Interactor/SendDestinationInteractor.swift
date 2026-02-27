@@ -32,6 +32,7 @@ protocol SendDestinationInteractor {
 }
 
 class CommonSendDestinationInteractor {
+    private let initialSourceToken: SendSourceToken
     private weak var input: SendDestinationInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
@@ -54,11 +55,13 @@ class CommonSendDestinationInteractor {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        initialSourceToken: SendSourceToken,
         input: SendDestinationInput,
-        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
         dependenciesBuilder: SendDestinationInteractorDependenciesProvider
     ) {
+        self.initialSourceToken = initialSourceToken
         self.input = input
         self.receiveTokenInput = receiveTokenInput
         self.saver = saver
@@ -71,12 +74,12 @@ class CommonSendDestinationInteractor {
         receiveTokenInput?.receiveTokenPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { $0.updateDependencies(receivedTokenType: $1) }
+            .sink { $0.updateDependencies(receivedToken: $1.value) }
             .store(in: &bag)
     }
 
-    private func updateDependencies(receivedTokenType: SendReceiveTokenType) {
-        dependenciesBuilder.update(receivedTokenType: receivedTokenType)
+    private func updateDependencies(receivedToken: SendReceiveToken?) {
+        dependenciesBuilder.update(receivedToken: receivedToken)
 
         _suggestedWallets.send(dependenciesBuilder.suggestedWallets)
         dependenciesBuilder.transactionHistoryProvider
@@ -152,7 +155,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         return receiveTokenInput
             .receiveTokenPublisher
-            .map { $0.tokenItem }
+            .withWeakCaptureOf(self)
+            .map { $1.value?.tokenItem ?? $0.initialSourceToken.tokenItem }
             .eraseToAnyPublisher()
     }
 

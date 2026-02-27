@@ -123,6 +123,8 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
             return [cryptoAccount]
         case .standard(.multiple(let cryptoAccounts)):
             return cryptoAccounts
+        case .tangemPay:
+            return []
         }
     }
 
