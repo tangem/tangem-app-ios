@@ -20,7 +20,7 @@ protocol SendSummaryInteractor: AnyObject {
 class CommonSendSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
-    private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
+    private weak var swapModelStateProvider: SwapModelStateProvider?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
@@ -29,14 +29,14 @@ class CommonSendSummaryInteractor {
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapModelStateProvider: SwapModelStateProvider?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
         stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
-        self.receiveTokenAmountInput = receiveTokenAmountInput
+        self.swapModelStateProvider = swapModelStateProvider
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
@@ -67,12 +67,13 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        guard let receiveTokenAmountInput else {
+        guard let swapModelStateProvider else {
             return Empty().eraseToAnyPublisher()
         }
 
-        return receiveTokenAmountInput
-            .receiveAmountPublisher
+        return swapModelStateProvider
+            .statePublisher
+            .filter { $0.filter(loading: [.autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
