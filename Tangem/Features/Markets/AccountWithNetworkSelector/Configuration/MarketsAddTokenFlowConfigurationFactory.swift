@@ -45,6 +45,8 @@ enum MarketsAddTokenFlowConfigurationFactory {
             },
             accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
                 coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
                 availableNetworks: inputData.networks
             ),
             analyticsLogger: analyticsLogger
@@ -126,12 +128,13 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
-                let expressInput = ExpressDependenciesDestinationInput(
+                let swapableToken = CommonSendSwapableTokenFactory(
                     userWalletInfo: userWalletInfo,
-                    walletModel: walletModel
-                )
+                    walletModel: walletModel,
+                    operationType: .swap
+                ).makeSwapableToken()
 
-                coordinator.openExchange(input: expressInput)
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
