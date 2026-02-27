@@ -19,7 +19,9 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     FeeSelectorAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
-    SendFinishAnalyticsLogger {
+    SendFinishAnalyticsLogger,
+    SendApproveAnalyticsLogger,
+    SwapManagementModelAnalyticsLogger {
     func setup(sendDestinationInput: any SendDestinationInput)
     func setup(sendFeeInput: any SendFeeInput)
     func setup(sendSourceTokenInput: any SendSourceTokenInput)
@@ -85,6 +87,20 @@ extension SendManagementModelAnalyticsLogger {
             tokenFee: nil
         )
     }
+}
+
+// MARK: - SendApproveAnalyticsLogger
+
+protocol SendApproveAnalyticsLogger {
+    func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy)
+    func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String)
+}
+
+// MARK: - SendSwapAnalyticsLogger
+
+protocol SwapManagementModelAnalyticsLogger {
+    func logSwapButtonSwap()
+    func logSwapTransactionSent(result: TransactionDispatcherResult)
 }
 
 // MARK: - SendBaseView
