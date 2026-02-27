@@ -10,10 +10,13 @@ import Foundation
 import Combine
 import SwiftUI
 import TangemSdk
+import TangemUI
 
 final class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
+
+    let navigationRouter = CommonNavigationRouter()
 
     // MARK: - Dependencies
 
@@ -31,7 +34,6 @@ final class WelcomeCoordinator: CoordinatorObject {
 
     @Published var promotionCoordinator: PromotionCoordinator? = nil
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
-    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -115,14 +117,19 @@ extension WelcomeCoordinator: WelcomeRoutable {
             case .main(let model):
                 self?.openMain(with: model)
             case .dismiss:
-                self?.createWalletSelectorCoordinator = nil
+                self?.navigationRouter.pop()
             }
         }
 
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
+        let coordinator = CreateWalletSelectorCoordinator(
+            navigationRouter: navigationRouter,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
         let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
+
+        navigationRouter.push(route: coordinator)
     }
 
     func openMain(with userWalletModel: UserWalletModel) {

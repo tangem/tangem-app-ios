@@ -188,7 +188,7 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(options: .mobileInput(input))
+        openOnboardingModal(options: .mobileInput(input, nil))
     }
 
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
@@ -291,7 +291,7 @@ extension UserWalletSettingsCoordinator:
 extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
     func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void) {
         dismissMobileBackupNeeded()
-        openOnboardingModal(options: .mobileInput(input), onSuccess: onBackupFinished)
+        openOnboardingModal(options: .mobileInput(input, nil), onSuccess: onBackupFinished)
     }
 
     func dismissMobileBackupNeeded() {
@@ -309,7 +309,7 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
 
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {
         dismissMobileRemoveWalletNotification()
-        openOnboardingModal(options: .mobileInput(input))
+        openOnboardingModal(options: .mobileInput(input, nil))
     }
 
     func dismissMobileRemoveWalletNotification() {

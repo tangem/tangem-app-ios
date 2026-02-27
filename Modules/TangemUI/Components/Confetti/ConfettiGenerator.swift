@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum ConfettiGeneratorPosition {
+public enum ConfettiGeneratorPosition {
     case aboveTop
     case bottom
     case custom(point: CGPoint)

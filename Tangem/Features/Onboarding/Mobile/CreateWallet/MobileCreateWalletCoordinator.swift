@@ -7,21 +7,21 @@
 //
 
 import Foundation
+import TangemUIUtils
 
 class MobileCreateWalletCoordinator: CoordinatorObject {
+    let navigationRouter: NavigationRouter
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     @Published private(set) var rootViewModel: MobileCreateWalletViewModel?
 
-    // MARK: - Child coordinators
-
-    @Published var onboardingCoordinator: OnboardingCoordinator?
-
     required init(
+        navigationRouter: NavigationRouter,
         dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
+        self.navigationRouter = navigationRouter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -34,8 +34,8 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
 // MARK: - MobileCreateWalletRoutable
 
 extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
-    func openOnboarding(options: OnboardingCoordinator.Options) {
-        openOnboarding(inputOptions: options)
+    func openMobileOnboarding(input: MobileOnboardingInput) {
+        openOnboarding(inputOptions: .mobileInput(input, navigationRouter))
     }
 
     func closeMobileCreateWallet() {
@@ -60,13 +60,14 @@ private extension MobileCreateWalletCoordinator {
             case .main(let userWalletModel):
                 self?.openMain(userWalletModel: userWalletModel)
             case .dismiss:
-                self?.onboardingCoordinator = nil
+                self?.navigationRouter.pop()
             }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
-        onboardingCoordinator = coordinator
+
+        navigationRouter.push(route: coordinator)
     }
 
     func openMain(userWalletModel: UserWalletModel) {
