@@ -7,7 +7,6 @@
 //
 
 protocol ActionButtonsSwapRoutable: AnyObject {
-    func openExpress(input: ExpressDependenciesInput)
     func openSwap(input: PredefinedSwapParameters)
     func dismiss()
     func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?)
