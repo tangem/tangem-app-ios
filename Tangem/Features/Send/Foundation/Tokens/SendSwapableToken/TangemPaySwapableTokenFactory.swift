@@ -46,10 +46,7 @@ struct TangemPaySwapableTokenFactory {
             availableBalanceProvider: availableBalanceProvider
         )
 
-        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: tokenItem,
-            feeAnalyticsParameterBuilder: .init(isFixedFee: false)
-        )
+        let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
 
         let providerTransactionValidator = TangemPayExpressProviderTransactionValidator()
 
