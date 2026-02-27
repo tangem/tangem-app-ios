@@ -9,11 +9,11 @@
 import TangemLocalization
 
 struct CommonSendApproveViewModelInputDataBuilder {
-    private let sourceToken: SendSourceToken
+    private let sourceTokenInput: SendSourceTokenInput
     private let approveDataInput: SendApproveDataBuilderInput
 
-    init(sourceToken: SendSourceToken, approveDataInput: SendApproveDataBuilderInput) {
-        self.sourceToken = sourceToken
+    init(sourceTokenInput: SendSourceTokenInput, approveDataInput: SendApproveDataBuilderInput) {
+        self.sourceTokenInput = sourceTokenInput
         self.approveDataInput = approveDataInput
     }
 }
@@ -34,6 +34,7 @@ extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputD
             throw SendMailDataBuilderError.notFound("ApproveViewModelInput")
         }
 
+        let sourceToken = try sourceTokenInput.sourceToken.get()
         let settings = ExpressApproveViewModel.Settings(
             subtitle: Localization.givePermissionSwapSubtitle(
                 selectedProvider.name,
