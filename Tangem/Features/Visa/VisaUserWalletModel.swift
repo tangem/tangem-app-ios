@@ -574,10 +574,6 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.accountModelsManager
     }
 
-    var tangemPayManager: TangemPayManager {
-        userWalletModel.tangemPayManager
-    }
-
     func validate() -> Bool { userWalletModel.validate() }
 
     func update(type: UpdateRequest) {
