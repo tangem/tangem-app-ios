@@ -29,8 +29,6 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationLinks(links)
                 }
 
-                marketsTooltipView
-
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
@@ -46,6 +44,9 @@ struct MainCoordinatorView: CoordinatorView {
                 }
             }
             .injectNavigationAssertionDelegate()
+        }
+        .overlay {
+            marketsTooltipView
         }
     }
 
@@ -90,9 +91,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.expressCoordinator) { coordinator in
-                ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
