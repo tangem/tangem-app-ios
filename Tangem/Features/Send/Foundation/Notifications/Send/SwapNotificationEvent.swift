@@ -1,5 +1,5 @@
 //
-//  ExpressNotificationEvent.swift
+//  SwapNotificationEvent.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import SwiftUI
 import TangemExpress
 import TangemAssets
 
-enum ExpressNotificationEvent: Hashable {
+enum SwapNotificationEvent: Hashable {
     // Express specific notifications
     case permissionNeeded(providerName: String, currencyCode: String, analyticsParams: [Analytics.ParameterKey: String])
     case refreshRequired(
@@ -45,7 +45,7 @@ enum ExpressNotificationEvent: Hashable {
     case longTimeAverageDuration
 }
 
-extension ExpressNotificationEvent: NotificationEvent {
+extension SwapNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
         case .permissionNeeded:
@@ -257,7 +257,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
 // MARK: Analytics
 
-extension ExpressNotificationEvent {
+extension SwapNotificationEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .refreshRequired(_, _, .exchangeNotPossibleError, _):

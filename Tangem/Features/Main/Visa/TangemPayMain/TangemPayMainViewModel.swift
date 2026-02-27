@@ -113,8 +113,7 @@ final class TangemPayMainViewModel: ObservableObject {
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
             guard let depositAddress = tangemPayAccount.depositAddress,
-                  let swapableToken = makeSendSwapableToken(),
-                  let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+                  let swapableToken = makeSendSwapableToken() else {
                 coordinator?.openTangemPayNoDepositAddressSheet()
                 return
             }
@@ -123,8 +122,7 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    swapableToken: swapableToken,
-                    tangemPayWalletWrapper: tangemPayWalletWrapper
+                    swapableToken: swapableToken
                 )
             )
         }
@@ -152,8 +150,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func withdraw() {
         Analytics.log(.visaScreenWithdrawClicked)
-        guard let swapableToken = makeSendSwapableToken(),
-              let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+        guard let swapableToken = makeSendSwapableToken() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
             return
         }
@@ -165,7 +162,7 @@ final class TangemPayMainViewModel: ObservableObject {
             self?.isWithdrawButtonLoading = false
         }) { @MainActor [weak self] in
             do {
-                try await self?.openWithdraw(swapableToken: swapableToken, tangemPayWalletWrapper: tangemPayWalletWrapper)
+                try await self?.openWithdraw(swapableToken: swapableToken)
             } catch is CancellationError {
                 // Do nothing
             } catch {
@@ -358,26 +355,6 @@ private extension TangemPayMainViewModel {
             .assign(to: &$pendingExpressTransactions)
     }
 
-    func makeExpressInteractorTangemPayWalletWrapper() -> ExpressInteractorTangemPayWalletWrapper? {
-        guard let depositAddress = tangemPayAccount.depositAddress else {
-            return nil
-        }
-
-        let tangemPayWalletWrapper = ExpressInteractorTangemPayWalletWrapper(
-            userWalletId: userWalletInfo.id,
-            tokenItem: TangemPayUtilities.usdcTokenItem,
-            feeTokenItem: TangemPayUtilities.usdcTokenItem,
-            defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
-            transactionValidator: TangemPayExpressTransactionValidator(
-                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            )
-        )
-
-        return tangemPayWalletWrapper
-    }
-
     func makeSendSwapableToken() -> (any SendSwapableToken)? {
         guard let depositAddress = tangemPayAccount.depositAddress else {
             return nil
@@ -403,21 +380,12 @@ private extension TangemPayMainViewModel {
 
 private extension TangemPayMainViewModel {
     @MainActor
-    func openWithdraw(swapableToken: any SendSwapableToken, tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper) async throws {
+    func openWithdraw(swapableToken: any SendSwapableToken) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
 
         switch restriction {
         case .none, .zeroWalletBalance:
-            if FeatureProvider.isAvailable(.swapRefactoring) {
-                coordinator?.openTangemPayWithdraw(input: .from(swapableToken))
-                return
-            }
-
-            coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
-                userWalletInfo: userWalletInfo,
-                source: tangemPayWalletWrapper,
-                destination: .loadingAndSet
-            ))
+            coordinator?.openTangemPayWithdraw(input: .from(swapableToken))
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:
