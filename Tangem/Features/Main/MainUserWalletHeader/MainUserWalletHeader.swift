@@ -61,10 +61,10 @@ struct MainUserWalletHeader: View {
                 headerViewModel: provider.models[index],
                 actionButtonsViewModel: nil
             ))
-                .onTapGesture {
-                    let infoProvider = provider.infoProviders[index]
-                    infoProvider.tapAction(infoProvider)
-                }
+            .onTapGesture {
+                let infoProvider = provider.infoProviders[index]
+                infoProvider.tapAction(infoProvider)
+            }
         }
     }
     .padding()
