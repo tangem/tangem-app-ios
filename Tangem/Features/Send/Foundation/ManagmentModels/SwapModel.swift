@@ -864,6 +864,18 @@ extension SwapModel: SendFeeInput {
     }
 }
 
+// MARK: - ExpressApproveFlowFactoryProvider
+
+extension SwapModel: ExpressApproveFlowFactoryProvider {
+    func makeExpressApproveFlowFactory() -> ExpressApproveFlowFactory? {
+        ExpressApproveFlowFactory(
+            tokenFeeManagerProviding: self,
+            feeSelectorOutput: self,
+            analyticsLogger: nil
+        )
+    }
+}
+
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
