@@ -129,12 +129,11 @@ extension RestakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: restakingModel,
-                emailDataCollectorBuilder: stakingableToken.emailDataCollectorBuilder,
-                emailDataProvider: stakingableToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: restakingModel
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: stakingableToken
+                sourceTokenInput: restakingModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
