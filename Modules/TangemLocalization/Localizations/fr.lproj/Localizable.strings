@@ -1311,8 +1311,8 @@
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
-"swap_search_tooltip_title" = "Use search to find what you need";
+"swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
+"swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
 "swap_story_first_subtitle" = "Plusieurs fournisseurs de confiance en un seul endroit : échangez n'importe quel actif facilement";
@@ -1733,8 +1733,8 @@
 "warning_express_refresh_required_title" = "Service temporairement indisponible";
 "warning_express_too_maximum_amount_title" = "Le nombre de jetons à échanger ne doit pas dépasser %@";
 "warning_express_too_minimal_amount_title" = "Le montant à échanger doit être d'au moins %@";
-"warning_express_unsupported_pair_title" = "Unsupported token pair";
-"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
+"warning_express_unsupported_pair_description" = "L’échange n’est pas disponible pour cette paire. Veuillez sélectionner un autre token et réessayer.";
+"warning_express_unsupported_pair_title" = "Paire d’échange non prise en charge.";
 "warning_express_wrong_amount_description" = "Veuillez modifier le montant à échanger";
 "warning_failed_to_verify_card_message" = "Cette carte pourrait être un échantillon de production ou une contrefaçon";
 "warning_failed_to_verify_card_title" = "Échec de la vérification d'authenticité";
