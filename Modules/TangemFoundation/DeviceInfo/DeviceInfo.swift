@@ -24,7 +24,7 @@ public struct DeviceInfo {
     public init() {
         platform = Constants.platformName
         version = InfoDictionaryUtils.version.value() ?? Constants.commonUnknown
-        language = Locale.deviceLanguageCode
+        language = Locale.deviceLanguageCode()
         timezone = TimeZone.current.identifier
         device = IPhoneModel()?.name ?? Constants.commonUnknown
         systemVersion = UIDevice.current.systemVersion

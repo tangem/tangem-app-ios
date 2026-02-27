@@ -9,8 +9,13 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
-    var expressDependenciesFactory: ExpressDependenciesFactory { get }
+    var transferableToken: SendTransferableToken { get }
+}
+
+extension SendFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { transferableToken.userWalletInfo }
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+    var feeTokenItem: TokenItem { transferableToken.feeTokenItem }
 }
 
 // MARK: - Shared dependencies
@@ -18,30 +23,22 @@ protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory
 extension SendFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
-    func makeSendWithSwapModel(
-        swapManager: SwapManager,
+    func makeTransferModel(
         analyticsLogger: any SendAnalyticsLogger,
-        predefinedValues: SendModel.PredefinedValues
-    ) -> SendModel {
-        SendModel(
+        predefinedValues: TransferModel.PredefinedValues
+    ) -> TransferModel {
+        TransferModel(
             userWalletId: userWalletInfo.id,
-            userToken: makeSourceToken(),
+            userToken: transferableToken,
             transactionSigner: userWalletInfo.signer,
-            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: walletModelDependenciesProvider.transactionValidator),
+            feeIncludedCalculator: CommonFeeIncludedCalculator(validator: transferableToken.transactionValidator),
             analyticsLogger: analyticsLogger,
-            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),
-            swapManager: swapManager,
             predefinedValues: predefinedValues
         )
     }
 
-    func makeSwapManager() -> SwapManager {
-        CommonSwapManager(
-            userWalletConfig: userWalletInfo.config,
-            interactor: expressDependenciesFactory.expressInteractor
-        )
-    }
+    // MARK: - Services
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
@@ -50,31 +47,6 @@ extension SendFlowBaseDependenciesFactory {
     func makeTransactionParametersBuilder() -> TransactionParamsBuilder {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
-
-    // MARK: - Notifications
-
-    func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
-        SendWithSwapNotificationManager(
-            receiveTokenInput: receiveTokenInput,
-            sendNotificationManager: CommonSendNotificationManager(
-                userWalletId: userWalletInfo.id,
-                tokenItem: tokenItem,
-                withdrawalNotificationProvider: walletModelDependenciesProvider.withdrawalNotificationProvider
-            ),
-            expressNotificationManager: ExpressNotificationManager(
-                userWalletId: userWalletInfo.id,
-                expressInteractor: expressDependenciesFactory.expressInteractor
-            )
-        )
-    }
-
-    // MARK: - Receive token
-
-    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
-        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
-    }
-
-    // MARK: - Services
 
     func makeSendQRCodeService() -> SendQRCodeService {
         CommonSendQRCodeService(
@@ -86,17 +58,13 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    // MARK: - Analytics
+    // MARK: - Notifications
 
-    static func makeSendAnalyticsLogger(
-        walletModel: any WalletModel,
-        sendType: CommonSendAnalyticsLogger.SendType
-    ) -> SendAnalyticsLogger {
-        CommonSendAnalyticsLogger(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !walletModel.shouldShowFeeSelector),
-            sendType: sendType
+    func makeSendNotificationManager() -> SendNotificationManager {
+        CommonSendNotificationManager(
+            userWalletId: userWalletInfo.id,
+            tokenItem: tokenItem,
+            withdrawalNotificationProvider: transferableToken.withdrawalNotificationProvider
         )
     }
 }
