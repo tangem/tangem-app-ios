@@ -39,7 +39,7 @@ struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {
     weak var receiveTokenInput: SendReceiveTokenInput?
 
     var title: String {
-        switch receiveTokenInput?.receiveToken {
+        switch receiveTokenInput?.receiveToken.value {
         case .none: Localization.commonSend
         case .some: Localization.sendWithSwapTitle
         }
