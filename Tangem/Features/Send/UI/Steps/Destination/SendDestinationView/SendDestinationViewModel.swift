@@ -313,11 +313,12 @@ extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
     }
 
     func externalUpdate(additionalField: SendDestinationAdditionalField) {
-        guard case .filled(_, let value, _) = additionalField else {
-            return
+        switch additionalField {
+        case .notSupported, .empty:
+            additionalFieldViewModel?.update(text: "")
+        case .filled(_, let value, _):
+            additionalFieldViewModel?.update(text: value)
         }
-
-        additionalFieldViewModel?.update(text: value)
     }
 }
 
