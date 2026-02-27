@@ -1128,7 +1128,6 @@
 		B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFB325DE7F9300EF422C /* DataCollectors.swift */; };
 		B021F6C92CFF33DC0026078C /* VisaOnboardingActivationWalletSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B021F6C82CFF33DC0026078C /* VisaOnboardingActivationWalletSelectorItemView.swift */; };
 		B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */; };
-		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
 		B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B026178C26FCAB7900B5107F /* FanStackCalculator.swift */; };
 		B0290CD72CAED72C008ABBD2 /* MarketsExchangesListMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0290CD62CAED72C008ABBD2 /* MarketsExchangesListMapper.swift */; };
 		B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */; };
@@ -1136,8 +1135,6 @@
 		B02E11B92A41DB0900776290 /* TokenMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02E11B82A41DB0900776290 /* TokenMocks.swift */; };
 		B030B4DB2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B030B4DA2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift */; };
 		B03156A82A86369B001D9646 /* DefaultTokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03156A72A86369A001D9646 /* DefaultTokenItemInfoProvider.swift */; };
-		B031AAB126C1443E00015003 /* Confetti.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB026C1443D00015003 /* Confetti.swift */; };
-		B031AAB326C169E900015003 /* ConfettiType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB226C169E900015003 /* ConfettiType.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
 		B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		B0340B9E2C50C7C4008FF6FC /* ForegroundBlinkAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0340B9D2C50C7C4008FF6FC /* ForegroundBlinkAnimationModifier.swift */; };
@@ -6044,7 +6041,6 @@
 		B020FFB325DE7F9300EF422C /* DataCollectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectors.swift; sourceTree = "<group>"; };
 		B021F6C82CFF33DC0026078C /* VisaOnboardingActivationWalletSelectorItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingActivationWalletSelectorItemView.swift; sourceTree = "<group>"; };
 		B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparePrimaryCardTask.swift; sourceTree = "<group>"; };
-		B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiGenerator.swift; sourceTree = "<group>"; };
 		B026178C26FCAB7900B5107F /* FanStackCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanStackCalculator.swift; sourceTree = "<group>"; };
 		B0290CD62CAED72C008ABBD2 /* MarketsExchangesListMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsExchangesListMapper.swift; sourceTree = "<group>"; };
 		B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAccessCodeView.swift; sourceTree = "<group>"; };
@@ -6052,8 +6048,6 @@
 		B02E11B82A41DB0900776290 /* TokenMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenMocks.swift; sourceTree = "<group>"; };
 		B030B4DA2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedWalletMainContentView.swift; sourceTree = "<group>"; };
 		B03156A72A86369A001D9646 /* DefaultTokenItemInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTokenItemInfoProvider.swift; sourceTree = "<group>"; };
-		B031AAB026C1443D00015003 /* Confetti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Confetti.swift; sourceTree = "<group>"; };
-		B031AAB226C169E900015003 /* ConfettiType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiType.swift; sourceTree = "<group>"; };
 		B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataTask.swift; sourceTree = "<group>"; };
 		B0323F2B258C041D005C7CD5 /* SignerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerUtils.swift; sourceTree = "<group>"; };
 		B0332D3229251A4A00553AD9 /* notReferralMock.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = notReferralMock.json; sourceTree = "<group>"; };
@@ -13399,16 +13393,6 @@
 			path = LockedWalletMainContent;
 			sourceTree = "<group>";
 		};
-		B031AAAF26C1435E00015003 /* Confetti */ = {
-			isa = PBXGroup;
-			children = (
-				B031AAB026C1443D00015003 /* Confetti.swift */,
-				B031AAB226C169E900015003 /* ConfettiType.swift */,
-				B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */,
-			);
-			path = Confetti;
-			sourceTree = "<group>";
-		};
 		B0332D2F292519D000553AD9 /* Referral */ = {
 			isa = PBXGroup;
 			children = (
@@ -14814,7 +14798,6 @@
 				B029C1DA270229350017C848 /* AccessCode */,
 				B0B8670426DF60DC008DAA67 /* Animators */,
 				B0C6B4C426CE686500FA990B /* ProgressBar */,
-				B031AAAF26C1435E00015003 /* Confetti */,
 				B0FC72E929B798FA001930D4 /* SeedPhrase */,
 				B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */,
 				B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */,
@@ -28455,7 +28438,6 @@
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
-				B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */,
 				B67EA5892D9A250A00441EA8 /* NotSupportedNFTManager.swift in Sources */,
 				B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationUtil.swift in Sources */,
@@ -29352,7 +29334,6 @@
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
-				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				B671C9762EE8496100D9D27B /* AccountsAwareOrganizeTokensView.swift in Sources */,
 				B6F60C4A2EA84BF6005C712D /* CryptoAccountsAuxiliaryData.swift in Sources */,
@@ -29866,7 +29847,6 @@
 				B6BFDB6C2E43C41F00021D8D /* AccountModelsManagerMock.swift in Sources */,
 				DC0568DD2E0E86DA008A3770 /* WCAssetIconHelper.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
-				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				C265B2132E55DB650011C01D /* WalletConnectSwitchEthereumChainMessageHandler.swift in Sources */,
 				0F25E1732E9E90C600C67A34 /* HardwareBackupTypesView.swift in Sources */,
 				B6A1C6962C04FCA4001FC7EE /* RateAppNotificationController.swift in Sources */,

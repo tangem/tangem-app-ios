@@ -17,16 +17,7 @@ struct MobileCreateWalletCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.rootViewModel {
                 MobileCreateWalletView(viewModel: viewModel)
                     .navigationBarHidden(true)
-                    .navigationLinks(links)
             }
         }
-    }
-
-    private var links: some View {
-        NavHolder()
-            .navigation(item: $coordinator.onboardingCoordinator) {
-                OnboardingCoordinatorView(coordinator: $0)
-                    .navigationBarHidden(true)
-            }
     }
 }

@@ -60,7 +60,7 @@ extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(with: .mobileInput(input))
+        openOnboardingModal(with: .mobileInput(input, nil))
     }
 }
 

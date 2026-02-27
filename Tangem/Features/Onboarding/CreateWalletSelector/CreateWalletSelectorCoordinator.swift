@@ -8,8 +8,10 @@
 
 import Foundation
 import SwiftUI
+import TangemUIUtils
 
 class CreateWalletSelectorCoordinator: CoordinatorObject {
+    private let navigationRouter: NavigationRouter
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -19,9 +21,11 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
 
     required init(
+        navigationRouter: NavigationRouter,
         dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
+        self.navigationRouter = navigationRouter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -38,6 +42,10 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
 // MARK: - CreateNewWalletSelectorRoutable
 
 extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
+    func openOnboarding(options: OnboardingCoordinator.Options) {
+        openOnboarding(inputOptions: options)
+    }
+
     func openMain(userWalletModel: UserWalletModel) {
         dismiss(with: .main(userWalletModel: userWalletModel))
     }
@@ -48,13 +56,17 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
             case .main(let userWalletModel):
                 self?.openMain(userWalletModel: userWalletModel)
             case .dismiss:
-                self?.mobileCreateWalletCoordinator = nil
+                self?.navigationRouter.pop()
             }
         }
 
-        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
+        let coordinator = MobileCreateWalletCoordinator(
+            navigationRouter: navigationRouter,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
         coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
-        mobileCreateWalletCoordinator = coordinator
+        navigationRouter.push(route: coordinator)
     }
 
     func closeCreateWalletSelector() {
@@ -65,12 +77,12 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 // MARK: - MobileCreateWalletRoutable
 
 extension CreateWalletSelectorCoordinator: MobileCreateWalletRoutable {
-    func openOnboarding(options: OnboardingCoordinator.Options) {
-        openOnboarding(inputOptions: options)
+    func openMobileOnboarding(input: MobileOnboardingInput) {
+        openOnboarding(inputOptions: .mobileInput(input, nil))
     }
 
     func closeMobileCreateWallet() {
-        mobileCreateWalletCoordinator = nil
+        navigationRouter.pop()
     }
 }
 

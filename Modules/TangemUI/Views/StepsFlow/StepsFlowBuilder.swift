@@ -14,13 +14,17 @@ open class StepsFlowBuilder {
     typealias Flow = StepsFlowStepLinkedList
     typealias Node = LinkedListNode<Step>
 
-    var actionPublisher: AnyPublisher<StepsFlowAction?, Never> {
-        actionSubject.eraseToAnyPublisher()
+    var headNode: Node? { flow.head }
+
+    var actionPublisher: AnyPublisher<StepsFlowAction, Never> {
+        actionSubject
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
 
     var currentPosition: Flow.Position? {
-        guard let action = actionSubject.value else { return nil }
-        return flow.position(element: action.node.element)
+        guard let currentNode else { return nil }
+        return flow.position(element: currentNode.element)
     }
 
     private var currentNode: Node? { actionSubject.value?.node }
