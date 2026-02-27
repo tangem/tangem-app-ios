@@ -88,7 +88,7 @@ private extension CommonExpressDestinationService {
 
         if let bestPair = selectBestPair(from: searchableWalletModels, searchType: searchType) {
             ExpressLogger.info(self, "selected available wallet: \(bestPair.walletModel.tokenItem.expressCurrency)")
-            return bestPair.asExpressInteractorWalletModelWrapper
+            return bestPair
         }
 
         // Fallback: if no available token found, try notLoaded tokens.
@@ -96,7 +96,7 @@ private extension CommonExpressDestinationService {
         // we optimistically select a destination anyway — validateSwapPairSupport()
         // in ExpressInteractor will catch genuinely unsupported pairs later.
         let notLoadedWalletModels: [CommonExpressDestinationService.UserWalletInfoWalletModelPair] = walletModels.filter { wallet in
-            let isNotSource = wallet.walletModel.id != base.id
+            let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
             let swapState = expressAvailabilityProvider.swapState(for: wallet.tokenItem)
             let isNotAvailable = swapState != .available
             let isNotUnavailable = swapState != .unavailable
@@ -108,7 +108,7 @@ private extension CommonExpressDestinationService {
 
         if let fallback = selectBestPair(from: notLoadedWalletModels, searchType: searchType) {
             ExpressLogger.info(self, "selected notLoaded fallback: \(fallback.walletModel.tokenItem.expressCurrency)")
-            return fallback.asExpressInteractorWalletModelWrapper
+            return fallback
         }
 
         ExpressLogger.info(self, "couldn't find acceptable wallet")
