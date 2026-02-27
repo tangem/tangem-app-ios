@@ -57,41 +57,6 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             .eraseToAnyPublisher()
     }
 
-    func swapTransactionDidSend(_ txData: SentExpressTransactionData) {
-        let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
-            expressTransactionId: txData.expressTransactionData.expressTransactionId,
-            transactionType: .type(from: txData.expressTransactionData.transactionType),
-            transactionHash: txData.result.hash,
-            sourceTokenTxInfo: .init(
-                userWalletId: txData.source.userWalletId.stringValue,
-                tokenItem: txData.source.tokenItem,
-                address: txData.source.address ?? .unknown,
-                amountString: txData.expressTransactionData.fromAmount.stringValue,
-                isCustom: txData.source.isCustom
-            ),
-            destinationTokenTxInfo: .init(
-                userWalletId: txData.destination.userWalletId.stringValue,
-                tokenItem: txData.destination.tokenItem,
-                address: txData.destination.address ?? .unknown,
-                amountString: txData.expressTransactionData.toAmount.stringValue,
-                isCustom: txData.destination.isCustom
-            ),
-            feeString: txData.fee.value.value?.amount.value.stringValue ?? "",
-            provider: .init(provider: txData.provider),
-            date: txData.date,
-            externalTxId: txData.expressTransactionData.externalTxId,
-            externalTxURL: txData.expressTransactionData.externalTxUrl,
-            averageDuration: nil, // Set nil because we don't have any data yet
-            createdAt: nil, // Set nil because we don't have any data yet
-            isHidden: false,
-            transactionStatus: .awaitingDeposit
-        )
-
-        lockQueue.async { [weak self] in
-            self?.addRecordIfNeeded(expressPendingTransactionRecord)
-        }
-    }
-
     func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {
         let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
             expressTransactionId: transaction.expressTransactionData.expressTransactionId,

@@ -24,7 +24,6 @@ protocol SendDestinationOutput: AnyObject {
 
 protocol SendDestinationAccountOutput: AnyObject {
     func setDestinationAccountInfo(
-        tokenHeader: ExpressInteractorTokenHeader?,
         analyticsProvider: (any AccountModelAnalyticsProviding)?
     )
 }
