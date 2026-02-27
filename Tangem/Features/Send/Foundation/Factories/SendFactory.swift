@@ -15,11 +15,8 @@ protocol SendGenericFlowFactory {
 struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
         switch options.type {
-        case .send(let sourceToken, _) where FeatureProvider.isAvailable(.swapRefactoring):
+        case .send(let sourceToken):
             return SendWithSwapFlowFactory(sourceToken: sourceToken)
-
-        case .send(let sendWithSwapToken, let source):
-            return SendFlowFactory(sendWithSwapToken: sendWithSwapToken, source: source)
 
         case .swap(.from(let sourceToken, let receiveToken)):
             return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken)
@@ -27,36 +24,19 @@ struct SendFactory {
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
 
-        case .nft(let transferableToken, _, let parameters) where FeatureProvider.isAvailable(.swapRefactoring):
+        case .nft(let transferableToken, let parameters):
             return TransferNFTFlowFactory(
                 transferableToken: transferableToken,
                 nftAssetStepBuilder: NFTAssetStepBuilder(
                     asset: parameters.asset,
                     collection: parameters.collection
-                ),
+                )
             )
 
-        case .nft(let sendWithSwapToken, let source, let parameters):
-            return NFTFlowFactory(
-                sourceToken: sendWithSwapToken,
-                nftAssetStepBuilder: NFTAssetStepBuilder(
-                    asset: parameters.asset,
-                    collection: parameters.collection
-                ),
-                source: source
-            )
-
-        case .sell(let transferableToken, _, let parameters) where FeatureProvider.isAvailable(.swapRefactoring):
+        case .sell(let transferableToken, let parameters):
             return TransferSellFlowFactory(
                 transferableToken: transferableToken,
-                sellParameters: parameters,
-            )
-
-        case .sell(let sendWithSwapToken, let source, let parameters):
-            return SellFlowFactory(
-                sourceToken: sendWithSwapToken,
-                sellParameters: parameters,
-                source: source
+                sellParameters: parameters
             )
 
         // We are using restaking flow here because it doesn't allow to edit amount
