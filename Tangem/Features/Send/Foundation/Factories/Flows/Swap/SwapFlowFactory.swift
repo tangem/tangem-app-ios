@@ -120,9 +120,17 @@ extension SwapFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSwapAlertBuilder(),
-            mailDataBuilder: EmptySendMailDataBuilder(),
-            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
-            feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: swapModel,
+                sourceTokenInput: swapModel
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceTokenInput: swapModel,
+                approveDataInput: swapModel
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: swapModel
+            ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
                 tokenItem: initialTokenItem
