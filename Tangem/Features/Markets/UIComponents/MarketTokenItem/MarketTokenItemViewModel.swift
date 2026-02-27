@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemStaking
+import TangemUI
 
 final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -18,7 +19,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var priceValue: String = ""
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
-    @Published private(set) var priceChangeState: TokenPriceChangeView.State = .empty
+    @Published private(set) var priceChangeState: PriceChangeView.State = .empty
     @Published private(set) var charts: [Double]? = nil
 
     private(set) var marketRating: String?
@@ -210,5 +211,5 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
 }
 
 private extension MarketTokenItemViewModel {
-    typealias ViewUpdateInput = (priceValue: String, priceChangeState: TokenPriceChangeView.State)
+    typealias ViewUpdateInput = (priceValue: String, priceChangeState: PriceChangeView.State)
 }

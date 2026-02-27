@@ -7,8 +7,6 @@
 //
 
 enum TangemPayLocalState {
-    case initial
-
     case loading
 
     case syncNeeded
@@ -16,8 +14,8 @@ enum TangemPayLocalState {
 
     case unavailable
 
-    case kycRequired
-    case kycDeclined
+    case kycRequired(TangemPayKYCInteractor)
+    case kycDeclined(TangemPayKYCInteractor)
     case issuingCard
     case failedToIssueCard
 
@@ -25,8 +23,8 @@ enum TangemPayLocalState {
 }
 
 extension TangemPayLocalState {
-    var isInitial: Bool {
-        if case .initial = self {
+    var isSyncNeeded: Bool {
+        if case .syncNeeded = self {
             return true
         }
         return false
