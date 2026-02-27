@@ -55,6 +55,12 @@ extension CEXExpressProviderManager: ExpressProviderManager {
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
+        let quoteId: String? = if case .preview(let preview) = _state.read() {
+            preview.quote.quoteId
+        } else {
+            nil
+        }
+
         let adjustedRequest: ExpressManagerSwappingPairRequest
 
         switch request.amountType {
@@ -69,7 +75,7 @@ extension CEXExpressProviderManager: ExpressProviderManager {
             adjustedRequest = request
         }
 
-        let item = try mapper.makeExpressSwappableDataItem(pair: pair, request: adjustedRequest, providerId: provider.id, providerType: provider.type)
+        let item = try mapper.makeExpressSwappableDataItem(pair: pair, request: adjustedRequest, providerId: provider.id, providerType: provider.type, quoteId: quoteId)
 
         let data = try await expressAPIProvider.exchangeData(item: item)
         try Task.checkCancellation()

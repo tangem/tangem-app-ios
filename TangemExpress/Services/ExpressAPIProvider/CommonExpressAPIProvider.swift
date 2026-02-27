@@ -116,6 +116,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
+            quoteId: item.quoteId,
             fromAddress: item.source.address,
             fromContractAddress: item.source.currency.contractAddress,
             fromNetwork: item.source.currency.network,

@@ -91,6 +91,8 @@ extension ExpressDTO {
                 let toAmount: String
                 let toDecimals: Int
                 let allowanceContract: String?
+                let quoteId: String?
+                let expiredAt: Date?
             }
         }
 
@@ -99,6 +101,7 @@ extension ExpressDTO {
         enum ExchangeData {
             struct Request: Encodable {
                 let requestId: String
+                let quoteId: String?
                 let fromAddress: String
                 let fromContractAddress: String
                 let fromNetwork: String
@@ -126,6 +129,7 @@ extension ExpressDTO {
                 let toDecimals: Int
                 let txDetailsJson: String
                 let signature: String
+                let payTill: Date?
             }
         }
 
