@@ -12,6 +12,18 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
     PulseMarketWidgetAnalyticsProvider,
     NewsWidgetAnalyticsProvider,
     EarnWidgetAnalyticsProvider {
+    // MARK: - Generic Implementation
+
+    func logMarketsChartScreenOpened(tokenSymbol: String) {
+        Analytics.log(
+            event: .marketsChartScreenOpened,
+            params: [
+                .source: Analytics.ParameterValue.market.rawValue,
+                .token: tokenSymbol.uppercased(),
+            ]
+        )
+    }
+
     // MARK: - TopMarketWidgetAnalyticsProvider
 
     func logTopMarketLoadError(_ error: Error) {
