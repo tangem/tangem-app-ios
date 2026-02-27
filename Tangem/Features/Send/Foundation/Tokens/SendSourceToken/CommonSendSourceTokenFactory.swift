@@ -12,7 +12,7 @@ struct CommonSendSourceTokenFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
 
-    func makeSourceToken() -> SendSourceToken {
+    func makeSourceToken(balanceType: SendSourceTokenFactoryBalanceType = .available) -> SendSourceToken {
         let header = TokenHeaderProvider(
             userWalletName: userWalletInfo.name,
             account: walletModel.account
@@ -39,6 +39,16 @@ struct CommonSendSourceTokenFactory {
             emailDataProvider: userWalletInfo.emailDataProvider
         )
 
+        let availableBalanceProvider: TokenBalanceProvider = switch balanceType {
+        case .available: walletModel.availableBalanceProvider
+        case .staked: walletModel.stakingBalanceProvider
+        }
+
+        let fiatAvailableBalanceProvider: TokenBalanceProvider = switch balanceType {
+        case .available: walletModel.fiatAvailableBalanceProvider
+        case .staked: walletModel.fiatStakingBalanceProvider
+        }
+
         return CommonSendSourceToken(
             userWalletInfo: userWalletInfo,
             id: walletModel.id,
@@ -47,8 +57,8 @@ struct CommonSendSourceTokenFactory {
             isFixedFee: !walletModel.shouldShowFeeSelector,
             isCustom: walletModel.isCustom,
             defaultAddressString: walletModel.defaultAddressString,
-            availableBalanceProvider: walletModel.availableBalanceProvider,
-            fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             allowanceService: allowanceService,
             withdrawalNotificationProvider: walletModel.withdrawalNotificationProvider,
             emailDataCollectorBuilder: emailDataCollectorBuilder,
@@ -60,4 +70,9 @@ struct CommonSendSourceTokenFactory {
             extraId: nil
         )
     }
+}
+
+enum SendSourceTokenFactoryBalanceType {
+    case available
+    case staked
 }
