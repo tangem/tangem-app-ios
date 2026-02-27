@@ -9,6 +9,8 @@
 import Combine
 
 struct AccountsAwareTokenSelectorItemSellAvailabilityProvider: AccountsAwareTokenSelectorItemAvailabilityProvider {
+    var showsTangemPayItems: Bool { false }
+
     func availabilityTypePublisher(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> AnyPublisher<AccountsAwareTokenSelectorItem.AvailabilityType, Never> {
         let availabilityTypePublisher = walletModel.actionsUpdatePublisher
             .map { availabilityType(userWalletInfo: userWalletInfo, walletModel: walletModel) }

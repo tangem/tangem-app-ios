@@ -10,11 +10,17 @@ import Combine
 import TangemExpress
 
 final class AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
+    let showsTangemPayItems: Bool
+
     @Injected(\.expressPairsRepository)
     private var expressPairsRepository: ExpressPairsRepository
 
     private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
+
+    init(showsTangemPayItems: Bool = true) {
+        self.showsTangemPayItems = showsTangemPayItems
+    }
 
     func setup(directionPublisher: some Publisher<SwapDirection?, Never>) {
         directionSubscription = directionPublisher

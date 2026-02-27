@@ -111,7 +111,7 @@ private extension SwapTokenSelectorViewModel {
             output?.swapTokenSelectorDidRequestUpdate(sender: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
         }
 
-        selectedTokenItem = item.walletModel.tokenItem
+        selectedTokenItem = item.tokenItem
         tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 
@@ -120,7 +120,7 @@ private extension SwapTokenSelectorViewModel {
             source: .portfolio,
             userHasSearchedDuringThisSession: false
         )
-        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+        analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 }
 

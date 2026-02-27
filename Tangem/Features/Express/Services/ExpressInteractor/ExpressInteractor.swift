@@ -126,25 +126,13 @@ extension ExpressInteractor {
 
 extension ExpressInteractor: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            expressOperationType: .swap,
-            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
-        )
-
-        update(sender: expressInteractorWallet)
+        let wallet = item.makeExpressInteractorWallet(isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
+        update(sender: wallet)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            expressOperationType: .swap,
-            isNewlyAddedFromMarkets: isNewlyAddedFromMarkets
-        )
-
-        update(destination: expressInteractorWallet)
+        let wallet = item.makeExpressInteractorWallet(isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
+        update(destination: wallet)
     }
 }
 

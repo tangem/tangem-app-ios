@@ -452,7 +452,13 @@ private extension EthereumWalletManager {
             case (.failure, _), (_, .failure):
                 wallet.clearAmount(for: tokenBalance.key)
             case (.none, .success(let value)):
-                wallet.add(tokenValue: value, for: tokenBalance.key)
+
+                if tokenBalance.key.name == "USDC" {
+                    wallet.add(tokenValue: 15, for: tokenBalance.key)
+
+                } else {
+                    wallet.add(tokenValue: value, for: tokenBalance.key)
+                }
             }
         }
     }
