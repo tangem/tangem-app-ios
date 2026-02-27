@@ -38,16 +38,14 @@ struct NFTSendUtil {
             transactionSendAvailabilityProvider: sendAvailabilityProvider
         )
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModelProxy
-        )
-        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .send)
+        ).makeTransferableToken()
 
         let parameters = PredefinedNFTParameters(asset: asset, collection: collection)
 
         return SendCoordinator.Options(
-            input: .init(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModelProxy),
             type: .nft(sourceToken, parameters: parameters),
             source: .nft
         )

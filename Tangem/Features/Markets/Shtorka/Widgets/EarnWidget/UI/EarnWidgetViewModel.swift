@@ -18,6 +18,7 @@ final class EarnWidgetViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var isFirstLoading: Bool = true
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
     @Published private(set) var resultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
     let widgetType: MarketsWidgetType
@@ -87,14 +88,16 @@ private extension EarnWidgetViewModel {
                 case .loaded:
                     viewModel.updateViewState()
                     viewModel.clearIsFirstLoadingFlag()
+                    viewModel.updateHeaderLoadingState()
                 case .initialLoading:
                     viewModel.resultState = .loading
+                    viewModel.updateHeaderLoadingState()
                 case .reloading(let widgetTypes):
                     if widgetTypes.contains(viewModel.widgetType) {
                         viewModel.resultState = .loading
+                        viewModel.updateHeaderLoadingState()
                     }
                 case .allFailed:
-                    // Global error UI is handled at a higher level
                     return
                 }
             }
@@ -112,8 +115,9 @@ private extension EarnWidgetViewModel {
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
-                case .failure:
+                case .failure(let error):
                     widgetLoadingState = .error
+                    viewModel.analyticsService.logEarnLoadError(error)
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -135,13 +139,12 @@ private extension EarnWidgetViewModel {
             resultState = .success(Array(viewModels))
         case .failure(let error):
             resultState = .failure(error)
-            analyticsService.logEarnLoadError(error)
         case .loading:
             resultState = .loading
         }
     }
 
-    private func onTokenTapAction(with token: EarnTokenModel) {
+    func onTokenTapAction(with token: EarnTokenModel) {
         Task { @MainActor [weak self] in
             guard let self else { return }
             analyticsService.logEarnOpportunitySelected(token: token.symbol, blockchain: token.networkName)
@@ -154,6 +157,17 @@ private extension EarnWidgetViewModel {
     func clearIsFirstLoadingFlag() {
         if isFirstLoading {
             isFirstLoading = false
+        }
+    }
+
+    func updateHeaderLoadingState() {
+        switch resultState {
+        case .loading:
+            headerLoadingState = isFirstLoading ? .first : .retry
+        case .success:
+            headerLoadingState = .loaded
+        case .failure:
+            headerLoadingState = .failed
         }
     }
 }

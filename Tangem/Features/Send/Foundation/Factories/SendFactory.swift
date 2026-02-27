@@ -14,112 +14,77 @@ protocol SendGenericFlowFactory {
 
 struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
-        let baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: options.input.walletModel,
-            userWalletInfo: options.input.userWalletInfo
-        )
-
         switch options.type {
         case .send(let sourceToken):
-            return SendFlowFactory(
-                sourceToken: sourceToken,
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: sourceToken.userWalletInfo,
-                    walletModel: options.input.walletModel,
-                    expressOperationType: .swapAndSend
-                )
-            )
+            return SendWithSwapFlowFactory(sourceToken: sourceToken)
 
-        case .swap(let sourceToken):
-            return SwapFlowFactory(
-                sourceToken: sourceToken,
-                baseDataBuilderFactory: baseDataBuilderFactory
-            )
+        case .swap(.from(let sourceToken, let receiveToken)):
+            return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken)
 
-        case .nft(let sourceToken, let parameters):
-            return NFTFlowFactory(
-                sourceToken: sourceToken,
+        case .swap(.to(let receiveToken)):
+            return SwapFlowFactory(receiveToken: receiveToken)
+
+        case .nft(let transferableToken, let parameters):
+            return TransferNFTFlowFactory(
+                transferableToken: transferableToken,
                 nftAssetStepBuilder: NFTAssetStepBuilder(
                     asset: parameters.asset,
                     collection: parameters.collection
-                ),
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: sourceToken.userWalletInfo,
-                    walletModel: options.input.walletModel,
-                    expressOperationType: .swapAndSend
                 )
             )
 
-        case .sell(let sourceToken, let parameters):
-            return SellFlowFactory(
-                sourceToken: sourceToken,
-                sellParameters: parameters,
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: sourceToken.userWalletInfo,
-                    walletModel: options.input.walletModel,
-                    expressOperationType: .swapAndSend
-                )
+        case .sell(let transferableToken, let parameters):
+            return TransferSellFlowFactory(
+                transferableToken: transferableToken,
+                sellParameters: parameters
             )
 
         // We are using restaking flow here because it doesn't allow to edit amount
-        case .staking(let sourceToken, let manager, let stakingParams) where !stakingParams.isStakingAmountEditable:
+        case .staking(let stakingableToken, let manager, _, let stakingParams) where !stakingParams.isStakingAmountEditable:
             return RestakingFlowFactory(
-                sourceToken: sourceToken,
+                stakingableToken: stakingableToken,
                 manager: manager,
                 // Default action with full available amount
                 action: StakingAction(
-                    amount: sourceToken.availableBalanceProvider.balanceType.value ?? 0,
+                    amount: stakingableToken.availableBalanceProvider.balanceType.value ?? 0,
                     targetType: .empty,
                     type: .stake
-                ),
-                baseDataBuilderFactory: baseDataBuilderFactory,
+                )
             )
 
-        case .staking(let sourceToken, let manager, _):
+        case .staking(let stakingableToken, let manager, let walletModelDependenciesProvider, _):
             return StakingFlowFactory(
-                sourceToken: sourceToken,
+                stakingableToken: stakingableToken,
                 manager: manager,
-                baseDataBuilderFactory: baseDataBuilderFactory,
-                allowanceServiceFactory: AllowanceServiceFactory(
-                    walletModel: options.input.walletModel,
-                    transactionDispatcherProvider: sourceToken.transactionDispatcherProvider
-                ),
-                walletModelDependenciesProvider: options.input.walletModel
+                walletModelDependenciesProvider: walletModelDependenciesProvider
             )
 
-        case .restaking(let sourceToken, let manager, let action):
+        case .restaking(let stakingableToken, let manager, let action):
             return RestakingFlowFactory(
-                sourceToken: sourceToken,
+                stakingableToken: stakingableToken,
                 manager: manager,
-                action: action,
-                baseDataBuilderFactory: baseDataBuilderFactory,
+                action: action
             )
 
-        case .unstaking(let sourceToken, let manager, let action):
+        case .unstaking(let stakingableToken, let manager, let action):
             return UnstakingFlowFactory(
-                sourceToken: sourceToken,
+                stakingableToken: stakingableToken,
                 manager: manager,
-                action: action,
-                baseDataBuilderFactory: baseDataBuilderFactory,
+                action: action
             )
 
-        case .stakingSingleAction(let sourceToken, let manager, let action):
+        case .stakingSingleAction(let stakingableToken, let manager, let action):
             return StakingSingleActionFlowFactory(
-                sourceToken: sourceToken,
+                stakingableToken: stakingableToken,
                 manager: manager,
-                action: action,
-                baseDataBuilderFactory: baseDataBuilderFactory,
+                action: action
             )
 
         case .onramp(let sourceToken, let parameters):
             return OnrampFlowFactory(
                 sourceToken: sourceToken,
                 parameters: parameters,
-                coordinatorSource: options.source,
-                baseDataBuilderFactory: baseDataBuilderFactory
+                coordinatorSource: options.source
             )
         }
     }

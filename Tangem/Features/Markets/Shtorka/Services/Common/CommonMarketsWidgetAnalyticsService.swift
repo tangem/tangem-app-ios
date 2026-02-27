@@ -8,7 +8,19 @@
 
 import Foundation
 
-final class CommonMarketsWidgetAnalyticsService {}
+final class CommonMarketsWidgetAnalyticsService {
+    // MARK: - Generic Implementation
+
+    func logMarketsChartScreenOpened(tokenSymbol: String) {
+        Analytics.log(
+            event: .marketsChartScreenOpened,
+            params: [
+                .source: Analytics.ParameterValue.market.rawValue,
+                .token: tokenSymbol.uppercased(),
+            ]
+        )
+    }
+}
 
 // MARK: - TopMarketWidgetAnalyticsProvider
 
@@ -121,18 +133,17 @@ extension CommonMarketsWidgetAnalyticsService: EarnWidgetAnalyticsProvider {
     func logEarnLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
-            event: .marketsMarketsLoadError,
+            event: .marketsEarnLoadError,
             params: [
                 .errorCode: analyticsParams[.errorCode] ?? "",
                 .errorMessage: analyticsParams[.errorMessage] ?? "",
-                .source: Analytics.ParameterValue.markets.rawValue,
             ]
         )
     }
 
     func logEarnListOpened() {
         Analytics.log(
-            event: .marketsTokenListOpened,
+            event: .marketsEarnScreenOpened,
             params: [
                 .source: Analytics.ParameterValue.markets.rawValue,
             ]

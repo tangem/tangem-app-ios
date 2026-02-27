@@ -11,11 +11,8 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
-
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let allowanceServiceFactory: AllowanceServiceFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
 
     var actionType: StakingAction.ActionType { .stake }
@@ -25,16 +22,12 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        sourceToken: SendSourceToken,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory,
-        allowanceServiceFactory: AllowanceServiceFactory,
-        walletModelDependenciesProvider: WalletModelDependenciesProvider,
+        walletModelDependenciesProvider: WalletModelDependenciesProvider
     ) {
-        self.sourceToken = sourceToken
+        self.stakingableToken = stakingableToken
         self.manager = manager
-        self.baseDataBuilderFactory = baseDataBuilderFactory
-        self.allowanceServiceFactory = allowanceServiceFactory
         self.walletModelDependenciesProvider = walletModelDependenciesProvider
     }
 }
@@ -48,9 +41,8 @@ extension StakingFlowFactory {
     ) -> StakingModel {
         StakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: sourceToken,
+            sendSourceToken: stakingableToken,
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
-            allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
@@ -122,9 +114,19 @@ extension StakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: stakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: stakingModel,
+                sourceTokenInput: stakingModel
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceTokenInput: stakingModel,
+                approveDataInput: stakingModel
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: stakingModel
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -141,14 +143,17 @@ extension StakingFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(
+            initialSourceToken: stakingableToken,
+            flowActionType: actionType.sendFlowActionType
+        )
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
-                validator: sourceToken.transactionValidator,
+                validator: stakingableToken.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),

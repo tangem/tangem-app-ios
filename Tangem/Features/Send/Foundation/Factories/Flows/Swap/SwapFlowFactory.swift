@@ -9,22 +9,43 @@
 import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
-    let sourceToken: SendSourceToken
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
+    let sourceToken: SendSwapableToken?
+    let receiveToken: SendReceiveToken?
+
+    let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
 
+    var tokenItem: TokenItem { initialTokenItem }
+
     lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
-    lazy var swapModel = makeSwapModel(sourceToken: sourceToken, analyticsLogger: analyticsLogger, autoupdatingTimer: autoupdatingTimer)
+    lazy var swapModel = makeSwapModel(
+        sourceToken: sourceToken,
+        receiveToken: receiveToken,
+        analyticsLogger: analyticsLogger,
+        autoupdatingTimer: autoupdatingTimer,
+        shouldStartInitialLoading: true
+    )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    init(
-        sourceToken: SendSourceToken,
-        baseDataBuilderFactory: SendBaseDataBuilderFactory
-    ) {
+    init(sourceToken: SendSwapableToken, receiveToken: SendReceiveToken?) {
         self.sourceToken = sourceToken
-        self.baseDataBuilderFactory = baseDataBuilderFactory
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        self.receiveToken = receiveToken
+        initialTokenItem = sourceToken.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: sourceToken.userWalletInfo
+        )
+    }
+
+    init(receiveToken: SendSwapableToken) {
+        sourceToken = nil
+        self.receiveToken = receiveToken
+        initialTokenItem = receiveToken.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: receiveToken.userWalletInfo
+        )
     }
 }
 
@@ -98,14 +119,24 @@ extension SwapFlowFactory: SendBaseBuildable {
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
-            alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
+            alertBuilder: makeSwapAlertBuilder(),
+            mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: swapModel,
+                sourceTokenInput: swapModel
+            ),
+            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
+                sourceTokenInput: swapModel,
                 approveDataInput: swapModel
             ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: swapModel
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
+                tokenItem: initialTokenItem
+            ),
+            // Will not use in `swap`
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
         )
     }
 }
@@ -125,7 +156,7 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     }
 
     var amountTypes: SwapAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken)
+        .init(initialTokenItem: initialTokenItem)
     }
 
     var amountDependencies: SwapAmountStepBuilder.Dependencies {
@@ -154,9 +185,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
         SwapSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
             swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }
 }
@@ -186,7 +215,7 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
-        SendSwapProvidersBuilder.Types(tokenItem: tokenItem)
+        SendSwapProvidersBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var swapProvidersDependencies: SendSwapProvidersBuilder.Dependencies {
@@ -206,7 +235,7 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

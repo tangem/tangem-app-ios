@@ -69,15 +69,14 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
             self?.dismiss()
         }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceTokenFactory = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
             walletModel: input.walletModel
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken(flowActionType: .onramp)
+        let sourceToken = sourceTokenFactory.makeTransferableToken()
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            input: input,
             type: .onramp(sourceToken, parameters: parameters),
             source: .actionButtons
         )
