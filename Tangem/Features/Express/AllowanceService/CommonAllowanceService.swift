@@ -29,6 +29,9 @@ actor CommonAllowanceService {
 
 extension CommonAllowanceService: AllowanceService {
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState {
+        let approveDataTest = try await allowanceChecker.makeApproveData(spender: spender, amount: amount, policy: approvePolicy)
+        return .permissionRequired(approveDataTest)
+
         let isPermissionRequired = try await allowanceChecker.isPermissionRequired(amount: amount, spender: spender)
 
         guard isPermissionRequired else {
