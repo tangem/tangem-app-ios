@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemVisa
+import TangemUIUtils
 
 final class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
@@ -49,8 +50,8 @@ final class OnboardingCoordinator: CoordinatorObject {
         case .input(let onboardingInput):
             handle(input: onboardingInput)
             logOnboardingStartedAnalytics(contextParams: options.contextParams)
-        case .mobileInput(let mobileOnboardingInput):
-            handle(input: mobileOnboardingInput)
+        case .mobileInput(let mobileOnboardingInput, let navigationRouter):
+            handle(input: mobileOnboardingInput, navigationRouter: navigationRouter)
             if mobileOnboardingInput.shouldLogOnboardingStartedAnalytics {
                 logOnboardingStartedAnalytics(contextParams: options.contextParams)
             }
@@ -63,7 +64,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 extension OnboardingCoordinator {
     enum Options {
         case input(OnboardingInput)
-        case mobileInput(MobileOnboardingInput)
+        case mobileInput(MobileOnboardingInput, NavigationRouter?)
 
         var contextParams: Analytics.ContextParams {
             switch self {
@@ -187,10 +188,10 @@ private extension OnboardingCoordinator {
         }
     }
 
-    func handle(input: MobileOnboardingInput) {
+    func handle(input: MobileOnboardingInput, navigationRouter: NavigationRouter?) {
         let model = MobileOnboardingViewModel(input: input, coordinator: self)
         onDismissalAttempt = model.onDismissalAttempt
-        viewState = .mobile(model)
+        viewState = .mobile(model, navigationRouter)
     }
 }
 
@@ -210,6 +211,6 @@ extension OnboardingCoordinator {
         case twins(TwinsOnboardingViewModel)
         case wallet(WalletOnboardingViewModel)
         case visa(VisaOnboardingViewModel)
-        case mobile(MobileOnboardingViewModel)
+        case mobile(MobileOnboardingViewModel, NavigationRouter?)
     }
 }

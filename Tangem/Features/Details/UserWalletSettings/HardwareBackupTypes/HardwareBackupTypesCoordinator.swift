@@ -69,7 +69,7 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboarding(options: .mobileInput(input))
+        openOnboarding(options: .mobileInput(input, nil))
     }
 
     func openUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
@@ -122,7 +122,7 @@ extension HardwareBackupTypesCoordinator: MobileBackupToUpgradeNeededRoutable {
         onBackupFinished: @escaping () -> Void
     ) {
         dismissMobileBackupToUpgradeNeeded()
-        openOnboarding(options: .mobileInput(input), onSuccess: onBackupFinished)
+        openOnboarding(options: .mobileInput(input, nil), onSuccess: onBackupFinished)
     }
 
     func dismissMobileBackupToUpgradeNeeded() {

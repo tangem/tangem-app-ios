@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUIUtils
 
 typealias Action<Params> = (Params) -> Void
 
@@ -16,7 +17,7 @@ struct PopToRootOptions {
     static let `default`: PopToRootOptions = .init()
 }
 
-protocol CoordinatorObject: ObservableObject, Identifiable {
+protocol CoordinatorObject: ObservableObject, Identifiable, NavigationRoutable {
     associatedtype InputOptions
     associatedtype OutputOptions
 
@@ -49,5 +50,17 @@ extension CoordinatorObject {
 extension CoordinatorObject where OutputOptions == Void {
     func dismiss() {
         dismissAction(())
+    }
+}
+
+// MARK: - Hashable
+
+extension CoordinatorObject {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
     }
 }

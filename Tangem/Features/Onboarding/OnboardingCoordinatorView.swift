@@ -31,8 +31,8 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletOnboardingViewModel)
         case .visa(let visaViewModel):
             VisaOnboardingView(viewModel: visaViewModel)
-        case .mobile(let mobileViewModel):
-            MobileOnboardingView(viewModel: mobileViewModel)
+        case .mobile(let mobileViewModel, let navigationRouter):
+            MobileOnboardingView(viewModel: mobileViewModel, navigationRouter: navigationRouter)
         case .none:
             EmptyView()
         }

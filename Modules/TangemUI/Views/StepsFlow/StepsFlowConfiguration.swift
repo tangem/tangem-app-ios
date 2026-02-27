@@ -9,10 +9,10 @@
 import Foundation
 
 public struct StepsFlowConfiguration {
-    public let hasProgressBar: Bool
-    public let navigationBarHeight: CGFloat
-    public let progressBarHeight: CGFloat
-    public let progressBarPadding: CGFloat
+    let hasProgressBar: Bool
+    let navigationBarHeight: CGFloat
+    let progressBarHeight: CGFloat
+    let progressBarPadding: CGFloat
 
     public init(
         hasProgressBar: Bool,
