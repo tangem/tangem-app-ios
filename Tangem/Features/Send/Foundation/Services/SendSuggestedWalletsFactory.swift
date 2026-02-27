@@ -42,16 +42,10 @@ struct SendSuggestedWalletsFactory {
                     return .init(icon: icon, name: accountModel.name)
                 }
 
-                let tokenHeaderProvider = ExpressInteractorTokenHeaderProvider(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    account: walletModel.account
-                )
-
                 return SendDestinationSuggestedWallet(
                     name: userWalletModel.name,
                     address: walletModel.defaultAddressString,
                     account: shouldShowAccounts ? account : .none,
-                    tokenHeader: tokenHeaderProvider.makeHeader(),
                     accountModelAnalyticsProvider: walletModel.account
                 )
             }
@@ -68,11 +62,6 @@ struct SendSuggestedWalletsFactory {
                             icon: .init(backgroundColor: .clear, nameMode: .tangemPay),
                             name: Localization.tangempayPaymentAccount
                         ),
-                        tokenHeader: ExpressInteractorTokenHeaderProvider(
-                            userWalletInfo: userWalletModel.userWalletInfo,
-                            account: nil
-                        )
-                        .makeHeader(),
                         accountModelAnalyticsProvider: nil
                     )
                 )
