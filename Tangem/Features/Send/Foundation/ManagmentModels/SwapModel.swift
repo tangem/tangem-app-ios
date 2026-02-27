@@ -577,6 +577,8 @@ extension SwapModel: SwapModelStateProvider {
 
 extension SwapModel: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        guard case .crypto(_, let walletModel) = item.source else { return }
+
         let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
         let token = factory.makeSwapableToken()
 
@@ -584,6 +586,8 @@ extension SwapModel: SwapTokenSelectorOutput {
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
+        guard case .crypto(_, let walletModel) = item.source else { return }
+
         let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
         let token = factory.makeSwapableToken()
 

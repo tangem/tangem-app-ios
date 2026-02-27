@@ -11,10 +11,16 @@ import Combine
 // MARK: - Provider
 
 protocol AccountsAwareTokenSelectorItemAvailabilityProvider {
+    var showsTangemPayItems: Bool { get }
+
     func availabilityTypePublisher(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel
     ) -> AnyPublisher<AccountsAwareTokenSelectorItem.AvailabilityType, Never>
+}
+
+extension AccountsAwareTokenSelectorItemAvailabilityProvider {
+    var showsTangemPayItems: Bool { true }
 }
 
 // MARK: - Implementations

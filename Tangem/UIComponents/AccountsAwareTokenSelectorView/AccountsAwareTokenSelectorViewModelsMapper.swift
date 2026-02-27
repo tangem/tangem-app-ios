@@ -58,7 +58,7 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
 // MARK: - Private
 
 private extension AccountsAwareTokenSelectorViewModelsMapper {
-    func items(provider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider) -> [AccountsAwareTokenSelectorItem] {
+    func items(provider: AccountsAwareTokenSelectorAccountModelItemsProvider) -> [AccountsAwareTokenSelectorItem] {
         var items = provider.items
 
         if !searchText.value.isEmpty {
@@ -66,13 +66,13 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         }
 
         if let selected = selectedItem.value {
-            items = items.filter { $0.walletModel.tokenItem != selected }
+            items = items.filter { $0.tokenItem != selected }
         }
 
         return items
     }
 
-    func itemsPublisher(provider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider) -> AnyPublisher<[AccountsAwareTokenSelectorItem], Never> {
+    func itemsPublisher(provider: AccountsAwareTokenSelectorAccountModelItemsProvider) -> AnyPublisher<[AccountsAwareTokenSelectorItem], Never> {
         provider
             .itemsPublisher
             // 1. Filter `searchText`
@@ -88,7 +88,7 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
             .combineLatest(selectedItem.removeDuplicates())
             .map { items, selected in
                 if let selected {
-                    return items.filter { $0.walletModel.tokenItem != selected }
+                    return items.filter { $0.tokenItem != selected }
                 }
 
                 return items
@@ -122,19 +122,19 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         account: AccountsAwareTokenSelectorAccount
     ) -> AccountsAwareTokenSelectorAccountViewModel {
         let items = items(provider: account.itemsProvider)
-            .map { mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
+            .compactMap { mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
 
         let itemsPublisher = itemsPublisher(provider: account.itemsProvider)
             .withWeakCaptureOf(self)
             .map { provider, items in
-                items.map { provider.mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
+                items.compactMap { provider.mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
             }
             .eraseToAnyPublisher()
 
         return AccountsAwareTokenSelectorAccountViewModel(header: header, items: items, itemsPublisher: itemsPublisher)
     }
 
-    func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel {
+    func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel? {
         itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) { [weak self] in
             self?.output?.userDidSelect(item: item)
         }
@@ -156,8 +156,8 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         case .multiple(let accounts):
             let accounts = accounts.map { account in
                 let header = AccountsAwareTokenSelectorAccountViewModel.HeaderType.account(
-                    icon: AccountModelUtils.UI.iconViewData(accountModel: account.cryptoAccount),
-                    name: account.cryptoAccount.name
+                    icon: AccountModelUtils.UI.iconViewData(icon: account.accountIcon, accountName: account.accountName),
+                    name: account.accountName
                 )
 
                 return mapToAccountsAwareTokenSelectorAccountViewModel(header: header, account: account)
