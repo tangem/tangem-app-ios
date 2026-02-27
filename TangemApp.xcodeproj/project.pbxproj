@@ -1226,6 +1226,9 @@
 		B058D2372A79668D008E79D2 /* TokenQuotesRepositoryMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B058D2362A79668D008E79D2 /* TokenQuotesRepositoryMock.swift */; };
 		B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05919012A0BCD0800EB8005 /* MainHeaderView.swift */; };
 		B05919052F55AAA100000001 /* MainUserWalletHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05919062F55AAA100000002 /* MainUserWalletHeader.swift */; };
+		B059190C2F60CC0100000001 /* MainUserWalletHeaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059190D2F60CC0100000002 /* MainUserWalletHeaderModel.swift */; };
+		B05919082F5FBB0100000001 /* RedesignActionButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05919092F5FBB0100000002 /* RedesignActionButtonView.swift */; };
+		B059190A2F5FBB0100000003 /* RedesignActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059190B2F5FBB0100000004 /* RedesignActionButtonsView.swift */; };
 		B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05919032A0BCD1100EB8005 /* MainHeaderViewModel.swift */; };
 		B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13A029FB971900FB511A /* TokenItemViewModel.swift */; };
 		B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */; };
@@ -6183,6 +6186,9 @@
 		B05919012A0BCD0800EB8005 /* MainHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHeaderView.swift; sourceTree = "<group>"; };
 		B05919032A0BCD1100EB8005 /* MainHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHeaderViewModel.swift; sourceTree = "<group>"; };
 		B05919062F55AAA100000002 /* MainUserWalletHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUserWalletHeader.swift; sourceTree = "<group>"; };
+		B059190D2F60CC0100000002 /* MainUserWalletHeaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUserWalletHeaderModel.swift; sourceTree = "<group>"; };
+		B05919092F5FBB0100000002 /* RedesignActionButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedesignActionButtonView.swift; sourceTree = "<group>"; };
+		B059190B2F5FBB0100000004 /* RedesignActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedesignActionButtonsView.swift; sourceTree = "<group>"; };
 		B05A13A029FB971900FB511A /* TokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemViewModel.swift; sourceTree = "<group>"; };
 		B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableButtonsView.swift; sourceTree = "<group>"; };
 		B05A3DE32D00376600595A1E /* VisaOnboardingTangemWalletDeployApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingTangemWalletDeployApproveView.swift; sourceTree = "<group>"; };
@@ -14328,6 +14334,9 @@
 			isa = PBXGroup;
 			children = (
 				B05919062F55AAA100000002 /* MainUserWalletHeader.swift */,
+				B059190D2F60CC0100000002 /* MainUserWalletHeaderModel.swift */,
+				B05919092F5FBB0100000002 /* RedesignActionButtonView.swift */,
+				B059190B2F5FBB0100000004 /* RedesignActionButtonsView.swift */,
 			);
 			path = MainUserWalletHeader;
 			sourceTree = "<group>";
@@ -28162,6 +28171,9 @@
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				B05919052F55AAA100000001 /* MainUserWalletHeader.swift in Sources */,
+				B059190C2F60CC0100000001 /* MainUserWalletHeaderModel.swift in Sources */,
+				B05919082F5FBB0100000001 /* RedesignActionButtonView.swift in Sources */,
+				B059190A2F5FBB0100000003 /* RedesignActionButtonsView.swift in Sources */,
 				DC3549E42E2E034700641727 /* WCTransactionValidationService.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */,
 				B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */,
