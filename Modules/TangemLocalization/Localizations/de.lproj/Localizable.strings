@@ -1311,8 +1311,8 @@
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
-"swap_search_tooltip_title" = "Use search to find what you need";
+"swap_search_tooltip_description" = "Suchen Sie nach einem beliebigen Token, auch wenn es noch nicht in Ihrer Liste ist.";
+"swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
 "swap_story_first_subtitle" = "Mehrere vertrauenswürdige Anbieter an einem Ort – tausche mühelos alle Vermögenswerte in Deiner Wallet";
@@ -1733,8 +1733,8 @@
 "warning_express_refresh_required_title" = "Service vorübergehend nicht verfügbar";
 "warning_express_too_maximum_amount_title" = "Die Menge der zu tauschenden Token darf folgende Werte nicht überschreiten %@";
 "warning_express_too_minimal_amount_title" = "Der zu tauschende Betrag muss mindestens %@ betragen";
-"warning_express_unsupported_pair_title" = "Unsupported token pair";
-"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
+"warning_express_unsupported_pair_description" = "Der Tausch ist für dieses Paar nicht verfügbar. Bitte wählen Sie ein anderes Token und versuchen Sie es erneut.";
+"warning_express_unsupported_pair_title" = "Nicht unterstütztes Swap-Paar.";
 "warning_express_wrong_amount_description" = "Bitte änder den zu tauschenden Betrag";
 "warning_failed_to_verify_card_message" = "Bei dieser Karte oder Ring kann es sich um ein Produktionsmuster oder eine Fälschung handeln";
 "warning_failed_to_verify_card_title" = "Echtheitsprüfung fehlgeschlagen";
