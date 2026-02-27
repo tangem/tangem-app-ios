@@ -10,13 +10,19 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct MarketsNavigationBar<Content: View>: View {
+struct MarketsNavigationBar<Content: View, RightButtons: View>: View {
     let titleView: () -> Content
     let onBackButtonAction: () -> Void
+    let rightButtons: () -> RightButtons
 
-    init(titleView: @escaping () -> Content, onBackButtonAction: @escaping () -> Void) {
+    init(
+        titleView: @escaping () -> Content,
+        onBackButtonAction: @escaping () -> Void,
+        @ViewBuilder rightButtons: @escaping () -> RightButtons
+    ) {
         self.titleView = titleView
         self.onBackButtonAction = onBackButtonAction
+        self.rightButtons = rightButtons
     }
 
     var body: some View {
@@ -35,12 +41,21 @@ struct MarketsNavigationBar<Content: View>: View {
                     hPadding: 10.0,
                     action: onBackButtonAction
                 )
-            }
+            },
+            rightButtons: rightButtons
         )
     }
 }
 
-extension MarketsNavigationBar where Content == DefaultNavigationBarTitle {
+extension MarketsNavigationBar where RightButtons == EmptyView {
+    init(titleView: @escaping () -> Content, onBackButtonAction: @escaping () -> Void) {
+        self.titleView = titleView
+        self.onBackButtonAction = onBackButtonAction
+        rightButtons = { EmptyView() }
+    }
+}
+
+extension MarketsNavigationBar where Content == DefaultNavigationBarTitle, RightButtons == EmptyView {
     init(title: String, onBackButtonAction: @escaping () -> Void) {
         titleView = {
             DefaultNavigationBarTitle(
@@ -54,6 +69,7 @@ extension MarketsNavigationBar where Content == DefaultNavigationBarTitle {
             )
         }
         self.onBackButtonAction = onBackButtonAction
+        rightButtons = { EmptyView() }
     }
 }
 
