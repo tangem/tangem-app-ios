@@ -9,7 +9,11 @@
 import Foundation
 
 struct MockAPIResolver {
-    private static let baseURL = "https://wiremock.tests-d.com"
+    /// Dynamic WireMock base URL for parallel test execution support.
+    /// Reads from environment variable, falls back to remote server for local development.
+    private static var baseURL: String {
+        ProcessInfo.processInfo.environment["WIREMOCK_BASE_URL"] ?? "http://localhost:8081"
+    }
 
     private static func urlString(for blockchain: Blockchain) -> String? {
         switch blockchain {

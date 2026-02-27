@@ -12,7 +12,8 @@ import TangemUI
 import TangemLocalization
 
 struct EarnFilterHeaderView: View {
-    let isFilterInteractionEnabled: Bool
+    let isNetworksFilterEnabled: Bool
+    let isTypesFilterEnabled: Bool
     let isLoading: Bool
     let networkFilterTitle: String
     let typesFilterTitle: String
@@ -24,7 +25,8 @@ struct EarnFilterHeaderView: View {
             filterButton(
                 title: networkFilterTitle,
                 action: onNetworksTap,
-                isEnabled: isFilterInteractionEnabled
+                isLoading: isLoading,
+                isEnabled: isNetworksFilterEnabled
             )
 
             Spacer()
@@ -32,14 +34,20 @@ struct EarnFilterHeaderView: View {
             filterButton(
                 title: typesFilterTitle,
                 action: onTypesTap,
-                isEnabled: isFilterInteractionEnabled
+                isLoading: false,
+                isEnabled: isTypesFilterEnabled
             )
         }
         .padding(.horizontal, Layout.horizontalPadding)
         .padding(.vertical, Layout.verticalPadding)
     }
 
-    private func filterButton(title: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
+    private func filterButton(
+        title: String,
+        action: @escaping () -> Void,
+        isLoading: Bool,
+        isEnabled: Bool
+    ) -> some View {
         Button {
             action()
         } label: {
@@ -55,11 +63,11 @@ struct EarnFilterHeaderView: View {
                 RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
                     .fill(Colors.Button.secondary)
             )
+            .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
             .skeletonable(isShown: isLoading, radius: Layout.buttonCornerRadius)
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled)
-        .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
+        .allowsHitTesting(isEnabled)
     }
 }
 

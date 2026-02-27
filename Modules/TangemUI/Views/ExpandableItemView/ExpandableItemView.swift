@@ -20,7 +20,7 @@ public struct ExpandableItemView<
 
     private let collapsedView: CollapsedView
     private let expandedView: ExpandedView
-    private let expandedViewHeaderBuilder: () -> ExpandedViewHeader
+    private let expandedViewHeader: ExpandedViewHeader
     private let backgroundColor: Color
     private let cornerRadius: CGFloat
     private let backgroundGeometryEffect: GeometryEffectPropertiesModel?
@@ -39,7 +39,7 @@ public struct ExpandableItemView<
         expandedViewTransition: AnyTransition? = nil,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
-        @ViewBuilder expandedViewHeader: @escaping () -> ExpandedViewHeader,
+        @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader,
         onExpandedChange: ((_ isExpanded: Bool) -> Void)? = nil
     ) {
         _isExpanded = .init(initialValue: isExpanded)
@@ -52,7 +52,7 @@ public struct ExpandableItemView<
         self.onExpandedChange = onExpandedChange
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
-        expandedViewHeaderBuilder = expandedViewHeader
+        self.expandedViewHeader = expandedViewHeader()
     }
 
     // MARK: - State
@@ -66,33 +66,44 @@ public struct ExpandableItemView<
     // MARK: - Body
 
     public var body: some View {
-        Button(action: toggleExpanded) {
-            ExpandableAnimatedContent(
-                collapsedView: collapsedView
-                    .contentShape(Rectangle()),
-                expandedHeader: expandedHeaderView,
-                expandedContent: expandedView,
-                backgroundColor: backgroundColor,
-                cornerRadius: cornerRadius,
-                isExpanded: isExpanded,
-                showExpandedContent: isExpandedContentVisible,
-                backgroundGeometryEffect: backgroundGeometryEffect,
-                expandedContentTransition: expandedViewTransition
-            )
-        }
-        .buttonStyle(.scaled(
-            scaleAmount: isExpanded ? 1.0 : 0.98,
-            dimmingAmount: isExpanded ? 1.0 : 0.7
-        ))
+        ExpandableAnimatedContent(
+            collapsedView: interactiveCollapsedHeader,
+            expandedHeader: interactiveExpandedHeader,
+            expandedContent: expandedView,
+            backgroundColor: backgroundColor,
+            cornerRadius: cornerRadius,
+            isExpanded: isExpanded,
+            showExpandedContent: isExpandedContentVisible,
+            backgroundGeometryEffect: backgroundGeometryEffect,
+            expandedContentTransition: expandedViewTransition
+        )
         .onChange(of: isExpandedExternal, perform: handleExternalExpandedChange)
     }
 
     // MARK: - Views
 
-    private var expandedHeaderView: some View {
-        expandedViewHeaderBuilder()
-            .contentShape(Rectangle())
-            .onTapGesture(perform: toggleExpanded)
+    private var interactiveCollapsedHeader: some View {
+        headerButton {
+            collapsedView
+                .contentShape(.rect)
+        }
+    }
+
+    private var interactiveExpandedHeader: some View {
+        headerButton {
+            expandedViewHeader
+                .contentShape(.rect)
+        }
+    }
+
+    private func headerButton<Label: View>(@ViewBuilder _ label: () -> Label) -> some View {
+        Button(action: toggleExpanded, label: label)
+            .buttonStyle(
+                .scaled(
+                    scaleAmount: isExpanded ? 1.0 : 0.98,
+                    dimmingAmount: isExpanded ? 1.0 : 0.7
+                )
+            )
     }
 
     // MARK: - Animation Control

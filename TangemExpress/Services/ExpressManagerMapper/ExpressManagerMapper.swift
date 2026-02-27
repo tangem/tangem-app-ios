@@ -10,45 +10,43 @@ import Foundation
 
 struct ExpressManagerMapper {
     func makeExpressSwappableItem(
+        pair: ExpressManagerSwappingPair,
         request: ExpressManagerSwappingPairRequest,
         providerId: ExpressProvider.Id,
         providerType: ExpressProviderType
     ) -> ExpressSwappableQuoteItem {
         return ExpressSwappableQuoteItem(
-            source: request.pair.source.currency,
-            destination: request.pair.destination.currency,
+            source: pair.source.currency,
+            destination: pair.destination.currency,
             amount: request.amount,
             providerInfo: .init(id: providerId, type: providerType)
         )
     }
 
     func makeExpressSwappableDataItem(
+        pair: ExpressManagerSwappingPair,
         request: ExpressManagerSwappingPairRequest,
         providerId: ExpressProvider.Id,
         providerType: ExpressProviderType
     ) throws -> ExpressSwappableDataItem {
-        guard let sourceAddress = request.pair.source.address else {
+        guard let sourceAddress = pair.source.address else {
             throw Error.sourceAddressNotFound
         }
 
-        guard let destinationAddress = request.pair.destination.address else {
+        guard let destinationAddress = pair.destination.address else {
             throw Error.destinationAddressNotFound
         }
 
-        let feeCurrency = request.pair.source.feeProvider.feeCurrency(
-            providerId: providerId
-        )
-
         let source = ExpressSwappableDataItem.SourceWalletInfo(
             address: sourceAddress,
-            currency: request.pair.source.currency,
-            feeCurrency: feeCurrency
+            currency: pair.source.currency,
+            coinCurrency: pair.source.coinCurrency
         )
 
         let destination = ExpressSwappableDataItem.DestinationWalletInfo(
             address: destinationAddress,
-            currency: request.pair.destination.currency,
-            extraId: request.pair.destination.extraId
+            currency: pair.destination.currency,
+            extraId: pair.destination.extraId
         )
 
         return ExpressSwappableDataItem(

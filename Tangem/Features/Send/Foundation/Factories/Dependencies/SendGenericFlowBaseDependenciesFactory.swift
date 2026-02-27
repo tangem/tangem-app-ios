@@ -11,66 +11,20 @@ import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
     var tokenItem: TokenItem { get }
-    var feeTokenItem: TokenItem { get }
-    var tokenIconInfo: TokenIconInfo { get }
-    var userWalletInfo: UserWalletInfo { get }
+}
 
-    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
-    var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
-    var availableBalanceProvider: TokenBalanceProvider { get }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+extension SendGenericFlowBaseDependenciesFactory where Self: SendFlowBaseDependenciesFactory {
+    var tokenItem: TokenItem { transferableToken.tokenItem }
+}
 
-    var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
-    var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
-
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+extension SendGenericFlowBaseDependenciesFactory where Self: StakingFlowDependenciesFactory {
+    var tokenItem: TokenItem { stakingableToken.tokenItem }
 }
 
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
-    func makeSourceToken() -> SendSourceToken {
-        SendSourceToken(
-            header: tokenHeaderProvider.makeSendTokenHeader(),
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            tokenIconInfo: tokenIconInfo,
-            fiatItem: makeFiatItem(),
-            possibleToConvertToFiat: possibleToConvertToFiat(),
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
-            availableBalanceProvider: availableBalanceProvider,
-            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
-            transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcherProvider: transactionDispatcherProvider,
-            accountModelAnalyticsProvider: accountModelAnalyticsProvider
-        )
-    }
-
-    func isFeeApproximate() -> Bool {
-        tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType)
-    }
-
-    func possibleToConvertToFiat() -> Bool {
-        fiatAvailableBalanceProvider.balanceType.value != .none
-    }
-
-    func makeFiatItem() -> FiatItem {
-        FiatItem(
-            iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),
-            currencyCode: AppSettings.shared.selectedCurrencyCode,
-            fractionDigits: 2
-        )
-    }
-
-    // Services
-
-    func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
-        BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-    }
-
-    // TransactionSummaryDescriptionBuilders
+    // MARK: - TransactionSummaryDescriptionBuilders
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
@@ -88,12 +42,22 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
-        CommonSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
-        )
+        CommonSwapTransactionSummaryDescriptionBuilder()
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
         CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+    }
+
+    func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
+        CommonSendWithSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+    }
+
+    // MARK: - Analytics
+
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: sendType)
     }
 }

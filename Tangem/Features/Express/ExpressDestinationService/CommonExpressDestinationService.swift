@@ -28,30 +28,30 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getSource(destination: any ExpressInteractorDestinationWallet) async throws -> any ExpressInteractorSourceWallet {
-        guard let source = await getExpressInteractorWallet(base: destination, searchType: .source) else {
+    func getSource(destination: TokenItem) async throws -> any SendSwapableToken {
+        guard let source = await getWalletModelPair(base: destination, searchType: .source) else {
             throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
         }
 
-        return source
+        return source.asSendSwapableToken
     }
 
-    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet {
-        guard let destination = await getExpressInteractorWallet(base: source, searchType: .destination) else {
+    func getDestination(source: TokenItem) async throws -> any SendSwapableToken {
+        guard let destination = await getWalletModelPair(base: source, searchType: .destination) else {
             throw ExpressDestinationServiceError.destinationNotFound(source: source)
         }
 
-        return destination
+        return destination.asSendSwapableToken
     }
 }
 
 // MARK: - Private
 
 private extension CommonExpressDestinationService {
-    func getExpressInteractorWallet(
-        base: any ExpressInteractorDestinationWallet,
+    func getWalletModelPair(
+        base: TokenItem,
         searchType: SearchType
-    ) async -> (any ExpressInteractorSourceWallet)? {
+    ) async -> UserWalletInfoWalletModelPair? {
         let walletModels: [UserWalletInfoWalletModelPair] = {
             if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
                 let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
@@ -74,9 +74,9 @@ private extension CommonExpressDestinationService {
             }
         }()
 
-        let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
+        let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
-            let isNotSource = wallet.walletModel.id != base.id
+            let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
             let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
@@ -165,12 +165,12 @@ extension CommonExpressDestinationService {
             walletModel.fiatAvailableBalanceProvider.balanceType.value
         }
 
-        var asExpressInteractorWalletModelWrapper: ExpressInteractorWalletModelWrapper {
-            ExpressInteractorWalletModelWrapper(
+        var asSendSwapableToken: SendSwapableToken {
+            CommonSendSwapableTokenFactory(
                 userWalletInfo: userWalletInfo,
                 walletModel: walletModel,
-                expressOperationType: .swap
-            )
+                operationType: .swap
+            ).makeSwapableToken()
         }
     }
 
