@@ -52,7 +52,7 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
         self.feeSelectorOutput = feeSelectorOutput
-        
+
         // [REDACTED_TODO_COMMENT]
         approveViewModel = ExpressApproveViewModel(input: input)
         state = .approve(approveViewModel)
