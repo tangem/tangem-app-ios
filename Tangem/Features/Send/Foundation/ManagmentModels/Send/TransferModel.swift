@@ -12,7 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-/// A simplified version of SendModel that handles only simple send transactions without swap/exchange functionality.
+/// A model that handles simple send transactions without swap/exchange functionality.
 final class TransferModel {
     // MARK: - Data
 
@@ -33,7 +33,7 @@ final class TransferModel {
     var externalDestinationUpdater: SendDestinationExternalUpdater!
     var informationRelevanceService: InformationRelevanceService!
 
-    weak var router: SendModelRoutable?
+    weak var router: TransferModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
@@ -47,7 +47,6 @@ final class TransferModel {
     private let balanceConverter = BalanceConverter()
 
     private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
-    private var destinationTokenHeader: ExpressInteractorTokenHeader?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -542,10 +541,8 @@ extension TransferModel: SendBaseDataBuilderInput {
 
 extension TransferModel: SendDestinationAccountOutput {
     func setDestinationAccountInfo(
-        tokenHeader: ExpressInteractorTokenHeader?,
         analyticsProvider: (any AccountModelAnalyticsProviding)?
     ) {
-        destinationTokenHeader = tokenHeader
         destinationAccountAnalyticsProvider = analyticsProvider
         analyticsLogger.setDestinationAnalyticsProvider(analyticsProvider)
     }
