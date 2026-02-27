@@ -30,8 +30,7 @@ protocol SendBaseDataBuilderInput {
 
 struct CommonSendMailDataBuilder {
     private let baseDataInput: SendBaseDataBuilderInput
-    private let emailDataCollectorBuilder: EmailDataCollectorBuilder
-    private let emailDataProvider: EmailDataProvider
+    private let sourceTokenInput: SendSourceTokenInput
 
     private var stakingDataInput: StakingBaseDataBuilderInput? {
         baseDataInput as? StakingBaseDataBuilderInput
@@ -39,12 +38,23 @@ struct CommonSendMailDataBuilder {
 
     init(
         baseDataInput: SendBaseDataBuilderInput,
-        emailDataCollectorBuilder: EmailDataCollectorBuilder,
-        emailDataProvider: EmailDataProvider
+        sourceTokenInput: SendSourceTokenInput
     ) {
         self.baseDataInput = baseDataInput
-        self.emailDataCollectorBuilder = emailDataCollectorBuilder
-        self.emailDataProvider = emailDataProvider
+        self.sourceTokenInput = sourceTokenInput
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendMailDataBuilder {
+    func emailDataCollectorBuilder() throws -> EmailDataCollectorBuilder {
+        try sourceTokenInput.sourceToken.get().emailDataCollectorBuilder
+    }
+
+    func emailRecipient() throws -> String {
+        let sourceToken = try sourceTokenInput.sourceToken.get()
+        return sourceToken.userWalletInfo.emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
     }
 }
 
@@ -54,15 +64,13 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
     // MARK: - Send transaction methods
 
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) throws -> MailData {
-        let emailDataCollector = emailDataCollectorBuilder.makeMailData(
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             transaction: transaction,
             isFeeIncluded: baseDataInput.isFeeIncluded,
             error: error
         )
 
-        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-
-        return (dataCollector: emailDataCollector, recipient: recipient)
+        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
     }
 
     func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData {
@@ -74,7 +82,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             throw SendMailDataBuilderError.notFound("Amount")
         }
 
-        let emailDataCollector = emailDataCollectorBuilder.makeMailData(
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             approveTransaction: approveTransaction,
             isFeeIncluded: baseDataInput.isFeeIncluded,
             amount: amount,
@@ -82,9 +90,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-
-        return (dataCollector: emailDataCollector, recipient: recipient)
+        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
     }
 
     func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData {
@@ -96,7 +102,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             throw SendMailDataBuilderError.notFound("Fee")
         }
 
-        let emailDataCollector = emailDataCollectorBuilder.makeMailData(
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             expressTransaction: expressTransaction,
             isFeeIncluded: baseDataInput.isFeeIncluded,
             amount: amount,
@@ -104,9 +110,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-
-        return (dataCollector: emailDataCollector, recipient: recipient)
+        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
     }
 
     // MARK: - Staking transaction methods
@@ -128,7 +132,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             throw SendMailDataBuilderError.notFound("Staking target")
         }
 
-        let emailDataCollector = emailDataCollectorBuilder.makeMailData(
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             stakingActionType: stakingDataInput.stakingActionType,
             target: target,
             isFeeIncluded: baseDataInput.isFeeIncluded,
@@ -137,9 +141,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-
-        return (dataCollector: emailDataCollector, recipient: recipient)
+        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
     }
 
     func makeMailData(action: StakingTransactionAction, error: SendTxError) throws -> MailData {
@@ -151,7 +153,7 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             throw SendMailDataBuilderError.notFound("Staking target")
         }
 
-        let emailDataCollector = emailDataCollectorBuilder.makeMailData(
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             action: action,
             stakingActionType: stakingDataInput.stakingActionType,
             target: target,
@@ -159,8 +161,6 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-
-        return (dataCollector: emailDataCollector, recipient: recipient)
+        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
     }
 }
