@@ -163,18 +163,19 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> {
-        providerPublisher { provider in
-            provider.getBalance(for: address)
-                .withWeakCaptureOf(self)
-                .tryMap { networkService, result in
-                    guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: networkService.decimals) else {
-                        throw ETHError.failedToParseBalance(value: result, address: address, decimals: networkService.decimals)
-                    }
-
-                    return value
-                }
-                .eraseToAnyPublisher()
-        }
+//        providerPublisher { provider in
+//            provider.getBalance(for: address)
+//                .withWeakCaptureOf(self)
+//                .tryMap { networkService, result in
+//                    guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: networkService.decimals) else {
+//                        throw ETHError.failedToParseBalance(value: result, address: address, decimals: networkService.decimals)
+//                    }
+//
+//                    return value
+//                }
+//                .eraseToAnyPublisher()
+//        }
+        .justWithError(output: 13)
     }
 
     func getTransactionByHash(_ hash: String) -> AnyPublisher<PendingTransactionStatusInfo, Error> {

@@ -19,7 +19,7 @@ struct SwapTokenSelectorViewModelBuilder {
             swapDirection: direction,
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
                 walletsProvider: .common(),
-                availabilityProvider: .swap()
+                availabilityProvider: AccountsAwareTokenSelectorItemSwapAvailabilityProvider(showsTangemPayItems: false)
             ),
             marketsTokensViewModel: marketsTokensViewModel,
             output: output,

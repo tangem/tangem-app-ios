@@ -1,5 +1,5 @@
 //
-//  AccountsAwareTokenSelectorCryptoAccountModelItemsProvider.swift
+//  AccountsAwareTokenSelectorAccountModelItemsProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,12 @@
 
 import Combine
 
-protocol AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+protocol AccountsAwareTokenSelectorAccountModelItemsProvider {
     var items: [AccountsAwareTokenSelectorItem] { get }
     var itemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never> { get }
 }
 
-struct CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+struct CommonAccountsAwareTokenSelectorAccountModelItemsProvider {
     let userWalletInfo: UserWalletInfo
     let cryptoAccount: any CryptoAccountModel
 
@@ -34,9 +34,9 @@ struct CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
     }
 }
 
-// MARK: - AccountsAwareTokenSelectorCryptoAccountModelItemsProvider
+// MARK: - AccountsAwareTokenSelectorAccountModelItemsProvider
 
-extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+extension CommonAccountsAwareTokenSelectorAccountModelItemsProvider: AccountsAwareTokenSelectorAccountModelItemsProvider {
     var items: [AccountsAwareTokenSelectorItem] {
         tokenSectionsAdapter
             .organizedSections(from: cryptoAccount.walletModelsManager.walletModels)
@@ -60,12 +60,11 @@ extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider: Accou
 
 // MARK: - Private
 
-private extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+private extension CommonAccountsAwareTokenSelectorAccountModelItemsProvider {
     private func mapToAccountsAwareTokenSelectorItem(walletModel: any WalletModel) -> AccountsAwareTokenSelectorItem {
         AccountsAwareTokenSelectorItem(
             userWalletInfo: userWalletInfo,
-            account: cryptoAccount,
-            walletModel: walletModel,
+            source: .crypto(account: cryptoAccount, walletModel: walletModel)
         )
     }
 }

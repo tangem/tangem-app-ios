@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 struct AccountsAwareTokenSelectorItemViewModelBuilder {
     private let availabilityProvider: AccountsAwareTokenSelectorItemAvailabilityProvider
 
@@ -13,19 +15,29 @@ struct AccountsAwareTokenSelectorItemViewModelBuilder {
         self.availabilityProvider = availabilityProvider
     }
 
-    func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem, action: @escaping () -> Void) -> AccountsAwareTokenSelectorItemViewModel {
-        AccountsAwareTokenSelectorItemViewModel(
-            id: item.walletModel.id,
-            name: item.walletModel.tokenItem.name,
-            symbol: item.walletModel.tokenItem.currencySymbol,
-            tokenIconInfo: TokenIconInfoBuilder().build(
-                from: item.walletModel.tokenItem,
-                isCustom: item.walletModel.isCustom
-            ),
-            availabilityTypePublisher: availabilityProvider.availabilityTypePublisher(
+    func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem, action: @escaping () -> Void) -> AccountsAwareTokenSelectorItemViewModel? {
+        let availabilityTypePublisher: AnyPublisher<AccountsAwareTokenSelectorItem.AvailabilityType, Never>
+
+        switch item.source {
+        case .crypto(_, let walletModel):
+            availabilityTypePublisher = availabilityProvider.availabilityTypePublisher(
                 userWalletInfo: item.userWalletInfo,
-                walletModel: item.walletModel
+                walletModel: walletModel
+            )
+        case .tangemPay:
+            guard availabilityProvider.showsTangemPayItems else { return nil }
+            availabilityTypePublisher = .just(output: .available)
+        }
+
+        return AccountsAwareTokenSelectorItemViewModel(
+            id: item.walletModelId,
+            name: item.tokenItem.name,
+            symbol: item.tokenItem.currencySymbol,
+            tokenIconInfo: TokenIconInfoBuilder().build(
+                from: item.tokenItem,
+                isCustom: item.isCustom
             ),
+            availabilityTypePublisher: availabilityTypePublisher,
             cryptoBalanceProvider: item.cryptoBalanceProvider,
             fiatBalanceProvider: item.fiatBalanceProvider,
             action: action
