@@ -185,7 +185,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         let flowFactory = ExpressApproveFlowFactory(
             tokenFeeManagerProviding: expressInteractorFactory.expressInteractor,
             feeSelectorOutput: expressInteractorFactory.expressInteractor,
-            analyticsLogger: source.interactorAnalyticsLogger
+            analyticsLogger: source.interactorAnalyticsLogger,
+            input: input
         )
 
         return flowFactory.make(input: input, router: coordinator)
