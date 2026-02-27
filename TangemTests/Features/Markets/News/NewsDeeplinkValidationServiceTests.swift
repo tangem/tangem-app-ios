@@ -10,53 +10,51 @@ import Foundation
 import Testing
 @testable import Tangem
 
+@Suite(.tags(.news))
 struct NewsDeeplinkValidationServiceTests {
     // MARK: - validateAndLogMismatchIfNeeded Tests
 
     @Test("Does not log when no pending deeplink URL")
     func doesNotLogWhenNoPendingDeeplinkURL() {
         let service = NewsDeeplinkValidationService()
-        // No setDeeplinkURL called
 
-        // Should not crash and should not log (no way to verify logging here, but at least no crash)
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-article")
+        let hasMismatch = service.validateAndLogMismatchIfNeeded(
+            newsId: 123,
+            actualNewsURL: "https://tangem.com/news/markets/123-article"
+        )
+
+        #expect(hasMismatch == false)
     }
 
-    @Test("Does not log when URLs match")
-    func doesNotLogWhenURLsMatch() {
+    @Test("Validates deeplink URL variations", arguments: Self.validationCases())
+    func validatesDeeplinkURLVariations(
+        caseName: String,
+        deeplinkURL: String,
+        actualURL: String,
+        expectedMismatch: Bool
+    ) {
         let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-same-slug")
+        service.setDeeplinkURL(deeplinkURL)
 
-        // Same category and slug - should not log mismatch
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-same-slug")
+        let hasMismatch = service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: actualURL)
+
+        #expect(hasMismatch == expectedMismatch, "Case: \(caseName)")
     }
 
-    @Test("Detects category mismatch")
-    func detectsCategoryMismatch() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-article-slug")
-
-        // Different category (crypto vs markets) - should trigger mismatch
-        // Analytics.log will be called, but we can't easily verify without mocking
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/crypto/123-article-slug")
-    }
-
-    @Test("Detects slug mismatch")
-    func detectsSlugMismatch() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-old-slug")
-
-        // Same category but different slug - should trigger mismatch
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-new-updated-slug")
-    }
-
-    @Test("Detects both category and slug mismatch")
-    func detectsBothCategoryAndSlugMismatch() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-old-slug")
-
-        // Different category AND different slug - should trigger mismatch
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/crypto/123-completely-different")
+    private static func validationCases() -> [(String, String, String, Bool)] {
+        [
+            ("URLs match", "https://tangem.com/news/markets/123-same-slug", "https://tangem.com/news/markets/123-same-slug", false),
+            ("Category mismatch", "https://tangem.com/news/markets/123-article-slug", "https://tangem.com/news/crypto/123-article-slug", true),
+            ("Slug mismatch", "https://tangem.com/news/markets/123-old-slug", "https://tangem.com/news/markets/123-new-updated-slug", true),
+            ("Category and slug mismatch", "https://tangem.com/news/markets/123-old-slug", "https://tangem.com/news/crypto/123-completely-different", true),
+            ("Invalid deeplink URL", "not-a-valid-url", "https://tangem.com/news/markets/123-article", false),
+            ("Invalid actual URL", "https://tangem.com/news/markets/123-article", "not-a-valid-url", false),
+            ("URL without slug", "https://tangem.com/news/markets/123", "https://tangem.com/news/markets/123", false),
+            ("Slug vs no slug", "https://tangem.com/news/markets/123-article-slug", "https://tangem.com/news/markets/123", true),
+            ("Empty slug after dash", "https://tangem.com/news/markets/123-", "https://tangem.com/news/markets/123", false),
+            ("Insufficient path components", "https://tangem.com/news/markets", "https://tangem.com/news/markets/123-article", false),
+            ("URL without news path", "https://tangem.com/blog/markets/123-article", "https://tangem.com/news/markets/123-article", false),
+        ]
     }
 
     @Test("Clears pending URL after validation")
@@ -64,74 +62,17 @@ struct NewsDeeplinkValidationServiceTests {
         let service = NewsDeeplinkValidationService()
         service.setDeeplinkURL("https://tangem.com/news/markets/123-article")
 
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-article")
+        let firstResult = service.validateAndLogMismatchIfNeeded(
+            newsId: 123,
+            actualNewsURL: "https://tangem.com/news/markets/123-article"
+        )
+        #expect(firstResult == false)
 
-        // Second call should not have pending URL
-        // This is tested by not crashing and not logging (URL already cleared)
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/crypto/456-different")
-    }
-
-    @Test("Handles invalid deeplink URL gracefully")
-    func handlesInvalidDeeplinkURLGracefully() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("not-a-valid-url")
-
-        // Should not crash
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-article")
-    }
-
-    @Test("Handles invalid actual URL gracefully")
-    func handlesInvalidActualURLGracefully() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-article")
-
-        // Should not crash
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "not-a-valid-url")
-    }
-
-    @Test("Handles URL without slug")
-    func handlesURLWithoutSlug() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123")
-
-        // Same category, no slug in both - should match
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123")
-    }
-
-    @Test("Handles URL with slug vs URL without slug")
-    func handlesURLWithSlugVsWithoutSlug() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-article-slug")
-
-        // One has slug, other doesn't - should detect mismatch
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123")
-    }
-
-    @Test("Handles URL with empty slug after dash")
-    func handlesURLWithEmptySlugAfterDash() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets/123-")
-
-        // Empty slug should be treated as nil
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123")
-    }
-
-    @Test("Handles URL with insufficient path components")
-    func handlesURLWithInsufficientPathComponents() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/news/markets")
-
-        // Only 3 path components (/, news, markets) - should not crash
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-article")
-    }
-
-    @Test("Handles URL without news path")
-    func handlesURLWithoutNewsPath() {
-        let service = NewsDeeplinkValidationService()
-        service.setDeeplinkURL("https://tangem.com/blog/markets/123-article")
-
-        // Path doesn't contain "news" as second component - should not crash
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/markets/123-article")
+        let secondResult = service.validateAndLogMismatchIfNeeded(
+            newsId: 123,
+            actualNewsURL: "https://tangem.com/news/crypto/456-different"
+        )
+        #expect(secondResult == false)
     }
 
     // MARK: - logMismatchOnError Tests
@@ -139,11 +80,10 @@ struct NewsDeeplinkValidationServiceTests {
     @Test("Does not log error when no pending deeplink URL")
     func doesNotLogErrorWhenNoPendingDeeplinkURL() {
         let service = NewsDeeplinkValidationService()
-        // No setDeeplinkURL called
 
         let error = NSError(domain: "test", code: 404)
-        // Should not crash
-        service.logMismatchOnError(newsId: 123, error: error)
+        let didLog = service.logMismatchOnError(newsId: 123, error: error)
+        #expect(didLog == false)
     }
 
     @Test("Clears pending URL after error logging")
@@ -152,10 +92,11 @@ struct NewsDeeplinkValidationServiceTests {
         service.setDeeplinkURL("https://tangem.com/news/markets/123-article")
 
         let error = NSError(domain: "test", code: 404)
-        service.logMismatchOnError(newsId: 123, error: error)
+        let firstLogResult = service.logMismatchOnError(newsId: 123, error: error)
+        #expect(firstLogResult == true)
 
-        // Second call should not have pending URL
-        service.logMismatchOnError(newsId: 456, error: error)
+        let secondLogResult = service.logMismatchOnError(newsId: 456, error: error)
+        #expect(secondLogResult == false)
     }
 
     // MARK: - setDeeplinkURL Tests
@@ -167,8 +108,11 @@ struct NewsDeeplinkValidationServiceTests {
         service.setDeeplinkURL("https://tangem.com/news/markets/123-article")
         service.setDeeplinkURL(nil)
 
-        // After clearing, validation should do nothing
-        service.validateAndLogMismatchIfNeeded(newsId: 123, actualNewsURL: "https://tangem.com/news/crypto/456-different")
+        let result = service.validateAndLogMismatchIfNeeded(
+            newsId: 123,
+            actualNewsURL: "https://tangem.com/news/crypto/456-different"
+        )
+        #expect(result == false)
     }
 
     @Test("Overwrites previous deeplink URL")
@@ -178,8 +122,10 @@ struct NewsDeeplinkValidationServiceTests {
         service.setDeeplinkURL("https://tangem.com/news/old/111-old")
         service.setDeeplinkURL("https://tangem.com/news/new/222-new")
 
-        // Should use the new URL for validation, not the old one
-        // This is tested implicitly - the service should not crash
-        service.validateAndLogMismatchIfNeeded(newsId: 222, actualNewsURL: "https://tangem.com/news/new/222-new")
+        let mismatchForNew = service.validateAndLogMismatchIfNeeded(
+            newsId: 222,
+            actualNewsURL: "https://tangem.com/news/new/222-new"
+        )
+        #expect(mismatchForNew == false)
     }
 }
