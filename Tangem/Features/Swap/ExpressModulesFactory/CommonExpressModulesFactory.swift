@@ -159,8 +159,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressInteractorFactory.expressInteractor,
-            ),
-            coordinator: coordinator
+            )
         )
     }
 
