@@ -129,12 +129,11 @@ extension UnstakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: unstakingModel,
-                emailDataCollectorBuilder: stakingableToken.emailDataCollectorBuilder,
-                emailDataProvider: stakingableToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: unstakingModel
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: stakingableToken
+                sourceTokenInput: unstakingModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),

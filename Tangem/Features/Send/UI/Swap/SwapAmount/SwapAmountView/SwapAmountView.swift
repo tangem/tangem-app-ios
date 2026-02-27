@@ -71,18 +71,13 @@ struct SwapAmountView: View {
 
     private var swappingButton: some View {
         Button(action: viewModel.userDidTapSwapSourceAndReceiveTokensButton) {
-            if viewModel.isSwapButtonLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
-            } else {
-                Assets.swappingIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
-            }
+            Assets.swappingIcon.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
         }
-        .disabled(viewModel.isSwapButtonLoading || viewModel.isSwapButtonDisabled)
+        .disabled(viewModel.isSwapButtonDisabled)
         .frame(width: 44, height: 44)
         .background(Colors.Background.primary)
         .cornerRadius(22)

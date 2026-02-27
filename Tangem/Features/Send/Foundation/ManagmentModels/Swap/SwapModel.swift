@@ -753,7 +753,11 @@ extension SwapModel: SendSwapProvidersInput {
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        _providersState.compactMap { $0.providers }.eraseToAnyPublisher()
+        _providersState
+            // Do not clear data in `Publisher` when `.loading`
+            .filter { !$0.isLoading }
+            .compactMap { $0.providers }
+            .eraseToAnyPublisher()
     }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
@@ -828,7 +832,7 @@ extension SwapModel: SendFeeInput {
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { !$0.isLoading }
+            .filter { $0.filter(loading: [.rates]) }
             .withWeakCaptureOf(self)
             .map { $0.mapToShouldShowFeeSelectorRow(providersState: $1) }
             .eraseToAnyPublisher()
@@ -853,11 +857,14 @@ extension SwapModel: SendFeeInput {
 
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loaded(_, _, state: .restriction(.notEnoughAmountForFee, _)),
-             .loaded(_, _, state: .readyToSwap):
+        case .loaded(_, _, state: .readyToSwap):
             return true
-        case .loaded(_, _, state: .previewCEX(let previewCEX)) where !previewCEX.isExemptFee:
-            return true
+        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)):
+            return !selected.getState().isPermissionRequired
+        case .loaded(_, _, state: .previewCEX(let previewCEX)):
+            return !previewCEX.isExemptFee
+        case .loading(.rates):
+            return false
         default:
             return false
         }
@@ -919,9 +926,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(
             _isSending,
-            _providersState
-                .filter { $0.filter(loading: [.autoupdate]) }
-                .map { $0.isLoading },
+            _providersState.filter { $0.filter(loading: [.autoupdate]) }.map { $0.isLoading },
         )
         .map { $0 || $1 }
         .eraseToAnyPublisher()
