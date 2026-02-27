@@ -109,7 +109,10 @@ extension ExpressCoordinator: ExpressRoutable {
             selectedPolicy: selectedPolicy,
             coordinator: self
         )
-        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func presentSuccessView(data: SentExpressTransactionData) {
