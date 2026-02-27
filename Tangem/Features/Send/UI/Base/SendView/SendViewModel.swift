@@ -169,14 +169,14 @@ private extension SendViewModel {
     func performApprove() {
 //        do {
 //            let input = try approveViewModelInputDataBuilder.makeExpressApproveViewModelInput()
-//            
+//
 //            let approveFlowFactory = ExpressApproveFlowFactory(
 //                tokenFeeManagerProviding: self,
 //                feeSelectorOutput: self,
 //                analyticsLogger: nil,
 //                input: input
 //            )
-//            
+//
 //            coordinator?.openApproveView(expressApproveViewModelInput: input, flowFactory: flowFactory)
 //        } catch {
 //            showAlert(error.alertBinder)

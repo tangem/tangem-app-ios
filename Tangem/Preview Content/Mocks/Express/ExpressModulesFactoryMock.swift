@@ -120,7 +120,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         let flowFactory = ExpressApproveFlowFactory(
             tokenFeeManagerProviding: expressInteractor,
             feeSelectorOutput: expressInteractor,
-            analyticsLogger: nil
+            analyticsLogger: nil,
+            input: input
         )
 
         return flowFactory.make(input: input, router: coordinator)
