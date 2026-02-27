@@ -79,7 +79,7 @@ struct SwapMarketsTokensView: View {
 
     private func sectionHeader(isSearching: Bool, count: Int) -> some View {
         HStack(spacing: Constants.titleCountSpacing) {
-            Text(Localization.commonFeeSelectorOptionMarket)
+            Text(Localization.marketsCommonTitle)
                 .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
 
             if isSearching, count > 0 {
