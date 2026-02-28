@@ -56,7 +56,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
         GroupedScrollView(contentType: .lazy(spacing: 8)) {
             content()
-                .animation(.easeInOut, value: viewModel.contentVisibility)
+//                .animation(.easeInOut, value: viewModel.contentVisibility)
         }
     }
 
@@ -71,7 +71,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
                 sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
             }
 
-            LazyVStack(spacing: 8) {
+            /*Lazy*/VStack(spacing: 8) {
                 ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
             }
             .transition(.opacity.animation(.easeInOut))
