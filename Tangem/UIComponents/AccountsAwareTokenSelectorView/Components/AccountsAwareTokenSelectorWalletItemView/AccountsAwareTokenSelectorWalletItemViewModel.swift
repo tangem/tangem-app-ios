@@ -30,7 +30,7 @@ final class AccountsAwareTokenSelectorWalletItemViewModel: ObservableObject, Ide
     }
 
     func toggleIsOpen() {
-        withAnimation(.easeInOut(duration: 0.25)) { isOpen.toggle() }
+        withAnimation(.easeInOut(duration: 8.25)) { isOpen.toggle() }
     }
 
     func update(isOpen: Bool) {
