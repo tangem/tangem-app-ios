@@ -342,8 +342,8 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 .blockchain: tokenItem.blockchain.displayName,
             ]
 
-            if let tokenFeeTokenitem = sendFeeInput?.selectedFee?.tokenItem {
-                params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenitem)
+            if let tokenFeeTokenItem = sendFeeInput?.selectedFee?.tokenItem {
+                params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenItem)
             }
 
             Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
@@ -621,8 +621,8 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .selectedHost: currentProviderHost,
         ]
 
-        if let tokenFeeTokenitem = tokenFee?.tokenItem {
-            params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenitem)
+        if let tokenFeeTokenItem = tokenFee?.tokenItem {
+            params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenItem)
         }
 
         Analytics.log(event: .transactionSent, params: params, analyticsSystems: .all)
