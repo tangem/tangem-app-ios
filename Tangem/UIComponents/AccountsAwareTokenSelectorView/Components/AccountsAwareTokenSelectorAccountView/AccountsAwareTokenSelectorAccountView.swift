@@ -15,11 +15,15 @@ struct AccountsAwareTokenSelectorAccountView: View {
     @ObservedObject var viewModel: AccountsAwareTokenSelectorAccountViewModel
 
     var body: some View {
-        GroupedSection(viewModel.items) { item in
-            AccountsAwareTokenSelectorItemView(viewModel: item)
-        } header: {
+        VStack(spacing: 0) {
             AccountsAwareTokenSelectorAccountHeaderView(header: viewModel.header)
+
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.items) { item in
+                    AccountsAwareTokenSelectorItemView(viewModel: item)
+                }
+            }
         }
-        .backgroundColor(Colors.Background.action)
+//        .backgroundColor(Colors.Background.action)
     }
 }
