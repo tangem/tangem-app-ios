@@ -282,7 +282,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
 extension ReownWalletConnectDAppDataService {
     private static let solanaDomainNetworkID = BlockchainSdk.Blockchain.solana(curve: .ed25519, testnet: false).networkId
     private static let bitcoinDomainNetworkID = BlockchainSdk.Blockchain.bitcoin(testnet: false).networkId
-    private static let solanaCAIPNamespace = "solana"
+    private static let solanaCAIPNamespace = WalletConnectSupportedNamespace.solana.rawValue
     private static let bitcoinCAIPNamespace = WalletConnectSupportedNamespace.bip122.rawValue
 
     private static let unsupportedDAppHosts = [
