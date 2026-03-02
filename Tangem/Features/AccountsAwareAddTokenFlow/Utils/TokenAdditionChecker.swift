@@ -65,7 +65,7 @@ enum TokenAdditionChecker {
         coinName: String,
         coinSymbol: String,
         availableNetworks: [NetworkModel]
-    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
+    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountContext) -> AccountAvailability {
         { context in
             let tokenItems = MarketsTokenItemsProvider.calculateTokenItems(
                 coinId: coinId,
