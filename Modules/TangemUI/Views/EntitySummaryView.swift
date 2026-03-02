@@ -123,7 +123,7 @@ public struct EntitySummaryView: View {
         case .content(let contentState):
             Text(contentState.title)
                 .lineLimit(2)
-                .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline.weight(.semibold), color: Colors.Text.primary1)
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.entityProviderName)
                 .transition(.opacity)
 
