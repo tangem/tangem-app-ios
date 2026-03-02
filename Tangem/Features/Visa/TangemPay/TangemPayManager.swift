@@ -180,7 +180,8 @@ final class TangemPayManager: TangemPayAccountModel {
             orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             let account = tangemPayAccountBuilder.makeTangemPayAccount(
                 customerInfo: customerInfo,
-                productInstance: productInstance
+                productInstance: productInstance,
+                account: self
             )
             runTask {
                 await account.loadBalance()
