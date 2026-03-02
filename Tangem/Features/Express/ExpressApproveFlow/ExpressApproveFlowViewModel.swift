@@ -12,6 +12,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
+import TangemFoundation
 
 protocol ExpressApproveFlowRoutable: AnyObject {
     func openFeeTokenSelection()
@@ -111,6 +112,13 @@ extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
 
 private extension ExpressApproveFlowViewModel {
     func bind() {
+        approveViewModel.feeCompactViewModel?.bind(
+            selectedFeePublisher: feeSelectorInteractor.selectedTokenFeePublisher,
+            supportFeeSelectionPublisher: feeSelectorInteractor.supportedTokenFeeProvidersPublisher
+                .map { $0.count > 1 }
+                .eraseToAnyPublisher()
+        )
+
         feeSelectorInteractor.selectedTokenFeeProviderPublisher
             .dropFirst()
             .removeDuplicates(by: { $0.feeTokenItem == $1.feeTokenItem })
@@ -134,7 +142,7 @@ private extension ExpressApproveFlowViewModel {
                     approvePolicy: approvePolicy
                 )
                 await runOnMain {
-                    viewModel.handleAllowanceState(state)
+                    viewModel.handleAllowanceState()
                 }
             } catch is CancellationError {
                 // Task was cancelled due to a new fee token selection
@@ -149,7 +157,7 @@ private extension ExpressApproveFlowViewModel {
         }
     }
 
-    func handleAllowanceState(_ state: AllowanceState) {
+    func handleAllowanceState() {
         // Follow-up: propagate the recalculated ApproveTransactionData
         // from AllowanceState.permissionRequired to update the fee display
     }
