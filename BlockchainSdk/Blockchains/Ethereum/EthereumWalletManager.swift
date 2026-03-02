@@ -19,6 +19,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
     let allowsFeeSelection: Bool
+    private(set) lazy var gaslessFeeEstimator = GaslessFeeEstimator(walletManager: self)
 
     private var bag = Set<AnyCancellable>()
 
@@ -213,7 +214,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// Amounts that are inside 'wallet.amounts' may contain additional info about yield module status.
     /// When estimating fee or sending a transaction, we need get this additional info in order to
     /// use correct smart contract method.
-    private static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
+    static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
         if case .token = amount.type, let sanitizedAmount = wallet.amounts[amount.type] {
             return Amount(
                 with: wallet.blockchain,
@@ -508,67 +509,36 @@ extension EthereumWalletManager: TransactionFeeProvider {
 extension EthereumWalletManager: GaslessTransactionFeeProvider {
     func getGaslessFee(
         feeToken: Token,
-        amount originalAmount: Amount,
-        destination originalDestination: String,
+        amount: Amount,
+        destination: String,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
-        // Addresses
-        let ourAddress = wallet.defaultAddress.value
-        let convertedFeeRecepientAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
-        let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
-
-        // Fixed fee token amount (10000 minimal units)
-        let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
-        let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
-
-        // 1) Build calldata for transferring fixed fee token amount to Gasless collector
-        let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecepientAddress, amount: baseTokenAmount).encodedData
-
-        // 2) Estimate gas limit for fee token transfer
-        let feeTransferGasLimit = try await getGasLimit(
-            to: feeToken.contractAddress,
-            from: convertedOurAddress,
-            value: nil,
-            data: tokenTransferData
-        ).async()
-
-        // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
-        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
-
-        // 4) Get fee for the original transaction
-        let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
-
-        // Pick the market fee (index 1) from the fees array.
-        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
-            throw BlockchainSdkError.failedToGetFee
-        }
-
-        let originalMaxFeePerGas = params.maxFeePerGas
-        let originalGasLimit = params.gasLimit
-
-        // 5) Combine gas limits and add BASE_GAS buffer (60_000)
-        let newGasLimit = originalGasLimit + feeTransferGasLimitBuffered + EthereumFeeParametersConstants.gaslessBaseGasBuffer
-
-        // 6) Create updated fee params
-        let newParams = EthereumGaslessTransactionFeeParameters(
-            gasLimit: newGasLimit,
-            maxFeePerGas: originalMaxFeePerGas,
-            priorityFee: params.priorityFee,
-            nativeToFeeTokenRate: nativeToFeeTokenRate,
-            feeTokenTransferGasLimit: feeTransferGasLimitBuffered
+        try await gaslessFeeEstimator.estimateFee(
+            feeToken: feeToken,
+            amount: amount,
+            destination: destination,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
         )
+    }
 
-        // 7) Compute the fee amount.
-        // IMPORTANT: The fee is calculated in the token using the provided nativeToFeeTokenRate,
-        // buffered by +1% (buffering is done by calculateFee).
-        var fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
-
-        // 8) Round the fee to the fee token's decimal precision
-        fee = fee.rounded(scale: feeToken.decimalCount)
-
-        // 9) Return Fee with updated params and computed amount
-        return Fee(.init(with: feeToken, value: fee), parameters: newParams)
+    func getGaslessFee(
+        feeToken: Token,
+        destination: String,
+        value: String?,
+        data: Data?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee {
+        try await gaslessFeeEstimator.estimateFee(
+            feeToken: feeToken,
+            destination: destination,
+            value: value,
+            data: data,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
+        )
     }
 }
 
