@@ -34,6 +34,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveCoordinating?
@@ -46,6 +47,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
         approveViewModelInput = input.approveViewModelInput
 
         tokenItem = input.settings.tokenItem
+        feeTokenItem = input.settings.feeTokenItem
 
         selectedAction = input.settings.selectedPolicy
         subtitle = input.settings.subtitle
@@ -192,6 +194,7 @@ extension ExpressApproveViewModel {
         let subtitle: String
         let feeFooterText: String
         let tokenItem: TokenItem
+        let feeTokenItem: TokenItem
         let selectedPolicy: BSDKApprovePolicy
         let tangemIconProvider: TangemIconProvider
     }
