@@ -40,6 +40,14 @@ enum UITestsStorageCleaner {
         #endif
     }
 
+    /// Resets stories state (shownStoryIds) for UI tests
+    static func clearStoriesState() {
+        #if DEBUG
+        AppSettings.shared.shownStoryIds = []
+        AppLogger.info("Stories state cleared for UI tests")
+        #endif
+    }
+
     /// Clears all wallet data including Documents/user_wallets and Keychain
     static func clearWalletData() {
         #if DEBUG

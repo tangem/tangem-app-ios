@@ -21,6 +21,13 @@ final class FakeTangemApiService: TangemApiService {
 
     private let geoIpRegionCode: String
 
+    // MARK: - News Handlers (Tests/Previews)
+
+    var loadNewsListHandler: ((NewsDTO.List.Request) async throws -> NewsDTO.List.Response)?
+    var loadNewsDetailsHandler: ((NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response)?
+    var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
+    var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -220,18 +227,34 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        if let handler = loadTrendingNewsHandler {
+            return try await handler(limit, lang)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        if let handler = loadNewsListHandler {
+            return try await handler(requestModel)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        if let handler = loadNewsDetailsHandler {
+            return try await handler(requestModel)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        if let handler = loadNewsCategoriesHandler {
+            return try await handler()
+        }
+
         throw "Not implemented"
     }
 
