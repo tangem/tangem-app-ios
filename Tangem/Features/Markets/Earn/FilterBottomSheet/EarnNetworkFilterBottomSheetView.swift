@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct EarnNetworkFilterBottomSheetView: View {
@@ -33,6 +34,8 @@ extension EarnNetworkFilterBottomSheetView {
         static let verticalPadding: CGFloat = 12
         static let bottomPadding: CGFloat = 6
         static let sectionSpacing: CGFloat = 14
+        static let titleTopPadding: CGFloat = 12
+        static let titleBottomPadding: CGFloat = 8
     }
 }
 
@@ -52,9 +55,17 @@ private extension EarnNetworkFilterBottomSheetView {
             }
             .settings(\.backgroundColor, Colors.Background.action)
 
-            GroupedSection(viewModel.networkRowInputs) { input in
-                EarnNetworkFilterNetworkRowView(input: input)
-            }
+            GroupedSection(
+                viewModel.networkRowInputs,
+                content: { input in
+                    EarnNetworkFilterNetworkRowView(input: input)
+                },
+                header: {
+                    DefaultHeaderView(Localization.earnFilterNetworks)
+                        .padding(.top, Layout.titleTopPadding)
+                        .padding(.bottom, Layout.titleBottomPadding)
+                }
+            )
             .settings(\.backgroundColor, Colors.Background.action)
         }
         .padding(.horizontal, Layout.horizontalPadding)
