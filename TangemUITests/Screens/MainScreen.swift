@@ -60,11 +60,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func tapMainSwap() -> SwapTokenSelectorScreen {
+    func tapMainSwap() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
             waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
             swapActionButton.waitAndTap()
-            return SwapTokenSelectorScreen(app)
+            return SwapStoriesScreen(app)
         }
     }
 
@@ -507,6 +507,28 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
         }
         return self
+    }
+
+    // MARK: - Badge Validation Methods
+
+    @discardableResult
+    func assertSwapButtonHasBadge() -> Self {
+        XCTContext.runActivity(named: "Assert Swap button has badge indicator on main screen") { _ in
+            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
+            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
+            waitAndAssertTrue(badge, "Swap button badge should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapButtonHasNoBadge() -> Self {
+        XCTContext.runActivity(named: "Assert Swap button has no badge indicator on main screen") { _ in
+            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
+            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
+            XCTAssertFalse(badge.exists, "Swap button badge should not be displayed on main screen")
+            return self
+        }
     }
 
     @discardableResult
