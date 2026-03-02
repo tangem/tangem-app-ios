@@ -52,18 +52,16 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
                     )
                 }
             },
-            accountFilter: { account, supportedBlockchains in
-                let networkIds = networks.map(\.networkId)
-                return networkIds.contains { networkId in
-                    AccountBlockchainManageabilityChecker.canManageNetwork(
-                        networkId,
-                        for: account,
-                        in: supportedBlockchains
-                    )
-                }
-            },
+            accountFilter: makeAccountFilter(
+                coinId: coinId,
+                coinName: coinName,
+                coinSymbol: coinSymbol,
+                networks: networks
+            ),
             accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
                 coinId: coinId,
+                coinName: coinName,
+                coinSymbol: coinSymbol,
                 availableNetworks: networks
             ),
             analyticsLogger: analyticsLogger
@@ -104,6 +102,44 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
             additionRoutable: additionRoutable,
             retryCount: retryCount + 1
         )
+    }
+
+    private static func makeAccountFilter(
+        coinId: String,
+        coinName: String,
+        coinSymbol: String,
+        networks: [NetworkModel]
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+        { context in
+            let networkIds = networks.map(\.networkId)
+            let cryptoAccount = context.account
+            let supportedBlockchains = context.supportedBlockchains
+
+            func hasManageableNetworks() -> Bool {
+                return networkIds.contains { networkId in
+                    AccountBlockchainManageabilityChecker.canManageNetwork(
+                        networkId,
+                        for: cryptoAccount,
+                        in: supportedBlockchains
+                    )
+                }
+            }
+
+            func hasNotEmptyTokenItems() -> Bool {
+                let tokenItems = MarketsTokenItemsProvider.calculateTokenItems(
+                    coinId: coinId,
+                    coinName: coinName,
+                    coinSymbol: coinSymbol,
+                    networks: networks,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: cryptoAccount
+                )
+
+                return tokenItems.isNotEmpty
+            }
+
+            return hasManageableNetworks() && hasNotEmptyTokenItems()
+        }
     }
 }
 
