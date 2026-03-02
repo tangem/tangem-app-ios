@@ -56,6 +56,7 @@ enum OnrampSummaryStepBuilder {
         let onrampAmountViewModel = OnrampAmountViewModel(
             tokenItem: types.tokenItem,
             initialAmount: io.amountInput.amount,
+            initialCurrency: io.amountInput.fiatCurrency,
             interactor: interactor
         )
 
