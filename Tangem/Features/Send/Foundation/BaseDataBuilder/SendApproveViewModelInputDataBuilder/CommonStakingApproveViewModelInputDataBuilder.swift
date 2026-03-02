@@ -32,7 +32,9 @@ extension CommonStakingApproveViewModelInputDataBuilder: SendApproveViewModelInp
         return ExpressApproveFlowFactory(
             approveInput: input,
             tokenFeeManagerProviding: tokenFeeManagerProviding,
-            allowanceService: sourceToken.allowanceService
+            allowanceService: sourceToken.allowanceService,
+            approveAmount: nil,
+            spender: nil
         )
     }
 
