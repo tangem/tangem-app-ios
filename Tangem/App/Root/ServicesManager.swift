@@ -122,6 +122,7 @@ final class CommonServicesManager {
 
         if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
             UITestsStorageCleaner.clearCachedFiles()
+            UITestsStorageCleaner.clearStoriesState()
         }
 
         UITestsStorageCleaner.clearWalletData()

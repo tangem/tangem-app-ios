@@ -20,11 +20,11 @@ struct SendTokenHeaderView: View {
             Text(.init(name))
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         case .wallet(let name):
-            Text(.init(Localization.commonFromWalletName(name)))
+            Text(.init(name))
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-        case .account(let name, let icon):
+        case .account(let prefix, let name, let icon):
             HStack(spacing: 6) {
-                Text(.init(Localization.commonFrom))
+                Text(.init(prefix))
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 HStack(spacing: 4) {

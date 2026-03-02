@@ -12,13 +12,21 @@ import TangemFoundation
 import TangemPay
 import TangemVisa
 
-final class TangemPayManager {
-    var state: TangemPayLocalState {
+final class TangemPayManager: TangemPayAccountModel {
+    var state: TangemPayLocalState? {
         stateSubject.value
     }
 
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> {
-        stateSubject.eraseToAnyPublisher()
+        stateSubject
+            .compactMap(\.self)
+            .eraseToAnyPublisher()
+    }
+
+    var isPaeraCustomerPublisher: AnyPublisher<Bool, Never> {
+        stateSubject
+            .map { $0 != nil }
+            .eraseToAnyPublisher()
     }
 
     private(set) var customerId: String?
@@ -34,7 +42,7 @@ final class TangemPayManager {
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
-    private let stateSubject = CurrentValueSubject<TangemPayLocalState, Never>(.initial)
+    private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
 
     private var bag = Set<AnyCancellable>()
 
@@ -107,7 +115,7 @@ final class TangemPayManager {
                 paeraCustomerFlagRepository.setIsKYCHidden(true, for: customerWalletId)
                 paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
                 paeraCustomerFlagRepository.setShouldShowGetBanner(false)
-                stateSubject.value = .initial
+                stateSubject.value = nil
                 onFinish(true)
             } catch {
                 VisaLogger.error("Failed to cancel KYC", error: error)
@@ -119,11 +127,11 @@ final class TangemPayManager {
     func refreshState() async {
         guard await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
             orderStatusPollingService.cancel()
-            stateSubject.value = .initial
+            stateSubject.value = nil
             return
         }
 
-        if case .initial = stateSubject.value {
+        if stateSubject.value == nil {
             stateSubject.value = .loading
         }
 
@@ -149,6 +157,8 @@ final class TangemPayManager {
             return
         }
 
+        let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
+
         switch enrollmentState {
         case .issuingCard:
             do {
@@ -172,18 +182,19 @@ final class TangemPayManager {
 
         case .kycRequired:
             orderStatusPollingService.cancel()
-            stateSubject.value = .kycRequired
+            stateSubject.value = .kycRequired(weakReferenceHolder)
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
-            stateSubject.value = .kycDeclined
+            stateSubject.value = .kycDeclined(weakReferenceHolder)
         }
     }
 
-    func syncTokens(authorizingInteractor: TangemPayAuthorizing) {
+    func syncTokens(authorizingInteractor: TangemPayAuthorizing, completion: @escaping () -> Void) {
         runTask { [self] in
             stateSubject.value = .syncInProgress
             await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+            completion()
         }
     }
 
@@ -216,14 +227,14 @@ final class TangemPayManager {
 
     private func bind() {
         stateSubject
-            .compactMap(\.tangemPayAccount)
+            .compactMap(\.?.tangemPayAccount)
             .flatMapLatest(\.syncNeededSignalPublisher)
             .mapToValue(.syncNeeded)
             .sink(receiveValue: stateSubject.send)
             .store(in: &bag)
 
         stateSubject
-            .compactMap(\.tangemPayAccount)
+            .compactMap(\.?.tangemPayAccount)
             .flatMapLatest(\.unavailableSignalPublisher)
             .mapToValue(.unavailable)
             .sink(receiveValue: stateSubject.send)

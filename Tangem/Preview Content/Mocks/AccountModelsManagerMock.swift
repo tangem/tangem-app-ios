@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
@@ -191,4 +192,6 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
 }

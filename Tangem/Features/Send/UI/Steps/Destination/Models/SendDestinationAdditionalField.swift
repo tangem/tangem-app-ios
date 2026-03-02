@@ -14,6 +14,22 @@ enum SendDestinationAdditionalField {
     case notSupported
     case empty(type: SendDestinationAdditionalFieldType)
     case filled(type: SendDestinationAdditionalFieldType, value: String, params: TransactionParams)
+
+    var extraId: String? {
+        switch self {
+        case .notSupported, .empty: nil
+        case .filled(_, let value, _): value
+        }
+    }
+
+    static func field(for blockchain: Blockchain) -> SendDestinationAdditionalField {
+        switch SendDestinationAdditionalFieldType.type(for: blockchain) {
+        case .none:
+            return .notSupported
+        case .some(let type):
+            return .empty(type: type)
+        }
+    }
 }
 
 enum SendDestinationAdditionalFieldType {
