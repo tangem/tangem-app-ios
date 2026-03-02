@@ -10,19 +10,18 @@ import Foundation
 import BigInt
 
 struct GaslessFeeEstimator {
-    
     // MARK: - Dependencies
-    
+
     private let walletManager: EthereumWalletManager
-    
+
     // MARK: - Init
 
     init(walletManager: EthereumWalletManager) {
         self.walletManager = walletManager
     }
-    
+
     // MARK: - Public Implementation
-    
+
     /// Estimates the gasless fee for a token transfer.
     func estimateFee(
         feeToken: Token,
