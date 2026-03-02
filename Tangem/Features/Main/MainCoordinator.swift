@@ -164,7 +164,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private func showMarketsTooltip() {
         // Don't show markets tooltip during UI testing
-        guard !AppEnvironment.current.isUITest else { return }
+        guard !AppEnvironment.current.isUITest else {
+            AppSettings.shared.marketsTooltipWasShown = true
+            return
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
             guard let self else {

@@ -27,7 +27,6 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.launch()
         CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
-            .skipPushNotificationsSetup()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
         app.terminate()
@@ -42,13 +41,13 @@ final class SolanaWCLinksUITests: BaseTestCase {
             .selectWalletByName("Wallet")
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
-            .skipPushNotificationsSetup()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
             .tapConnectionButton()
 
         MainScreen(app)
+            .skipPushNotificationsSetup()
             .openDetails()
             .openWalletConnections()
             .tapFirstDAppRow()
