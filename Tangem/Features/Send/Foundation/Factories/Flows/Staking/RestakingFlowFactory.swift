@@ -11,62 +11,24 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class RestakingFlowFactory: StakingFlowDependenciesFactory {
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: UserWalletInfo
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    var actionType: StakingAction.ActionType { action.displayType }
 
-    let tokenFeeProvidersManager: TokenFeeProvidersManager
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let availableBalanceProvider: any TokenBalanceProvider
-    let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
-    /// Staking doesn't support account-based analytics
-    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
+    var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var restakingModel = makeRestakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        userWalletInfo: UserWalletInfo,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
-        action: RestakingModel.Action,
-        walletModel: any WalletModel,
+        action: RestakingModel.Action
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.action = action
-
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: action.displayType.sendFlowActionType
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-
-        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
-        walletModelDependenciesProvider = walletModel
-        availableBalanceProvider = walletModel.availableBalanceProvider
-        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
     }
 }
 
@@ -80,7 +42,7 @@ extension RestakingFlowFactory {
         RestakingModel(
             stakingManager: stakingManager,
             action: action,
-            sendSourceToken: makeSourceToken(),
+            sendSourceToken: stakingableToken,
             sendAmountValidator: RestakingAmountValidator(
                 tokenItem: tokenItem,
                 action: actionType,
@@ -96,11 +58,14 @@ extension RestakingFlowFactory {
 extension RestakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
+            initialSourceToken: stakingableToken,
+            actionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
 
         let sendAmountFinishViewModel = SendAmountFinishViewModel(
+            flowActionType: actionType.sendFlowActionType,
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
@@ -139,6 +104,7 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             actionType: actionType.sendFlowActionType
         )
 
@@ -161,9 +127,16 @@ extension RestakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: restakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: restakingModel,
+                sourceTokenInput: restakingModel
+            ),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: restakingModel
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -210,7 +183,7 @@ extension RestakingFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }

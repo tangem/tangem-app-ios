@@ -47,20 +47,23 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Router
 
-    weak var router: SendAmountRoutable?
+    weak var router: SendAmountStepRoutable?
 
     // MARK: - Dependencies
 
+    private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private var sendAmountFormatter: SendAmountFormatter
     private var balanceFormatter: BalanceFormatter = .init()
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         sourceToken: SendSourceToken,
+        flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger
     ) {
@@ -78,6 +81,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
+        self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
 
@@ -138,6 +142,7 @@ private extension SendAmountViewModel {
 
         interactor
             .sourceTokenPublisher
+            .compactMap { $0.value }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { $0.updateSourceToken(sourceToken: $1) }
@@ -151,7 +156,7 @@ private extension SendAmountViewModel {
         .receive(on: DispatchQueue.main)
         .sink { viewModel, args in
             let (token, amount) = args
-            viewModel.updateReceivedToken(receiveToken: token, amount: amount)
+            viewModel.updateReceivedToken(receiveToken: token.value, amount: amount)
         }
         .store(in: &bag)
     }
@@ -189,7 +194,7 @@ private extension SendAmountViewModel {
 
 extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
-        tokenHeader = sourceToken.header
+        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
@@ -197,8 +202,9 @@ extension SendAmountViewModel {
             balanceFormatted += " \(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
         }
 
+        let tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         sendAmountTokenViewData = .init(
-            tokenIconInfo: sourceToken.tokenIconInfo,
+            tokenIconInfo: tokenIconInfo,
             title: sourceToken.tokenItem.name,
             subtitle: .balance(state: .loaded(text: .string(balanceFormatted))),
             detailsType: .max { [weak self] in
@@ -206,7 +212,7 @@ extension SendAmountViewModel {
             }
         )
 
-        cryptoIconURL = sourceToken.tokenIconInfo.imageURL
+        cryptoIconURL = tokenIconInfo.imageURL
         fiatIconURL = sourceToken.fiatItem.iconURL
 
         cryptoTextFieldViewModel.update(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
@@ -218,18 +224,19 @@ extension SendAmountViewModel {
         sendAmountFormatter = .init(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem, balanceFormatter: balanceFormatter)
     }
 
-    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount, Error>) {
+    func updateReceivedToken(receiveToken: SendReceiveToken?, amount: LoadingResult<SendAmount, Error>) {
         guard interactor.isReceiveTokenSelectionAvailable else {
             receivedTokenViewType = .none
             return
         }
 
         switch receiveToken {
-        case .same:
+        case .none:
             receivedTokenViewType = .selectButton
-        case .swap(let receiveToken):
+        case .some(let receiveToken):
+            let tokenIconInfo = tokenIconInfoBuilder.build(from: receiveToken.tokenItem, isCustom: receiveToken.isCustom)
             receivedTokenViewType = .selected(SendAmountTokenViewData(
-                tokenIconInfo: receiveToken.tokenIconInfo,
+                tokenIconInfo: tokenIconInfo,
                 title: receiveToken.tokenItem.name,
                 subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
                 // The `individualAction` should be use when the fixed rate will available
