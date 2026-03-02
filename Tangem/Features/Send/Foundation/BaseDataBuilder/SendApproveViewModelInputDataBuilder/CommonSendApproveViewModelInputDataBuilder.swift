@@ -58,6 +58,7 @@ extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputD
             ),
             feeFooterText: Localization.swapGivePermissionFeeFooter,
             tokenItem: sourceToken.tokenItem,
+            feeTokenItem: sourceToken.feeTokenItem,
             selectedPolicy: selectedPolicy,
             tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )

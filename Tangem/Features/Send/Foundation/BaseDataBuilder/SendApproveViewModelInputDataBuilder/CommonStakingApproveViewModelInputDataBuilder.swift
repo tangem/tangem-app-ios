@@ -49,6 +49,7 @@ extension CommonStakingApproveViewModelInputDataBuilder: SendApproveViewModelInp
             subtitle: Localization.givePermissionStakingSubtitle(sourceToken.tokenItem.currencySymbol),
             feeFooterText: Localization.stakingGivePermissionFeeFooter,
             tokenItem: sourceToken.tokenItem,
+            feeTokenItem: sourceToken.feeTokenItem,
             selectedPolicy: selectedPolicy,
             tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )
