@@ -30,12 +30,12 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
-    var sourceHeaderType: ExpressCurrencyHeaderType {
-        makeHeaderType(for: source, viewType: .send)
+    var sourceHeaderType: SendTokenHeader {
+        makeHeaderType(for: source, isSource: true)
     }
 
-    var destinationHeaderType: ExpressCurrencyHeaderType {
-        makeHeaderType(for: destination, viewType: .receive)
+    var destinationHeaderType: SendTokenHeader {
+        makeHeaderType(for: destination, isSource: false)
     }
 
     // MARK: - Private
@@ -107,9 +107,9 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
         switch source {
         case .placeholder:
             Task { await updateSourceToken(item: item) }
-        case .token:
+        case .token(let sourceItem, _):
             logPortfolioTokenSelected(item: item)
-            Task { await openExpressWithDestination(item: item) }
+            openSwap(source: sourceItem, receive: item)
         }
     }
 }
@@ -148,41 +148,27 @@ extension AccountsAwareActionButtonsSwapViewModel {
             return
         }
 
-        Task {
-            await updatePairs(sourceItem: sourceItem)
-
-            try? await Task.sleep(for: .seconds(Constants.floatingSheetDismissDelay))
-
-            await openExpressWithDestination(item: item)
-        }
+        openSwap(source: sourceItem, receive: item)
     }
 
-    private func openExpressWithDestination(item: AccountsAwareTokenSelectorItem) async {
-        guard case .token(let sourceItem, _) = source else {
-            return
-        }
+    private func openSwap(
+        source: AccountsAwareTokenSelectorItem,
+        receive: AccountsAwareTokenSelectorItem,
+    ) {
+        let source = CommonSendSwapableTokenFactory(
+            userWalletInfo: source.userWalletInfo,
+            walletModel: source.walletModel,
+            operationType: .swap
+        ).makeSwapableToken()
 
-        await updateDestinationToken(item: item)
+        let receive = CommonSendSwapableTokenFactory(
+            userWalletInfo: receive.userWalletInfo,
+            walletModel: receive.walletModel,
+            operationType: .swap
+        ).makeSwapableToken()
 
-        await MainActor.run {
-            coordinator?.openExpress(
-                input: .init(
-                    userWalletInfo: sourceItem.userWalletInfo,
-                    source: ExpressInteractorWalletModelWrapper(
-                        userWalletInfo: sourceItem.userWalletInfo,
-                        walletModel: sourceItem.walletModel,
-                        expressOperationType: .swap
-                    ),
-                    destination: .chosen(
-                        ExpressInteractorWalletModelWrapper(
-                            userWalletInfo: item.userWalletInfo,
-                            walletModel: item.walletModel,
-                            expressOperationType: .swap
-                        )
-                    )
-                )
-            )
-        }
+        let input = PredefinedSwapParameters.from(source, receive: receive)
+        coordinator?.openSwap(input: input)
     }
 }
 
@@ -269,18 +255,17 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         notificationInput = input
     }
 
-    func makeHeaderType(for tokenItemType: TokenItemType?, viewType: ExpressCurrencyViewType) -> ExpressCurrencyHeaderType {
+    func makeHeaderType(for tokenItemType: TokenItemType?, isSource: Bool) -> SendTokenHeader {
         switch tokenItemType {
-        case .none,
-             .placeholder:
-            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: nil)
+        case .none, .placeholder:
+            return .action(name: isSource ? Localization.swappingFromTitle : Localization.swappingToTitle)
         case .token(let item, _):
-            let provider = ExpressInteractorTokenHeaderProvider(
-                userWalletInfo: item.userWalletInfo,
+            let tokenHeader = TokenHeaderProvider(
+                userWalletName: item.userWalletInfo.name,
                 account: item.account
-            )
-            let tokenHeader = provider.makeHeader()
-            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: tokenHeader)
+            ).makeHeader()
+
+            return tokenHeader.asSendTokenHeader(actionType: .swap, isSource: isSource)
         }
     }
 
