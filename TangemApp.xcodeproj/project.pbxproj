@@ -952,6 +952,7 @@
 		30A736492E16B39C00691D83 /* BigUInt+littleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A736482E16B39000691D83 /* BigUInt+littleEndian.swift */; };
 		30ABA7372F4755DD0090C069 /* FullPagePagerBodyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30ABA7362F4755DD0090C069 /* FullPagePagerBodyContainer.swift */; };
 		30ABA7392F475ED10090C069 /* FullPagePagerViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30ABA7382F475ED10090C069 /* FullPagePagerViewHelper.swift */; };
+		30ABA73B2F6400000090C069 /* PagerStationaryOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30ABA73A2F6400000090C069 /* PagerStationaryOffset.swift */; };
 		30AC0FD92EFBCFE5009AACB7 /* AccountsAwareNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0FCD2EFBCFE5009AACB7 /* AccountsAwareNetworkSelectorItemViewModel.swift */; };
 		30AC0FDA2EFBCFE5009AACB7 /* AccountsAwareGetTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0FC92EFBCFE5009AACB7 /* AccountsAwareGetTokenView.swift */; };
 		30AC0FDB2EFBCFE5009AACB7 /* AccountsAwareAddTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AC0FD52EFBCFE5009AACB7 /* AccountsAwareAddTokenView.swift */; };
@@ -5882,6 +5883,7 @@
 		30A736482E16B39000691D83 /* BigUInt+littleEndian.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+littleEndian.swift"; sourceTree = "<group>"; };
 		30ABA7362F4755DD0090C069 /* FullPagePagerBodyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullPagePagerBodyContainer.swift; sourceTree = "<group>"; };
 		30ABA7382F475ED10090C069 /* FullPagePagerViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullPagePagerViewHelper.swift; sourceTree = "<group>"; };
+		30ABA73A2F6400000090C069 /* PagerStationaryOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerStationaryOffset.swift; sourceTree = "<group>"; };
 		30AC0FC22EFBCFE5009AACB7 /* AccountsAwareAddTokenFlowConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareAddTokenFlowConfiguration.swift; sourceTree = "<group>"; };
 		30AC0FC42EFBCFE5009AACB7 /* AccountsAwareAddTokenFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareAddTokenFlowRoutable.swift; sourceTree = "<group>"; };
 		30AC0FC52EFBCFE5009AACB7 /* AccountsAwareAddTokenFlowState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareAddTokenFlowState.swift; sourceTree = "<group>"; };
@@ -12390,6 +12392,7 @@
 			isa = PBXGroup;
 			children = (
 				30ABA7362F4755DD0090C069 /* FullPagePagerBodyContainer.swift */,
+				30ABA73A2F6400000090C069 /* PagerStationaryOffset.swift */,
 				30ABA7382F475ED10090C069 /* FullPagePagerViewHelper.swift */,
 			);
 			path = Helpers;
@@ -28575,6 +28578,7 @@
 				EFBBA4962E8A77AD004F48ED /* PendingExpressTransactionsManagerBuilder.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */,
 				30ABA7392F475ED10090C069 /* FullPagePagerViewHelper.swift in Sources */,
+				30ABA73B2F6400000090C069 /* PagerStationaryOffset.swift in Sources */,
 				DC4020F12CB039DC00002902 /* RingUtil.swift in Sources */,
 				DC0568CD2E0CF432008A3770 /* WCCustomAllowanceInput.swift in Sources */,
 				DA1010252CDA58D700EE0D05 /* OnrampCurrencyView.swift in Sources */,

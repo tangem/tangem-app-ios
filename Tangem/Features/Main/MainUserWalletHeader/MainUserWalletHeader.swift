@@ -26,6 +26,14 @@ struct MainUserWalletHeader: View {
         VStack(spacing: SizeUnit.x4.value) {
             balance
 
+            if let paginationState = model.paginationState {
+                TangemPagination(
+                    totalPages: paginationState.totalPages,
+                    currentIndex: paginationState.currentIndex
+                )
+                .pagerStationary()
+            }
+
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
             }
@@ -59,7 +67,8 @@ struct MainUserWalletHeader: View {
         ForEach(provider.models.indices, id: \.self) { index in
             MainUserWalletHeader(model: MainUserWalletHeaderModel(
                 headerViewModel: provider.models[index],
-                actionButtonsViewModel: nil
+                actionButtonsViewModel: nil,
+                paginationState: nil
             ))
             .onTapGesture {
                 let infoProvider = provider.infoProviders[index]

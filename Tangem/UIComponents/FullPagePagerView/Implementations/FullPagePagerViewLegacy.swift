@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 /// iOS 16 implementation using UIKit UIScrollView with `isPagingEnabled` via UIViewRepresentable.
 /// Provides native paging behavior and memory efficiency through windowed rendering.
@@ -93,8 +94,9 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
                 headerHeight = height
             }
         ) {
-            ForEach(data) { element in
+            ForEach(indexed: data.indexed()) { index, element in
                 headerFactory(element)
+                    .environment(\.pagerStationaryOffset, scrollOffset - CGFloat(index) * pageWidth)
                     .frame(width: pageWidth)
             }
         }

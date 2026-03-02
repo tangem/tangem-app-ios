@@ -47,9 +47,12 @@ struct MainView: View {
                     onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
                     onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
                     content: { ratio in
-                        page.header
-                            .scaleEffect(ratio)
-                            .opacity(ratio)
+                        page.redesignedHeader(
+                            totalPages: viewModel.pages.count,
+                            currentIndex: viewModel.selectedCardIndex
+                        )
+                        .scaleEffect(ratio)
+                        .opacity(ratio)
                     }
                 )
             },
