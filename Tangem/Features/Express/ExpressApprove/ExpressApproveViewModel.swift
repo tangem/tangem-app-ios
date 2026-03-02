@@ -57,7 +57,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
             actions: [.unlimited, .specified]
         )
 
-        feeCompactViewModel = FeeCompactViewModel(feeFormatter: feeFormatter)
+        feeCompactViewModel = FeeCompactViewModel(showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
         updateView(state: approveViewModelInput.approveFeeValue)
         bind()
     }
