@@ -21,7 +21,7 @@ struct ExpressApproveView: View {
     var body: some View {
         VStack(spacing: 22) {
             GroupedSection(viewModel.menuRowViewModel) {
-                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
+                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction, titleFont: Fonts.Regular.body)
             } footer: {
                 approveInfoDescriptionView
             }
