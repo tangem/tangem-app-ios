@@ -312,9 +312,9 @@ private extension SendViewModel {
     }
 }
 
-// MARK: - SendModelRoutable
+// MARK: - TransferModelRoutable
 
-extension SendViewModel: SendModelRoutable {
+extension SendViewModel: TransferModelRoutable {
     func openNetworkCurrency() {
         do {
             let feeCurrency = try feeCurrencyProviderDataBuilder.makeFeeCurrencyData()

@@ -37,16 +37,16 @@ enum SendSummaryStepBuilder {
     struct IO {
         let input: SendSummaryInput
         let output: SendSummaryOutput
-        let receiveTokenAmountInput: SendReceiveTokenAmountInput?
+        let swapModelStateProvider: SwapModelStateProvider?
 
         init(
             input: SendSummaryInput,
             output: SendSummaryOutput,
-            receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil
+            swapModelStateProvider: SwapModelStateProvider? = nil
         ) {
             self.input = input
             self.output = output
-            self.receiveTokenAmountInput = receiveTokenAmountInput
+            self.swapModelStateProvider = swapModelStateProvider
         }
     }
 
@@ -78,7 +78,7 @@ enum SendSummaryStepBuilder {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,
             output: io.output,
-            receiveTokenAmountInput: io.receiveTokenAmountInput,
+            swapModelStateProvider: io.swapModelStateProvider,
             sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
             sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
             stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,

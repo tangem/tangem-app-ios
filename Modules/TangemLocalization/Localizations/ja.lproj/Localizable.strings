@@ -1733,6 +1733,8 @@
 "warning_express_refresh_required_title" = "サービスは一時的に利用できません";
 "warning_express_too_maximum_amount_title" = "スワップするトークンの量は %@ を超えないでください";
 "warning_express_too_minimal_amount_title" = "スワップ金額は %@ 以上である必要があります";
+"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
+"warning_express_unsupported_pair_title" = "Unsupported swap pair";
 "warning_express_wrong_amount_description" = "スワップの金額を変更してください";
 "warning_failed_to_verify_card_message" = "このカードは、サンプル品または偽造品である可能性があります";
 "warning_failed_to_verify_card_title" = "真正性チェックに失敗しました";

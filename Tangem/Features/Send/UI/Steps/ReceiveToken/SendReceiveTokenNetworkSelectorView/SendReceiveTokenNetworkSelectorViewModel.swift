@@ -24,7 +24,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
     var notSupportedTitle: String {
         // It's should be the same token name in all token items
-        if let tokenName = networks.first?.token?.name {
+        if let tokenName = networks.first?.name {
             return Localization.expressSwapNotSupportedTitle(tokenName)
         }
 
@@ -163,6 +163,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
+        if SendReceiveTokenFilter.isMemoRequiring(receiveTokenBlockchain: tokenItem.blockchain) {
+            state = .failure(Localization.expressSwapNotSupportedText)
+            return
+        }
+
         receiveTokenOutput?.userDidRequestSelect(receiveTokenItem: tokenItem) { [weak self] selected in
             self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)

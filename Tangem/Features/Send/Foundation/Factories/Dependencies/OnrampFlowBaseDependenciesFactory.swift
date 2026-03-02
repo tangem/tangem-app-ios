@@ -43,10 +43,7 @@ extension OnrampFlowBaseDependenciesFactory {
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
 
-        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: tokenItem,
-            feeAnalyticsParameterBuilder: .init(isFixedFee: false)
-        )
+        let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,
