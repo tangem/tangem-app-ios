@@ -20,25 +20,25 @@ protocol SendSummaryInteractor: AnyObject {
 class CommonSendSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
-    private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
+    private weak var swapModelStateProvider: SwapModelStateProvider?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
-    private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
+    private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
     private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
 
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapModelStateProvider: SwapModelStateProvider?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
-        swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
+        sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
         stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
-        self.receiveTokenAmountInput = receiveTokenAmountInput
+        self.swapModelStateProvider = swapModelStateProvider
         self.sendDescriptionBuilder = sendDescriptionBuilder
-        self.swapDescriptionBuilder = swapDescriptionBuilder
+        self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
     }
 }
@@ -67,12 +67,13 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        guard let receiveTokenAmountInput else {
+        guard let swapModelStateProvider else {
             return Empty().eraseToAnyPublisher()
         }
 
-        return receiveTokenAmountInput
-            .receiveAmountPublisher
+        return swapModelStateProvider
+            .statePublisher
+            .filter { $0.filter(loading: [.autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
@@ -92,7 +93,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 private extension CommonSendSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
-        case .none:
+        case .none, .swap:
             return nil
         case .staking(let amount, let schedule):
             let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
@@ -100,8 +101,8 @@ private extension CommonSendSummaryInteractor {
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
             return description
-        case .swap(let amount, let fee, let provider):
-            let description = swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+        case .sendWithSwap(let amount, let fee, let provider):
+            let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
             return description
         }
     }

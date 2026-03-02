@@ -13,10 +13,14 @@ import TangemAccounts
 
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
+    let expandedView: ExpandedView
+
+    init(viewModel: ExpandableAccountItemViewModel, @ViewBuilder expandedView: () -> ExpandedView) {
+        self.viewModel = viewModel
+        self.expandedView = expandedView()
+    }
 
     @Namespace private var namespace
-
-    let expandedView: () -> ExpandedView
 
     // MARK: - Body
 
@@ -43,9 +47,9 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             },
             expandedView: {
                 if viewModel.isEmptyContent {
-                    EmptyContentAccountItemView()
+                    EmptyContentAccountItemView(onManageTokensTap: viewModel.onManageTokensTap)
                 } else {
-                    expandedView()
+                    expandedView
                 }
             },
             expandedViewHeader: {
@@ -101,7 +105,8 @@ private extension ExpandableAccountItemView {
                                 isMainAccount: true,
                                 onArchive: { _ in }
                             ),
-                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: true)
+                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: true),
+                            onManageTokensTap: {}
                         ),
                         expandedView: {
                             ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in
@@ -117,7 +122,8 @@ private extension ExpandableAccountItemView {
                                 isMainAccount: false,
                                 onArchive: { _ in }
                             ),
-                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: false)
+                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: false),
+                            onManageTokensTap: {}
                         ),
                         expandedView: {
                             ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in

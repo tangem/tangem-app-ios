@@ -248,7 +248,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
         if FeatureProvider.isAvailable(.accounts) {
-            return AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: userWalletModel)
+            return AccountsAwareMultiWalletMainContentViewSectionsProvider(
+                userWalletModel: userWalletModel,
+                manageTokensActionFactory: { [weak coordinator] account in
+                    { coordinator?.openManageTokens(for: account, in: userWalletModel) }
+                }
+            )
         }
 
         // accounts_fixes_needed_none
