@@ -4003,6 +4003,7 @@
 		EF197B102D8C92FA0004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B0F2D8C92F90004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift */; };
 		EF19FAF62C6D43BB002155F1 /* PendingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF19FAF52C6D43BB002155F1 /* PendingAction.swift */; };
 		EF19FAF82C6D575B002155F1 /* ActionGenericRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF19FAF72C6D575B002155F1 /* ActionGenericRequest.swift */; };
+		EF1BACED2F509E7600B8F523 /* SendReceiveTokenFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */; };
 		EF1BAD122F50DC6600B8F523 /* CommonExpressAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1BAD112F50DC6600B8F523 /* CommonExpressAnalyticsLogger.swift */; };
 		EF1BAD142F50E9F500B8F523 /* ExpressCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1BAD132F50E9F500B8F523 /* ExpressCurrencyViewModel.swift */; };
 		EF1BAD162F50EA0D00B8F523 /* ExpressCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1BAD152F50EA0D00B8F523 /* ExpressCurrencyView.swift */; };
@@ -8920,6 +8921,7 @@
 		EF197B0F2D8C92F90004B575 /* BranchAndBoundPreImageTransactionBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchAndBoundPreImageTransactionBuilderTests.swift; sourceTree = "<group>"; };
 		EF19FAF52C6D43BB002155F1 /* PendingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingAction.swift; sourceTree = "<group>"; };
 		EF19FAF72C6D575B002155F1 /* ActionGenericRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionGenericRequest.swift; sourceTree = "<group>"; };
+		EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenFilter.swift; sourceTree = "<group>"; };
 		EF1BAD112F50DC6600B8F523 /* CommonExpressAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EF1BAD132F50E9F500B8F523 /* ExpressCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EF1BAD152F50EA0D00B8F523 /* ExpressCurrencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyView.swift; sourceTree = "<group>"; };
@@ -26641,6 +26643,7 @@
 			isa = PBXGroup;
 			children = (
 				EFFA43552E02B319001E0E54 /* SendReceiveTokensListBuilder.swift */,
+				EF1BACEC2F509E7600B8F523 /* SendReceiveTokenFilter.swift */,
 				EFFA43572E02D7C9001E0E54 /* SendReceiveTokenCoordinator.swift */,
 				EFFA436C2E02EA30001E0E54 /* SendReceiveTokenCoordinatorView.swift */,
 				EFBC4EF32E81A11A0080271D /* IO */,
@@ -28636,6 +28639,7 @@
 				EFA5683C2C480D120064EBA1 /* TransactionDispatcherTransactionType.swift in Sources */,
 				0F721C202EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift in Sources */,
 				EFA23E732DEF6CBE004ADD0A /* SendFinishStep.swift in Sources */,
+				EF1BACED2F509E7600B8F523 /* SendReceiveTokenFilter.swift in Sources */,
 				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				EF0423682E9933EA00D80B0B /* HotCryptoAddToPortfolioBottomSheetViewModel.swift in Sources */,
 				A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */,
@@ -38147,7 +38151,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.0.16;
+				version = 4.0.18;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {

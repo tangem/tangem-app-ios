@@ -12,12 +12,12 @@ struct CommonSendTransferableTokenFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
 
-    func makeTransferableToken() -> SendTransferableToken {
+    func makeTransferableToken(balanceType: SendSourceTokenFactoryBalanceType = .available) -> SendTransferableToken {
         let sourceTokenFactory = CommonSendSourceTokenFactory(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+        let sourceToken = sourceTokenFactory.makeSourceToken(balanceType: balanceType)
 
         let fiatItem = FiatItem(
             iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),

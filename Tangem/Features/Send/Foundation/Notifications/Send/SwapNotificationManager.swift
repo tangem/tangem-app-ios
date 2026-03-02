@@ -108,8 +108,8 @@ private extension CommonSwapNotificationManager {
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success, .success(let receive), .loaded(let providers, _, _)) where providers.isEmpty:
-            return [.tokenNotSupportedForSwap(tokenName: receive.tokenItem.name)]
+        case (.success, .success, .loaded(let providers, _, _)) where providers.isEmpty:
+            return [.unsupportedPair]
 
         case (.success(let source), .success(let receive), .loaded(_, let selected, let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)

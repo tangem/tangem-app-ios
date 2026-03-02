@@ -175,17 +175,6 @@ extension AccountsAwareActionButtonsSwapViewModel {
 // MARK: - Private
 
 private extension AccountsAwareActionButtonsSwapViewModel {
-    func checkNoDestinationTokens(tokenItem: TokenItem) async {
-        guard await expressPairsRepository.getPairs(from: tokenItem.expressCurrency).isEmpty else {
-            await MainActor.run { show(notification: .none) }
-            return
-        }
-
-        await MainActor.run {
-            show(notification: .noAvailablePairs)
-        }
-    }
-
     func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
@@ -226,7 +215,6 @@ private extension AccountsAwareActionButtonsSwapViewModel {
 
             // We set the `filterTokenItem` after pairs is loading
             filterTokenItem.send(sourceItem.walletModel.tokenItem)
-            await checkNoDestinationTokens(tokenItem: sourceItem.walletModel.tokenItem)
 
             await MainActor.run {
                 tokenSelectorState = .selector

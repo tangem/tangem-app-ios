@@ -27,7 +27,7 @@ enum SwapNotificationEvent: Hashable {
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case noDestinationTokens(tokenName: String)
-    case tokenNotSupportedForSwap(tokenName: String)
+    case unsupportedPair
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
 
@@ -64,8 +64,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressTooMaximumAmountTitle(maximumAmountText))
         case .noDestinationTokens:
             return .string(Localization.warningExpressNoExchangeableCoinsTitle)
-        case .tokenNotSupportedForSwap(let tokenName):
-            return .string(Localization.expressSwapNotSupportedTitle(tokenName))
+        case .unsupportedPair:
+            return .string(Localization.warningExpressUnsupportedPairTitle)
         case .verificationRequired:
             return .string(Localization.expressExchangeNotificationVerificationTitle)
         case .cexOperationFailed:
@@ -103,8 +103,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
-        case .tokenNotSupportedForSwap:
-            return Localization.expressSwapNotSupportedText
+        case .unsupportedPair:
+            return Localization.warningExpressUnsupportedPairDescription
         case .verificationRequired:
             return Localization.expressExchangeNotificationVerificationText
         case .cexOperationFailed:
@@ -134,7 +134,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .noDestinationTokens,
-             .tokenNotSupportedForSwap,
+             .unsupportedPair,
              .feeWillBeSubtractFromSendingAmount:
             return .secondary
         case .notEnoughFeeForTokenTx,
@@ -159,7 +159,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.swapLock.image))
         case .refreshRequired,
              .noDestinationTokens,
-             .tokenNotSupportedForSwap,
+             .unsupportedPair,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
              .longTimeAverageDuration:
@@ -198,7 +198,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .noDestinationTokens,
-             .tokenNotSupportedForSwap,
+             .unsupportedPair,
              .notEnoughReceivedAmountForReserve:
             return .warning
         case .refreshRequired,
@@ -234,7 +234,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .noDestinationTokens, .tokenNotSupportedForSwap, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration:
+        case .noDestinationTokens, .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,
