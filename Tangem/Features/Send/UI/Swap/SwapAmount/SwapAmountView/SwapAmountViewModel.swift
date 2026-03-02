@@ -23,9 +23,17 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var sourceExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var sourceDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
+
+    @Published private(set) var isSwapButtonLoading: Bool = false
     @Published private(set) var isSwapButtonDisabled: Bool = false
+
     @Published private(set) var receiveExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var receiveCryptoAmountState: LoadableTextView.State = .initialized
+
+    // Fixed-rate mode: editable receive field and accordion
+    @Published private(set) var receiveDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
+    @Published var activeField: ActiveAmountField
+    let isFixedRateMode: Bool
 
     weak var router: SwapAmountCompactRoutable?
 
@@ -35,15 +43,21 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private weak var stateProvider: SwapModelStateProvider?
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveAmountOutput: SendReceiveTokenAmountOutput?
 
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
+
+    /// Tracks which field triggered the last update, to prevent circular updates
+    private var lastUpdateSource: ActiveAmountField?
 
     private var sourceExpressCurrencyStateCancellable: AnyCancellable?
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
 
     private var receiveTokenCancellable: AnyCancellable?
+    private var receiveTokenAmountCancellable: AnyCancellable?
+    private var receiveTokenSelectionCancellable: AnyCancellable?
     private var highPriceImpactCancellable: AnyCancellable?
 
     init(
@@ -52,12 +66,17 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         stateProvider: SwapModelStateProvider,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveAmountOutput: SendReceiveTokenAmountOutput? = nil,
+        isFixedRateMode: Bool = false,
     ) {
         self.initialTokenItem = initialTokenItem
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenInput = receiveTokenInput
+        self.receiveAmountOutput = receiveAmountOutput
+        self.isFixedRateMode = isFixedRateMode
+        activeField = isFixedRateMode ? .receive : .source
 
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
@@ -67,6 +86,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
         sourceDecimalNumberTextFieldViewModel = .init(
             maximumFractionDigits: sourceTokenInput.sourceToken.value?.tokenItem.decimalCount ?? 0
+        )
+
+        receiveDecimalNumberTextFieldViewModel = .init(
+            maximumFractionDigits: receiveTokenInput?.receiveToken.value?.tokenItem.decimalCount ?? 0
         )
 
         receiveExpressCurrencyViewModel = .init(
@@ -82,11 +105,19 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func bind() {
         // Buttons updating
+
         interactor.receivedTokenPublisher
             .map { ($0.value as? SendSourceToken) == nil }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
+
+        stateProvider?.statePublisher
+            .filter { $0.filter(loading: [.autoupdate]) }
+            .map { $0.isLoading }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$isSwapButtonLoading)
 
         sourceExpressCurrencyStateCancellable = stateProvider?.statePublisher
             .withWeakCaptureOf(self)
@@ -104,7 +135,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .valuePublisher
             .prepend(.none)
             .withWeakCaptureOf(self)
-            .map { $0.update(amount: $1) }
+            .map { viewModel, value -> SendAmount? in
+                viewModel.lastUpdateSource = .source
+                return viewModel.update(amount: value)
+            }
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { $0.updateSourceFiat(amount: $1) }
@@ -124,10 +158,42 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { $0.receiveExpressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: $1) }
+
+        // Fixed-rate mode: bind receive text field
+        if isFixedRateMode {
+            receiveTokenAmountCancellable = receiveDecimalNumberTextFieldViewModel
+                .valuePublisher
+                .prepend(.none)
+                .withWeakCaptureOf(self)
+                .sink { viewModel, value in
+                    viewModel.lastUpdateSource = .receive
+                    viewModel.updateReceiveAmount(value)
+                }
+
+            receiveTokenSelectionCancellable = interactor.receivedTokenPublisher
+                .compactMap { $0.value?.tokenItem }
+                .removeDuplicates()
+                .dropFirst()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, _ in
+                    viewModel.activeField = .receive
+                }
+        }
     }
 
     func textFieldDidTapped() {
         Analytics.log(.swapSendTokenBalanceClicked)
+    }
+
+    func userDidTapSourceField() {
+        activeField = .source
+        FeedbackGenerator.selectionChanged()
+    }
+
+    func userDidTapReceiveField() {
+        activeField = .receive
+        FeedbackGenerator.selectionChanged()
     }
 
     func userDidTapChangeSourceTokenButton() {
@@ -151,6 +217,15 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: - ActiveAmountField
+
+extension SwapAmountViewModel {
+    enum ActiveAmountField: Hashable {
+        case source
+        case receive
+    }
+}
+
 // MARK: - Private
 
 private extension SwapAmountViewModel {
@@ -171,6 +246,25 @@ private extension SwapAmountViewModel {
 
     func update(amount: Decimal?) -> SendAmount? {
         try? interactor.update(amount: amount)
+    }
+
+    func updateReceiveAmount(_ value: Decimal?) {
+        guard let receiveToken = receiveTokenInput?.receiveToken.value else {
+            return
+        }
+
+        let sendAmount: SendAmount?
+        if let value {
+            let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(value, currencyId: currencyId)
+            }
+            sendAmount = SendAmount(type: .typical(crypto: value, fiat: fiat))
+        } else {
+            sendAmount = nil
+        }
+
+        updateReceiveFiat(amount: sendAmount)
+        receiveAmountOutput?.receiveAmountDidChanged(amount: sendAmount)
     }
 
     private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
@@ -215,11 +309,28 @@ private extension SwapAmountViewModel {
         }
     }
 
+    private func updateReceiveFiat(amount: SendAmount?) {
+        switch amount {
+        case .none:
+            let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
+            receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
+
+        case .some(let amount):
+            let fiatFormatted = balanceFormatter.formatFiatBalance(amount.fiat)
+            receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
+        }
+    }
+
     private func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
             initialWalletId: .init(tokenItem: initialTokenItem)
         )
+
+        // Update receive text field decimal count when token changes
+        if case .success(let token) = receiveToken {
+            receiveDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
+        }
 
         switch (receiveToken, amount) {
         case (.loading, _), (_, .loading):
@@ -247,6 +358,12 @@ private extension SwapAmountViewModel {
 
             let fiatFormatted = balanceFormatter.formatFiatBalance(amount.fiat)
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
+
+            // In fixed-rate mode, update the receive text field when source is active
+            // (i.e., the receive amount was calculated from a source quote)
+            if isFixedRateMode, lastUpdateSource == .source {
+                receiveDecimalNumberTextFieldViewModel.update(value: crypto)
+            }
         }
     }
 }
@@ -255,6 +372,18 @@ private extension SwapAmountViewModel {
 
 extension SwapAmountViewModel: SendAmountExternalUpdatableViewModel {
     func externalUpdate(amount: SendAmount?) {
+        // In fixed-rate mode, only update source field when receive field is active
+        // to prevent circular updates
+        if isFixedRateMode, lastUpdateSource == .receive {
+            sourceDecimalNumberTextFieldViewModel.update(value: amount?.crypto)
+            updateSourceFiat(amount: amount)
+            return
+        }
+
+        guard !isFixedRateMode || activeField == .source else {
+            return
+        }
+
         sourceDecimalNumberTextFieldViewModel.update(value: amount?.crypto)
         updateSourceFiat(amount: amount)
     }

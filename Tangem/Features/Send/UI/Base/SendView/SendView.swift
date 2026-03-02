@@ -131,6 +131,10 @@ struct SendView: View {
             SendAmountView(viewModel: sendAmountViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .swapAmount(let swapAmountViewModel):
+            SwapAmountView(viewModel: swapAmountViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .targets(let stakingTargetsViewModel):
             StakingTargetsView(viewModel: stakingTargetsViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }

@@ -20,7 +20,9 @@ extension SwapFlowBaseDependenciesFactory {
         receiveToken: SendReceiveToken?,
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
-        shouldStartInitialLoading: Bool
+        shouldStartInitialLoading: Bool,
+        isReceiveTokenSelectionAvailable: Bool = true,
+        isFixedRatesEnabled: Bool = false
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -32,7 +34,9 @@ extension SwapFlowBaseDependenciesFactory {
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
-            shouldStartInitialLoading: shouldStartInitialLoading
+            shouldStartInitialLoading: shouldStartInitialLoading,
+            isReceiveTokenSelectionAvailable: isReceiveTokenSelectionAvailable,
+            isFixedRatesEnabled: isFixedRatesEnabled
         )
     }
 
@@ -42,5 +46,9 @@ extension SwapFlowBaseDependenciesFactory {
 
     func makeSwapAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
+    }
+
+    func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
+        CommonSwapTransactionSummaryDescriptionBuilder()
     }
 }
