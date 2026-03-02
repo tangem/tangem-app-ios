@@ -157,13 +157,9 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input, flowFactory: ExpressApproveFlowFactory?) {
-        let viewModel: ExpressApproveFlowViewModel
-        if let flowFactory {
-            viewModel = flowFactory.make(input: expressApproveViewModelInput, router: self)
-        } else {
-            viewModel = ExpressApproveFlowViewModel(input: expressApproveViewModelInput, router: self)
-        }
+    func openApproveView(flowFactory: ExpressApproveFlowFactory) {
+        guard let viewModel = flowFactory.make(router: self) else { return }
+
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
