@@ -19,7 +19,7 @@ final class WCServiceV2 {
 
     private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
 
-    private let transactionsFilter = WCTransactionsFilter()
+    private let duplicateRequestFilter = WalletConnectDuplicateRequestFilter()
     private let transactionRequestSubject = PassthroughSubject<Result<WCHandleTransactionData, any Error>, Never>()
     private var bag = Set<AnyCancellable>()
     private var walletModelsCancellables = [UserWalletId: AnyCancellable]()
@@ -132,19 +132,15 @@ private extension WCServiceV2 {
     func setupMessagesSubscriptions() {
         walletKitClient
             .sessionRequestPublisher
-            .removeDuplicates { lhs, rhs in
-                lhs.request == rhs.request && lhs.context == rhs.context
-            }
             .receiveOnMain()
             .sink { [weak self, walletKitClient] request, context in
-
                 guard let self else { return }
 
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
-                    guard await self.transactionsFilter.filter(request) else {
-                        WCLogger.info("Filtered out duplicate or invalid request: \(request)")
+                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
+                        WCLogger.warning("Skipping duplicate request: \(request)")
                         return
                     }
 

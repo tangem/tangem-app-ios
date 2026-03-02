@@ -26,6 +26,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var priorityFeeOption = button(.priorityFeeOption)
 
     private lazy var chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle]
+    private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
 
     // MARK: - Validation Methods
 
@@ -177,6 +178,24 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             XCTAssertTrue(symbolElement.waitForExistence(timeout: .robustUIUpdate), "Token symbol '\(tokenSymbol)' should be displayed in 'You swap' section")
         }
         return self
+    }
+
+    @discardableResult
+    func tapCloseButton() -> TokenScreen {
+        XCTContext.runActivity(named: "Tap close button on Swap screen") { _ in
+            waitAndAssertTrue(closeButton, "Close button should exist on Swap screen")
+            closeButton.waitAndTap()
+            return TokenScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapCloseButtonAndReturnToMarkets() -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Tap close button on Swap screen and return to Markets") { _ in
+            waitAndAssertTrue(closeButton, "Close button should exist on Swap screen")
+            closeButton.waitAndTap()
+            return MarketsTokenDetailsScreen(app)
+        }
     }
 }
 

@@ -25,6 +25,7 @@ final class MainActionButtonsUITests: BaseTestCase {
 
         mainScreen
             .tapMainSwap()
+            .closeStoriesAndReturnToMain()
             .waitSwapTokenSelectorDisplayed()
             .tapCloseButton()
 
