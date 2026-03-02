@@ -134,6 +134,7 @@ struct CustomTokenContractAddressConverter {
              .scroll,
              .linea,
              .monad,
+             .berachain,
              .arbitrumNova,
              .plasma:
             // Did you get a compilation error here? If so, check if the network supports multiple token contract address

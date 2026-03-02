@@ -8,10 +8,7 @@
 
 import Foundation
 
-final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider,
-    PulseMarketWidgetAnalyticsProvider,
-    NewsWidgetAnalyticsProvider,
-    EarnWidgetAnalyticsProvider {
+final class CommonMarketsWidgetAnalyticsService {
     // MARK: - Generic Implementation
 
     func logMarketsChartScreenOpened(tokenSymbol: String) {
@@ -23,9 +20,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - TopMarketWidgetAnalyticsProvider
+// MARK: - TopMarketWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider {
     func logTopMarketLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -46,9 +45,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - PulseMarketWidgetAnalyticsProvider
+// MARK: - PulseMarketWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: PulseMarketWidgetAnalyticsProvider {
     func logPulseMarketLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -79,9 +80,11 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - NewsWidgetAnalyticsProvider
+// MARK: - NewsWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: NewsWidgetAnalyticsProvider {
     func logNewsLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
@@ -122,26 +125,38 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+}
 
-    // MARK: - EarnWidgetAnalyticsProvider
+// MARK: - EarnWidgetAnalyticsProvider
 
+extension CommonMarketsWidgetAnalyticsService: EarnWidgetAnalyticsProvider {
     func logEarnLoadError(_ error: Error) {
         let analyticsParams = error.marketsAnalyticsParams
         Analytics.log(
-            event: .marketsMarketsLoadError,
+            event: .marketsEarnLoadError,
             params: [
                 .errorCode: analyticsParams[.errorCode] ?? "",
                 .errorMessage: analyticsParams[.errorMessage] ?? "",
-                .source: Analytics.ParameterValue.markets.rawValue,
             ]
         )
     }
 
     func logEarnListOpened() {
         Analytics.log(
-            event: .marketsTokenListOpened,
+            event: .marketsEarnScreenOpened,
             params: [
                 .source: Analytics.ParameterValue.markets.rawValue,
+            ]
+        )
+    }
+
+    func logEarnOpportunitySelected(token: String, blockchain: String) {
+        Analytics.log(
+            event: .earnOpportunitySelected,
+            params: [
+                .token: token,
+                .blockchain: blockchain,
+                .source: EarnOpportunitySource.markets.rawValue,
             ]
         )
     }
