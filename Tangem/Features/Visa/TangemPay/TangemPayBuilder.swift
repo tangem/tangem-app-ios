@@ -100,7 +100,8 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance
+        productInstance: VisaCustomerInfoResponse.ProductInstance,
+        account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             customerInfo: customerInfo,
@@ -111,7 +112,8 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
-            mainHeaderBalanceProvider: mainHeaderBalanceProvider
+            mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            account: account
         )
     }
 }
