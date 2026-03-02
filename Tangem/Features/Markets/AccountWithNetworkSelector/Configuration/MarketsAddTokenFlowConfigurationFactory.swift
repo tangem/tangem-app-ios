@@ -19,11 +19,8 @@ enum MarketsAddTokenFlowConfigurationFactory {
 
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
-                MarketsTokenItemsProvider.calculateTokenItems(
-                    coinId: inputData.coinId,
-                    coinName: inputData.coinName,
-                    coinSymbol: inputData.coinSymbol,
-                    networks: inputData.networks,
+                makeTokenItems(
+                    inputData: inputData,
                     supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
                     cryptoAccount: accountSelectorCell.cryptoAccountModel
                 )
@@ -37,12 +34,7 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     coordinator: coordinator
                 )
             ),
-            accountFilter: { account, supportedBlockchains in
-                let networkIds = inputData.networks.map(\.networkId)
-                return networkIds.contains { networkId in
-                    AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
-                }
-            },
+            accountFilter: makeAccountFilter(inputData: inputData),
             accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
                 coinId: inputData.coinId,
                 coinName: inputData.coinName,
@@ -126,7 +118,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
                 coordinator.openOnramp(input: sendInput, parameters: parameters)
 
-            case .exchange where FeatureProvider.isAvailable(.swapRefactoring):
+            case .exchange:
                 analyticsLogger.logExchangeTapped()
                 let swapableToken = CommonSendSwapableTokenFactory(
                     userWalletInfo: userWalletInfo,
@@ -135,15 +127,6 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 ).makeSwapableToken()
 
                 coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
-
-            case .exchange:
-                analyticsLogger.logExchangeTapped()
-                let expressInput = ExpressDependenciesDestinationInput(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: walletModel
-                )
-
-                coordinator.openExchange(input: expressInput)
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
@@ -169,5 +152,52 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
+    }
+
+    static func makeAccountFilter(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+        { context in
+            let networkIds = inputData.networks.map(\.networkId)
+            let cryptoAccount = context.account
+            let supportedBlockchains = context.supportedBlockchains
+
+            func hasManageableNetworks() -> Bool {
+                return networkIds.contains { networkId in
+                    AccountBlockchainManageabilityChecker.canManageNetwork(
+                        networkId,
+                        for: cryptoAccount,
+                        in: supportedBlockchains
+                    )
+                }
+            }
+
+            func hasNotEmptyTokenItems() -> Bool {
+                let tokenItems = makeTokenItems(
+                    inputData: inputData,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: cryptoAccount
+                )
+
+                return tokenItems.isNotEmpty
+            }
+
+            return hasManageableNetworks() && hasNotEmptyTokenItems()
+        }
+    }
+
+    static func makeTokenItems(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        supportedBlockchains: Set<Blockchain>,
+        cryptoAccount: any CryptoAccountModel
+    ) -> [TokenItem] {
+        MarketsTokenItemsProvider.calculateTokenItems(
+            coinId: inputData.coinId,
+            coinName: inputData.coinName,
+            coinSymbol: inputData.coinSymbol,
+            networks: inputData.networks,
+            supportedBlockchains: supportedBlockchains,
+            cryptoAccount: cryptoAccount
+        )
     }
 }

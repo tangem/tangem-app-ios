@@ -19,13 +19,12 @@ struct MarketsPortfolioTokenItemView: View {
     @State private var textBlockSize: CGSize = .zero
 
     var body: some View {
-        CustomDisclosureGroup(isExpanded: isExpanded) {
-            viewModel.showContextActions()
-        } prompt: {
-            tokenView
-        } expandedView: {
-            quickActionsView
-        }
+        CustomDisclosureGroup(
+            isExpanded: isExpanded,
+            prompt: { tokenView },
+            expandedView: { quickActionsView },
+            actionOnClick: viewModel.showContextActions
+        )
     }
 
     private var tokenView: some View {

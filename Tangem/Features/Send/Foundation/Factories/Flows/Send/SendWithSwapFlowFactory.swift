@@ -20,7 +20,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     lazy var sendNotificationManager = makeSendNotificationManager()
     lazy var swapNotificationManager = makeSwapNotificationManager()
-    lazy var notificationManager = makeCombinedSendWithSwapNotificationManager(
+    lazy var notificationManager = makeSendWithSwapNotificationManager(
         receiveTokenInput: swapModel,
         sendNotificationManager: sendNotificationManager,
         swapNotificationManager: swapNotificationManager
@@ -132,6 +132,9 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
+        transferModel.router = viewModel
+        sendWithSwapModel.alertPresenter = viewModel
+
         sendWithSwapModel.router = viewModel
         sendWithSwapModel.alertPresenter = viewModel
 
@@ -151,15 +154,14 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendWithSwapModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: sendWithSwapModel
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceToken: sourceToken,
+                sourceTokenInput: sendWithSwapModel,
                 approveDataInput: sendWithSwapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
+                sourceTokenInput: sendWithSwapModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
@@ -261,7 +263,11 @@ extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
 
 extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
+        SendSummaryStepBuilder.IO(
+            input: sendWithSwapModel,
+            output: sendWithSwapModel,
+            swapModelStateProvider: swapModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {

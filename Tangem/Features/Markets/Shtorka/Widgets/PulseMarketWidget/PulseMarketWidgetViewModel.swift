@@ -292,6 +292,8 @@ private extension PulseMarketWidgetViewModel {
     // MARK: - Actions
 
     func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+        analyticsService.logMarketsChartScreenOpened(tokenSymbol: tokenItemModel.symbol)
+
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
         }
