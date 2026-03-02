@@ -20,7 +20,7 @@ class SendRoutableMock: SendRoutable {
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
-    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input, flowFactory: ExpressApproveFlowFactory?) {}
+    func openApproveView(flowFactory: ExpressApproveFlowFactory) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountryDetection(
         country: OnrampCountry,
