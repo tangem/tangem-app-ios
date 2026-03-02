@@ -79,8 +79,12 @@ class ReceiveMainViewModel: ObservableObject {
             return .yieldTokenAlert(viewModel: vm)
         }
 
-        let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
-        return .tokenAlert(viewModel: viewModel)
+        if receiveTokenWithdrawNoticeInteractor.shouldShowWithdrawalAlert(for: options.tokenItem) {
+            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
+            return .tokenAlert(viewModel: viewModel)
+        }
+
+        return .selector(viewModel: selectorViewModel)
     }
 }
 
