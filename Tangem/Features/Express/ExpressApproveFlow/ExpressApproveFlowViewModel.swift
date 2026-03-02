@@ -141,6 +141,7 @@ private extension ExpressApproveFlowViewModel {
                     spender: spender,
                     approvePolicy: approvePolicy
                 )
+
                 await runOnMain {
                     viewModel.handleAllowanceState()
                 }
