@@ -10,7 +10,10 @@ import TangemLocalization
 import TangemAssets
 
 enum WCMultipleTransactionsAlertFactory {
-    static func makeMultipleTransactionAlertState(tangemIconProvider: TangemIconProvider) -> WCTransactionAlertState {
+    static func makeMultipleTransactionAlertState(
+        tangemIconProvider: TangemIconProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy
+    ) -> WCTransactionAlertState {
         let state: WCTransactionAlertState = .init(
             title: Localization.walletConnectMultipleTransactions,
             subtitle: Localization.walletConnectMultipleTransactionsDescription,
@@ -20,7 +23,8 @@ enum WCMultipleTransactionsAlertFactory {
             ),
             primaryButton: .init(title: Localization.commonSend, style: .primary, isLoading: false),
             secondaryButton: .init(title: Localization.commonBack, style: .secondary, isLoading: false),
-            tangemIcon: tangemIconProvider.getMainButtonIcon()
+            tangemIcon: tangemIconProvider.getMainButtonIcon(),
+            needsHoldToConfirm: confirmTransactionPolicy.needsHoldToConfirm
         )
 
         return state

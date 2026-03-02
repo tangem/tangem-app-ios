@@ -73,7 +73,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
             .first(where: { $0.source == source && $0.destination == destination })
 
         guard let availablePair else {
-            throw ExpressRepositoryError.availableProvidersDoesNotFound
+            return []
         }
 
         // Currently support only `.float` rate

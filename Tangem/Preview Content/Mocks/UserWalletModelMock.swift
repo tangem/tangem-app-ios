@@ -105,15 +105,6 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
-    var tangemPayManager: TangemPayManager {
-        TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: signer
-        )
-        .buildTangemPayManager()
-    }
-
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
