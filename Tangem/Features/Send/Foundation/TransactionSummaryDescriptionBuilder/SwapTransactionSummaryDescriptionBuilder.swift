@@ -1,48 +1,24 @@
 //
 //  SwapTransactionSummaryDescriptionBuilder.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemExpress
-import TangemAssets
 
 protocol SwapTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider) -> AttributedString?
+    func makeDescription(provider: ExpressProvider) -> AttributedString?
 }
 
-struct CommonSwapTransactionSummaryDescriptionBuilder {
-    let sendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
-}
+struct CommonSwapTransactionSummaryDescriptionBuilder {}
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonSwapTransactionSummaryDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider) -> AttributedString? {
-        let sendDescription: AttributedString? = {
-            guard let amount = amount else {
-                return nil
-            }
-
-            return sendTransactionSummaryDescriptionBuilder
-                .makeDescription(amount: amount, fee: fee)
-        }()
-
-        let separator = makeAttributedString("\n")
+    func makeDescription(provider: ExpressProvider) -> AttributedString? {
         let swapDescription = provider.legalText(branch: .swap)
-
-        switch (sendDescription, swapDescription) {
-        case (.some(let sendDescription), .none):
-            return sendDescription
-        case (.none, .some(let swapDescription)):
-            return swapDescription
-        case (.some(let sendDescription), .some(let swapDescription)):
-            return sendDescription + separator + swapDescription
-        case (.none, .none):
-            return .none
-        }
+        return swapDescription
     }
 }
