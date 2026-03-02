@@ -34,8 +34,8 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel
     private let feeSelectorInteractor: CommonFeeSelectorInteractor
+    private let allowanceService: (any AllowanceService)?
 
-    private weak var feeSelectorOutput: (any FeeSelectorOutput)?
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -47,18 +47,19 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         router: ExpressApproveRoutable,
         feeSelectorViewModel: FeeSelectorTokensViewModel,
         feeSelectorInteractor: CommonFeeSelectorInteractor,
-        feeSelectorOutput: FeeSelectorOutput
+        allowanceService: (any AllowanceService)?
     ) {
         coordinatorRouter = router
 
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
-        self.feeSelectorOutput = feeSelectorOutput
+        self.allowanceService = allowanceService
         self.approveViewModel = approveViewModel
 
         state = .approve(approveViewModel)
 
         self.approveViewModel.setCoordinator(self)
+        bind()
     }
 }
 
@@ -95,13 +96,21 @@ extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
 extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
         feeSelectorInteractor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
-
-        feeSelectorOutput?.userDidFinishSelection(
-            feeTokenItem: tokenFeeProvider.feeTokenItem,
-            feeOption: feeSelectorInteractor.selectedTokenFeeOption
-        )
-
         state = .approve(approveViewModel)
+    }
+}
+
+// MARK: - Private
+
+private extension ExpressApproveFlowViewModel {
+    func bind() {
+        feeSelectorInteractor.selectedTokenFeeProviderPublisher
+            .dropFirst()
+            .sink { [weak self] _ in
+                // [REDACTED_TODO_COMMENT]
+                _ = self?.allowanceService
+            }
+            .store(in: &bag)
     }
 }
 
