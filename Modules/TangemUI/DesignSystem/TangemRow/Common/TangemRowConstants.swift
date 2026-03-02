@@ -34,4 +34,11 @@ enum TangemRowConstants {
         static let topLineInnerSpacing = SizeUnit.x1
         static let bottomLineInnerSpacing = SizeUnit.x1
     }
+
+    enum Layout {
+        enum MinWidthRatio {
+            static let primaryLeading: CGFloat = 0.3
+            static let secondaryLeading: CGFloat = 0.32
+        }
+    }
 }

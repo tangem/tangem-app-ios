@@ -36,6 +36,9 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.addressesInfoViewModel) {
                 AddressesInfoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.designSystemDemoCoordinator) {
+                DesignSystemDemoCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
