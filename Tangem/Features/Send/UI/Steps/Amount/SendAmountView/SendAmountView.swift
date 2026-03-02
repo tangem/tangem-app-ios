@@ -17,15 +17,23 @@ import struct TangemAccounts.AccountIconView
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
 
-    @FocusState private var focused: SendAmountCalculationType?
+    @FocusState private var focusedField: FocusedField?
     @State private var convertButtonSize: CGSize = .zero
 
     private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
-            content
-            receiveTokenView
+            if case .accordion = viewModel.receivedTokenViewType {
+                accordionContent
+            } else {
+                content
+                receiveTokenView
+            }
+        }
+        .animation(.easeInOut(duration: 0.45), value: viewModel.activeField)
+        .onChange(of: viewModel.activeField) { activeField in
+            updateAccordionFocus(for: activeField)
         }
         .onAppear(perform: viewModel.onAppear)
     }
@@ -37,12 +45,7 @@ struct SendAmountView: View {
                     SendTokenHeaderView(header: header)
                 }
 
-                VStack(alignment: .center, spacing: .zero) {
-                    textField
-
-                    bottomInfoText
-                }
-                .animation(Constants.animation, value: viewModel.amountType)
+                sourceAmountInputView
             }
             .padding(.vertical, 45)
 
@@ -86,131 +89,104 @@ struct SendAmountView: View {
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(0)
 
-                CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
-                    .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                convertButton
             }
+
+        case .accordion:
+            EmptyView() // Handled by accordionContent
         }
     }
+
+    // MARK: - Accordion
 
     @ViewBuilder
-    private var textField: some View {
-        switch viewModel.amountType {
-        case .crypto:
-            SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
-                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
-                .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
-                .alignment(.center)
-                .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
-                .focused($focused, equals: .crypto)
-                .frame(height: 42)
-                .transition(Constants.textFieldTransition)
-        case .fiat:
-            SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
-                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
-                .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
-                .alignment(.center)
-                .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
-                .focused($focused, equals: .fiat)
-                .frame(height: 42)
-                .transition(Constants.textFieldTransition)
-        }
-    }
-
-    private var bottomInfoText: some View {
-        Group {
-            switch viewModel.bottomInfoText {
-            case .none where viewModel.possibleToConvertToFiat:
-                Button(action: {
-                    // If keyboard was activated
-                    // Update `focused` before change text filed to avoid the keyboard jumping
-                    if focused != nil {
-                        focused = viewModel.useFiatCalculation ? .crypto : .fiat
+    private var accordionContent: some View {
+        if case .accordion(let expandedData, let compactData) = viewModel.receivedTokenViewType {
+            SendAmountAccordionSectionView(
+                isExpanded: viewModel.activeField == .source,
+                expandedTokenData: viewModel.sendAmountTokenViewData,
+                compactTokenData: viewModel.compactSourceTokenViewData,
+                onTapCompact: viewModel.userDidTapCompactSource
+            ) {
+                VStack(alignment: .center, spacing: 12) {
+                    if let header = viewModel.tokenHeader {
+                        SendTokenHeaderView(header: header)
                     }
 
-                    viewModel.useFiatCalculation.toggle()
-                    FeedbackGenerator.heavy()
-                }) {
-                    alternativeView
+                    sourceAmountInputView
                 }
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.currencyToggleButton)
-            case .info(let string):
-                Text(string)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
-                    .padding(.vertical, 8)
-            case .error(let string):
-                Text(string)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
-                    .padding(.vertical, 8)
-                    .accessibilityIdentifier(SendAccessibilityIdentifiers.totalExceedsBalanceBanner)
-            case .none:
-                Text(" ") // Hold empty space
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
-                    .padding(.vertical, 8)
+            }
+            .overlay(alignment: .bottom) {
+                convertButton
+                    .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
+            }
+            .zIndex(1)
+
+            SendAmountAccordionSectionView(
+                isExpanded: viewModel.activeField == .receive,
+                expandedTokenData: expandedData,
+                compactTokenData: compactData,
+                onTapCompact: viewModel.userDidTapCompactReceive
+            ) {
+                VStack(alignment: .center, spacing: 12) {
+                    Text(Localization.sendWithSwapRecipientAmountTitle)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                    if let receiveField = viewModel.receiveAmountField {
+                        SendAmountInputView(
+                            field: receiveField,
+                            fiatIconURL: viewModel.fiatIconURL,
+                            focusedField: $focusedField,
+                            cryptoFocusValue: .receiveCrypto,
+                            fiatFocusValue: .receiveFiat,
+                            onWillToggle: {
+                                if focusedField != nil {
+                                    focusedField = viewModel.useReceiveFiatCalculation ? .receiveCrypto : .receiveFiat
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
-        .multilineTextAlignment(.center)
-        .lineLimit(2)
     }
 
-    private var alternativeAmountAccessibilityIdentifier: String {
-        viewModel.useFiatCalculation
-            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
-            : SendAccessibilityIdentifiers.alternativeFiatAmount
-    }
+    private func updateAccordionFocus(for activeField: SendAmountViewModel.ActiveAmountField) {
+        guard case .accordion = viewModel.receivedTokenViewType else { return }
 
-    private var alternativeView: some View {
-        HStack(spacing: 8) {
-            Assets.Glyphs.exchange.image
-                .rotation3DEffect(.degrees(viewModel.useFiatCalculation ? 180 : .zero), axis: (1, 0, 0))
-                .animation(Constants.animation, value: viewModel.useFiatCalculation)
-                .zIndex(1)
-
-            HStack(spacing: 4) {
-                Text(viewModel.alternativeAmount)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
-                    .lineLimit(1)
-                    .accessibilityIdentifier(alternativeAmountAccessibilityIdentifier)
-
-                IconView(
-                    url: viewModel.useFiatCalculation ? viewModel.cryptoIconURL : viewModel.fiatIconURL,
-                    size: CGSize(width: 14, height: 14)
-                )
-            }
-            .id(viewModel.useFiatCalculation)
-            .animation(.none, value: viewModel.alternativeAmount)
-            .transition(Constants.alternativeAmountTransition)
+        switch activeField {
+        case .source:
+            focusedField = viewModel.useFiatCalculation ? .sourceFiat : .sourceCrypto
+        case .receive:
+            focusedField = viewModel.useReceiveFiatCalculation ? .receiveFiat : .receiveCrypto
         }
-        .animation(Constants.animation, value: viewModel.alternativeAmount)
-        // Expand tappable area
-        .padding(.all, 8)
+    }
+
+    private var convertButton: some View {
+        CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+    }
+
+    private var sourceAmountInputView: some View {
+        SendAmountInputView(
+            field: viewModel.sourceAmountField,
+            fiatIconURL: viewModel.fiatIconURL,
+            focusedField: $focusedField,
+            cryptoFocusValue: .sourceCrypto,
+            fiatFocusValue: .sourceFiat,
+            accessibilityConfiguration: .source,
+            onWillToggle: {
+                focusedField = viewModel.useFiatCalculation ? .sourceCrypto : .sourceFiat
+            }
+        )
     }
 }
 
 extension SendAmountView {
-    enum Constants {
-        static let duration: TimeInterval = 0.2
-        static let animation: Animation = .easeOut(duration: duration)
-
-        static let textFieldTransition: AnyTransition = .asymmetric(
-            insertion: .offset(y: 30)
-                .animation(Constants.animation.delay(Constants.duration)),
-            removal: .offset(y: 30)
-                .animation(Constants.animation)
-                .combined(with: .opacity)
-                .animation(Constants.animation.speed(2))
-        )
-        .combined(with: .scale(scale: 0.95, anchor: .bottom))
-        .combined(with: .opacity)
-
-        static let alternativeAmountTransition: AnyTransition = .asymmetric(
-            insertion: .offset(x: 50).animation(Constants.animation.delay(Constants.duration)),
-            removal: .offset(x: -50).animation(Constants.animation)
-        )
-        .combined(with: .opacity)
+    enum FocusedField: Hashable {
+        case sourceCrypto
+        case sourceFiat
+        case receiveCrypto
+        case receiveFiat
     }
 }

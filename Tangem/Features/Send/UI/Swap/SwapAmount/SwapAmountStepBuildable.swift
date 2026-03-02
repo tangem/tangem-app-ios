@@ -51,9 +51,23 @@ enum SwapAmountStepBuilder {
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
+        let isFixedRateMode: Bool
+
+        init(
+            sendAmountValidator: any SendAmountValidator,
+            analyticsLogger: any SendAmountAnalyticsLogger,
+            receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
+            isFixedRateMode: Bool = false
+        ) {
+            self.sendAmountValidator = sendAmountValidator
+            self.analyticsLogger = analyticsLogger
+            self.receiveAmountOutput = receiveAmountOutput
+            self.isFixedRateMode = isFixedRateMode
+        }
     }
 
-    typealias ReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
+    typealias ReturnValue = (step: SwapAmountStep, viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
@@ -82,6 +96,8 @@ enum SwapAmountStepBuilder {
             stateProvider: io.stateProvider,
             sourceTokenInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
+            receiveAmountOutput: dependencies.receiveAmountOutput,
+            isFixedRateMode: dependencies.isFixedRateMode
         )
 
         let finish = SendAmountFinishViewModel(
@@ -93,9 +109,16 @@ enum SwapAmountStepBuilder {
             swapProvidersInput: io.swapProvidersInput,
         )
 
+        let step = SwapAmountStep(
+            viewModel: viewModel,
+            interactor: interactor,
+            interactorSaver: interactorSaver,
+            analyticsLogger: dependencies.analyticsLogger
+        )
+
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         interactorSaver.updater = amountUpdater
 
-        return (viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
+        return (step: step, viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
     }
 }
