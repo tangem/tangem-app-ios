@@ -12,7 +12,7 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class UnstakingFlowFactory: StakingFlowDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
 
@@ -23,11 +23,11 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        sourceToken: SendSourceToken,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
         action: RestakingModel.Action
     ) {
-        self.sourceToken = sourceToken
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.action = action
     }
@@ -42,7 +42,7 @@ extension UnstakingFlowFactory {
     ) -> UnstakingModel {
         UnstakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: sourceToken,
+            sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
         )
@@ -129,15 +129,14 @@ extension UnstakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: unstakingModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: unstakingModel
             ),
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
+                sourceTokenInput: unstakingModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -155,7 +154,7 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
 
     var amountTypes: SendAmountStepBuilder.Types {
         .init(
-            initialSourceToken: sourceToken,
+            initialSourceToken: stakingableToken,
             flowActionType: actionType.sendFlowActionType
         )
     }

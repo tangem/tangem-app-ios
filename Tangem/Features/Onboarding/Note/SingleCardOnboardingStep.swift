@@ -23,8 +23,10 @@ enum SingleCardOnboardingStep: Equatable {
             return Localization.onboardingTitleNotifications
         case .addTokens:
             return Localization.onboardingAddTokens
-        default:
+        case .createWallet, .saveUserWallet:
             return Localization.onboardingTitle
+        case .success:
+            return Localization.commonDone
         }
     }
 

@@ -8,8 +8,15 @@
 
 import TangemExpress
 
-protocol OnrampFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+protocol OnrampFlowBaseDependenciesFactory {
+    var sourceToken: SendSourceToken { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
+}
+
+extension OnrampFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
+    var tokenItem: TokenItem { sourceToken.tokenItem }
+    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
 }
 
 extension OnrampFlowBaseDependenciesFactory {
@@ -36,10 +43,7 @@ extension OnrampFlowBaseDependenciesFactory {
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
 
-        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: tokenItem,
-            feeAnalyticsParameterBuilder: .init(isFixedFee: false)
-        )
+        let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,

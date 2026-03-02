@@ -56,7 +56,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
@@ -426,8 +425,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
         mainBottomSheetUIManager.hide()
 
+        let dismissAction: Action<FeeCurrencyNavigatingDismissOption?> = { [weak self] dismissOptions in
+            self?.tangemPayMainCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: dismissOptions)
+        }
+
         let coordinator = TangemPayMainCoordinator(
-            dismissAction: makeExpressCoordinatorDismissAction(),
+            dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
 
@@ -477,36 +481,29 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceTokenFactory = SendWithSwapTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            flowType: .send
+            walletModel: input.walletModel
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
-
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            expressOperationType: .swapAndSend
-        )
+        let sourceToken = sourceTokenFactory.makeWithSwapToken()
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .send(sourceToken, source: source), source: .main)
+        let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 
     func openSwap(input: SendInput) {
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
             walletModel: input.walletModel,
-            flowType: .swap
+            operationType: .swap
         )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(sourceToken), source: .main)
+        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -517,44 +514,18 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            flowType: .send
-        )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
-
-        let source = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            expressOperationType: .swapAndSend
-        )
+            walletModel: input.walletModel
+        ).makeTransferableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            type: .sell(sourceToken, source: source, parameters: sellParameters),
+            type: .sell(sourceToken, parameters: sellParameters),
             source: .main
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
-    }
-
-    func openExpress(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory)
-
-        let openExpressBlock = { [weak self] in
-            coordinator.start(with: .default)
-            self?.expressCoordinator = coordinator
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .tokenListContextMenu,
-                presentCompletion: openExpressBlock
-            )
-        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
@@ -581,12 +552,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            flowType: .onramp
-        )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+            walletModel: input.walletModel
+        ).makeTransferableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
@@ -613,11 +582,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+// MARK: - SendFeeCurrencyNavigating
 
-extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+extension MainCoordinator: SendFeeCurrencyNavigating {
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        // We use our own custom implementation instead of implementation in `ExpressFeeCurrencyNavigating` because
+        // We use our own custom implementation instead of the default because
         // we have to call `mainBottomSheetUIManager.hide()` when performing this navigation action from the main screen
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
