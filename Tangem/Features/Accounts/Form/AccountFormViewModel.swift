@@ -93,7 +93,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
-    private let closeAction: (AccountOperationResult) -> Void
+    private let closeAction: (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     private let accountModelsManager: AccountModelsManager
 
     private var bag = Set<AnyCancellable>()
@@ -101,7 +101,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     init(
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
-        closeAction: @escaping (AccountOperationResult) -> Void
+        closeAction: @escaping (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     ) {
         let accountName: String
         let iconColor: AccountModel.Icon.Color
@@ -202,8 +202,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
         activeTask = runTask(in: self) { viewModel in
             viewModel.isLoading = true
+
             defer { viewModel.isLoading = false }
 
+            // Accounts are created with a derivation index incremented by one from the last existing account, which makes
+            // it possible to determine the derivation index of the next newly created account from the `totalAccountsCount`
+            // Not the most robust solution, but it allows to avoid passing the id of the newly created account from the manager
+            let newAccountDerivationIndex = viewModel.totalAccountsCount
             let result: AccountOperationResult
 
             do throws(AccountEditError) {
@@ -218,7 +223,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                         icon: viewModel.accountIcon
                     )
                 }
-                viewModel.handleFlowSuccess(result: result)
+                viewModel.handleFlowSuccess(result: result, newAccountDerivationIndex: newAccountDerivationIndex)
             } catch {
                 viewModel.handleFlowFailure(error: error)
             }
@@ -265,7 +270,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             alert = makeExitAlert(message: message)
         } else {
             // No changes were made, no tokens redistribution performed
-            close(result: .none)
+            close(result: .none, createdAccount: nil)
         }
     }
 
@@ -284,24 +289,54 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func close(result: AccountOperationResult) {
+    private func close(result: AccountOperationResult, createdAccount: (any CryptoAccountModel)?) {
         activeTask?.cancel()
-        closeAction(result)
+        closeAction(result, createdAccount)
     }
 
     @MainActor
-    private func handleFlowSuccess(result: AccountOperationResult) {
+    private func handleFlowSuccess(result: AccountOperationResult, newAccountDerivationIndex: Int?) {
         let toastText: String
 
         switch flowType {
         case .edit:
             toastText = Localization.accountEditSuccessMessage
+            close(result: result, createdAccount: nil)
         case .create:
-            Analytics.log(.walletSettingsAccountCreated)
             toastText = Localization.accountCreateSuccessMessage
-        }
+            var subscription: AnyCancellable?
 
-        close(result: result)
+            let accountFoundPublisher = accountModelsManager
+                .cryptoAccountModelsPublisher
+                .compactMap { cryptoAccountModels in
+                    cryptoAccountModels.first { account in
+                        // `AnyHashable` unwraps underlying value and allows comparing `Int` with `Int?` without explicit unwrapping
+                        account.id.toPersistentIdentifier().toAnyHashable() == newAccountDerivationIndex.toAnyHashable()
+                    }
+                }
+                .first()
+                .mapToOptional()
+
+            let timeoutPublisher: some Publisher<(any CryptoAccountModel)?, Never> = Just(nil)
+                .delay(for: .seconds(Constants.fallbackTimeout), scheduler: DispatchQueue.main)
+
+            // One-time subscription to get the latest list of crypto accounts.
+            // Falls back to `nil` from `timeoutPublisher` after a timeout if the account model isn't found.
+            subscription = accountFoundPublisher
+                .amb(timeoutPublisher)
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, cryptoAccountModel in
+                    assert(
+                        cryptoAccountModel != nil,
+                        "Newly created account with derivation index '\(String(describing: newAccountDerivationIndex))' was not found"
+                    )
+
+                    Analytics.log(.walletSettingsAccountCreated)
+                    viewModel.close(result: result, createdAccount: cryptoAccountModel)
+                    withExtendedLifetime(subscription) {}
+                }
+        }
 
         Toast(view: SuccessToast(text: toastText))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
@@ -376,12 +411,14 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
             discardButtonText: Localization.accountUnsavedDialogActionSecond,
             discardAction: { [weak self] in
-                // No changes were made, no tokens redistribution performed
-                self?.close(result: .none)
+                // No accounts were added and no tokens redistribution performed
+                self?.close(result: .none, createdAccount: nil)
             }
         )
     }
 }
+
+// MARK: - Auxiliary types
 
 extension AccountFormViewModel {
     enum FlowType {
@@ -419,5 +456,13 @@ private extension AccountFormViewModel {
         func resolve(accountModel: any CryptoAccountModel) -> Result {
             accountModel.descriptionString
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension AccountFormViewModel {
+    enum Constants {
+        static let fallbackTimeout: TimeInterval = 3.0
     }
 }
