@@ -182,7 +182,8 @@ struct MainCoordinatorView: CoordinatorView {
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
             onHideAction: coordinator.hideMarketsTooltip,
             title: Localization.marketsTooltipTitle,
-            message: Localization.marketsTooltipMessage
+            message: Localization.marketsTooltipMessage,
+            leadingIcon: Assets.plusMini
         )
     }
 }
