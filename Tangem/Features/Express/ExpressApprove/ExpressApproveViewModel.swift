@@ -124,7 +124,27 @@ extension ExpressApproveViewModel {
 // MARK: - Private
 
 private extension ExpressApproveViewModel {
+    var approveFeeTokenPublisher: AnyPublisher<TokenFee, Never> {
+        approveViewModelInput.approveFeeValuePublisher
+            .map { [feeTokenItem] result -> TokenFee in
+                switch result {
+                case .success(let fee):
+                    return TokenFee(option: .market, tokenItem: fee.feeTokenItem, value: .success(fee.fee))
+                case .loading:
+                    return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+                case .failure(let error):
+                    return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     func bind() {
+        feeCompactViewModel?.bind(
+            selectedFeePublisher: approveFeeTokenPublisher,
+            supportFeeSelectionPublisher: Just(false).eraseToAnyPublisher()
+        )
+
         approveViewModelInput.approveFeeValuePublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
@@ -145,12 +165,10 @@ private extension ExpressApproveViewModel {
 
     func updateView(state: LoadingResult<ApproveInputFee, any Error>) {
         switch state {
-        case .success(let fee):
-            updateFeeAmount(fee: fee)
+        case .success:
             isLoading = false
             mainButtonIsDisabled = false
         case .loading:
-            // [REDACTED_TODO_COMMENT]
             isLoading = true
             mainButtonIsDisabled = false
         case .failure(let error):
@@ -158,11 +176,6 @@ private extension ExpressApproveViewModel {
             isLoading = false
             mainButtonIsDisabled = true
         }
-    }
-
-    func updateFeeAmount(fee: ApproveInputFee) {
-        // [REDACTED_TODO_COMMENT]
-        // For now, just keep the fee data
     }
 
     func sendApproveTransaction() {
