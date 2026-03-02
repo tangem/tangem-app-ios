@@ -81,6 +81,8 @@ extension AccountModelUtils {
                 return Assets.Accounts.user
             case .wallet:
                 return Assets.Accounts.walletAccounts
+            case .tangemPay:
+                return Assets.Visa.accountAvatar
             }
         }
 
@@ -105,7 +107,7 @@ extension AccountModelUtils.UI {
         accountName: String
     ) -> AccountIconView.ViewData {
         AccountIconView.ViewData(
-            backgroundColor: iconColor(from: icon.color),
+            backgroundColor: icon.color.map(iconColor),
             nameMode: nameMode(from: icon.name, accountName: accountName)
         )
     }

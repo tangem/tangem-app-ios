@@ -12,6 +12,10 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
+    var usdcTokenItem: TokenItem {
+        TangemPayUtilities.usdcTokenItem
+    }
+
     var statusPublisher: AnyPublisher<VisaCustomerInfoResponse.ProductStatus, Never> {
         customerInfoSubject
             .map(\.productInstance.status)
