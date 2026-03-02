@@ -11,7 +11,7 @@ import TangemExpress
 struct ExpressApproveFlowFactory {
     let approveInput: ExpressApproveViewModel.Input
     let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
-    let feeSelectorOutput: any FeeSelectorOutput
+    let allowanceService: (any AllowanceService)?
 
     func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel? {
         guard let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager else {
@@ -20,8 +20,7 @@ struct ExpressApproveFlowFactory {
 
         let interactor = CommonFeeSelectorInteractor(
             tokenFeeProviders: tokenFeeProvidersManager.tokenFeeProviders,
-            selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider,
-            output: feeSelectorOutput
+            selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider
         )
 
         let approveViewModel = ExpressApproveViewModel(input: approveInput)
@@ -31,7 +30,7 @@ struct ExpressApproveFlowFactory {
             router: router,
             feeSelectorViewModel: FeeSelectorTokensViewModel(tokensDataProvider: interactor),
             feeSelectorInteractor: interactor,
-            feeSelectorOutput: feeSelectorOutput
+            allowanceService: allowanceService
         )
     }
 }

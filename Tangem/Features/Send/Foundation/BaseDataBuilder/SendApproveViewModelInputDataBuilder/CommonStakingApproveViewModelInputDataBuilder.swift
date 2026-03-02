@@ -12,18 +12,15 @@ struct CommonStakingApproveViewModelInputDataBuilder {
     private let sourceToken: SendSourceToken
     private let approveDataInput: SendApproveDataBuilderInput
     private let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
-    private let feeSelectorOutput: any FeeSelectorOutput
 
     init(
         sourceToken: SendSourceToken,
         approveDataInput: SendApproveDataBuilderInput,
-        tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding,
-        feeSelectorOutput: any FeeSelectorOutput
+        tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
     ) {
         self.sourceToken = sourceToken
         self.approveDataInput = approveDataInput
         self.tokenFeeManagerProviding = tokenFeeManagerProviding
-        self.feeSelectorOutput = feeSelectorOutput
     }
 }
 
@@ -35,7 +32,7 @@ extension CommonStakingApproveViewModelInputDataBuilder: SendApproveViewModelInp
         return ExpressApproveFlowFactory(
             approveInput: input,
             tokenFeeManagerProviding: tokenFeeManagerProviding,
-            feeSelectorOutput: feeSelectorOutput
+            allowanceService: sourceToken.allowanceService
         )
     }
 
