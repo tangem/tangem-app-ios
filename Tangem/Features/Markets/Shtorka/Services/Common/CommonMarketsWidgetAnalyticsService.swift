@@ -8,7 +8,19 @@
 
 import Foundation
 
-final class CommonMarketsWidgetAnalyticsService {}
+final class CommonMarketsWidgetAnalyticsService {
+    // MARK: - Generic Implementation
+
+    func logMarketsChartScreenOpened(tokenSymbol: String) {
+        Analytics.log(
+            event: .marketsChartScreenOpened,
+            params: [
+                .source: Analytics.ParameterValue.market.rawValue,
+                .token: tokenSymbol.uppercased(),
+            ]
+        )
+    }
+}
 
 // MARK: - TopMarketWidgetAnalyticsProvider
 
