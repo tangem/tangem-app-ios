@@ -1062,6 +1062,22 @@ extension SwapModel: SendApproveDataBuilderInput {
 
         return permissionRequired.policy
     }
+
+    var approveAmount: Decimal? {
+        guard case .loaded(_, _, state: .permissionRequired(let permissionRequired)) = _providersState.value else {
+            return nil
+        }
+
+        return permissionRequired.quote.fromAmount
+    }
+
+    var approveSpender: String? {
+        guard case .loaded(_, _, state: .permissionRequired(let permissionRequired)) = _providersState.value else {
+            return nil
+        }
+
+        return permissionRequired.data.spender
+    }
 }
 
 // MARK: - ApproveViewModelInput
