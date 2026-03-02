@@ -49,18 +49,6 @@ public protocol GaslessTransactionFeeProvider {
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
-
-    /// Estimates the gasless fee for an arbitrary contract call.
-    /// Unlike the transfer-specific variant, this accepts raw calldata and a target contract address,
-    /// making it suitable for approve calls, arbitrary interactions, or any EVM operation.
-    func getGaslessFee(
-        feeToken: Token,
-        destination: String,
-        value: String?,
-        data: Data?,
-        feeRecipientAddress: String,
-        nativeToFeeTokenRate: Decimal
-    ) async throws -> Fee
 }
 
 public extension GaslessTransactionFeeProvider where Self: WalletProvider {

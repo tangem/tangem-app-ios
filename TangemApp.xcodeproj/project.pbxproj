@@ -3829,8 +3829,6 @@
 		EA5DCA722F166AC700D09B9E /* FeeSelectorBottomSheetContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5DCA712F166AC700D09B9E /* FeeSelectorBottomSheetContainerView.swift */; };
 		EA669FF72E390D200003688A /* XRPTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */; };
 		EA66A07B2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */; };
-		EA692E872F558C35003A4C70 /* GaslessFeeEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA692E862F558C35003A4C70 /* GaslessFeeEstimator.swift */; };
-		EA692E882F558C35003A4C70 /* GaslessFeeEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA692E862F558C35003A4C70 /* GaslessFeeEstimator.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
@@ -8730,7 +8728,6 @@
 		EA5DCA712F166AC700D09B9E /* FeeSelectorBottomSheetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorBottomSheetContainerView.swift; sourceTree = "<group>"; };
 		EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTrustlineUtils.swift; sourceTree = "<group>"; };
 		EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRequirementFeeStatus.swift; sourceTree = "<group>"; };
-		EA692E862F558C35003A4C70 /* GaslessFeeEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessFeeEstimator.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
@@ -22745,7 +22742,6 @@
 		EA87D9E62F127E23006519B9 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				EA692E862F558C35003A4C70 /* GaslessFeeEstimator.swift */,
 				EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */,
 			);
 			path = Utils;
@@ -29572,7 +29568,6 @@
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				B671C9762EE8496100D9D27B /* AccountsAwareOrganizeTokensView.swift in Sources */,
 				B6F60C4A2EA84BF6005C712D /* CryptoAccountsAuxiliaryData.swift in Sources */,
-				EA692E872F558C35003A4C70 /* GaslessFeeEstimator.swift in Sources */,
 				0FFA35092E05429500ACB48F /* MobileOnboardingSeedPhraseRecoveryDelegate.swift in Sources */,
 				DCD1AA6A2E9972CD00C78540 /* TangemSdkNetworkHeadersProvider.swift in Sources */,
 				EF6CCBEB2C91D7C70002D2B4 /* CommonSendAlertBuilder.swift in Sources */,
@@ -30728,7 +30723,6 @@
 				B62D42702CBC79DB00C2460E /* ValidationError.swift in Sources */,
 				B62D40042CBC79DA00C2460E /* OP_1NEGATE.swift in Sources */,
 				B62D406F2CBC79DA00C2460E /* CosmosTarget.swift in Sources */,
-				EA692E882F558C35003A4C70 /* GaslessFeeEstimator.swift in Sources */,
 				EF0C0CA32D6605EF00DA7E87 /* JSONRPCTargetType.swift in Sources */,
 				B62D408B2CBC79DA00C2460E /* AllowanceERC20TokenMethod.swift in Sources */,
 				B62D3FDE2CBC79DA00C2460E /* OP_NUMNOTEQUAL.swift in Sources */,

@@ -11,16 +11,34 @@ import TangemLocalization
 struct CommonSendApproveViewModelInputDataBuilder {
     private let sourceTokenInput: SendSourceTokenInput
     private let approveDataInput: SendApproveDataBuilderInput
+    private let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
+    private let feeSelectorOutput: any FeeSelectorOutput
 
-    init(sourceTokenInput: SendSourceTokenInput, approveDataInput: SendApproveDataBuilderInput) {
+    init(
+        sourceTokenInput: SendSourceTokenInput,
+        approveDataInput: SendApproveDataBuilderInput,
+        tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding,
+        feeSelectorOutput: any FeeSelectorOutput
+    ) {
         self.sourceTokenInput = sourceTokenInput
         self.approveDataInput = approveDataInput
+        self.tokenFeeManagerProviding = tokenFeeManagerProviding
+        self.feeSelectorOutput = feeSelectorOutput
     }
 }
 
 // MARK: - SendApproveViewModelInputDataBuilder
 
 extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder {
+    func makeApproveFlowFactory() throws -> ExpressApproveFlowFactory {
+        let input = try makeExpressApproveViewModelInput()
+        return ExpressApproveFlowFactory(
+            approveInput: input,
+            tokenFeeManagerProviding: tokenFeeManagerProviding,
+            feeSelectorOutput: feeSelectorOutput
+        )
+    }
+
     func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
         guard let selectedPolicy = approveDataInput.approveRequestedWithSelectedPolicy else {
             throw SendMailDataBuilderError.notFound("Selected approve policy")

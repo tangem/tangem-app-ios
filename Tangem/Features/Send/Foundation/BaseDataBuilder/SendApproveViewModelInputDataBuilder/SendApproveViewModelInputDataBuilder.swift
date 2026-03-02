@@ -12,6 +12,7 @@ import BlockchainSdk
 
 protocol SendApproveViewModelInputDataBuilder {
     func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input
+    func makeApproveFlowFactory() throws -> ExpressApproveFlowFactory
 }
 
 enum SendApproveViewModelInputDataBuilderError: LocalizedError {
