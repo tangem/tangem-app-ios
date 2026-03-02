@@ -46,8 +46,6 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
     func testNotificationDisplayed_WhenLessThan001DOGERemainsAfterSending() throws {
         setAllureId(4213)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
-
         prepareSendFlow()
 
         SendScreen(app)
@@ -62,8 +60,6 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
 
     func testNotificationNotDisplayed_WhenMoreThan001DOGERemainsAfterSending() throws {
         setAllureId(4214)
-
-        try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
 
         prepareSendFlow()
 
