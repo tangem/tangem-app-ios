@@ -11,7 +11,7 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
-    let sourceToken: SendSourceToken
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
 
@@ -22,11 +22,11 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        sourceToken: SendSourceToken,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
         walletModelDependenciesProvider: WalletModelDependenciesProvider
     ) {
-        self.sourceToken = sourceToken
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.walletModelDependenciesProvider = walletModelDependenciesProvider
     }
@@ -41,7 +41,7 @@ extension StakingFlowFactory {
     ) -> StakingModel {
         StakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: sourceToken,
+            sendSourceToken: stakingableToken,
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
@@ -116,18 +116,17 @@ extension StakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: stakingModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: stakingModel
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceToken: sourceToken,
+                sourceTokenInput: stakingModel,
                 approveDataInput: stakingModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
+                sourceTokenInput: stakingModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
@@ -145,7 +144,7 @@ extension StakingFlowFactory: SendAmountStepBuildable {
 
     var amountTypes: SendAmountStepBuilder.Types {
         .init(
-            initialSourceToken: sourceToken,
+            initialSourceToken: stakingableToken,
             flowActionType: actionType.sendFlowActionType
         )
     }
@@ -154,7 +153,7 @@ extension StakingFlowFactory: SendAmountStepBuildable {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
-                validator: sourceToken.transactionValidator,
+                validator: stakingableToken.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),

@@ -35,7 +35,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     @Published var tokenNetworkSelectorCoordinator: MarketsTokenNetworkSelectorCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
@@ -263,6 +262,10 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
+    func shareTokenDetails(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int) {
         let viewModel = NewsPagerViewModel(
@@ -297,26 +300,24 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openExchange(input: ExpressDependenciesDestinationInput) {
+    func openSwap(input: PredefinedSwapParameters, destination: TokenItem) {
         let action = { [weak self] in
             guard let self else { return }
 
-            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] option in
-                self?.expressCoordinator = nil
+            let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] option in
+                self?.sendCoordinator = nil
                 self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
             }
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
-                let factory = CommonExpressModulesFactory(input: input)
-                let coordinator = ExpressCoordinator(
-                    factory: factory,
+                let coordinator = SendCoordinator(
                     dismissAction: dismissAction,
                     popToRootAction: popToRootAction
                 )
 
-                coordinator.start(with: .default)
-                expressCoordinator = coordinator
+                coordinator.start(with: .init(type: .swap(input), source: .markets))
+                sendCoordinator = coordinator
             }
 
             tangemStoriesPresenter.present(
@@ -326,8 +327,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.destination.tokenItem) {
-            openViaYieldNotice(tokenItem: input.destination.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: destination) {
+            openViaYieldNotice(tokenItem: destination, action: action)
         } else {
             action()
         }
@@ -338,12 +339,10 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             self?.sendCoordinator = nil
         }
 
-        let sourceTokenFactory = SendSourceTokenFactory(
+        let sourceToken = CommonSendTransferableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            flowType: .onramp
-        )
-        let sourceToken = sourceTokenFactory.makeSourceToken()
+            walletModel: input.walletModel
+        ).makeTransferableToken()
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(type: .onramp(sourceToken, parameters: parameters), source: .markets)

@@ -60,4 +60,8 @@ public extension Publisher {
         }
         .switchToLatest()
     }
+
+    func mapToOptional() -> Publishers.Map<Self, Output?> {
+        map { Optional($0) }
+    }
 }
