@@ -47,10 +47,10 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published var accountCreationFlowClosed: Bool = true
+    @Published private var pendingManageTokensContext: ManageTokensNavigationContext?
 
     var noActiveCreateOrArchiveAccountFlows: Bool {
-        archivedAccountsCoordinator == nil && accountCreationFlowClosed
+        archivedAccountsCoordinator == nil && accountFormViewModel == nil && pendingManageTokensContext == nil
     }
 
     required init(
@@ -113,24 +113,18 @@ extension UserWalletSettingsCoordinator:
         userTokensManager: UserTokensManager,
         userWalletConfig: UserWalletConfig
     ) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.manageTokensCoordinator = nil
-        }
-
-        let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
         let context = LegacyManageTokensContext(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager
         )
 
-        coordinator.start(
-            with: .init(
-                context: context,
-                userWalletConfig: userWalletConfig,
-                analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
-            )
-        )
-        manageTokensCoordinator = coordinator
+        openManageTokens(
+            context: context,
+            userWalletConfig: userWalletConfig,
+            analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
+        ) { [weak self] _ in
+            self?.manageTokensCoordinator = nil
+        }
     }
 
     func openTransactionNotifications() {
@@ -233,19 +227,45 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: UserSettingsAccountsRoutable
 
-    func addNewAccount(accountModelsManager: any AccountModelsManager) {
-        accountCreationFlowClosed = false
-
+    func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
             // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
             // will vary
             flowType: .create(.crypto),
-            closeAction: { [weak self] result in
+            closeAction: { [weak self] result, createdAccount in
                 self?.accountFormViewModel = nil
                 self?.rootViewModel?.handleAccountOperationResult(result)
+
+                if let createdAccount {
+                    self?.pendingManageTokensContext = ManageTokensNavigationContext(
+                        account: createdAccount,
+                        accountModelsManager: accountModelsManager,
+                        userWalletConfig: userWalletConfig
+                    )
+                }
             }
         )
+    }
+
+    func handleAccountFormDismissed() {
+        guard let pendingManageTokensContext else {
+            return
+        }
+
+        let manageTokensContext = AccountsAwareManageTokensContext(
+            accountModelsManager: pendingManageTokensContext.accountModelsManager,
+            currentAccount: pendingManageTokensContext.account
+        )
+
+        openManageTokens(
+            context: manageTokensContext,
+            userWalletConfig: pendingManageTokensContext.userWalletConfig,
+            analyticsSourceRawValue: Analytics.ParameterValue.accountSourceNew.rawValue
+        ) { [weak self] _ in
+            self?.manageTokensCoordinator = nil
+            self?.pendingManageTokensContext = nil
+        }
     }
 
     func openAccountDetails(account: any BaseAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
@@ -330,6 +350,38 @@ extension UserWalletSettingsCoordinator: MobileBackupToUpgradeNeededRoutable {
 extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
     func didRemoveMobileWallet() {
         dismiss()
+    }
+}
+
+// MARK: - Pending Navigation
+
+private extension UserWalletSettingsCoordinator {
+    struct ManageTokensNavigationContext {
+        let account: any CryptoAccountModel
+        let accountModelsManager: any AccountModelsManager
+        let userWalletConfig: UserWalletConfig
+    }
+
+    func openManageTokens(
+        context: ManageTokensContext,
+        userWalletConfig: UserWalletConfig,
+        analyticsSourceRawValue: String,
+        dismissAction: @escaping Action<Void>
+    ) {
+        let coordinator = ManageTokensCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: ManageTokensCoordinator.Options(
+                context: context,
+                userWalletConfig: userWalletConfig,
+                analyticsSourceRawValue: analyticsSourceRawValue
+            )
+        )
+
+        manageTokensCoordinator = coordinator
     }
 }
 
