@@ -165,7 +165,7 @@ private extension SendAmountFinishViewModel {
             let header: SendTokenHeader = if let token = token as? SendSourceToken {
                 token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
             } else {
-                .action(name: Localization.sendWithSwapRecipientAmountTitle)
+                .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
             }
 
             let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
