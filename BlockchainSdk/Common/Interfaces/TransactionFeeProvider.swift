@@ -34,6 +34,7 @@ public protocol CompiledTransactionFeeProvider {
 }
 
 public protocol GaslessTransactionFeeProvider {
+    /// Estimates the gasless fee for a token transfer.
     func getGaslessFee(
         feeToken: Token,
         amount: Amount,
