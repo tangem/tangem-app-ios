@@ -18,7 +18,7 @@ final class CommonFeeSelectorInteractor {
     init(
         tokenFeeProviders: [any TokenFeeProvider],
         selectedTokenFeeProvider: any TokenFeeProvider,
-        output: FeeSelectorOutput,
+        output: FeeSelectorOutput?
     ) {
         tokenFeeProvidersSubject = .init(tokenFeeProviders)
         selectedTokenFeeProviderSubject = .init(selectedTokenFeeProvider)
