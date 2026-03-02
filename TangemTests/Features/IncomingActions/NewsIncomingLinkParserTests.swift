@@ -10,6 +10,7 @@ import Foundation
 import Testing
 @testable import Tangem
 
+@Suite(.tags(.news))
 struct NewsIncomingLinkParserTests {
     private let parser = NewsIncomingLinkParser()
 
