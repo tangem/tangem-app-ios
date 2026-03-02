@@ -126,7 +126,9 @@ extension SwapFlowFactory: SendBaseBuildable {
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
                 sourceTokenInput: swapModel,
-                approveDataInput: swapModel
+                approveDataInput: swapModel,
+                tokenFeeManagerProviding: swapModel,
+                feeSelectorOutput: swapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: swapModel

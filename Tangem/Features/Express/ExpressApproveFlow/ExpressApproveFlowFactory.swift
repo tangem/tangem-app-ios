@@ -9,51 +9,29 @@
 import TangemExpress
 
 struct ExpressApproveFlowFactory {
-    let tokenFeeManagerProviding: (any TokenFeeProvidersManagerProviding)?
-    let feeSelectorOutput: (any FeeSelectorOutput)?
-    let analyticsLogger: (any FeeSelectorAnalytics)?
-    let input: ExpressApproveViewModel.Input
+    let approveInput: ExpressApproveViewModel.Input
+    let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
+    let feeSelectorOutput: any FeeSelectorOutput
 
-    func make(
-        input: ExpressApproveViewModel.Input,
-        router: ExpressApproveRoutable
-    ) -> ExpressApproveFlowViewModel {
-        let feeSelectorComponents = makeFeeSelectorComponents()
-        return ExpressApproveFlowViewModel(
-            input: input,
-            router: router,
-            feeSelectorViewModel: feeSelectorComponents?.viewModel,
-            feeSelectorInteractor: feeSelectorComponents?.interactor,
-            feeSelectorOutput: feeSelectorComponents?.output
-        )
-    }
-}
-
-// MARK: - Private
-
-private extension ExpressApproveFlowFactory {
-    struct FeeSelectorComponents {
-        let viewModel: FeeSelectorTokensViewModel
-        let interactor: CommonFeeSelectorInteractor
-        let output: any FeeSelectorOutput
-    }
-
-    func makeFeeSelectorComponents() -> FeeSelectorComponents? {
-        guard let tokenFeeProvidersManager = tokenFeeManagerProviding?.tokenFeeProvidersManager,
-              let output = feeSelectorOutput,
-              tokenFeeProvidersManager.supportFeeSelection
-        else {
+    func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel? {
+        guard let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager else {
             return nil
         }
 
         let interactor = CommonFeeSelectorInteractor(
             tokenFeeProviders: tokenFeeProvidersManager.tokenFeeProviders,
             selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider,
-            output: output
+            output: feeSelectorOutput
         )
 
-        let viewModel = FeeSelectorTokensViewModel(tokensDataProvider: interactor)
+        let approveViewModel = ExpressApproveViewModel(input: approveInput)
 
-        return FeeSelectorComponents(viewModel: viewModel, interactor: interactor, output: output)
+        return ExpressApproveFlowViewModel(
+            approveViewModel: approveViewModel,
+            router: router,
+            feeSelectorViewModel: FeeSelectorTokensViewModel(tokensDataProvider: interactor),
+            feeSelectorInteractor: interactor,
+            feeSelectorOutput: feeSelectorOutput
+        )
     }
 }

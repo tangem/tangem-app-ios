@@ -32,8 +32,9 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     // MARK: - Dependencies
 
     private let approveViewModel: ExpressApproveViewModel
-    private let feeSelectorViewModel: FeeSelectorTokensViewModel?
-    private let feeSelectorInteractor: CommonFeeSelectorInteractor?
+    private let feeSelectorViewModel: FeeSelectorTokensViewModel
+    private let feeSelectorInteractor: CommonFeeSelectorInteractor
+    
     private weak var feeSelectorOutput: (any FeeSelectorOutput)?
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
@@ -42,21 +43,22 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     // MARK: - Init
 
     init(
-        input: ExpressApproveViewModel.Input,
+        approveViewModel: ExpressApproveViewModel,
         router: ExpressApproveRoutable,
-        feeSelectorViewModel: FeeSelectorTokensViewModel? = nil,
-        feeSelectorInteractor: CommonFeeSelectorInteractor? = nil,
-        feeSelectorOutput: (any FeeSelectorOutput)? = nil
+        feeSelectorViewModel: FeeSelectorTokensViewModel,
+        feeSelectorInteractor: CommonFeeSelectorInteractor,
+        feeSelectorOutput: FeeSelectorOutput
     ) {
         coordinatorRouter = router
+
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
         self.feeSelectorOutput = feeSelectorOutput
+        self.approveViewModel = approveViewModel
 
-        // [REDACTED_TODO_COMMENT]
-        approveViewModel = ExpressApproveViewModel(input: input)
         state = .approve(approveViewModel)
-        approveViewModel.setCoordinator(self)
+
+        self.approveViewModel.setCoordinator(self)
     }
 }
 
@@ -92,13 +94,11 @@ extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
 
 extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
-        guard let interactor = feeSelectorInteractor else { return }
-
-        interactor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
+        feeSelectorInteractor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
 
         feeSelectorOutput?.userDidFinishSelection(
             feeTokenItem: tokenFeeProvider.feeTokenItem,
-            feeOption: interactor.selectedTokenFeeOption
+            feeOption: feeSelectorInteractor.selectedTokenFeeOption
         )
 
         state = .approve(approveViewModel)
@@ -109,10 +109,8 @@ extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
 
 extension ExpressApproveFlowViewModel {
     func presentFeeTokenSelection() {
-        guard let viewModel = feeSelectorViewModel else { return }
-
-        viewModel.setup(router: self)
-        state = .feeTokenSelection(viewModel)
+        feeSelectorViewModel.setup(router: self)
+        state = .feeTokenSelection(feeSelectorViewModel)
     }
 
     func dismissFeeTokenSelection() {

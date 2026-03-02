@@ -616,6 +616,19 @@ extension StakingModel: SendApproveDataBuilderInput {
     var approveRequestedWithSelectedPolicy: ApprovePolicy? { _approvePolicy.value }
 }
 
+// MARK: - TokenFeeProvidersManagerProviding
+
+extension StakingModel: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? { nil }
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> { Empty().eraseToAnyPublisher() }
+}
+
+// MARK: - FeeSelectorOutput
+
+extension StakingModel: FeeSelectorOutput {
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {}
+}
+
 extension StakingModel {
     enum State {
         case loading
