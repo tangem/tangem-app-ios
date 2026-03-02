@@ -59,8 +59,6 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_BadgeIndicatorOnTokenScreenInMarkets() throws {
         setAllureId(5455)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "Auto-expand quick actions doesn't work for token in Markets portfolio")
-
         launchApp(
             tangemApiType: .mock,
             clearStorage: true
@@ -175,8 +173,6 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_StoriesDisplayInMarkets() throws {
         setAllureId(5476)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "Auto-expand quick actions doesn't work for token in Markets portfolio")
-
         launchApp(
             tangemApiType: .mock,
             clearStorage: true
@@ -269,8 +265,6 @@ final class SwapStoriesUITests: BaseTestCase {
 
     func testSwapStories_UnavailableStoriesOnMarketsTokenDetailsScreen() throws {
         setAllureId(5470)
-
-        try skipDueToBug("[REDACTED_INFO]", description: "Auto-expand quick actions doesn't work for token in Markets portfolio")
 
         let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
 
