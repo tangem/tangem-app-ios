@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
@@ -16,6 +17,51 @@ struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 
     var body: some View {
+        content
+            .onAppear(perform: viewModel.onViewAppear)
+            .onDisappear(perform: viewModel.onViewDisappear)
+            .onDidAppear(perform: viewModel.onDidAppear)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+            .ignoresSafeArea(.keyboard)
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            fullPagePagerContent
+        } else {
+            cardsInfoPagerContent
+        }
+    }
+
+    private var fullPagePagerContent: some View {
+        FullPagePagerView(
+            data: viewModel.pages,
+            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
+            selectedIndex: $viewModel.selectedCardIndex,
+            headerFactory: { page in
+                TangemElasticContainer(
+                    onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
+                    onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
+                    content: { ratio in
+                        page.header
+                            .scaleEffect(ratio)
+                            .opacity(ratio)
+                    }
+                )
+            },
+            bodyFactory: { page in
+                page.body
+            }
+        )
+        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .onPageChange(viewModel.onPageChange(dueTo:))
+    }
+
+    private var cardsInfoPagerContent: some View {
         CardsInfoPagerView(
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
@@ -42,25 +88,6 @@ struct MainView: View {
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
-        .onAppear(perform: viewModel.onViewAppear)
-        .onDisappear(perform: viewModel.onViewDisappear)
-        .onDidAppear(perform: viewModel.onDidAppear)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .ignoresSafeArea(.keyboard)
-        .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
-    }
-
-    private var detailsNavigationButton: some View {
-        Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
-            NavbarDotsImage()
-                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        }
-        .buttonStyle(.plain)
-        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 
     private var renameButton: some View {
@@ -70,6 +97,39 @@ struct MainView: View {
                 Image(systemName: "pencil")
             }
         }
+    }
+}
+
+// MARK: - Navigation Modifier
+
+private struct MainViewNavigationModifier: ViewModifier {
+    let openDetailsAction: () -> Void
+
+    func body(content: Content) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            content
+                .tangemNavigationHeader(
+                    trailingAction: openDetailsAction,
+                    accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
+                        trailingButton: MainAccessibilityIdentifiers.detailsButton,
+                        trailingButtonLabel: Localization.voiceOverOpenCardDetails
+                    )
+                )
+        } else {
+            content
+                .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
+        }
+    }
+
+    private var detailsNavigationButton: some View {
+        Button(action: openDetailsAction) {
+            NavbarDotsImage()
+                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+        }
+        .buttonStyle(.plain)
+        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 }
 

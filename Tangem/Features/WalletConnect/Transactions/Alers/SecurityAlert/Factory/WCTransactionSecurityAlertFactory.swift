@@ -26,7 +26,8 @@ enum WCTransactionSecurityAlertFactory {
                 ),
                 primaryButton: .init(title: Localization.commonBack, style: .primary, isLoading: false),
                 secondaryButton: .init(title: Localization.wcSendAnyway, style: .secondary, isLoading: false),
-                tangemIcon: nil
+                tangemIcon: nil,
+                needsHoldToConfirm: false
             )
         case .benign:
             return nil
