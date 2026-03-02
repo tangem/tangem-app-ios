@@ -244,9 +244,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
         FeedbackGenerator.success()
 
-        // Set destination account via SendModel, which forwards to analytics logger
+        // Set destination account info, which forwards to analytics logger
         destinationAccountOutput?.setDestinationAccountInfo(
-            tokenHeader: destination.tokenHeader,
             analyticsProvider: destination.accountModelAnalyticsProvider
         )
 
@@ -313,11 +312,12 @@ extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
     }
 
     func externalUpdate(additionalField: SendDestinationAdditionalField) {
-        guard case .filled(_, let value, _) = additionalField else {
-            return
+        switch additionalField {
+        case .notSupported, .empty:
+            additionalFieldViewModel?.update(text: "")
+        case .filled(_, let value, _):
+            additionalFieldViewModel?.update(text: value)
         }
-
-        additionalFieldViewModel?.update(text: value)
     }
 }
 
