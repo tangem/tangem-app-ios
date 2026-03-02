@@ -86,6 +86,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func skipPushNotificationsSetup() -> Self {
+        XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
+            if app.buttons["Later"].waitForExistence(timeout: .conditional) {
+                app.buttons["Later"].tap()
+            }
+            return self
+        }
+    }
+
+    @discardableResult
     func organizeTokens() -> OrganizeTokensScreen {
         XCTContext.runActivity(named: "Open organize tokens screen") { _ in
             // Ensure tokens list is loaded first
