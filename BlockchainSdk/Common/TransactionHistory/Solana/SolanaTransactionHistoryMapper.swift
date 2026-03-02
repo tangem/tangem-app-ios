@@ -54,6 +54,7 @@ private extension SolanaTransactionHistoryMapper {
         static let transferCheckedType = "transferChecked"
         static let stakeDelegateType = "delegate"
         static let stakeDeactivateType = "deactivate"
+        static let withdrawType = "withdraw"
         static let operationType = "operation"
     }
 
@@ -254,6 +255,10 @@ private extension SolanaTransactionHistoryMapper {
                 target: instruction.parsed?.info?.voteAccount,
                 instruction: instruction
             )
+        }
+
+        if let instruction = instructions.first(where: { $0.parsed?.type == Constants.withdrawType }) {
+            return .stakeOperation(stakingType: .withdraw, target: nil, instruction: instruction)
         }
 
         return .stakeOperation(stakingType: .stake, target: nil, instruction: instructions.first)
