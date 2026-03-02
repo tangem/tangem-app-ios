@@ -35,9 +35,12 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let feeSelectorViewModel: FeeSelectorTokensViewModel
     private let feeSelectorInteractor: CommonFeeSelectorInteractor
     private let allowanceService: (any AllowanceService)?
+    private let approveAmount: Decimal?
+    private let spender: String?
 
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
+    private var recalculateApproveFeeTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -47,13 +50,17 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         router: ExpressApproveRoutable,
         feeSelectorViewModel: FeeSelectorTokensViewModel,
         feeSelectorInteractor: CommonFeeSelectorInteractor,
-        allowanceService: (any AllowanceService)?
+        allowanceService: (any AllowanceService)?,
+        approveAmount: Decimal? = nil,
+        spender: String? = nil
     ) {
         coordinatorRouter = router
 
         self.feeSelectorViewModel = feeSelectorViewModel
         self.feeSelectorInteractor = feeSelectorInteractor
         self.allowanceService = allowanceService
+        self.approveAmount = approveAmount
+        self.spender = spender
         self.approveViewModel = approveViewModel
 
         state = .approve(approveViewModel)
@@ -106,11 +113,45 @@ private extension ExpressApproveFlowViewModel {
     func bind() {
         feeSelectorInteractor.selectedTokenFeeProviderPublisher
             .dropFirst()
-            .sink { [weak self] _ in
-                // [REDACTED_TODO_COMMENT]
-                _ = self?.allowanceService
+            .removeDuplicates(by: { $0.feeTokenItem == $1.feeTokenItem })
+            .sink { [weak self] provider in
+                self?.recalculateApproveFee(for: provider)
             }
             .store(in: &bag)
+    }
+
+    func recalculateApproveFee(for provider: any TokenFeeProvider) {
+        recalculateApproveFeeTask?.cancel()
+
+        guard let allowanceService, let approveAmount, let spender else { return }
+        let approvePolicy = approveViewModel.selectedAction
+
+        recalculateApproveFeeTask = runTask(in: self) { viewModel in
+            do {
+                let state = try await allowanceService.allowanceState(
+                    amount: approveAmount,
+                    spender: spender,
+                    approvePolicy: approvePolicy
+                )
+                await runOnMain {
+                    viewModel.handleAllowanceState(state)
+                }
+            } catch is CancellationError {
+                // Task was cancelled due to a new fee token selection
+            } catch {
+                await runOnMain {
+                    viewModel.alert = .init(
+                        title: Localization.commonError,
+                        message: error.localizedDescription
+                    )
+                }
+            }
+        }
+    }
+
+    func handleAllowanceState(_ state: AllowanceState) {
+        // Follow-up: propagate the recalculated ApproveTransactionData
+        // from AllowanceState.permissionRequired to update the fee display
     }
 }
 
