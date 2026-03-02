@@ -49,6 +49,15 @@ public protocol GaslessTransactionFeeProvider {
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
+
+    /// Estimates the gasless fee for an approve transaction.
+    func getGaslessApproveFee(
+        feeToken: Token,
+        approveData: Data,
+        contractAddress: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee
 }
 
 public extension GaslessTransactionFeeProvider where Self: WalletProvider {

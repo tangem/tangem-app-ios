@@ -606,6 +606,14 @@ extension SendWithSwapModel: SendApproveDataBuilderInput {
     var approveRequestedWithSelectedPolicy: ApprovePolicy? {
         isSwapMode ? swapModel.approveRequestedWithSelectedPolicy : nil
     }
+
+    var approveAmount: Decimal? {
+        isSwapMode ? swapModel.approveAmount : nil
+    }
+
+    var approveSpender: String? {
+        isSwapMode ? swapModel.approveSpender : nil
+    }
 }
 
 // MARK: - SendDestinationAccountOutput
