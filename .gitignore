@@ -86,3 +86,9 @@ vendor/ios_dependencies
 
 # A known issue with SourceKit-LSP which Claude Code uses. It doesn't respect Xcode's custom Package.resolved location and creates one in the root directory.
 /Package.resolved
+
+# firebase-tools
+firebase-debug.log
+
+# Claude Code local instructions
+CLAUDE.local.md
