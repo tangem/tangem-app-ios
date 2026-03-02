@@ -10,8 +10,10 @@ import Foundation
 
 protocol NewsDeeplinkValidating {
     func setDeeplinkURL(_ url: String?)
-    func validateAndLogMismatchIfNeeded(newsId: Int, actualNewsURL: String)
-    func logMismatchOnError(newsId: Int, error: Error)
+    @discardableResult
+    func validateAndLogMismatchIfNeeded(newsId: Int, actualNewsURL: String) -> Bool
+    @discardableResult
+    func logMismatchOnError(newsId: Int, error: Error) -> Bool
 }
 
 final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
@@ -21,20 +23,21 @@ final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
         pendingDeeplinkURL = url
     }
 
-    func validateAndLogMismatchIfNeeded(newsId: Int, actualNewsURL: String) {
-        guard let deeplinkURL = pendingDeeplinkURL else { return }
+    func validateAndLogMismatchIfNeeded(newsId: Int, actualNewsURL: String) -> Bool {
+        guard let deeplinkURL = pendingDeeplinkURL else { return false }
 
         pendingDeeplinkURL = nil
 
         guard let deeplinkComponents = parseNewsURLComponents(deeplinkURL),
               let actualComponents = parseNewsURLComponents(actualNewsURL) else {
-            return
+            return false
         }
 
         let categoryMismatch = deeplinkComponents.category != actualComponents.category
         let slugMismatch = deeplinkComponents.slug != actualComponents.slug
+        let hasMismatch = categoryMismatch || slugMismatch
 
-        guard categoryMismatch || slugMismatch else { return }
+        guard hasMismatch else { return false }
 
         Analytics.log(
             event: .newsLinkMismatch,
@@ -43,10 +46,12 @@ final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
                 .source: deeplinkURL,
             ]
         )
+
+        return true
     }
 
-    func logMismatchOnError(newsId: Int, error: Error) {
-        guard let deeplinkURL = pendingDeeplinkURL else { return }
+    func logMismatchOnError(newsId: Int, error: Error) -> Bool {
+        guard let deeplinkURL = pendingDeeplinkURL else { return false }
 
         pendingDeeplinkURL = nil
 
@@ -55,6 +60,7 @@ final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
         params[.source] = deeplinkURL
 
         Analytics.log(event: .newsLinkMismatch, params: params)
+        return true
     }
 
     private func parseNewsURLComponents(_ urlString: String) -> NewsURLComponents? {
