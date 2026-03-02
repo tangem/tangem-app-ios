@@ -27,12 +27,16 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
+    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
+
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        shouldStartInitialLoading: false
+        shouldStartInitialLoading: false,
+        isReceiveTokenSelectionAvailable: isFixedRateMode,
+        isFixedRatesEnabled: isFixedRateMode
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
@@ -132,9 +136,6 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
-        transferModel.router = viewModel
-        sendWithSwapModel.alertPresenter = viewModel
-
         sendWithSwapModel.router = viewModel
         sendWithSwapModel.alertPresenter = viewModel
 
@@ -154,14 +155,15 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendWithSwapModel,
-                sourceTokenInput: sendWithSwapModel
+                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
+                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceTokenInput: sendWithSwapModel,
+                sourceToken: sourceToken,
                 approveDataInput: sendWithSwapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceTokenInput: sendWithSwapModel
+                sourceToken: sourceToken
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
@@ -192,7 +194,9 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: CommonSendAmountValidator(input: sendWithSwapModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            receiveAmountOutput: sendWithSwapModel,
+            isFixedRateMode: isFixedRateMode
         )
     }
 }
@@ -263,11 +267,7 @@ extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
 
 extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(
-            input: sendWithSwapModel,
-            output: sendWithSwapModel,
-            swapModelStateProvider: swapModel
-        )
+        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
