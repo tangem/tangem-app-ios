@@ -11,6 +11,7 @@ import Combine
 import CombineExt
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
@@ -75,7 +76,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var price: String? { priceInfo?.price }
 
-    var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
+    var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
@@ -271,6 +272,15 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
             let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
             coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
         }
+    }
+
+    func shareTokenDetails() {
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl
+            .appendingPathComponent(Locale.shareLinkLanguageCode)
+            .appendingPathComponent("cryptocurrencies")
+            .appendingPathComponent(tokenInfo.id.lowercased())
+        coordinator?.shareTokenDetails(url: url)
     }
 
     func logCarouselScrolledIfNeeded() {
@@ -548,7 +558,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if FeatureProvider.isAvailable(.accounts) {
             accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
-                inputData: .init(coinId: tokenInfo.id),
+                inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
                 walletDataProvider: walletDataProvider,
                 coordinator: coordinator,
                 addTokenTapAction: { [weak self] in
