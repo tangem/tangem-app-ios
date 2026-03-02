@@ -20,7 +20,8 @@ struct ExpressApproveFlowFactory {
 
         let interactor = CommonFeeSelectorInteractor(
             tokenFeeProviders: tokenFeeProvidersManager.tokenFeeProviders,
-            selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider
+            selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider,
+            output: nil
         )
 
         let approveViewModel = ExpressApproveViewModel(input: approveInput)
