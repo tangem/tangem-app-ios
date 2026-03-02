@@ -65,8 +65,7 @@ struct CommonUserWalletModelFactory {
             keysRepository: dependencies.keysRepository,
             totalBalanceProvider: dependencies.totalBalanceProvider,
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
-            accountModelsManager: dependencies.accountModelsManager,
-            tangemPayManager: dependencies.tangemPayManager
+            accountModelsManager: dependencies.accountModelsManager
         )
 
         dependencies.update(from: commonModel)

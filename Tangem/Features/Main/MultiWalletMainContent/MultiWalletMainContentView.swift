@@ -6,7 +6,6 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -47,7 +46,6 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
                 NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
             }
 
             // [REDACTED_TODO_COMMENT]
@@ -102,7 +100,7 @@ struct MultiWalletMainContentView: View {
     }
 
     private var accountsList: some View {
-        VStack(spacing: 8.0) {
+        LazyVStack(spacing: 8.0) {
             ForEach(viewModel.accountSections) { accountSection in
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     makeTokensList(sections: accountSection.items)
@@ -155,34 +153,36 @@ struct MultiWalletMainContentView: View {
                 let isFirstVisibleSection = hasTitle && sectionIndex == 0
                 let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
-                TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
+                VStack(spacing: .zero) {
+                    TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
 
-                ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
-                    let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
+                    ForEach(indexed: section.items.indexed()) { itemIndex, item in
+                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                        let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
-                    let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
-                    let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+                        let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                        let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
 
-                    let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
-                        if isFirstItem {
-                            return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
-                        }
+                        let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
+                            if isFirstItem {
+                                return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
+                            }
 
-                        if isLastItem {
-                            return .bottomEdge
-                        }
+                            if isLastItem {
+                                return .bottomEdge
+                            }
 
-                        return nil
-                    }()
+                            return nil
+                        }()
 
-                    tokenItemView(
-                        item: item,
-                        cornerRadius: cornerRadius,
-                        roundedCornersVerticalEdge: roundedEdges,
-                        isFirstItem: isFirstItem,
-                        promoBubbleViewModel: promoBubbleViewModel
-                    )
+                        tokenItemView(
+                            item: item,
+                            cornerRadius: cornerRadius,
+                            roundedCornersVerticalEdge: roundedEdges,
+                            isFirstItem: isFirstItem,
+                            promoBubbleViewModel: promoBubbleViewModel
+                        )
+                    }
                 }
             }
         }
@@ -201,7 +201,8 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
         let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            manageTokensActionFactory: { _ in {} }
         )
 
         let tokenItemPromoProvider = YieldTokenItemPromoProvider(

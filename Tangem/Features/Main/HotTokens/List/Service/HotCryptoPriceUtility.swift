@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 final class HotCryptoPriceUtility {
     private let balanceFormatter = BalanceFormatter()
@@ -16,7 +17,7 @@ final class HotCryptoPriceUtility {
         balanceFormatter.formatFiatBalance(price, currencyCode: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func convertToPriceChangeState(from value: Decimal?) -> TokenPriceChangeView.State {
+    func convertToPriceChangeState(from value: Decimal?) -> PriceChangeView.State {
         priceChangeUtility.convertToPriceChangeState(changePercent: value)
     }
 }

@@ -102,7 +102,7 @@ struct MarketTokenItemView: View {
             }
             .frame(minWidth: 0.32 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 
-            TokenPriceChangeView(state: viewModel.priceChangeState)
+            PriceChangeView(state: viewModel.priceChangeState)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPriceChange)
         }
     }
@@ -111,7 +111,7 @@ struct MarketTokenItemView: View {
         VStack {
             if let charts = viewModel.charts {
                 LineChartView(
-                    color: viewModel.priceChangeState.signType?.textColor ?? Colors.Text.tertiary,
+                    color: viewModel.priceChangeState.changeType?.color ?? Colors.Text.tertiary,
                     data: charts
                 )
             } else {
