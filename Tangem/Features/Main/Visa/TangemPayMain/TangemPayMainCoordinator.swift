@@ -70,7 +70,7 @@ extension TangemPayMainCoordinator {
 
             switch options {
             case .none, .closeButtonTap:
-                self?.dismiss(with: .none)
+                self?.sendCoordinator = nil
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
             }
