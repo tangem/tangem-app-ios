@@ -156,6 +156,10 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         return balance
     }
 
+    func setupFeeEstimation(amount: Decimal) {
+        update(input: .cex(amount: amount))
+    }
+
     func estimatedFee(amount: Decimal) async throws -> BSDKFee {
         update(input: .cex(amount: amount))
         await selectedFeeProvider.updateFees().value

@@ -14,19 +14,22 @@ public struct AllowanceChecker {
     private let walletAddress: String
     private let ethereumNetworkProvider: EthereumNetworkProvider?
     private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+    private let gaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)?
 
     public init(
         blockchain: Blockchain,
         amountType: Amount.AmountType,
         walletAddress: String,
         ethereumNetworkProvider: EthereumNetworkProvider?,
-        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?,
+        gaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? = nil
     ) {
         self.blockchain = blockchain
         self.amountType = amountType
         self.walletAddress = walletAddress
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.ethereumTransactionDataBuilder = ethereumTransactionDataBuilder
+        self.gaslessTransactionFeeProvider = gaslessTransactionFeeProvider
     }
 
     public func isPermissionRequired(amount: Decimal, spender: String) async throws -> Bool {
@@ -59,12 +62,52 @@ public struct AllowanceChecker {
     }
 
     public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        guard let ethereumTransactionDataBuilder = ethereumTransactionDataBuilder else {
-            throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
-        }
-
         guard let ethereumNetworkProvider = ethereumNetworkProvider else {
             throw AllowanceCheckerError.ethereumNetworkProviderNotFound
+        }
+
+        let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
+        let zeroAmount = Amount(with: blockchain, type: .coin, value: 0)
+
+        let fee = try await ethereumNetworkProvider
+            .getFee(destination: contract, value: zeroAmount.encodedForSend, data: data)
+            .async()
+
+        guard let fee = fee[safe: 2] else {
+            throw AllowanceCheckerError.approveFeeNotFound
+        }
+
+        return .init(txData: data, spender: spender, toContractAddress: contract, fee: fee)
+    }
+
+    public func makeGaslessApproveData(
+        spender: String,
+        amount: Decimal,
+        policy: ApprovePolicy,
+        feeToken: Token,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> ApproveTransactionData {
+        guard let gaslessTransactionFeeProvider else {
+            throw AllowanceCheckerError.gaslessTransactionFeeProviderNotFound
+        }
+
+        let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
+
+        let fee = try await gaslessTransactionFeeProvider.getGaslessApproveFee(
+            feeToken: feeToken,
+            approveData: data,
+            contractAddress: contract,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
+        )
+
+        return .init(txData: data, spender: spender, toContractAddress: contract, fee: fee)
+    }
+
+    private func buildApproveCalldata(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> (data: Data, contract: String) {
+        guard let ethereumTransactionDataBuilder else {
+            throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
         }
 
         guard let contract = amountType.token?.contractAddress else {
@@ -77,18 +120,7 @@ public struct AllowanceChecker {
         }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
-        let amount = Amount(with: blockchain, type: .coin, value: 0)
-
-        let fee = try await ethereumNetworkProvider
-            .getFee(destination: contract, value: amount.encodedForSend, data: data)
-            .async()
-
-        // Use fastest
-        guard let fee = fee[safe: 2] else {
-            throw AllowanceCheckerError.approveFeeNotFound
-        }
-
-        return .init(txData: data, spender: spender, toContractAddress: contract, fee: fee)
+        return (data, contract)
     }
 
     private func decimalValue() throws -> Decimal {
@@ -104,6 +136,7 @@ public enum AllowanceCheckerError: String, Hashable, LocalizedError {
     case contractAddressNotFound
     case ethereumNetworkProviderNotFound
     case ethereumTransactionDataBuilderNotFound
+    case gaslessTransactionFeeProviderNotFound
     case approveFeeNotFound
     case wrongAmountType
 
@@ -112,6 +145,7 @@ public enum AllowanceCheckerError: String, Hashable, LocalizedError {
         case .contractAddressNotFound: "Contract address not found."
         case .ethereumNetworkProviderNotFound: "Ethereum network provider not found."
         case .ethereumTransactionDataBuilderNotFound: "Ethereum transaction data builder not found."
+        case .gaslessTransactionFeeProviderNotFound: "Gasless transaction fee provider not found."
         case .approveFeeNotFound: "Approve fee not found."
         case .wrongAmountType: "Wrong amount type."
         }

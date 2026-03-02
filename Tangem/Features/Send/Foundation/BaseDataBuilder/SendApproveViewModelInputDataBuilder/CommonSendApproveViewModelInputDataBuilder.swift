@@ -33,7 +33,9 @@ extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputD
         return ExpressApproveFlowFactory(
             approveInput: input,
             tokenFeeManagerProviding: tokenFeeManagerProviding,
-            allowanceService: sourceToken.allowanceService
+            allowanceService: sourceToken.allowanceService,
+            approveAmount: approveDataInput.approveAmount,
+            spender: approveDataInput.approveSpender
         )
     }
 

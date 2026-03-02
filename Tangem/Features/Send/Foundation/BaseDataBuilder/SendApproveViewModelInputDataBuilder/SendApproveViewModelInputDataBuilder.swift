@@ -29,9 +29,13 @@ protocol SendApproveDataBuilderInput {
     var approveRequestedWithSelectedPolicy: ApprovePolicy? { get }
     var approveRequestedByExpressProvider: ExpressProvider? { get }
     var approveViewModelInput: ApproveViewModelInput? { get }
+    var approveAmount: Decimal? { get }
+    var approveSpender: String? { get }
 }
 
 extension SendApproveDataBuilderInput {
     /// For staking
     var approveRequestedByExpressProvider: ExpressProvider? { nil }
+    var approveAmount: Decimal? { nil }
+    var approveSpender: String? { nil }
 }

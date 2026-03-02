@@ -12,6 +12,8 @@ struct ExpressApproveFlowFactory {
     let approveInput: ExpressApproveViewModel.Input
     let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
     let allowanceService: (any AllowanceService)?
+    let approveAmount: Decimal?
+    let spender: String?
 
     func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel? {
         guard let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager else {
@@ -31,7 +33,9 @@ struct ExpressApproveFlowFactory {
             router: router,
             feeSelectorViewModel: FeeSelectorTokensViewModel(tokensDataProvider: interactor),
             feeSelectorInteractor: interactor,
-            allowanceService: allowanceService
+            allowanceService: allowanceService,
+            approveAmount: approveAmount,
+            spender: spender
         )
     }
 }

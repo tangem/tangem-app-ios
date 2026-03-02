@@ -25,7 +25,8 @@ struct AllowanceServiceFactory {
             amountType: tokenItem.amountType,
             walletAddress: walletModel.defaultAddressString,
             ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
+            ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder,
+            gaslessTransactionFeeProvider: walletModel.ethereumGaslessTransactionFeeProvider
         )
 
         return CommonAllowanceService(
