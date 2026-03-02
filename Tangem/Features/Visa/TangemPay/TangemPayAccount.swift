@@ -67,6 +67,8 @@ final class TangemPayAccount {
         customerInfoSubject.value.productInstance.cardId
     }
 
+    private(set) weak var account: (any TangemPayAccountModel)?
+
     private let balancesService: any TangemPayBalancesService
     private let customerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
 
@@ -82,7 +84,8 @@ final class TangemPayAccount {
         expressCEXTransactionDispatcher: any TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
-        mainHeaderBalanceProvider: MainHeaderBalanceProvider
+        mainHeaderBalanceProvider: MainHeaderBalanceProvider,
+        account: (any TangemPayAccountModel)?
     ) {
         customerInfoSubject = CurrentValueSubject((customerInfo, productInstance))
         self.customerService = customerService
@@ -92,6 +95,7 @@ final class TangemPayAccount {
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
+        self.account = account
     }
 
     func loadBalance() async {

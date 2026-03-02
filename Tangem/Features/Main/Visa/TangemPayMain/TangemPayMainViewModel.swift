@@ -362,7 +362,7 @@ private extension TangemPayMainViewModel {
 
         return TangemPaySwapableTokenFactory(
             userWalletInfo: userWalletInfo,
-            account: nil,
+            account: tangemPayAccount.account,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
