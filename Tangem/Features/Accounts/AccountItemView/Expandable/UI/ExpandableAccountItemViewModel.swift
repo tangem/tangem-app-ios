@@ -28,6 +28,8 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     @Published private var rawTokensCount: Int
 
+    let onManageTokensTap: () -> Void
+
     private let accountModel: any CryptoAccountModel
     private var stateStorage: ExpandableAccountItemStateStorage
     private let priceChangeUtility: PriceChangeUtility
@@ -37,10 +39,12 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     init(
         accountModel: any CryptoAccountModel,
-        stateStorage: ExpandableAccountItemStateStorage
+        stateStorage: ExpandableAccountItemStateStorage,
+        onManageTokensTap: @escaping () -> Void
     ) {
         self.accountModel = accountModel
         self.stateStorage = stateStorage
+        self.onManageTokensTap = onManageTokensTap
 
         let priceChangeUtility = PriceChangeUtility()
         self.priceChangeUtility = priceChangeUtility

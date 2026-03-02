@@ -13,6 +13,7 @@ import TangemPay
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel)
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
+    func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel)
     func openOnboardingModal(with options: OnboardingCoordinator.Options)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openHardwareBackupTypes(userWalletModel: UserWalletModel)
