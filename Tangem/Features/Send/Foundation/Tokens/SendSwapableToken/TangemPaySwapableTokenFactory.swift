@@ -9,8 +9,9 @@
 import TangemExpress
 
 /// Maybe put in init `TangemPayAccount` ?
-struct TangemPaySwapableTokenFactory {
+struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
     let userWalletInfo: UserWalletInfo
+    let account: (any TangemPayAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let defaultAddressString: String
@@ -23,6 +24,7 @@ struct TangemPaySwapableTokenFactory {
     func makeSwapableToken() -> SendSwapableToken {
         let sourceTokenFactory = TangemPaySourceTokenFactory(
             userWalletInfo: userWalletInfo,
+            account: account,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             defaultAddressString: defaultAddressString,

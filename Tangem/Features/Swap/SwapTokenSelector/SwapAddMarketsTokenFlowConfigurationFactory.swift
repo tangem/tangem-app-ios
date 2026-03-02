@@ -82,8 +82,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         if let walletModel {
             let item = AccountsAwareTokenSelectorItem(
                 userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
-                account: accountSelectorCell.cryptoAccountModel,
-                walletModel: walletModel
+                kind: .crypto(walletModel, accountSelectorCell.cryptoAccountModel)
             )
             await additionRoutable.didAddMarketToken(item: item)
             return

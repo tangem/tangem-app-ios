@@ -43,8 +43,11 @@ struct AccountModelUtilsTests {
         // Many iterations to ensure random distribution without some blacklisted icon names (letter, star and so on)
         for _ in 0 ..< 500 {
             let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
-            #expect(newAccountIcon.name != .letter)
-            #expect(newAccountIcon.name != .star)
+            let name = newAccountIcon.name
+            #expect(newAccountIcon.color != nil)
+            #expect(name != .letter)
+            #expect(name != .star)
+            #expect(name != .tangemPay)
         }
     }
 }

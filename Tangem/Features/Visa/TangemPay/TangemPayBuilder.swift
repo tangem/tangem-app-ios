@@ -81,6 +81,7 @@ final class TangemPayBuilder {
 
     func buildTangemPayManager() -> TangemPayManager {
         TangemPayManager(
+            userWalletId: userWalletId,
             customerWalletId: customerWalletId,
             keysRepository: keysRepository,
             availabilityService: availabilityService,

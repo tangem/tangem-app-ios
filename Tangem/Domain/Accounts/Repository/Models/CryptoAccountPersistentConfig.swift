@@ -45,7 +45,7 @@ extension CryptoAccountPersistentConfig {
             derivationIndex: derivationIndex,
             name: name,
             iconName: icon.name.rawValue,
-            iconColor: icon.color.rawValue
+            iconColor: icon.color?.rawValue ?? ""
         )
     }
 }
