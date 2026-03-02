@@ -18,7 +18,7 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenterViewModel)
     private var alertPresenterViewModel: AlertPresenterViewModel
 
-    let tangemPayManager: TangemPayManager
+    let tangemPayKYCInteractor: TangemPayKYCInteractor
     weak var coordinator: TangemPayKYCStatusRoutable?
 
     var title: AttributedString {
@@ -50,10 +50,10 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     }
 
     init(
-        tangemPayManager: TangemPayManager,
+        tangemPayKYCInteractor: TangemPayKYCInteractor,
         coordinator: TangemPayKYCStatusRoutable?
     ) {
-        self.tangemPayManager = tangemPayManager
+        self.tangemPayKYCInteractor = tangemPayKYCInteractor
         self.coordinator = coordinator
     }
 
@@ -63,9 +63,9 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
 
     private func viewStatus() {
         coordinator?.closeKYCStatusPopup()
-        runTask { [tangemPayManager] in
+        runTask { [tangemPayKYCInteractor] in
             do {
-                try await tangemPayManager.launchKYC()
+                try await tangemPayKYCInteractor.launchKYC()
             } catch {
                 VisaLogger.error("Failed to launch KYC", error: error)
             }
@@ -87,7 +87,7 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     }
 
     private func cancelKYC() {
-        tangemPayManager.cancelKYC { [weak self] succeeded in
+        tangemPayKYCInteractor.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }

@@ -25,6 +25,7 @@ public extension Color {
         public enum Skeleton {}
         public enum Markers {}
         public enum Visa {}
+        public enum Tabs {}
     }
 }
 
@@ -83,7 +84,9 @@ public extension Color.Tangem.Button {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
     static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
-    static let backgroundPositive: Color = Primitives.Blue.azure
+    static let backgroundPrimaryInverted: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
+    static let backgroundAccent: Color = Primitives.Blue.azure
+    static let backgroundPositive: Color = Primitives.Green.eucalyptus
     static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textSecondary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light4)
     static let textDisabled: Color = .dynamic(light: Primitives.Darks.dark1, dark: Primitives.Lights.light5)
@@ -117,6 +120,7 @@ public extension Color.Tangem.Border {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
         public static let secondary: Color = .dynamic(light: Primitives.Lights.light5, dark: Primitives.Darks.dark4)
+        public static let banner: Color = .dynamic(light: Primitives.Darks.dark5, dark: Primitives.Lights.light1)
     }
 
     enum Status {
@@ -157,6 +161,7 @@ public extension Color.Tangem.Fill {
         public static let secondary: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
         public static let tertiaryConstant: Color = Primitives.Darks.dark1
         public static let quaternary: Color = .dynamic(light: Primitives.Lights.light4, dark: Primitives.Darks.dark3)
+        public static let bannerBackground: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
     }
 
     enum Status {
@@ -209,6 +214,18 @@ private extension Color {
         }
         return Color(uiColor: uiColor)
     }
+}
+
+// MARK: - Tabs
+
+public extension Color.Tangem.Tabs {
+    static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
+    static let textSecondary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light5)
+    static let textTertiary: Color = .dynamic(light: Primitives.Base.black, dark: Primitives.Base.white)
+    static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
+    static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
+    static let backgroundTertiary: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.lightAlpha.opacity(0.1))
+    static let backgroundQuaternary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.2), dark: Primitives.lightAlpha.opacity(0.1))
 }
 
 // MARK: - Init with hex-value
