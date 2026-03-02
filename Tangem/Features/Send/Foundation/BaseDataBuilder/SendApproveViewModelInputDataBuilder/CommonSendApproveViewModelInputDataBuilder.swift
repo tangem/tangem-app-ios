@@ -12,18 +12,15 @@ struct CommonSendApproveViewModelInputDataBuilder {
     private let sourceTokenInput: SendSourceTokenInput
     private let approveDataInput: SendApproveDataBuilderInput
     private let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
-    private let feeSelectorOutput: any FeeSelectorOutput
 
     init(
         sourceTokenInput: SendSourceTokenInput,
         approveDataInput: SendApproveDataBuilderInput,
-        tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding,
-        feeSelectorOutput: any FeeSelectorOutput
+        tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
     ) {
         self.sourceTokenInput = sourceTokenInput
         self.approveDataInput = approveDataInput
         self.tokenFeeManagerProviding = tokenFeeManagerProviding
-        self.feeSelectorOutput = feeSelectorOutput
     }
 }
 
@@ -32,10 +29,11 @@ struct CommonSendApproveViewModelInputDataBuilder {
 extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder {
     func makeApproveFlowFactory() throws -> ExpressApproveFlowFactory {
         let input = try makeExpressApproveViewModelInput()
+        let sourceToken = try sourceTokenInput.sourceToken.get()
         return ExpressApproveFlowFactory(
             approveInput: input,
             tokenFeeManagerProviding: tokenFeeManagerProviding,
-            feeSelectorOutput: feeSelectorOutput
+            allowanceService: sourceToken.allowanceService
         )
     }
 
