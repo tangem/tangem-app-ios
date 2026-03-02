@@ -12,8 +12,8 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapTokenSelectorOutput: AnyObject {
-    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool)
-    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool)
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem)
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem)
 }
 
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
@@ -87,7 +87,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
-        selectToken(item, isNewlyAddedFromMarkets: true)
+        selectToken(item)
     }
 }
 
@@ -96,31 +96,31 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
         logPortfolioTokenSelected(item: item)
-        selectToken(item, isNewlyAddedFromMarkets: false)
+        selectToken(item)
     }
 }
 
 // MARK: - Private
 
 private extension SwapTokenSelectorViewModel {
-    func selectToken(_ item: AccountsAwareTokenSelectorItem, isNewlyAddedFromMarkets: Bool) {
-        switch swapDirection {
-        case .fromSource:
-            output?.swapTokenSelectorDidRequestUpdate(destination: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
-        case .toDestination:
-            output?.swapTokenSelectorDidRequestUpdate(sender: item, isNewlyAddedFromMarkets: isNewlyAddedFromMarkets)
-        }
-
-        selectedTokenItem = item.walletModel.tokenItem
-        tokenSelectorCoordinator?.closeSwapTokenSelector()
-    }
-
     func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             source: .portfolio,
             userHasSearchedDuringThisSession: false
         )
         analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+    }
+
+    func selectToken(_ item: AccountsAwareTokenSelectorItem) {
+        switch swapDirection {
+        case .fromSource:
+            output?.swapTokenSelectorDidRequestUpdate(destination: item)
+        case .toDestination:
+            output?.swapTokenSelectorDidRequestUpdate(sender: item)
+        }
+
+        selectedTokenItem = item.walletModel.tokenItem
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 }
 

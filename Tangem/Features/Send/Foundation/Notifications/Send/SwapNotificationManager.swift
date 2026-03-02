@@ -96,7 +96,7 @@ private extension CommonSwapNotificationManager {
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
         state: SwapModel.ProvidersState
-    ) -> [ExpressNotificationEvent] {
+    ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
         case (.success, .failure(ExpressDestinationServiceError.destinationNotFound(let source)), _):
             return [.noDestinationTokens(tokenName: source.name)]
@@ -108,8 +108,8 @@ private extension CommonSwapNotificationManager {
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success, .success(let receive), .loaded(let providers, _, _)) where providers.isEmpty:
-            return [.tokenNotSupportedForSwap(tokenName: receive.tokenItem.name)]
+        case (.success, .success, .loaded(let providers, _, _)) where providers.isEmpty:
+            return [.unsupportedPair]
 
         case (.success(let source), .success(let receive), .loaded(_, let selected, let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
@@ -125,7 +125,7 @@ private extension CommonSwapNotificationManager {
         receive: SendReceiveToken,
         provider: ExpressAvailableProvider?,
         state: SwapModel.LoadedState
-    ) -> [ExpressNotificationEvent] {
+    ) -> [SwapNotificationEvent] {
         let sourceTokenItemSymbol = source.tokenItem.currencySymbol
 
         var analyticsParams: [Analytics.ParameterKey: String] = [:]
@@ -205,7 +205,7 @@ private extension CommonSwapNotificationManager {
             ]
 
         case .previewCEX(let previewCEX):
-            var events: [ExpressNotificationEvent] = []
+            var events: [SwapNotificationEvent] = []
 
             if previewCEX.subtractFee.subtractFee > 0 {
                 let feeTokenItem = previewCEX.subtractFee.feeTokenItem
@@ -215,7 +215,7 @@ private extension CommonSwapNotificationManager {
                 let cryptoAmountFormatted = formatter.formatCryptoBalance(previewCEX.subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
                 let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
 
-                let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount(
+                let event = SwapNotificationEvent.feeWillBeSubtractFromSendingAmount(
                     cryptoAmountFormatted: cryptoAmountFormatted,
                     fiatAmountFormatted: fiatAmountFormatted
                 )
@@ -226,7 +226,7 @@ private extension CommonSwapNotificationManager {
             if let notification = previewCEX.notification {
                 let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
                 let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)
-                let event = ExpressNotificationEvent.withdrawalNotificationEvent(withdrawalNotification)
+                let event = SwapNotificationEvent.withdrawalNotificationEvent(withdrawalNotification)
                 events.append(event)
             }
 
@@ -237,7 +237,7 @@ private extension CommonSwapNotificationManager {
         }
     }
 
-    func mapValidationError(source: any SendSourceToken, validationError: ValidationError, context: ValidationErrorContext) -> ExpressNotificationEvent? {
+    func mapValidationError(source: any SendSourceToken, validationError: ValidationError, context: ValidationErrorContext) -> SwapNotificationEvent? {
         let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
@@ -246,11 +246,11 @@ private extension CommonSwapNotificationManager {
             return .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
 
         case .insufficientBalance:
-            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
+            assertionFailure("It has to be mapped to a restriction type for insufficient balance")
             return nil
 
         case .insufficientBalanceForFee:
-            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
+            assertionFailure("It has to be mapped to a restriction type for insufficient fee")
             notificationInputsSubject.value = []
             return nil
 

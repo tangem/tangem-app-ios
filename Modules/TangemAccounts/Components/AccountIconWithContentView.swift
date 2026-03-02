@@ -37,11 +37,12 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
                 .padding(.trailing, 12)
 
             contentStack
-                .fixedSize(horizontal: true, vertical: false)
 
             Spacer(minLength: 8)
 
             trailing
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1000.0)
         }
         .contentShape(Rectangle())
     }
