@@ -29,6 +29,8 @@ final class TangemPayManager: TangemPayAccountModel {
             .eraseToAnyPublisher()
     }
 
+    let id: TangemPayAccountId
+
     private(set) var customerId: String?
 
     private let customerWalletId: String
@@ -48,6 +50,7 @@ final class TangemPayManager: TangemPayAccountModel {
     private var bag = Set<AnyCancellable>()
 
     init(
+        userWalletId: UserWalletId,
         customerWalletId: String,
         keysRepository: KeysRepository,
         availabilityService: TangemPayAvailabilityService,
@@ -60,6 +63,7 @@ final class TangemPayManager: TangemPayAccountModel {
         cachedStateStorage: TangemPayCachedStateStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
+        id = TangemPayAccountId(userWalletId: userWalletId)
         self.customerWalletId = customerWalletId
         self.keysRepository = keysRepository
         self.availabilityService = availabilityService

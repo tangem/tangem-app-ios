@@ -131,5 +131,7 @@ private extension AccountRowButtonViewModel {
             }
             .store(in: &viewModel.bag)
         }
+
+        func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }

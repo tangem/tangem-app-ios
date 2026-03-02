@@ -237,5 +237,9 @@ private extension AccountDetailsViewModel {
                 }
             }
         }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
     }
 }

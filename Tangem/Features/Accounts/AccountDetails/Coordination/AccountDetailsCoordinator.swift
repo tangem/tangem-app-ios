@@ -119,5 +119,7 @@ private extension AccountDetailsCoordinator {
 
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
+
+        func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }
