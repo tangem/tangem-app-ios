@@ -29,8 +29,6 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationLinks(links)
                 }
 
-                marketsTooltipView
-
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
@@ -46,6 +44,9 @@ struct MainCoordinatorView: CoordinatorView {
                 }
             }
             .injectNavigationAssertionDelegate()
+        }
+        .overlay {
+            marketsTooltipView
         }
     }
 
@@ -78,6 +79,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.manageTokensCoordinator) {
+                ManageTokensCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -90,9 +94,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.expressCoordinator) { coordinator in
-                ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -184,7 +185,8 @@ struct MainCoordinatorView: CoordinatorView {
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
             onHideAction: coordinator.hideMarketsTooltip,
             title: Localization.marketsTooltipTitle,
-            message: Localization.marketsTooltipMessage
+            message: Localization.marketsTooltipMessage,
+            leadingIcon: Assets.plusMini
         )
     }
 }

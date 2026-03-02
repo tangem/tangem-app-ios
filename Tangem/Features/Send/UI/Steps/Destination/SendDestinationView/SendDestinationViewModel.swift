@@ -244,9 +244,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
         FeedbackGenerator.success()
 
-        // Set destination account via SendModel, which forwards to analytics logger
+        // Set destination account info, which forwards to analytics logger
         destinationAccountOutput?.setDestinationAccountInfo(
-            tokenHeader: destination.tokenHeader,
             analyticsProvider: destination.accountModelAnalyticsProvider
         )
 
