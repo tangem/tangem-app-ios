@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemPay
 
 protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
@@ -30,6 +31,8 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
+
+    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async
 }
 
 // MARK: - Convenience extensions
@@ -44,6 +47,8 @@ extension AccountModelsManager {
                     return [cryptoAccountModel]
                 case .standard(.multiple(let cryptoAccountModels)):
                     return cryptoAccountModels
+                case .tangemPay:
+                    return []
                 }
             }
     }
@@ -51,13 +56,44 @@ extension AccountModelsManager {
     /// Returns all crypto account models from the `accountModelsPublisher` property.
     var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
         accountModelsPublisher.map { accountModels in
-            accountModels.flatMap { accountModel in
+            accountModels.flatMap { accountModel -> [any CryptoAccountModel] in
                 switch accountModel {
                 case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
                 case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
+                case .tangemPay: []
                 }
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    var tangemPayAccountModel: TangemPayAccountModel? {
+        let tangemPayAccountModels = accountModels
+            .compactMap { accountModel in
+                if case .tangemPay(let model) = accountModel {
+                    return model
+                }
+                return nil
+            }
+        assert(tangemPayAccountModels.count < 2)
+        return tangemPayAccountModels.first
+    }
+
+    var tangemPayAccountModelPublisher: AnyPublisher<TangemPayAccountModel?, Never> {
+        accountModelsPublisher
+            .map { accountModels -> TangemPayAccountModel? in
+                let tangemPayAccountModels = accountModels
+                    .compactMap { accountModel -> TangemPayAccountModel? in
+                        switch accountModel {
+                        case .standard:
+                            nil
+                        case .tangemPay(let model):
+                            model
+                        }
+                    }
+                assert(tangemPayAccountModels.count < 2)
+                return tangemPayAccountModels.first
+            }
+            .eraseToAnyPublisher()
     }
 }

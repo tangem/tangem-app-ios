@@ -77,7 +77,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .sheet(
                 item: $coordinator.accountFormViewModel,
                 onDismiss: {
-                    coordinator.accountCreationFlowClosed = true
+                    coordinator.handleAccountFormDismissed()
                 }
             ) { viewModel in
                 NavigationStack {

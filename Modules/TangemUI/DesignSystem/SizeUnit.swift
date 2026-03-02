@@ -8,10 +8,12 @@
 
 import Foundation
 
-public enum SizeUnit {
+public enum SizeUnit: Sendable {
     case zero
+    case quarter
     case half
     case x1
+    case x1_5
     case x2
     case x3
     case x4
@@ -30,7 +32,7 @@ public enum SizeUnit {
     case x17
     case x18
 
-    var value: CGFloat {
+    public var value: CGFloat {
         Self.baseValue * factor
     }
 
@@ -39,8 +41,10 @@ public enum SizeUnit {
     private var factor: Double {
         switch self {
         case .zero: 0
+        case .quarter: 0.25
         case .half: 0.5
         case .x1: 1
+        case .x1_5: 1.5
         case .x2: 2
         case .x3: 3
         case .x4: 4
