@@ -34,7 +34,7 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel
     private let feeSelectorInteractor: CommonFeeSelectorInteractor
-    
+
     private weak var feeSelectorOutput: (any FeeSelectorOutput)?
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
