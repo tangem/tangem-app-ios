@@ -15,6 +15,6 @@ struct AmountSummaryViewData: Identifiable {
 
     let amount: String
     let amountFiat: String
-    let headerType: ExpressCurrencyHeaderType
+    let headerType: SendTokenHeader
     let tokenIconInfo: TokenIconInfo
 }

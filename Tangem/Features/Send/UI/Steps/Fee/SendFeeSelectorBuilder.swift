@@ -13,7 +13,6 @@ struct SendFeeSelectorBuilder {
 
     func makeSendFeeSelector(router: SendFeeSelectorRoutable) -> SendFeeSelectorViewModel? {
         guard let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager else {
-            assertionFailure("TokenFeeProvidersManager is not provided")
             return nil
         }
 

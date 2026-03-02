@@ -25,7 +25,7 @@ struct HighPriceImpactCalculator {
     /// 10% in the 0..1 range
     private let highPriceImpactWarningLimit: Decimal = 0.1
 
-    func isHighPriceImpact(provider: ExpressProvider, sourceFiatAmount: Decimal, destinationFiatAmount: Decimal) async throws -> Result? {
+    func isHighPriceImpact(provider: ExpressProvider, sourceFiatAmount: Decimal, destinationFiatAmount: Decimal) -> Result? {
         let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount)
 
         let isHighPriceImpact = lossesInPercents >= highPriceImpactWarningLimit
@@ -52,7 +52,7 @@ struct HighPriceImpactCalculator {
         let sourceFiatAmount = try await balanceConverter.convertToFiat(sourceAmount, currencyId: sourceCurrencyId)
         let destinationFiatAmount = try await balanceConverter.convertToFiat(destinationAmount, currencyId: destinationCurrencyId)
 
-        return try await isHighPriceImpact(provider: provider, sourceFiatAmount: sourceFiatAmount, destinationFiatAmount: destinationFiatAmount)
+        return isHighPriceImpact(provider: provider, sourceFiatAmount: sourceFiatAmount, destinationFiatAmount: destinationFiatAmount)
     }
 
     private func makeMessage(provider: ExpressProvider, isHighPriceImpact: Bool) -> String {

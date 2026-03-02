@@ -52,5 +52,6 @@ struct SendDestinationView: View {
             }
         }
         .onAppear(perform: viewModel.onAppear)
+        .padding(.bottom, 8)
     }
 }
