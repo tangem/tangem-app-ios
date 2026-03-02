@@ -11,6 +11,7 @@ import TangemLocalization
 import Combine
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 class OnrampAmountViewModel: ObservableObject {
     @Published var fiatItem: FiatItem?
@@ -32,6 +33,7 @@ class OnrampAmountViewModel: ObservableObject {
     init(
         tokenItem: TokenItem,
         initialAmount: Decimal?,
+        initialCurrency: OnrampFiatCurrency?,
         interactor: OnrampSummaryInteractor
     ) {
         self.tokenItem = tokenItem
@@ -41,6 +43,8 @@ class OnrampAmountViewModel: ObservableObject {
         formatter = BalanceFormatter()
 
         decimalNumberTextFieldViewModel.update(value: initialAmount)
+        update(currency: initialCurrency)
+
         bind()
     }
 
