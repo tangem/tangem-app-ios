@@ -40,45 +40,48 @@ public struct AccountIconView: View {
     }
 
     public var body: some View {
-        label
+        if let backgroundColor = data.backgroundColor {
+            compositeBody(backgroundColor: backgroundColor)
+        } else {
+            imageBody
+        }
+    }
+
+    private func compositeBody(backgroundColor: Color) -> some View {
+        compositeLabel
             .matchedGeometryEffect(iconGeometryEffect)
-            .frame(size: labelFrameSize)
-            .padding(labelPadding)
+            .frame(width: scaledWidth, height: scaledHeight)
+            .padding(scaledPadding)
             .background(
                 GeometryReader { geo in
                     RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
-                        .fill(data.backgroundColor)
+                        .fill(backgroundColor)
                 }
                 .matchedGeometryEffect(backgroundGeometryEffect)
             )
             .animation(.default, value: data.nameMode)
     }
 
-    private var labelFrameSize: CGSize {
+    @ViewBuilder
+    private var imageBody: some View {
         switch data.nameMode {
-        case .letter, .imageType:
-            CGSize(width: scaledWidth, height: scaledHeight)
-
-        case .tangemPay:
-            CGSize(
-                width: scaledWidth + scaledPadding * 2,
-                height: scaledHeight + scaledPadding * 2
-            )
-        }
-    }
-
-    private var labelPadding: CGFloat {
-        switch data.nameMode {
-        case .letter, .imageType:
-            scaledPadding
-
-        case .tangemPay:
-            .zero
+        case .imageType(let imageType, let config):
+            imageType.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .matchedGeometryEffect(iconGeometryEffect)
+                .frame(
+                    width: scaledWidth + scaledPadding * 2,
+                    height: scaledHeight + scaledPadding * 2
+                )
+                .opacity(config.opacity)
+        case .letter:
+            EmptyView()
         }
     }
 
     @ViewBuilder
-    private var label: some View {
+    private var compositeLabel: some View {
         switch data.nameMode {
         case .letter(let letter, let config):
             Text(letter)
@@ -92,11 +95,6 @@ public struct AccountIconView: View {
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
-
-        case .tangemPay:
-            Assets.Visa.accountAvatar.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
         }
     }
 }
@@ -105,10 +103,10 @@ public struct AccountIconView: View {
 
 public extension AccountIconView {
     struct ViewData: Hashable {
-        let backgroundColor: Color
+        let backgroundColor: Color?
         let nameMode: NameMode
 
-        public init(backgroundColor: Color, nameMode: NameMode) {
+        public init(backgroundColor: Color?, nameMode: NameMode) {
             self.backgroundColor = backgroundColor
             self.nameMode = nameMode
         }
@@ -119,7 +117,7 @@ public extension AccountIconView {
             switch nameMode {
             case .letter(let letter, _):
                 return ViewData(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .imageType, .tangemPay:
+            case .imageType:
                 return self
             }
         }
@@ -140,7 +138,6 @@ public extension AccountIconView {
     enum NameMode: Hashable {
         case letter(String, LetterConfig = .default)
         case imageType(ImageType, ImageConfig = .default)
-        case tangemPay
     }
 }
 

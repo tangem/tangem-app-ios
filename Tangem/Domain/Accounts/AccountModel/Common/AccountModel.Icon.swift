@@ -12,7 +12,7 @@ import TangemFoundation
 extension AccountModel {
     struct Icon: Hashable {
         let name: Name
-        let color: Color
+        let color: Color?
     }
 }
 
@@ -34,7 +34,7 @@ extension AccountModel.Icon {
         case vitalGreen = "VitalGreen"
     }
 
-    enum Name: String, CaseIterable, Hashable {
+    enum Name: String, Hashable {
         case letter = "Letter"
         case star = "Star"
         case user = "User"
@@ -53,6 +53,7 @@ extension AccountModel.Icon {
         case clock = "Clock"
         case package = "Package"
         case gift = "Gift"
+        case tangemPay = "TangemPay"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -76,7 +77,33 @@ extension AccountModel.Icon {
             case .clock: 15
             case .package: 16
             case .gift: 17
+            case .tangemPay: 18
             }
+        }
+
+        /// User-selectable icon names for crypto accounts.
+        /// Excludes `.tangemPay` which is a fixed, non-selectable icon.
+        static var allCases: [Name] {
+            [
+                .letter,
+                .star,
+                .user,
+                .family,
+                .wallet,
+                .money,
+                .home,
+                .safe,
+                .beach,
+                .airplaneMode,
+                .shirt,
+                .shoppingBasket,
+                .favorite,
+                .bookmark,
+                .startUp,
+                .clock,
+                .package,
+                .gift,
+            ]
         }
     }
 }
@@ -112,7 +139,7 @@ extension AccountModel.Icon: CustomStringConvertible {
             .empty,
             userInfo: [
                 "name": name.rawValue,
-                "color": color.rawValue,
+                "color": color?.rawValue ?? "",
             ]
         )
     }

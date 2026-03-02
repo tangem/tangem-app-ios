@@ -109,13 +109,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
         switch flowType {
         case .edit(let account):
-            iconColor = account.icon.color
+            iconColor = account.icon.color ?? .azure
             iconName = account.icon.name
             accountName = account.name
         case .create:
-            let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
-            iconColor = newAccountIcon.color
-            iconName = newAccountIcon.name
+            let newIcon = AccountModelUtils.UI.newAccountIcon()
+            iconColor = newIcon.color ?? .azure
+            iconName = newIcon.name
             accountName = ""
         }
 
@@ -455,6 +455,10 @@ private extension AccountFormViewModel {
 
         func resolve(accountModel: any CryptoAccountModel) -> Result {
             accountModel.descriptionString
+        }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> String? {
+            nil
         }
     }
 }
