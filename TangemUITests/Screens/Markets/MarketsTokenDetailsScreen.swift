@@ -31,11 +31,7 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     @discardableResult
     func openExchanges() -> MarketsExchangeScreen {
         XCTContext.runActivity(named: "Open exchanges list") { _ in
-            if !listedOnExchangesButton.isHittable {
-                app.swipeUp()
-            }
-
-            listedOnExchangesButton.waitAndTap()
+            listedOnExchangesButton.waitAndTapWithScroll()
             return MarketsExchangeScreen(app)
         }
     }
