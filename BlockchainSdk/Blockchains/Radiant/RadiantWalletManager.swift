@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import WalletCore
 
-final class RadiantWalletManager: BaseManager {
+final class RadiantWalletManager: BaseManager, DustRestrictable {
     // MARK: - Private Properties
 
     private let transactionBuilder: RadiantTransactionBuilder
@@ -118,6 +118,10 @@ extension RadiantWalletManager: WalletManager {
         true
     }
 
+    var dustValue: Amount {
+        Amount(with: wallet.blockchain, value: Constants.dustValue)
+    }
+
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         sendViaCompileTransaction(transaction, signer: signer)
     }
@@ -142,6 +146,8 @@ extension RadiantWalletManager: WalletManager {
 
 extension RadiantWalletManager {
     enum Constants {
+        static let dustValue: Decimal = .init(stringValue: "0.001")!
+
         /**
          - We use 1000, because Electrum node return fee for per 1000 bytes.
          */
