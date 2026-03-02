@@ -11,11 +11,11 @@ import Foundation
 
 public extension Publisher {
     func async() async throws -> Output {
-        let cancellableWrapper = CancellableWrapper()
+        let cancellableWrapper = ThreadSafeCancellableWrapper()
 
         return try await withTaskCancellationHandler {
             return try await withCheckedThrowingContinuation { continuation in
-                let continuationWrapper = CheckedContinuationWrapper(continuation: continuation)
+                let continuationWrapper = ResumableOnceCheckedContinuationWrapper(continuation)
 
                 // This check is necessary in case this code runs after the task was
                 // cancelled. In which case we want to bail right away.
@@ -24,7 +24,7 @@ public extension Publisher {
                     return
                 }
 
-                cancellableWrapper.value = first()
+                return first()
                     .handleEvents(receiveCancel: {
                         // We don't get a cancel error when cancelling a publisher, so we need
                         // to handle if the publisher was cancelled from the
@@ -44,6 +44,7 @@ public extension Publisher {
                             continuationWrapper.resumeIfNeeded(returning: value)
                         }
                     )
+                    .store(in: cancellableWrapper)
             }
         } onCancel: {
             cancellableWrapper.cancel()
@@ -51,53 +52,8 @@ public extension Publisher {
     }
 }
 
+// MARK: - Auxiliary types
+
 enum AsyncError: Error {
     case valueWasNotEmittedBeforeCompletion
-}
-
-/// Closures in `withTaskCancellationHandler(handler:operation:)` may be called on different threads,
-/// this wrapper provides required synchronization.
-private final class CancellableWrapper {
-    var value: Cancellable? {
-        get { criticalSection { innerCancellable } }
-        set { criticalSection { innerCancellable = newValue } }
-    }
-
-    private var innerCancellable: Cancellable?
-    private let criticalSection = OSAllocatedUnfairLock()
-
-    func cancel() {
-        criticalSection { innerCancellable?.cancel() }
-    }
-}
-
-/// Resumes the given continuation exactly once.
-private final class CheckedContinuationWrapper<T, E> where E: Error {
-    private var wasResumed = false
-    private let continuation: CheckedContinuation<T, E>
-    private let criticalSection = OSAllocatedUnfairLock()
-
-    init(continuation: CheckedContinuation<T, E>) {
-        self.continuation = continuation
-    }
-
-    /// Safe shim for `CheckedContinuation.resume(returning:)`.
-    func resumeIfNeeded(returning value: T) {
-        criticalSection {
-            if !wasResumed {
-                wasResumed = true
-                continuation.resume(returning: value)
-            }
-        }
-    }
-
-    /// Safe shim for `CheckedContinuation.resume(throwing:)`.
-    func resumeIfNeeded(throwing error: E) {
-        criticalSection {
-            if !wasResumed {
-                wasResumed = true
-                continuation.resume(throwing: error)
-            }
-        }
-    }
 }
