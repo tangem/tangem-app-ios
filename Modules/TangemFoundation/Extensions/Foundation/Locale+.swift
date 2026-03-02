@@ -16,10 +16,43 @@ public extension Locale {
 public extension Locale {
     static let appLanguageCode = Bundle.main.preferredLocalizations.first ?? enLanguageCode
 
-    static let deviceLanguageCode = {
+    /// Returns the device's preferred language code.
+    ///
+    /// This method retrieves the list of languages selected by the user in order of preference.
+    /// You can choose to include the region code or not.
+    ///
+    /// - Parameters:
+    ///   - withRegion: If `true`, returns the full language identifier including region (e.g., "en-US").
+    ///                 If `false`, removes the region part for identifiers with three components (e.g., "zh-Hans-RU" -> "zh-Hans").
+    ///   - fallback: The language code to return if the device's language list cannot be determined.
+    ///
+    /// - Returns: A `String` representing the device language code, with or without region.
+    static func deviceLanguageCode(
+        withRegion: Bool = true,
+        fallback: LanguageCode = .english
+    ) -> String {
+        // Get the list of device languages in the order set by the user. Format: [language]-[region]
         let languages = CFPreferencesCopyAppValue("AppleLanguages" as CFString, kCFPreferencesAnyApplication) as? [String]
-        return languages?.first ?? LanguageCode.english.identifier
-    }()
+
+        // Use fallback if no languages are found
+        guard let language = languages?.first else {
+            return fallback.identifier
+        }
+
+        if withRegion {
+            return language
+        }
+
+        let separator = "-"
+        let languageParts = language.split(separator: separator)
+
+        // We cannot rely on `Locale.language.script` because its standard may differ from the device language identifier
+        if languageParts.count > 1 {
+            return languageParts.dropLast().joined(separator: separator)
+        } else {
+            return language
+        }
+    }
 }
 
 public extension Locale {
@@ -30,7 +63,7 @@ public extension Locale {
 
 public extension Locale {
     static func webLanguageCode() -> String {
-        switch deviceLanguageCode {
+        switch deviceLanguageCode() {
         case ruLanguageCode, byLanguageCode:
             return ruLanguageCode
         default:
@@ -51,7 +84,7 @@ public extension Locale {
         }
 
         // Priority 2: Device language
-        let deviceLang = Locale.Language(identifier: deviceLanguageCode)
+        let deviceLang = Locale.Language(identifier: deviceLanguageCode())
         if let code = deviceLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
             return code
         }

@@ -62,7 +62,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         priceFormatter.formatPrice(walletModel.quote?.price)
     }
 
-    final var priceChangeState: TokenPriceChangeView.State {
+    final var priceChangeState: PriceChangeView.State {
         priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
@@ -572,7 +572,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openExchange(walletModel: walletModel)
+        tokenRouter.openSwap(walletModel: walletModel)
     }
 
     final func openStaking() {

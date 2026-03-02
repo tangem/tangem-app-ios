@@ -14,7 +14,8 @@ import TangemFoundation
 enum EarnAddTokenFlowConfigurationFactory {
     static func make(
         earnToken: EarnTokenModel,
-        coordinator: EarnAddTokenRoutable
+        coordinator: EarnAddTokenRoutable,
+        analyticsProvider: EarnAnalyticsProvider
     ) -> AccountsAwareAddTokenFlowConfiguration {
         let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool = { tokenItem, account in
             account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
@@ -39,6 +40,7 @@ enum EarnAddTokenFlowConfigurationFactory {
                 return [tokenItem]
             },
             isTokenAdded: isTokenAdded,
+            accountSelectionAvailability: .disabled,
             accountSelectionBehavior: makeCustomExecuteActionBehavior(
                 coordinator: coordinator,
                 isTokenAdded: isTokenAdded
@@ -52,7 +54,7 @@ enum EarnAddTokenFlowConfigurationFactory {
             },
             accountFilter: makeAccountFilter(earnToken: earnToken),
             accountAvailabilityProvider: nil,
-            analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
+            analyticsLogger: analyticsProvider
         )
     }
 }
@@ -114,10 +116,10 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         earnToken: EarnTokenModel
-    ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
         let networkId = earnToken.networkId
-        return { account, supportedBlockchains in
-            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+        return { context in
+            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: context.account, in: context.supportedBlockchains)
         }
     }
 }

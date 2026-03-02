@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemUI
 
 final class MarketsTokenDetailsPriceInfoHelper {
-    typealias PriceInfo = (price: String, priceChangeState: TokenPriceChangeView.State)
+    typealias PriceInfo = (price: String, priceChangeState: PriceChangeView.State)
 
     private let priceChangeUtility = PriceChangeUtility()
     private let priceFormatter = MarketsTokenPriceFormatter()
