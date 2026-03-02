@@ -39,12 +39,13 @@ final class SendCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var expressApproveViewModel: ExpressApproveViewModel?
-
+    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
+    private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
 
     required init(
@@ -75,7 +76,6 @@ final class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
-        let input: SendInput
         let type: SendType
         let source: Source
     }
@@ -215,6 +215,48 @@ extension SendCoordinator: SendRoutable {
     }
 }
 
+// MARK: - SwapRoutable
+
+extension SendCoordinator: SwapRoutable {
+    func openSwapTokenSelector(
+        swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
+        direction: SwapTokenSelectorViewModel.SwapDirection
+    ) {
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(onTokenAdded: { [weak self] item in
+            guard let viewModel = self?.swapTokenSelectorViewModel else {
+                AppLogger.debug("SwapTokenSelectorViewModel not found")
+                return
+            }
+            viewModel.selectNewToken(item)
+        })
+
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
+
+        // Create external search view model if feature toggle is enabled
+        let marketsTokensViewModel: SwapMarketsTokensViewModel?
+        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+            marketsTokensViewModel = SwapMarketsTokensViewModel()
+        } else {
+            marketsTokensViewModel = nil
+        }
+
+        swapTokenSelectorViewModel = swapTokenSelectorViewModelBuilder.makeSwapTokenSelectorViewModel(
+            direction: direction,
+            router: self,
+            marketsTokensViewModel: marketsTokensViewModel,
+            marketsTokenAdditionRouter: marketsTokenAdditionCoordinator
+        )
+    }
+}
+
+// MARK: - SwapTokenSelectorRoutable
+
+extension SendCoordinator: SwapTokenSelectorRoutable {
+    func closeSwapTokenSelector() {
+        swapTokenSelectorViewModel = nil
+    }
+}
+
 // MARK: - OnrampRoutable
 
 extension SendCoordinator: OnrampRoutable {
@@ -246,10 +288,10 @@ extension SendCoordinator: OnrampRoutable {
         )
     }
 
-    func openOnrampSettings(repository: any OnrampRepository) {
+    func openOnrampSettings(repository: any OnrampRepository, settingsRoutable: OnrampSettingsRoutable) {
         onrampSettingsViewModel = OnrampSettingsViewModel(
             repository: repository,
-            coordinator: self
+            coordinator: settingsRoutable
         )
     }
 
@@ -310,14 +352,6 @@ extension SendCoordinator: FeeSelectorRoutable {
 extension SendCoordinator: OnrampCountrySelectorRoutable {
     func dismissCountrySelector() {
         onrampCountrySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampSettingsRoutable
-
-extension SendCoordinator: OnrampSettingsRoutable {
-    func openOnrampCountrySelector() {
-        rootViewModel?.openOnrampCountrySelectorView()
     }
 }
 

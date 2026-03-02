@@ -17,6 +17,9 @@ struct AccountsAwareAddTokenFlowConfiguration {
     /// Check if token is already added to account (for readonly marking in network list)
     let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool
 
+    /// When to allow changing account from the add-token screen (e.g. account cell tappable).
+    let accountSelectionAvailability: AccountSelectionAvailability
+
     /// What happens after account is selected
     let accountSelectionBehavior: AccountSelectionBehavior
 
@@ -24,24 +27,26 @@ struct AccountsAwareAddTokenFlowConfiguration {
     let postAddBehavior: PostAddBehavior
 
     /// Filter which accounts to show (based on supported blockchains)
-    let accountFilter: ((any CryptoAccountModel, Set<Blockchain>) -> Bool)?
+    let accountFilter: ((AccountContext) -> Bool)?
 
     /// Check if account is available (or already has token on all networks)
-    let accountAvailabilityProvider: ((AccountAvailabilityContext) -> AccountAvailability)?
+    let accountAvailabilityProvider: ((AccountContext) -> AccountAvailability)?
 
     let analyticsLogger: AddTokenFlowAnalyticsLogger
 
     init(
         getAvailableTokenItems: @escaping (AccountSelectorCellModel) -> [TokenItem],
         isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool,
+        accountSelectionAvailability: AccountSelectionAvailability = .enabledWhenNotSingleAccount,
         accountSelectionBehavior: AccountSelectionBehavior = .executeAccountSelection,
         postAddBehavior: PostAddBehavior,
-        accountFilter: ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? = nil,
-        accountAvailabilityProvider: ((AccountAvailabilityContext) -> AccountAvailability)? = nil,
+        accountFilter: ((AccountContext) -> Bool)? = nil,
+        accountAvailabilityProvider: ((AccountContext) -> AccountAvailability)? = nil,
         analyticsLogger: AddTokenFlowAnalyticsLogger
     ) {
         self.getAvailableTokenItems = getAvailableTokenItems
         self.isTokenAdded = isTokenAdded
+        self.accountSelectionAvailability = accountSelectionAvailability
         self.accountSelectionBehavior = accountSelectionBehavior
         self.postAddBehavior = postAddBehavior
         self.accountFilter = accountFilter
@@ -55,6 +60,12 @@ struct AccountsAwareAddTokenFlowConfiguration {
 extension AccountsAwareAddTokenFlowConfiguration {
     typealias AccountSelectionActionWithContinuation = (TokenItem, AccountSelectorCellModel, @escaping () -> Void) -> Void
 
+    enum AccountSelectionAvailability {
+        case disabled
+        /// Allow account selection only when there is not exactly one account (i.e. when there are 0 or 2+ accounts).
+        case enabledWhenNotSingleAccount
+    }
+
     enum AccountSelectionBehavior {
         case executeAccountSelection
         /// Custom action when account is selected. Call the continuation to proceed to network selection.
@@ -67,10 +78,10 @@ extension AccountsAwareAddTokenFlowConfiguration {
     }
 }
 
-// MARK: - AccountAvailabilityContext
+// MARK: - AccountContext
 
 extension AccountsAwareAddTokenFlowConfiguration {
-    struct AccountAvailabilityContext {
+    struct AccountContext {
         let account: any CryptoAccountModel
         let supportedBlockchains: Set<Blockchain>
     }
