@@ -27,7 +27,7 @@ struct FeeCompactView: View {
 
     private var content: some View {
         BaseOneLineRow(
-            icon: Assets.Glyphs.feeNew,
+            icon: viewModel.showsLeadingIcon ? Assets.Glyphs.feeNew : nil,
             title: Localization.commonNetworkFeeTitle,
             secondLeadingView: {
                 InfoButtonView(size: .medium, tooltipText: .attributed(text: viewModel.infoButtonString))
@@ -47,7 +47,11 @@ struct FeeCompactView: View {
             }
         )
         .shouldShowTrailingIcon(viewModel.canEditFee)
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
+        .if(viewModel.showsRoundedBackground) { view in
+            view.defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
+        } else: { view in
+            view.padding(.vertical, 12)
+        }
     }
 
     @ViewBuilder
