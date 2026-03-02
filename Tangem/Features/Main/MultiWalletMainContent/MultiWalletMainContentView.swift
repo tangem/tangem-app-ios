@@ -201,7 +201,8 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
         let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            manageTokensActionFactory: { _ in {} }
         )
 
         let tokenItemPromoProvider = YieldTokenItemPromoProvider(
