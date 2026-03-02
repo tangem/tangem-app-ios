@@ -112,12 +112,11 @@ extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
 
 private extension ExpressApproveFlowViewModel {
     func bind() {
-        approveViewModel.feeCompactViewModel?.bind(
-            selectedFeePublisher: feeSelectorInteractor.selectedTokenFeePublisher,
-            supportFeeSelectionPublisher: feeSelectorInteractor.supportedTokenFeeProvidersPublisher
-                .map { $0.count > 1 }
-                .eraseToAnyPublisher()
-        )
+        approveViewModel.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
 
         feeSelectorInteractor.selectedTokenFeeProviderPublisher
             .dropFirst()
