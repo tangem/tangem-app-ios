@@ -568,13 +568,6 @@ extension StakingModel: ApproveViewModelInput {
         mapToApproveFee(_state.value)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, Error>, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { $0.mapToApproveFee($1) }
-            .eraseToAnyPublisher()
-    }
-
     func updateApprovePolicy(policy: ApprovePolicy) {
         _approvePolicy.send(policy)
         updateState()
