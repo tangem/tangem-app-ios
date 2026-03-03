@@ -9,17 +9,16 @@
 import Combine
 import TangemExpress
 import TangemUI
-import UIKit
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemAssets
 import BlockchainSdk
 
-final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class ExpressApproveViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var subtitle: String
+    let subtitle: String
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
     @Published var selectedAction: BSDKApprovePolicy
@@ -35,7 +34,6 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
     private(set) var selectedFeeTokenItem: TokenItem
     /// Approve data computed from a fee-token change in the flow VM, passed explicitly to `sendApproveTransaction`.
     var overriddenApproveData: ApproveTransactionData?
@@ -43,7 +41,6 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveCoordinating?
 
-    private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     private let initialFee: LoadingResult<ApproveInputFee, any Error>
@@ -54,7 +51,6 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
         approveViewModelInput = input.approveViewModelInput
 
         tokenItem = input.settings.tokenItem
-        feeTokenItem = input.settings.feeTokenItem
         selectedFeeTokenItem = input.settings.feeTokenItem
 
         let initialFee = input.approveViewModelInput.approveFeeValue
@@ -95,10 +91,6 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
 
     func didTapFeeSelectorButton() {
         coordinator?.openFeeTokenSelection()
-    }
-
-    func didTapInfoButton() {
-        coordinator?.didTapInfoButton()
     }
 
     func didTapApprove() {

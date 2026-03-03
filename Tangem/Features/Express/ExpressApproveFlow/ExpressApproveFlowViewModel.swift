@@ -17,7 +17,6 @@ import BlockchainSdk
 
 protocol ExpressApproveFlowRoutable: AnyObject {
     func openFeeTokenSelection()
-    func didTapInfoButton()
 }
 
 protocol ExpressApproveCoordinating: ExpressApproveFlowRoutable, ExpressApproveRoutable {}
@@ -78,10 +77,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
 // MARK: - ExpressApproveFlowRoutable
 
 extension ExpressApproveFlowViewModel: ExpressApproveFlowRoutable {
-    func didTapInfoButton() {
-        alert = AlertBinder(title: Localization.swappingApproveInformationTitle, message: Localization.swappingApproveInformationText)
-    }
-
     func openFeeTokenSelection() {
         presentFeeTokenSelection()
     }
@@ -156,9 +151,15 @@ private extension ExpressApproveFlowViewModel {
             .flatMapLatest { $0.statePublisher }
             .sink { [weak self] state in
                 guard let self else { return }
-                if case .error(let error) = state {
+                switch state {
+                case .error(let error):
                     recalculateApproveFeeTask?.cancel()
                     approveViewModel.applyFee(.override(.failure(error)))
+                case .unavailable:
+                    recalculateApproveFeeTask?.cancel()
+                    approveViewModel.applyFee(.override(.failure(TokenFeeProviderError.providerUnavailable)))
+                case .idle, .loading, .available:
+                    break
                 }
             }
             .store(in: &bag)
@@ -236,10 +237,6 @@ extension ExpressApproveFlowViewModel {
     func dismissFeeTokenSelection() {
         state = .approve(approveViewModel)
     }
-
-    func openLearnMoreURL() {
-        coordinatorRouter?.openLearnMore()
-    }
 }
 
 // MARK: - ViewState
@@ -301,10 +298,7 @@ extension ExpressApproveFlowViewModel {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
-                // Temporarily replace with an empty string because the final URL isn't ready yet
                 attr.replaceSubrange(range, with: AttributedString(""))
-//                attr[range].foregroundColor = Colors.Text.accent
-//                attr[range].link = URL(string: " ")
             }
 
             return attr
