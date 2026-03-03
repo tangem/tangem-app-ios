@@ -9,7 +9,8 @@
 import Foundation
 
 /// Resumes the given checked continuation exactly once.
-final class ResumableOnceCheckedContinuationWrapper<T, E> where E: Error {
+/// - Note: This wrapper uses internal synchronization, so it marked with `@unchecked Sendable`.
+final class ResumableOnceCheckedContinuationWrapper<T, E>: @unchecked Sendable where E: Error {
     private let innerContinuation: CheckedContinuation<T, E>
     private let criticalSection = OSAllocatedUnfairLock()
     private var isResumed = false

@@ -12,7 +12,8 @@ import Combine
 /// This wrapper provides required synchronization for the `Cancellable` object, so it can be safely cancelled only once from any thread.
 /// Useful for the API like `withTaskCancellationHandler(operation:onCancel:)` when there is no guarantee which closure
 /// (`operation` or `onCancel`) will be called first.
-public final class ThreadSafeCancellableWrapper {
+/// - Note: This wrapper uses internal synchronization, so it marked with `@unchecked Sendable`.
+public final class ThreadSafeCancellableWrapper: @unchecked Sendable {
     private let criticalSection = OSAllocatedUnfairLock()
     private var innerCancellable: Cancellable?
     private var isCancelled = false
