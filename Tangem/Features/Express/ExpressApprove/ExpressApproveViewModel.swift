@@ -42,12 +42,11 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    private let overrideApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>?, Never>?
+    private let _overrideFee = CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>(nil)
 
     init(input: Input) {
         feeFormatter = input.feeFormatter
         approveViewModelInput = input.approveViewModelInput
-        overrideApproveFeePublisher = input.overrideApproveFeePublisher
 
         tokenItem = input.settings.tokenItem
         feeTokenItem = input.settings.feeTokenItem
@@ -69,6 +68,10 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
 
     func setCoordinator(_ coordinator: ExpressApproveCoordinating) {
         self.coordinator = coordinator
+    }
+
+    func updateOverrideFee(_ fee: LoadingResult<ApproveInputFee, any Error>?) {
+        _overrideFee.send(fee)
     }
 
     func didTapFeeSelectorButton() {
@@ -128,13 +131,9 @@ extension ExpressApproveViewModel {
 
 private extension ExpressApproveViewModel {
     var effectiveApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
-        guard let overrideApproveFeePublisher else {
-            return approveViewModelInput.approveFeeValuePublisher
-        }
-
-        return Publishers.CombineLatest(
+        Publishers.CombineLatest(
             approveViewModelInput.approveFeeValuePublisher,
-            overrideApproveFeePublisher
+            _overrideFee
         )
         .map { original, override in override ?? original }
         .eraseToAnyPublisher()
@@ -217,7 +216,6 @@ extension ExpressApproveViewModel {
         let settings: Settings
         let feeFormatter: FeeFormatter
         let approveViewModelInput: ApproveViewModelInput
-        var overrideApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>?, Never>?
     }
 
     struct Settings {
