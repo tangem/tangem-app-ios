@@ -13,7 +13,7 @@ import TangemUIUtils
 import TangemLocalization
 import TangemAssets
 import TangemFoundation
-import enum BlockchainSdk.AllowanceState
+import BlockchainSdk
 
 protocol ExpressApproveFlowRoutable: AnyObject {
     func openFeeTokenSelection()
@@ -34,8 +34,8 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     // MARK: - Dependencies
 
     private let approveViewModel: ExpressApproveViewModel
-    private let feeSelectorViewModel: FeeSelectorTokensViewModel
-    private let feeSelectorInteractor: CommonFeeSelectorInteractor
+    private let feeSelectorViewModel: FeeSelectorTokensViewModel?
+    private let feeSelectorInteractor: CommonFeeSelectorInteractor?
     private let allowanceService: (any AllowanceService)?
     private let approveAmount: Decimal?
     private let spender: String?
@@ -49,8 +49,8 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     init(
         approveViewModel: ExpressApproveViewModel,
         router: ExpressApproveRoutable,
-        feeSelectorViewModel: FeeSelectorTokensViewModel,
-        feeSelectorInteractor: CommonFeeSelectorInteractor,
+        feeSelectorViewModel: FeeSelectorTokensViewModel?,
+        feeSelectorInteractor: CommonFeeSelectorInteractor?,
         allowanceService: (any AllowanceService)?,
         approveAmount: Decimal? = nil,
         spender: String? = nil
@@ -72,8 +72,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
 
     deinit {
         recalculateApproveFeeTask?.cancel()
-        let service = allowanceService
-        Task { await service?.setOverriddenApproveData(nil) }
     }
 }
 
@@ -98,9 +96,7 @@ extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
 
     func userDidCancel() {
         recalculateApproveFeeTask?.cancel()
-        Task { [allowanceService] in
-            await allowanceService?.setOverriddenApproveData(nil)
-        }
+        approveViewModel.overriddenApproveData = nil
         coordinatorRouter?.userDidCancel()
     }
 
@@ -113,7 +109,7 @@ extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
 
 extension ExpressApproveFlowViewModel: FeeSelectorTokensRoutable {
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
-        feeSelectorInteractor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
+        feeSelectorInteractor?.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
         state = .approve(approveViewModel)
     }
 }
@@ -133,15 +129,27 @@ private extension ExpressApproveFlowViewModel {
             .sink { [weak self] in self?.alert = $0 }
             .store(in: &bag)
 
-        Publishers.CombineLatest(
-            feeSelectorInteractor.selectedTokenFeeProviderPublisher,
-            approveViewModel.$selectedAction.removeDuplicates()
-        )
-        .dropFirst()
-        .sink { [weak self] provider, _ in
-            self?.recalculateApproveFee(for: provider)
-        }
-        .store(in: &bag)
+        guard let feeSelectorInteractor else { return }
+
+        feeSelectorInteractor.selectedTokenFeeProviderPublisher
+            .dropFirst()
+            .sink { [weak self] provider in
+                self?.recalculateApproveFee(for: provider)
+            }
+            .store(in: &bag)
+
+        // Only recalculate when policy changes if the fee token is non-native (gasless),
+        // because SwapModel.updateApprovePolicy already handles the native fee token case
+        approveViewModel.$selectedAction
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] _ in
+                guard let self,
+                      let provider = self.feeSelectorInteractor?.selectedTokenFeeProvider,
+                      provider.feeTokenItem.isToken else { return }
+                recalculateApproveFee(for: provider)
+            }
+            .store(in: &bag)
 
         feeSelectorInteractor.selectedTokenFeeProviderPublisher
             .dropFirst()
@@ -185,13 +193,10 @@ private extension ExpressApproveFlowViewModel {
                     )
                 }
 
-                if case .permissionRequired(let data) = state {
-                    await allowanceService.setOverriddenApproveData(data)
-                } else {
-                    await allowanceService.setOverriddenApproveData(nil)
-                }
+                let approveData: ApproveTransactionData? = if case .permissionRequired(let data) = state { data } else { nil }
 
                 await runOnMain {
+                    viewModel.approveViewModel.overriddenApproveData = approveData
                     viewModel.handleAllowanceState(state, feeTokenItem: feeTokenItem)
                 }
             } catch is CancellationError {
@@ -222,6 +227,8 @@ private extension ExpressApproveFlowViewModel {
 
 extension ExpressApproveFlowViewModel {
     func presentFeeTokenSelection() {
+        guard let feeSelectorViewModel else { return }
+
         feeSelectorViewModel.setup(router: self)
         state = .feeTokenSelection(feeSelectorViewModel)
     }

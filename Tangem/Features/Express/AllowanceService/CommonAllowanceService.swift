@@ -18,7 +18,6 @@ actor CommonAllowanceService {
     private let balanceConverter = BalanceConverter()
 
     private var spendersAwaitingApprove: Set<String> = []
-    private var overriddenApproveData: ApproveTransactionData?
 
     init(
         allowanceChecker: AllowanceChecker,
@@ -55,6 +54,17 @@ extension CommonAllowanceService: AllowanceService {
         approvePolicy: ApprovePolicy,
         feeTokenItem: TokenItem
     ) async throws -> AllowanceState {
+        let isPermissionRequired = try await allowanceChecker.isPermissionRequired(amount: amount, spender: spender)
+
+        guard isPermissionRequired else {
+            spendersAwaitingApprove.remove(spender)
+            return .enoughAllowance
+        }
+
+        if spendersAwaitingApprove.contains(spender) {
+            return .approveTransactionInProgress
+        }
+
         guard let feeToken = feeTokenItem.token else {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
@@ -85,16 +95,9 @@ extension CommonAllowanceService: AllowanceService {
     }
 
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
-        let effectiveData = overriddenApproveData ?? data
-        overriddenApproveData = nil
-
-        let result = try await approveTransactionDispatcher.send(transaction: .approve(data: effectiveData))
-        spendersAwaitingApprove.insert(effectiveData.spender)
+        let result = try await approveTransactionDispatcher.send(transaction: .approve(data: data))
+        spendersAwaitingApprove.insert(data.spender)
 
         return result
-    }
-
-    func setOverriddenApproveData(_ data: ApproveTransactionData?) async {
-        overriddenApproveData = data
     }
 }

@@ -13,7 +13,7 @@ protocol ApproveViewModelInput {
     var approveFeeValue: LoadingResult<ApproveInputFee, any Error> { get }
 
     func updateApprovePolicy(policy: ApprovePolicy)
-    func sendApproveTransaction() async throws
+    func sendApproveTransaction(overriddenApproveData: ApproveTransactionData?) async throws
 }
 
 struct ApproveInputFee {
