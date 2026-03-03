@@ -42,9 +42,12 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
+    private let overrideApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>?, Never>?
+
     init(input: Input) {
         feeFormatter = input.feeFormatter
         approveViewModelInput = input.approveViewModelInput
+        overrideApproveFeePublisher = input.overrideApproveFeePublisher
 
         tokenItem = input.settings.tokenItem
         feeTokenItem = input.settings.feeTokenItem
@@ -124,8 +127,21 @@ extension ExpressApproveViewModel {
 // MARK: - Private
 
 private extension ExpressApproveViewModel {
+    var effectiveApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
+        guard let overrideApproveFeePublisher else {
+            return approveViewModelInput.approveFeeValuePublisher
+        }
+
+        return Publishers.CombineLatest(
+            approveViewModelInput.approveFeeValuePublisher,
+            overrideApproveFeePublisher
+        )
+        .map { original, override in override ?? original }
+        .eraseToAnyPublisher()
+    }
+
     var approveFeeTokenPublisher: AnyPublisher<TokenFee, Never> {
-        approveViewModelInput.approveFeeValuePublisher
+        effectiveApproveFeePublisher
             .map { [feeTokenItem] result -> TokenFee in
                 switch result {
                 case .success(let fee):
@@ -145,7 +161,7 @@ private extension ExpressApproveViewModel {
             supportFeeSelectionPublisher: Just(false).eraseToAnyPublisher()
         )
 
-        approveViewModelInput.approveFeeValuePublisher
+        effectiveApproveFeePublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, state in
@@ -201,6 +217,7 @@ extension ExpressApproveViewModel {
         let settings: Settings
         let feeFormatter: FeeFormatter
         let approveViewModelInput: ApproveViewModelInput
+        var overrideApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>?, Never>?
     }
 
     struct Settings {
