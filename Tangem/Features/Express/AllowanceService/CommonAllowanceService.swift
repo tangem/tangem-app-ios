@@ -48,6 +48,25 @@ extension CommonAllowanceService: AllowanceService {
         return .permissionRequired(approveData)
     }
 
+    func gaslessAllowanceState(
+        amount: Decimal,
+        spender: String,
+        approvePolicy: ApprovePolicy,
+        feeToken: Token,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> AllowanceState {
+        let approveData = try await allowanceChecker.makeGaslessApproveData(
+            spender: spender,
+            amount: amount,
+            policy: approvePolicy,
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
+        )
+        return .permissionRequired(approveData)
+    }
+
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
         let result = try await approveTransactionDispatcher.send(transaction: .approve(data: data))
         spendersAwaitingApprove.insert(data.spender)
