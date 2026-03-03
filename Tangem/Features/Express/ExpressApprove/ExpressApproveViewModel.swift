@@ -14,6 +14,7 @@ import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemAssets
+import BlockchainSdk
 
 final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - ViewState
@@ -36,6 +37,8 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private(set) var selectedFeeTokenItem: TokenItem
+    /// Approve data computed from a fee-token change in the flow VM, passed explicitly to `sendApproveTransaction`.
+    var overriddenApproveData: ApproveTransactionData?
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveCoordinating?
@@ -204,7 +207,7 @@ private extension ExpressApproveViewModel {
     func sendApproveTransaction() {
         runTask(in: self) { viewModel in
             do {
-                try await viewModel.approveViewModelInput.sendApproveTransaction()
+                try await viewModel.approveViewModelInput.sendApproveTransaction(overriddenApproveData: viewModel.overriddenApproveData)
                 try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
