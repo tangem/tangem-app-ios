@@ -573,7 +573,7 @@ extension StakingModel: ApproveViewModelInput {
         updateState()
     }
 
-    func sendApproveTransaction() async throws {
+    func sendApproveTransaction(overriddenApproveData: ApproveTransactionData?) async throws {
         guard case .readyToApprove(let approveData) = _state.value else {
             throw StakingModelError.approveDataNotFound
         }
