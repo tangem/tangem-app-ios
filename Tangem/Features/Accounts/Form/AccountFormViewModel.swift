@@ -22,8 +22,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     /// - Note: For use in the UI only, for validation and other logic use `trimmedAccountName` property.
     @Published var accountName: String
 
-    @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
-    @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
+    @Published var selectedColor: GridItemColor<AccountModel.CryptoIcon.Color>
+    @Published var selectedIcon: GridItemImage<AccountModel.CryptoIcon.Name>
     @Published var alert: AlertBinder?
     @Published var isLoading: Bool = false
     @Published private var totalAccountsCount: Int = 0
@@ -42,7 +42,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
-    let colors: [GridItemColor] = AccountModel.Icon.Color
+    let colors: [GridItemColor] = AccountModel.CryptoIcon.Color
         .allCases
         .map { iconColor in
             let color = AccountModelUtils.UI.iconColor(from: iconColor)
@@ -50,7 +50,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name.allCases
+    let images: [GridItemImage] = AccountModel.CryptoIcon.Name.allCases
         .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
@@ -83,8 +83,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         accountName.trimmed()
     }
 
-    private var accountIcon: AccountModel.Icon {
-        AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+    private var accountIcon: AccountModel.CryptoIcon {
+        AccountModel.CryptoIcon(name: selectedIcon.id, color: selectedColor.id)
     }
 
     private var activeTask: AnyCancellable?
@@ -104,18 +104,19 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         closeAction: @escaping (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     ) {
         let accountName: String
-        let iconColor: AccountModel.Icon.Color
-        let iconName: AccountModel.Icon.Name
+        let iconColor: AccountModel.CryptoIcon.Color
+        let iconName: AccountModel.CryptoIcon.Name
 
         switch flowType {
         case .edit(let account):
-            iconColor = account.icon.color ?? .azure
-            iconName = account.icon.name
+            iconColor = account.cryptoIcon.color
+            iconName = account.cryptoIcon.name
             accountName = account.name
+
         case .create:
-            let newIcon = AccountModelUtils.UI.newAccountIcon()
-            iconColor = newIcon.color ?? .azure
-            iconName = newIcon.name
+            let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
+            iconColor = newAccountIcon.color
+            iconName = newAccountIcon.name
             accountName = ""
         }
 
@@ -276,7 +277,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Private
 
-    private func editAccount(account: any BaseAccountModel) async throws(AccountEditError) {
+    private func editAccount(account: any CryptoAccountModel) async throws(AccountEditError) {
         let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
         try await account.edit { editor in
@@ -393,7 +394,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             .assign(to: &$totalAccountsCount)
     }
 
-    private static func gridItemImageKind(from accountIconName: AccountModel.Icon.Name) -> GridItemImageKind {
+    private static func gridItemImageKind(from accountIconName: AccountModel.CryptoIcon.Name) -> GridItemImageKind {
         switch accountIconName {
         case .letter:
             return .letter(visualImageRepresentation: Assets.Accounts.letter)
@@ -422,7 +423,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
 extension AccountFormViewModel {
     enum FlowType {
-        case edit(account: any BaseAccountModel)
+        case edit(account: any CryptoAccountModel)
         case create(CreatedAccountType)
     }
 }
@@ -442,8 +443,8 @@ extension AccountFormViewModel.FlowType {
 extension AccountFormViewModel {
     struct StateSnapshot: Equatable {
         let name: String
-        let color: GridItemColor<AccountModel.Icon.Color>
-        let image: GridItemImage<AccountModel.Icon.Name>
+        let color: GridItemColor<AccountModel.CryptoIcon.Color>
+        let image: GridItemImage<AccountModel.CryptoIcon.Name>
     }
 }
 

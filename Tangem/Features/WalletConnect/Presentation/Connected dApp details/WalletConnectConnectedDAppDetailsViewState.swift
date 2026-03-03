@@ -99,7 +99,7 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTarge
 
         struct WCAccountTarget: Equatable {
             let label = Localization.accountDetailsTitle
-            let icon: AccountModel.Icon
+            let icon: AccountModel.CryptoIcon
         }
     }
 }

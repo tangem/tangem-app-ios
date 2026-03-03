@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, DisposableEntity, AnyObject {
+    var cryptoIcon: AccountModel.CryptoIcon { get }
+
     var isMainAccount: Bool { get }
 
     var descriptionString: String { get }
@@ -19,6 +21,14 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Dis
     var userTokensManager: UserTokensManager { get }
 
     func archive() async throws(AccountArchivationError)
+}
+
+// MARK: - Default implementations
+
+extension CryptoAccountModel {
+    var icon: AccountModel.Icon {
+        .crypto(cryptoIcon)
+    }
 }
 
 // MARK: - AccountModelResolvable protocol conformance
