@@ -79,7 +79,7 @@ public struct LoadableBalanceView: View {
                 .fill(Color.Tangem.Skeleton.backgroundPrimary)
 
         case .capsule:
-            Capsule()
+            Capsule(style: .continuous)
                 .fill(Color.Tangem.Skeleton.backgroundPrimary)
         }
     }
