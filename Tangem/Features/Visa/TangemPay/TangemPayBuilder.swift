@@ -90,6 +90,7 @@ final class TangemPayBuilder {
             orderStatusPollingService: orderStatusPollingService,
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
+            cachedStateStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
