@@ -23,6 +23,11 @@ extension CommonKeysManager: KeysManager {
         keys.appsFlyer
     }
 
+    var customerIO: CustomerIOKeys {
+        // [REDACTED_TODO_COMMENT]
+        CustomerIOKeys(apiKey: "Customer.io Data Pipeline API Key")
+    }
+
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
