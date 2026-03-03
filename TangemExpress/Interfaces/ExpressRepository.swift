@@ -11,5 +11,5 @@ import BlockchainSdk
 
 public protocol ExpressRepository {
     func providers() async throws -> [ExpressProvider]
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id]
+    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws -> [ExpressProvider.Id]
 }
