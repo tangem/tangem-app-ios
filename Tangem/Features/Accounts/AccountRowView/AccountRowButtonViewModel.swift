@@ -132,6 +132,7 @@ private extension AccountRowButtonViewModel {
             .store(in: &viewModel.bag)
         }
 
+        /// TangemPay accounts don't have token count or fiat balance data for subtitle
         func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }

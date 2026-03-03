@@ -81,8 +81,8 @@ struct AccountsAwareTokenSelectorItem: Hashable, Identifiable {
         switch kind {
         case .crypto(let walletModel, _):
             walletModel.tokenItem
-        case .tangemPay:
-            TangemPayUtilities.usdcTokenItem
+        case .tangemPay(let tangemPayAccount, _, _):
+            tangemPayAccount.paymentTokenItem
         }
     }
 
