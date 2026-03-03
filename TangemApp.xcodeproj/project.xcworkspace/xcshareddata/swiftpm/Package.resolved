@@ -1,5 +1,5 @@
 {
-  "originHash" : "17804974ac7484b504bbe7b35e3777095f5e072512497b8e7fde0740fff5a8cc",
+  "originHash" : "b6fb37b84b9f4e8a97b3bb3baf3165f4951bf13fe9d7bf58ccc9e6477db68bb6",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -119,6 +119,15 @@
       }
     },
     {
+      "identity" : "cdp-analytics-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/customerio/cdp-analytics-swift.git",
+      "state" : {
+        "revision" : "9c2cd6f840ca2df72e9be6597420f1b45f3c8e46",
+        "version" : "1.7.3+cio.1"
+      }
+    },
+    {
       "identity" : "combineext",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CombineCommunity/CombineExt.git",
@@ -134,6 +143,15 @@
       "state" : {
         "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
         "version" : "1.9.0"
+      }
+    },
+    {
+      "identity" : "customerio-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/customerio/customerio-ios.git",
+      "state" : {
+        "revision" : "05b3ce90f83715b3989dad4b883e39fca292de76",
+        "version" : "4.2.0"
       }
     },
     {
@@ -269,6 +287,15 @@
       "state" : {
         "revision" : "2d12673670417654f08f5f90fdd62926dc3a2648",
         "version" : "100.0.0"
+      }
+    },
+    {
+      "identity" : "jsonsafeencoding-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/jsonsafeencoding-swift.git",
+      "state" : {
+        "revision" : "af6a8b360984085e36c6341b21ecb35c12f47ebd",
+        "version" : "2.0.0"
       }
     },
     {
@@ -434,6 +461,15 @@
       }
     },
     {
+      "identity" : "sovran-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/sovran-swift.git",
+      "state" : {
+        "revision" : "24867f3e4ac62027db9827112135e6531b6f4051",
+        "version" : "1.1.2"
+      }
+    },
+    {
       "identity" : "starscream",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/daltoniam/Starscream.git",
@@ -485,6 +521,15 @@
       "state" : {
         "revision" : "d029d9d39c87bed85b1c50adee7c41795261a192",
         "version" : "1.0.6"
+      }
+    },
+    {
+      "identity" : "swift-eventsource",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LaunchDarkly/swift-eventsource.git",
+      "state" : {
+        "revision" : "57051701c58a93603ffa2051f8e9cf0c8cff7814",
+        "version" : "3.3.0"
       }
     },
     {
