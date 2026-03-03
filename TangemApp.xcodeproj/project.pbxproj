@@ -2368,7 +2368,6 @@
 		B62D42BE2CBC79DB00C2460E /* WalletCoreAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F702CBC79D900C2460E /* WalletCoreAddressService.swift */; };
 		B62D42C12CBC79DB00C2460E /* WalletManagerAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F732CBC79D900C2460E /* WalletManagerAssembly.swift */; };
 		B62D42C22CBC79DB00C2460E /* Bech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F752CBC79DA00C2460E /* Bech32.swift */; };
-		B62D42C62CBC79DB00C2460E /* AnyPublisher+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F7B2CBC79DA00C2460E /* AnyPublisher+Async.swift */; };
 		B62D42C72CBC79DB00C2460E /* BigUInt+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F7C2CBC79DA00C2460E /* BigUInt+.swift */; };
 		B62D42C92CBC79DB00C2460E /* CBOR+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F7E2CBC79DA00C2460E /* CBOR+.swift */; };
 		B62D42CA2CBC79DB00C2460E /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F7F2CBC79DA00C2460E /* Collection+.swift */; };
@@ -7305,7 +7304,6 @@
 		B62D3F702CBC79D900C2460E /* WalletCoreAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletCoreAddressService.swift; sourceTree = "<group>"; };
 		B62D3F732CBC79D900C2460E /* WalletManagerAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletManagerAssembly.swift; sourceTree = "<group>"; };
 		B62D3F752CBC79DA00C2460E /* Bech32.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bech32.swift; sourceTree = "<group>"; };
-		B62D3F7B2CBC79DA00C2460E /* AnyPublisher+Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+Async.swift"; sourceTree = "<group>"; };
 		B62D3F7C2CBC79DA00C2460E /* BigUInt+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BigUInt+.swift"; sourceTree = "<group>"; };
 		B62D3F7E2CBC79DA00C2460E /* CBOR+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CBOR+.swift"; sourceTree = "<group>"; };
 		B62D3F7F2CBC79DA00C2460E /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
@@ -17491,7 +17489,6 @@
 			children = (
 				EFAE31442DA6E68500E8B81F /* Base58 */,
 				B62D3F762CBC79DA00C2460E /* Bech32 */,
-				B62D3F7B2CBC79DA00C2460E /* AnyPublisher+Async.swift */,
 				B62D3F7C2CBC79DA00C2460E /* BigUInt+.swift */,
 				B62D3F7E2CBC79DA00C2460E /* CBOR+.swift */,
 				0AE2C97C2E58831100D3B9EB /* PotentCBOR+.swift */,
@@ -31334,7 +31331,6 @@
 				B62D41E32CBC79DB00C2460E /* TronUtils.swift in Sources */,
 				B62D3FE62CBC79DA00C2460E /* OP_OR.swift in Sources */,
 				F990070C2CD3E1D800DFE2D3 /* KaspaUtils.swift in Sources */,
-				B62D42C62CBC79DB00C2460E /* AnyPublisher+Async.swift in Sources */,
 				B62D42202CBC79DB00C2460E /* XRPTarget.swift in Sources */,
 				B62D41E42CBC79DB00C2460E /* TronWalletAssembly.swift in Sources */,
 				B62D42522CBC79DB00C2460E /* Blockchain+AllCases.swift in Sources */,
