@@ -17,9 +17,7 @@ protocol AllowanceService: ExpressAllowanceProvider {
         amount: Decimal,
         spender: String,
         approvePolicy: ApprovePolicy,
-        feeToken: Token,
-        feeRecipientAddress: String,
-        nativeToFeeTokenRate: Decimal
+        feeTokenItem: TokenItem
     ) async throws -> AllowanceState
 
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult
