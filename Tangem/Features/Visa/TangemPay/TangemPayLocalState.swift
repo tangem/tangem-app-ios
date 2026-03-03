@@ -22,6 +22,14 @@ enum TangemPayLocalState {
     case tangemPayAccount(TangemPayAccount)
 }
 
+enum TangemPayCachedLocalState: Codable {
+    case kycRequired
+    case kycDeclined
+    case issuingCard
+    case failedToIssueCard
+    case tangemPayAccount(cardNumberEnd: String?)
+}
+
 extension TangemPayLocalState {
     var isSyncNeeded: Bool {
         if case .syncNeeded = self {
@@ -42,5 +50,22 @@ extension TangemPayLocalState {
             return tangemPayAccount
         }
         return nil
+    }
+
+    var cachedLocalState: TangemPayCachedLocalState? {
+        switch self {
+        case .kycRequired:
+            .kycRequired
+        case .kycDeclined:
+            .kycDeclined
+        case .issuingCard:
+            .issuingCard
+        case .failedToIssueCard:
+            .failedToIssueCard
+        case .tangemPayAccount(let account):
+            .tangemPayAccount(cardNumberEnd: account.card?.cardNumberEnd)
+        case .loading, .syncNeeded, .syncInProgress, .unavailable:
+            nil
+        }
     }
 }
