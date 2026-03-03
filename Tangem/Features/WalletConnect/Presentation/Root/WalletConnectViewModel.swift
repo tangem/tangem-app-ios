@@ -316,7 +316,7 @@ extension WalletConnectViewModel {
                 accountSections.append(
                     WalletConnectViewState.ContentState.AccountSection(
                         id: accountId,
-                        icon: account.icon,
+                        icon: account.cryptoIcon,
                         name: account.name,
                         dApps: dApps
                     )

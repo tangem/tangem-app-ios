@@ -39,6 +39,6 @@ struct WCTransactionAccountRow: View {
 extension WCTransactionAccountRow {
     struct ViewState {
         let accountName: String
-        let accountIcon: AccountModel.Icon
+        let accountIcon: AccountModel.CryptoIcon
     }
 }

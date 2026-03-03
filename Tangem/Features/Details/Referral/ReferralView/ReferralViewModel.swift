@@ -202,7 +202,7 @@ final class ReferralViewModel: ObservableObject {
     func updateAccount(_ newAccount: any CryptoAccountModel) {
         let accountData = SelectedAccountViewData(
             id: newAccount.id,
-            iconViewData: AccountModelUtils.UI.iconViewData(icon: newAccount.icon, accountName: newAccount.name),
+            iconViewData: AccountModelUtils.UI.iconViewData(icon: newAccount.cryptoIcon, accountName: newAccount.name),
             name: newAccount.name
         )
 
@@ -388,7 +388,7 @@ final class ReferralViewModel: ObservableObject {
     private func makeSelectedAccountViewData(from account: any CryptoAccountModel) -> SelectedAccountViewData {
         SelectedAccountViewData(
             id: account.id.toAnyHashable(),
-            iconViewData: AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name),
+            iconViewData: AccountModelUtils.UI.iconViewData(icon: account.cryptoIcon, accountName: account.name),
             name: account.name
         )
     }

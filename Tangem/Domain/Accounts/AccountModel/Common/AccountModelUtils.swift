@@ -49,8 +49,8 @@ enum AccountModelUtils {
     }
 
     /// A standard Java hash function.
-    private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.Icon.Color {
-        let colors = AccountModel.Icon.Color.allCases
+    private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.CryptoIcon.Color {
+        let colors = AccountModel.CryptoIcon.Color.allCases
         // Using `Int32.max` instead of `Int.max` (`Int64.max` in fact)
         // to mimic Kotlin/Java 32-bit signed integer overflow behavior
         let maxInt = Int(Int32.max)
@@ -81,7 +81,7 @@ extension AccountModelUtils {
 private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
-        static let mainAccountIconName: AccountModel.Icon.Name = .star
+        static let mainAccountIconName: AccountModel.CryptoIcon.Name = .star
         static let maxAccountNameLength = 20
         static let maxNumberOfAccounts = 20
         static let hashMultiplier = 31

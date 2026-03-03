@@ -12,7 +12,7 @@ protocol UserSettingsAccountsRoutable: AnyObject {
     func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig)
 
     func openAccountDetails(
-        account: any BaseAccountModel,
+        account: any CryptoAccountModel,
         accountModelsManager: any AccountModelsManager,
         userWalletConfig: UserWalletConfig
     )

@@ -15,7 +15,7 @@ import TangemLocalization
 /// Read-only and does not support any mutable methods from the `BaseAccountModel` protocol.
 struct ArchivedCryptoAccountInfo: Equatable {
     let name: String
-    let icon: AccountModel.Icon
+    let icon: AccountModel.CryptoIcon
     let tokensCount: Int
     let networksCount: Int
 
@@ -25,7 +25,7 @@ struct ArchivedCryptoAccountInfo: Equatable {
     init(
         accountId: AccountId,
         name: String,
-        icon: AccountModel.Icon,
+        icon: AccountModel.CryptoIcon,
         tokensCount: Int,
         networksCount: Int,
         derivationIndex: Int

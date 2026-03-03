@@ -51,7 +51,7 @@ final class AccountDetailsCoordinator: CoordinatorObject {
 
 extension AccountDetailsCoordinator {
     struct Options {
-        let account: any BaseAccountModel
+        let account: any CryptoAccountModel
         let userWalletConfig: UserWalletConfig
         let accountModelsManager: AccountModelsManager
     }
