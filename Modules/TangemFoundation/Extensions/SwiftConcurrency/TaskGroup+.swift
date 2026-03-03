@@ -22,7 +22,7 @@ public extension TaskGroup {
         Task.detached {
             do {
                 return try await runTask(timeout: timeout, tolerance: tolerance, clock: clock, code: code)
-            } catch let error as RunTaskError where error == .timeout {
+            } catch let error as TimeoutError {
                 onTimeout()
                 throw error
             } catch {
@@ -73,7 +73,7 @@ public extension TaskGroup {
                             do {
                                 try await Task.sleep(for: timeout, tolerance: tolerance, clock: clock)
                                 try Task.checkCancellation()
-                                await continuationWrapper.resumeIfNeeded(throwing: RunTaskError.timeout)
+                                await continuationWrapper.resumeIfNeeded(throwing: TimeoutError())
                             } catch {
                                 await continuationWrapper.resumeIfNeeded(throwing: error)
                             }
@@ -168,3 +168,7 @@ public extension TaskGroup<Void> {
         _ = try await tryExecuteKeepingOrder(items: items, action: action)
     }
 }
+
+// MARK: - Auxiliary types
+
+public struct TimeoutError: Error {}

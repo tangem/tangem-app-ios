@@ -159,9 +159,3 @@ public extension Actor {
         return try closure(self)
     }
 }
-
-// MARK: - Auxiliary types
-
-public enum RunTaskError: Error {
-    case timeout
-}
