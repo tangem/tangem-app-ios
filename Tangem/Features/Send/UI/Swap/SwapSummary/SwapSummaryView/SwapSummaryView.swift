@@ -61,7 +61,7 @@ struct SwapSummaryView: View {
     @ViewBuilder
     private var feeSectionView: some View {
         SendFeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: viewModel.userDidTapFee)
-            .accessibilityElement(children: .contain)
+            .accessibilityElement(children: .combine)
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
     }
 
@@ -87,6 +87,7 @@ struct SwapSummaryView: View {
                     isDisabled: !viewModel.mainButtonIsEnabled,
                     action: viewModel.userDidTapMainActionButton
                 )
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
