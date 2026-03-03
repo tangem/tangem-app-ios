@@ -88,7 +88,7 @@ extension TangemButton {
             case .text, .combined:
                 return horizontalInset
             case .icon:
-                return iconSize / 2
+                return (size.height - iconSize) / 2
             }
         }
 
