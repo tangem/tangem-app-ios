@@ -120,6 +120,7 @@ private extension AccountDetailsCoordinator {
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
 
+        /// TangemPay does not support token management
         func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }

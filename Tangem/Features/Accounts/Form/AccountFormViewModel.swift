@@ -457,6 +457,7 @@ private extension AccountFormViewModel {
             accountModel.descriptionString
         }
 
+        /// TangemPay accounts don't have an editable description
         func resolve(accountModel: any TangemPayAccountModel) -> String? {
             nil
         }
