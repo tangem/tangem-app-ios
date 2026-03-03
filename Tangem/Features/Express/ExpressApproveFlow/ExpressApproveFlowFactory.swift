@@ -6,7 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import TangemExpress
 import TangemFoundation
 
@@ -28,12 +27,7 @@ struct ExpressApproveFlowFactory {
             output: nil
         )
 
-        let overrideFeeSubject = CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>(nil)
-
-        var input = approveInput
-        input.overrideApproveFeePublisher = overrideFeeSubject.eraseToAnyPublisher()
-
-        let approveViewModel = ExpressApproveViewModel(input: input)
+        let approveViewModel = ExpressApproveViewModel(input: approveInput)
 
         return ExpressApproveFlowViewModel(
             approveViewModel: approveViewModel,
@@ -42,8 +36,7 @@ struct ExpressApproveFlowFactory {
             feeSelectorInteractor: interactor,
             allowanceService: allowanceService,
             approveAmount: approveAmount,
-            spender: spender,
-            overrideFeeSubject: overrideFeeSubject
+            spender: spender
         )
     }
 }

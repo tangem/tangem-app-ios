@@ -39,8 +39,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let allowanceService: (any AllowanceService)?
     private let approveAmount: Decimal?
     private let spender: String?
-    private let overrideFeeSubject: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>
-
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
     private var recalculateApproveFeeTask: Task<Void, Never>?
@@ -55,8 +53,7 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         feeSelectorInteractor: CommonFeeSelectorInteractor,
         allowanceService: (any AllowanceService)?,
         approveAmount: Decimal? = nil,
-        spender: String? = nil,
-        overrideFeeSubject: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never> = .init(nil)
+        spender: String? = nil
     ) {
         coordinatorRouter = router
 
@@ -65,7 +62,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         self.allowanceService = allowanceService
         self.approveAmount = approveAmount
         self.spender = spender
-        self.overrideFeeSubject = overrideFeeSubject
         self.approveViewModel = approveViewModel
 
         state = .approve(approveViewModel)
@@ -141,12 +137,12 @@ private extension ExpressApproveFlowViewModel {
         let feeTokenItem = provider.feeTokenItem
 
         guard feeTokenItem.isToken else {
-            overrideFeeSubject.send(nil)
+            approveViewModel.updateOverrideFee(nil)
             return
         }
 
         let approvePolicy = approveViewModel.selectedAction
-        overrideFeeSubject.send(.loading)
+        approveViewModel.updateOverrideFee(.loading)
 
         recalculateApproveFeeTask = runTask(in: self) { viewModel in
             do {
@@ -163,7 +159,7 @@ private extension ExpressApproveFlowViewModel {
             } catch is CancellationError {
             } catch {
                 await runOnMain {
-                    viewModel.overrideFeeSubject.send(.failure(error))
+                    viewModel.approveViewModel.updateOverrideFee(.failure(error))
                 }
             }
         }
@@ -173,9 +169,9 @@ private extension ExpressApproveFlowViewModel {
         switch state {
         case .permissionRequired(let data):
             let fee = ApproveInputFee(feeTokenItem: feeTokenItem, fee: data.fee)
-            overrideFeeSubject.send(.success(fee))
+            approveViewModel.updateOverrideFee(.success(fee))
         case .approveTransactionInProgress, .enoughAllowance:
-            overrideFeeSubject.send(nil)
+            approveViewModel.updateOverrideFee(nil)
         }
     }
 }
