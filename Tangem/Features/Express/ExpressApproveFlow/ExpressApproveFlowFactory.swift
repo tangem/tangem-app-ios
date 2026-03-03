@@ -17,10 +17,10 @@ struct ExpressApproveFlowFactory {
     let spender: String?
 
     func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel {
-        let approveViewModel = ExpressApproveViewModel(input: approveInput)
-
         var feeSelectorViewModel: FeeSelectorTokensViewModel?
         var feeSelectorInteractor: CommonFeeSelectorInteractor?
+
+        var approveInput = approveInput
 
         if let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager {
             let interactor = CommonFeeSelectorInteractor(
@@ -30,7 +30,10 @@ struct ExpressApproveFlowFactory {
             )
             feeSelectorInteractor = interactor
             feeSelectorViewModel = FeeSelectorTokensViewModel(tokensDataProvider: interactor)
+            approveInput.supportFeeSelection = tokenFeeProvidersManager.supportFeeSelection
         }
+
+        let approveViewModel = ExpressApproveViewModel(input: approveInput)
 
         return ExpressApproveFlowViewModel(
             approveViewModel: approveViewModel,

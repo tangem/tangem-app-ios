@@ -71,7 +71,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
             actions: [.unlimited, .specified]
         )
 
-        feeCompactViewModel = FeeCompactViewModel(showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
+        feeCompactViewModel = FeeCompactViewModel(canEditFee: input.supportFeeSelection, showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
         updateView(state: _currentFee.value)
         bind()
     }
@@ -168,7 +168,7 @@ private extension ExpressApproveViewModel {
     func bind() {
         feeCompactViewModel?.bind(
             selectedFeePublisher: approveFeeTokenPublisher,
-            supportFeeSelectionPublisher: Just(false).eraseToAnyPublisher()
+            supportFeeSelectionPublisher: Empty(completeImmediately: true).eraseToAnyPublisher()
         )
 
         _currentFee
@@ -232,6 +232,7 @@ extension ExpressApproveViewModel {
         let settings: Settings
         let feeFormatter: FeeFormatter
         let approveViewModelInput: ApproveViewModelInput
+        var supportFeeSelection: Bool = false
     }
 
     struct Settings {
