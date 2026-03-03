@@ -213,7 +213,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// Amounts that are inside 'wallet.amounts' may contain additional info about yield module status.
     /// When estimating fee or sending a transaction, we need get this additional info in order to
     /// use correct smart contract method.
-    static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
+    private static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
         if case .token = amount.type, let sanitizedAmount = wallet.amounts[amount.type] {
             return Amount(
                 with: wallet.blockchain,
@@ -515,10 +515,10 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
     ) async throws -> Fee {
         let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
 
-        // Get fee for the original transaction. Pick the market fee (index 1) from the fees array.
+        // Get fee for the original transaction. Pick the fastest fee (index 2) from the fees array.
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
-        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
+        guard let params = originalFee[safe: 2]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
 
@@ -537,10 +537,10 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
-        // Get fee for the approve transaction using pre-built calldata. Pick the market fee (index 1).
+        // Get fee for the approve transaction using pre-built calldata. Pick the fastest fee (index 2).
         let approveFee = try await getFee(destination: contractAddress, value: nil, data: approveData).async()
 
-        guard let params = approveFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
+        guard let params = approveFee[safe: 2]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
 
