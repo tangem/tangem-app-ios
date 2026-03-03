@@ -11,20 +11,33 @@ import TangemUI
 import TangemAssets
 
 struct MainUserWalletHeader: View {
-    @ObservedObject var viewModel: MainHeaderViewModel
+    let model: MainUserWalletHeaderModel
+
+    @ObservedObject private var headerViewModel: MainHeaderViewModel
+
+    init(model: MainUserWalletHeaderModel) {
+        self.model = model
+        headerViewModel = model.headerViewModel
+    }
 
     @ScaledSize private var loaderSize: CGSize = .init(width: 222, height: 36)
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: SizeUnit.x4.value) {
             balance
+
+            if let actionButtonsViewModel = model.actionButtonsViewModel {
+                RedesignActionButtonsView(viewModel: actionButtonsViewModel)
+                    .padding(.top, .unit(.x2))
+                    .padding(.bottom, .unit(.x6))
+            }
         }
         .frame(maxWidth: .infinity)
     }
 
     private var balance: some View {
         LoadableBalanceView(
-            state: viewModel.balance,
+            state: headerViewModel.balance,
             style: .init(
                 font: Font.Tangem.title44,
                 textColor: Color.Tangem.Text.Neutral.primary
@@ -46,11 +59,14 @@ struct MainUserWalletHeader: View {
 
     VStack(spacing: 20) {
         ForEach(provider.models.indices, id: \.self) { index in
-            MainUserWalletHeader(viewModel: provider.models[index])
-                .onTapGesture {
-                    let infoProvider = provider.infoProviders[index]
-                    infoProvider.tapAction(infoProvider)
-                }
+            MainUserWalletHeader(model: MainUserWalletHeaderModel(
+                headerViewModel: provider.models[index],
+                actionButtonsViewModel: nil
+            ))
+            .onTapGesture {
+                let infoProvider = provider.infoProviders[index]
+                infoProvider.tapAction(infoProvider)
+            }
         }
     }
     .padding()
