@@ -26,7 +26,7 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult
+    func addCryptoAccount(name: String, icon: AccountModel.CryptoIcon) async throws(AccountEditError) -> AccountOperationResult
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 

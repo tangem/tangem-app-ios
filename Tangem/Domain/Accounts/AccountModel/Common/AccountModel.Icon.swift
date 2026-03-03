@@ -10,15 +10,20 @@ import Foundation
 import TangemFoundation
 
 extension AccountModel {
-    struct Icon: Hashable {
+    enum Icon {
+        case crypto(CryptoIcon)
+        case tangemPay
+    }
+
+    struct CryptoIcon: Hashable {
         let name: Name
-        let color: Color?
+        let color: Color
     }
 }
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/main/kotlin/com/tangem/domain/models/account/CryptoPortfolioIcon.kt
-extension AccountModel.Icon {
+extension AccountModel.CryptoIcon {
     enum Color: String, CaseIterable, Hashable {
         case azure = "Azure"
         case caribbeanBlue = "CaribbeanBlue"
@@ -34,7 +39,7 @@ extension AccountModel.Icon {
         case vitalGreen = "VitalGreen"
     }
 
-    enum Name: String, Hashable {
+    enum Name: String, CaseIterable, Hashable {
         case letter = "Letter"
         case star = "Star"
         case user = "User"
@@ -53,7 +58,6 @@ extension AccountModel.Icon {
         case clock = "Clock"
         case package = "Package"
         case gift = "Gift"
-        case tangemPay = "TangemPay"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -77,40 +81,14 @@ extension AccountModel.Icon {
             case .clock: 15
             case .package: 16
             case .gift: 17
-            case .tangemPay: 18
             }
-        }
-
-        /// User-selectable icon names for crypto accounts.
-        /// Excludes `.tangemPay` which is a fixed, non-selectable icon.
-        static var allCases: [Name] {
-            [
-                .letter,
-                .star,
-                .user,
-                .family,
-                .wallet,
-                .money,
-                .home,
-                .safe,
-                .beach,
-                .airplaneMode,
-                .shirt,
-                .shoppingBasket,
-                .favorite,
-                .bookmark,
-                .startUp,
-                .clock,
-                .package,
-                .gift,
-            ]
         }
     }
 }
 
 // MARK: - Convenience extensions
 
-extension AccountModel.Icon {
+extension AccountModel.CryptoIcon {
     init?(rawName: String, rawColor: String) {
         guard
             let color = Color(rawValue: rawColor),
@@ -125,21 +103,21 @@ extension AccountModel.Icon {
 
 // MARK: - Comparable protocol conformance
 
-extension AccountModel.Icon.Name: Comparable {
-    static func < (lhs: AccountModel.Icon.Name, rhs: AccountModel.Icon.Name) -> Bool {
+extension AccountModel.CryptoIcon.Name: Comparable {
+    static func < (lhs: AccountModel.CryptoIcon.Name, rhs: AccountModel.CryptoIcon.Name) -> Bool {
         lhs.sortOrder < rhs.sortOrder
     }
 }
 
 // MARK: - CustomStringConvertible protocol conformance
 
-extension AccountModel.Icon: CustomStringConvertible {
+extension AccountModel.CryptoIcon: CustomStringConvertible {
     var description: String {
         objectDescription(
             .empty,
             userInfo: [
                 "name": name.rawValue,
-                "color": color?.rawValue ?? "",
+                "color": color.rawValue,
             ]
         )
     }

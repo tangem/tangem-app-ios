@@ -159,7 +159,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .padding(.horizontal, 14)
     }
 
-    private func accountTargetTrailingView(icon: AccountModel.Icon, accountName: String) -> some View {
+    private func accountTargetTrailingView(icon: AccountModel.CryptoIcon, accountName: String) -> some View {
         HStack(spacing: 6) {
             AccountIconView(
                 data: AccountModelUtils.UI.iconViewData(icon: icon, accountName: accountName)

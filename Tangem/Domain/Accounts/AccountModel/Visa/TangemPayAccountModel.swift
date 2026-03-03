@@ -36,7 +36,7 @@ extension TangemPayAccountModel {
     }
 
     var icon: AccountModel.Icon {
-        AccountModel.Icon(name: .tangemPay, color: nil)
+        .tangemPay
     }
 
     var name: String {

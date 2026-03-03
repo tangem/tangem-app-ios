@@ -14,7 +14,7 @@ struct AccountSelectorAccountItem: Identifiable {
     let id: AnyHashable
     let name: String
     let tokensCount: String
-    let icon: AccountModel.Icon
+    let icon: AccountModel.CryptoIcon
     let domainModel: any CryptoAccountModel
     let userWalletModel: any UserWalletModel
     let formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
@@ -38,7 +38,7 @@ extension AccountSelectorAccountItem {
         name = account.name
         self.userWalletModel = userWalletModel
         tokensCount = Localization.commonTokensCount(account.userTokensManager.userTokens.count)
-        icon = account.icon
+        icon = account.cryptoIcon
         domainModel = account
         formattedBalanceTypePublisher = account.fiatTotalBalanceProvider.totalFiatBalancePublisher
         self.availability = availability

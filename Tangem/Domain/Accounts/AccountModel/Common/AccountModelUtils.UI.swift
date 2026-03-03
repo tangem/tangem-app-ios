@@ -14,7 +14,7 @@ import TangemAccounts
 // [REDACTED_TODO_COMMENT]
 extension AccountModelUtils {
     enum UI {
-        static func iconColor(from color: AccountModel.Icon.Color) -> Color {
+        static func iconColor(from color: AccountModel.CryptoIcon.Color) -> Color {
             switch color {
             case .azure:
                 return Colors.Accounts.azureBlue
@@ -43,7 +43,7 @@ extension AccountModelUtils {
             }
         }
 
-        static func iconAsset(from name: AccountModel.Icon.Name) -> ImageType {
+        static func iconAsset(from name: AccountModel.CryptoIcon.Name) -> ImageType {
             switch name {
             case .airplaneMode:
                 return Assets.Accounts.airplane
@@ -81,20 +81,18 @@ extension AccountModelUtils {
                 return Assets.Accounts.user
             case .wallet:
                 return Assets.Accounts.walletAccounts
-            case .tangemPay:
-                return Assets.Visa.accountAvatar
             }
         }
 
-        static func newAccountIcon() -> AccountModel.Icon {
-            let iconColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+        static func newAccountIcon() -> AccountModel.CryptoIcon {
+            let iconColor = AccountModel.CryptoIcon.Color.allCases.randomElement() ?? .azure
 
-            var allIconNames = AccountModel.Icon.Name.allCases.toSet()
+            var allIconNames = AccountModel.CryptoIcon.Name.allCases.toSet()
             allIconNames.remove(.letter)
             allIconNames.remove(.star)
             let iconName = allIconNames.randomElement() ?? .wallet
 
-            return AccountModel.Icon(name: iconName, color: iconColor)
+            return AccountModel.CryptoIcon(name: iconName, color: iconColor)
         }
     }
 }
@@ -103,24 +101,29 @@ extension AccountModelUtils {
 
 extension AccountModelUtils.UI {
     static func iconViewData(
-        icon: AccountModel.Icon,
+        icon: AccountModel.CryptoIcon,
         accountName: String
     ) -> AccountIconView.ViewData {
         AccountIconView.ViewData(
-            backgroundColor: icon.color.map(iconColor),
+            backgroundColor: iconColor(from: icon.color),
             nameMode: nameMode(from: icon.name, accountName: accountName)
         )
     }
 
     static func iconViewData(accountModel: any BaseAccountModel) -> AccountIconView.ViewData {
-        iconViewData(icon: accountModel.icon, accountName: accountModel.name)
+        switch accountModel.icon {
+        case .crypto(let cryptoIcon):
+            return iconViewData(icon: cryptoIcon, accountName: accountModel.name)
+        case .tangemPay:
+            return .tangemPay
+        }
     }
 }
 
 // MARK: - Private implementation
 
 private extension AccountModelUtils.UI {
-    static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
+    static func nameMode(from name: AccountModel.CryptoIcon.Name, accountName: String) -> AccountIconView.NameMode {
         switch name {
         case .letter:
             .letter(accountName.first.map { String($0) } ?? "")
