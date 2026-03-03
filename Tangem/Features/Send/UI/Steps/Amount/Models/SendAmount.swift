@@ -87,7 +87,7 @@ enum SendAmountError: LocalizedError {
     case receiveRestriction(ReceiveAmountRestriction)
 }
 
-enum ReceiveAmountRestriction {
+enum ReceiveAmountRestriction: Equatable {
     case tooSmallAmount(Decimal)
     case tooBigAmount(Decimal)
     case balanceExceeded

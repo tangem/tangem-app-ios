@@ -1009,11 +1009,8 @@
 		3F6088142E084F579451871D /* FullPagePagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088142E084F579451871C /* FullPagePagerView.swift */; };
 		3F6088152E084F579451871F /* FullPagePagerViewModern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088152E084F579451871E /* FullPagePagerViewModern.swift */; };
 		3F6088162E084F5794518721 /* FullPagePagerViewLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088162E084F5794518720 /* FullPagePagerViewLegacy.swift */; };
-<<<<<<< Updated upstream
-=======
 		3FA8DB8CFE8747568D98742E /* NewsDataProviderEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757D57B664574D4F98E22603 /* NewsDataProviderEventTests.swift */; };
 		419B33A2380B105BDAF49C79 /* AmountInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B2DDFB78A0435D48E7FC6C5 /* AmountInputFieldModel.swift */; };
->>>>>>> Stashed changes
 		4EF5D8C6FF964B68A0691FE6 /* AddTokenFlowAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97AEC2AFB15435881BA91C6 /* AddTokenFlowAnalyticsLogger.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */; };
 		5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
@@ -6034,12 +6031,9 @@
 		693AC41700000004001FFFFF /* SingleAccountAnalyticsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleAccountAnalyticsBuilder.swift; sourceTree = "<group>"; };
 		693AC41700000006002FFFFF /* PairedAccountAnalyticsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedAccountAnalyticsBuilder.swift; sourceTree = "<group>"; };
 		6EF0617C263845479C08B6BB /* WCEthereumRequestedAddressExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthereumRequestedAddressExtractor.swift; sourceTree = "<group>"; };
-<<<<<<< Updated upstream
-=======
 		71A763F56E3CF3D7EFEA8D12 /* SendAmountInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountInputView.swift; sourceTree = "<group>"; };
 		757D57B664574D4F98E22603 /* NewsDataProviderEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDataProviderEventTests.swift; sourceTree = "<group>"; };
 		769A3DCF939845D5BB0B0E6B /* NewsDateFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDateFormatterTests.swift; sourceTree = "<group>"; };
->>>>>>> Stashed changes
 		778F59E05BC37B41BCF3D557 /* HotCryptoAddTokenRoutable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotCryptoAddTokenRoutable.swift; sourceTree = "<group>"; };
 		7982B0002DE70DF300C41EA5 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
 		7982B0062DE70E0100C41EA5 /* ScrollParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollParameters.swift; sourceTree = "<group>"; };
@@ -6499,11 +6493,8 @@
 		B0FC72EA29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		B0FF12672C4A815600C81ED8 /* MainWindowSizeKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowSizeKey.swift; sourceTree = "<group>"; };
 		B17D50C9C6CB2AFADC4FABF8 /* MarketsAddTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarketsAddTokenFlowConfigurationFactory.swift; sourceTree = "<group>"; };
-<<<<<<< Updated upstream
-=======
 		B23F20A9D32647A0A3A1CF92 /* NewsListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListViewModelTests.swift; sourceTree = "<group>"; };
 		B58742B201C43E6709E51221 /* SwapAmountStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAmountStep.swift; sourceTree = "<group>"; };
->>>>>>> Stashed changes
 		B600F4CD2C50F6D2008E53FE /* NSCacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCacheWrapper.swift; sourceTree = "<group>"; };
 		B600F4DD2C50F7D7008E53FE /* LineChartViewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartViewData.swift; sourceTree = "<group>"; };
 		B600F4DE2C50F7D8008E53FE /* LineChartViewWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartViewWrapper.swift; sourceTree = "<group>"; };

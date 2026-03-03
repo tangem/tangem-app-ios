@@ -27,7 +27,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
-    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
+    private let isFixedRateMode = true
 
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
@@ -35,7 +35,6 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         shouldStartInitialLoading: false,
-        isReceiveTokenSelectionAvailable: isFixedRateMode,
         isFixedRatesEnabled: isFixedRateMode
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
@@ -155,15 +154,14 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: sendWithSwapModel,
-                emailDataCollectorBuilder: sourceToken.emailDataCollectorBuilder,
-                emailDataProvider: sourceToken.userWalletInfo.emailDataProvider,
+                sourceTokenInput: sendWithSwapModel
             ),
             approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceToken: sourceToken,
+                sourceTokenInput: sendWithSwapModel,
                 approveDataInput: sendWithSwapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
-                sourceToken: sourceToken
+                sourceTokenInput: sendWithSwapModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
@@ -267,7 +265,7 @@ extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
 
 extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
+        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, swapModelStateProvider: swapModel)
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
