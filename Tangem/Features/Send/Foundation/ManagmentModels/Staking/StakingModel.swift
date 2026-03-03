@@ -582,7 +582,8 @@ extension StakingModel: ApproveViewModelInput {
             throw StakingModelError.allowanceServiceNotFound
         }
 
-        _ = try await allowanceService.sendApproveTransaction(data: approveData)
+        let effectiveData = overriddenApproveData ?? approveData
+        _ = try await allowanceService.sendApproveTransaction(data: effectiveData)
         updateState()
 
         // Setup timer for autoupdate
@@ -607,13 +608,27 @@ extension StakingModel: SendApproveDataBuilderInput {
     var approveViewModelInput: (any ApproveViewModelInput)? { self }
 
     var approveRequestedWithSelectedPolicy: ApprovePolicy? { _approvePolicy.value }
+
+    var approveAmount: Decimal? {
+        guard case .readyToApprove = _state.value else { return nil }
+        return _amount.value?.crypto
+    }
+
+    var approveSpender: String? {
+        stakingManager.allowanceAddress
+    }
 }
 
 // MARK: - TokenFeeProvidersManagerProviding
 
 extension StakingModel: TokenFeeProvidersManagerProviding {
-    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? { nil }
-    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> { Empty().eraseToAnyPublisher() }
+    var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
+        sendSourceToken.tokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        Just(sendSourceToken.tokenFeeProvidersManager).eraseToAnyPublisher()
+    }
 }
 
 // MARK: - FeeSelectorOutput
