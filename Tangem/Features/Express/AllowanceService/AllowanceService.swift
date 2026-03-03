@@ -21,6 +21,8 @@ protocol AllowanceService: ExpressAllowanceProvider {
     ) async throws -> AllowanceState
 
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult
+
+    func setOverriddenApproveData(_ data: ApproveTransactionData?) async
 }
 
 // MARK: - ExpressAllowanceProvider
