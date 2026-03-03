@@ -36,6 +36,8 @@ struct MainUserWalletHeader: View {
 
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
+                    .padding(.top, .unit(.x2))
+                    .padding(.bottom, .unit(.x6))
             }
         }
         .frame(maxWidth: .infinity)
