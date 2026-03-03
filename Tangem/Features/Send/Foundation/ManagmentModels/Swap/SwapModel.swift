@@ -1093,7 +1093,7 @@ extension SwapModel: ApproveViewModelInput {
         }
     }
 
-    func sendApproveTransaction() async throws {
+    func sendApproveTransaction(overriddenApproveData: ApproveTransactionData?) async throws {
         guard case .loaded(let providers, let selected, state: .permissionRequired(let state)) = _providersState.value else {
             throw SwapModel.SwapModelError.transactionDataNotFound
         }
@@ -1102,8 +1102,10 @@ extension SwapModel: ApproveViewModelInput {
             throw SwapModel.SwapModelError.allowanceServiceNotFound
         }
 
+        let effectiveData = overriddenApproveData ?? state.data
+
         analyticsLogger.logSwapButtonPermissionApprove(policy: state.policy)
-        let result = try await allowanceService.sendApproveTransaction(data: state.data)
+        let result = try await allowanceService.sendApproveTransaction(data: effectiveData)
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
         analyticsLogger.logApproveTransactionSent(

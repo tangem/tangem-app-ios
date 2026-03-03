@@ -158,7 +158,7 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openApproveView(flowFactory: ExpressApproveFlowFactory) {
-        guard let viewModel = flowFactory.make(router: self) else { return }
+        let viewModel = flowFactory.make(router: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)

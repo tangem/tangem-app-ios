@@ -16,24 +16,27 @@ struct ExpressApproveFlowFactory {
     let approveAmount: Decimal?
     let spender: String?
 
-    func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel? {
-        guard let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager else {
-            return nil
-        }
-
-        let interactor = CommonFeeSelectorInteractor(
-            tokenFeeProviders: tokenFeeProvidersManager.tokenFeeProviders,
-            selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider,
-            output: nil
-        )
-
+    func make(router: ExpressApproveRoutable) -> ExpressApproveFlowViewModel {
         let approveViewModel = ExpressApproveViewModel(input: approveInput)
+
+        var feeSelectorViewModel: FeeSelectorTokensViewModel?
+        var feeSelectorInteractor: CommonFeeSelectorInteractor?
+
+        if let tokenFeeProvidersManager = tokenFeeManagerProviding.tokenFeeProvidersManager {
+            let interactor = CommonFeeSelectorInteractor(
+                tokenFeeProviders: tokenFeeProvidersManager.tokenFeeProviders,
+                selectedTokenFeeProvider: tokenFeeProvidersManager.selectedFeeProvider,
+                output: nil
+            )
+            feeSelectorInteractor = interactor
+            feeSelectorViewModel = FeeSelectorTokensViewModel(tokensDataProvider: interactor)
+        }
 
         return ExpressApproveFlowViewModel(
             approveViewModel: approveViewModel,
             router: router,
-            feeSelectorViewModel: FeeSelectorTokensViewModel(tokensDataProvider: interactor),
-            feeSelectorInteractor: interactor,
+            feeSelectorViewModel: feeSelectorViewModel,
+            feeSelectorInteractor: feeSelectorInteractor,
             allowanceService: allowanceService,
             approveAmount: approveAmount,
             spender: spender
