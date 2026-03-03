@@ -21,12 +21,13 @@ class CommonAPIListProvider {
     private let apiListSubject = CurrentValueSubject<APIList?, Never>(nil)
 
     func initialize() {
-        runTask(withTimeout: remoteListRequestTimeout) { [weak self] in
-            await self?.loadRemoteList()
-        } onTimeout: { [weak self] in
-            AppLogger.info(self, "onTimeout while file load")
-            self?.loadLocalFile()
-        }
+        TaskGroup.runTask(
+            timeout: .seconds(remoteListRequestTimeout)) { [weak self] in
+                await self?.loadRemoteList()
+            } onTimeout: { [weak self] in
+                AppLogger.info(self, "onTimeout while file load")
+                self?.loadLocalFile()
+            }
     }
 
     private func loadRemoteList() async {

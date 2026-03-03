@@ -69,12 +69,12 @@ private extension RefreshScrollViewStateObject {
         FeedbackGenerator.heavy()
         state = .willStartRefreshing
 
-        // Clouser which start refresh
+        // Closure which start refresh
         let refreshing: () -> Void = { [weak self] in
             switch self?.settings.refreshTaskTimeout {
             case .some(let timeout):
-                runTask(
-                    withTimeout: timeout,
+                TaskGroup.runTask(
+                    timeout: .seconds(timeout),
                     code: { await self?.refreshing() },
                     onTimeout: {
                         ConsoleLog.error(error: Error.timeout)
