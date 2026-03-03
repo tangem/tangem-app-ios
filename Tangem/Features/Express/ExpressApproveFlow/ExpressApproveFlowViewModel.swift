@@ -7,13 +7,13 @@
 //
 
 import Combine
-import BlockchainSdk
 import TangemExpress
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
 import TangemFoundation
+import enum BlockchainSdk.AllowanceState
 
 protocol ExpressApproveFlowRoutable: AnyObject {
     func openFeeTokenSelection()
@@ -33,8 +33,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
 
     // MARK: - Dependencies
 
-    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessNetworkManager: GaslessTransactionsNetworkManager
-
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel
     private let feeSelectorInteractor: CommonFeeSelectorInteractor
@@ -42,8 +40,6 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
     private let approveAmount: Decimal?
     private let spender: String?
     private let overrideFeeSubject: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>
-
-    private let balanceConverter = BalanceConverter()
 
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
@@ -154,38 +150,17 @@ private extension ExpressApproveFlowViewModel {
 
         recalculateApproveFeeTask = runTask(in: self) { viewModel in
             do {
-                guard let feeToken = feeTokenItem.token else {
-                    throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
-                }
-
-                guard let feeRecipientAddress = await viewModel.gaslessNetworkManager.feeRecipientAddress else {
-                    throw TokenFeeLoaderError.missingFeeRecipientAddress
-                }
-
-                guard let feeAssetId = feeToken.id else {
-                    throw TokenFeeLoaderError.feeTokenIdNotFound
-                }
-
-                let nativeAssetId = feeTokenItem.blockchain.coinId
-                let nativeToFeeTokenRate = try await viewModel.balanceConverter.cryptoToCryptoRate(
-                    from: nativeAssetId,
-                    to: feeAssetId
-                )
-
                 let state = try await allowanceService.gaslessAllowanceState(
                     amount: approveAmount,
                     spender: spender,
                     approvePolicy: approvePolicy,
-                    feeToken: feeToken,
-                    feeRecipientAddress: feeRecipientAddress,
-                    nativeToFeeTokenRate: nativeToFeeTokenRate
+                    feeTokenItem: feeTokenItem
                 )
 
                 await runOnMain {
                     viewModel.handleAllowanceState(state, feeTokenItem: feeTokenItem)
                 }
             } catch is CancellationError {
-                // Task was cancelled due to a new fee token selection
             } catch {
                 await runOnMain {
                     viewModel.overrideFeeSubject.send(.failure(error))

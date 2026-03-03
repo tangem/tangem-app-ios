@@ -11,8 +11,11 @@ import TangemExpress
 import BlockchainSdk
 
 actor CommonAllowanceService {
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessNetworkManager: GaslessTransactionsNetworkManager
+
     private let allowanceChecker: AllowanceChecker
     private let approveTransactionDispatcher: any TransactionDispatcher
+    private let balanceConverter = BalanceConverter()
 
     private var spendersAwaitingApprove: Set<String> = []
 
@@ -52,10 +55,26 @@ extension CommonAllowanceService: AllowanceService {
         amount: Decimal,
         spender: String,
         approvePolicy: ApprovePolicy,
-        feeToken: Token,
-        feeRecipientAddress: String,
-        nativeToFeeTokenRate: Decimal
+        feeTokenItem: TokenItem
     ) async throws -> AllowanceState {
+        guard let feeToken = feeTokenItem.token else {
+            throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+        }
+
+        guard let feeRecipientAddress = await gaslessNetworkManager.feeRecipientAddress else {
+            throw TokenFeeLoaderError.missingFeeRecipientAddress
+        }
+
+        guard let feeAssetId = feeToken.id else {
+            throw TokenFeeLoaderError.feeTokenIdNotFound
+        }
+
+        let nativeAssetId = feeTokenItem.blockchain.coinId
+        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
+            from: nativeAssetId,
+            to: feeAssetId
+        )
+
         let approveData = try await allowanceChecker.makeGaslessApproveData(
             spender: spender,
             amount: amount,
