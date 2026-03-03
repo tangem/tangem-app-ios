@@ -33,8 +33,8 @@ extension CommonStakingApproveViewModelInputDataBuilder: SendApproveViewModelInp
             approveInput: input,
             tokenFeeManagerProviding: tokenFeeManagerProviding,
             allowanceService: sourceToken.allowanceService,
-            approveAmount: nil,
-            spender: nil
+            approveAmount: approveDataInput.approveAmount,
+            spender: approveDataInput.approveSpender
         )
     }
 
