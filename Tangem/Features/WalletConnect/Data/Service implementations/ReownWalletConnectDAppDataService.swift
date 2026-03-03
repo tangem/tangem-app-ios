@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
@@ -25,7 +26,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     func getDAppDataAndProposal(
         for uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
-        let (reownSessionProposal, reownVerifyContext) = try await openSessionWithForcedTimeout(uri: uri)
+        let (reownSessionProposal, reownVerifyContext) = try await openSessionWithTimeout(uri: uri)
 
         try Self.validateDomainIsSupported(from: reownSessionProposal)
 
@@ -149,50 +150,22 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         return (dAppData, sessionProposal)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func openSessionWithForcedTimeout(
+    private func openSessionWithTimeout(
         uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (Session.Proposal, VerifyContext?) {
-        try await withCheckedContinuation { continuation in
-            Task {
-                await self.innerOpenSessionWithForcedTimeout(uri: uri, continuation: continuation)
+        do {
+            return try await TaskGroup.runTask(timeout: .seconds(Constants.pairingTaskTimeout)) { [weak self] in
+                guard let self else { throw WalletConnectDAppProposalLoadingError.cancelledByUser }
+
+                return try await self.openSession(uri: uri)
             }
-        }.get()
-    }
-
-    private func innerOpenSessionWithForcedTimeout(
-        uri: WalletConnectRequestURI,
-        continuation: CheckedContinuation<Result<(Session.Proposal, VerifyContext?), WalletConnectDAppProposalLoadingError>, Never>
-    ) async {
-        let gate = LockGate()
-
-        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
-            guard let self else {
-                gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.cancelledByUser)) }
-                return
-            }
-
-            taskGroup.addTask {
-                do throws(WalletConnectDAppProposalLoadingError) {
-                    let result = try await self.openSession(uri: uri)
-                    gate.run { continuation.resume(returning: .success(result)) }
-                } catch {
-                    gate.run { continuation.resume(returning: .failure(error)) }
-                }
-            }
-
-            taskGroup.addTask {
-                do {
-                    let nanoseconds = UInt64(Constants.pairingTaskTimeout * Double(NSEC_PER_SEC))
-                    try await Task.sleep(nanoseconds: nanoseconds)
-                    gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.pairingTimeout)) }
-                } catch {
-                    gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.cancelledByUser)) }
-                }
-            }
-
-            defer { taskGroup.cancelAll() }
-            await taskGroup.next()
+        } catch let error as  WalletConnectDAppProposalLoadingError {
+            // Just re-throw an original error
+            throw error
+        } catch is TimeoutError {
+            throw WalletConnectDAppProposalLoadingError.pairingTimeout
+        } catch {
+            throw WalletConnectDAppProposalLoadingError.cancelledByUser
         }
     }
 
@@ -330,20 +303,5 @@ extension ReownWalletConnectDAppDataService {
 extension ReownWalletConnectDAppDataService {
     private enum Constants {
         static let pairingTaskTimeout: TimeInterval = 30
-    }
-
-    @available(*, deprecated, message: "replace with general purpose forced-timeout function in https://tangem.atlassian.net/browse/[REDACTED_INFO]")
-    private final class LockGate {
-        private var isResumed = false
-        private let lock = NSLock()
-
-        func run(_ action: () -> Void) {
-            lock.lock()
-            defer { lock.unlock() }
-
-            guard !isResumed else { return }
-            isResumed = true
-            action()
-        }
     }
 }
