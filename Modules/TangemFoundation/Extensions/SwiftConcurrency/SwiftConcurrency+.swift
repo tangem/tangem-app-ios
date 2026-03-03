@@ -84,23 +84,33 @@ public func runTask<T: AnyObject>(
     return isDetached ? Task.detached(priority: priority, operation: operation) : Task(priority: priority, operation: operation)
 }
 
-@discardableResult
-public func runTask<T>(
-    withTimeout timeout: TimeInterval,
-    code: @escaping () async -> T,
-    onTimeout: @escaping () -> Void = {}
-) -> Task<T, Error> {
-    // [REDACTED_TODO_COMMENT]
-    fatalError()
-}
-
 public extension TaskGroup {
-    static func runTask<T, C>(
+    @discardableResult
+    static func runTask<C>(
         timeout: C.Instant.Duration,
         tolerance: C.Instant.Duration? = nil,
         clock: C = .continuous,
-        code: @escaping @Sendable () async throws -> T
-    ) async throws -> T where T: Sendable, C: Clock {
+        code: @escaping @Sendable () async throws -> ChildTaskResult,
+        onTimeout: @escaping () -> Void = {}
+    ) -> Task<ChildTaskResult, Error> where ChildTaskResult: Sendable, C: Clock {
+        Task.detached {
+            do {
+                return try await runTask(timeout: timeout, tolerance: tolerance, clock: clock, code: code)
+            } catch let error as RunTaskError where error == .timeout {
+                onTimeout()
+                throw error
+            } catch {
+                throw error
+            }
+        }
+    }
+
+    static func runTask<C>(
+        timeout: C.Instant.Duration,
+        tolerance: C.Instant.Duration? = nil,
+        clock: C = .continuous,
+        code: @escaping @Sendable () async throws -> ChildTaskResult
+    ) async throws -> ChildTaskResult where ChildTaskResult: Sendable, C: Clock {
         let cancellableWrapper = ThreadSafeCancellableWrapper()
 
         // This `withTaskCancellationHandler` scope is absolutely necessary to propagate cancellation from the parent task.
