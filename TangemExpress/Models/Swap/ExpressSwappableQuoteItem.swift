@@ -12,24 +12,43 @@ import TangemFoundation
 public struct ExpressSwappableQuoteItem {
     public let source: ExpressWalletCurrency
     public let destination: ExpressWalletCurrency
-    public let amount: Decimal
+    public let amountType: ExpressAmountType
     public let providerInfo: ProviderInfo
 
     public init(
         source: ExpressWalletCurrency,
         destination: ExpressWalletCurrency,
-        amount: Decimal,
+        amountType: ExpressAmountType,
         providerInfo: ProviderInfo
     ) {
         self.source = source
         self.destination = destination
-        self.amount = amount
+        self.amountType = amountType
         self.providerInfo = providerInfo
     }
 
-    func sourceAmountWEI() -> String {
-        let wei = source.convertToWEI(value: amount) as NSDecimalNumber
-        return wei.stringValue
+    public var amount: Decimal {
+        amountType.amount
+    }
+
+    func sourceAmountWEI() -> String? {
+        switch amountType {
+        case .from(let value):
+            let wei = source.convertToWEI(value: value) as NSDecimalNumber
+            return wei.stringValue
+        case .to:
+            return nil
+        }
+    }
+
+    func destinationAmountWEI() -> String? {
+        switch amountType {
+        case .to(let value):
+            let wei = destination.convertToWEI(value: value) as NSDecimalNumber
+            return wei.stringValue
+        case .from:
+            return nil
+        }
     }
 }
 
