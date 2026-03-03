@@ -51,6 +51,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
+    @Published var manageTokensCoordinator: ManageTokensCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -163,7 +164,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private func showMarketsTooltip() {
         // Don't show markets tooltip during UI testing
-        guard !AppEnvironment.current.isUITest else { return }
+        guard !AppEnvironment.current.isUITest else {
+            AppSettings.shared.marketsTooltipWasShown = true
+            return
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
             guard let self else {
@@ -356,6 +360,32 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 coordinator: self
             )
         }
+    }
+
+    func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let manageTokensCoordinator = ManageTokensCoordinator(
+            dismissAction: { [weak self] in
+                self?.manageTokensCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        let context = AccountsAwareManageTokensContext(
+            accountModelsManager: userWalletModel.accountModelsManager,
+            currentAccount: account
+        )
+
+        manageTokensCoordinator.start(
+            with: ManageTokensCoordinator.Options(
+                context: context,
+                userWalletConfig: userWalletModel.config,
+                analyticsSourceRawValue: Analytics.ParameterValue.main.rawValue
+            )
+        )
+
+        self.manageTokensCoordinator = manageTokensCoordinator
     }
 
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
