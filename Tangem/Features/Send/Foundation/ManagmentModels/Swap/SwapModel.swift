@@ -135,10 +135,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(
-                amount: sourceAmount?.crypto,
-                by: .amountChange
-            )
+            let result = try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
 
             if let self, let quote = result.selected?.getState().quote {
                 let crypto = quote.expectAmount
@@ -163,10 +160,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(
-                amount: receiveAmount?.crypto,
-                by: .amountChange
-            )
+            let result = try await expressManager.update(amountType: receiveAmount?.crypto.map { .to($0) }, by: .amountChange)
 
             if let self, let quote = result.selected?.getState().quote {
                 let crypto = quote.fromAmount
