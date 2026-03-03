@@ -54,7 +54,6 @@ enum SendAmountStepBuilder {
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
-        let receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
         let isFixedRateMode: Bool
 
         init(
@@ -62,14 +61,12 @@ enum SendAmountStepBuilder {
             amountModifier: (any SendAmountModifier)?,
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
-            receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
             isFixedRateMode: Bool = false
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
             self.notificationService = notificationService
             self.analyticsLogger = analyticsLogger
-            self.receiveAmountOutput = receiveAmountOutput
             self.isFixedRateMode = isFixedRateMode
         }
     }
@@ -90,6 +87,7 @@ enum SendAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
+            receiveTokenAmountOutput: io.receiveAmountIO?.output,
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
             notificationService: dependencies.notificationService,
@@ -102,7 +100,6 @@ enum SendAmountStepBuilder {
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
-            receiveAmountOutput: dependencies.receiveAmountOutput,
             isFixedRateMode: dependencies.isFixedRateMode
         )
 

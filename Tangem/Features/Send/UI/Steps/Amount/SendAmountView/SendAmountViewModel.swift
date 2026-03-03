@@ -60,7 +60,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
-    private weak var receiveAmountOutput: (any SendReceiveTokenAmountOutput)?
     private var lastUpdateSource: UpdateSource?
     private var currentReceiveToken: SendReceiveToken?
     private var balanceFormatter: BalanceFormatter = .init()
@@ -76,7 +75,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        receiveAmountOutput: (any SendReceiveTokenAmountOutput)? = nil,
         isFixedRateMode: Bool = false
     ) {
         sourceAmountField = AmountInputFieldModel(
@@ -88,7 +86,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
-        self.receiveAmountOutput = receiveAmountOutput
         self.isFixedRateMode = isFixedRateMode
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -279,13 +276,15 @@ extension SendAmountViewModel {
                 currentReceiveToken = receiveToken
 
                 // Update compact source subtitle based on loading state
+                // Use `.balance` type consistently to maintain structural identity
+                // (the default subtitle is `.balance`, switching to `.receive` would break animation)
                 switch amount {
                 case .loading:
-                    compactSourceSubtitle = .receive(state: .loading)
+                    compactSourceSubtitle = .balance(state: .loading())
                 case .success:
                     if let crypto = sourceAmountField.cryptoTextFieldViewModel.value {
                         let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                        compactSourceSubtitle = .receive(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+                        compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
                     } else {
                         compactSourceSubtitle = nil
                     }
@@ -358,7 +357,7 @@ extension SendAmountViewModel {
 
         field.onValueChanged = { [weak self] value in
             self?.lastUpdateSource = .receive
-            self?.receiveAmountOutput?.receiveAmountDidChanged(amount: value.map { SendAmount(type: .typical(crypto: $0, fiat: nil)) })
+            self?.interactor.updateReceiveAmount(amount: value.map { SendAmount(type: .typical(crypto: $0, fiat: nil)) })
         }
 
         receiveAmountField = field

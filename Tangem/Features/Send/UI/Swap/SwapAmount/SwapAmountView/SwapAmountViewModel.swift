@@ -43,7 +43,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private weak var stateProvider: SwapModelStateProvider?
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
-    private weak var receiveAmountOutput: SendReceiveTokenAmountOutput?
 
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
@@ -66,15 +65,13 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         stateProvider: SwapModelStateProvider,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
-        receiveAmountOutput: SendReceiveTokenAmountOutput? = nil,
-        isFixedRateMode: Bool = false,
+        isFixedRateMode: Bool = false
     ) {
         self.initialTokenItem = initialTokenItem
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenInput = receiveTokenInput
-        self.receiveAmountOutput = receiveAmountOutput
         self.isFixedRateMode = isFixedRateMode
         activeField = isFixedRateMode ? .receive : .source
 
@@ -267,7 +264,7 @@ private extension SwapAmountViewModel {
         }
 
         updateReceiveFiat(amount: sendAmount)
-        receiveAmountOutput?.receiveAmountDidChanged(amount: sendAmount)
+        interactor.updateReceiveAmount(amount: sendAmount)
     }
 
     private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
