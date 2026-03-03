@@ -194,7 +194,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                         if let cryptoAccount = cryptoAccounts.first(where: { $0.id.walletConnectIdentifierString == dAppV2.accountId }) {
                             connectionTargetSection = .init(
                                 targetName: cryptoAccount.name,
-                                target: .account(.init(icon: cryptoAccount.icon))
+                                target: .account(.init(icon: cryptoAccount.cryptoIcon))
                             )
                             walletSection = nil
                             break outer

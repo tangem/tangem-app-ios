@@ -10,5 +10,5 @@ import Foundation
 
 protocol AccountModelEditor {
     func setName(_ name: String)
-    func setIcon(_ icon: AccountModel.Icon)
+    func setIcon(_ icon: AccountModel.CryptoIcon)
 }

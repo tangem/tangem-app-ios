@@ -108,7 +108,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CryptoIcon) async throws(AccountEditError) -> AccountOperationResult {
         let cryptoAccount = CryptoAccountModelMock(
             isMainAccount: false,
             walletModelsManager: walletModelsManager
@@ -129,7 +129,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #1",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: AccountModel.CryptoIcon(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 3,
                 networksCount: 1,
                 derivationIndex: 10
@@ -137,7 +137,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #2",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: AccountModel.CryptoIcon(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 10,
                 networksCount: 10,
                 derivationIndex: 20

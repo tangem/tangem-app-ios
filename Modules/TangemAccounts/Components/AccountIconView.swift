@@ -40,18 +40,10 @@ public struct AccountIconView: View {
     }
 
     public var body: some View {
-        if let backgroundColor = data.backgroundColor {
-            compositeBody(backgroundColor: backgroundColor)
-        } else {
-            imageBody
-        }
-    }
-
-    private func compositeBody(backgroundColor: Color) -> some View {
-        compositeLabel
+        contentLabel
             .matchedGeometryEffect(iconGeometryEffect)
-            .frame(width: scaledWidth, height: scaledHeight)
-            .padding(scaledPadding)
+            .frame(size: contentFrameSize)
+            .padding(contentPadding)
             .background(
                 GeometryReader { geo in
                     RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
@@ -59,42 +51,61 @@ public struct AccountIconView: View {
                 }
                 .matchedGeometryEffect(backgroundGeometryEffect)
             )
-            .animation(.default, value: data.nameMode)
+            .animation(.default, value: data)
     }
 
-    @ViewBuilder
-    private var imageBody: some View {
-        switch data.nameMode {
-        case .imageType(let imageType, let config):
-            imageType.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .matchedGeometryEffect(iconGeometryEffect)
-                .frame(
-                    width: scaledWidth + scaledPadding * 2,
-                    height: scaledHeight + scaledPadding * 2
-                )
-                .opacity(config.opacity)
-        case .letter:
-            EmptyView()
+    private var backgroundColor: Color {
+        switch data {
+        case .crypto(let backgroundColor, _):
+            backgroundColor
+        case .tangemPay:
+            .clear
+        }
+    }
+
+    private var contentFrameSize: CGSize {
+        switch data {
+        case .crypto:
+            CGSize(width: scaledWidth, height: scaledHeight)
+        case .tangemPay:
+            CGSize(
+                width: scaledWidth + scaledPadding * 2,
+                height: scaledHeight + scaledPadding * 2
+            )
+        }
+    }
+
+    private var contentPadding: CGFloat {
+        switch data {
+        case .crypto:
+            scaledPadding
+        case .tangemPay:
+            .zero
         }
     }
 
     @ViewBuilder
-    private var compositeLabel: some View {
-        switch data.nameMode {
-        case .letter(let letter, let config):
-            Text(letter)
-                .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
-                // Needed for scale animation. E.g. on Main
-                .minimumScaleFactor(config.minimumScaleFactor)
+    private var contentLabel: some View {
+        switch data {
+        case .crypto(_, let nameMode):
+            switch nameMode {
+            case .letter(let letter, let config):
+                Text(letter)
+                    .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
+                    // Needed for scale animation. E.g. on Main
+                    .minimumScaleFactor(config.minimumScaleFactor)
 
-        case .imageType(let imageType, let config):
-            imageType.image
-                .renderingMode(.template)
+            case .imageType(let imageType, let config):
+                imageType.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .foregroundStyle(Colors.Text.constantWhite)
+                    .opacity(config.opacity)
+            }
+        case .tangemPay:
+            Assets.Visa.accountAvatar.image
                 .resizable()
-                .foregroundStyle(Colors.Text.constantWhite)
-                .opacity(config.opacity)
+                .aspectRatio(contentMode: .fit)
         }
     }
 }
@@ -102,22 +113,27 @@ public struct AccountIconView: View {
 // MARK: - AccountIconViewData
 
 public extension AccountIconView {
-    struct ViewData: Hashable {
-        let backgroundColor: Color?
-        let nameMode: NameMode
+    enum ViewData: Hashable {
+        case crypto(backgroundColor: Color, nameMode: NameMode)
+        case tangemPay
 
-        public init(backgroundColor: Color?, nameMode: NameMode) {
-            self.backgroundColor = backgroundColor
-            self.nameMode = nameMode
+        /// Convenience init for backward compatibility with crypto icon creation.
+        public init(backgroundColor: Color, nameMode: NameMode) {
+            self = .crypto(backgroundColor: backgroundColor, nameMode: nameMode)
         }
 
         /// Applies the given letter config if the name mode is `.letter`.
         /// Returns unchanged data for other name modes.
         public func applyingLetterConfig(_ config: NameMode.LetterConfig) -> Self {
-            switch nameMode {
-            case .letter(let letter, _):
-                return ViewData(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .imageType:
+            switch self {
+            case .crypto(let backgroundColor, let nameMode):
+                switch nameMode {
+                case .letter(let letter, _):
+                    return .crypto(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
+                case .imageType:
+                    return self
+                }
+            case .tangemPay:
                 return self
             }
         }

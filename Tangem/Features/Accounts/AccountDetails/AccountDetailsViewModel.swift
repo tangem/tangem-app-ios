@@ -24,7 +24,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - State
 
     @Published private(set) var accountName: String = ""
-    @Published private(set) var accountIcon = AccountModelUtils.UI.newAccountIcon()
+    @Published private(set) var accountIcon: AccountModel.Icon = .crypto(AccountModelUtils.UI.newAccountIcon())
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
@@ -32,7 +32,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let account: any BaseAccountModel
+    private let account: any CryptoAccountModel
     private let accountModelsManager: AccountModelsManager
     private weak var coordinator: AccountDetailsRoutable?
 
@@ -43,7 +43,7 @@ final class AccountDetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     init(
-        account: any BaseAccountModel,
+        account: any CryptoAccountModel,
         accountModelsManager: AccountModelsManager,
         coordinator: AccountDetailsRoutable
     ) {
@@ -64,7 +64,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - View data
 
     var accountIconViewData: AccountIconView.ViewData {
-        AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name)
+        AccountModelUtils.UI.iconViewData(accountModel: account)
     }
 
     var canBeEdited: Bool {

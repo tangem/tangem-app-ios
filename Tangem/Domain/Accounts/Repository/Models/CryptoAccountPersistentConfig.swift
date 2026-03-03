@@ -39,13 +39,13 @@ extension CryptoAccountPersistentConfig {
     init(
         derivationIndex: Int,
         name: String?,
-        icon: AccountModel.Icon
+        icon: AccountModel.CryptoIcon
     ) {
         self.init(
             derivationIndex: derivationIndex,
             name: name,
             iconName: icon.name.rawValue,
-            iconColor: icon.color?.rawValue ?? ""
+            iconColor: icon.color.rawValue
         )
     }
 }

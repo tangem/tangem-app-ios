@@ -268,7 +268,7 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+    func openAccountDetails(account: any CryptoAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         let coordinator = AccountDetailsCoordinator(
             dismissAction: { [weak self] in
                 self?.accountDetailsCoordinator = nil

@@ -40,7 +40,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CryptoIcon) async throws(AccountEditError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }
 

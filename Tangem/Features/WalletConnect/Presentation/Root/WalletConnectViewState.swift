@@ -147,7 +147,7 @@ extension WalletConnectViewState.ContentState {
 
     struct AccountSection: Identifiable, Equatable {
         let id: String
-        let icon: AccountModel.Icon
+        let icon: AccountModel.CryptoIcon
         let name: String
         let dApps: [ConnectedDApp]
 

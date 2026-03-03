@@ -18,18 +18,18 @@ struct AccountModelUtilsTests {
     @Test(
         "Icon generation for main account based on UserWalletId",
         arguments: [
-            ("1234567890abcdef", AccountModel.Icon.Color.pattypan),
-            ("27163F47405CE73110837F24DF82607FF11C7AF9D78C93F409E4FEAFF3400C8F", AccountModel.Icon.Color.candyGrapeFizz),
-            ("64A3791C180584C700EBECD6EAB36CBC34643BB449BC87761104C09F41DBCF3D", AccountModel.Icon.Color.palatinateBlue),
-            ("01C061A99FCCEDA87933267EBAB3513592F83AD2E27BDA6EE5546BA96009D21F", AccountModel.Icon.Color.pelati),
-            ("6D387A8FA5D2AF95F601EBCA8736D73D2ED53159835D8C407FBD4BBB10290C8B", AccountModel.Icon.Color.caribbeanBlue),
-            ("33FCD9B9982C31648C235AE55A29212D567ECD3BA24BE4227D1A01897ADBC959", AccountModel.Icon.Color.sweetDesire),
-            ("197C8C5AA59270F3E9E1F30799A007D193DA596E6DC24C37D002C2EC203C2A0B", AccountModel.Icon.Color.vitalGreen),
-            ("ACF90C18393828958B5E795771F0692A00D3D7ADC092F726AB4A7E3116DD6E6E", AccountModel.Icon.Color.pattypan),
+            ("1234567890abcdef", AccountModel.CryptoIcon.Color.pattypan),
+            ("27163F47405CE73110837F24DF82607FF11C7AF9D78C93F409E4FEAFF3400C8F", AccountModel.CryptoIcon.Color.candyGrapeFizz),
+            ("64A3791C180584C700EBECD6EAB36CBC34643BB449BC87761104C09F41DBCF3D", AccountModel.CryptoIcon.Color.palatinateBlue),
+            ("01C061A99FCCEDA87933267EBAB3513592F83AD2E27BDA6EE5546BA96009D21F", AccountModel.CryptoIcon.Color.pelati),
+            ("6D387A8FA5D2AF95F601EBCA8736D73D2ED53159835D8C407FBD4BBB10290C8B", AccountModel.CryptoIcon.Color.caribbeanBlue),
+            ("33FCD9B9982C31648C235AE55A29212D567ECD3BA24BE4227D1A01897ADBC959", AccountModel.CryptoIcon.Color.sweetDesire),
+            ("197C8C5AA59270F3E9E1F30799A007D193DA596E6DC24C37D002C2EC203C2A0B", AccountModel.CryptoIcon.Color.vitalGreen),
+            ("ACF90C18393828958B5E795771F0692A00D3D7ADC092F726AB4A7E3116DD6E6E", AccountModel.CryptoIcon.Color.pattypan),
         ]
     )
-    func testMainAccountIconGeneration(hexString: String, expectedColor: AccountModel.Icon.Color) {
-        let expectedName: AccountModel.Icon.Name = .star
+    func testMainAccountIconGeneration(hexString: String, expectedColor: AccountModel.CryptoIcon.Color) {
+        let expectedName: AccountModel.CryptoIcon.Name = .star
         let rawUserWalletId = Data(hexString: hexString)
         let userWalletId = UserWalletId(value: rawUserWalletId)
         let persistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
@@ -47,7 +47,6 @@ struct AccountModelUtilsTests {
             #expect(newAccountIcon.color != nil)
             #expect(name != .letter)
             #expect(name != .star)
-            #expect(name != .tangemPay)
         }
     }
 }

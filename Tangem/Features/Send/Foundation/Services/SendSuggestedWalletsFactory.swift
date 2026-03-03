@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemAccounts
-import TangemAssets
 import TangemLocalization
 
 struct SendSuggestedWalletsFactory {
@@ -59,7 +58,7 @@ struct SendSuggestedWalletsFactory {
                         name: userWalletModel.name,
                         address: depositAddress,
                         account: SendDestinationSuggestedWallet.Account(
-                            icon: .init(backgroundColor: nil, nameMode: .imageType(Assets.Visa.accountAvatar)),
+                            icon: .tangemPay,
                             name: Localization.tangempayPaymentAccount
                         ),
                         accountModelAnalyticsProvider: nil

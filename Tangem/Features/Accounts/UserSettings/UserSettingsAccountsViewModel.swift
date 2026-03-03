@@ -151,7 +151,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    private func onTapAccount(account: any BaseAccountModel) {
+    private func onTapAccount(account: any CryptoAccountModel) {
         Analytics.log(.walletSettingsButtonOpenExistingAccount)
         coordinator?.openAccountDetails(
             account: account,
@@ -176,7 +176,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     // MARK: - Utilities
 
-    private func updateAccountRows(from accounts: [any BaseAccountModel]) {
+    private func updateAccountRows(from accounts: [any CryptoAccountModel]) {
         let currentIds = Set(accounts.map { $0.id.toAnyHashable() })
         cachedAccountRows = cachedAccountRows.filter { currentIds.contains($0.key) }
 
