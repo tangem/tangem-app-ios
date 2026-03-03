@@ -66,7 +66,8 @@ struct SwapAmountView: View {
             viewModel.userDidTapNetworkFeeInfoButton(type.message)
         }
         .defaultRoundedBackground(with: Colors.Background.action)
-        .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.toAmountTextField)
     }
 
     private var swappingButton: some View {
@@ -85,5 +86,6 @@ struct SwapAmountView: View {
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Colors.Stroke.primary, lineWidth: 1)
         )
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.swapTokensButton)
     }
 }
