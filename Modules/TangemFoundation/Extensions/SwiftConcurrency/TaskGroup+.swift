@@ -155,7 +155,7 @@ public extension TaskGroup<Void> {
     /// - Parameters:
     ///   - items: The items to process.
     ///   - action: The async work to perform for each item.
-    static func execute<Item>(items: [Item], action: @escaping (Item) async -> Void) async {
+    static func executeKeepingOrder<Item>(items: [Item], action: @escaping (Item) async -> Void) async {
         _ = await executeKeepingOrder(items: items, action: action)
     }
 
@@ -164,7 +164,7 @@ public extension TaskGroup<Void> {
     ///   - items: The items to process.
     ///   - action: The async throwing work to perform for each item.
     /// - Throws: Rethrows any error thrown by `action`.
-    static func tryExecute<Item>(items: [Item], action: @escaping (Item) async throws -> Void) async throws {
+    static func tryExecuteKeepingOrder<Item>(items: [Item], action: @escaping (Item) async throws -> Void) async throws {
         _ = try await tryExecuteKeepingOrder(items: items, action: action)
     }
 }
