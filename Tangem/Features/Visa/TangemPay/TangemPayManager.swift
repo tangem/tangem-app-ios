@@ -40,6 +40,7 @@ final class TangemPayManager: TangemPayAccountModel {
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
     private let orderIdStorage: TangemPayOrderIdStorage
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
+    private let cachedStateStorage: TangemPayCachedStateStorage
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -56,6 +57,7 @@ final class TangemPayManager: TangemPayAccountModel {
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         orderIdStorage: TangemPayOrderIdStorage,
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
+        cachedStateStorage: TangemPayCachedStateStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.customerWalletId = customerWalletId
@@ -67,6 +69,7 @@ final class TangemPayManager: TangemPayAccountModel {
         self.orderStatusPollingService = orderStatusPollingService
         self.orderIdStorage = orderIdStorage
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
+        self.cachedStateStorage = cachedStateStorage
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
@@ -238,6 +241,17 @@ final class TangemPayManager: TangemPayAccountModel {
             .flatMapLatest(\.unavailableSignalPublisher)
             .mapToValue(.unavailable)
             .sink(receiveValue: stateSubject.send)
+            .store(in: &bag)
+
+        stateSubject
+            .compactMap(\.?.cachedLocalState)
+            .withWeakCaptureOf(self)
+            .sink { manager, cachedState in
+                manager.cachedStateStorage.saveCachedLocalState(
+                    cachedState,
+                    customerWalletId: manager.customerWalletId
+                )
+            }
             .store(in: &bag)
     }
 }
