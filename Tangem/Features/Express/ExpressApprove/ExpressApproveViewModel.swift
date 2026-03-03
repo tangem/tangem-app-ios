@@ -33,10 +33,9 @@ final class ExpressApproveViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    var overriddenApproveData: ApproveTransactionData?
     private let tokenItem: TokenItem
     private(set) var selectedFeeTokenItem: TokenItem
-    /// Approve data computed from a fee-token change in the flow VM, passed explicitly to `sendApproveTransaction`.
-    var overriddenApproveData: ApproveTransactionData?
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveCoordinating?
