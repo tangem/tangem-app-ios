@@ -205,8 +205,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled")
             waitAndAssertTrue(sellButton, "Sell button should exist")
             XCTAssertTrue(sellButton.isEnabled, "Sell button should be enabled")
+            return self
         }
-        return self
     }
 
     // MARK: - Notification Validation Methods
@@ -215,8 +215,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForNotEnoughFeeForTransactionBanner() -> Self {
         XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
             waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
+            return self
         }
-        return self
     }
 
     // MARK: - Badge Validation Methods
@@ -235,6 +235,34 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Assert Swap button has no badge indicator") { _ in
             waitAndAssertTrue(swapButton, "Swap button should exist")
             XCTAssertFalse(swapButtonBadge.exists, "Swap button badge should not be displayed")
+            return self
+        }
+    }
+
+    // MARK: - Swap Button State Methods
+
+    @discardableResult
+    func waitForSwapButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button is available") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForSwapButtonDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button shows unavailability alert on tap") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            swapButton.waitAndTap()
+
+            // An alert should appear indicating swap is not available
+            let alert = app.alerts.firstMatch
+            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Unavailability alert should appear for a non-swappable token")
+
+            // Dismiss the alert
+            let okButton = alert.buttons.firstMatch
+            XCTAssertTrue(okButton.exists, "Alert should have a dismiss button")
+            okButton.tap()
             return self
         }
     }
