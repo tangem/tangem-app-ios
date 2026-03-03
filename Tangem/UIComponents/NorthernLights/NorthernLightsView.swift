@@ -2,6 +2,8 @@ import SwiftUI
 import MetalKit
 
 struct NorthernLightsView: UIViewRepresentable {
+    let backgroundColor: Color
+
     func makeUIView(context: Context) -> MTKView {
         guard let device = MTLCreateSystemDefaultDevice(),
               let renderer = try? NorthernLightsRenderer(device: device) else {
@@ -17,7 +19,9 @@ struct NorthernLightsView: UIViewRepresentable {
         return mtkView
     }
 
-    func updateUIView(_ mtkView: MTKView, context: Context) {}
+    func updateUIView(_ mtkView: MTKView, context: Context) {
+        context.coordinator.renderer?.backgroundRGB = backgroundColor.toRGB() ?? .zero
+    }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -27,15 +31,13 @@ struct NorthernLightsView: UIViewRepresentable {
 }
 
 final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
-    private let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
 
+    var backgroundRGB: RGB = .zero
     private var startTime = CACurrentMediaTime()
 
     init(device: MTLDevice) throws {
-        self.device = device
-
         guard let commandQueue = device.makeCommandQueue(),
               let library = device.makeDefaultLibrary(),
               let vertexFunction = library.makeFunction(name: "northernLightsVertex"),
@@ -64,22 +66,15 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
         }
 
         let elapsed = Float(CACurrentMediaTime() - startTime)
-        let colorTime = elapsed
-
-        let c1 = NorthernLightsColors.track1.evaluate(at: colorTime)
-        let c2 = NorthernLightsColors.track2.evaluate(at: colorTime)
-        let c3 = NorthernLightsColors.track3.evaluate(at: colorTime)
-        let c4 = NorthernLightsColors.track4.evaluate(at: colorTime)
-        let bg = NorthernLightsColors.background
 
         var uniforms = Uniforms(
             uTime: elapsed,
             uResolution: SIMD2(Float(view.bounds.width), Float(view.bounds.height)),
-            uColor0: c1,
-            uColor1: c2,
-            uColor2: c3,
-            uColor3: c4,
-            uColor4: bg,
+            uColor0: NorthernLightsColors.track1.evaluate(at: elapsed),
+            uColor1: NorthernLightsColors.track2.evaluate(at: elapsed),
+            uColor2: NorthernLightsColors.track3.evaluate(at: elapsed),
+            uColor3: NorthernLightsColors.track4.evaluate(at: elapsed),
+            uColor4: backgroundRGB
         )
 
         guard let commandBuffer = commandQueue.makeCommandBuffer(),
@@ -100,5 +95,20 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
 extension NorthernLightsRenderer {
     enum MetalInitializationError: Error {
         case resourceCreationFailed
+    }
+}
+
+private extension Color {
+    func toRGB() -> RGB? {
+        guard
+            let components = UIColor(self).cgColor.components,
+            let r = components[safe: 0],
+            let g = components[safe: 1],
+            let b = components[safe: 2]
+        else {
+            return nil
+        }
+
+        return RGB(Float(r), Float(g), Float(b))
     }
 }
