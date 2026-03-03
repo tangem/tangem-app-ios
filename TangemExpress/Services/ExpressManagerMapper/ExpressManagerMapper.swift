@@ -18,7 +18,7 @@ struct ExpressManagerMapper {
         return ExpressSwappableQuoteItem(
             source: pair.source.currency,
             destination: pair.destination.currency,
-            amount: request.amount,
+            amountType: request.amountType,
             providerInfo: .init(id: providerId, type: providerType)
         )
     }
@@ -27,7 +27,8 @@ struct ExpressManagerMapper {
         pair: ExpressManagerSwappingPair,
         request: ExpressManagerSwappingPairRequest,
         providerId: ExpressProvider.Id,
-        providerType: ExpressProviderType
+        providerType: ExpressProviderType,
+        quoteId: String? = nil
     ) throws -> ExpressSwappableDataItem {
         guard let sourceAddress = pair.source.address else {
             throw Error.sourceAddressNotFound
@@ -52,9 +53,10 @@ struct ExpressManagerMapper {
         return ExpressSwappableDataItem(
             source: source,
             destination: destination,
-            amount: request.amount,
+            amountType: request.amountType,
             providerInfo: .init(id: providerId, type: providerType),
-            operationType: request.operationType
+            operationType: request.operationType,
+            quoteId: quoteId
         )
     }
 }

@@ -75,7 +75,8 @@ struct ExpressAPIMapper {
         return ExpressQuote(
             fromAmount: fromAmount,
             expectAmount: toAmount,
-            allowanceContract: response.allowanceContract
+            allowanceContract: response.allowanceContract,
+            quoteId: response.quoteId
         )
     }
 
