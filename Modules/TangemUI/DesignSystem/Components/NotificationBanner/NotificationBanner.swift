@@ -26,8 +26,6 @@ public struct NotificationBanner: View, Setupable {
     private var buttons: Buttons { bannerType.buttons }
 
     private var isCentered: Bool {
-        if bannerType.isClosable { return false }
-
         switch content {
         case .text: return true
         case .textWithIcon: return false
@@ -115,6 +113,8 @@ public struct NotificationBanner: View, Setupable {
                 )
                 .multilineTextAlignment(textAlignment)
         }
+        .padding(.horizontal, SizeUnit.x1.value)
+        .padding(.top, SizeUnit.x1.value)
     }
 
     @ViewBuilder
