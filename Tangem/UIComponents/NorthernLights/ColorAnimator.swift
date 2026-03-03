@@ -105,8 +105,6 @@ enum NorthernLightsColors {
         keyframes: [rgb(hex: 0x331199), rgb(hex: 0x6644CC), rgb(hex: 0xCC77DD), rgb(hex: 0xFF66CC)],
         offsetSeconds: 2
     )
-
-    static let background = rgb(hex: 0x1C1C1E)
 }
 
 // MARK: - Uniforms struct
