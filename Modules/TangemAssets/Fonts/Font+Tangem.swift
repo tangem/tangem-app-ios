@@ -43,4 +43,7 @@ public extension Font.Tangem {
     static let largeTitleBold: Font = .largeTitle.weight(.bold)
     static let title1Bold: Font = .title.weight(.bold)
     static let title2Bold: Font = .title2.weight(.bold)
+
+    /// Custom sizes
+    static let title44: Font = .system(size: 44, weight: .semibold, design: .default)
 }
