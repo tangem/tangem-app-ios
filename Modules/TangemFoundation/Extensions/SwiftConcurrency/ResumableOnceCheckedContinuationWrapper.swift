@@ -38,4 +38,3 @@ final class ResumableOnceCheckedContinuationWrapper<T, E> where E: Error {
         }
     }
 }
-
