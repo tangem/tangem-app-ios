@@ -42,24 +42,8 @@ final class WalletConnectSavedSessionMigrationService {
             appSettings.didMigrateWalletConnectSavedSessions = true
         }
 
-        return try await withThrowingTaskGroup(
-            of: (Int, WalletConnectConnectedDApp?).self
-        ) { taskGroup in
-            var connectedDApps = [WalletConnectConnectedDApp?](repeating: nil, count: savedSessions.count)
-
-            for (index, legacySession) in savedSessions.enumerated() {
-                taskGroup.addTask {
-                    try Task.checkCancellation()
-                    let connectedDApp = try await self.migrate(legacySession: legacySession)
-                    return (index, connectedDApp)
-                }
-            }
-
-            for try await (index, connectedDApp) in taskGroup {
-                connectedDApps[index] = connectedDApp
-            }
-
-            return connectedDApps.compactMap { $0 }
+        return try await TaskGroup.tryExecuteKeepingOrder(items: savedSessions) { legacySession in
+            try await self.migrate(legacySession: legacySession)
         }
     }
 

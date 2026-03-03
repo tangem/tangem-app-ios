@@ -86,22 +86,11 @@ actor WalletConnectDAppSessionsExtender {
     private func extend(connectedDApps: [WalletConnectConnectedDApp]) async throws -> [WalletConnectConnectedDApp] {
         guard connectedDApps.isNotEmpty else { return connectedDApps }
 
-        return try await withThrowingTaskGroup(of: (Int, WalletConnectConnectedDApp?).self) { [weak self] taskGroup in
-            var extendedDApps = [WalletConnectConnectedDApp?](repeating: nil, count: connectedDApps.count)
-
-            for (index, connectedDApp) in connectedDApps.enumerated() {
-                taskGroup.addTask {
-                    let extendedDApp = try await self?.extend(connectedDApp: connectedDApp)
-                    return (index, extendedDApp)
-                }
+        return try await TaskGroup
+            .tryExecuteKeepingOrder(items: connectedDApps) { [weak self] connectedDApp in
+                try await self?.extend(connectedDApp: connectedDApp)
             }
-
-            for try await (index, extendedDApp) in taskGroup {
-                extendedDApps[index] = extendedDApp
-            }
-
-            return extendedDApps.compactMap { $0 }
-        }
+            .compactMap(\.self)
     }
 
     private func extend(connectedDApp: WalletConnectConnectedDApp) async throws -> WalletConnectConnectedDApp {
