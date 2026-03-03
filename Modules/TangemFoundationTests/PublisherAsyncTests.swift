@@ -37,6 +37,7 @@ struct PublisherAsyncTests {
     @Test("Returns value from a delayed Future")
     func returnsValueFromDelayedFuture() async throws {
         let future = Future<Int, Never> { promise in
+            nonisolated(unsafe) let promise = promise
             DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
                 promise(.success(7))
             }
@@ -167,11 +168,9 @@ struct PublisherAsyncTests {
 
     // MARK: - Race conditions
 
-    @Test("Concurrent emission and cancellation race produces exactly one outcome")
+    @Test("Concurrent emission and cancellation race produces exactly one outcome", .timeLimit(.minutes(1)))
     func concurrentEmissionAndCancellationRace() async {
-        let iterations = 500
-
-        for _ in 0 ..< iterations {
+        for _ in 0 ..< 500 {
             nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
 
             let task = Task {
@@ -180,7 +179,7 @@ struct PublisherAsyncTests {
 
             await withTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    subject.send(1)
+                    subject.send(42)
                 }
                 group.addTask {
                     task.cancel()
@@ -189,11 +188,9 @@ struct PublisherAsyncTests {
 
             do {
                 let value = try await task.value
-                #expect(value == 1)
-            } catch is CancellationError {
-                // Also acceptable
+                #expect(value == 42)
             } catch {
-                Issue.record("Unexpected error: \(error)")
+                #expect(error is CancellationError)
             }
         }
     }
