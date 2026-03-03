@@ -25,12 +25,21 @@ final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .skeleton
 
     private let tangemPayLocalState: TangemPayLocalState
+    private let userWalletId: UserWalletId
+    private let cachedStateStorage: TangemPayCachedStateStorage
     private weak var router: TangemPayAccountRoutable?
 
     private let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 
-    init(tangemPayLocalState: TangemPayLocalState, router: TangemPayAccountRoutable?) {
+    init(
+        tangemPayLocalState: TangemPayLocalState,
+        userWalletId: UserWalletId,
+        cachedStateStorage: TangemPayCachedStateStorage,
+        router: TangemPayAccountRoutable?
+    ) {
         self.tangemPayLocalState = tangemPayLocalState
+        self.userWalletId = userWalletId
+        self.cachedStateStorage = cachedStateStorage
         self.router = router
 
         bind()
@@ -59,7 +68,8 @@ final class TangemPayAccountViewModel: ObservableObject {
 private extension TangemPayAccountViewModel {
     func bind() {
         Just(tangemPayLocalState)
-            .flatMapLatest { state -> AnyPublisher<ViewState, Never> in
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, state -> AnyPublisher<ViewState, Never> in
                 guard !RTCUtil().checkStatus().hasIssues else {
                     return .just(output: .rootedDevice)
                 }
@@ -70,7 +80,7 @@ private extension TangemPayAccountViewModel {
                 case .syncNeeded, .syncInProgress:
                     .just(output: .syncNeeded)
                 case .unavailable:
-                    .just(output: .unavailable)
+                    .just(output: .unavailable(cached: viewModel.makeCachedDisplayData()))
                 case .kycRequired:
                     .just(output: .kycInProgress)
                 case .kycDeclined:
@@ -108,6 +118,58 @@ private extension TangemPayAccountViewModel {
             .receiveOnMain()
             .assign(to: &$state)
     }
+
+    func makeCachedDisplayData() -> CachedDisplayData? {
+        switch cachedStateStorage.cachedLocalState(customerWalletId: userWalletId.stringValue) {
+        case .kycRequired:
+            CachedDisplayData(
+                subtitle: Localization.tangempayKycInProgress,
+                trailing: .empty
+            )
+
+        case .kycDeclined:
+            CachedDisplayData(
+                subtitle: Localization.tangempayKycHasFailed,
+                trailing: .empty
+            )
+
+        case .issuingCard:
+            CachedDisplayData(
+                subtitle: Localization.tangempayIssuingYourCard,
+                trailing: .empty
+            )
+
+        case .failedToIssueCard:
+            CachedDisplayData(
+                subtitle: Localization.tangempayFailedToIssueCard,
+                trailing: .warningIcon
+            )
+
+        case .tangemPayAccount(let cardNumberEnd):
+            CachedDisplayData(
+                subtitle: cardNumberEnd.map { "*" + $0 },
+                trailing: .balance(cachedBalanceState())
+            )
+
+        case .none:
+            nil
+        }
+    }
+
+    func cachedBalanceState() -> LoadableBalanceView.State {
+        let repository = CommonTokenBalancesRepository(userWalletId: userWalletId)
+        let walletModelId = WalletModelId(tokenItem: TangemPayUtilities.usdcTokenItem)
+
+        guard let cachedBalance = repository.balance(walletModelId: walletModelId, type: .available) else {
+            return .empty
+        }
+
+        let formatted = BalanceFormatter().formatFiatBalance(
+            cachedBalance.balance,
+            currencyCode: TangemPayUtilities.fiatItem.currencyCode
+        )
+        return .loaded(text: .string(formatted))
+    }
 }
 
 extension TangemPayAccountViewModel {
@@ -119,7 +181,7 @@ extension TangemPayAccountViewModel {
         case failedToIssueCard
         case normal(card: CardInfo, balance: LoadableBalanceView.State)
         case syncNeeded
-        case unavailable
+        case unavailable(cached: CachedDisplayData? = nil)
         case rootedDevice
 
         var subtitle: String {
@@ -134,7 +196,9 @@ extension TangemPayAccountViewModel {
                 "*" + card.cardNumberEnd
             case .syncNeeded:
                 Localization.tangempaySyncNeeded
-            case .unavailable, .skeleton:
+            case .unavailable(let cached):
+                cached?.subtitle ?? "—"
+            case .skeleton:
                 "—"
             case .rootedDevice:
                 Localization.tangempayAccountUnableToUseRooted
@@ -157,6 +221,17 @@ extension TangemPayAccountViewModel {
                 return true
             }
             return false
+        }
+    }
+
+    struct CachedDisplayData {
+        let subtitle: String?
+        let trailing: Trailing
+
+        enum Trailing {
+            case empty
+            case warningIcon
+            case balance(LoadableBalanceView.State)
         }
     }
 

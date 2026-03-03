@@ -19,7 +19,7 @@ public struct TangemButton: View, Setupable {
 
     private var size: Size = .x10 {
         didSet {
-            _iconSize = .init(wrappedValue: oldValue.iconSize, relativeTo: oldValue.textStyle)
+            _iconSize = .init(wrappedValue: size.iconSize, relativeTo: size.textStyle)
         }
     }
 
