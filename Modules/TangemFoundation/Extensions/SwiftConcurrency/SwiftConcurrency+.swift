@@ -98,48 +98,58 @@ public extension TaskGroup {
     static func runTask<T, C>(
         timeout: C.Instant.Duration,
         tolerance: C.Instant.Duration? = nil,
-        clock: C,
+        clock: C = .continuous,
         code: @escaping @Sendable () async throws -> T
     ) async throws -> T where T: Sendable, C: Clock {
-        let cancellable = CancellableWrapper()
+        let cancellableWrapper = ThreadSafeCancellableWrapper()
 
-        return try await withTaskCancellationHandler(
-            operation: {
-                return try await withCheckedThrowingContinuation { (_continuation: CheckedContinuation<T, Error>) in
-                    let continuation = ConditionalResumableCheckedContinuation(_continuation)
+        // This `withTaskCancellationHandler` scope is absolutely necessary to propagate cancellation from the parent task.
+        return try await withTaskCancellationHandler {
+            // This `withCheckedThrowingContinuation` scope is absolutely necessary because Swift Concurrency task group
+            // does not return early after the single `await taskGroup.nextResult()` call.
+            // The task group will always wait for all child tasks to finish before it ends therefore we use Continuation API
+            // to resume the parent task as soon as one of the child tasks finishes and then cancel the other one.
+            // See https://forums.swift.org/t/running-an-async-task-with-a-timeout/49733/15 and other posts in that thread for more details.
+            return try await withCheckedThrowingContinuation { continuation in
+                let continuationWrapper = ResumableOnceCheckedContinuationWrapper(continuation)
 
-                    Task.detached {
-                        try await withThrowingTaskGroup(of: Void.self) { taskGroup in
-                            defer { taskGroup.cancelAll() }
-
-                            taskGroup.addTask {
-                                do {
-                                    let result = try await code()
-                                    await continuation.resumeIfNeeded(returning: result)
-                                } catch {
-                                    await continuation.resumeIfNeeded(throwing: error)
-                                }
-                            }
-
-                            taskGroup.addTask {
-                                do {
-                                    try await Task.sleep(for: timeout, tolerance: tolerance, clock: clock)
-                                    try Task.checkCancellation()
-                                    await continuation.resumeIfNeeded(throwing: RunTaskError.timeout)
-                                } catch {
-                                    await continuation.resumeIfNeeded(throwing: error)
-                                }
-                            }
-
-                            await taskGroup.nextResult()
-                        }
-                    }.eraseToAnyCancellable().store(in: cancellable)
+                // This check is necessary in case this code runs after the task was
+                // cancelled. In which case we want to bail right away.
+                guard !Task.isCancelled else {
+                    continuationWrapper.resumeIfNeeded(throwing: CancellationError())
+                    return
                 }
-            },
-            onCancel: {
-                cancellable.cancel()
+
+                Task.detached {
+                    try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+                        defer { taskGroup.cancelAll() }
+
+                        taskGroup.addTask {
+                            do {
+                                let result = try await code()
+                                await continuationWrapper.resumeIfNeeded(returning: result)
+                            } catch {
+                                await continuationWrapper.resumeIfNeeded(throwing: error)
+                            }
+                        }
+
+                        taskGroup.addTask {
+                            do {
+                                try await Task.sleep(for: timeout, tolerance: tolerance, clock: clock)
+                                try Task.checkCancellation()
+                                await continuationWrapper.resumeIfNeeded(throwing: RunTaskError.timeout)
+                            } catch {
+                                await continuationWrapper.resumeIfNeeded(throwing: error)
+                            }
+                        }
+
+                        await taskGroup.nextResult()
+                    }
+                }.eraseToAnyCancellable().store(in: cancellableWrapper)
             }
-        )
+        } onCancel: {
+            cancellableWrapper.cancel()
+        }
     }
 }
 
@@ -223,60 +233,4 @@ public extension Actor {
 
 public enum RunTaskError: Error {
     case timeout
-}
-
-actor ConditionalResumableCheckedContinuation<T, E> where E: Error {
-    private var wasResumed = false
-    private let innerContinuation: CheckedContinuation<T, E>
-
-    init(_ continuation: CheckedContinuation<T, E>) {
-        innerContinuation = continuation
-    }
-
-    /// Safe shim for `CheckedContinuation.resume(returning:)`.
-    func resumeIfNeeded(returning value: T) {
-        if !wasResumed {
-            wasResumed = true
-            innerContinuation.resume(returning: value)
-        }
-    }
-
-    /// Safe shim for `CheckedContinuation.resume(throwing:)`.
-    func resumeIfNeeded(throwing error: E) {
-        if !wasResumed {
-            wasResumed = true
-            innerContinuation.resume(throwing: error)
-        }
-    }
-}
-
-private actor CancellableWrapper {
-    private var innerCancellable: AnyCancellable?
-    private var isCancelled = false
-
-    func set(_ cancellable: AnyCancellable) {
-        if isCancelled {
-            cancellable.cancel()
-        } else {
-            innerCancellable = cancellable
-        }
-    }
-
-    private func innerCancel() {
-        isCancelled = true
-        innerCancellable?.cancel()
-        innerCancellable = nil
-    }
-
-    nonisolated func cancel() {
-        Task { await innerCancel() }
-    }
-}
-
-private extension AnyCancellable {
-    func store(in wrapper: CancellableWrapper) {
-        Task {
-            await wrapper.set(self)
-        }
-    }
 }
