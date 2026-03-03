@@ -28,6 +28,7 @@ protocol SendAmountInteractor {
     func update(amount: Decimal?) throws -> SendAmount?
     func update(type: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
+    func updateReceiveAmount(amount: SendAmount?)
 
     func userDidRequestClearReceiveToken()
 }
@@ -39,6 +40,7 @@ class CommonSendAmountInteractor {
     private weak var receiveTokenInput: SendReceiveTokenInput?
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
     private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
+    private weak var receiveTokenAmountOutput: SendReceiveTokenAmountOutput?
 
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
@@ -59,6 +61,7 @@ class CommonSendAmountInteractor {
         receiveTokenInput: (any SendReceiveTokenInput)?,
         receiveTokenOutput: (any SendReceiveTokenOutput)?,
         receiveTokenAmountInput: (any SendReceiveTokenAmountInput)?,
+        receiveTokenAmountOutput: (any SendReceiveTokenAmountOutput)?,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
@@ -70,6 +73,7 @@ class CommonSendAmountInteractor {
         self.receiveTokenInput = receiveTokenInput
         self.receiveTokenOutput = receiveTokenOutput
         self.receiveTokenAmountInput = receiveTokenAmountInput
+        self.receiveTokenAmountOutput = receiveTokenAmountOutput
         self.validator = validator
         self.amountModifier = amountModifier
         self.notificationService = notificationService
@@ -312,6 +316,10 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             _cachedAmount.send(amount)
             return amount
         }
+    }
+
+    func updateReceiveAmount(amount: SendAmount?) {
+        receiveTokenAmountOutput?.receiveAmountDidChanged(amount: amount)
     }
 
     func userDidRequestClearReceiveToken() {
