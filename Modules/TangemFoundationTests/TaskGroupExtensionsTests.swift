@@ -56,7 +56,7 @@ struct TaskGroupExtensionsTests {
         try? await Task.sleep(for: .milliseconds(50))
         task.cancel()
 
-        await #expect(throws: (any Error).self) {
+        await #expect(throws: CancellationError.self) {
             try await task.value
         }
     }

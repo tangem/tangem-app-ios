@@ -162,7 +162,7 @@ private extension ThreadSafeCancellableWrapperTests {
         }
 
         func cancel() {
-            criticalSection.withLock { _cancelCount += 1 }
+            criticalSection { _cancelCount += 1 }
         }
     }
 }

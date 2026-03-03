@@ -24,10 +24,10 @@ struct ResumableOnceCheckedContinuationWrapperTests {
 
     @Test("Resumes continuation with an error exactly once")
     func resumesWithErrorOnce() async {
-        await #expect(throws: TestError.expected) {
+        await #expect(throws: TestError()) {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int, Error>) in
                 let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
-                wrapper.resumeIfNeeded(throwing: TestError.expected)
+                wrapper.resumeIfNeeded(throwing: TestError())
             }
         }
     }
@@ -48,7 +48,7 @@ struct ResumableOnceCheckedContinuationWrapperTests {
         let result: Int = try await withCheckedThrowingContinuation { continuation in
             let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
             wrapper.resumeIfNeeded(returning: 99)
-            wrapper.resumeIfNeeded(throwing: TestError.unexpected)
+            wrapper.resumeIfNeeded(throwing: TestError())
         }
 
         #expect(result == 99)
@@ -56,10 +56,10 @@ struct ResumableOnceCheckedContinuationWrapperTests {
 
     @Test("resume(returning:) after resume(throwing:) is a no-op")
     func returningAfterThrowingIsNoOp() async {
-        await #expect(throws: TestError.expected) {
+        await #expect(throws: TestError()) {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int, Error>) in
                 let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
-                wrapper.resumeIfNeeded(throwing: TestError.expected)
+                wrapper.resumeIfNeeded(throwing: TestError())
                 wrapper.resumeIfNeeded(returning: 42)
             }
         }
@@ -98,7 +98,7 @@ struct ResumableOnceCheckedContinuationWrapperTests {
                             if i.isMultiple(of: 2) {
                                 wrapper.resumeIfNeeded(returning: i)
                             } else {
-                                wrapper.resumeIfNeeded(throwing: TestError.expected)
+                                wrapper.resumeIfNeeded(throwing: TestError())
                             }
                         }
                     }
@@ -116,8 +116,5 @@ struct ResumableOnceCheckedContinuationWrapperTests {
 // MARK: - Test helpers
 
 private extension ResumableOnceCheckedContinuationWrapperTests {
-    enum TestError: Error {
-        case expected
-        case unexpected
-    }
+    struct TestError: Error {}
 }
