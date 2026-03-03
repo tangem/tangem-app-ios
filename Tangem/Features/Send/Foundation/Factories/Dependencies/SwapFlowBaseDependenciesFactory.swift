@@ -21,7 +21,6 @@ extension SwapFlowBaseDependenciesFactory {
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         shouldStartInitialLoading: Bool,
-        isReceiveTokenSelectionAvailable: Bool = true,
         isFixedRatesEnabled: Bool = false
     ) -> SwapModel {
         SwapModel(
@@ -35,7 +34,6 @@ extension SwapFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             shouldStartInitialLoading: shouldStartInitialLoading,
-            isReceiveTokenSelectionAvailable: isReceiveTokenSelectionAvailable,
             isFixedRatesEnabled: isFixedRatesEnabled
         )
     }
