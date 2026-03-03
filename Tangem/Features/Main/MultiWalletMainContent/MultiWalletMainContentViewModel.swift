@@ -327,6 +327,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         .map { viewModel, state in
                             TangemPayAccountViewModel(
                                 tangemPayLocalState: state,
+                                userWalletId: viewModel.userWalletModel.userWalletId,
+                                cachedStateStorage: AppSettings.shared,
                                 router: viewModel
                             )
                         }
