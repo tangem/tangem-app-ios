@@ -12,7 +12,7 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
-    var usdcTokenItem: TokenItem {
+    var paymentTokenItem: TokenItem {
         TangemPayUtilities.usdcTokenItem
     }
 
