@@ -7,6 +7,7 @@
 //
 
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemUI
 import TangemUIUtils
@@ -32,12 +33,17 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
 
     // MARK: - Dependencies
 
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessNetworkManager: GaslessTransactionsNetworkManager
+
     private let approveViewModel: ExpressApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel
     private let feeSelectorInteractor: CommonFeeSelectorInteractor
     private let allowanceService: (any AllowanceService)?
     private let approveAmount: Decimal?
     private let spender: String?
+    private let overrideFeeSubject: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>
+
+    private let balanceConverter = BalanceConverter()
 
     private weak var coordinatorRouter: ExpressApproveRoutable?
 
@@ -53,7 +59,8 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         feeSelectorInteractor: CommonFeeSelectorInteractor,
         allowanceService: (any AllowanceService)?,
         approveAmount: Decimal? = nil,
-        spender: String? = nil
+        spender: String? = nil,
+        overrideFeeSubject: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never> = .init(nil)
     ) {
         coordinatorRouter = router
 
@@ -62,6 +69,7 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         self.allowanceService = allowanceService
         self.approveAmount = approveAmount
         self.spender = spender
+        self.overrideFeeSubject = overrideFeeSubject
         self.approveViewModel = approveViewModel
 
         state = .approve(approveViewModel)
@@ -118,48 +126,82 @@ private extension ExpressApproveFlowViewModel {
             }
             .store(in: &bag)
 
-        feeSelectorInteractor.selectedTokenFeeProviderPublisher
-            .dropFirst()
-            .removeDuplicates(by: { $0.feeTokenItem == $1.feeTokenItem })
-            .sink { [weak self] provider in
-                self?.recalculateApproveFee(for: provider)
-            }
-            .store(in: &bag)
+        Publishers.CombineLatest(
+            feeSelectorInteractor.selectedTokenFeeProviderPublisher,
+            approveViewModel.$selectedAction.removeDuplicates()
+        )
+        .dropFirst()
+        .sink { [weak self] provider, _ in
+            self?.recalculateApproveFee(for: provider)
+        }
+        .store(in: &bag)
     }
 
     func recalculateApproveFee(for provider: any TokenFeeProvider) {
         recalculateApproveFeeTask?.cancel()
 
         guard let allowanceService, let approveAmount, let spender else { return }
+
+        let feeTokenItem = provider.feeTokenItem
+
+        guard feeTokenItem.isToken else {
+            overrideFeeSubject.send(nil)
+            return
+        }
+
         let approvePolicy = approveViewModel.selectedAction
+        overrideFeeSubject.send(.loading)
 
         recalculateApproveFeeTask = runTask(in: self) { viewModel in
             do {
-                let state = try await allowanceService.allowanceState(
+                guard let feeToken = feeTokenItem.token else {
+                    throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+                }
+
+                guard let feeRecipientAddress = await viewModel.gaslessNetworkManager.feeRecipientAddress else {
+                    throw TokenFeeLoaderError.missingFeeRecipientAddress
+                }
+
+                guard let feeAssetId = feeToken.id else {
+                    throw TokenFeeLoaderError.feeTokenIdNotFound
+                }
+
+                let nativeAssetId = feeTokenItem.blockchain.coinId
+                let nativeToFeeTokenRate = try await viewModel.balanceConverter.cryptoToCryptoRate(
+                    from: nativeAssetId,
+                    to: feeAssetId
+                )
+
+                let state = try await allowanceService.gaslessAllowanceState(
                     amount: approveAmount,
                     spender: spender,
-                    approvePolicy: approvePolicy
+                    approvePolicy: approvePolicy,
+                    feeToken: feeToken,
+                    feeRecipientAddress: feeRecipientAddress,
+                    nativeToFeeTokenRate: nativeToFeeTokenRate
                 )
 
                 await runOnMain {
-                    viewModel.handleAllowanceState()
+                    viewModel.handleAllowanceState(state, feeTokenItem: feeTokenItem)
                 }
             } catch is CancellationError {
                 // Task was cancelled due to a new fee token selection
             } catch {
                 await runOnMain {
-                    viewModel.alert = .init(
-                        title: Localization.commonError,
-                        message: error.localizedDescription
-                    )
+                    viewModel.overrideFeeSubject.send(.failure(error))
                 }
             }
         }
     }
 
-    func handleAllowanceState() {
-        // Follow-up: propagate the recalculated ApproveTransactionData
-        // from AllowanceState.permissionRequired to update the fee display
+    func handleAllowanceState(_ state: AllowanceState, feeTokenItem: TokenItem) {
+        switch state {
+        case .permissionRequired(let data):
+            let fee = ApproveInputFee(feeTokenItem: feeTokenItem, fee: data.fee)
+            overrideFeeSubject.send(.success(fee))
+        case .approveTransactionInProgress, .enoughAllowance:
+            overrideFeeSubject.send(nil)
+        }
     }
 }
 
