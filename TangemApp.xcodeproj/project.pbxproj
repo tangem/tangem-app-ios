@@ -111,6 +111,7 @@
 		0AA3225A2E795AB20090B803 /* YieldSupplyContractAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322592E795AB20090B803 /* YieldSupplyContractAddresses.swift */; };
 		0AA322602E7999B00090B803 /* YieldSupplyServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */; };
 		0AA322622E79C3740090B803 /* YieldModuleSmartContractState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */; };
+		0AA4E7CF2F55817B004D50C1 /* ExpressAmountType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA4E7CE2F55817B004D50C1 /* ExpressAmountType.swift */; };
 		0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */; };
 		0AAE54662E9583D800F1CCD5 /* YieldModuleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE54652E9583D800F1CCD5 /* YieldModuleAPIService.swift */; };
 		0AAE54682E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE54672E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift */; };
@@ -5058,6 +5059,7 @@
 		0AA322592E795AB20090B803 /* YieldSupplyContractAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyContractAddresses.swift; sourceTree = "<group>"; };
 		0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyServiceFactory.swift; sourceTree = "<group>"; };
 		0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleSmartContractState.swift; sourceTree = "<group>"; };
+		0AA4E7CE2F55817B004D50C1 /* ExpressAmountType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAmountType.swift; sourceTree = "<group>"; };
 		0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralProgramURLParser.swift; sourceTree = "<group>"; };
 		0AAE54652E9583D800F1CCD5 /* YieldModuleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAPIService.swift; sourceTree = "<group>"; };
 		0AAE54672E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonYieldModuleAPIService.swift; sourceTree = "<group>"; };
@@ -23869,6 +23871,7 @@
 				EF9E29EA2B4F0CCE00418559 /* ExpressAvailableProvider.swift */,
 				EF9E29EB2B4F0CCE00418559 /* ExpressTransactionStatus.swift */,
 				EFA727822C0887A0003D9D81 /* ExpressTransactionSentResult.swift */,
+				0AA4E7CE2F55817B004D50C1 /* ExpressAmountType.swift */,
 			);
 			path = Swap;
 			sourceTree = "<group>";
@@ -31965,6 +31968,7 @@
 				EF020FE12F3F8CD200F17935 /* ExpressFeeProviderFactory.swift in Sources */,
 				EF68830E2CF8871500658644 /* OnrampPaymentMethodsFilter.swift in Sources */,
 				EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */,
+				0AA4E7CF2F55817B004D50C1 /* ExpressAmountType.swift in Sources */,
 				EF9E2A262B4F0CD100418559 /* ExpressTransaction.swift in Sources */,
 				D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */,
 				EF90F5B72E7ADBFB00D4CA34 /* ProviderList.swift in Sources */,
