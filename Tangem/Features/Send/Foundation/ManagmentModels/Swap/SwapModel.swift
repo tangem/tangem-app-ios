@@ -1119,15 +1119,6 @@ extension SwapModel: ApproveViewModelInput {
         mapToApproveFeeLoadingValue(state: _providersState.value)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
-        _providersState
-            .withWeakCaptureOf(self)
-            .compactMap { interactor, state in
-                interactor.mapToApproveFeeLoadingValue(state: state)
-            }
-            .eraseToAnyPublisher()
-    }
-
     private func mapToApproveFeeLoadingValue(state: ProvidersState) -> LoadingResult<ApproveInputFee, any Error> {
         switch state {
         case .loaded(_, _, state: .permissionRequired(let state)):

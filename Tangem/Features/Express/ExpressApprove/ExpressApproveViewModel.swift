@@ -35,6 +35,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
 
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
+    private(set) var selectedFeeTokenItem: TokenItem
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveCoordinating?
@@ -42,7 +43,8 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    private let _overrideFee = CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>?, Never>(nil)
+    private let initialFee: LoadingResult<ApproveInputFee, any Error>
+    private let _currentFee: CurrentValueSubject<LoadingResult<ApproveInputFee, any Error>, Never>
 
     init(input: Input) {
         feeFormatter = input.feeFormatter
@@ -50,6 +52,11 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
 
         tokenItem = input.settings.tokenItem
         feeTokenItem = input.settings.feeTokenItem
+        selectedFeeTokenItem = input.settings.feeTokenItem
+
+        let initialFee = input.approveViewModelInput.approveFeeValue
+        self.initialFee = initialFee
+        _currentFee = CurrentValueSubject(initialFee)
 
         selectedAction = input.settings.selectedPolicy
         subtitle = input.settings.subtitle
@@ -62,7 +69,7 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
         )
 
         feeCompactViewModel = FeeCompactViewModel(showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
-        updateView(state: approveViewModelInput.approveFeeValue)
+        updateView(state: _currentFee.value)
         bind()
     }
 
@@ -70,8 +77,17 @@ final class ExpressApproveViewModel: ObservableObject, FloatingSheetContentViewM
         self.coordinator = coordinator
     }
 
-    func updateOverrideFee(_ fee: LoadingResult<ApproveInputFee, any Error>?) {
-        _overrideFee.send(fee)
+    func updateSelectedFeeTokenItem(_ tokenItem: TokenItem) {
+        selectedFeeTokenItem = tokenItem
+    }
+
+    func applyFee(_ action: ApproveFeeAction) {
+        switch action {
+        case .reset:
+            _currentFee.send(initialFee)
+        case .override(let value):
+            _currentFee.send(value)
+        }
     }
 
     func didTapFeeSelectorButton() {
@@ -130,25 +146,17 @@ extension ExpressApproveViewModel {
 // MARK: - Private
 
 private extension ExpressApproveViewModel {
-    var effectiveApproveFeePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
-        Publishers.CombineLatest(
-            approveViewModelInput.approveFeeValuePublisher,
-            _overrideFee
-        )
-        .map { original, override in override ?? original }
-        .eraseToAnyPublisher()
-    }
-
     var approveFeeTokenPublisher: AnyPublisher<TokenFee, Never> {
-        effectiveApproveFeePublisher
-            .map { [feeTokenItem] result -> TokenFee in
+        _currentFee
+            .withWeakCaptureOf(self)
+            .map { viewModel, result -> TokenFee in
                 switch result {
                 case .success(let fee):
                     return TokenFee(option: .market, tokenItem: fee.feeTokenItem, value: .success(fee.fee))
                 case .loading:
-                    return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+                    return TokenFee(option: .market, tokenItem: viewModel.selectedFeeTokenItem, value: .loading)
                 case .failure(let error):
-                    return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+                    return TokenFee(option: .market, tokenItem: viewModel.selectedFeeTokenItem, value: .failure(error))
                 }
             }
             .eraseToAnyPublisher()
@@ -160,7 +168,7 @@ private extension ExpressApproveViewModel {
             supportFeeSelectionPublisher: Just(false).eraseToAnyPublisher()
         )
 
-        effectiveApproveFeePublisher
+        _currentFee
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, state in
@@ -212,6 +220,11 @@ private extension ExpressApproveViewModel {
 }
 
 extension ExpressApproveViewModel {
+    enum ApproveFeeAction {
+        case reset
+        case override(LoadingResult<ApproveInputFee, any Error>)
+    }
+
     struct Input {
         let settings: Settings
         let feeFormatter: FeeFormatter
