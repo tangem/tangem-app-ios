@@ -43,7 +43,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
     )
 
     private let settings: Settings
-    private var refreshable: () async -> Void
+    private let refreshable: () async -> Void
 
     private var state: RefreshState = .idle {
         didSet {
@@ -70,12 +70,14 @@ private extension RefreshScrollViewStateObject {
         state = .willStartRefreshing
 
         // Closure which start refresh
-        let refreshing: () -> Void = { [weak self] in
+        let work: () -> Void = { [weak self] in
             switch self?.settings.refreshTaskTimeout {
             case .some(let timeout):
                 TaskGroup.runTask(
                     timeout: .seconds(timeout),
-                    code: { await self?.refreshing() },
+                    code: { [refreshing = self?.refreshing] in
+                        await refreshing?()
+                    },
                     onTimeout: {
                         ConsoleLog.error(error: Error.timeout)
                         Task { @MainActor in self?.stopRefreshing() }
@@ -87,7 +89,7 @@ private extension RefreshScrollViewStateObject {
             }
         }
 
-        state = .refreshing(refreshing)
+        state = .refreshing(work)
     }
 
     func refreshing() async {
