@@ -70,16 +70,25 @@ private extension DEXExpressProviderManager {
             let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
-            if let restriction = await checkRestriction(request: request, quote: quote) {
+            // For .to flow, the actual source amount comes from the quote, not the request
+            let sourceAmount: Decimal
+            switch request.amountType {
+            case .from:
+                sourceAmount = request.amount
+            case .to:
+                sourceAmount = quote.fromAmount
+            }
+
+            if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
                 return restriction
             }
 
             do {
-                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
+                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type, quoteId: quote.quoteId)
                 let data = try await expressAPIProvider.exchangeData(item: dataItem)
                 try Task.checkCancellation()
 
-                return try await proceed(request: request, quote: quote, data: data)
+                return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
             } catch {
                 return proceed(error: error, quote: quote)
             }
@@ -108,14 +117,17 @@ private extension DEXExpressProviderManager {
         }
     }
 
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote) async -> ExpressProviderManagerState? {
-        // Check Balance
+    func checkRestriction(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote
+    ) async -> ExpressProviderManagerState? {
         do {
             let sourceBalance = try pair.source.balanceProvider.getBalance()
-            let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
+            let isNotEnoughBalanceForSwapping = sourceAmount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
-                return .restriction(.insufficientBalance(request.amount), quote: quote)
+                return .restriction(.insufficientBalance(sourceAmount), quote: quote)
             }
 
             // Check fee currency balance at least more then zero
@@ -157,10 +169,15 @@ private extension DEXExpressProviderManager {
         return nil
     }
 
-    func proceed(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState {
+    func proceed(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        data: ExpressTransactionData
+    ) async throws -> ExpressProviderManagerState {
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
         if data.txValue > coinBalance {
-            let estimateFee = try await estimateFee(request: request, data: data)
+            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data)
             return .restriction(estimateFee, quote: quote)
         }
 
@@ -176,7 +193,7 @@ private extension DEXExpressProviderManager {
         }
     }
 
-    func estimateFee(request: ExpressManagerSwappingPairRequest, data: ExpressTransactionData) async throws -> ExpressRestriction {
+    func estimateFee(sourceAmount: Decimal, data: ExpressTransactionData) async throws -> ExpressRestriction {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
@@ -189,7 +206,7 @@ private extension DEXExpressProviderManager {
             return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value, isFeeCurrency: isFeeCurrency)
         }
 
-        let estimatedAmount = request.amount + otherNativeFee
+        let estimatedAmount = sourceAmount + otherNativeFee
         return .insufficientBalance(estimatedAmount)
     }
 
@@ -199,7 +216,7 @@ private extension DEXExpressProviderManager {
         try Task.checkCancellation()
 
         // better to make the quote from the data
-        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
+        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId)
         return .init(provider: provider, data: data, fee: fee, quote: quoteData)
     }
 }
