@@ -72,29 +72,48 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable, .rootedDevice, .kycDeclined:
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .rootedDevice, .kycDeclined:
             EmptyView()
 
         case .failedToIssueCard:
             Assets.redCircleWarning20Outline.image
 
-        case .normal(_, let balance):
-            VStack(alignment: .trailing, spacing: 4) {
-                LoadableBalanceView(
-                    state: balance,
-                    style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                    loader: .init(size: CGSize(width: 40, height: 17))
-                )
+        case .unavailable(let cached):
+            cachedTrailingContent(cached?.trailing)
 
-                SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-            }
+        case .normal(_, let balance):
+            balanceTrailingContent(balance: balance)
 
         case .skeleton:
             VStack(alignment: .trailing, spacing: 8) {
                 skeleton(width: 40)
                 skeleton(width: 40)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func cachedTrailingContent(_ trailing: TangemPayAccountViewModel.CachedDisplayData.Trailing?) -> some View {
+        switch trailing {
+        case .warningIcon:
+            Assets.redCircleWarning20Outline.image
+        case .balance(let balance):
+            balanceTrailingContent(balance: balance)
+        case .empty, nil:
+            EmptyView()
+        }
+    }
+
+    private func balanceTrailingContent(balance: LoadableBalanceView.State) -> some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            LoadableBalanceView(
+                state: balance,
+                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                loader: .init(size: CGSize(width: 40, height: 17))
+            )
+
+            SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }
 
