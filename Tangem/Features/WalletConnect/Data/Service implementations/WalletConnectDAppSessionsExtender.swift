@@ -58,11 +58,7 @@ actor WalletConnectDAppSessionsExtender {
                     }
                 }
 
-                try await withCheckedThrowingContinuation { continuation in
-                    Task {
-                        await self?.extendDAppsWithTimeout(dAppsToExtend, continuation: continuation)
-                    }
-                }
+                try await self?.extendDAppsWithTimeout(dAppsToExtend)
             } catch {
                 logger.error("Failed to extend connected dApps", error: error)
             }
@@ -73,50 +69,17 @@ actor WalletConnectDAppSessionsExtender {
         return await task.value
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func extendDAppsWithTimeout(
-        _ connectedDApps: [WalletConnectConnectedDApp],
-        continuation: CheckedContinuation<Void, any Swift.Error>
-    ) async {
-        guard connectedDApps.isNotEmpty else {
-            continuation.resume()
-            return
-        }
+    private func extendDAppsWithTimeout(_ connectedDApps: [WalletConnectConnectedDApp]) async throws {
+        guard connectedDApps.isNotEmpty else { return }
 
         let nonExpiredDApps = connectedDApps.filter {
             $0.session.expiryDate > currentDateProvider()
         }
 
-        let gate = LockGate()
+        try await TaskGroup.runTask(timeout: .seconds(Constants.extendTaskTimeout)) { [weak self] in
+            guard let result = try await self?.extend(connectedDApps: nonExpiredDApps) else { return }
 
-        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
-            guard let self else {
-                gate.run { continuation.resume(returning: ()) }
-                return
-            }
-
-            taskGroup.addTask {
-                do {
-                    let result = try await self.extend(connectedDApps: nonExpiredDApps)
-                    try await self.handle(extendedDApps: result)
-                    gate.run { continuation.resume(returning: ()) }
-                } catch {
-                    gate.run { continuation.resume(throwing: error) }
-                }
-            }
-
-            taskGroup.addTask {
-                do {
-                    let nanoseconds = UInt64(Constants.extendTaskTimeout * Double(NSEC_PER_SEC))
-                    try await Task.sleep(nanoseconds: nanoseconds)
-                    gate.run { continuation.resume(throwing: Error.timeout) }
-                } catch {
-                    gate.run { continuation.resume(throwing: error) }
-                }
-            }
-
-            defer { taskGroup.cancelAll() }
-            await taskGroup.next()
+            try await self?.handle(extendedDApps: result)
         }
     }
 
@@ -154,25 +117,6 @@ actor WalletConnectDAppSessionsExtender {
 }
 
 extension WalletConnectDAppSessionsExtender {
-    @available(*, deprecated, message: "replace with general purpose forced-timeout function in https://tangem.atlassian.net/browse/[REDACTED_INFO]")
-    private final class LockGate {
-        private var isResumed = false
-        private let lock = NSLock()
-
-        func run(_ action: () -> Void) {
-            lock.lock()
-            defer { lock.unlock() }
-
-            guard !isResumed else { return }
-            isResumed = true
-            action()
-        }
-    }
-
-    private enum Error: Swift.Error {
-        case timeout
-    }
-
     private enum Constants {
         private static let extendedExpiryDateInDays = 7.0
         static let extendedExpiryDateInSeconds: TimeInterval = 60 * 60 * 24 * Self.extendedExpiryDateInDays
