@@ -337,6 +337,10 @@ extension SwapModel {
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: previewCEX.quote)
 
+        if let restriction = try validate(amount: amount, fee: fee) {
+            return .restriction(restriction, quote: quote)
+        }
+
         let withdrawalNotificationProvider = source.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
 
