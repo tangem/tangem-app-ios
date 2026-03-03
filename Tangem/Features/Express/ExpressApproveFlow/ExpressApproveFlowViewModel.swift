@@ -118,6 +118,11 @@ private extension ExpressApproveFlowViewModel {
             }
             .store(in: &bag)
 
+        approveViewModel.$errorAlert
+            .compactMap { $0 }
+            .sink { [weak self] in self?.alert = $0 }
+            .store(in: &bag)
+
         Publishers.CombineLatest(
             feeSelectorInteractor.selectedTokenFeeProviderPublisher,
             approveViewModel.$selectedAction.removeDuplicates()
@@ -127,6 +132,18 @@ private extension ExpressApproveFlowViewModel {
             self?.recalculateApproveFee(for: provider)
         }
         .store(in: &bag)
+
+        feeSelectorInteractor.selectedTokenFeeProviderPublisher
+            .dropFirst()
+            .flatMapLatest { $0.statePublisher }
+            .sink { [weak self] state in
+                guard let self else { return }
+                if case .error(let error) = state {
+                    recalculateApproveFeeTask?.cancel()
+                    approveViewModel.applyFee(.override(.failure(error)))
+                }
+            }
+            .store(in: &bag)
     }
 
     func recalculateApproveFee(for provider: any TokenFeeProvider) {
@@ -135,23 +152,28 @@ private extension ExpressApproveFlowViewModel {
         guard let allowanceService, let approveAmount, let spender else { return }
 
         let feeTokenItem = provider.feeTokenItem
-
-        guard feeTokenItem.isToken else {
-            approveViewModel.updateOverrideFee(nil)
-            return
-        }
-
         let approvePolicy = approveViewModel.selectedAction
-        approveViewModel.updateOverrideFee(.loading)
+        approveViewModel.updateSelectedFeeTokenItem(feeTokenItem)
+        approveViewModel.applyFee(.override(.loading))
 
         recalculateApproveFeeTask = runTask(in: self) { viewModel in
             do {
-                let state = try await allowanceService.gaslessAllowanceState(
-                    amount: approveAmount,
-                    spender: spender,
-                    approvePolicy: approvePolicy,
-                    feeTokenItem: feeTokenItem
-                )
+                let state: AllowanceState
+
+                if feeTokenItem.isToken {
+                    state = try await allowanceService.gaslessAllowanceState(
+                        amount: approveAmount,
+                        spender: spender,
+                        approvePolicy: approvePolicy,
+                        feeTokenItem: feeTokenItem
+                    )
+                } else {
+                    state = try await allowanceService.allowanceState(
+                        amount: approveAmount,
+                        spender: spender,
+                        approvePolicy: approvePolicy
+                    )
+                }
 
                 await runOnMain {
                     viewModel.handleAllowanceState(state, feeTokenItem: feeTokenItem)
@@ -159,7 +181,7 @@ private extension ExpressApproveFlowViewModel {
             } catch is CancellationError {
             } catch {
                 await runOnMain {
-                    viewModel.approveViewModel.updateOverrideFee(.failure(error))
+                    viewModel.approveViewModel.applyFee(.override(.failure(error)))
                 }
             }
         }
@@ -169,9 +191,13 @@ private extension ExpressApproveFlowViewModel {
         switch state {
         case .permissionRequired(let data):
             let fee = ApproveInputFee(feeTokenItem: feeTokenItem, fee: data.fee)
-            approveViewModel.updateOverrideFee(.success(fee))
-        case .approveTransactionInProgress, .enoughAllowance:
-            approveViewModel.updateOverrideFee(nil)
+            approveViewModel.applyFee(.override(.success(fee)))
+        case .approveTransactionInProgress:
+            assertionFailure("Approve transaction already in progress — fee recalculation is irrelevant")
+            approveViewModel.applyFee(.reset)
+        case .enoughAllowance:
+            assertionFailure("Allowance is already sufficient — approve sheet should not have been presented")
+            approveViewModel.applyFee(.reset)
         }
     }
 }
