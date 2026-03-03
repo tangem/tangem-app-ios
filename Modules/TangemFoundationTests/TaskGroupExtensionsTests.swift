@@ -34,6 +34,46 @@ struct TaskGroupExtensionsTests {
         }
     }
 
+    @Test("Timeout returns promptly without waiting for slow code to finish")
+    func asyncRunTaskDoesNotWaitForSlowCode() async throws {
+        let timeout: Duration = .milliseconds(100)
+        let slowCodeDuration: Duration = .seconds(5)
+        // Allow generous slack for scheduling, but far less than the slow code duration
+        let maxAcceptableWallTime: Duration = .seconds(1)
+
+        let clock = ContinuousClock()
+        let elapsed = await clock.measure {
+            await #expect(throws: TimeoutError.self) {
+                try await TaskGroup<Int>.runTask(timeout: timeout, clock: clock) {
+                    try await Task.sleep(for: slowCodeDuration, clock: clock)
+                    return 0
+                }
+            }
+        }
+
+        #expect(elapsed < maxAcceptableWallTime)
+    }
+
+    @Test("Fire-and-forget overload: timeout returns promptly without waiting for slow code to finish")
+    func fireAndForgetRunTaskDoesNotWaitForSlowCode() async throws {
+        let timeout: Duration = .milliseconds(100)
+        let slowCodeDuration: Duration = .seconds(5)
+        let maxAcceptableWallTime: Duration = .seconds(1)
+
+        let clock = ContinuousClock()
+        let elapsed = await clock.measure {
+            await #expect(throws: TimeoutError.self) {
+                let task: Task<Int, Error> = TaskGroup.runTask(timeout: timeout, clock: clock) {
+                    try await Task.sleep(for: slowCodeDuration, clock: clock)
+                    return 0
+                }
+                return try await task.value
+            }
+        }
+
+        #expect(elapsed < maxAcceptableWallTime)
+    }
+
     @Test("Code throws before timeout — error is propagated")
     func asyncRunTaskPropagatesCodeError() async {
         await #expect(throws: RunTaskTestError.self) {
