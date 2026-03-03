@@ -91,7 +91,7 @@ struct AccountsAwareTokenSelectorItem: Hashable, Identifiable {
         case .crypto(let walletModel, _):
             walletModel.totalTokenBalanceProvider
         case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.balancesProvider.availableBalanceProvider
+            tangemPayAccount.balancesProvider.totalTokenBalanceProvider
         }
     }
 
