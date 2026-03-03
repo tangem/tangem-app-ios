@@ -24,11 +24,12 @@ struct SendAmountView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
-            if case .accordion = viewModel.receivedTokenViewType {
-                accordionContent
+            if case .accordion(let expandedReceiveData, let compactReceiveData) = viewModel.receivedTokenViewType {
+                sourceAccordionSection
+                receiveAccordionSection(expandedData: expandedReceiveData, compactData: compactReceiveData)
             } else {
-                content
-                receiveTokenView
+                sourceContent
+                receiveContent
             }
         }
         .animation(.easeInOut(duration: 0.45), value: viewModel.activeField)
@@ -38,16 +39,12 @@ struct SendAmountView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    private var content: some View {
-        VStack(alignment: .center, spacing: .zero) {
-            VStack(alignment: .center, spacing: 12) {
-                if let header = viewModel.tokenHeader {
-                    SendTokenHeaderView(header: header)
-                }
+    // MARK: - Source
 
-                sourceAmountInputView
-            }
-            .padding(.vertical, 45)
+    private var sourceContent: some View {
+        VStack(alignment: .center, spacing: .zero) {
+            sourceHeaderWithInput
+                .padding(.vertical, 45)
 
             Separator(color: Colors.Stroke.primary)
 
@@ -58,10 +55,22 @@ struct SendAmountView: View {
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
     }
 
+    private var sourceHeaderWithInput: some View {
+        VStack(alignment: .center, spacing: 12) {
+            if let header = viewModel.tokenHeader {
+                SendTokenHeaderView(header: header)
+            }
+
+            sourceAmountInputView
+        }
+    }
+
+    // MARK: - Receive
+
     @ViewBuilder
-    private var receiveTokenView: some View {
+    private var receiveContent: some View {
         switch viewModel.receivedTokenViewType {
-        case .none:
+        case .none, .accordion:
             EmptyView()
 
         case .selectButton:
@@ -91,81 +100,64 @@ struct SendAmountView: View {
 
                 convertButton
             }
-
-        case .accordion:
-            EmptyView() // Handled by accordionContent
         }
     }
 
     // MARK: - Accordion
 
-    @ViewBuilder
-    private var accordionContent: some View {
-        if case .accordion(let expandedData, let compactData) = viewModel.receivedTokenViewType {
-            SendAmountAccordionSectionView(
-                isExpanded: viewModel.activeField == .source,
-                expandedTokenData: viewModel.sendAmountTokenViewData,
-                compactTokenData: viewModel.compactSourceTokenViewData,
-                onTapCompact: viewModel.userDidTapCompactSource
-            ) {
-                VStack(alignment: .center, spacing: 12) {
-                    if let header = viewModel.tokenHeader {
-                        SendTokenHeaderView(header: header)
+    private var sourceAccordionSection: some View {
+        SendAmountAccordionSectionView(
+            isExpanded: viewModel.activeField == .source,
+            expandedTokenData: viewModel.sendAmountTokenViewData,
+            compactTokenData: viewModel.compactSourceTokenViewData,
+            onTapCompact: viewModel.userDidTapCompactSource
+        ) {
+            sourceHeaderWithInput
+        }
+        .overlay(alignment: .bottom) {
+            convertButton
+                .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
+        }
+        .zIndex(1)
+    }
+
+    private func receiveAccordionSection(
+        expandedData: SendAmountTokenViewData,
+        compactData: SendAmountTokenViewData
+    ) -> some View {
+        SendAmountAccordionSectionView(
+            isExpanded: viewModel.activeField == .receive,
+            expandedTokenData: expandedData,
+            compactTokenData: compactData,
+            onTapCompact: viewModel.userDidTapCompactReceive
+        ) {
+            receiveHeaderWithInput
+        }
+    }
+
+    private var receiveHeaderWithInput: some View {
+        VStack(alignment: .center, spacing: 12) {
+            Text(Localization.sendWithSwapRecipientAmountTitle)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            if let receiveField = viewModel.receiveAmountField {
+                SendAmountInputView(
+                    field: receiveField,
+                    fiatIconURL: viewModel.fiatIconURL,
+                    focusedField: $focusedField,
+                    cryptoFocusValue: .receiveCrypto,
+                    fiatFocusValue: .receiveFiat,
+                    onWillToggle: {
+                        if focusedField != nil {
+                            focusedField = viewModel.useReceiveFiatCalculation ? .receiveCrypto : .receiveFiat
+                        }
                     }
-
-                    sourceAmountInputView
-                }
-            }
-            .overlay(alignment: .bottom) {
-                convertButton
-                    .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
-            }
-            .zIndex(1)
-
-            SendAmountAccordionSectionView(
-                isExpanded: viewModel.activeField == .receive,
-                expandedTokenData: expandedData,
-                compactTokenData: compactData,
-                onTapCompact: viewModel.userDidTapCompactReceive
-            ) {
-                VStack(alignment: .center, spacing: 12) {
-                    Text(Localization.sendWithSwapRecipientAmountTitle)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                    if let receiveField = viewModel.receiveAmountField {
-                        SendAmountInputView(
-                            field: receiveField,
-                            fiatIconURL: viewModel.fiatIconURL,
-                            focusedField: $focusedField,
-                            cryptoFocusValue: .receiveCrypto,
-                            fiatFocusValue: .receiveFiat,
-                            onWillToggle: {
-                                if focusedField != nil {
-                                    focusedField = viewModel.useReceiveFiatCalculation ? .receiveCrypto : .receiveFiat
-                                }
-                            }
-                        )
-                    }
-                }
+                )
             }
         }
     }
 
-    private func updateAccordionFocus(for activeField: SendAmountViewModel.ActiveAmountField) {
-        guard case .accordion = viewModel.receivedTokenViewType else { return }
-
-        switch activeField {
-        case .source:
-            focusedField = viewModel.useFiatCalculation ? .sourceFiat : .sourceCrypto
-        case .receive:
-            focusedField = viewModel.useReceiveFiatCalculation ? .receiveFiat : .receiveCrypto
-        }
-    }
-
-    private var convertButton: some View {
-        CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
-            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-    }
+    // MARK: - Helpers
 
     private var sourceAmountInputView: some View {
         SendAmountInputView(
@@ -179,6 +171,22 @@ struct SendAmountView: View {
                 focusedField = viewModel.useFiatCalculation ? .sourceCrypto : .sourceFiat
             }
         )
+    }
+
+    private var convertButton: some View {
+        CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+    }
+
+    private func updateAccordionFocus(for activeField: SendAmountViewModel.ActiveAmountField) {
+        guard case .accordion = viewModel.receivedTokenViewType else { return }
+
+        switch activeField {
+        case .source:
+            focusedField = viewModel.useFiatCalculation ? .sourceFiat : .sourceCrypto
+        case .receive:
+            focusedField = viewModel.useReceiveFiatCalculation ? .receiveFiat : .receiveCrypto
+        }
     }
 }
 

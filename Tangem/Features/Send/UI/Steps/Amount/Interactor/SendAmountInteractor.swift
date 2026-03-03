@@ -18,8 +18,11 @@ protocol SendAmountInteractor {
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { get }
 
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
+
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
+    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> { get }
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
     func update(amount: Decimal?) throws -> SendAmount?
@@ -213,6 +216,14 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             .eraseToAnyPublisher()
     }
 
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> {
+        guard let sourceTokenAmountInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return sourceTokenAmountInput.sourceAmountPublisher
+    }
+
     var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> {
         guard let sourceTokenInput else {
             return Empty().eraseToAnyPublisher()
@@ -235,6 +246,14 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
 
         return receiveTokenAmountInput.receiveAmountPublisher
+    }
+
+    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+        guard let receiveTokenAmountInput else {
+            return .just(output: nil)
+        }
+
+        return receiveTokenAmountInput.receiveRestrictionPublisher
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
