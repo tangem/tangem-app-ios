@@ -3033,6 +3033,10 @@
 		D8F383792E6F138E00285AF8 /* WalletConnectQRScanScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F383782E6F138E00285AF8 /* WalletConnectQRScanScreen.swift */; };
 		D8F5D8F22F275B8A008DAF0C /* TokensOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F5D8F12F275B8A008DAF0C /* TokensOrder.swift */; };
 		D8F6018D2F47182400192E22 /* SwapStoriesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6018C2F47182400192E22 /* SwapStoriesUITests.swift */; };
+		ABDEC86DB02450A8FE3125D3 /* SwapCommonUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56377C4391C18862AECE4A5 /* SwapCommonUITests.swift */; };
+		A1B2C3D4E5F647180026FE01 /* SwapFeeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F647180026FE02 /* SwapFeeUITests.swift */; };
+		A1B2C3D4E5F647180026FE03 /* SwapWarningsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F647180026FE04 /* SwapWarningsUITests.swift */; };
+		A1B2C3D4E5F647180026FE05 /* SwapChooseTokenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F647180026FE06 /* SwapChooseTokenUITests.swift */; };
 		D8F983D42EBA22630061F55F /* SwapTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983D32EBA22630061F55F /* SwapTokenSelectorScreen.swift */; };
 		D8F983D92EBA26670061F55F /* BuyTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983D72EBA26670061F55F /* BuyTokenSelectorScreen.swift */; };
 		D8F983DC2EBA2AB00061F55F /* SellTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983DA2EBA2AB00061F55F /* SellTokenSelectorScreen.swift */; };
@@ -7936,6 +7940,10 @@
 		D8F383782E6F138E00285AF8 /* WalletConnectQRScanScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectQRScanScreen.swift; sourceTree = "<group>"; };
 		D8F5D8F12F275B8A008DAF0C /* TokensOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensOrder.swift; sourceTree = "<group>"; };
 		D8F6018C2F47182400192E22 /* SwapStoriesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStoriesUITests.swift; sourceTree = "<group>"; };
+		C56377C4391C18862AECE4A5 /* SwapCommonUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapCommonUITests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F647180026FE02 /* SwapFeeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeeUITests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F647180026FE04 /* SwapWarningsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapWarningsUITests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F647180026FE06 /* SwapChooseTokenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapChooseTokenUITests.swift; sourceTree = "<group>"; };
 		D8F983D32EBA22630061F55F /* SwapTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectorScreen.swift; sourceTree = "<group>"; };
 		D8F983D72EBA26670061F55F /* BuyTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenSelectorScreen.swift; sourceTree = "<group>"; };
 		D8F983DA2EBA2AB00061F55F /* SellTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellTokenSelectorScreen.swift; sourceTree = "<group>"; };
@@ -19415,7 +19423,11 @@
 		D8F6018E2F485DD400192E22 /* Swap */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F647180026FE06 /* SwapChooseTokenUITests.swift */,
+				C56377C4391C18862AECE4A5 /* SwapCommonUITests.swift */,
+				A1B2C3D4E5F647180026FE02 /* SwapFeeUITests.swift */,
 				D8F6018C2F47182400192E22 /* SwapStoriesUITests.swift */,
+				A1B2C3D4E5F647180026FE04 /* SwapWarningsUITests.swift */,
 			);
 			path = Swap;
 			sourceTree = "<group>";
@@ -30461,6 +30473,10 @@
 				D852F8432E5CA30C00C71B7F /* WCURIResponse.swift in Sources */,
 				D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */,
 				D8F6018D2F47182400192E22 /* SwapStoriesUITests.swift in Sources */,
+				ABDEC86DB02450A8FE3125D3 /* SwapCommonUITests.swift in Sources */,
+				A1B2C3D4E5F647180026FE01 /* SwapFeeUITests.swift in Sources */,
+				A1B2C3D4E5F647180026FE03 /* SwapWarningsUITests.swift in Sources */,
+				A1B2C3D4E5F647180026FE05 /* SwapChooseTokenUITests.swift in Sources */,
 				D8FE55AA2F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift in Sources */,
 				D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */,
 				D863E7A62E68ABF700912D52 /* CreateBackupScreen.swift in Sources */,
