@@ -60,7 +60,7 @@ struct ExpressApproveFlowView: View {
         if let subtitle = viewModel.state.subtitle {
             Text(subtitle)
                 .environment(\.openURL, OpenURLAction { _ in
-                    viewModel.openLearnMoreURL()
+                    viewModel.openLearnMore()
                     return .handled
                 })
                 .multilineTextAlignment(.center)
