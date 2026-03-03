@@ -34,11 +34,18 @@ struct TaskGroupExtensionsTests {
         }
     }
 
+    /// This unit test is needed to guard against the following behavior of `Swift.TaskGroup`:
+    ///
+    /// Swift Concurrency task group does not return early after the single `await taskGroup.nextResult()` call.
+    /// The task group will always wait for all child tasks to finish before it ends.
+    /// See https://forums.swift.org/t/running-an-async-task-with-a-timeout/49733/15 and other posts in that thread for more details.`
     @Test("Timeout returns promptly without waiting for slow code to finish")
     func asyncRunTaskDoesNotWaitForSlowCode() async throws {
         let timeout: Duration = .milliseconds(100)
         let slowCodeDuration: Duration = .seconds(5)
-        // Allow generous slack for scheduling, but far less than the slow code duration
+        // Max acceptable wall time can't be equal to the timeout time, because adding a new task (a 'timeout' task in this case)
+        // to the Swift Concurrency thread pool DOES NOT guarantee that the task will start executing immediately.
+        // So we accept some drift here, but it should be far less than the slow code duration.
         let maxAcceptableWallTime: Duration = .seconds(1)
 
         let clock = ContinuousClock()
@@ -54,10 +61,18 @@ struct TaskGroupExtensionsTests {
         #expect(elapsed < maxAcceptableWallTime)
     }
 
+    /// This unit test is needed to guard against the following behavior of `Swift.TaskGroup`:
+    ///
+    /// Swift Concurrency task group does not return early after the single `await taskGroup.nextResult()` call.
+    /// The task group will always wait for all child tasks to finish before it ends.
+    /// See https://forums.swift.org/t/running-an-async-task-with-a-timeout/49733/15 and other posts in that thread for more details.`
     @Test("Fire-and-forget overload: timeout returns promptly without waiting for slow code to finish")
     func fireAndForgetRunTaskDoesNotWaitForSlowCode() async throws {
         let timeout: Duration = .milliseconds(100)
         let slowCodeDuration: Duration = .seconds(5)
+        // Max acceptable wall time can't be equal to the timeout time, because adding a new task (a 'timeout' task in this case)
+        // to the Swift Concurrency thread pool DOES NOT guarantee that the task will start executing immediately.
+        // So we accept some drift here, but it should be far less than the slow code duration.
         let maxAcceptableWallTime: Duration = .seconds(1)
 
         let clock = ContinuousClock()

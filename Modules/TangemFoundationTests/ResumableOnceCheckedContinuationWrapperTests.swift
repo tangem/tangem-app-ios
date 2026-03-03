@@ -24,7 +24,7 @@ struct ResumableOnceCheckedContinuationWrapperTests {
 
     @Test("Resumes continuation with an error exactly once")
     func resumesWithErrorOnce() async {
-        await #expect(throws: TestError()) {
+        await #expect(throws: TestError.self) {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int, Error>) in
                 let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
                 wrapper.resumeIfNeeded(throwing: TestError())
@@ -56,7 +56,7 @@ struct ResumableOnceCheckedContinuationWrapperTests {
 
     @Test("resume(returning:) after resume(throwing:) is a no-op")
     func returningAfterThrowingIsNoOp() async {
-        await #expect(throws: TestError()) {
+        await #expect(throws: TestError.self) {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int, Error>) in
                 let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
                 wrapper.resumeIfNeeded(throwing: TestError())
