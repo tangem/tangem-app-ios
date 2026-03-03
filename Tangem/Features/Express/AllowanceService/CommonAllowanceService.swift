@@ -18,6 +18,7 @@ actor CommonAllowanceService {
     private let balanceConverter = BalanceConverter()
 
     private var spendersAwaitingApprove: Set<String> = []
+    private var overriddenApproveData: ApproveTransactionData?
 
     init(
         allowanceChecker: AllowanceChecker,
@@ -84,9 +85,16 @@ extension CommonAllowanceService: AllowanceService {
     }
 
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
-        let result = try await approveTransactionDispatcher.send(transaction: .approve(data: data))
-        spendersAwaitingApprove.insert(data.spender)
+        let effectiveData = overriddenApproveData ?? data
+        overriddenApproveData = nil
+
+        let result = try await approveTransactionDispatcher.send(transaction: .approve(data: effectiveData))
+        spendersAwaitingApprove.insert(effectiveData.spender)
 
         return result
+    }
+
+    func setOverriddenApproveData(_ data: ApproveTransactionData?) async {
+        overriddenApproveData = data
     }
 }

@@ -175,6 +175,12 @@ private extension ExpressApproveFlowViewModel {
                     )
                 }
 
+                if case .permissionRequired(let data) = state {
+                    await allowanceService.setOverriddenApproveData(data)
+                } else {
+                    await allowanceService.setOverriddenApproveData(nil)
+                }
+
                 await runOnMain {
                     viewModel.handleAllowanceState(state, feeTokenItem: feeTokenItem)
                 }
