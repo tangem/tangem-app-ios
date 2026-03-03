@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -92,6 +93,7 @@ struct ExpressCurrencyView<Content: View>: View {
                 }
             }
             .disabled(!viewModel.canChangeCurrency)
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelector)
         }
     }
 
@@ -146,6 +148,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     }
                 }
             }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.priceChangeInfoButton)
         }
     }
 
