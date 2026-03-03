@@ -8,45 +8,32 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 
 public extension MoyaProvider {
     func asyncRequest(_ target: Target) async throws -> Response {
-        let asyncRequestWrapper = AsyncMoyaRequestWrapper<Response> { [weak self] continuation in
-            return self?.request(target) { result in
-                switch result {
-                case .success(let response):
-                    continuation.resume(returning: response)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
+        let cancellableWrapper = ThreadSafeCancellableWrapper()
 
-        return try await withTaskCancellationHandler {
+        return try await withTaskCancellationHandler { [weak self] in
             try await withCheckedThrowingContinuation { continuation in
-                asyncRequestWrapper.perform(continuation: continuation)
+                // This check is necessary in case this code runs after the task was
+                // cancelled. In which case we want to bail right away.
+                guard !_Concurrency.Task.isCancelled else {
+                    continuation.resume(throwing: CancellationError())
+                    return
+                }
+
+                self?.request(target) { result in
+                    switch result {
+                    case .success(let response):
+                        continuation.resume(returning: response)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                }.eraseToAnyCancellable().store(in: cancellableWrapper)
             }
         } onCancel: {
-            asyncRequestWrapper.cancel()
+            cancellableWrapper.cancel()
         }
-    }
-}
-
-private class AsyncMoyaRequestWrapper<T> {
-    typealias MoyaContinuation = CheckedContinuation<T, Error>
-
-    var performRequest: (MoyaContinuation) -> Moya.Cancellable?
-    var cancellable: Moya.Cancellable?
-
-    init(_ performRequest: @escaping (MoyaContinuation) -> Moya.Cancellable?) {
-        self.performRequest = performRequest
-    }
-
-    func perform(continuation: MoyaContinuation) {
-        cancellable = performRequest(continuation)
-    }
-
-    func cancel() {
-        cancellable?.cancel()
     }
 }
