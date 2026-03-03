@@ -446,9 +446,10 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             .selectedHost: result.currentHost,
         ]
 
-        if let fee = sendFeeInput?.selectedFee {
-            analyticsParameters[.feeType] = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee.option).rawValue
-            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: fee.tokenItem)
+        if let selectedFee = sendFeeInput?.selectedFee {
+            let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+            analyticsParameters[.feeType] = parameter.rawValue
+            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
         }
 
         Analytics.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
@@ -569,7 +570,46 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
     func logSendBaseViewOpened() {}
 
-    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {}
+    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
+        switch (sourceFlow, flow, type) {
+        case (.sendAndSwap, .send, .action),
+             (.sendAndSwap, .send, .holdAction):
+            guard let sourceTokenItem else {
+                return
+            }
+
+            var analyticsParameters: [Analytics.ParameterKey: String] = [
+                .sendToken: sourceTokenItem.currencySymbol,
+                .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            ]
+
+            if let selectedFee = sendFeeInput?.selectedFee {
+                let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+                analyticsParameters[.feeType] = parameter.rawValue
+                analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
+            }
+
+            if let receive = sendReceiveTokenInput?.receiveToken.value {
+                analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+                analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+            }
+
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+                analyticsParameters[.provider] = provider.provider.name
+            }
+
+            // Merge account analytics (source + destination)
+            analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+
+            Analytics.log(
+                event: .sendButtonSendWithSwap,
+                params: analyticsParameters,
+                analyticsSystems: .all
+            )
+        default:
+            break
+        }
+    }
 }
 
 // MARK: - SendManagementModelAnalyticsLogger
