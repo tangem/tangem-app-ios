@@ -133,15 +133,12 @@ private extension ExpressApproveFlowViewModel {
             }
             .store(in: &bag)
 
-        // Only recalculate when policy changes if the fee token is non-native (gasless),
-        // because SwapModel.updateApprovePolicy already handles the native fee token case
         approveViewModel.$selectedAction
             .removeDuplicates()
             .dropFirst()
             .sink { [weak self] _ in
                 guard let self,
-                      let provider = self.feeSelectorInteractor?.selectedTokenFeeProvider,
-                      provider.feeTokenItem.isToken else { return }
+                      let provider = self.feeSelectorInteractor?.selectedTokenFeeProvider else { return }
                 recalculateApproveFee(for: provider)
             }
             .store(in: &bag)
