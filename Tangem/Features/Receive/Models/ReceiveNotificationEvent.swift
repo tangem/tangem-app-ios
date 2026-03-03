@@ -64,9 +64,9 @@ extension ReceiveNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .irreversibleLossNotification:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .unsupportedTokenWarning:
-            return .init(iconType: .image(Assets.warningIcon.image))
+            return .init(iconType: .image(Assets.warningIcon))
         case .yieldModuleNotification(_, let id):
             return .init(iconType: .yieldModuleIcon(tokenId: id))
         }

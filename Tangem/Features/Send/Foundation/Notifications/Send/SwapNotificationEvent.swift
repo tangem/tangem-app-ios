@@ -156,24 +156,24 @@ extension SwapNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .permissionNeeded:
-            return .init(iconType: .image(Assets.swapLock.image))
+            return .init(iconType: .image(Assets.swapLock))
         case .refreshRequired,
              .noDestinationTokens,
              .unsupportedPair,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
              .longTimeAverageDuration:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset):
-            return .init(iconType: .image(blockchainIconAsset.image))
+            return .init(iconType: .image(blockchainIconAsset))
         case .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .cexOperationFailed,
              .notEnoughReceivedAmountForReserve:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .withdrawalNotificationEvent(let event):
             return event.icon
         case .validationErrorEvent(let event, _):
