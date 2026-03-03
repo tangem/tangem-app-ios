@@ -62,16 +62,20 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
+    private var headerModel: MainHeaderViewModel {
+        switch self {
+        case .singleWallet(_, let headerModel, _): headerModel
+        case .multiWallet(_, let headerModel, _): headerModel
+        case .lockedWallet(_, let headerModel, _): headerModel
+        case .visaWallet(_, let headerModel, _): headerModel
+        }
+    }
+
     @ViewBuilder
     var header: some View {
-        switch self {
-        case .singleWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .multiWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .lockedWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .visaWallet(_, let headerModel, _):
+        if FeatureProvider.isAvailable(.redesign) {
+            MainUserWalletHeader(viewModel: headerModel)
+        } else {
             MainHeaderView(viewModel: headerModel)
         }
     }
