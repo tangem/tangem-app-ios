@@ -51,8 +51,8 @@ struct SendSuggestedWalletsFactory {
             }
 
             if let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
-               walletModel.tokenItem.token == tangemPayAccount.usdcTokenItem.token,
-               walletModel.tokenItem.blockchain == tangemPayAccount.usdcTokenItem.blockchain,
+               walletModel.tokenItem.token == tangemPayAccount.paymentTokenItem.token,
+               walletModel.tokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
                let depositAddress = tangemPayAccount.depositAddress {
                 results.append(
                     SendDestinationSuggestedWallet(
