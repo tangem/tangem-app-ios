@@ -23,7 +23,6 @@ struct MainView: View {
             .onDidAppear(perform: viewModel.onDidAppear)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
             .ignoresSafeArea(.keyboard)
             .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails))
     }
@@ -32,8 +31,10 @@ struct MainView: View {
     private var content: some View {
         if FeatureProvider.isAvailable(.redesign) {
             fullPagePagerContent
+                .northernLightsBackground(backgroundColor: .Tangem.Surface.level1)
         } else {
             cardsInfoPagerContent
+                .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         }
     }
 
