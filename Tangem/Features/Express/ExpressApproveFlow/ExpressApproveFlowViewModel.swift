@@ -69,6 +69,12 @@ final class ExpressApproveFlowViewModel: ObservableObject, FloatingSheetContentV
         self.approveViewModel.setCoordinator(self)
         bind()
     }
+
+    deinit {
+        recalculateApproveFeeTask?.cancel()
+        let service = allowanceService
+        Task { await service?.setOverriddenApproveData(nil) }
+    }
 }
 
 // MARK: - ExpressApproveFlowRoutable
@@ -91,6 +97,10 @@ extension ExpressApproveFlowViewModel: ExpressApproveRoutable {
     }
 
     func userDidCancel() {
+        recalculateApproveFeeTask?.cancel()
+        Task { [allowanceService] in
+            await allowanceService?.setOverriddenApproveData(nil)
+        }
         coordinatorRouter?.userDidCancel()
     }
 
