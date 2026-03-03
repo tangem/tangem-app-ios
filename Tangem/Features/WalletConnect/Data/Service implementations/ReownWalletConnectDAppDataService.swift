@@ -157,9 +157,9 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             return try await TaskGroup.runTask(timeout: .seconds(Constants.pairingTaskTimeout)) { [weak self] in
                 guard let self else { throw WalletConnectDAppProposalLoadingError.cancelledByUser }
 
-                return try await self.openSession(uri: uri)
+                return try await openSession(uri: uri)
             }
-        } catch let error as  WalletConnectDAppProposalLoadingError {
+        } catch let error as WalletConnectDAppProposalLoadingError {
             // Just re-throw an original error
             throw error
         } catch is TimeoutError {
