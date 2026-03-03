@@ -145,13 +145,16 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
         // Receive token / amount updating
 
-        receiveTokenCancellable = Publishers.CombineLatest(
+        let providersStatePublisher = stateProvider?.statePublisher ?? Just(.idle).eraseToAnyPublisher()
+
+        receiveTokenCancellable = Publishers.CombineLatest3(
             interactor.receivedTokenAmountPublisher,
-            interactor.receivedTokenPublisher
+            interactor.receivedTokenPublisher,
+            providersStatePublisher
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1) }
+        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1, providersState: $1.2) }
 
         highPriceImpactCancellable = interactor
             .highPriceImpactPublisher
@@ -321,7 +324,11 @@ private extension SwapAmountViewModel {
         }
     }
 
-    private func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
+    private func updateReceive(
+        amount: LoadingResult<SendAmount, any Error>,
+        receiveToken: LoadingResult<SendReceiveToken, any Error>,
+        providersState: SwapModel.ProvidersState
+    ) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
             initialWalletId: .init(tokenItem: initialTokenItem)
@@ -332,8 +339,17 @@ private extension SwapAmountViewModel {
             receiveDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
         }
 
+        let isRatesLoading = switch providersState {
+        case .loading(.rates), .loading(.providers): true
+        default: false
+        }
+
         switch (receiveToken, amount) {
-        case (.loading, _), (_, .loading):
+        case (.loading, _), (.success, .loading):
+            receiveCryptoAmountState = .loading
+            receiveExpressCurrencyViewModel.update(fiatAmountState: .loading)
+
+        case (_, .failure) where isRatesLoading, (.failure, _) where isRatesLoading:
             receiveCryptoAmountState = .loading
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loading)
 

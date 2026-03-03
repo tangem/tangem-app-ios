@@ -170,6 +170,18 @@ private extension SendAmountViewModel {
             .sink { $0.updateSourceToken(sourceToken: $1) }
             .store(in: &bag)
 
+        interactor
+            .sourceAmountPublisher
+            .compactMap(\.value)
+            .removeDuplicates { $0.crypto == $1.crypto }
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, amount in
+                guard viewModel.lastUpdateSource != .source else { return }
+                viewModel.sourceAmountField.updateAmountsUI(amount: amount)
+            }
+            .store(in: &bag)
+
         Publishers.CombineLatest(
             interactor.receivedTokenPublisher,
             interactor.receivedTokenAmountPublisher,
@@ -179,6 +191,18 @@ private extension SendAmountViewModel {
         .sink { viewModel, args in
             let (token, amount) = args
             viewModel.updateReceivedToken(receiveToken: token.value, amount: amount)
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest(
+            interactor.receivedTokenPublisher.compactMap(\.value),
+            interactor.receiveRestrictionPublisher
+        )
+        .withWeakCaptureOf(self)
+        .receive(on: DispatchQueue.main)
+        .sink { viewModel, args in
+            let (token, restriction) = args
+            viewModel.updateReceiveRestriction(restriction, token: token)
         }
         .store(in: &bag)
     }
@@ -308,13 +332,6 @@ extension SendAmountViewModel {
                         // fully update the receive field including the crypto value from the quote
                         field.updateAmountsUI(amount: sendAmount)
                     }
-                    field.bottomInfoText = nil
-                } else if case .failure(let error) = amount,
-                          let sendAmountError = error as? SendAmountError,
-                          case .receiveRestriction(let restriction) = sendAmountError {
-                    updateReceiveRestriction(restriction, token: receiveToken)
-                } else {
-                    field.bottomInfoText = nil
                 }
             } else {
                 let tokenViewData = SendAmountTokenViewData(
@@ -348,7 +365,12 @@ extension SendAmountViewModel {
         return field
     }
 
-    private func updateReceiveRestriction(_ restriction: ReceiveAmountRestriction, token: SendReceiveToken) {
+    private func updateReceiveRestriction(_ restriction: ReceiveAmountRestriction?, token: SendReceiveToken) {
+        guard let restriction else {
+            receiveAmountField?.bottomInfoText = nil
+            return
+        }
+
         let symbol = token.tokenItem.currencySymbol
         switch restriction {
         case .tooSmallAmount(let amount):
@@ -382,13 +404,8 @@ extension SendAmountViewModel {
 
 extension SendAmountViewModel: SendAmountExternalUpdatableViewModel {
     func externalUpdate(amount: SendAmount?) {
-        if isFixedRateMode, lastUpdateSource == .receive {
-            // When the user typed a receive amount, update source fields with the calculated source amount
-            sourceAmountField.updateAmountsUI(amount: amount)
-        } else {
-            sourceAmountField.updateAmountsUI(amount: amount)
-            textFieldValueDidChanged(amount: amount?.main)
-        }
+        sourceAmountField.updateAmountsUI(amount: amount)
+        textFieldValueDidChanged(amount: amount?.main)
     }
 }
 
