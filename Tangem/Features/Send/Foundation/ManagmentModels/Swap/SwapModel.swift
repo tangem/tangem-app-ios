@@ -128,7 +128,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            return try await expressManager.update(amount: sourceAmount?.crypto, by: .amountChange)
+            return try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
         }
     }
 
