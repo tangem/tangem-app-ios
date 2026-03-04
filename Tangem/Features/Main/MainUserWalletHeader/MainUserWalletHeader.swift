@@ -55,6 +55,9 @@ struct MainUserWalletHeader: View {
                 cornerRadiusStyle: .capsule
             )
         )
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .frame(height: loaderSize.height)
     }
 }
 

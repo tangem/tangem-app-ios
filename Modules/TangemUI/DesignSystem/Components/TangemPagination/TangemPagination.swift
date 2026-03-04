@@ -13,15 +13,17 @@ public struct TangemPagination: View {
     private let totalPages: Int
     private let currentIndex: Int
     private let maxVisibleDots: Int
+    private let hasBackground: Bool
 
     @ScaledMetric private var spacing: CGFloat
     @ScaledMetric private var horizontalPadding: CGFloat
     @ScaledMetric private var verticalPadding: CGFloat
 
-    public init(totalPages: Int, currentIndex: Int, maxVisibleDots: Int = 5) {
+    public init(totalPages: Int, currentIndex: Int, maxVisibleDots: Int = 5, hasBackground: Bool = false) {
         self.totalPages = totalPages
         self.currentIndex = currentIndex
         self.maxVisibleDots = maxVisibleDots
+        self.hasBackground = hasBackground
         _spacing = ScaledMetric(wrappedValue: SizeUnit.x2.value)
         _horizontalPadding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
         _verticalPadding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
@@ -29,9 +31,9 @@ public struct TangemPagination: View {
 
     public var body: some View {
         content
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
-            .background(Color.Tangem.Tabs.backgroundSecondary)
+            .padding(.horizontal, hasBackground ? horizontalPadding : 0)
+            .padding(.vertical, hasBackground ? verticalPadding : 0)
+            .background(hasBackground ? Color.Tangem.Tabs.backgroundSecondary : .clear)
             .clipShape(.capsule)
             .animation(.easeInOut(duration: 0.3), value: currentIndex)
     }
