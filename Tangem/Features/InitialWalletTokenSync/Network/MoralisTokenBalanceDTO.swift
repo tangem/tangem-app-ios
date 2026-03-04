@@ -12,10 +12,10 @@ enum MoralisTokenBalanceDTO {}
 extension MoralisTokenBalanceDTO {
     struct Response: Decodable {
         let result: [TokenBalance]
-        let page: String?
-        let pageSize: String?
-        let blockNumber: String?
-        let cursor: String?
+        let page: Int?
+        let pageSize: Int?
+        let blockNumber: Int?
+        let cursor: Int?
     }
 
     struct TokenBalance: Decodable {
