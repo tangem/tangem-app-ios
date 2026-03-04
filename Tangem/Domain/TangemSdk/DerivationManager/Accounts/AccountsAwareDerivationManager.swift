@@ -42,7 +42,7 @@ final class AccountsAwareDerivationManager {
             return
         }
 
-        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationsKeyedByPublicKeys(pendingDerivations)
+        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations)
 
         interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }

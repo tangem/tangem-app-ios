@@ -33,7 +33,7 @@ enum PendingDerivationHelper {
         )
     }
 
-    static func pendingDerivationsKeyedByPublicKeys(_ derivations: [PendingDerivation]) -> [Data: [DerivationPath]] {
+    static func pendingDerivationPathsKeyedByPublicKeys(_ derivations: [PendingDerivation]) -> [Data: [DerivationPath]] {
         return derivations.reduce(into: [:]) { dict, derivation in
             dict[derivation.masterKey.publicKey, default: []] += derivation.paths
         }

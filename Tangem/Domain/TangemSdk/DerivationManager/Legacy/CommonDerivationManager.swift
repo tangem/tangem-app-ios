@@ -89,7 +89,7 @@ extension CommonDerivationManager: DerivationManager {
             return
         }
 
-        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationsKeyedByPublicKeys(pendingDerivations.value)
+        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations.value)
 
         interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }
