@@ -62,7 +62,7 @@ struct SendAmountTokenView: View {
                         LoadableBalanceView(
                             state: state,
                             style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
-                            loader: .init(size: CGSize(width: 130, height: 15))
+                            loader: .init(size: CGSize(width: 130, height: 15), skeletonColor: Color.Tangem.Skeleton.backgroundAction)
                         )
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
                     case .receive(let state):

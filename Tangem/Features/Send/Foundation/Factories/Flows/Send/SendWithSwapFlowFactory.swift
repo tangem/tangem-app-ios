@@ -27,7 +27,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
-    private let isFixedRateMode = true
+    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
 
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
