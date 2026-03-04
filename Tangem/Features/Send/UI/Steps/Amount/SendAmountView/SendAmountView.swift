@@ -21,6 +21,8 @@ struct SendAmountView: View {
     @State private var convertButtonSize: CGSize = .zero
 
     private let scrollViewSpacing: CGFloat = 8
+    /// Matches AccountIconView.Settings.smallSized total height (10pt icon + 4pt × 2 padding)
+    private let accordionHeaderMinHeight: CGFloat = 18
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
@@ -59,6 +61,7 @@ struct SendAmountView: View {
         VStack(alignment: .center, spacing: 12) {
             if let header = viewModel.tokenHeader {
                 SendTokenHeaderView(header: header)
+                    .frame(minHeight: accordionHeaderMinHeight)
             }
 
             sourceAmountInputView
@@ -139,6 +142,7 @@ struct SendAmountView: View {
         VStack(alignment: .center, spacing: 12) {
             Text(Localization.sendWithSwapRecipientAmountTitle)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .frame(minHeight: accordionHeaderMinHeight)
 
             if let receiveField = viewModel.receiveAmountField {
                 SendAmountInputView(
