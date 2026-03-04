@@ -1105,7 +1105,6 @@
 		A786FB0B2F1A509400DEA9A7 /* ScrollWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0A2F1A509400DEA9A7 /* ScrollWalletAssembly.swift */; };
 		A786FB0D2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0C2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift */; };
 		A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */; };
-		A7C1B2D62F12345600ABCDE1 /* BerachainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */; };
 		A7F344B32F2CE3B400544085 /* CloreMigrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */; };
@@ -3005,6 +3004,7 @@
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D89D14752EE32ED300D610CC /* WelcomeBackScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89D14742EE32ED300D610CC /* WelcomeBackScreen.swift */; };
 		D89D14772EE62FD500D610CC /* CreateWalletSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89D14762EE62FD500D610CC /* CreateWalletSelectorScreen.swift */; };
+		D8B5E3C82F58312B0076D8AD /* SafariHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B5E3C72F58312B0076D8AD /* SafariHelper.swift */; };
 		D8B79F492F28E24D009567E9 /* MarketsSecurityScoreUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B79F482F28E24D009567E9 /* MarketsSecurityScoreUITests.swift */; };
 		D8B79F4B2F28F4B5009567E9 /* MarketsSecurityScoreDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B79F4A2F28F4B5009567E9 /* MarketsSecurityScoreDetailsScreen.swift */; };
 		D8B79F4D2F29176E009567E9 /* MarketsSheetUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B79F4C2F29176E009567E9 /* MarketsSheetUITests.swift */; };
@@ -6063,7 +6063,6 @@
 		A786FB0A2F1A509400DEA9A7 /* ScrollWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollWalletAssembly.swift; sourceTree = "<group>"; };
 		A786FB0C2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumOptimisticRollupConstants.swift; sourceTree = "<group>"; };
 		A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonadExternalLinkProvider.swift; sourceTree = "<group>"; };
-		A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerachainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+CloreMigration.swift"; sourceTree = "<group>"; };
 		A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationView.swift; sourceTree = "<group>"; };
@@ -7924,6 +7923,7 @@
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D89D14742EE32ED300D610CC /* WelcomeBackScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeBackScreen.swift; sourceTree = "<group>"; };
 		D89D14762EE62FD500D610CC /* CreateWalletSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletSelectorScreen.swift; sourceTree = "<group>"; };
+		D8B5E3C72F58312B0076D8AD /* SafariHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariHelper.swift; sourceTree = "<group>"; };
 		D8B79F482F28E24D009567E9 /* MarketsSecurityScoreUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSecurityScoreUITests.swift; sourceTree = "<group>"; };
 		D8B79F4A2F28F4B5009567E9 /* MarketsSecurityScoreDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSecurityScoreDetailsScreen.swift; sourceTree = "<group>"; };
 		D8B79F4C2F29176E009567E9 /* MarketsSheetUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSheetUITests.swift; sourceTree = "<group>"; };
@@ -13169,6 +13169,7 @@
 		7982B0132DE70E1900C41EA5 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				D8B5E3C72F58312B0076D8AD /* SafariHelper.swift */,
 				D8F5D8F12F275B8A008DAF0C /* TokensOrder.swift */,
 				D8D528042EA7BE3F000CD5C3 /* NumericValueHelper.swift */,
 				D852F83E2E5CA2C300C71B7F /* QATools */,
@@ -16170,7 +16171,6 @@
 				B62D3CFD2CBC79D900C2460E /* ZkSyncExternalLinkProvider.swift */,
 				2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */,
 				A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */,
-				A7C1B2D52F12345600ABCDE1 /* BerachainExternalLinkProvider.swift */,
 				A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */,
 			);
 			path = OtherChains;
@@ -30484,6 +30484,7 @@
 				D82234432ED483790053A574 /* SendAddressQRCodeUITests.swift in Sources */,
 				D8C314C82E98F69200B9F552 /* SendXLMNotificaitonUITests.swift in Sources */,
 				D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */,
+				D8B5E3C82F58312B0076D8AD /* SafariHelper.swift in Sources */,
 				D82234452ED483A60053A574 /* SendQRScannerScreen.swift in Sources */,
 				D852F82D2E5C86B400C71B7F /* OnrampProvidersScreen.swift in Sources */,
 				D852F82E2E5C86B400C71B7F /* OnrampResidenceScreen.swift in Sources */,
@@ -31021,7 +31022,6 @@
 				2D2B9C282CE5176A00D744C6 /* ChilizExternalLinkProvider.swift in Sources */,
 				2DDB4C392E9F92EC00759EAA /* LineaExternalLinkProvider.swift in Sources */,
 				A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */,
-				A7C1B2D62F12345600ABCDE1 /* BerachainExternalLinkProvider.swift in Sources */,
 				B62D407C2CBC79DA00C2460E /* DogecoinExternalLinkProvider.swift in Sources */,
 				B62D41A72CBC79DA00C2460E /* SuiFeeParameters.swift in Sources */,
 				B62D3FEC2CBC79DA00C2460E /* OP_CHECKSIG.swift in Sources */,
