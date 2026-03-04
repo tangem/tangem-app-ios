@@ -74,7 +74,6 @@ public struct AddressServiceFactory {
              .scroll,
              .linea,
              .monad,
-             .berachain,
              .arbitrumNova,
              .plasma:
             return EVMAddressService()
