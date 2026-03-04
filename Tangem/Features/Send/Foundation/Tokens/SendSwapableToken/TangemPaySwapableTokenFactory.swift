@@ -37,7 +37,7 @@ struct TangemPaySwapableTokenFactory {
 
         let tokenFeeProvidersManagerProvider = TangemPayTokenFeeProvidersManagerProvider(
             feeTokenItem: feeTokenItem,
-            availableTokenBalanceProvider: availableBalanceProvider
+            feeTokenItemBalanceProvider: availableBalanceProvider
         )
 
         let expressTransactionValidator = transactionValidator
