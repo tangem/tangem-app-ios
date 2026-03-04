@@ -15,9 +15,9 @@ public struct GrabberView: View {
 
     public var body: some View {
         Capsule(style: .continuous)
-            .fill(Colors.Icon.inactive)
-            .frame(size: CGSize(width: 32.0, height: 4.0))
-            .padding(.vertical, 8)
+            .fill(Color.Tangem.Graphic.Neutral.primaryInverted)
+            .frame(size: CGSize(width: 40, height: 4.0))
+            .padding(.vertical, 4)
             .infinityFrame(axis: .horizontal)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
     }

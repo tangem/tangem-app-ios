@@ -286,7 +286,6 @@ final class OverlayContentContainerViewController: UIViewController {
             overlayViewController.view.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
-        overlayViewController.view.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
         overlayViewController.additionalSafeAreaInsets.bottom = contentExpandedVerticalOffset // Over-scroll compensation
         overlayViewController.didMove(toParent: self)
     }

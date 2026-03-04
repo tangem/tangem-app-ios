@@ -49,11 +49,11 @@ struct RootViewControllerFactory {
 extension RootViewControllerFactory {
     enum Constants {
         /// Based on Figma mockups.
-        fileprivate static let notchDevicesOverlayCollapsedHeight = 100.0
+        fileprivate static let notchDevicesOverlayCollapsedHeight = 112.0
         /// Based on Figma mockups.
-        fileprivate static let notchlessDevicesOverlayCollapsedHeight = 86.0
+        fileprivate static let notchlessDevicesOverlayCollapsedHeight = 98.0
         /// The height of `SwiftUI.TextField` used in the `CustomSearchBar` UI components differs from the mockups by this small margin.
-        fileprivate static let overlayCollapsedHeightAdjustment = 2.0
+        fileprivate static let overlayCollapsedHeightAdjustment = 4.0
         static let notchDevicesOverlayCornerRadius = 24.0
         static let notchlessDevicesOverlayCornerRadius = 16.0
     }

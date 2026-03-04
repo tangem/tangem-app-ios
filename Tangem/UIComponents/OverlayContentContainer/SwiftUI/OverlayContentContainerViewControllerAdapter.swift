@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 /// SwiftUI-compatible adapter for `OverlayContentContainerViewController`.
 final class OverlayContentContainerViewControllerAdapter {
@@ -29,11 +30,16 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
 
     func installOverlay(_ overlayView: some View) {
         let overlayViewController = UIHostingController(
-            rootView: overlayView
-                .overlay(alignment: .top) {
-                    GrabberView()
-                }
+            rootView: VStack(spacing: 0) {
+                GrabberView()
+                overlayView
+                    .mask {
+                        RoundedCorner(radius: cornerRadius, corners: .topEdge)
+                            .ignoresSafeArea(edges: .bottom)
+                    }
+            }
         )
+        overlayViewController.view.backgroundColor = .clear
 
         containerViewController?.installOverlay(overlayViewController)
     }

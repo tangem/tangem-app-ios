@@ -18,7 +18,8 @@ struct MainBottomSheetFooterView: View {
 
     var body: some View {
         VStack(spacing: 0.0) {
-            FixedSpacer.vertical(14.0)
+            GrabberView()
+                .hidden()
 
             // `MainBottomSheetHeaderInputView` is used here as a dummy view, used for layout calculation (i.e. footer height)
             MainBottomSheetHeaderInputView(
@@ -36,9 +37,6 @@ struct MainBottomSheetFooterView: View {
                 snapshotOverlay
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
-            .overlay(alignment: .top) {
-                GrabberView()
-            }
             .background(alignment: .top) {
                 MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
             }
