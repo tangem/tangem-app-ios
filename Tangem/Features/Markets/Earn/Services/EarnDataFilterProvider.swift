@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 import BlockchainSdk
 
@@ -26,6 +27,7 @@ final class EarnDataFilterProvider {
     private var _myNetworks: [EarnNetworkInfo] = []
 
     private var fetchNetworksTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Public Properties
 
@@ -94,6 +96,8 @@ final class EarnDataFilterProvider {
     init(initialFilterType: EarnFilterType = .all, initialNetworkFilter: EarnNetworkFilterType = .all) {
         _filterTypeValue = .init(initialFilterType)
         _networkFilterValue = .init(initialNetworkFilter)
+
+        bind()
     }
 
     // MARK: - Public Methods
@@ -131,6 +135,46 @@ final class EarnDataFilterProvider {
 
     // MARK: - Private Methods
 
+    private func bind() {
+        let initialModelsPublisher = Deferred { [weak self] in
+            Just(self?.userWalletRepository.models ?? [])
+        }
+
+        let eventModelsPublisher = userWalletRepository.eventProvider
+            .withWeakCaptureOf(self)
+            .map { provider, _ in
+                provider.userWalletRepository.models
+            }
+
+        initialModelsPublisher
+            .merge(with: eventModelsPublisher)
+            .map { userWalletModels in
+                userWalletModels.map { $0.accountModelsManager.cryptoAccountModelsPublisher }
+            }
+            .flatMapLatest { publishers -> AnyPublisher<[[any CryptoAccountModel]], Never> in
+                guard !publishers.isEmpty else {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                return publishers.combineLatest()
+            }
+            .map { cryptoAccountModels in
+                cryptoAccountModels
+                    .flatMap { $0 }
+                    .flatMap { $0.userTokensManager.userTokens }
+                    .map(\.networkId)
+            }
+            .map { Set($0) }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { provider, userNetworkIds in
+                MainActor.assumeIsolated {
+                    provider.applyMyNetworks(userNetworkIds: userNetworkIds)
+                }
+            }
+            .store(in: &bag)
+    }
+
     @MainActor
     private func applyFilterState(state: State, networks: [EarnNetworkInfo]) {
         _availableNetworks = networks
@@ -148,6 +192,13 @@ final class EarnDataFilterProvider {
                 .flatMap { $0.userTokensManager.userTokens }
                 .map(\.networkId)
         )
+        applyMyNetworks(userNetworkIds: userNetworkIds)
+    }
+
+    /// Applies pre-computed user network IDs to filter available networks.
+    /// Use this when network IDs are already derived (e.g. from pipeline output) to avoid re-traversing the repository.
+    @MainActor
+    private func applyMyNetworks(userNetworkIds: Set<String>) {
         _myNetworks = _availableNetworks.filter { userNetworkIds.contains($0.networkId) }
     }
 

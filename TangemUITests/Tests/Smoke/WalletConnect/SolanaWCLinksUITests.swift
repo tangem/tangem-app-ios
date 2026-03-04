@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 final class SolanaWCLinksUITests: BaseTestCase {
-    let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+    let safariHelper = SafariHelper()
     let qaToolsClient = QAToolsClient()
     private var wcURI: String!
 
@@ -27,14 +27,14 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.launch()
         CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
-            .skipPushNotificationsSetup()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
         app.terminate()
 
-        safari.launch()
+        safariHelper.safari.launch()
 
-        openDeeplinkInSafari(wcURI)
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenTangemApp()
 
         app.activate()
 
@@ -42,13 +42,13 @@ final class SolanaWCLinksUITests: BaseTestCase {
             .selectWalletByName("Wallet")
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
-            .skipPushNotificationsSetup()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
             .tapConnectionButton()
 
         MainScreen(app)
+            .skipPushNotificationsSetup()
             .openDetails()
             .openWalletConnections()
             .tapFirstDAppRow()
@@ -72,8 +72,9 @@ final class SolanaWCLinksUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
-        safari.launch()
-        openDeeplinkInSafari(wcURI)
+        safariHelper.safari.launch()
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenTangemApp()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -104,8 +105,9 @@ final class SolanaWCLinksUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
 
-        safari.launch()
-        openDeeplinkInSafari(wcURI)
+        safariHelper.safari.launch()
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenTangemApp()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -160,26 +162,5 @@ final class SolanaWCLinksUITests: BaseTestCase {
         XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
             XCTAssert(!wcURI.isEmpty, "WC URI is empty")
         }
-    }
-
-    private func openDeeplinkInSafari(_ deeplink: String) {
-        let clearButton = safari.buttons["ClearTextButton"]
-
-        // Open address bar
-        let urlField = safari.textFields["Address"]
-        urlField.waitAndTap()
-
-        if clearButton.isHittable {
-            clearButton.tap()
-        }
-
-        // Insert deeplink
-        UIPasteboard.general.string = deeplink
-        urlField.doubleTap()
-        safari.menuItems["Paste and Go"].tap()
-        safari.buttons["Open Tangem App"].waitAndTap()
-
-        // Wait for system alert (permission to open another app)
-        safari.buttons["Open"].waitAndTap()
     }
 }

@@ -32,6 +32,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         }
     }
 
+    @discardableResult
     func selectWalletFromList(name: CardMockAccessibilityIdentifiers) -> Self {
         // Find the mock wallet button in the alert
         let walletButton = app.buttons[name.rawValue].firstMatch
@@ -62,16 +63,6 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         XCTContext.runActivity(named: "Accept ToS if needed") { _ in
             if tosAcceptButton.waitForExistence(timeout: .conditional) {
                 tosAcceptButton.waitAndTap()
-            }
-            return self
-        }
-    }
-
-    @discardableResult
-    func skipPushNotificationsSetup() -> Self {
-        XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
-            if app.buttons["Later"].waitForExistence(timeout: .conditional) {
-                app.buttons["Later"].tap()
             }
             return self
         }

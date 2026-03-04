@@ -164,7 +164,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private func showMarketsTooltip() {
         // Don't show markets tooltip during UI testing
-        guard !AppEnvironment.current.isUITest else { return }
+        guard !AppEnvironment.current.isUITest else {
+            AppSettings.shared.marketsTooltipWasShown = true
+            return
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
             guard let self else {
@@ -532,8 +535,16 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
 
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: options)
+                    self?.sendCoordinator = coordinator
+                }
+            )
+        }
     }
 
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {

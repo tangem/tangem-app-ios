@@ -30,7 +30,7 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
         var feeProviders = [coinTokenFeeProvider]
 
         // Only a token sending support gasless fee
-        if FeatureProvider.isAvailable(.gaslessTransactions), walletModel.tokenItem.isToken {
+        if walletModel.tokenItem.isToken {
             let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders()
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }
@@ -66,22 +66,16 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeMainTokenFeeProvider() -> any TokenFeeProvider {
-        let feeWalletModelResult = try? WalletModelFinder.findWalletModel(
-            userWalletId: walletModel.userWalletId,
-            tokenItem: walletModel.feeTokenItem
-        )
+        let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeMainTokenFeeLoader()
+        let customFeeProvider = walletModel.customFeeProviderBuilder.makeCustomFeeProvider()
+        let feeTokenItemBalanceProvider = walletModel.feeTokenItemBalanceProvider
 
-        guard let feeWalletModel = feeWalletModelResult?.walletModel else {
-            assertionFailure("User wallet not found")
-            return .empty(feeTokenItem: walletModel.feeTokenItem)
-        }
-
-        return .common(
-            feeTokenItem: feeWalletModel.tokenItem,
+        return CommonTokenFeeProvider(
+            feeTokenItem: walletModel.feeTokenItem,
+            tokenFeeLoader: tokenFeeLoader,
+            customFeeProvider: customFeeProvider,
+            feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
             supportingOptions: supportingOptions,
-            availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
-            tokenFeeLoader: walletModel.makeTokenFeeLoader(),
-            customFeeProvider: feeWalletModel.customFeeProvider
         )
     }
 
@@ -115,8 +109,29 @@ private extension CommonTokenFeeProvidersManagerProvider {
             return model
         }
 
-        let gaslessTokenFeeProviders: [any TokenFeeProvider] = gaslessFeeWalletModels.map { feeWalletModel in
-            .gasless(walletModel: walletModel, feeWalletModel: feeWalletModel, supportingOptions: supportingOptions)
+        let gaslessTokenFeeProviders: [any TokenFeeProvider] = gaslessFeeWalletModels.compactMap { feeWalletModel in
+            // Important! The `feeTokenItem` is tokenItem, means USDT / USDC
+            let feeTokenItem = feeWalletModel.tokenItem
+            let feeTokenItemBalanceProvider = feeWalletModel.availableBalanceProvider
+
+            guard let feeToken = feeTokenItem.token else {
+                assertionFailure("Try to create gasless TokenFeeProvider with invalid tokenItem")
+                return nil
+            }
+
+            guard let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(feeToken: feeToken) else {
+                assertionFailure("Try to create gasless TokenFeeProvider with invalid tokenItem")
+                return nil
+            }
+
+            return CommonTokenFeeProvider(
+                feeTokenItem: feeTokenItem,
+                tokenFeeLoader: tokenFeeLoader,
+                // Gasless doesn't support custom fee
+                customFeeProvider: .none,
+                feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
+                supportingOptions: supportingOptions,
+            )
         }
 
         return gaslessTokenFeeProviders
