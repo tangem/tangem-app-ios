@@ -14,15 +14,19 @@ public struct PriceChangeView: View {
     private let state: State
     private let showSkeletonWhenLoading: Bool
     private let showIconForNeutral: Bool
+    /// [REDACTED_INFO]: Remove this flag and legacy colors when the redesign feature toggle is deleted
+    private let useRedesignColors: Bool
 
     public init(
         state: State,
         showSkeletonWhenLoading: Bool = true,
-        showIconForNeutral: Bool = true
+        showIconForNeutral: Bool = true,
+        useRedesignColors: Bool = false
     ) {
         self.state = state
         self.showSkeletonWhenLoading = showSkeletonWhenLoading
         self.showIconForNeutral = showIconForNeutral
+        self.useRedesignColors = useRedesignColors
     }
 
     public var body: some View {
@@ -49,10 +53,10 @@ public struct PriceChangeView: View {
                 if shouldShowIcon(for: changeType) {
                     changeType.imageType.image
                         .renderingMode(.template)
-                        .foregroundColor(changeType.color)
+                        .foregroundColor(resolvedIconColor(for: changeType))
                 }
 
-                styledText(text, textColor: changeType.color)
+                styledText(text, textColor: resolvedTextColor(for: changeType))
             }
         }
     }
@@ -64,14 +68,28 @@ public struct PriceChangeView: View {
         return true
     }
 
+    private func resolvedTextColor(for changeType: ChangeType) -> Color {
+        useRedesignColors ? changeType.color : changeType.legacyColor
+    }
+
+    private func resolvedIconColor(for changeType: ChangeType) -> Color {
+        useRedesignColors ? changeType.iconColor : changeType.legacyColor
+    }
+
+    private var defaultTextColor: Color {
+        useRedesignColors ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
+    }
+
     private var styledDashText: some View {
         styledText(String.enDashSign)
     }
 
     @ViewBuilder
-    private func styledText(_ text: String, textColor: Color = .Tangem.Text.Neutral.tertiary) -> some View {
+    private func styledText(_ text: String, textColor: Color? = nil) -> some View {
+        let color = textColor ?? defaultTextColor
+        let font: Font = useRedesignColors ? .Tangem.caption1 : Fonts.Regular.caption1
         Text(text)
-            .style(.Tangem.caption1, color: textColor)
+            .style(font, color: color)
             .lineLimit(1)
     }
 }
@@ -127,11 +145,34 @@ public extension PriceChangeView {
         public var color: Color {
             switch self {
             case .positive:
-                return .Tangem.Text.Status.positive
+                return .Tangem.Text.Status.accent
             case .neutral:
                 return .Tangem.Text.Neutral.tertiary
             case .negative:
                 return .Tangem.Text.Status.warning
+            }
+        }
+
+        public var iconColor: Color {
+            switch self {
+            case .positive:
+                .Tangem.Graphic.Status.accent
+            case .neutral:
+                .Tangem.Graphic.Neutral.tertiary
+            case .negative:
+                .Tangem.Graphic.Status.warning
+            }
+        }
+
+        /// [REDACTED_INFO]: Remove legacy colors when the redesign feature toggle is deleted
+        public var legacyColor: Color {
+            switch self {
+            case .positive:
+                Colors.Text.accent
+            case .neutral:
+                Colors.Text.tertiary
+            case .negative:
+                Colors.Text.warning
             }
         }
     }
