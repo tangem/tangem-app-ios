@@ -100,16 +100,16 @@ public struct Wallet {
         amounts[amount.type] = amount
     }
 
-    // MARK: - Fees
+    // MARK: - Internal
 
-    public func feeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+    func feeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
         let feeAmountType = feeAmountType(transactionAmountType: amountType)
         let feeAmount = amounts[feeAmountType]?.value ?? 0
 
         return feeAmount
     }
 
-    public func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
+    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         let feeValue = feeCurrencyBalance(amountType: amountType)
 
         if blockchain.allowsZeroFeePaid {
@@ -118,8 +118,6 @@ public struct Wallet {
 
         return feeValue > 0
     }
-
-    // MARK: - Internal
 
     mutating func clearAmounts() {
         amounts = [:]
