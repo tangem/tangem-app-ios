@@ -19,6 +19,12 @@ final class CustomerIOWrapper {
     private var fcmTokenUpdatedCancellable: AnyCancellable?
 
     func configure() {
+        // [REDACTED_USERNAME], this mimics current Firebase - dependent behavior of the app.
+        // See ``CommonServicesManager.configureFirebase``.
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         let sdkConfig = SDKConfigBuilder(cdpApiKey: keysManager.customerIO.apiKey)
             .autoTrackUIKitScreenViews(enabled: false)
             .autoTrackDeviceAttributes(false)
