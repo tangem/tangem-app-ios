@@ -175,6 +175,8 @@ public extension Color.Tangem.Fill {
 
 public extension Color.Tangem.Skeleton {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+    /// Skeleton color with sufficient contrast on `Colors.Background.action` backgrounds
+    static let backgroundAction: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
 }
 
 // MARK: - Markers
