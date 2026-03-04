@@ -328,7 +328,8 @@ public struct TangemTokenRow: View {
             PriceChangeView(
                 state: .loaded(changeType: change.type, text: change.text),
                 showSkeletonWhenLoading: false,
-                showIconForNeutral: true
+                showIconForNeutral: true,
+                useRedesignColors: true
             )
         }
     }
