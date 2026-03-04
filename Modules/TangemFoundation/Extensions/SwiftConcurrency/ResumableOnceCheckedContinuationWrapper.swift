@@ -21,21 +21,31 @@ final class ResumableOnceCheckedContinuationWrapper<T, E>: @unchecked Sendable w
 
     /// Safe shim for `CheckedContinuation.resume(returning:)`.
     func resumeIfNeeded(returning value: T) {
-        criticalSection {
-            if !isResumed {
-                isResumed = true
-                innerContinuation.resume(returning: value)
+        let continuationToResume: CheckedContinuation<T, E>? = criticalSection {
+            if isResumed {
+                return nil
             }
+
+            isResumed = true
+            return innerContinuation
         }
+
+        // Resuming should be performed outside of critical section to avoid potential deadlocks
+        continuationToResume?.resume(returning: value)
     }
 
     /// Safe shim for `CheckedContinuation.resume(throwing:)`.
     func resumeIfNeeded(throwing error: E) {
-        criticalSection {
-            if !isResumed {
-                isResumed = true
-                innerContinuation.resume(throwing: error)
+        let continuationToResume: CheckedContinuation<T, E>? = criticalSection {
+            if isResumed {
+                return nil
             }
+
+            isResumed = true
+            return innerContinuation
         }
+
+        // Resuming should be performed outside of critical section to avoid potential deadlocks
+        continuationToResume?.resume(throwing: error)
     }
 }
