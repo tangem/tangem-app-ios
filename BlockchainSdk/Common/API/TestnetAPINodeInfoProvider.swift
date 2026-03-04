@@ -300,10 +300,6 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://testnet-rpc.monad.xyz")!),
             ]
-        case .berachain:
-            return [
-                .init(url: URL(string: "https://bepolia.rpc.berachain.com/")!),
-            ]
         case .plasma:
             return [
                 .init(url: URL(string: "https://testnet-rpc.plasma.to")!),

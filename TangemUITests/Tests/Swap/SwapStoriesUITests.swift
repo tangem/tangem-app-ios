@@ -70,7 +70,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .expandTokenActionButtons(tokenName: ethereumTokenName)
             .assertSwapButtonHasBadge()
 
         marketsTokenDetailsScreen
@@ -185,7 +184,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .expandTokenActionButtons(tokenName: ethereumTokenName)
             .tapSwapButton()
             .assertStoriesDisplayed()
 
@@ -280,7 +278,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .expandTokenActionButtons(tokenName: ethereumTokenName)
             .assertSwapButtonHasNoBadge()
 
         marketsTokenDetailsScreen
@@ -300,7 +297,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .expandTokenActionButtons(tokenName: ethereumTokenName)
             .assertSwapButtonHasBadge()
 
         marketsTokenDetailsScreenAfterRestart
