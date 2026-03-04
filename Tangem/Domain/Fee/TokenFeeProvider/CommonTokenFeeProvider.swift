@@ -15,10 +15,10 @@ let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
 final class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
-    let supportingOptions: TokenFeeProviderSupportingOptions
-    let availableTokenBalanceProvider: TokenBalanceProvider
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
+    let feeTokenItemBalanceProvider: TokenBalanceProvider
+    let supportingOptions: TokenFeeProviderSupportingOptions
 
     private var tokenFeeProviderInputData: TokenFeeProviderInputData?
 
@@ -28,45 +28,31 @@ final class CommonTokenFeeProvider {
     private var updatingFeeTask: Task<Void, Never>?
 
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
-    private var availableTokenBalanceStateCancellable: AnyCancellable?
-
-    private var tokenHasBalance: Bool {
-        availableTokenBalanceProvider.balanceType.value ?? 0 > 0
-    }
+    private var feeTokenItemBalanceStateCancellable: AnyCancellable?
 
     init(
         feeTokenItem: TokenItem,
-        supportingOptions: TokenFeeProviderSupportingOptions,
-        availableTokenBalanceProvider: TokenBalanceProvider,
         tokenFeeLoader: any TokenFeeLoader,
-        customFeeProvider: (any CustomFeeProvider)?
+        customFeeProvider: (any CustomFeeProvider)?,
+        feeTokenItemBalanceProvider: TokenBalanceProvider,
+        supportingOptions: TokenFeeProviderSupportingOptions,
     ) {
         self.feeTokenItem = feeTokenItem
-        self.supportingOptions = supportingOptions
-        self.availableTokenBalanceProvider = availableTokenBalanceProvider
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
+        self.feeTokenItemBalanceProvider = feeTokenItemBalanceProvider
+        self.supportingOptions = supportingOptions
 
-        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
-            tokenFeeProvider: self
-        )
-
-        checkTokenFeeBalance()
-    }
-
-    private func checkTokenFeeBalance() {
-        if !tokenHasBalance {
-            stateSubject.send(.unavailable(.noTokenBalance))
-        }
+        bind()
     }
 }
 
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
-    var balanceFeeTokenState: TokenBalanceType { availableTokenBalanceProvider.balanceType }
-    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { availableTokenBalanceProvider.balanceTypePublisher }
-    var formattedFeeTokenBalance: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+    var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { feeTokenItemBalanceProvider.formattedBalanceType }
     var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
     var state: TokenFeeProviderState {
@@ -199,6 +185,26 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 // MARK: - Private
 
 private extension CommonTokenFeeProvider {
+    func bind() {
+        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
+            tokenFeeProvider: self
+        )
+
+        let allowsZeroFeePaid = feeTokenItem.blockchain.allowsZeroFeePaid
+
+        feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
+            .balanceTypePublisher
+            .map { $0.loaded ?? 0 }
+            .map { allowsZeroFeePaid ? $0 >= 0 : $0 > 0 }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { feeProvider, hasFeeCurrency in
+                if !hasFeeCurrency {
+                    feeProvider.updateState(state: .unavailable(.noTokenBalance))
+                }
+            }
+    }
+
     func updateSupportingState(input: TokenFeeProviderInputData?) {
         switch input {
         case .none:
