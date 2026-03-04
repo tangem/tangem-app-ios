@@ -8,7 +8,7 @@
 
 struct TangemPayTokenFeeProvidersManagerProvider {
     let feeTokenItem: TokenItem
-    let availableTokenBalanceProvider: any TokenBalanceProvider
+    let feeTokenItemBalanceProvider: any TokenBalanceProvider
 }
 
 // MARK: - TokenFeeProvidersManagerProvider
@@ -16,12 +16,12 @@ struct TangemPayTokenFeeProvidersManagerProvider {
 extension TangemPayTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let tokenFeeLoader = TangemPayTokenFeeLoader(feeTokenItem: feeTokenItem)
-        let feeProvider: TokenFeeProvider = .common(
+        let feeProvider: TokenFeeProvider = CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
-            supportingOptions: .all,
-            availableTokenBalanceProvider: availableTokenBalanceProvider,
             tokenFeeLoader: tokenFeeLoader,
-            customFeeProvider: .none
+            customFeeProvider: .none,
+            feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
+            supportingOptions: .all,
         )
 
         return CommonTokenFeeProvidersManager(
