@@ -515,7 +515,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
     ) async throws -> Fee {
         let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
 
-        // Get fee for the original transaction. Pick the fastest fee (index 2) from the fees array.
+        // Get fee for the original transaction. Pick the fastest fee (index 1) from the fees array.
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
         guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
