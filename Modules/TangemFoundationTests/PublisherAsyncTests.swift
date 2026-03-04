@@ -168,8 +168,9 @@ struct PublisherAsyncTests {
 
     // MARK: - Race conditions
 
-    @Test("Concurrent emission and cancellation race produces exactly one outcome", .timeLimit(.minutes(1)))
-    func concurrentEmissionAndCancellationRace() async {
+
+    @Test("Concurrent emission and cancellation race produces exactly one outcome using GCD", .timeLimit(.minutes(1)))
+    func concurrentEmissionAndCancellationRaceUsingGCD() async {
         for _ in 0 ..< 500 {
             nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
 
@@ -177,6 +178,30 @@ struct PublisherAsyncTests {
                 try await subject.async()
             }
 
+            // The order of these two calls is non-deterministic
+            DispatchQueue.global().async { task.cancel() }
+            DispatchQueue.global().async { subject.send(42) }
+
+            // Invariant: must resolve to either the value or CancellationError
+            do {
+                let value = try await task.value
+                #expect(value == 42)
+            } catch {
+                #expect(error is CancellationError)
+            }
+        }
+    }
+
+    @Test("Concurrent emission and cancellation race produces exactly one outcome using Swift Concurrency", .timeLimit(.minutes(1)))
+    func concurrentEmissionAndCancellationRaceUsingConcurrency() async {
+        for _ in 0 ..< 500 {
+            nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+
+            let task = Task {
+                try await subject.async()
+            }
+
+            // The order of these two calls is non-deterministic
             await withTaskGroup(of: Void.self) { group in
                 group.addTask {
                     subject.send(42)
@@ -186,6 +211,7 @@ struct PublisherAsyncTests {
                 }
             }
 
+            // Invariant: must resolve to either the value or CancellationError
             do {
                 let value = try await task.value
                 #expect(value == 42)
