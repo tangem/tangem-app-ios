@@ -996,6 +996,7 @@
 		3B4084CF103C4789FD80F642 /* TokenAdditionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD5A229FC0394B8F3DEE125 /* TokenAdditionChecker.swift */; };
 		3F6088142E084F579451871D /* FullPagePagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088142E084F579451871C /* FullPagePagerView.swift */; };
 		3F6088152E084F579451871F /* FullPagePagerViewModern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088152E084F579451871E /* FullPagePagerViewModern.swift */; };
+		3F6088162E084F5794518721 /* FullPagePagerViewLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6088162E084F5794518720 /* FullPagePagerViewLegacy.swift */; };
 		3FA8DB8CFE8747568D98742E /* NewsDataProviderEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757D57B664574D4F98E22603 /* NewsDataProviderEventTests.swift */; };
         419B33A2380B105BDAF49C79 /* AmountInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B2DDFB78A0435D48E7FC6C5 /* AmountInputFieldModel.swift */; };
 		4EF5D8C6FF964B68A0691FE6 /* AddTokenFlowAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97AEC2AFB15435881BA91C6 /* AddTokenFlowAnalyticsLogger.swift */; };

@@ -295,7 +295,7 @@ extension SendAmountViewModel {
                 let expandedReceiveData = SendAmountTokenViewData(
                     tokenIconInfo: receiveTokenIconInfo,
                     title: receiveToken.tokenItem.name,
-                    subtitle: .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+                    subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
                     detailsType: .select(individualAction: nil),
                     action: { [weak self] in
                         self?.router?.openReceiveTokensList()
@@ -306,7 +306,11 @@ extension SendAmountViewModel {
                     tokenIconInfo: receiveTokenIconInfo,
                     title: receiveToken.tokenItem.name,
                     subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
-                    detailsType: .none
+                    detailsType: .none,
+                    action: { [weak self] in
+                        FeedbackGenerator.heavy()
+                        self?.userDidTapCompactReceive()
+                    }
                 )
 
                 let field = receiveAmountField ?? createReceiveAmountField(for: receiveToken, tokenIconInfo: receiveTokenIconInfo)
@@ -390,11 +394,11 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+            return .balance(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
         case .failure:
-            return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
+            return .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
-            return .receive(state: .loading)
+            return .balance(state: .loading())
         }
     }
 }

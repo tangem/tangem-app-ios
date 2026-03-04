@@ -31,7 +31,7 @@ struct SendAmountAccordionSectionView<ExpandedContent: View>: View {
                 SendAmountTokenView(data: tokenData)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        guard !isExpanded else { return }
+                        guard !isExpanded, tokenData.action == nil else { return }
                         FeedbackGenerator.heavy()
                         onTapCompact()
                     }
