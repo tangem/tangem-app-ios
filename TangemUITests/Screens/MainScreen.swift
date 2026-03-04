@@ -80,7 +80,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokensList.staticTextByLabel(label: label).waitAndTap()
+            tokenElement(named: label).waitAndTap()
             return TokenScreen(app)
         }
     }
@@ -123,28 +123,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             )
 
             return OrganizeTokensScreen(app)
-        }
-    }
-
-    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
-    private func scrollOrganizeButtonAboveMarketsSheet() {
-        guard grabber.exists, organizeTokensButton.exists else { return }
-
-        let grabberFrame = grabber.frame
-        let buttonFrame = organizeTokensButton.frame
-
-        // If the button is below or overlapping with the grabber, scroll the list up
-        if buttonFrame.maxY > grabberFrame.minY {
-            // Calculate how much we need to scroll
-            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
-
-            // Scroll the tokens list up
-            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-
-            // Wait for scroll animation to settle
-            _ = organizeTokensButton.waitForState(state: .hittable)
         }
     }
 
@@ -276,9 +254,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            let tokenElement = tokensList.staticTextByLabel(label: tokenName)
-            waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
-            tokenElement.press(forDuration: 1.0)
+            let token = tokenElement(named: tokenName)
+            waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+            token.press(forDuration: 1.0)
             return ContextMenuScreen(app)
         }
     }
@@ -568,6 +546,35 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             )
         }
         return self
+    }
+
+    private func tokenElement(named label: String) -> XCUIElement {
+        tokensList.staticTexts
+            .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            .matching(NSPredicate(format: "label == %@", label))
+            .firstMatch
+    }
+
+    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
+    private func scrollOrganizeButtonAboveMarketsSheet() {
+        guard grabber.exists, organizeTokensButton.exists else { return }
+
+        let grabberFrame = grabber.frame
+        let buttonFrame = organizeTokensButton.frame
+
+        // If the button is below or overlapping with the grabber, scroll the list up
+        if buttonFrame.maxY > grabberFrame.minY {
+            // Calculate how much we need to scroll
+            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
+
+            // Scroll the tokens list up
+            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+
+            // Wait for scroll animation to settle
+            _ = organizeTokensButton.waitForState(state: .hittable)
+        }
     }
 
     private func isGrouped() -> Bool {
