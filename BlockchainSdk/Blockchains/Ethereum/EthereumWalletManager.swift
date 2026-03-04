@@ -518,7 +518,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         // Get fee for the original transaction. Pick the fastest fee (index 2) from the fees array.
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
-        guard let params = originalFee[safe: 2]?.parameters as? EthereumEIP1559FeeParameters else {
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
 
