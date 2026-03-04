@@ -23,7 +23,7 @@ public final class ThreadSafeCancellableWrapper: @unchecked Sendable {
     }
 
     public func set(_ cancellable: Cancellable) {
-        criticalSection {
+        let shouldCancelImmediately: Bool = criticalSection {
             // This check is crucial since `self.set(_:)` can be called later than `self.cancel()`,
             // and in this case, the `cancellable` should be cancelled immediately.
             // `withTaskCancellationHandler(operation:onCancel:)` API provides no guarantees about the order of
@@ -31,19 +31,31 @@ public final class ThreadSafeCancellableWrapper: @unchecked Sendable {
             // See https://developer.apple.com/documentation/swift/withtaskcancellationhandler(operation:oncancel:isolation:)
             // for more details.
             if isCancelled {
-                cancellable.cancel()
-            } else {
-                innerCancellable = cancellable
+                // Fast path without setting `innerCancellable` since it will be cancelled immediately.
+                return true
             }
+
+            // Slow path, `innerCancellable` will be cancelled later in `self.cancel()`.
+            innerCancellable = cancellable
+            return false
+        }
+
+        // Cancellation should be performed outside of critical section to avoid potential deadlocks
+        if shouldCancelImmediately {
+            cancellable.cancel()
         }
     }
 
     public func cancel() {
-        criticalSection {
+        let cancellableToCancel: Cancellable? = criticalSection {
             isCancelled = true
-            innerCancellable?.cancel()
+            let cancellableToCancel = innerCancellable
             innerCancellable = nil
+            return cancellableToCancel
         }
+
+        // Cancellation should be performed outside of critical section to avoid potential deadlocks
+        cancellableToCancel?.cancel()
     }
 }
 
