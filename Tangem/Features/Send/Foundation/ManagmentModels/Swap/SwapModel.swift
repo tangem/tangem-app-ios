@@ -734,12 +734,18 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     }
 
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
-        _receiveAmount.map { amount in
-            switch amount {
-            case .none: .failure(SendAmountError.noAmount)
-            case .some(let amount): .success(amount)
+        Publishers.CombineLatest(_providersState, _receiveAmount)
+            .map { state, amount in
+                if case .loading(.rates) = state {
+                    return .loading
+                }
+
+                switch amount {
+                case .none: return .failure(SendAmountError.noAmount)
+                case .some(let amount): return .success(amount)
+                }
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {

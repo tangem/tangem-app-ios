@@ -102,6 +102,7 @@ struct SendAmountView: View {
                 .innerContentPadding(0)
 
                 convertButton
+                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
             }
         }
     }
