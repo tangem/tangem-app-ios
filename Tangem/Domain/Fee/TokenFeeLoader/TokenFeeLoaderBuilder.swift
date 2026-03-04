@@ -8,47 +8,50 @@
 
 import BlockchainSdk
 
-enum TokenFeeLoaderBuilder {
-    static func makeTokenFeeLoader(
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
-        walletManager: any WalletManager,
-        isDemo: Bool
-    ) -> TokenFeeLoader {
+struct TokenFeeLoaderBuilder {
+    /// `TokenItem` which is sending.
+    let tokenItem: TokenItem
+    /// Provides all necessary dependencies for creating fee loaders.
+    let dependenciesProvider: WalletModelDependenciesProvider
+    let isDemo: Bool
+
+    func makeMainTokenFeeLoader() -> TokenFeeLoader {
         if isDemo {
             return DemoTokenFeeLoader(tokenItem: tokenItem)
         }
 
         let tokenFeeLoader = CommonTokenFeeLoader(
             tokenItem: tokenItem,
-            transactionFeeProvider: walletManager
+            transactionFeeProvider: dependenciesProvider.transactionFeeProvider
         )
 
-        switch walletManager {
-        case let walletManager as CompiledTransactionFeeProvider:
+        if let compiledTransactionFeeProvider = dependenciesProvider.compiledTransactionFeeProvider {
             return CommonSolanaTokenFeeLoader(
                 tokenFeeLoader: tokenFeeLoader,
-                compiledTransactionFeeProvider: walletManager
+                compiledTransactionFeeProvider: compiledTransactionFeeProvider
             )
-        case let walletManager as EthereumNetworkProvider:
-            return CommonEthereumTokenFeeLoader(
-                feeBlockchain: feeTokenItem.blockchain,
-                tokenFeeLoader: tokenFeeLoader,
-                ethereumNetworkProvider: walletManager
-            )
-        default:
-            return tokenFeeLoader
         }
+
+        if let ethereumNetworkProvider = dependenciesProvider.ethereumNetworkProvider {
+            return CommonEthereumTokenFeeLoader(
+                feeBlockchain: tokenItem.blockchain,
+                tokenFeeLoader: tokenFeeLoader,
+                ethereumNetworkProvider: ethereumNetworkProvider
+            )
+        }
+
+        return tokenFeeLoader
     }
 
-    static func makeGaslessTokenFeeLoader(walletModel: any WalletModel, feeWalletModel: any WalletModel) -> TokenFeeLoader {
-        guard let gaslessTransactionFeeProvider = feeWalletModel.ethereumGaslessTransactionFeeProvider else {
-            return walletModel.makeTokenFeeLoader()
+    func makeGaslessTokenFeeLoader(feeToken: BSDKToken) -> TokenFeeLoader? {
+        guard let gaslessTransactionFeeProvider = dependenciesProvider.ethereumGaslessTransactionFeeProvider else {
+            assertionFailure("WalletModelDependenciesProvider does not have ethereumGaslessTransactionFeeProvider")
+            return nil
         }
 
         return CommonGaslessTokenFeeLoader(
-            tokenItem: walletModel.tokenItem,
-            feeToken: feeWalletModel.tokenItem.token,
+            tokenItem: tokenItem,
+            feeToken: feeToken,
             gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
         )
     }
