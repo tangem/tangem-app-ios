@@ -11,11 +11,19 @@ import Foundation
 
 public extension Publisher {
     func async() async throws -> Output {
-        let cancellableWrapper = ThreadSafeCancellableWrapper()
+        let subscriptionCancellableWrapper = ThreadSafeCancellableWrapper()
+        let continuationCancellableWrapper = ThreadSafeCancellableWrapper()
 
         return try await withTaskCancellationHandler {
             return try await withCheckedThrowingContinuation { continuation in
                 let continuationWrapper = ResumableOnceCheckedContinuationWrapper(continuation)
+
+                // Prevents a potential race condition when Combine subscription is cancelled
+                // immediately after creation (race between `onCancel` and `.store()` calls).
+                // Without it, the cancellation may leak without resuming the continuation, which ultimately will hang the task.
+                continuationCancellableWrapper.set(
+                    AnyCancellable { continuationWrapper.resumeIfNeeded(throwing: CancellationError()) }
+                )
 
                 // This check is necessary in case this code runs after the task was
                 // cancelled. In which case we want to bail right away.
@@ -44,10 +52,11 @@ public extension Publisher {
                             continuationWrapper.resumeIfNeeded(returning: value)
                         }
                     )
-                    .store(in: cancellableWrapper)
+                    .store(in: subscriptionCancellableWrapper)
             }
         } onCancel: {
-            cancellableWrapper.cancel()
+            subscriptionCancellableWrapper.cancel()
+            continuationCancellableWrapper.cancel()
         }
     }
 }
