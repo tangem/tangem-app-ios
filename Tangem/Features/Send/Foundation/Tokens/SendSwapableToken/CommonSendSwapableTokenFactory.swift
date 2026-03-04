@@ -35,7 +35,7 @@ struct CommonSendSwapableTokenFactory {
 
         let balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
-            feeProvider: walletModel
+            feeBalanceProvider: walletModel.feeTokenItemBalanceProvider
         )
 
         let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem)
