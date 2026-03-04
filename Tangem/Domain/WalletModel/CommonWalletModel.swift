@@ -28,6 +28,7 @@ class CommonWalletModel {
 
     // MARK: - Balance providers
 
+    lazy var feeTokenItemBalanceProvider = makeFeeTokenItemBalanceProvider()
     lazy var availableBalanceProvider = makeAvailableBalanceProvider()
     lazy var stakingBalanceProvider = makeStakingBalanceProvider()
     lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
@@ -35,15 +36,6 @@ class CommonWalletModel {
     lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
     lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
-
-    /// Simple flag to check exactly BSDK balance
-    var balanceState: WalletModelBalanceState? {
-        switch wallet.amounts[tokenItem.amountType]?.value {
-        case .none: .none
-        case .zero: .zero
-        case .some: .positive
-        }
-    }
 
     private(set) weak var account: (any CryptoAccountModel)?
 
@@ -114,6 +106,7 @@ class CommonWalletModel {
     }
 
     func initializeLazyProperties() {
+        _ = feeTokenItemBalanceProvider
         _ = availableBalanceProvider
         _ = stakingBalanceProvider
         _ = totalTokenBalanceProvider
@@ -429,9 +422,28 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 }
 
+// MARK: - BSDKTokenBalanceProviderInput
+
+extension CommonWalletModel: BSDKTokenBalanceProviderInput {
+    func balance(for tokenItem: TokenItem) -> BSDKTokenBalance? {
+        wallet.amounts[tokenItem.amountType]?.value
+    }
+
+    func balancePublisher(for tokenItem: TokenItem) -> AnyPublisher<BSDKTokenBalance?, Never> {
+        walletManager.walletPublisher.map { wallet in
+            wallet.amounts[tokenItem.amountType]?.value
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Balance Provider
 
 extension CommonWalletModel: WalletModelBalancesProvider {
+    func makeFeeTokenItemBalanceProvider() -> TokenBalanceProvider {
+        BSDKTokenBalanceProvider(input: self, tokenItem: feeTokenItem)
+    }
+
     func makeAvailableBalanceProvider() -> TokenBalanceProvider {
         AvailableTokenBalanceProvider(
             input: self,
@@ -572,29 +584,12 @@ extension CommonWalletModel: WalletModelHelpers {
 // MARK: - WalletModelFeesProvider
 
 extension CommonWalletModel: WalletModelFeesProvider {
-    var customFeeProvider: (any CustomFeeProvider)? {
-        CustomFeeProviderBuilder.makeCustomFeeProvider(walletModel: self, walletManager: walletManager)
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
+        TokenFeeLoaderBuilder(tokenItem: tokenItem, dependenciesProvider: self, isDemo: isDemo)
     }
 
-    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
-        TokenFeeLoaderBuilder.makeTokenFeeLoader(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            walletManager: walletManager,
-            isDemo: isDemo
-        )
-    }
-}
-
-// MARK: - WalletModelFeeProvider
-
-extension CommonWalletModel: WalletModelFeeProvider {
-    func getFeeCurrencyBalance() -> Decimal {
-        wallet.feeCurrencyBalance(amountType: tokenItem.amountType)
-    }
-
-    func hasFeeCurrency() -> Bool {
-        wallet.hasFeeCurrency(amountType: tokenItem.amountType)
+    var customFeeProviderBuilder: CustomFeeProviderBuilder {
+        CustomFeeProviderBuilder(tokenItem: tokenItem, feeTokenItem: feeTokenItem, walletManager: walletManager)
     }
 }
 
@@ -602,6 +597,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
 
 extension CommonWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: BlockchainDataProvider {
+        walletManager
+    }
+
+    var transactionFeeProvider: TransactionFeeProvider {
         walletManager
     }
 
