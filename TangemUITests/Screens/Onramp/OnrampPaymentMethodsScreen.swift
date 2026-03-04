@@ -13,34 +13,30 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
     @discardableResult
     func waitForPaymentMethodIconsAndNames() -> Self {
         XCTContext.runActivity(named: "Validate payment method icons and names exist") { _ in
-            let paymentMethodCards = app.buttons.matching(identifier: OnrampAccessibilityIdentifiers.paymentMethodCard)
+            let iconsQuery = app.images.matching(NSPredicate(format: "identifier BEGINSWITH %@", OnrampAccessibilityIdentifiers.paymentMethodIconPrefix))
+            let namesQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", OnrampAccessibilityIdentifiers.paymentMethodNamePrefix))
 
-            XCTAssertTrue(paymentMethodCards.firstMatch.waitForExistence(timeout: .robustUIUpdate), "At least one payment method card should exist")
+            let firstIcon = iconsQuery.firstMatch
+            XCTAssertTrue(firstIcon.waitForExistence(timeout: .robustUIUpdate), "At least one payment method icon should exist")
 
-            let cardCount = paymentMethodCards.count
-            XCTAssertGreaterThan(cardCount, 0, "At least one payment method should exist")
+            let icons = iconsQuery.allElementsBoundByIndex
+            let names = namesQuery.allElementsBoundByIndex
 
-            for index in 0 ..< cardCount {
-                let card = paymentMethodCards.element(boundBy: index)
-                XCTAssertTrue(card.exists, "Payment method card at index \(index) should exist")
+            XCTAssertGreaterThan(icons.count, 0, "At least one payment method icon should exist")
+            XCTAssertGreaterThan(names.count, 0, "At least one payment method name should exist")
+            XCTAssertEqual(icons.count, names.count, "Each payment method should have both an icon and a name")
 
-                let knownPaymentMethods = ["apple-pay", "card", "invoice-revolut-pay"]
+            for icon in icons {
+                waitAndAssertTrue(icon, "Payment method icon should exist: \(icon.identifier)")
+            }
 
-                for paymentMethodId in knownPaymentMethods {
-                    let iconId = OnrampAccessibilityIdentifiers.paymentMethodIcon(id: paymentMethodId)
-                    let nameId = OnrampAccessibilityIdentifiers.paymentMethodName(id: paymentMethodId)
-
-                    let iconExists = app.images[iconId].exists
-                    let nameExists = app.staticTexts[nameId].exists
-
-                    if iconExists, nameExists {
-                        XCTAssertTrue(iconExists, "Payment method icon should exist for ID: \(paymentMethodId)")
-                        XCTAssertTrue(nameExists, "Payment method name should exist for ID: \(paymentMethodId)")
-
-                        let name = app.staticTexts[nameId]
-                        XCTAssertFalse(name.label.isEmpty, "Payment method name should not be empty for ID: \(paymentMethodId)")
-                    }
-                }
+            for name in names {
+                waitAndAssertTrue(name, "Payment method name should exist: \(name.identifier)")
+                let notEmpty = XCTWaiter.wait(
+                    for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "label.length > 0"), object: name)],
+                    timeout: .robustUIUpdate
+                )
+                XCTAssertEqual(notEmpty, .completed, "Payment method name should not be empty: \(name.identifier)")
             }
         }
         return self
