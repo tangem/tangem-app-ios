@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeesProvider, WalletModelFeeProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
     ReceiveAddressTypesProvider, WalletModelResolvable {
@@ -40,7 +40,6 @@ protocol WalletModel:
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }
     var qrReceiveMessage: String { get }
-    var balanceState: WalletModelBalanceState? { get }
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
 
@@ -63,10 +62,6 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     var yieldModuleManager: YieldModuleManager? { get }
-
-    // MARK: - Gasless Transactions
-
-    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
 }
 
 extension WalletModel {
@@ -88,6 +83,20 @@ extension WalletModel {
         let converter = factory.makeConverter(for: tokenItem.blockchain)
         let convertedAddress = try? converter.convertToETHAddress(defaultAddress.value)
         return convertedAddress ?? defaultAddressString
+    }
+}
+
+extension WalletModel {
+    func getFeeCurrencyBalance() -> Decimal {
+        feeTokenItemBalanceProvider.balanceType.loaded ?? 0
+    }
+
+    func hasFeeCurrency() -> Bool {
+        if tokenItem.blockchain.allowsZeroFeePaid {
+            return getFeeCurrencyBalance() >= 0
+        }
+
+        return getFeeCurrencyBalance() > 0
     }
 }
 
@@ -121,6 +130,7 @@ extension [WalletModelUpdaterFeatureType] {
 // MARK: - WalletModelBalancesProvider
 
 protocol WalletModelBalancesProvider {
+    var feeTokenItemBalanceProvider: TokenBalanceProvider { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var stakingBalanceProvider: TokenBalanceProvider { get }
     var totalTokenBalanceProvider: TokenBalanceProvider { get }
@@ -142,19 +152,8 @@ protocol WalletModelHelpers {
 // MARK: - Fee
 
 protocol WalletModelFeesProvider {
-    var customFeeProvider: (any CustomFeeProvider)? { get }
-    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader
-}
-
-extension WalletModelFeesProvider where Self: WalletModel {
-    func makeTokenFeeLoader() -> any TokenFeeLoader {
-        makeTokenFeeLoader(for: tokenItem)
-    }
-}
-
-protocol WalletModelFeeProvider {
-    func getFeeCurrencyBalance() -> Decimal
-    func hasFeeCurrency() -> Bool
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { get }
+    var customFeeProviderBuilder: CustomFeeProviderBuilder { get }
 }
 
 // MARK: - Dependencies
@@ -164,12 +163,14 @@ protocol WalletModelDependenciesProvider {
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var assetRequirementsManager: AssetRequirementsManager? { get }
 
+    var transactionFeeProvider: TransactionFeeProvider { get }
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
     var multipleTransactionsSender: MultipleTransactionsSender? { get }
 
+    var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { get }
     var compiledTransactionSender: CompiledTransactionSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
@@ -184,6 +185,7 @@ protocol WalletModelDependenciesProvider {
     // MARK: - Gasless Transactions
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 }
 
