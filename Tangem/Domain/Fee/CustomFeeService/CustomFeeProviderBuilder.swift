@@ -9,25 +9,29 @@
 import Foundation
 import BlockchainSdk
 
-enum CustomFeeProviderBuilder {
-    static func makeCustomFeeProvider(walletModel: any WalletModel, walletManager: any WalletManager) -> (any CustomFeeProvider)? {
-        switch walletModel.tokenItem.blockchain {
+struct CustomFeeProviderBuilder {
+    let tokenItem: TokenItem
+    let feeTokenItem: TokenItem
+    let walletManager: any WalletManager
+
+    func makeCustomFeeProvider() -> (any CustomFeeProvider)? {
+        switch tokenItem.blockchain {
         case .bitcoin:
             guard let bitcoinTransactionFeeCalculator = walletManager as? BitcoinTransactionFeeCalculator else {
                 return nil
             }
 
             return BitcoinCustomFeeService(
-                tokenItem: walletModel.tokenItem,
-                feeTokenItem: walletModel.feeTokenItem,
+                tokenItem: tokenItem,
+                feeTokenItem: feeTokenItem,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
 
         case .kaspa:
-            return KaspaCustomFeeService(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+            return KaspaCustomFeeService(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
 
-        case _ where walletModel.tokenItem.blockchain.isEvm:
-            return EVMCustomFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+        case _ where tokenItem.blockchain.isEvm:
+            return EVMCustomFeeService(sourceTokenItem: tokenItem, feeTokenItem: feeTokenItem)
 
         default:
             return nil
