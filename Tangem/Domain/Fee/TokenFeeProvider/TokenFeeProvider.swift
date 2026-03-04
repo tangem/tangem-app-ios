@@ -63,53 +63,6 @@ extension [TokenFeeProvider] {
     }
 }
 
-// MARK: - TokenFeeProvider+Init
-
-extension TokenFeeProvider where Self == EmptyTokenFeeProvider {
-    static func empty(feeTokenItem: TokenItem) -> Self {
-        EmptyTokenFeeProvider(feeTokenItem: feeTokenItem)
-    }
-}
-
-extension TokenFeeProvider where Self == CommonTokenFeeProvider {
-    static func common(
-        feeTokenItem: TokenItem,
-        supportingOptions: TokenFeeProviderSupportingOptions,
-        availableTokenBalanceProvider: TokenBalanceProvider,
-        tokenFeeLoader: any TokenFeeLoader,
-        customFeeProvider: (any CustomFeeProvider)?
-    ) -> Self {
-        CommonTokenFeeProvider(
-            feeTokenItem: feeTokenItem,
-            supportingOptions: supportingOptions,
-            availableTokenBalanceProvider: availableTokenBalanceProvider,
-            tokenFeeLoader: tokenFeeLoader,
-            customFeeProvider: customFeeProvider,
-        )
-    }
-
-    static func gasless(
-        walletModel: any WalletModel,
-        feeWalletModel: any WalletModel,
-        supportingOptions: TokenFeeProviderSupportingOptions,
-    ) -> Self {
-        let tokenFeeLoader = TokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(
-            walletModel: walletModel,
-            feeWalletModel: feeWalletModel
-        )
-
-        return CommonTokenFeeProvider(
-            // Important! The `feeTokenItem` is tokenItem, means USDT / USDC
-            feeTokenItem: feeWalletModel.tokenItem,
-            supportingOptions: supportingOptions,
-            availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
-            tokenFeeLoader: tokenFeeLoader,
-            // Gasless doesn't support custom fee
-            customFeeProvider: .none
-        )
-    }
-}
-
 enum TokenFeeProviderError: LocalizedError {
     case providerUnavailable
     case unsupportedByProvider
