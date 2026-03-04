@@ -155,7 +155,7 @@ public extension Task {
 
 public extension Actor {
     /// Based on https://medium.com/@noahlittle199/swifts-isolated-keyword-a-small-trick-to-simplify-code-in-actors-570ff692f8e2
-    func performIsolated<T>(_ closure: (isolated Self) throws -> T) rethrows -> T {
+    func performIsolated<T>(_ closure: @Sendable (isolated Self) throws -> T) rethrows -> T where T: Sendable {
         return try closure(self)
     }
 }
