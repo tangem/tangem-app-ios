@@ -168,7 +168,6 @@ struct PublisherAsyncTests {
 
     // MARK: - Race conditions
 
-
     @Test("Concurrent emission and cancellation race produces exactly one outcome using GCD", .timeLimit(.minutes(1)))
     func concurrentEmissionAndCancellationRaceUsingGCD() async {
         for _ in 0 ..< 500 {
