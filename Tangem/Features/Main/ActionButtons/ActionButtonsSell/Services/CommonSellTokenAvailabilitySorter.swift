@@ -29,7 +29,7 @@ extension CommonSellTokenAvailabilitySorter: TokenAvailabilitySorter {
                     blockchain: walletModel.tokenItem.blockchain
                 ),
                 !walletModel.state.isBlockchainUnreachable,
-                walletModel.balanceState == .positive,
+                walletModel.availableBalanceProvider.balanceType.loaded ?? 0 > 0,
                 availabilityProvider.isSellAvailable
             else {
                 result.unavailableModels.append(walletModel)
