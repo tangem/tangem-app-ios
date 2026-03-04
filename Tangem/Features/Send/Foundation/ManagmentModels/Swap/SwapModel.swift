@@ -128,7 +128,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            return try await expressManager.update(amount: sourceAmount?.crypto, by: .amountChange)
+            return try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
         }
     }
 
@@ -336,6 +336,10 @@ extension SwapModel {
 
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: previewCEX.quote)
+
+        if let restriction = try validate(amount: amount, fee: fee) {
+            return .restriction(restriction, quote: quote)
+        }
 
         let withdrawalNotificationProvider = source.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
