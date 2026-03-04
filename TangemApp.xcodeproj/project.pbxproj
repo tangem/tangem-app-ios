@@ -189,6 +189,7 @@
 		0F0B9CE42F1FE862005D1F0F /* MobileBackupTypesMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0B9CE32F1FE862005D1F0F /* MobileBackupTypesMode.swift */; };
 		0F0B9E422F21268F005D1F0F /* UserWalletRepositoryMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0B9E412F21268F005D1F0F /* UserWalletRepositoryMode.swift */; };
 		0F0B9E442F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0B9E432F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift */; };
+		0F235A3E2F5871C200BBF5E2 /* TangemCalloutDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */; };
 		0F25112F2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */; };
 		0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */; };
 		0F2511332EA78304009D78EE /* MobileBackupToUpgradeNeededRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2511322EA78304009D78EE /* MobileBackupToUpgradeNeededRoutable.swift */; };
@@ -5137,6 +5138,7 @@
 		0F0B9CE32F1FE862005D1F0F /* MobileBackupTypesMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupTypesMode.swift; sourceTree = "<group>"; };
 		0F0B9E412F21268F005D1F0F /* UserWalletRepositoryMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryMode.swift; sourceTree = "<group>"; };
 		0F0B9E432F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryModeHelper.swift; sourceTree = "<group>"; };
+		0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemCalloutDemo.swift; sourceTree = "<group>"; };
 		0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededView.swift; sourceTree = "<group>"; };
 		0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededViewModel.swift; sourceTree = "<group>"; };
 		0F2511322EA78304009D78EE /* MobileBackupToUpgradeNeededRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededRoutable.swift; sourceTree = "<group>"; };
@@ -22556,6 +22558,7 @@
 				DF8DD4332F4DB1FA002FE2D4 /* NotificationBannerDemo.swift */,
 				DF8DD4342F4DB1FA002FE2D4 /* TangemButtonDemo.swift */,
 				DF3176012F4E36EC00E77AF1 /* TangemBadgeDemo.swift */,
+				0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */,
 				DF3176032F4E36F300E77AF1 /* TangemMainActionButtonDemo.swift */,
 				DF4A2F322F4DB1FA002FE2D5 /* TypographyDemo.swift */,
 			);
@@ -29471,6 +29474,7 @@
 				EF92E2BA29963E7400DD9B06 /* ExpressKeys.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */,
 				DCA19BF12DDD95B00057BDA5 /* WCTransactionView.swift in Sources */,
+				0F235A3E2F5871C200BBF5E2 /* TangemCalloutDemo.swift in Sources */,
 				B65C07A92AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift in Sources */,
 				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworksListViewModel.swift in Sources */,
 				0FB93BB72E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift in Sources */,
