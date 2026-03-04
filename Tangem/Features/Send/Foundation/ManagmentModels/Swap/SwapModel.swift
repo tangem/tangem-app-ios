@@ -126,7 +126,6 @@ extension SwapModel {
 extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
-        _receiveAmount.send(nil)
         _sourceAmount.send(sourceAmount)
 
         updateTask(loadingType: .rates) { [weak self] expressManager in
@@ -135,7 +134,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result = try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
 
             if let self, let quote = result.selected?.getState().quote {
                 let crypto = quote.expectAmount
@@ -147,11 +146,14 @@ extension SwapModel {
 
             return result
         }
+
+        if sourceAmount == nil {
+            _receiveAmount.send(nil)
+        }
     }
 
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
-        _sourceAmount.send(nil)
         _receiveAmount.send(receiveAmount)
 
         updateTask(loadingType: .rates) { [weak self] expressManager in
@@ -160,7 +162,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result = try await expressManager.update(amountType: receiveAmount?.crypto.map { .to($0) }, by: .amountChange)
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: receiveAmount?.crypto.map { .to($0) }, by: .amountChange)
 
             if let self, let quote = result.selected?.getState().quote {
                 let crypto = quote.fromAmount
@@ -171,6 +173,10 @@ extension SwapModel {
             }
 
             return result
+        }
+
+        if receiveAmount == nil {
+            _sourceAmount.send(nil)
         }
     }
 
@@ -207,9 +213,9 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
+        _providersState.send(.loading(loadingType))
         updateTask = runTask(in: self, code: { input in
             do {
-                input._providersState.send(.loading(loadingType))
                 let result = try await block(input.expressManager)
 
                 switch result {
