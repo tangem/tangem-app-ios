@@ -174,7 +174,6 @@ struct AccountDerivationPathHelper {
              .scroll,
              .linea,
              .monad,
-             .berachain,
              .arbitrumNova,
              .plasma:
             return true
