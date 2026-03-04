@@ -101,10 +101,8 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelFeesProvider
 
-    var customFeeProvider: (any CustomFeeProvider)? { .none }
-    func makeTokenFeeLoader(for tokenItem: Tangem.TokenItem) -> any Tangem.TokenFeeLoader {
-        TokenFeeLoaderMock()
-    }
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { fatalError() }
+    var customFeeProviderBuilder: CustomFeeProviderBuilder { fatalError() }
 
     // MARK: - TransactionHistoryFetcher
 
@@ -137,7 +135,6 @@ final class WalletModelTestsMock: WalletModel {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
     var qrReceiveMessage: String { "" }
-    var balanceState: WalletModelBalanceState? { nil }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
@@ -147,6 +144,7 @@ final class WalletModelTestsMock: WalletModel {
     var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { nil }
     var yieldModuleManager: YieldModuleManager? { nil }
+    var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
@@ -155,10 +153,12 @@ final class WalletModelTestsMock: WalletModel {
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var assetRequirementsManager: AssetRequirementsManager? { nil }
+    var transactionFeeProvider: TransactionFeeProvider { fatalError() }
     var transactionCreator: TransactionCreator { fatalError() }
     var transactionValidator: TransactionValidator { fatalError() }
     var transactionSender: TransactionSender { fatalError() }
     var multipleTransactionsSender: MultipleTransactionsSender? { nil }
+    var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { nil }
     var compiledTransactionSender: CompiledTransactionSender? { nil }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
@@ -189,8 +189,6 @@ final class WalletModelTestsMock: WalletModel {
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
-    func getFeeCurrencyBalance() -> Decimal { 0 }
-    func hasFeeCurrency() -> Bool { false }
     func getFee(compiledTransaction data: Data) async throws -> [Fee] { [] }
     func hash(into hasher: inout Hasher) {}
     static func == (lhs: WalletModelTestsMock, rhs: WalletModelTestsMock) -> Bool { false }
