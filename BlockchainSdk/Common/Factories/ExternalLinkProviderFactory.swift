@@ -203,8 +203,6 @@ public struct ExternalLinkProviderFactory {
             return LineaExternalLinkProvider(isTestnet: isTestnet)
         case .monad:
             return MonadExternalLinkProvider(isTestnet: isTestnet)
-        case .berachain:
-            return BerachainExternalLinkProvider(isTestnet: isTestnet)
         case .arbitrumNova:
             return ArbitrumNovaExternalLinkProvider()
         case .plasma:
