@@ -41,12 +41,15 @@ public enum OnrampAccessibilityIdentifiers {
     public static let paymentMethodCard = "onrampPaymentMethodCard"
 
     /// Payment method item elements
+    public static let paymentMethodIconPrefix = "onrampPaymentMethodIcon_"
+    public static let paymentMethodNamePrefix = "onrampPaymentMethodName_"
+
     public static func paymentMethodIcon(id: String) -> String {
-        return "onrampPaymentMethodIcon_\(id)"
+        return "\(paymentMethodIconPrefix)\(id)"
     }
 
     public static func paymentMethodName(id: String) -> String {
-        return "onrampPaymentMethodName_\(id)"
+        return "\(paymentMethodNamePrefix)\(id)"
     }
 
     /// Residence screen
