@@ -128,6 +128,10 @@ extension ExpressProvidersSelectorViewModel {
                 return .permissionNeeded
             }
 
+            if !ukGeoDefiner.isUK, provider.isBest {
+                return .bestRate
+            }
+
             if provider.provider.recommended == true {
                 return .recommended
             }

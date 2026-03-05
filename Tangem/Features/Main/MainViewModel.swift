@@ -220,6 +220,27 @@ final class MainViewModel: ObservableObject {
         )
     }
 
+    private func reorderPages(to orderedUserWalletIds: [UserWalletId]) {
+        let pagesByIds = Dictionary(uniqueKeysWithValues: pages.map { ($0.id, $0) })
+        let reorderedPages = orderedUserWalletIds.compactMap { pagesByIds[$0] }
+
+        guard reorderedPages.count == pages.count else {
+            assertionFailure("Pages reorder failed: count mismatch")
+            AppLogger.warning("Pages reorder failed: count mismatch")
+            return
+        }
+
+        guard
+            let selectedModel = userWalletRepository.selectedModel,
+            let newIndex = reorderedPages.firstIndex(where: { $0.id == selectedModel.userWalletId })
+        else {
+            return
+        }
+
+        pages = reorderedPages
+        selectedCardIndex = newIndex
+    }
+
     /// - Note: This quite ugly workaround is needed to handle two separate cases (both cases are related to single wallets):
     ///   - Asynchronous loading of the API list after the main screen has already appeared
     ///   - Asynchronous publishing of account and wallet models after the main screen has already appeared
@@ -346,6 +367,8 @@ final class MainViewModel: ObservableObject {
                     swipeDiscoveryHelper.reset()
                 case .selected:
                     break
+                case .reordered(let orderedUserWalletIds):
+                    reorderPages(to: orderedUserWalletIds)
                 }
             }
             .store(in: &bag)
