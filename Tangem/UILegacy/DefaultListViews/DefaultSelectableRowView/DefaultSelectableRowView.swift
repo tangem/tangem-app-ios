@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct DefaultSelectableRowView<ID: Hashable>: View {
     private let data: DefaultSelectableRowViewModel<ID>
@@ -20,7 +21,11 @@ struct DefaultSelectableRowView<ID: Hashable>: View {
 
     var body: some View {
         Button(action: { selection.isActive(compare: data.id).toggle() }) {
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: 12) {
+                if let iconURL = data.iconURL {
+                    IconView(url: iconURL, size: CGSize(bothDimensions: 24), forceKingfisher: true)
+                }
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.title)
                         .style(Fonts.Regular.callout, color: Colors.Text.primary1)

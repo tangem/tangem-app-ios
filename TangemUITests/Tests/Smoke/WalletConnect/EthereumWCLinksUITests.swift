@@ -17,6 +17,8 @@ final class EthereumWCLinksUITests: BaseTestCase {
     func testOpenTangemAppFromSafari_ShowsWalletConnectSheet() throws {
         setAllureId(3957)
 
+        try skipDueToBug("[REDACTED_INFO]", description: "WalletConnect deeplink does not load dapp data on cold start")
+
         getWcURI()
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()

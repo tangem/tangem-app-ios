@@ -25,7 +25,12 @@ final class SensitiveTextVisibilityViewModel: ObservableObject {
         }
     }
 
-    @Published private(set) var isHidden: Bool
+    @Published private(set) var isHidden: Bool {
+        didSet {
+            // Sync with TangemUI's SensitiveTextVisibilityState
+            SensitiveTextVisibilityState.shared.isHidden = isHidden
+        }
+    }
 
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
@@ -40,6 +45,8 @@ final class SensitiveTextVisibilityViewModel: ObservableObject {
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
+        // Sync initial value with TangemUI's SensitiveTextVisibilityState
+        SensitiveTextVisibilityState.shared.isHidden = isHidden
         bind()
     }
 
