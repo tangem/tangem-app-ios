@@ -195,15 +195,16 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            guard record.userWalletId == userWalletId else {
-                return false
-            }
+            let isSourceWallet = userWalletId == record.sourceTokenTxInfo.userWalletId
+            let isDestinationWallet = userWalletId == record.destinationTokenTxInfo.userWalletId
 
             let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
             let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
 
+            let isRelatedWallet = isSourceWallet || isDestinationWallet
             let isRelatedToken = isSourceToken || isDestinationToken
-            return isRelatedToken
+
+            return isRelatedWallet && isRelatedToken
         }
     }
 

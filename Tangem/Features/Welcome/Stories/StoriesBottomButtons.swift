@@ -20,24 +20,9 @@ struct StoriesBottomButtons: View {
     let orderCard: () -> Void
     let scanTroubleShootingDialog: Binding<ConfirmationDialogViewModel?>
 
-    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
-
-    private var scanColorStyle: MainButton.Style {
-        isMobileWalletEnabled ? .secondary : .primary
-    }
-
     var body: some View {
-        if isMobileWalletEnabled {
-            createWalletButton
-                .confirmationDialog(viewModel: scanTroubleShootingDialog)
-        } else {
-            HStack {
-                scanCardButton
-                    .confirmationDialog(viewModel: scanTroubleShootingDialog)
-
-                orderCardButton
-            }
-        }
+        createWalletButton
+            .confirmationDialog(viewModel: scanTroubleShootingDialog)
     }
 }
 
@@ -58,7 +43,7 @@ private extension StoriesBottomButtons {
         MainButton(
             title: Localization.homeButtonScan,
             icon: .trailing(Assets.tangemIcon),
-            style: scanColorStyle,
+            style: .secondary,
             isLoading: isScanning,
             action: scanCard
         )

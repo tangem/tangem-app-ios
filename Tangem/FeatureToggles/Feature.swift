@@ -12,8 +12,6 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
-    case mobileWallet
-    case wcSolanaALT
     case accounts
     case marketsAndNews
     case marketsEarn
@@ -21,14 +19,13 @@ enum Feature: String, Hashable, CaseIterable {
     case gaslessTransactions
     case exchangeOnlyWithinSingleAddress
     case experimentService
+    case expressAllTokensSearch
 
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
-        case .mobileWallet: return "Mobile wallet"
-        case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
@@ -36,6 +33,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessTransactions: return "Gasless transactions"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
+        case .expressAllTokensSearch: return "Express All Tokens Search"
         }
     }
 
@@ -44,8 +42,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
-        case .mobileWallet: return .version("5.32")
-        case .wcSolanaALT: return .version("5.28")
         case .accounts: return .version("5.33")
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
@@ -53,6 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessTransactions: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
+        case .expressAllTokensSearch: return .version("5.34")
         }
     }
 }
