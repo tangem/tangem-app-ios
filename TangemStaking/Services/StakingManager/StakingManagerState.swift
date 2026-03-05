@@ -14,7 +14,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
     case notEnabled
     case loadingError(String, cached: CachedStakingManagerState? = nil)
     // When we turn off the YieldInfo in the admin panel
-    case temporaryUnavailable(StakingYieldInfo)
+    case temporaryUnavailable(StakingYieldInfo, cached: CachedStakingManagerState? = nil)
     case availableToStake(StakingYieldInfo)
     case staked(Staked)
 
@@ -22,7 +22,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         switch self {
         case .loading, .notEnabled, .loadingError:
             return nil
-        case .temporaryUnavailable(let yieldInfo), .availableToStake(let yieldInfo):
+        case .temporaryUnavailable(let yieldInfo, _), .availableToStake(let yieldInfo):
             return yieldInfo
         case .staked(let staked):
             return staked.yieldInfo

@@ -240,7 +240,27 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
-        throw "Not implemented"
+        try MockEarnProvider().loadEarnList()
+    }
+
+    func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
+        try MockEarnProvider().loadEarnNetworks()
+    }
+}
+
+private struct MockEarnProvider {
+    private static let decoder: JSONDecoder = {
+        let d = JSONDecoder()
+        d.keyDecodingStrategy = .convertFromSnakeCase
+        return d
+    }()
+
+    func loadEarnList() throws -> EarnDTO.List.Response {
+        try JsonUtils.readBundleFile(with: "earnTokens", type: EarnDTO.List.Response.self, decoder: Self.decoder)
+    }
+
+    func loadEarnNetworks() throws -> EarnDTO.Networks.Response {
+        try JsonUtils.readBundleFile(with: "earnNetworks", type: EarnDTO.Networks.Response.self, decoder: Self.decoder)
     }
 }
 
