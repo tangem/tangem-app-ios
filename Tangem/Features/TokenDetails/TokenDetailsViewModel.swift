@@ -165,6 +165,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .closeMobileUpgrade,
              .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
@@ -512,10 +513,13 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
-        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,

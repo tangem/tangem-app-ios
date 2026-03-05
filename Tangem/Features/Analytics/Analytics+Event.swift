@@ -118,6 +118,8 @@ extension Analytics {
         case apyClicked = "[Main Screen] APY Clicked"
         case mainButtonAccountShowTokens = "[Main Screen] Button - Account Show Tokens"
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
+        case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
+        case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
 
         // MARK: - Send
 
@@ -262,6 +264,7 @@ extension Analytics {
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
+        case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
         // MARK: - Referral program
 
@@ -304,6 +307,9 @@ extension Analytics {
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
         case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
         case swapFeeSelected = "[Swap] Fee Selected"
+
+        case swapTokenSelected = "[Swap] Token Selected"
+        case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
 
         // MARK: - Seed phrase
 
@@ -493,6 +499,9 @@ extension Analytics {
         case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
         case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
         case marketsChartPopupGetTokenButtonLater = "[Markets / Chart] Popup Get token - Button Later"
+        case marketsChartAddTokenScreenOpened = "[Markets / Chart] Add Token Screen Opened"
+        case marketsChartButtonAddToken = "[Markets / Chart] Button - Add Token"
+        case marketsChartTokenAdded = "[Markets / Chart] Token Added"
 
         // MARK: - Manage Tokens
 
