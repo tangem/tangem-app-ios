@@ -67,6 +67,7 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampDataRepository: some OnrampDataRepository,
         onrampRepository: some OnrampRepository,
         analyticsLogger: some OnrampSendAnalyticsLogger,
+        autoupdatingTimer: AutoupdatingTimer,
         predefinedValues: OnrampModel.PredefinedValues
     ) -> OnrampModel {
         OnrampModel(
@@ -77,6 +78,7 @@ extension OnrampFlowBaseDependenciesFactory {
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
             analyticsLogger: analyticsLogger,
+            autoupdatingTimer: autoupdatingTimer,
             predefinedValues: predefinedValues
         )
     }
