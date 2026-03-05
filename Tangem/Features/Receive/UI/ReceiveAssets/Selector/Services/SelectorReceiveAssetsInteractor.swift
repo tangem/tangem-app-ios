@@ -15,24 +15,31 @@ protocol SelectorReceiveAssetsInteractor {
     var addressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { get }
     var notificationsPublisher: AnyPublisher<[NotificationViewInput], Never> { get }
 
-    func update()
     func hasDomainNameAddresses() -> Bool
 }
 
 class CommonSelectorReceiveAssetsInteractor {
     // MARK: - Private Properties
 
-    private let _addressTypesSubject: CurrentValueSubject<[ReceiveAddressType], Never> = .init([])
-    private let _notificationsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
-
-    private let notificationInputs: [NotificationViewInput]
-    private let addressTypes: [ReceiveAddressType]
+    private let _addressTypesSubject: CurrentValueSubject<[ReceiveAddressType], Never>
+    private let _notificationsSubject: CurrentValueSubject<[NotificationViewInput], Never>
+    private var addressTypesSubscription: AnyCancellable?
 
     // MARK: - Init
 
-    init(notificationInputs: [NotificationViewInput] = [], addressTypes: [ReceiveAddressType]) {
-        self.notificationInputs = notificationInputs
-        self.addressTypes = addressTypes
+    init(
+        addressTypesProvider: ReceiveAddressTypesProvider,
+        notificationInputs: [NotificationViewInput]
+    ) {
+        _addressTypesSubject = .init([])
+        _notificationsSubject = .init(notificationInputs)
+        bind(to: addressTypesProvider)
+    }
+
+    private func bind(to addressTypesProvider: ReceiveAddressTypesProvider) {
+        addressTypesSubscription = addressTypesProvider
+            .receiveAddressTypesPublisher
+            .subscribe(_addressTypesSubject)
     }
 }
 
@@ -45,11 +52,6 @@ extension CommonSelectorReceiveAssetsInteractor: SelectorReceiveAssetsInteractor
 
     var notificationsPublisher: AnyPublisher<[NotificationViewInput], Never> {
         _notificationsSubject.eraseToAnyPublisher()
-    }
-
-    func update() {
-        _addressTypesSubject.send(addressTypes)
-        _notificationsSubject.send(notificationInputs)
     }
 
     func hasDomainNameAddresses() -> Bool {
