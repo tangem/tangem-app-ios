@@ -174,6 +174,8 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/994'/0'/0"
         case .scroll:
             return "m/44'/534352'/0'/0/0"
+        case .monad:
+            return "m/44'/268435779'/0'/0/0"
         }
     }
 }
