@@ -95,6 +95,29 @@ fi
 # 3. Setup WireMock
 echo "🐳 Setting up WireMock..."
 ./scripts/ci/ui-tests/setup-docker.sh
+
+# Ensure DOCKER_HOST is set if symlink creation failed
+# Check if Docker is accessible at default socket
+if ! docker info &>/dev/null; then
+  echo "Docker not accessible at default socket, finding Colima socket..."
+  COLIMA_SOCKET="$HOME/.colima/default/docker.sock"
+  if [ ! -S "$COLIMA_SOCKET" ]; then
+    COLIMA_SOCKET=$(find "$HOME/.colima" -name "docker.sock" -type s 2>/dev/null | head -1)
+  fi
+  if [ -n "$COLIMA_SOCKET" ] && [ -S "$COLIMA_SOCKET" ]; then
+    export DOCKER_HOST="unix://$COLIMA_SOCKET"
+    echo "Set DOCKER_HOST=$DOCKER_HOST"
+    # Verify Docker is now accessible
+    if ! docker info &>/dev/null; then
+      echo "❌ ERROR: Docker still not accessible after setting DOCKER_HOST"
+      exit 1
+    fi
+  else
+    echo "❌ ERROR: Could not find Colima Docker socket"
+    exit 1
+  fi
+fi
+
 docker build -t tangem-wiremock -f "$WIREMOCK_PATH/Dockerfile" "$WIREMOCK_PATH/"
 ./scripts/ci/ui-tests/wiremock-start.sh
 
