@@ -50,11 +50,22 @@ public protocol GaslessTransactionFeeProvider {
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
 
-    /// Estimates the gasless fee for an approve transaction.
-    func getGaslessApproveFee(
+    /// Estimates the gasless fee for a transaction with pre-built calldata (approve, DEX swap, etc.).
+    func getGaslessTransactionFee(
         feeToken: Token,
-        approveData: Data,
-        contractAddress: String,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee
+
+    /// Estimates the gasless fee for a transaction using a pre-estimated gas limit.
+    func getEstimatedGaslessTransactionFee(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee

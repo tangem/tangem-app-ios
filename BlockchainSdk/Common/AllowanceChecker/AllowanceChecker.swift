@@ -94,10 +94,12 @@ public struct AllowanceChecker {
 
         let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
 
-        let fee = try await gaslessTransactionFeeProvider.getGaslessApproveFee(
+        let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
             feeToken: feeToken,
-            approveData: data,
-            contractAddress: contract,
+            destination: contract,
+            value: nil,
+            data: data,
+            otherNativeFee: nil,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate
         )
