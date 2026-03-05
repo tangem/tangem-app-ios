@@ -29,7 +29,6 @@ final class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var promotionCoordinator: PromotionCoordinator? = nil
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
 
@@ -43,7 +42,6 @@ final class WelcomeCoordinator: CoordinatorObject {
         // Only modals, because the modal presentation will not trigger onAppear/onDisappear events
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append(mailPresenterLifecycleSubject.eraseToAnyPublisher())
 
@@ -144,16 +142,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
                 }
             )
         }
-    }
-
-    func openPromotion() {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.promotionCoordinator = nil
-        }
-
-        let coordinator = PromotionCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .newUser)
-        promotionCoordinator = coordinator
     }
 
     func openTokensList() {

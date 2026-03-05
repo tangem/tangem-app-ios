@@ -45,9 +45,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.promotionCoordinator) {
-                PromotionCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.searchTokensViewModel) {
                 WelcomeSearchTokensView(viewModel: $0)
             }
