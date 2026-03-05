@@ -29,9 +29,7 @@ final class AccountDerivationManager {
             .userTokensPublisher
             .combineLatest(keysRepository.keysPublisher)
             .map { entries, keys in
-                return entries.compactMap { entry in
-                    PendingDerivationHelper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
-                }
+                entries.flatMap { PendingDerivationHelper.pendingDerivations(network: $0.blockchainNetwork, keys: keys) }
             }
             .eraseToAnyPublisher()
     }

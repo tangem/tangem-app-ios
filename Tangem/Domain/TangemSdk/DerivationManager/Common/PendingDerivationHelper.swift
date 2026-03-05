@@ -7,35 +7,41 @@
 //
 
 import Foundation
+import TangemFoundation
 import struct TangemSdk.DerivationPath
 
 /// Shares some common logic for PendingDerivation creation and processing between `Legacy` and `Accounts` modes.
 enum PendingDerivationHelper {
-    static func pendingDerivation(network: BlockchainNetwork, keys: [KeyInfo]) -> PendingDerivation? {
+    static func pendingDerivations(network: BlockchainNetwork, keys: [KeyInfo]) -> [PendingDerivation] {
         let curve = network.blockchain.curve
-
         let derivationPaths = network.derivationPaths()
-        guard let masterKey = keys.first(where: { $0.curve == curve }) else {
-            return nil
-        }
 
-        let pendingDerivationPaths = derivationPaths.filter { derivationPath in
-            !masterKey.derivedKeys.keys.contains { $0 == derivationPath }
-        }
-        guard pendingDerivationPaths.isNotEmpty else {
-            return nil
-        }
+        // In some rare edge cases (old wallets, etc) there might be multiple master keys with the same curve,
+        // so we need to check all of them and create pending derivations for each of them if needed.
+        return keys
+            .filter { $0.curve == curve }
+            .compactMap { masterKey in
+                guard let paths = pendingDerivationPaths(from: derivationPaths, for: masterKey).nilIfEmpty else {
+                    return nil
+                }
 
-        return PendingDerivation(
-            network: network,
-            masterKey: masterKey,
-            paths: pendingDerivationPaths
-        )
+                return PendingDerivation(
+                    network: network,
+                    masterKey: masterKey,
+                    paths: paths
+                )
+            }
     }
 
     static func pendingDerivationPathsKeyedByPublicKeys(_ derivations: [PendingDerivation]) -> [Data: [DerivationPath]] {
         return derivations.reduce(into: [:]) { dict, derivation in
             dict[derivation.masterKey.publicKey, default: []] += derivation.paths
+        }
+    }
+
+    private static func pendingDerivationPaths(from derivationPaths: [DerivationPath], for masterKey: KeyInfo) -> [DerivationPath] {
+        return derivationPaths.filter { derivationPath in
+            !masterKey.derivedKeys.keys.contains { $0 == derivationPath }
         }
     }
 }

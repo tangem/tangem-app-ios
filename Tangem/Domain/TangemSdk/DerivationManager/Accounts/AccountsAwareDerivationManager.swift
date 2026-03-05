@@ -27,9 +27,7 @@ final class AccountsAwareDerivationManager {
     }
 
     private func process(entries: [TokenItem], keys: [KeyInfo]) {
-        pendingDerivations = entries.compactMap { entry in
-            PendingDerivationHelper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
-        }
+        pendingDerivations = entries.flatMap { PendingDerivationHelper.pendingDerivations(network: $0.blockchainNetwork, keys: keys) }
     }
 
     /// - Note: The implementation is equivalent to `CommonDerivationManager.deriveKeys(completion:)`,
@@ -91,7 +89,7 @@ extension AccountsAwareDerivationManager: DerivationManager {
         }
 
         let keys = keysRepository.keys
-        let addingDerivations = networksToAdd.compactMap { PendingDerivationHelper.pendingDerivation(network: $0, keys: keys) }
+        let derivationsToAdd = networksToAdd.flatMap { PendingDerivationHelper.pendingDerivations(network: $0, keys: keys) }
 
         // Filter pending derivations by removing those that belong to networks scheduled for removal.
         // This ensures we only consider derivations that will still be relevant after the update.
@@ -99,7 +97,7 @@ extension AccountsAwareDerivationManager: DerivationManager {
 
         // Derivation is needed if the user adds networks requiring a card,
         // or if unresolved derivations remain for existing networks.
-        return addingDerivations.isNotEmpty || filteredPendingDerivations.isNotEmpty
+        return derivationsToAdd.isNotEmpty || filteredPendingDerivations.isNotEmpty
     }
 
     func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
