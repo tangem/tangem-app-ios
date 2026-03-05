@@ -14,17 +14,17 @@ struct StoriesView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.checkingPromotionAvailability {
+            if viewModel.checkingAvailability {
                 Color.black
                     .ignoresSafeArea()
                     .task {
-                        await viewModel.checkPromotion()
+                        await viewModel.checkInitialData()
                     }
             } else {
                 contentView
             }
         }
-        .animation(.default, value: viewModel.checkingPromotionAvailability)
+        .animation(.default, value: viewModel.checkingAvailability)
     }
 
     @ViewBuilder
@@ -55,10 +55,6 @@ struct StoriesView: View {
     @ViewBuilder
     func currentStoryPage() -> some View {
         switch viewModel.currentPage {
-        case WelcomeStoryPage.learn:
-            LearnAndEarnStoryPage(
-                learn: { viewModel.delegate?.openPromotion() }
-            )
         case WelcomeStoryPage.meetTangem:
             MeetTangemStoryPage(
                 progress: viewModel.currentProgress,
