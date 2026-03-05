@@ -15,8 +15,6 @@ class CommonSwapStepsManager {
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder
-    private let autoupdatingTimer: AutoupdatingTimer
-
     private var stack: [SendStep]
     private weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
@@ -27,7 +25,6 @@ class CommonSwapStepsManager {
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder,
-        autoupdatingTimer: AutoupdatingTimer,
         router: SendRoutable
     ) {
         self.summaryStep = summaryStep
@@ -35,7 +32,6 @@ class CommonSwapStepsManager {
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
         self.tokenSelectorBuilder = tokenSelectorBuilder
-        self.autoupdatingTimer = autoupdatingTimer
         self.router = router
 
         stack = [summaryStep]
@@ -95,7 +91,6 @@ extension CommonSwapStepsManager: SendStepsManager {
 
 extension CommonSwapStepsManager: SwapSummaryStepRoutable {
     func summaryStepRequestEditSourceToken(tokenItem: TokenItem) {
-        autoupdatingTimer.stopTimer()
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
             direction: .toDestination(tokenItem)
@@ -103,7 +98,6 @@ extension CommonSwapStepsManager: SwapSummaryStepRoutable {
     }
 
     func summaryStepRequestEditReceiveToken(tokenItem: TokenItem) {
-        autoupdatingTimer.stopTimer()
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
             direction: .fromSource(tokenItem)
@@ -111,12 +105,10 @@ extension CommonSwapStepsManager: SwapSummaryStepRoutable {
     }
 
     func summaryStepRequestEditFee() {
-        autoupdatingTimer.stopTimer()
         router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 
     func summaryStepRequestEditProviders() {
-        autoupdatingTimer.stopTimer()
         router?.openSwapProvidersSelector(viewModel: providersSelector)
     }
 }

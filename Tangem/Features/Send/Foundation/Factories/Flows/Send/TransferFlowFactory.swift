@@ -34,7 +34,7 @@ class TransferNFTFlowFactory: SendFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension TransferNFTFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let header = transferableToken.header.asSendTokenHeader(actionType: .send)
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
