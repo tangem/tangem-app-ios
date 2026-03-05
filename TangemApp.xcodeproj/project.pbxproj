@@ -4593,6 +4593,7 @@
 		EFC7AD6F2DD7889400AE78E1 /* SendDestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD6E2DD7889400AE78E1 /* SendDestinationView.swift */; };
 		EFC7AD732DD8BB7100AE78E1 /* SendDestinationStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD722DD8BB7100AE78E1 /* SendDestinationStep.swift */; };
 		EFC7AD752DD8BBB900AE78E1 /* SendDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD742DD8BBB900AE78E1 /* SendDestinationViewModel.swift */; };
+		EFC7C3102F58A8CF0097ED98 /* SendCoordinatorStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7C30F2F58A8CF0097ED98 /* SendCoordinatorStateProvider.swift */; };
 		EFC84B262C37FBB300546882 /* SendStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC84B1C2C37FBB200546882 /* SendStep.swift */; };
 		EFC84B2F2C37FF1E00546882 /* SendDestinationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC84B2E2C37FF1E00546882 /* SendDestinationRoutable.swift */; };
 		EFC990172CD3CC9C0098B7C8 /* ExpressBranch.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC990162CD3CC9C0098B7C8 /* ExpressBranch.swift */; };
@@ -9495,6 +9496,7 @@
 		EFC7AD6E2DD7889400AE78E1 /* SendDestinationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationView.swift; sourceTree = "<group>"; };
 		EFC7AD722DD8BB7100AE78E1 /* SendDestinationStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationStep.swift; sourceTree = "<group>"; };
 		EFC7AD742DD8BBB900AE78E1 /* SendDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationViewModel.swift; sourceTree = "<group>"; };
+		EFC7C30F2F58A8CF0097ED98 /* SendCoordinatorStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCoordinatorStateProvider.swift; sourceTree = "<group>"; };
 		EFC84B1C2C37FBB200546882 /* SendStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendStep.swift; sourceTree = "<group>"; };
 		EFC84B2E2C37FF1E00546882 /* SendDestinationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationRoutable.swift; sourceTree = "<group>"; };
 		EFC990162CD3CC9C0098B7C8 /* ExpressBranch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressBranch.swift; sourceTree = "<group>"; };
@@ -24139,6 +24141,7 @@
 		EF665E3B2CBD231300F79B87 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EFC7C30F2F58A8CF0097ED98 /* SendCoordinatorStateProvider.swift */,
 				0A0551D52F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift */,
 				EFA265A82EE9DBAF00F02EC7 /* UnstakingBalanceProvider.swift */,
 				EF1D1ADF2C272055000CB941 /* InformationRelevanceService.swift */,
@@ -27825,6 +27828,7 @@
 				0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */,
 				0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */,
 				EA87D9EB2F1281E3006519B9 /* EthEip7702Util.swift in Sources */,
+				EFC7C3102F58A8CF0097ED98 /* SendCoordinatorStateProvider.swift in Sources */,
 				DCE6BE9C2E140E70001DB530 /* ThirdParty+UniversalError.swift in Sources */,
 				30A654AD2EA9305600B90B25 /* ManageTokensContext.swift in Sources */,
 				B09C33D72D141D2F005CB730 /* VisaOnboardingViewModelsBuilder.swift in Sources */,
