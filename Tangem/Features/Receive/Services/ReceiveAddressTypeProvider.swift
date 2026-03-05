@@ -7,12 +7,10 @@
 //
 
 import Foundation
+import Combine
 
 // MARK: - Receive Addresses
 
 protocol ReceiveAddressTypesProvider {
-    var receiveAddressTypes: [ReceiveAddressType] { get }
-
-    /// Legacy using. Remove when remove ReceiveBottomSheetView
-    var receiveAddressInfos: [ReceiveAddressInfo] { get }
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { get }
 }
