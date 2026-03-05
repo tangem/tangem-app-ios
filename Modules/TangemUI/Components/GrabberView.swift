@@ -11,14 +11,36 @@ import TangemAccessibilityIdentifiers
 import TangemAssets
 
 public struct GrabberView: View {
-    public init() {}
+    private let style: Style
 
+    public init(style: Style = .default) {
+        self.style = style
+    }
+
+    @ViewBuilder
     public var body: some View {
-        Capsule(style: .continuous)
-            .fill(Color.Tangem.Graphic.Neutral.primaryInverted)
-            .frame(size: CGSize(width: 40, height: 4.0))
-            .padding(.vertical, 4)
-            .infinityFrame(axis: .horizontal)
-            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
+        switch style {
+        case .default:
+            Capsule(style: .continuous)
+                .fill(Colors.Icon.inactive)
+                .frame(size: CGSize(width: 32.0, height: 4.0))
+                .padding(.vertical, 8)
+                .infinityFrame(axis: .horizontal)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
+        case .redesigned:
+            Capsule(style: .continuous)
+                .fill(Color.Tangem.Graphic.Neutral.primaryInverted)
+                .frame(size: CGSize(width: 40, height: 4.0))
+                .padding(.vertical, 4)
+                .infinityFrame(axis: .horizontal)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
+        }
+    }
+}
+
+public extension GrabberView {
+    enum Style {
+        case `default`
+        case redesigned
     }
 }

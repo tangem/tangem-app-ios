@@ -29,17 +29,29 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
     var isScrollViewLocked: Bool { containerViewController?.isScrollViewLocked ?? false }
 
     func installOverlay(_ overlayView: some View) {
-        let overlayViewController = UIHostingController(
-            rootView: VStack(spacing: 0) {
-                GrabberView()
-                overlayView
-                    .mask {
-                        RoundedCorner(radius: cornerRadius, corners: .topEdge)
-                            .ignoresSafeArea(edges: .bottom)
+        let overlayViewController: UIViewController
+
+        if FeatureProvider.isAvailable(.redesign) {
+            let hostingController = UIHostingController(
+                rootView: VStack(spacing: 0) {
+                    GrabberView(style: .redesigned)
+                    overlayView
+                        .mask {
+                            RoundedCorner(radius: cornerRadius, corners: .topEdge)
+                                .ignoresSafeArea(edges: .bottom)
+                        }
+                }
+            )
+            hostingController.view.backgroundColor = .clear
+            overlayViewController = hostingController
+        } else {
+            overlayViewController = UIHostingController(
+                rootView: overlayView
+                    .overlay(alignment: .top) {
+                        GrabberView()
                     }
-            }
-        )
-        overlayViewController.view.backgroundColor = .clear
+            )
+        }
 
         containerViewController?.installOverlay(overlayViewController)
     }
