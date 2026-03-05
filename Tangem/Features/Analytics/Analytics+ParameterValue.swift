@@ -41,6 +41,9 @@ extension Analytics {
         case seedless = "Seedless"
         case seedphrase = "Seed phrase"
         case addNew = "Add New"
+        case portfolio = "Portfolio"
+        case mainScreen = "Main Screen"
+        case tokenScreen = "Token Screen"
 
         case card = "Card"
         case ring = "Ring"

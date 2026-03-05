@@ -31,5 +31,6 @@ public extension TangemPayOrderResponse {
         public let embossName: String?
         public let productInstanceId: String?
         public let paymentAccountId: String?
+        public let transactionHash: String?
     }
 }
