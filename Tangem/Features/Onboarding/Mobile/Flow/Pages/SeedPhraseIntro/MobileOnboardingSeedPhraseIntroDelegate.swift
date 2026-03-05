@@ -10,4 +10,5 @@ import Foundation
 
 protocol MobileOnboardingSeedPhraseIntroDelegate: AnyObject {
     func seedPhraseIntroContinue()
+    func seedPhraseIntroClose()
 }
