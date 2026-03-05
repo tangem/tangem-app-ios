@@ -21,7 +21,6 @@ enum StorageType: String {
     case saveAccessCodes = "tangem_save_access_codes"
     case systemDeprecationWarningDismissDate = "tangem_system_deprecation_warning_dismiss_date"
     case understandsAddressNetworkRequirements = "tangem_understands_address_network_requirements"
-    case promotionQuestionnaireFinished = "promotion_questionnaire_finished"
     case hideSensitiveInformation = "hide_sensitive_information"
     case hideSensitiveAvailable = "hide_sensitive_available"
     case shouldHidingSensitiveInformationSheetShowing = "should_hiding_sensitive_information_sheet_showing"
