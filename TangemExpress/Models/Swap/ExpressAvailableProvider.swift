@@ -11,15 +11,28 @@ import TangemFoundation
 
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
-    public var isBest: Bool
-    public var isAvailable: Bool
     public let manager: ExpressProviderManager
 
-    init(provider: ExpressProvider, isBest: Bool, isAvailable: Bool, manager: ExpressProviderManager) {
+    public var isBest: Bool { _isBest.read() }
+    public var isAvailable: Bool { _isAvailable.read() }
+
+    private let _isBest: ThreadSafeContainer<Bool>
+    private let _isAvailable: ThreadSafeContainer<Bool>
+
+    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool, isAvailable: Bool) {
         self.provider = provider
-        self.isBest = isBest
-        self.isAvailable = isAvailable
         self.manager = manager
+
+        _isBest = .init(isBest)
+        _isAvailable = .init(isAvailable)
+    }
+
+    func update(isBest: Bool) {
+        _isBest.mutate { $0 = isBest }
+    }
+
+    func update(isAvailable: Bool) {
+        _isAvailable.mutate { $0 = isAvailable }
     }
 
     public func getState() async -> ExpressProviderManagerState {

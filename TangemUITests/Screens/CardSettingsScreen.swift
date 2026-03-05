@@ -29,6 +29,14 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
         }
     }
 
+    func selectAccount(_ accName: String) -> AccountSettingsScreen {
+        XCTContext.runActivity(named: "Select account: \(accName)") { _ in
+            let accountButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: accName)]
+            accountButton.waitAndTap()
+            return AccountSettingsScreen(app)
+        }
+    }
+
     func openManageTokens() -> ManageTokensScreen {
         XCTContext.runActivity(named: "Open Manage tokens") { _ in
             manageTokensButton.waitAndTap()

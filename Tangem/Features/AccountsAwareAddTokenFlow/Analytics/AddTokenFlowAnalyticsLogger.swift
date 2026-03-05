@@ -13,6 +13,8 @@ protocol AddTokenFlowAnalyticsLogger: AddTokenAnalyticsLogger, GetTokenAnalytics
 
 protocol AddTokenAnalyticsLogger {
     func logTokenAdded(tokenItem: TokenItem, isMainAccount: Bool)
+    func logAddTokenButtonTapped()
+    func logAddTokenScreenOpened()
 }
 
 // MARK: - GetTokenAnalyticsLogger
