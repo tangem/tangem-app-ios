@@ -23,7 +23,7 @@ final class MobileOnboardingSeedPhraseIntroStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseIntroView(viewModel: viewModel)
     }
 }
