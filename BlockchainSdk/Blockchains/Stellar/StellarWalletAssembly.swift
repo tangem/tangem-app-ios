@@ -15,17 +15,20 @@ struct StellarWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         StellarSDK.networkingUtil = StellarSDKNetworkingUtilImpl()
 
-        return StellarWalletManager(wallet: input.wallet).then {
-            let blockchain = input.wallet.blockchain
-            let providers: [StellarNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig).resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
-                StellarNetworkProvider(
-                    isTestnet: blockchain.isTestnet,
-                    stellarSdk: .init(withHorizonUrl: nodeInfo.link)
-                )
-            }
+        let blockchain = input.wallet.blockchain
+        let apiList = APIList(dictionaryLiteral: (blockchain.networkId, input.networkInput.apiInfo))
 
-            $0.txBuilder = StellarTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, isTestnet: input.wallet.blockchain.isTestnet)
-            $0.networkService = StellarNetworkService(providers: providers)
+        let serviceFactory = WalletNetworkServiceFactory(
+            blockchainSdkKeysConfig: input.networkInput.keysConfig,
+            tangemProviderConfig: input.networkInput.tangemProviderConfig,
+            apiList: apiList
+        )
+
+        let networkService: StellarNetworkService = try serviceFactory.makeServiceWithType(for: blockchain)
+
+        return StellarWalletManager(wallet: input.wallet).then {
+            $0.txBuilder = StellarTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, isTestnet: blockchain.isTestnet)
+            $0.networkService = networkService
         }
     }
 }

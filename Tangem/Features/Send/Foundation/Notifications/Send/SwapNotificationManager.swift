@@ -170,8 +170,8 @@ private extension CommonSwapNotificationManager {
         case .restriction(.notEnoughBalanceForSwapping, _):
             return []
 
-        case .restriction(.validationError(let validationError, let context), _):
-            if let event = mapValidationError(source: source, validationError: validationError, context: context) {
+        case .restriction(.validationError(let validationError), _):
+            if let event = mapValidationError(source: source, validationError: validationError) {
                 return [event]
             }
 
@@ -237,7 +237,7 @@ private extension CommonSwapNotificationManager {
         }
     }
 
-    func mapValidationError(source: any SendSourceToken, validationError: ValidationError, context: ValidationErrorContext) -> SwapNotificationEvent? {
+    func mapValidationError(source: any SendSourceToken, validationError: ValidationError) -> SwapNotificationEvent? {
         let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
@@ -271,7 +271,7 @@ private extension CommonSwapNotificationManager {
              .koinosInsufficientBalanceToSendKoin,
              .destinationMemoRequired,
              .noTrustlineAtDestination:
-            return .validationErrorEvent(event: validationErrorEvent, context: context)
+            return .validationErrorEvent(event: validationErrorEvent)
         }
     }
 }
