@@ -10,22 +10,65 @@ private let AutoupdateTimerLogger = AppLogger.tag("AutoupdateTimer")
 
 final class AutoupdatingTimer {
     private var refreshDataTask: Task<Void, Error>?
+    private var refreshAction: (() -> Void)?
+    private var isPaused: Bool = true
 
-    func restartTimer(refresh: @escaping () -> Void) {
-        AutoupdateTimerLogger.info("Start timer")
+    deinit {
+        AutoupdateTimerLogger.debug("deinit")
+        stopTimer()
+    }
 
-        refreshDataTask?.cancel()
-        refreshDataTask = Task {
-            try await Task.sleep(for: .seconds(10))
-            try Task.checkCancellation()
+    func setup(refresh: (() -> Void)?) {
+        refreshAction = refresh
 
-            AutoupdateTimerLogger.info("Timer call autoupdate")
-            refresh()
+        switch refreshAction {
+        case .none: stopTimer()
+        case .some where !isPaused: startTimer()
+        // Wait until it resumed
+        case .some: break
         }
     }
 
-    func stopTimer() {
-        AutoupdateTimerLogger.info("Stop timer")
+    func pauseTimer() {
+        guard !isPaused else {
+            return
+        }
+
+        isPaused = true
+        stopTimer()
+    }
+
+    func resumeTimer() {
+        guard isPaused else { return }
+        isPaused = false
+
+        let hasAction = refreshAction != nil
+        guard hasAction else { return }
+
+        startTimer()
+    }
+
+    private func startTimer() {
+        let hasAction = refreshAction != nil
+        AutoupdateTimerLogger.info("Start timer isPaused: \(isPaused) hasAction: \(hasAction)")
+
         refreshDataTask?.cancel()
+        refreshDataTask = Task { [weak self] in
+            try await Task.sleep(for: .seconds(10))
+            try Task.checkCancellation()
+
+            AutoupdateTimerLogger.info("Timer call refresh action")
+            self?.refreshAction?()
+        }
+    }
+
+    private func stopTimer() {
+        guard refreshDataTask != nil else { return }
+
+        let hasAction = refreshAction != nil
+        AutoupdateTimerLogger.info("Stop timer isPaused: \(isPaused) hasAction: \(hasAction)")
+
+        refreshDataTask?.cancel()
+        refreshDataTask = nil
     }
 }

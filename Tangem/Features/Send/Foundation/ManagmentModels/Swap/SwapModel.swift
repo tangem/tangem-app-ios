@@ -78,6 +78,7 @@ final class SwapModel {
         if shouldStartInitialLoading {
             Task { await initialLoading() }
         }
+
         setupAutoupdatingTimerSubscription()
     }
 
@@ -103,14 +104,17 @@ extension SwapModel {
 
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
-        case .loaded(_, .some, .requiredRefresh), .loaded(_, .some, .restriction):
-            autoupdatingTimer.stopTimer()
-        case .loaded(_, .some, _):
-            autoupdatingTimer.restartTimer { [weak self] in
+        // Use timer to check pending transactions
+        case .loaded(_, .some, .restriction(.hasPendingTransaction, _)),
+             .loaded(_, .some, .restriction(.hasPendingApproveTransaction, _)),
+             .loaded(_, .some, .previewCEX),
+             .loaded(_, .some, .readyToSwap):
+
+            autoupdatingTimer.setup { [weak self] in
                 self?.autoupdatingRates()
             }
         default:
-            autoupdatingTimer.stopTimer()
+            autoupdatingTimer.setup(refresh: .none)
         }
     }
 }
@@ -889,10 +893,6 @@ extension SwapModel: SendFeeInput {
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
-    func userDidDismissFeeSelection() {
-        updateFees()
-    }
-
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
         tokenFeeProvidersManager?.update(feeOption: feeOption)

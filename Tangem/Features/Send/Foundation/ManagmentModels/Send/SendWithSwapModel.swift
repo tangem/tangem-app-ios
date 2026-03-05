@@ -637,14 +637,6 @@ extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension SendWithSwapModel: FeeSelectorOutput {
-    func userDidDismissFeeSelection() {
-        if isSwapMode {
-            swapModel.userDidDismissFeeSelection()
-        } else {
-            transferModel.userDidDismissFeeSelection()
-        }
-    }
-
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         if isSwapMode {
             swapModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
