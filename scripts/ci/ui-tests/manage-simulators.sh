@@ -269,50 +269,30 @@ if [ $BOOT_FAILURES -gt 0 ]; then
   fi
 fi
 
-# Post-boot settle time: let the OS schedule daemon startups before we start polling
+# Verify each simulator has fully completed its boot sequence using Apple's bootstatus API.
+# This replaces the fragile launchctl-based daemon check that doesn't work reliably
+# across all Xcode/macOS versions and CI environments.
 BOOTED_COUNT=$((FOUND_COUNT - BOOT_FAILURES))
-SETTLE_TIME=$((BOOTED_COUNT * 5))
-if [ $SETTLE_TIME -lt 15 ]; then SETTLE_TIME=15; fi
-if [ $SETTLE_TIME -gt 60 ]; then SETTLE_TIME=60; fi
-echo "Waiting ${SETTLE_TIME}s for $BOOTED_COUNT simulator(s) to settle before daemon checks..."
-sleep $SETTLE_TIME
-
-# Verify system daemons are responsive on each simulator (SEQUENTIAL).
-# Running checks one at a time avoids piling I/O on the already-stressed system —
-# 8 parallel launchctl print calls can exceed timeouts when load avg is 900+.
-echo "Verifying system daemon readiness..."
-DAEMON_FAILURES=0
-DAEMON_FAILED_UDIDS=""
+echo "Verifying boot completion for $BOOTED_COUNT simulator(s) via simctl bootstatus..."
+BOOT_CHECK_FAILURES=0
+BOOT_CHECK_FAILED_UDIDS=""
 for UDID in $SIMULATOR_UDIDS; do
-  MAX_RETRIES=15
-  RETRY=0
-  DAEMON_FOUND=false
-  while [ $RETRY -lt $MAX_RETRIES ]; do
-    DAEMON_OUTPUT=$(run_with_timeout 30 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
-    if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
-      echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
-      DAEMON_FOUND=true
-      break
-    fi
-    RETRY=$((RETRY + 1))
-    echo "Simulator $UDID: waiting for system daemons (attempt $RETRY/$MAX_RETRIES)..."
-    sleep 3
-  done
-  if [ "$DAEMON_FOUND" = "false" ]; then
-    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts"
-    DAEMON_FAILURES=$((DAEMON_FAILURES + 1))
-    DAEMON_FAILED_UDIDS="$DAEMON_FAILED_UDIDS $UDID"
+  echo "Checking boot status for $UDID..."
+  if run_with_timeout 120 xcrun simctl bootstatus "$UDID" 2>&1; then
+    echo "Simulator $UDID: fully booted and ready"
+  else
+    echo "WARNING: Simulator $UDID failed boot status check"
+    BOOT_CHECK_FAILURES=$((BOOT_CHECK_FAILURES + 1))
+    BOOT_CHECK_FAILED_UDIDS="$BOOT_CHECK_FAILED_UDIDS $UDID"
   fi
 done
 
-# Sequential recovery for simulators that failed daemon checks.
-# One at a time to avoid overloading the machine (thundering herd prevention).
-if [ $DAEMON_FAILURES -gt 0 ]; then
-  echo "Attempting SEQUENTIAL recovery for $DAEMON_FAILURES failed simulator(s)..."
-  RECOVERED_UDIDS=""
+# Recovery: erase + reboot simulators that failed boot status, one at a time
+if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
+  echo "Attempting SEQUENTIAL recovery for $BOOT_CHECK_FAILURES failed simulator(s)..."
   PERMANENTLY_FAILED_UDIDS=""
 
-  for UDID in $DAEMON_FAILED_UDIDS; do
+  for UDID in $BOOT_CHECK_FAILED_UDIDS; do
     echo "--- Recovering simulator $UDID ---"
 
     echo "  Shutting down..."
@@ -326,45 +306,26 @@ if [ $DAEMON_FAILURES -gt 0 ]; then
     echo "  Booting..."
     run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
 
-    echo "  Waiting 10s for simulator to settle..."
-    sleep 10
-
-    # Recheck daemon after recovery
-    RECOVERY_OK=false
-    RECOVERY_RETRIES=10
-    for r in $(seq 1 $RECOVERY_RETRIES); do
-      DAEMON_OUTPUT=$(run_with_timeout 30 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
-      if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
-        echo "  Simulator $UDID: recovered after erase+reboot (attempt $r)"
-        RECOVERY_OK=true
-        break
-      fi
-      echo "  Simulator $UDID: recovery daemon check $r/$RECOVERY_RETRIES..."
-      sleep 3
-    done
-
-    if [ "$RECOVERY_OK" = "true" ]; then
-      RECOVERED_UDIDS="$RECOVERED_UDIDS $UDID"
+    echo "  Waiting for boot completion..."
+    if run_with_timeout 120 xcrun simctl bootstatus "$UDID" 2>&1; then
+      echo "  Simulator $UDID: recovered after erase+reboot"
     else
       echo "  ERROR: Simulator $UDID permanently failed recovery"
       PERMANENTLY_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS $UDID"
     fi
   done
 
-  # Update failure tracking: only permanently failed simulators count
-  DAEMON_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS"
-  DAEMON_FAILURES=$(echo "$PERMANENTLY_FAILED_UDIDS" | wc -w | tr -d ' ')
-  RECOVERED_COUNT=$(echo "$RECOVERED_UDIDS" | wc -w | tr -d ' ')
-
-  echo "Recovery complete: $RECOVERED_COUNT recovered, $DAEMON_FAILURES permanently failed"
+  BOOT_CHECK_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS"
+  BOOT_CHECK_FAILURES=$(echo "$PERMANENTLY_FAILED_UDIDS" | wc -w | tr -d ' ')
+  echo "Recovery complete: $BOOT_CHECK_FAILURES permanently failed"
 fi
 
-if [ $DAEMON_FAILURES -gt 0 ]; then
-  echo "WARNING: $DAEMON_FAILURES simulator(s) have unresponsive system daemons"
+if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
+  echo "WARNING: $BOOT_CHECK_FAILURES simulator(s) failed boot verification"
 
   # Exclude unhealthy simulators from pool
   echo "Excluding unhealthy simulators and rebuilding pool..."
-  for FAILED_UDID in $DAEMON_FAILED_UDIDS; do
+  for FAILED_UDID in $BOOT_CHECK_FAILED_UDIDS; do
     echo "Shutting down unhealthy simulator $FAILED_UDID..."
     run_with_timeout 15 xcrun simctl shutdown "$FAILED_UDID" 2>/dev/null || true
   done
@@ -376,7 +337,7 @@ if [ $DAEMON_FAILURES -gt 0 ]; then
   NEW_INDEX=0
   for UDID in $SIMULATOR_UDIDS; do
     IS_FAILED=false
-    for FAILED_UDID in $DAEMON_FAILED_UDIDS; do
+    for FAILED_UDID in $BOOT_CHECK_FAILED_UDIDS; do
       if [ "$UDID" = "$FAILED_UDID" ]; then
         IS_FAILED=true
         break
