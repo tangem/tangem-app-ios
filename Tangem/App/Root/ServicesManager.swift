@@ -47,6 +47,7 @@ final class CommonServicesManager {
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
+    @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -123,12 +124,6 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearCachedFiles()
         }
 
-        if arguments.contains("-uitest-disable-mobile-wallet") {
-            FeatureStorage.instance.availableFeatures[.mobileWallet] = .off
-        } else {
-            FeatureStorage.instance.availableFeatures[.mobileWallet] = .on
-        }
-
         UITestsStorageCleaner.clearWalletData()
 
         UIView.setAnimationsEnabled(false)
@@ -183,6 +178,7 @@ extension CommonServicesManager: ServicesManager {
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
+        mobileUpgradeBannerStorageManager.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
