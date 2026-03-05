@@ -167,6 +167,13 @@ extension GeneralNotificationEvent: NotificationEvent {
         }
     }
 
+    var colorTheme: NotificationView.ColorTheme {
+        switch self {
+        case .mobileUpgrade: .dark
+        default: .system
+        }
+    }
+
     var icon: NotificationView.MessageIcon {
         switch self {
         case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
@@ -190,7 +197,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 36, height: 36))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner.image), size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon.image), size: CGSize(width: 54, height: 54))
         }
@@ -316,10 +323,13 @@ extension GeneralNotificationEvent: NotificationEvent {
                 ),
             ])
         case .mobileUpgrade:
-            guard let tapAction else {
+            guard let buttonAction else {
                 break
             }
-            return .tappable(hasChevron: false, action: tapAction)
+            return .withButtons([
+                .init(action: buttonAction, actionType: .closeMobileUpgrade, isWithLoader: false),
+                .init(action: buttonAction, actionType: .openMobileUpgrade, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -351,7 +361,7 @@ extension GeneralNotificationEvent {
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
         case .mobileFinishActivation: return .noticeFinishActivation
-        case .mobileUpgrade: return nil
+        case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         }
     }

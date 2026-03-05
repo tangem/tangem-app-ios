@@ -8,6 +8,7 @@
 
 import Combine
 import TangemLocalization
+import TangemUI
 
 struct AccountSelectorAccountItem: Identifiable {
     let id: AnyHashable
@@ -16,7 +17,7 @@ struct AccountSelectorAccountItem: Identifiable {
     let icon: AccountModel.Icon
     let domainModel: any CryptoAccountModel
     let userWalletModel: any UserWalletModel
-    let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
+    let formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
     let availability: AccountAvailability
 }
 

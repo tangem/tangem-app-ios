@@ -9,11 +9,13 @@
 import Foundation
 import Combine
 import UIKit
+import TangemUI
 
 class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -26,10 +28,12 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var mainTokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
     @Published var newsPagerViewModel: NewsPagerViewModel?
     @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var earnListCoordinator: EarnCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -136,14 +140,45 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     // MARK: - Earn
 
-    func openEarnTokenDetails(for token: EarnTokenModel) {
-        // [REDACTED_TODO_COMMENT]
-        // For now, this is a placeholder. Number of task did not completed.
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution) {
+        switch resolution {
+        case .toAdd(let token, let userWalletModels):
+            openAddEarnToken(for: token, userWalletModels: userWalletModels)
+        case .alreadyAdded(let walletModel, let userWalletModel):
+            openMainTokenDetails(walletModel: walletModel, with: userWalletModel)
+        }
     }
 
-    func openSeeAllEarnWidget() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
+    private func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
+        let configuration = EarnAddTokenFlowConfigurationFactory.make(
+            earnToken: token,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            let viewModel = AccountsAwareAddTokenFlowViewModel(
+                userWalletModels: userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel]) {
+        let coordinator = EarnCoordinator(
+            dismissAction: { [weak self] in
+                self?.earnListCoordinator = nil
+            },
+            routeOnEarnTokenResolvedAction: { [weak self] resolution in
+                self?.routeOnTokenResolved(resolution)
+            }
+        )
+
+        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
+
+        earnListCoordinator = coordinator
     }
 
     // MARK: - Private Implementation
@@ -163,6 +198,50 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
 
         self.marketsSearchCoordinator = marketsSearchCoordinator
+    }
+}
+
+// MARK: - EarnAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+
+extension MarketsCoordinator: EarnAddTokenRoutable {
+    func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
+        openMainTokenDetails(walletModel: walletModel, with: userWalletModel)
+    }
+
+    func close() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+
+    func presentSuccessToast(with text: String) {
+        Toast(view: SuccessToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
+
+    func presentErrorToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
+
+    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainTokenDetailsCoordinator = nil
+        }
+
+        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
+
+        mainTokenDetailsCoordinator = coordinator
     }
 }
 
@@ -191,5 +270,11 @@ extension MarketsCoordinator: NewsDetailsRoutable {
         )
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         newsPagerTokenDetailsCoordinator = coordinator
+    }
+}
+
+private extension MarketsCoordinator {
+    enum ToastConstants {
+        static let topPadding: CGFloat = 52
     }
 }

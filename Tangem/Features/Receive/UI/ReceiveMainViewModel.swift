@@ -79,20 +79,8 @@ class ReceiveMainViewModel: ObservableObject {
             return .yieldTokenAlert(viewModel: vm)
         }
 
-        if isNeedDisplayTokenAlert() {
-            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
-            return .tokenAlert(viewModel: viewModel)
-        }
-
-        return .selector(viewModel: selectorViewModel)
-    }
-
-    func isNeedDisplayTokenAlert() -> Bool {
-        if receiveTokenWithdrawNoticeInteractor.shouldShowWithdrawalAlert(for: options.tokenItem) {
-            return true
-        }
-
-        return false
+        let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
+        return .tokenAlert(viewModel: viewModel)
     }
 }
 

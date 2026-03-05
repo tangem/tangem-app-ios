@@ -136,7 +136,7 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
 
     func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel {
         itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) { [weak self] in
-            self?.output?.usedDidSelect(item: item)
+            self?.output?.userDidSelect(item: item)
         }
     }
 

@@ -27,6 +27,7 @@ struct SendCurrencyView: View {
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .alignment(.leading)
+                .disabled(viewModel.isInputDisabled)
                 .offset(x: isShaking ? 10 : 0)
                 .simultaneousGesture(TapGesture().onEnded {
                     viewModel.textFieldDidTapped()

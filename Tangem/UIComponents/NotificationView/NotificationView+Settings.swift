@@ -131,6 +131,12 @@ extension NotificationView {
         }
     }
 
+    enum ColorTheme {
+        case system
+        case light
+        case dark
+    }
+
     enum LeadingIconType {
         case image(Image)
         case icon(TokenIconInfo)

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 private struct AccessCodeFeature: Identifiable, Hashable {
     let id = UUID()
@@ -63,6 +64,7 @@ struct OnboardingAccessCodeView: View {
                 .padding(.horizontal, 50)
                 .lineLimit(2)
                 .id("title_\(viewModel.state.rawValue)")
+                .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.title)
 
             if let hint = viewModel.state.hint {
                 Text(hint)
@@ -116,6 +118,7 @@ struct OnboardingAccessCodeView: View {
                 password: viewModel.state == .inputCode ? $viewModel.firstEnteredCode : $viewModel.secondEnteredCode,
                 onCommit: {}
             )
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.accessCodeInputField)
             .frame(height: 46)
 
             Text(viewModel.error.description)

@@ -24,10 +24,17 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressPair(response: ExpressDTO.Swap.Pairs.Response) -> ExpressPair {
-        ExpressPair(
+        let providers = response.providers.map { provider in
+            let rates = provider.rateTypes
+                .compactMap { ExpressProviderRateType(rawValue: $0.rawValue) }
+
+            return ExpressPairProvider(id: provider.providerId, rates: rates)
+        }
+
+        return ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
             destination: mapToExpressCurrency(currency: response.to),
-            providers: response.providers.map { .init($0.providerId) }
+            providers: providers
         )
     }
 
@@ -88,6 +95,11 @@ struct ExpressAPIMapper {
 
         guard request.toAddress.caseInsensitiveCompare(txDetails.payoutAddress) == .orderedSame else {
             throw ExpressAPIMapperError.payoutAddressNotEqual
+        }
+
+        // Validate payout extra id matches what we sent (case-sensitive for memos)
+        if request.toExtraId != txDetails.payoutExtraId {
+            throw ExpressAPIMapperError.payoutExtraIdNotEqual
         }
 
         guard var fromAmount = Decimal(string: response.fromAmount) else {
@@ -266,6 +278,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case mapToDecimalError(_ string: String)
     case requestIdNotEqual
     case payoutAddressNotEqual
+    case payoutExtraIdNotEqual
     case wrongProviderType
 
     var errorDescription: String? {
@@ -273,6 +286,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .mapToDecimalError(let value): "Wrong decimal value \(value)"
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
+        case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .wrongProviderType: "Provider type is not support"
         }
     }

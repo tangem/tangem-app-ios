@@ -17,13 +17,12 @@ struct MarketsPortfolioTokenItemView: View {
     @State private var textBlockSize: CGSize = .zero
 
     var body: some View {
-        CustomDisclosureGroup(isExpanded: isExpanded) {
-            viewModel.showContextActions()
-        } prompt: {
-            tokenView
-        } expandedView: {
-            quickActionsView
-        }
+        CustomDisclosureGroup(
+            isExpanded: isExpanded,
+            prompt: { tokenView },
+            expandedView: { quickActionsView },
+            actionOnClick: viewModel.showContextActions
+        )
     }
 
     private var tokenView: some View {
@@ -62,7 +61,7 @@ struct MarketsPortfolioTokenItemView: View {
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                             .hidden(true)
                     } else {
-                        LoadableTokenBalanceView(
+                        LoadableBalanceView(
                             state: viewModel.balanceFiat,
                             style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                             loader: .init(size: .init(width: 40, height: 12))
@@ -84,7 +83,7 @@ struct MarketsPortfolioTokenItemView: View {
                     Spacer(minLength: Constants.spacerLength)
 
                     if !viewModel.hasError {
-                        LoadableTokenBalanceView(
+                        LoadableBalanceView(
                             state: viewModel.balanceCrypto,
                             style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                             loader: .init(size: .init(width: 40, height: 12))

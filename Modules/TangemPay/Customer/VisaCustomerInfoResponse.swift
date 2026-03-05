@@ -56,7 +56,7 @@ public extension VisaCustomerInfoResponse {
     struct PaymentAccount: Decodable {
         public let id: String
         public let customerWalletAddress: String
-        public let address: String
+        public let address: String?
     }
 
     struct KYCInfo: Decodable, Identifiable, Equatable {

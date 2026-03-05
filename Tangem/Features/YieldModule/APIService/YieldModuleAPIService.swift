@@ -25,7 +25,10 @@ protocol YieldModuleAPIService {
 
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
-    func sendTransactionEvent(txHash: String, operation: String) async throws
+
+    /// Sends a transaction event to the backend.
+    /// UserAddress is sent only if the user enabled push notifications, therefore optional.
+    func sendTransactionEvent(txHash: String, operation: String, userAddress: String?) async throws
 }
 
 extension YieldModuleAPIService {

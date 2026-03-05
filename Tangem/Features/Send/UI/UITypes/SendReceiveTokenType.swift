@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemMacro
 
+@CaseFlagable
 enum SendReceiveTokenType: Equatable {
     case same(SendSourceToken)
     case swap(SendReceiveToken)

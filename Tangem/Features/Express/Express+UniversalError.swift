@@ -58,11 +58,13 @@ extension CommonExpressAvailabilityProvider.Error: UniversalError {
     }
 }
 
-extension ExpressDEXTransactionProcessorError: UniversalError {
+extension DEXTransactionDispatcherError: UniversalError {
     var errorCode: Int {
         switch self {
         case .transactionDataForSwapOperationNotFound:
             103005000
+        case .dexNotSupported:
+            103005001
         }
     }
 }
