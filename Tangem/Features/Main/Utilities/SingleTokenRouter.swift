@@ -55,8 +55,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openOnramp(walletModel: any WalletModel) {
         let input = makeSendInput(for: walletModel)
-        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-        coordinator?.openOnramp(input: input, parameters: parameters)
+        coordinator?.openOnramp(input: input, parameters: .none)
     }
 
     func openSend(walletModel: any WalletModel) {
