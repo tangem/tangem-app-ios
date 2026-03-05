@@ -15,6 +15,5 @@ protocol StoriesDelegate: AnyObject {
     func createWallet()
     func scanCard()
     func orderCard()
-    func openPromotion()
     func openTokenList()
 }
