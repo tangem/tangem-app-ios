@@ -86,6 +86,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
+    private var mainBottomSheetHideTooltipSubscription: AnyCancellable?
 
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
@@ -154,6 +155,16 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                 }
                 .sink { previous, _ in
                     previous?.didDismissSheet()
+                }
+        }
+
+        if mainBottomSheetHideTooltipSubscription == nil {
+            mainBottomSheetHideTooltipSubscription = mainBottomSheetUIManager.isShownPublisher
+                .pairwise()
+                .filter { previous, current in previous && !current }
+                .receiveOnMain()
+                .sink { [weak self] _ in
+                    self?.hideMarketsTooltip()
                 }
         }
     }
