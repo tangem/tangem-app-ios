@@ -34,11 +34,11 @@ for i in $(seq 1 $SIMULATOR_COUNT); do
   WIREMOCK_PORT=$((8080 + i))
   (
     echo "Waiting for WireMock on port $WIREMOCK_PORT..."
-    for attempt in {1..15}; do  # Reduced from 20 to 15 for faster startup
+    for attempt in $(seq 1 40); do
       HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$WIREMOCK_PORT/__admin/mappings" 2>/dev/null || echo "000")
       if [ "$HTTP_CODE" = "200" ]; then
         MAPPING_COUNT=$(curl -s "http://localhost:$WIREMOCK_PORT/__admin/mappings" | jq '.meta.total' 2>/dev/null || echo "unknown")
-        echo "✅ WireMock $i ready! Mappings loaded: $MAPPING_COUNT"
+        echo "✅ WireMock $i ready! Mappings loaded: $MAPPING_COUNT (attempt $attempt)"
 
         # Additional health check - test a sample endpoint
         HEALTH_CHECK=$(curl -s "http://localhost:$WIREMOCK_PORT/__admin/health" | jq '.status' 2>/dev/null || echo "unknown")
@@ -47,13 +47,13 @@ for i in $(seq 1 $SIMULATOR_COUNT); do
         fi
         exit 0
       fi
-      if [ "$attempt" = "15" ]; then
-        echo "❌ ERROR: WireMock $i failed to start after 15 attempts!"
+      if [ "$attempt" = "40" ]; then
+        echo "❌ ERROR: WireMock $i failed to start after 40 attempts (40s)!"
         echo "Container logs:"
         docker logs wiremock-$i 2>/dev/null || echo "No logs available"
         exit 1
       fi
-      sleep 0.3  # Reduced from 0.5 to 0.3 for faster startup
+      sleep 1
     done
   ) &
   HEALTH_PIDS+=($!)

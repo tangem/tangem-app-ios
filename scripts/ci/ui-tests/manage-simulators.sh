@@ -269,25 +269,56 @@ if [ $BOOT_FAILURES -gt 0 ]; then
   fi
 fi
 
+# Post-boot settle time: let the OS schedule daemon startups before we start polling
+BOOTED_COUNT=$((FOUND_COUNT - BOOT_FAILURES))
+SETTLE_TIME=$((BOOTED_COUNT * 2))
+if [ $SETTLE_TIME -lt 10 ]; then SETTLE_TIME=10; fi
+if [ $SETTLE_TIME -gt 30 ]; then SETTLE_TIME=30; fi
+echo "Waiting ${SETTLE_TIME}s for $BOOTED_COUNT simulator(s) to settle before daemon checks..."
+sleep $SETTLE_TIME
+
 # Verify system daemons are responsive on each simulator (PARALLEL)
 echo "Verifying system daemon readiness..."
 DAEMON_STATUS_DIR=$(mktemp -d)
 for UDID in $SIMULATOR_UDIDS; do
   (
-    MAX_RETRIES=15
+    MAX_RETRIES=30
     RETRY=0
     while [ $RETRY -lt $MAX_RETRIES ]; do
       DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
       if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
-        echo "Simulator $UDID: SpringBoard daemon is running"
+        echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
         echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
         exit 0
       fi
       RETRY=$((RETRY + 1))
       echo "Simulator $UDID: waiting for system daemons (attempt $RETRY/$MAX_RETRIES)..."
-      sleep 2
+      sleep 3
     done
-    echo "WARNING: Simulator $UDID system daemons did not become ready after $MAX_RETRIES attempts"
+
+    # Daemon check timed out — attempt recovery: shutdown -> erase -> reboot -> recheck
+    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts. Attempting recovery..."
+    run_with_timeout 15 xcrun simctl shutdown "$UDID" 2>/dev/null || true
+    sleep 2
+    run_with_timeout 15 xcrun simctl erase "$UDID" 2>/dev/null || true
+    sleep 2
+    run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
+    sleep 5
+
+    # Recheck after recovery
+    RECOVERY_RETRIES=10
+    for r in $(seq 1 $RECOVERY_RETRIES); do
+      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
+      if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
+        echo "Simulator $UDID: recovered after erase+reboot (attempt $r)"
+        echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
+        exit 0
+      fi
+      echo "Simulator $UDID: recovery daemon check $r/$RECOVERY_RETRIES..."
+      sleep 3
+    done
+
+    echo "ERROR: Simulator $UDID failed daemon recovery"
     echo "fail" > "$DAEMON_STATUS_DIR/$UDID"
   ) &
 done
@@ -295,33 +326,95 @@ wait
 
 # Check daemon readiness results
 DAEMON_FAILURES=0
+DAEMON_FAILED_UDIDS=""
 for UDID in $SIMULATOR_UDIDS; do
   if [ -f "$DAEMON_STATUS_DIR/$UDID" ]; then
     if [ "$(cat "$DAEMON_STATUS_DIR/$UDID")" = "fail" ]; then
       DAEMON_FAILURES=$((DAEMON_FAILURES + 1))
+      DAEMON_FAILED_UDIDS="$DAEMON_FAILED_UDIDS $UDID"
     fi
   else
     echo "WARNING: No daemon status recorded for $UDID"
     DAEMON_FAILURES=$((DAEMON_FAILURES + 1))
+    DAEMON_FAILED_UDIDS="$DAEMON_FAILED_UDIDS $UDID"
   fi
 done
 rm -rf "$DAEMON_STATUS_DIR"
 
 if [ $DAEMON_FAILURES -gt 0 ]; then
   echo "WARNING: $DAEMON_FAILURES simulator(s) have unresponsive system daemons"
+
+  # Exclude unhealthy simulators from pool
+  echo "Excluding unhealthy simulators and rebuilding pool..."
+  for FAILED_UDID in $DAEMON_FAILED_UDIDS; do
+    echo "Shutting down unhealthy simulator $FAILED_UDID..."
+    run_with_timeout 15 xcrun simctl shutdown "$FAILED_UDID" 2>/dev/null || true
+  done
+
+  # Rebuild SIMULATOR_UDIDS, PORT_MAPPING, DEVICES_YAML excluding failed simulators
+  NEW_SIMULATOR_UDIDS=""
+  NEW_PORT_MAPPING=""
+  NEW_DEVICES_YAML=""
+  NEW_INDEX=0
+  for UDID in $SIMULATOR_UDIDS; do
+    IS_FAILED=false
+    for FAILED_UDID in $DAEMON_FAILED_UDIDS; do
+      if [ "$UDID" = "$FAILED_UDID" ]; then
+        IS_FAILED=true
+        break
+      fi
+    done
+    if [ "$IS_FAILED" = "false" ]; then
+      NEW_SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS $UDID"
+      if [ -n "$NEW_PORT_MAPPING" ]; then
+        NEW_PORT_MAPPING="$NEW_PORT_MAPPING,$UDID:$NEW_INDEX"
+      else
+        NEW_PORT_MAPPING="$UDID:$NEW_INDEX"
+      fi
+      NEW_DEVICES_YAML=$(printf '%s\n      - type: simulator\n        udid: "%s"' "$NEW_DEVICES_YAML" "$UDID")
+      NEW_INDEX=$((NEW_INDEX + 1))
+    fi
+  done
+
+  SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS"
+  PORT_MAPPING="$NEW_PORT_MAPPING"
+  DEVICES_YAML="$NEW_DEVICES_YAML"
+
+  HEALTHY_COUNT=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
+  echo "Healthy simulator pool: $HEALTHY_COUNT simulator(s)"
+
+  if [ "$HEALTHY_COUNT" -eq 0 ]; then
+    echo "ERROR: Zero healthy simulators remaining. Cannot proceed."
+    exit 1
+  fi
 fi
 
 # Warm up SpringBoard on each simulator to prevent "Application failed preflight checks" / "Busy" errors
 # This forces SpringBoard to complete its initialization before Marathon sends test batches
 echo "Warming up SpringBoard on simulators..."
 WARMUP_FAILURES=0
+WARMUP_MAX_ATTEMPTS=3
 for UDID in $SIMULATOR_UDIDS; do
   echo "Warming up $UDID..."
-  if run_with_timeout 15 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
-    sleep 1
-    run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-  else
-    echo "WARNING: Failed to launch Preferences on $UDID — SpringBoard may not be fully initialized"
+  WARMUP_SUCCESS=false
+  for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
+    if run_with_timeout 20 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
+      sleep 1
+      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
+      WARMUP_SUCCESS=true
+      if [ "$attempt" -gt 1 ]; then
+        echo "Simulator $UDID: warmup succeeded on attempt $attempt"
+      fi
+      break
+    else
+      echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
+      if [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ]; then
+        sleep 5
+      fi
+    fi
+  done
+  if [ "$WARMUP_SUCCESS" = "false" ]; then
+    echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
     WARMUP_FAILURES=$((WARMUP_FAILURES + 1))
   fi
 done
@@ -338,13 +431,25 @@ fi
 
 # Final verification: ensure all simulators can respond to simctl commands
 echo "Final system readiness verification..."
+FINAL_FAILURES=0
 for UDID in $SIMULATOR_UDIDS; do
   if run_with_timeout 10 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
     echo "Simulator $UDID: responsive"
   else
     echo "WARNING: Simulator $UDID is NOT responsive to spawn commands"
+    FINAL_FAILURES=$((FINAL_FAILURES + 1))
   fi
 done
+
+TOTAL_POOL=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
+PASSING=$((TOTAL_POOL - FINAL_FAILURES))
+if [ "$PASSING" -eq 0 ]; then
+  echo "ERROR: No simulators passed final verification. Cannot proceed."
+  exit 1
+fi
+if [ "$FINAL_FAILURES" -gt 0 ]; then
+  echo "WARNING: $FINAL_FAILURES/$TOTAL_POOL simulator(s) failed final verification ($PASSING healthy)"
+fi
 
 echo "=== Booted simulators ==="
 xcrun simctl list devices booted
