@@ -341,6 +341,10 @@ extension SwapModel {
             return .restriction(restriction, quote: quote)
         }
 
+        if let memoRequiredRestriction = try validateMemoRequired() {
+            return .restriction(memoRequiredRestriction, quote: quote)
+        }
+
         let withdrawalNotificationProvider = source.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
 
@@ -361,10 +365,7 @@ extension SwapModel {
         }
 
         let feeTokenItem = try provider.getTokenFeeProvidersManager().selectedFeeProvider.feeTokenItem
-        let subtractFee = SubtractFee(
-            feeTokenItem: feeTokenItem,
-            subtractFee: previewCEX.subtractFee
-        )
+        let subtractFee = SubtractFee(feeTokenItem: feeTokenItem, subtractFee: previewCEX.subtractFee)
 
         let previewCEXState = PreviewCEXState(
             quote: quote,
@@ -378,8 +379,6 @@ extension SwapModel {
     }
 
     func validate(amount: Amount, fee: Fee) throws -> RestrictionType? {
-        let isFeeCurrency = fee.amount.type == amount.type
-
         do {
             let source = try _sourceToken.value.get()
             let transactionValidator = source.expressTransactionValidator
@@ -387,10 +386,10 @@ extension SwapModel {
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .notEnoughBalanceForSwapping(requiredAmount: amount.value)
         } catch ValidationError.feeExceedsBalance {
+            let isFeeCurrency = fee.amount.type == amount.type
             return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
         } catch let error as ValidationError {
-            let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
-            return .validationError(error: error, context: validationErrorContext)
+            return .validationError(error: error)
         } catch {
             ExpressLogger.error(error: "Not expected error: \(error)")
             throw error
@@ -398,6 +397,18 @@ extension SwapModel {
 
         // All good
         return nil
+    }
+
+    func validateMemoRequired() throws -> RestrictionType? {
+        let receive = try _receiveToken.value.get()
+
+        let destination = receive.destination
+        switch destination?.destination {
+        case .resolved(_, _, memoRequired: true) where destination?.destinationTag == nil:
+            return .validationError(error: .destinationMemoRequired)
+        default:
+            return nil
+        }
     }
 
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> BSDKAmount {
@@ -1246,7 +1257,7 @@ extension SwapModel.LoadedState: CustomStringConvertible {
     var description: String {
         switch self {
         case .idle: "idle"
-        case .requiredRefresh: "requiredRefresh"
+        case .requiredRefresh(let error, _): "requiredRefresh(\(error))"
         case .restriction(let restriction, _): "restriction(\(restriction))"
         case .permissionRequired: "permissionRequired"
         case .readyToSwap: "readyToSwap"
@@ -1325,7 +1336,7 @@ extension SwapModel {
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
         case notEnoughAmountForFee(isFeeCurrency: Bool)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
-        case validationError(error: ValidationError, context: ValidationErrorContext)
+        case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
     }
 
