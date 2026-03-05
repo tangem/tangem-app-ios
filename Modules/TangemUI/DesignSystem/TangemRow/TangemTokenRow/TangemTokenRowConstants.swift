@@ -17,23 +17,23 @@ enum TangemTokenRowConstants {
         }
 
         enum FiatBalance {
-            static let font: Font = .Tangem.subheadline
+            static let font: Font = .Tangem.Body15.semibold
             static let integerColor: Color = .Tangem.Text.Neutral.primary
             static let decimalColor: Color = .Tangem.Text.Neutral.secondary
         }
 
         enum TokenPrice {
-            static let font: Font = .Tangem.caption1
+            static let font: Font = .Tangem.Caption12.regular
             static let color: Color = .Tangem.Text.Neutral.tertiary
         }
 
         enum CryptoBalance {
-            static let font: Font = .Tangem.caption1
+            static let font: Font = .Tangem.Caption12.regular
             static let color: Color = .Tangem.Text.Neutral.tertiary
         }
 
         enum PriceChange {
-            static let font: Font = .Tangem.caption1
+            static let font: Font = .Tangem.Caption12.regular
         }
     }
 
