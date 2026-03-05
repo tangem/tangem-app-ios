@@ -9,6 +9,7 @@
 import TangemSdk
 import BlockchainSdk
 import CryptoKit
+import TangemFoundation
 
 extension CardDTO {
     var walletSignedHashes: Int {
@@ -16,6 +17,6 @@ extension CardDTO {
     }
 
     var walletCurves: [EllipticCurve] {
-        wallets.map { $0.curve }
+        wallets.uniqueProperties(\.curve)
     }
 }

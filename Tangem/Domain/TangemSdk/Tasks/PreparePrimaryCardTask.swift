@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
@@ -97,7 +98,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
                 // We can use createWalletCurves for validation here because of the new setup
                 let validator = CurvesValidator(expectedCurves: self.curves)
 
-                if validator.validate(response.wallets.map { $0.curve }) {
+                if validator.validate(response.wallets.uniqueProperties(\.curve)) {
                     self.readPrimaryCardIfNeeded(in: session, completion: completion)
                 } else {
                     completion(.failure(.walletAlreadyCreated))
