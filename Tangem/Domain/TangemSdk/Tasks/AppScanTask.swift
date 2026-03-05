@@ -51,19 +51,24 @@ struct AppScanTaskResponse {
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
+    var preflightReadMode: PreflightReadMode { shouldCheckAccessCode ? .fullCardReadWithAccessCodeCheck : .fullCardRead }
+
     let shouldAskForAccessCode: Bool
 
     private let performDerivations: Bool
+    private let shouldCheckAccessCode: Bool
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
     private var linkingCommand: StartPrimaryCardLinkingCommand?
 
     init(
         shouldAskForAccessCode: Bool = false,
-        performDerivations: Bool = true
+        performDerivations: Bool = true,
+        shouldCheckAccessCode: Bool = false
     ) {
         self.shouldAskForAccessCode = shouldAskForAccessCode
         self.performDerivations = performDerivations
+        self.shouldCheckAccessCode = shouldCheckAccessCode
     }
 
     deinit {
@@ -290,52 +295,11 @@ final class AppScanTask: CardSessionRunnable {
         scanTask.run(in: session) { result in
             switch result {
             case .success:
-                self.checkIfActivated(session, completion)
+                self.complete(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
         }
-    }
-
-    private func checkIfActivated(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        guard let plainCard = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
-            return
-        }
-
-        let card = CardDTO(card: plainCard)
-        let config = config(for: card)
-
-        if let userWalletId = UserWalletId(config: config) {
-            if card.isAccessCodeSet, shouldWarnWalletActivated(for: userWalletId) {
-                session.pause()
-                session.viewDelegate.setState(.empty)
-                let alert = AlertBuilder.makeActivatedCardAlertController {
-                    self.complete(session, completion)
-                } supportAction: {
-                    let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
-                    let mailViewModel = MailViewModel(
-                        logsComposer: logsComposer,
-                        recipient: EmailConfig.default.recipient,
-                        emailType: .activatedCard
-                    )
-
-                    let mailPresenter: MailComposePresenter = InjectedValues[\.mailComposePresenter]
-                    Task { @MainActor in
-                        mailPresenter.present(viewModel: mailViewModel)
-                    }
-
-                    completion(.failure(.userCancelled))
-                } cancelAction: {
-                    completion(.failure(.userCancelled))
-                }
-
-                AppPresenter.shared.show(alert)
-                return
-            }
-        }
-
-        complete(session, completion)
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -354,10 +318,5 @@ final class AppScanTask: CardSessionRunnable {
     private func config(for card: CardDTO) -> UserWalletConfig {
         let cardInfo = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
         return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
-    }
-
-    private func shouldWarnWalletActivated(for userWalletId: UserWalletId) -> Bool {
-        let helper = PersistentStorageAppScanTaskHelper(userWalletId: userWalletId)
-        return helper.shouldWarnWalletActivated()
     }
 }

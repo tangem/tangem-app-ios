@@ -222,7 +222,9 @@ private extension TopMarketWidgetViewModel {
 
     // MARK: - Actions
 
-    private func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+    func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+        analyticsService.logMarketsChartScreenOpened(tokenSymbol: tokenItemModel.symbol)
+
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
         }
