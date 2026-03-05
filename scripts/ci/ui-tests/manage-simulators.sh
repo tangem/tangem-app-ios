@@ -271,55 +271,39 @@ fi
 
 # Post-boot settle time: let the OS schedule daemon startups before we start polling
 BOOTED_COUNT=$((FOUND_COUNT - BOOT_FAILURES))
-SETTLE_TIME=$((BOOTED_COUNT * 2))
-if [ $SETTLE_TIME -lt 10 ]; then SETTLE_TIME=10; fi
-if [ $SETTLE_TIME -gt 30 ]; then SETTLE_TIME=30; fi
+SETTLE_TIME=$((BOOTED_COUNT * 5))
+if [ $SETTLE_TIME -lt 15 ]; then SETTLE_TIME=15; fi
+if [ $SETTLE_TIME -gt 60 ]; then SETTLE_TIME=60; fi
 echo "Waiting ${SETTLE_TIME}s for $BOOTED_COUNT simulator(s) to settle before daemon checks..."
 sleep $SETTLE_TIME
 
-# Verify system daemons are responsive on each simulator (PARALLEL check only)
-# NOTE: Recovery is done SEQUENTIALLY after this phase to avoid thundering herd —
-# 8 concurrent erase+boot operations can spike load avg to 900+ and exhaust memory.
+# Verify system daemons are responsive on each simulator (SEQUENTIAL).
+# Running checks one at a time avoids piling I/O on the already-stressed system —
+# 8 parallel launchctl print calls can exceed timeouts when load avg is 900+.
 echo "Verifying system daemon readiness..."
-DAEMON_STATUS_DIR=$(mktemp -d)
-for UDID in $SIMULATOR_UDIDS; do
-  (
-    MAX_RETRIES=30
-    RETRY=0
-    while [ $RETRY -lt $MAX_RETRIES ]; do
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
-      if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
-        echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
-        echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
-        exit 0
-      fi
-      RETRY=$((RETRY + 1))
-      echo "Simulator $UDID: waiting for system daemons (attempt $RETRY/$MAX_RETRIES)..."
-      sleep 3
-    done
-
-    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts"
-    echo "fail" > "$DAEMON_STATUS_DIR/$UDID"
-  ) &
-done
-wait
-
-# Check daemon readiness results
 DAEMON_FAILURES=0
 DAEMON_FAILED_UDIDS=""
 for UDID in $SIMULATOR_UDIDS; do
-  if [ -f "$DAEMON_STATUS_DIR/$UDID" ]; then
-    if [ "$(cat "$DAEMON_STATUS_DIR/$UDID")" = "fail" ]; then
-      DAEMON_FAILURES=$((DAEMON_FAILURES + 1))
-      DAEMON_FAILED_UDIDS="$DAEMON_FAILED_UDIDS $UDID"
+  MAX_RETRIES=15
+  RETRY=0
+  DAEMON_FOUND=false
+  while [ $RETRY -lt $MAX_RETRIES ]; do
+    DAEMON_OUTPUT=$(run_with_timeout 30 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
+    if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
+      echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
+      DAEMON_FOUND=true
+      break
     fi
-  else
-    echo "WARNING: No daemon status recorded for $UDID"
+    RETRY=$((RETRY + 1))
+    echo "Simulator $UDID: waiting for system daemons (attempt $RETRY/$MAX_RETRIES)..."
+    sleep 3
+  done
+  if [ "$DAEMON_FOUND" = "false" ]; then
+    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts"
     DAEMON_FAILURES=$((DAEMON_FAILURES + 1))
     DAEMON_FAILED_UDIDS="$DAEMON_FAILED_UDIDS $UDID"
   fi
 done
-rm -rf "$DAEMON_STATUS_DIR"
 
 # Sequential recovery for simulators that failed daemon checks.
 # One at a time to avoid overloading the machine (thundering herd prevention).
@@ -349,7 +333,7 @@ if [ $DAEMON_FAILURES -gt 0 ]; then
     RECOVERY_OK=false
     RECOVERY_RETRIES=10
     for r in $(seq 1 $RECOVERY_RETRIES); do
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
+      DAEMON_OUTPUT=$(run_with_timeout 30 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
       if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
         echo "  Simulator $UDID: recovered after erase+reboot (attempt $r)"
         RECOVERY_OK=true
