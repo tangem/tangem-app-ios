@@ -261,15 +261,15 @@ extension NEARWalletManager: WalletManager {
 // MARK: - AddressResolver protocol conformance
 
 extension NEARWalletManager: AddressResolver {
-    func resolve(_ address: String) async throws -> String {
+    func resolve(_ address: String) async throws -> AddressResolverResult {
         // Implicit accounts don't require any modification or verification
         guard requiresResolution(address: address) else {
-            return address
+            return AddressResolverResult(resolved: address)
         }
 
         // Here we're verifying if the account with the given named account ID exists
         // and just throwing an error if it doesn't
-        return try await withCheckedThrowingContinuation { continuation in
+        let resolved: String = try await withCheckedThrowingContinuation { continuation in
             var getInfoSubscription: AnyCancellable?
 
             getInfoSubscription = networkService
@@ -295,6 +295,7 @@ extension NEARWalletManager: AddressResolver {
                     receiveValue: { _ in }
                 )
         }
+        return AddressResolverResult(resolved: resolved)
     }
 
     func requiresResolution(address: String) -> Bool {

@@ -13,20 +13,17 @@ struct SendReceiveTokensListBuilder {
 
     private let sourceTokenInput: any SendSourceTokenInput
     private let receiveTokenOutput: any SendReceiveTokenOutput
-    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: any SendReceiveTokensListAnalyticsLogger
 
     init(
         userWalletInfo: UserWalletInfo,
         sourceTokenInput: any SendSourceTokenInput,
         receiveTokenOutput: any SendReceiveTokenOutput,
-        receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: any SendReceiveTokensListAnalyticsLogger
     ) {
         self.userWalletInfo = userWalletInfo
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenOutput = receiveTokenOutput
-        self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
     }
 
@@ -50,7 +47,6 @@ struct SendReceiveTokensListBuilder {
             networks: networks,
             coin: coin,
             userWalletInfo: userWalletInfo,
-            receiveTokenBuilder: receiveTokenBuilder,
             analyticsLogger: analyticsLogger,
             router: router
         )

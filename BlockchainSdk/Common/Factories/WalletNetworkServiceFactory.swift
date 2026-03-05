@@ -48,7 +48,7 @@ extension WalletNetworkServiceFactory {
         case .litecoin:
             throw Error.notImplemeneted
         case .stellar:
-            throw Error.notImplemeneted
+            return makeStellarNetworkService(for: blockchain)
         case .ethereum,
              .ethereumClassic,
              .ethereumPoW,
@@ -110,7 +110,7 @@ extension WalletNetworkServiceFactory {
         case .cardano:
             throw Error.notImplemeneted
         case .xrp:
-            throw Error.notImplemeneted
+            return makeXRPNetworkService(for: blockchain)
         case .tezos:
             throw Error.notImplemeneted
         case .dogecoin:
@@ -236,6 +236,29 @@ private extension WalletNetworkServiceFactory {
         let networkService = NEARNetworkService(blockchain: blockchain, providers: providers)
 
         return networkService
+    }
+
+    /// XRP
+    func makeXRPNetworkService(for blockchain: Blockchain) -> XRPNetworkService {
+        let providers: [XRPNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                XRPNetworkProvider(node: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return XRPNetworkService(providers: providers)
+    }
+
+    /// Stellar
+    func makeStellarNetworkService(for blockchain: Blockchain) -> StellarNetworkService {
+        let providers: [StellarNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                StellarNetworkProvider(
+                    isTestnet: blockchain.isTestnet,
+                    stellarSdk: .init(withHorizonUrl: nodeInfo.link)
+                )
+            }
+
+        return StellarNetworkService(providers: providers)
     }
 
     /// Solana
