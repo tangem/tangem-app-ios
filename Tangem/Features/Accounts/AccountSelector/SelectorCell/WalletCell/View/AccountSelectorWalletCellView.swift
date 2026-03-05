@@ -34,8 +34,7 @@ struct AccountSelectorWalletCellButtonView: View {
     private var content: some View {
         HStack(spacing: 12) {
             walletImage
-                .frame(width: 36, height: 22)
-                .clipShape(RoundedRectangle(cornerRadius: 2))
+                .frame(size: .init(bothDimensions: 36.0))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.walletModel.name)
@@ -56,7 +55,6 @@ struct AccountSelectorWalletCellButtonView: View {
 
     private var walletImage: some View {
         unwrappedWalletIcon
-            .frame(width: 36, height: 36)
             .skeletonable(
                 isShown: viewModel.walletIcon.isLoading,
                 size: CGSize(width: 36, height: 22),
@@ -128,7 +126,7 @@ struct AccountSelectorWalletCellButtonView: View {
                 Text(AppConstants.dotSign)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: viewModel.fiatBalanceState,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                     loader: .init(size: CGSize(width: 40, height: 12))

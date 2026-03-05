@@ -17,9 +17,6 @@ struct AppSettingsCoordinatorView: CoordinatorView {
         if let rootViewModel = coordinator.rootViewModel {
             AppSettingsView(viewModel: rootViewModel)
                 .navigationLinks(links)
-        } else if let newRootViewModel = coordinator.newRootViewModel {
-            NewAppSettingsView(viewModel: newRootViewModel)
-                .navigationLinks(links)
         }
     }
 
