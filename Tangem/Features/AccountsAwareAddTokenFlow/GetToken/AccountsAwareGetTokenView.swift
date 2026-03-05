@@ -22,19 +22,23 @@ struct AccountsAwareGetTokenView: View {
                 .padding(.bottom, 14)
 
             VStack(spacing: 0) {
-                GetTokenActionRowView(
-                    icon: Assets.plus24,
-                    title: Localization.commonBuy,
-                    subtitle: Localization.buyTokenDescription
-                )
-                .asTappableRow { viewModel.handleViewEvent(.buyTapped) }
+                if viewModel.isBuyAvailable {
+                    GetTokenActionRowView(
+                        icon: Assets.plus24,
+                        title: Localization.commonBuy,
+                        subtitle: Localization.buyTokenDescription
+                    )
+                    .asTappableRow { viewModel.handleViewEvent(.buyTapped) }
+                }
 
-                GetTokenActionRowView(
-                    icon: Assets.exchangeMini,
-                    title: Localization.commonExchange,
-                    subtitle: Localization.exchangeTokenDescription
-                )
-                .asTappableRow { viewModel.handleViewEvent(.exchangeTapped) }
+                if viewModel.isExchangeAvailable {
+                    GetTokenActionRowView(
+                        icon: Assets.exchangeMini,
+                        title: Localization.commonExchange,
+                        subtitle: Localization.exchangeTokenDescription
+                    )
+                    .asTappableRow { viewModel.handleViewEvent(.exchangeTapped) }
+                }
 
                 GetTokenActionRowView(
                     icon: Assets.arrowDownMini,
