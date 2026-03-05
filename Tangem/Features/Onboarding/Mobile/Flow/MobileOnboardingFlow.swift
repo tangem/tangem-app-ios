@@ -13,6 +13,5 @@ enum MobileOnboardingFlow {
     case walletActivate(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
     case accessCode(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, context: MobileWalletContext)
     case seedPhraseBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
-    case seedPhraseBackupToUpgrade(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onContinue: () -> Void)
     case seedPhraseReveal(context: MobileWalletContext)
 }
