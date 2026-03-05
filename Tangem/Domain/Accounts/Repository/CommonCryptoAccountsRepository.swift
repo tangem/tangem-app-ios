@@ -624,7 +624,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     private static func cryptoAccount(
         forDerivationIndex derivationIndex: Int,
         from cryptoAccounts: [StoredCryptoAccount],
-        file: StaticString = #file,
+        file: StaticString = #fileID,
         line: UInt = #line
     ) -> StoredCryptoAccount {
         guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
