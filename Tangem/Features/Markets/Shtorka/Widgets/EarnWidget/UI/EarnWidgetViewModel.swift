@@ -21,6 +21,16 @@ final class EarnWidgetViewModel: ObservableObject {
     @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
     @Published private(set) var resultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
+    /// `true` when widget has content to display (loading, non-empty list, or error). `false` when list is empty.
+    var hasContent: Bool {
+        switch resultState {
+        case .loading, .failure:
+            return true
+        case .success(let tokenViewModels):
+            return !tokenViewModels.isEmpty
+        }
+    }
+
     let widgetType: MarketsWidgetType
 
     // MARK: - Properties
