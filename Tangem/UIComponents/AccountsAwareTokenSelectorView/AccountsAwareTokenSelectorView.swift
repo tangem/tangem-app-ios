@@ -19,6 +19,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
+    private var sectionHeaderConfiguration: AccountsAwareTokenSelectorViewModel.SectionHeaderConfiguration?
 
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
@@ -65,7 +66,11 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
         case .empty:
             emptyContentView
                 .transition(.move(edge: .top).combined(with: .opacity).animation(.easeInOut))
-        case .visible:
+        case .visible(let itemsCount):
+            if let sectionHeaderConfiguration {
+                sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
+            }
+
             LazyVStack(spacing: 8) {
                 ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
             }
@@ -76,6 +81,27 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 
         FixedSpacer(height: 12)
     }
+
+    private func sectionHeader(
+        configuration: AccountsAwareTokenSelectorViewModel.SectionHeaderConfiguration,
+        itemsCount: Int
+    ) -> some View {
+        let itemsCountToDisplay = viewModel.itemsCountToDisplay(configuration: configuration, itemsCount: itemsCount)
+
+        return HStack(spacing: 8) {
+            Text(configuration.title)
+                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+
+            if let itemsCountToDisplay {
+                Text("\(itemsCountToDisplay)")
+                    .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8)
+        .padding(.top, 8)
+        .padding(.bottom, 6)
+    }
 }
 
 // MARK: - Setupable
@@ -83,6 +109,10 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 extension AccountsAwareTokenSelectorView: Setupable {
     func searchType(_ searchType: SearchType) -> Self {
         map { $0.searchType = searchType }
+    }
+
+    func sectionHeader(_ configuration: AccountsAwareTokenSelectorViewModel.SectionHeaderConfiguration) -> Self {
+        map { $0.sectionHeaderConfiguration = configuration }
     }
 }
 
