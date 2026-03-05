@@ -82,6 +82,7 @@ struct DerivationConfigV3: DerivationConfig {
              .hyperliquidEVM,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return "m/44'/60'/0'/0/0"

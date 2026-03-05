@@ -16,9 +16,23 @@ struct SwapTokenSelectorView: View {
 
     var body: some View {
         NavigationStack {
-            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
-            }
+            AccountsAwareTokenSelectorView(
+                viewModel: viewModel.tokenSelectorViewModel,
+                emptyContentView: {
+                    SwapTokenSelectorEmptyContentView(
+                        marketsTokensViewModel: viewModel.marketsTokensViewModel,
+                        message: Localization.expressTokenListEmptySearch
+                    )
+                },
+                additionalContent: {
+                    if let viewModel = viewModel.marketsTokensViewModel {
+                        SwapMarketsTokensView(
+                            viewModel: viewModel
+                        )
+                    }
+                }
+            )
+            .sectionHeader(.init(title: Localization.swapYourAssetsTitle, showsItemsCount: true))
             .searchType(.native)
             .background(Colors.Background.tertiary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
@@ -27,6 +41,7 @@ struct SwapTokenSelectorView: View {
                 NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
             }
         }
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
 }
