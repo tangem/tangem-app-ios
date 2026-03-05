@@ -47,10 +47,9 @@ class BaseTestCase: XCTestCase {
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
-        disableMobileWallet: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
-        var arguments = ["--uitesting", "--alpha"]
+        var arguments: [String] = []
 
         arguments.append(contentsOf: [
             "-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue,
@@ -70,10 +69,6 @@ class BaseTestCase: XCTestCase {
 
         if clearStorage {
             arguments.append("-uitest-clear-storage")
-        }
-
-        if disableMobileWallet {
-            arguments.append("-uitest-disable-mobile-wallet")
         }
 
         app.launchArguments = arguments

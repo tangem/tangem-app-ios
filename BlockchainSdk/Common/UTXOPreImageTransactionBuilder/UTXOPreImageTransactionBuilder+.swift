@@ -59,7 +59,7 @@ extension UTXOPreImageTransactionBuilder where Self == BranchAndBoundPreImageTra
 
     static func radiant() -> Self {
         BranchAndBoundPreImageTransactionBuilder(
-            calculator: CommonUTXOTransactionSizeCalculator(network: CloreMainNetworkParams())
+            calculator: CommonUTXOTransactionSizeCalculator(network: RadiantNetworkParams())
         )
     }
 
