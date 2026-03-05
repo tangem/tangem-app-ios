@@ -13,15 +13,18 @@ import SwiftUI
 class SwapSummaryStep {
     private let viewModel: SwapSummaryViewModel
     private let interactor: SwapSummaryInteractor
+    private let autoupdatingTimer: AutoupdatingTimer
     private let analyticsLogger: SendSummaryAnalyticsLogger
 
     init(
         viewModel: SwapSummaryViewModel,
         interactor: SwapSummaryInteractor,
+        autoupdatingTimer: AutoupdatingTimer,
         analyticsLogger: SendSummaryAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.autoupdatingTimer = autoupdatingTimer
         self.analyticsLogger = analyticsLogger
     }
 
@@ -45,5 +48,10 @@ extension SwapSummaryStep: SendStep {
 
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
+        autoupdatingTimer.resumeTimer()
+    }
+
+    func willDisappear(next step: any SendStep) {
+        autoupdatingTimer.pauseTimer()
     }
 }

@@ -559,11 +559,6 @@ extension TransferModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension TransferModel: FeeSelectorOutput {
-    func userDidDismissFeeSelection() {
-        // Refresh fees after fee selection is dismissed
-        updateFees()
-    }
-
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         _sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
         _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
