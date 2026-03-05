@@ -70,7 +70,13 @@ extension TONCompiledTransaction: Decodable {
 
         // extract Cell
         let message = try container.decode(String.self, forKey: TONCompiledTransaction.CodingKeys.message)
-        let decodedMessage: [UInt8] = try message.base64Decoded()
+
+        guard let decodedMessage: [UInt8] = Data(base64Encoded: message)?.bytes else {
+            throw DecodingError.dataCorrupted(
+                .init(codingPath: [CodingKeys.message], debugDescription: "Message must be base64 encoded")
+            )
+        }
+
         let cells = try Cell.fromBoc(src: Data(decodedMessage))
 
         guard let cell = cells.first else {
@@ -135,23 +141,5 @@ private extension MessageRelaxed {
             )
         }
         return comment
-    }
-}
-
-private extension String {
-    /// Base64 encoding a string
-    func base64Encoded() -> String? {
-        if let data = data(using: .utf8) {
-            return data.base64EncodedString()
-        }
-        return nil
-    }
-
-    /// Base64 decoding a string
-    func base64Decoded() -> String? {
-        if let data = Data(base64Encoded: self) {
-            return String(data: data, encoding: .utf8)
-        }
-        return nil
     }
 }
