@@ -19,6 +19,7 @@ set -e
 SIM_OUTPUT_FILE="simulators_output.txt"
 WIREMOCK_LOG_FILE="wiremock_setup.log"
 DOCKER_HOST_FILE="docker_host.env"
+BUILD_LOG_FILE="build_for_marathon.log"
 
 # PIDs for background processes (used by trap)
 WIREMOCK_PID=""
@@ -33,7 +34,7 @@ cleanup_background() {
       kill "$PID" 2>/dev/null || true
     fi
   done
-  rm -f "$DOCKER_HOST_FILE" resource_monitor.log
+  rm -f "$DOCKER_HOST_FILE" "$BUILD_LOG_FILE" resource_monitor.log
   exit $exit_code
 }
 trap cleanup_background EXIT
@@ -53,7 +54,10 @@ echo "📊 Starting resource monitoring..."
 RESOURCE_MONITOR_PID=$!
 
 # 1. Start WireMock (Background — I/O-bound, doesn't compete with the build)
-echo "Starting WireMock Setup (Background)..."
+echo ""
+echo "========================================"
+echo "  PHASE 1: WireMock (Background)"
+echo "========================================"
 (
     # Run setup-docker.sh (starts Colima, creates /var/run/docker.sock symlink)
     ./scripts/ci/ui-tests/setup-docker.sh
@@ -92,13 +96,36 @@ echo "Starting WireMock Setup (Background)..."
 ) > "$WIREMOCK_LOG_FILE" 2>&1 & WIREMOCK_PID=$!
 
 # 2. Build App (Foreground — CPU + memory intensive, needs full resources)
-echo "Starting App Build (Foreground)..."
+echo ""
+echo "========================================"
+echo "  PHASE 2: App Build (Foreground)"
+echo "========================================"
 eval "$(rbenv init - bash)"
-bundle exec fastlane build_for_marathon
+set +e
+bundle exec fastlane build_for_marathon 2>&1 | tee "$BUILD_LOG_FILE"
+BUILD_EXIT=${PIPESTATUS[0]}
+set -e
+
+if [ $BUILD_EXIT -ne 0 ]; then
+    echo ""
+    echo "========================================"
+    echo "  ❌ APP BUILD FAILED (exit code $BUILD_EXIT)"
+    echo "========================================"
+    echo "Last 50 lines of build log:"
+    echo "----------------------------------------"
+    tail -50 "$BUILD_LOG_FILE"
+    echo "----------------------------------------"
+    rm -f "$BUILD_LOG_FILE"
+    exit $BUILD_EXIT
+fi
+rm -f "$BUILD_LOG_FILE"
 echo "✅ App Build Completed"
 
 # 3. Boot Simulators (Foreground, AFTER build — avoids resource contention)
-echo "Starting Simulator Setup (after build)..."
+echo ""
+echo "========================================"
+echo "  PHASE 3: Simulator Setup"
+echo "========================================"
 ORIGINAL_GITHUB_OUTPUT="${GITHUB_OUTPUT:-}"
 export GITHUB_OUTPUT="$PWD/$SIM_OUTPUT_FILE"
 set +e
@@ -108,7 +135,10 @@ set -e
 export GITHUB_OUTPUT="$ORIGINAL_GITHUB_OUTPUT"
 
 # 4. Wait for WireMock (should be done by now since it started during the build)
-echo "Waiting for WireMock..."
+echo ""
+echo "========================================"
+echo "  PHASE 4: Wait for WireMock"
+echo "========================================"
 set +e
 wait $WIREMOCK_PID
 WIREMOCK_EXIT=$?
