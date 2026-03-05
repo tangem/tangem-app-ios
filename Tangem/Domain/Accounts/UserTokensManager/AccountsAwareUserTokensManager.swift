@@ -426,8 +426,9 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         try userTokensRepository.performBatchUpdates { updater in
             removeInternal(itemsToRemove, using: updater)
             try addInternal(itemsToAdd, using: updater)
-            loadSwapAvailabilityStateIfNeeded(forceReload: true)
         }
+
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
     }
 
     func sync(completion: @escaping () -> Void) {
