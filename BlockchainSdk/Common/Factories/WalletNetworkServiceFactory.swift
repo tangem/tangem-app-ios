@@ -95,6 +95,7 @@ extension WalletNetworkServiceFactory {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma,
              .decimal,

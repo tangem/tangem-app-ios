@@ -589,7 +589,7 @@ extension EthereumWalletManager: TransactionSender {
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
-                walletManager.pendingTransactionsManager.addTransaction(transaction, hash: hash)
+                walletManager.pendingTransactionsManager.addTransactions([transaction], hashes: [hash])
                 return TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
@@ -606,15 +606,15 @@ extension EthereumWalletManager: MultipleTransactionsSender {
             .withWeakCaptureOf(self)
             .asyncMap { walletManager, rawTransactions in
                 var results: [TransactionSendResult] = []
-                for (transaction, rawTransaction) in zip(transactions, rawTransactions) {
+                for rawTransaction in rawTransactions {
                     let hash = try await walletManager.networkService
                         .send(transaction: rawTransaction)
                         .async()
 
-                    walletManager.pendingTransactionsManager.addTransaction(transaction, hash: hash)
-
                     results.append(TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost))
                 }
+
+                walletManager.pendingTransactionsManager.addTransactions(transactions, hashes: results.map(\.hash))
 
                 return results
             }
@@ -745,6 +745,6 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
 
 extension EthereumWalletManager: PendingTransactionRecordAdding {
     public func addPendingTransaction(_ transaction: Transaction, hash: String) {
-        pendingTransactionsManager.addTransaction(transaction, hash: hash)
+        pendingTransactionsManager.addTransactions([transaction], hashes: [hash])
     }
 }

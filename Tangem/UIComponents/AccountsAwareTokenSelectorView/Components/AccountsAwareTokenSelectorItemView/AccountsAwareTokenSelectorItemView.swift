@@ -42,7 +42,7 @@ struct AccountsAwareTokenSelectorItemView: View {
     private var primaryTrailingView: some View {
         switch viewModel.disabledReason {
         case .none:
-            LoadableTokenBalanceView(
+            LoadableBalanceView(
                 state: viewModel.fiatBalance,
                 style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                 loader: .init(size: .init(width: 40, height: 12))
@@ -57,7 +57,7 @@ struct AccountsAwareTokenSelectorItemView: View {
     private var secondaryTrailingView: some View {
         switch viewModel.disabledReason {
         case .none:
-            LoadableTokenBalanceView(
+            LoadableBalanceView(
                 state: viewModel.cryptoBalance,
                 style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))
