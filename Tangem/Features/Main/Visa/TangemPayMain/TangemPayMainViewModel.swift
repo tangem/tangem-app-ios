@@ -39,7 +39,7 @@ final class TangemPayMainViewModel: ObservableObject {
         settings: .init(event: TangemPayNotificationEvent.tangemPayIsNowBeta, dismissAction: nil)
     )
 
-    @Published private(set) var balance: LoadableTokenBalanceView.State
+    @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -366,7 +366,7 @@ private extension TangemPayMainViewModel {
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            cexTransactionProcessor: tangemPayAccount.expressCEXTransactionProcessor,
+            cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
             transactionValidator: TangemPayExpressTransactionValidator(
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             )

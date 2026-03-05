@@ -25,7 +25,7 @@ struct TangemPayPopupView: View {
                 VStack(spacing: 12) {
                     Text(viewModel.title)
                         .style(
-                            Fonts.BoldStatic.title3,
+                            Fonts.Bold.title3,
                             color: Colors.Text.primary1
                         )
                         .fixedSize(horizontal: false, vertical: true)
@@ -36,7 +36,7 @@ struct TangemPayPopupView: View {
                             return .handled
                         }))
                         .style(
-                            Fonts.RegularStatic.subheadline,
+                            Fonts.Regular.subheadline,
                             color: Colors.Text.secondary
                         )
                         .fixedSize(horizontal: false, vertical: true)
@@ -56,6 +56,9 @@ struct TangemPayPopupView: View {
                 NavigationBarButton
                     .close(action: viewModel.dismiss)
                     .padding(.top, 8)
+            }
+            .floatingSheetConfiguration { config in
+                config.backgroundInteractionBehavior = .tapToDismiss
             }
             .padding(.bottom, 12)
             .padding(.horizontal, 16)
