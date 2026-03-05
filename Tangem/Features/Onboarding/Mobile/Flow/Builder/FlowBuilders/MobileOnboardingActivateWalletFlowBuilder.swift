@@ -37,7 +37,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         self.userWalletModel = userWalletModel
         self.source = source
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: true)
     }
 
     override func setupFlow() {
@@ -58,19 +58,16 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
                 permissionManager: permissionManager,
                 delegate: self
             )
-            pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
             append(step: pushNotificationsStep)
         }
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
+            navigationTitle: Localization.commonDone,
             onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
         )
-        doneStep.configureNavBar(title: Localization.commonDone)
         append(step: doneStep)
-
-        setupProgress()
     }
 }
 
@@ -78,20 +75,17 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
 
 private extension MobileOnboardingActivateWalletFlowBuilder {
     func setupSeedPhraseBackupFlow() {
-        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(userWalletModel: userWalletModel, source: source, delegate: self)
-            .configureNavBar(
-                title: Localization.commonBackup,
-                leadingAction: .close(handler: { [weak self] in
-                    self?.logSeedPhraseIntroCloseAnalytics()
-                    self?.closeOnboarding()
-                })
-            )
+        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
+        )
         append(step: seedPhraseIntroStep)
 
-        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletModel: userWalletModel, source: source, delegate: self)
-        seedPhraseRecoveryStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
+        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
         )
         append(step: seedPhraseRecoveryStep)
 
@@ -100,14 +94,11 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             source: source,
             delegate: self
         )
-        seedPhraseValidationStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
-        )
         append(step: seedPhraseValidationStep)
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
+            navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
             },
@@ -116,13 +107,15 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
                 self?.openNext()
             }
         )
-        doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
     }
 
     func setupAccessCodeFlow() {
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create(canSkip: true), source: source, delegate: self)
-        accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(
+            mode: .create(canSkip: true),
+            source: source,
+            delegate: self
+        )
         append(step: accessCodeStep)
     }
 }
@@ -153,6 +146,11 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseI
     func seedPhraseIntroContinue() {
         openNext()
     }
+
+    func seedPhraseIntroClose() {
+        logSeedPhraseIntroCloseAnalytics()
+        closeOnboarding()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseRecoveryDelegate
@@ -160,6 +158,10 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseI
 extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseRecoveryDelegate {
     func seedPhraseRecoveryContinue() {
         openNext()
+    }
+
+    func onSeedPhraseRecoveryBack() {
+        back()
     }
 }
 
@@ -170,6 +172,10 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseV
         logSeedPhraseValidatedAnalytics()
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
+    }
+
+    func onSeedPhraseValidationBack() {
+        back()
     }
 }
 
@@ -183,6 +189,8 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingAccessCodeD
     func didCompleteAccessCode() {
         openNext()
     }
+
+    func onAccessCodeClose() {}
 }
 
 // MARK: - PushNotificationsPermissionRequestDelegate
