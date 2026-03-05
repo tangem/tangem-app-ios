@@ -58,10 +58,6 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
             feeOption: selectedTokenFeeOption
         )
     }
-
-    func userDidDismissFeeSelection() {
-        output?.userDidDismissFeeSelection()
-    }
 }
 
 // MARK: - FeeSelectorFeesDataProvider
