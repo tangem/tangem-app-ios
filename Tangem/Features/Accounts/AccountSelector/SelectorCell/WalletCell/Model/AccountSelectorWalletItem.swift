@@ -11,6 +11,7 @@ import TangemLocalization
 import Combine
 import TangemFoundation
 import TangemMacro
+import TangemUI
 
 struct AccountSelectorWalletItem: Identifiable, Equatable {
     let id: String
@@ -30,7 +31,7 @@ struct AccountSelectorWalletItem: Identifiable, Equatable {
             let id: String
             let tokensCount: String
             @IgnoredEquatable
-            var formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
+            var formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
         }
 
         struct LockedWallet: Equatable {

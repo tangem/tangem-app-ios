@@ -20,12 +20,6 @@ struct SendDestinationCompactView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             address
-
-            if let additionalField = viewModel.additionalField {
-                Text(additionalField)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                    .lineLimit(1)
-            }
         }
         .infinityFrame()
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
@@ -48,6 +42,13 @@ struct SendDestinationCompactView: View {
                         .lineLimit(1)
                         .multilineTextAlignment(.leading)
                         .truncationMode(.middle)
+                }
+
+                if let additionalField = viewModel.additionalField {
+                    Text(additionalField)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .padding(.top, 6) // extra space
                 }
             }
 
