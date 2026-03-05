@@ -19,5 +19,5 @@ protocol SendReceiveTokenAmountInput: AnyObject {
 }
 
 protocol SendReceiveTokenAmountOutput: AnyObject {
-    func receiveAmountDidChanged(amount: SendAmount?)
+    func receiveAmountDidChange(amount: SendAmount?)
 }
