@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 /// iOS 16 implementation using UIKit UIScrollView with `isPagingEnabled` via UIViewRepresentable.
 /// Provides native paging behavior and memory efficiency through windowed rendering.
@@ -33,9 +34,11 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     @State private var scrollOffset: CGFloat = 0
     /// Measured header height reported by UIKit, used to constrain header frame
     @State private var headerHeight: CGFloat = 0
+    @State private var pageWidth: CGFloat = 0
 
     // MARK: - Configuration
 
+    private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
@@ -45,6 +48,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         data: Data,
         selectedIndex: Binding<Int>,
         isScrollDisabled: Bool,
+        viewportHeight: CGFloat,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
@@ -52,6 +56,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         self.data = data
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
+        self.viewportHeight = viewportHeight
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -60,19 +65,18 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     // MARK: - Body
 
     var body: some View {
-        GeometryReader { geometry in
-            let pageWidth = geometry.size.width
+        VStack(spacing: 0) {
+            headerContainer(pageWidth: pageWidth)
 
-            VStack(spacing: 0) {
-                headerContainer(pageWidth: pageWidth)
-                bodyContainer(pageWidth: pageWidth)
-            }
-            .onAppear {
-                scrollOffset = CGFloat(selectedIndex) * pageWidth
-            }
-            .onChange(of: selectedIndex) { newValue in
-                scrollOffset = CGFloat(newValue) * pageWidth
-            }
+            bodyContainer(pageWidth: pageWidth)
+                .frame(minHeight: viewportHeight)
+        }
+        .readGeometry(\.size.width) { pageWidth = $0 }
+        .onAppear {
+            scrollOffset = CGFloat(selectedIndex) * pageWidth
+        }
+        .onChange(of: selectedIndex) { newValue in
+            scrollOffset = CGFloat(newValue) * pageWidth
         }
     }
 
@@ -168,7 +172,7 @@ private struct PagingScrollView<Content: View>: UIViewRepresentable {
 
         updateContent(hostingController: hostingController)
         updateLayout(scrollView: scrollView, hostingController: hostingController, context: context)
-        syncScrollPosition(scrollView: scrollView, isDragging: context.coordinator.isDragging)
+        syncScrollPosition(scrollView: scrollView, isDragging: context.coordinator.isDragging, context: context)
     }
 
     private func updateContent(hostingController: UIHostingController<HStack<Content>>) {
@@ -192,15 +196,18 @@ private struct PagingScrollView<Content: View>: UIViewRepresentable {
         }
     }
 
-    private func syncScrollPosition(scrollView: UIScrollView, isDragging: Bool) {
+    private func syncScrollPosition(scrollView: UIScrollView, isDragging: Bool, context: Context) {
         guard !isDragging, pageWidth > 0 else { return }
 
         let targetOffset = CGFloat(currentPage) * pageWidth
         let needsSync = abs(scrollView.contentOffset.x - targetOffset) > 1
 
         if needsSync {
-            scrollView.setContentOffset(CGPoint(x: targetOffset, y: 0), animated: true)
+            let animated = context.coordinator.hasPerformedInitialSync
+            scrollView.setContentOffset(CGPoint(x: targetOffset, y: 0), animated: animated)
         }
+
+        context.coordinator.hasPerformedInitialSync = true
     }
 
     func makeCoordinator() -> Coordinator {
@@ -211,6 +218,7 @@ private struct PagingScrollView<Content: View>: UIViewRepresentable {
         var parent: PagingScrollView
         var hostingController: UIHostingController<HStack<Content>>?
         var isDragging = false
+        var hasPerformedInitialSync = false
         var lastReportedHeight: CGFloat = 0
 
         init(_ parent: PagingScrollView) {

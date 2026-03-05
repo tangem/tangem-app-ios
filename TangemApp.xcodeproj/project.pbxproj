@@ -319,6 +319,8 @@
 		0FF19C922E3CBCC700008D8E /* AuthWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C912E3CBCC700008D8E /* AuthWalletView.swift */; };
 		0FF19C942E3CBCD800008D8E /* AuthWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C932E3CBCD800008D8E /* AuthWalletViewModel.swift */; };
 		0FF655002F43172100F59748 /* MultiWalletMainContentRedesignedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */; };
+		701CE052EF00FBBD104D8664 /* MainPageTangemTokenRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D686A183CAFFE08DC61831 /* MainPageTangemTokenRow.swift */; };
+		701CE052EF00FBBD104D8665 /* TokenItemViewModel+TangemTokenRowViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D686A183CAFFE08DC61832 /* TokenItemViewModel+TangemTokenRowViewData.swift */; };
 		0FF8F9672EA8F5E400251C53 /* DetailsTOSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */; };
 		0FF8F9692EA8F5EE00251C53 /* DetailsTOSViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9682EA8F5EE00251C53 /* DetailsTOSViewModel.swift */; };
 		0FF8F96B2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F96A2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift */; };
@@ -2487,6 +2489,7 @@
 		B645BF3F2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645BF3D2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift */; };
 		B6470E432EE904B80022B342 /* AccountsAwareUserTokensPushNotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6470E422EE904B80022B342 /* AccountsAwareUserTokensPushNotificationsManager.swift */; };
 		B64781E22C22F74300B0E882 /* CustomTokenContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */; };
+		03807896275744A4AAC0BB83 /* OverlayCollapsedHeightEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6F56DC034B4840A5F91326 /* OverlayCollapsedHeightEnvironmentKey.swift */; };
 		B64959832C414E8900B71164 /* RootViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64959822C414E8900B71164 /* RootViewControllerFactory.swift */; };
 		B64E38692C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64E38682C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift */; };
 		B65108B32CAC2A8100690C22 /* ShapeStyle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */; };
@@ -5267,6 +5270,8 @@
 		0FF19C912E3CBCC700008D8E /* AuthWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWalletView.swift; sourceTree = "<group>"; };
 		0FF19C932E3CBCD800008D8E /* AuthWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWalletViewModel.swift; sourceTree = "<group>"; };
 		0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentRedesignedView.swift; sourceTree = "<group>"; };
+		C0D686A183CAFFE08DC61831 /* MainPageTangemTokenRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageTangemTokenRow.swift; sourceTree = "<group>"; };
+		C0D686A183CAFFE08DC61832 /* TokenItemViewModel+TangemTokenRowViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItemViewModel+TangemTokenRowViewData.swift"; sourceTree = "<group>"; };
 		0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSView.swift; sourceTree = "<group>"; };
 		0FF8F9682EA8F5EE00251C53 /* DetailsTOSViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSViewModel.swift; sourceTree = "<group>"; };
 		0FF8F96A2EA9384500251C53 /* AuthWalletView+EnvironmentValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AuthWalletView+EnvironmentValues.swift"; sourceTree = "<group>"; };
@@ -7431,6 +7436,7 @@
 		B645BF3D2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartProvider.swift; sourceTree = "<group>"; };
 		B6470E422EE904B80022B342 /* AccountsAwareUserTokensPushNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareUserTokensPushNotificationsManager.swift; sourceTree = "<group>"; };
 		B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTokenContractAddressConverter.swift; sourceTree = "<group>"; };
+		7D6F56DC034B4840A5F91326 /* OverlayCollapsedHeightEnvironmentKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayCollapsedHeightEnvironmentKey.swift; sourceTree = "<group>"; };
 		B64959822C414E8900B71164 /* RootViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewControllerFactory.swift; sourceTree = "<group>"; };
 		B64E38682C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PercentFormatterNumberFormatterRepository.swift; sourceTree = "<group>"; };
 		B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShapeStyle+.swift"; sourceTree = "<group>"; };
@@ -10574,6 +10580,7 @@
 			isa = PBXGroup;
 			children = (
 				0FF654FF2F43172100F59748 /* MultiWalletMainContentRedesignedView.swift */,
+				C0D686A183CAFFE08DC61831 /* MainPageTangemTokenRow.swift */,
 			);
 			path = Redesign;
 			sourceTree = "<group>";
@@ -14344,6 +14351,7 @@
 				B6AD952A2A30071500FE845A /* Components */,
 				B0958BA329F6A796007CD76D /* TokenItemView.swift */,
 				B05A13A029FB971900FB511A /* TokenItemViewModel.swift */,
+				C0D686A183CAFFE08DC61832 /* TokenItemViewModel+TangemTokenRowViewData.swift */,
 			);
 			path = TokenItemView;
 			sourceTree = "<group>";
@@ -21542,6 +21550,7 @@
 				DC7539FA2C9204AB00CE2D30 /* LockView.swift */,
 				DC0A5855282E3E220031BECC /* ServicesManager.swift */,
 				B64959822C414E8900B71164 /* RootViewControllerFactory.swift */,
+				7D6F56DC034B4840A5F91326 /* OverlayCollapsedHeightEnvironmentKey.swift */,
 				DC5118792860B704004FB954 /* AppCoordinator.swift */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				DC51187B2860B728004FB954 /* AppCoordinatorView.swift */,
@@ -27557,6 +27566,7 @@
 				C265B2152E55EE960011C01D /* WalletConnectSupportedNamespace.swift in Sources */,
 				30AD19A12E85596600EAE0A0 /* ArchivedAccountsViewModel.swift in Sources */,
 				DFFB480E2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift in Sources */,
+				03807896275744A4AAC0BB83 /* OverlayCollapsedHeightEnvironmentKey.swift in Sources */,
 				B64959832C414E8900B71164 /* RootViewControllerFactory.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
@@ -28606,6 +28616,8 @@
 				EF0AC19C2D20706600233B81 /* MultiWalletNotificationEvent.swift in Sources */,
 				B06997D02692EC5E0014A676 /* SellService.swift in Sources */,
 				0FF655002F43172100F59748 /* MultiWalletMainContentRedesignedView.swift in Sources */,
+				701CE052EF00FBBD104D8664 /* MainPageTangemTokenRow.swift in Sources */,
+				701CE052EF00FBBD104D8665 /* TokenItemViewModel+TangemTokenRowViewData.swift in Sources */,
 				EFBBA4982E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift in Sources */,
 				DCBDC9E92CD14082003E76DD /* StoriesDelegate.swift in Sources */,
 				EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */,

@@ -45,7 +45,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .accounts: return .version("5.33")
-        case .redesign: return .unspecified
+        case .redesign: return .version("0.0.1")
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .version("5.35")
         case .tangemPayPermanentEntryPoint: return .version("5.33")
