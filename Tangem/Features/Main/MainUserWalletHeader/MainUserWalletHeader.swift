@@ -39,7 +39,7 @@ struct MainUserWalletHeader: View {
         LoadableBalanceView(
             state: headerViewModel.balance,
             style: .init(
-                font: Font.Tangem.title44,
+                font: Font.Tangem.Custom.titleRegular44,
                 textColor: Color.Tangem.Text.Neutral.primary
             ),
             loader: .init(
