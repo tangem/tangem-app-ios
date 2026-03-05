@@ -260,10 +260,15 @@ private extension AccountsAwareAddTokenFlowViewModel {
         // Clear the navigation stack
         navigationStack.removeAll()
 
+        let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
+
         viewState = .getToken(
             viewModel: AccountsAwareGetTokenViewModel(
                 tokenItem: tokenItem,
                 tokenItemIconInfoBuilder: TokenIconInfoBuilder(),
+                expressAvailabilityProvider: expressAvailabilityProvider,
+                checkBuyAvailability: { config.isBuyAvailable(tokenItem, accountSelectorCell) },
+                checkExchangeAvailability: { config.isExchangeAvailable(tokenItem, accountSelectorCell) },
                 onBuy: { config.onBuy(tokenItem, accountSelectorCell) },
                 onExchange: { config.onExchange(tokenItem, accountSelectorCell) },
                 onReceive: { config.onReceive(tokenItem, accountSelectorCell) },
