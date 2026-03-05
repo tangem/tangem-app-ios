@@ -161,7 +161,7 @@ private extension SwapAmountViewModel {
         case .loaded(_, _, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
              .loaded(_, _, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _)):
+        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
         default:
