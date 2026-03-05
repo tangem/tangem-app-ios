@@ -36,21 +36,18 @@ final class SendWithSwapModel {
     private let initialSourceToken: SendSourceToken
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
-    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private var bag: Set<AnyCancellable> = []
 
     init(
         transferModel: TransferModel,
         swapModel: SwapModel,
         initialSourceToken: SendSourceToken,
-        receiveTokenBuilder: SendReceiveTokenBuilder,
         sendAlertBuilder: SendAlertBuilder,
         analyticsLogger: SendAnalyticsLogger
     ) {
         self.transferModel = transferModel
         self.swapModel = swapModel
         self.initialSourceToken = initialSourceToken
-        self.receiveTokenBuilder = receiveTokenBuilder
         self.sendAlertBuilder = sendAlertBuilder
         self.analyticsLogger = analyticsLogger
     }
@@ -144,11 +141,15 @@ private extension SendWithSwapModel {
             return
         }
 
-        let receiveToken = receiveTokenBuilder.makeSendReceiveToken(
-            tokenItem: receiveTokenItem.tokenItem,
-            address: transferModel.destination?.value.transactionAddress,
-            extraId: transferModel.destinationAdditionalField.extraId
-        )
+        let destination = transferModel.destination.map { destination in
+            SendReceiveTokenDestination(
+                destination: destination.value,
+                destinationTag: transferModel.destinationAdditionalField.extraId
+            )
+        }
+
+        let receiveToken = CommonSendReceiveTokenFactory(tokenItem: receiveTokenItem.tokenItem)
+            .makeSendReceiveToken(destination: destination)
 
         swapModel.update(receive: receiveToken)
     }
@@ -274,11 +275,15 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
     }
 
     func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void) {
-        let receiveToken = receiveTokenBuilder.makeSendReceiveToken(
-            tokenItem: receiveTokenItem,
-            address: transferModel.destination?.value.transactionAddress,
-            extraId: transferModel.destinationAdditionalField.extraId
-        )
+        let destination = transferModel.destination.map { destination in
+            SendReceiveTokenDestination(
+                destination: destination.value,
+                destinationTag: transferModel.destinationAdditionalField.extraId
+            )
+        }
+
+        let receiveToken = CommonSendReceiveTokenFactory(tokenItem: receiveTokenItem)
+            .makeSendReceiveToken(destination: destination)
 
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
             self?.swapModel.update(receive: receiveToken)
@@ -329,9 +334,7 @@ extension SendWithSwapModel: SendReceiveTokenAmountOutput {
 
 extension SendWithSwapModel: SendSwapProvidersInput {
     var expressProviders: [ExpressAvailableProvider] {
-        get async {
-            isSwapMode ? swapModel.expressProviders : []
-        }
+        isSwapMode ? swapModel.expressProviders : []
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
@@ -555,12 +558,8 @@ extension SendWithSwapModel: SendNotificationManagerInput {
             .eraseToAnyPublisher()
     }
 
-    var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> {
-        isSwapMode ? .just(output: nil) : transferModel.bsdkTransactionPublisher
-    }
-
-    var transactionCreationError: AnyPublisher<Error?, Never> {
-        isSwapMode ? .just(output: nil) : transferModel.transactionCreationError
+    var bsdkTransactionResultPublisher: AnyPublisher<Result<BSDKTransaction, Error>?, Never> {
+        isSwapMode ? .just(output: nil) : transferModel.bsdkTransactionResultPublisher
     }
 }
 

@@ -36,7 +36,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private let networks: [TokenItem]
     private let coin: CoinModel
     private let userWalletInfo: UserWalletInfo
-    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
@@ -49,7 +48,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         networks: [TokenItem],
         coin: CoinModel,
         userWalletInfo: UserWalletInfo,
-        receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
@@ -58,7 +56,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.networks = networks
         self.coin = coin
         self.userWalletInfo = userWalletInfo
-        self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
         self.router = router
 
@@ -163,11 +160,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
-        if SendReceiveTokenFilter.isMemoRequiring(receiveTokenBlockchain: tokenItem.blockchain) {
-            state = .failure(Localization.expressSwapNotSupportedText)
-            return
-        }
-
         receiveTokenOutput?.userDidRequestSelect(receiveTokenItem: tokenItem) { [weak self] selected in
             self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)
