@@ -63,7 +63,7 @@ extension UnstakingFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension UnstakingFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let isPartialUnstakeAllowed = unstakingModel.isPartialUnstakeAllowed
 
         let amount = makeSendAmountStep()
