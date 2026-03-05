@@ -13,6 +13,7 @@ import TangemExpress
 class SendCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
+    @Published private(set) var isInputDisabled: Bool = false
 
     init(
         expressCurrencyViewModel: ExpressCurrencyViewModel,
@@ -36,5 +37,9 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
 
     func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem?) {
         expressCurrencyViewModel.updateFiatValue(expectAmount: amount, tokenItem: tokenItem)
+    }
+
+    func update(isInputDisabled: Bool) {
+        self.isInputDisabled = isInputDisabled
     }
 }

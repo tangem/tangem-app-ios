@@ -27,10 +27,6 @@ final class MobileSettingsUtil {
         userWalletConfig.isFeatureVisible(.userWalletBackup)
     }
 
-    private var isUpgradeFeatureAvailable: Bool {
-        userWalletConfig.isFeatureVisible(.userWalletUpgrade)
-    }
-
     private var isBackupNeeded: Bool {
         userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
     }
@@ -53,15 +49,6 @@ final class MobileSettingsUtil {
 extension MobileSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
-
-        let isUpgradeNotificationDismissed = dismissedNotifications.has(
-            userWalletId: userWalletModel.userWalletId,
-            notification: .mobileUpgradeFromSettings
-        )
-
-        if isUpgradeFeatureAvailable, !isUpgradeNotificationDismissed {
-            settings.append(.upgrade)
-        }
 
         if isAccessCodeFeatureAvailable {
             settings.append(isAccessCodeSet ? .changeAccessCode : .setAccessCode)
@@ -173,7 +160,6 @@ extension MobileSettingsUtil {
         case setAccessCode
         case changeAccessCode
         case backup(needsBackup: Bool)
-        case upgrade
     }
 
     enum AccessCodeState {
