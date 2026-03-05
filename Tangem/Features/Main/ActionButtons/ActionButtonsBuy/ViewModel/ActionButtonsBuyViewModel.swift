@@ -78,8 +78,7 @@ final class ActionButtonsBuyViewModel: ObservableObject {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
 
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: token.walletModel)
-        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-        coordinator?.openOnramp(input: sendInput, parameters: parameters)
+        coordinator?.openOnramp(input: sendInput, parameters: .none)
     }
 }
 
@@ -179,8 +178,7 @@ extension ActionButtonsBuyViewModel {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
             let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-            self?.coordinator?.openOnramp(input: sendInput, parameters: parameters)
+            self?.coordinator?.openOnramp(input: sendInput, parameters: .none)
         }
     }
 }
