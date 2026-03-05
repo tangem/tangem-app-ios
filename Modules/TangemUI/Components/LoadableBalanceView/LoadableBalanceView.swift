@@ -227,13 +227,13 @@ struct LoadableBalanceView_Previews: PreviewProvider {
             VStack(alignment: .trailing, spacing: 2) {
                 LoadableBalanceView(
                     state: .loading(cached: .string("1 312 422,23 $")),
-                    style: .init(font: Font.Tangem.subheadline, textColor: Color.Tangem.Text.Neutral.primary),
+                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
 
                 LoadableBalanceView(
                     state: .loading(cached: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.caption1, textColor: Color.Tangem.Text.Neutral.tertiary),
+                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             }
@@ -243,13 +243,13 @@ struct LoadableBalanceView_Previews: PreviewProvider {
             VStack(alignment: .trailing, spacing: 2) {
                 LoadableBalanceView(
                     state: .loading(cached: .none),
-                    style: .init(font: Font.Tangem.subheadline, textColor: Color.Tangem.Text.Neutral.primary),
+                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
 
                 LoadableBalanceView(
                     state: .loading(cached: .none),
-                    style: .init(font: Font.Tangem.caption1, textColor: Color.Tangem.Text.Neutral.tertiary),
+                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             }
@@ -259,13 +259,13 @@ struct LoadableBalanceView_Previews: PreviewProvider {
             VStack(alignment: .trailing, spacing: 2) {
                 LoadableBalanceView(
                     state: .loaded(text: .string("1 312 422,23 $")),
-                    style: .init(font: Font.Tangem.subheadline, textColor: Color.Tangem.Text.Neutral.primary),
+                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
 
                 LoadableBalanceView(
                     state: .loaded(text: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.caption1, textColor: Color.Tangem.Text.Neutral.tertiary),
+                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             }
@@ -275,13 +275,13 @@ struct LoadableBalanceView_Previews: PreviewProvider {
             VStack(alignment: .trailing, spacing: 2) {
                 LoadableBalanceView(
                     state: .failed(cached: .string("1 312 422,23 $"), icon: .leading),
-                    style: .init(font: Font.Tangem.subheadline, textColor: Color.Tangem.Text.Neutral.primary),
+                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
 
                 LoadableBalanceView(
                     state: .failed(cached: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.caption1, textColor: Color.Tangem.Text.Neutral.tertiary),
+                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             }
