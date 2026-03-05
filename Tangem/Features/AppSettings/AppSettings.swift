@@ -57,9 +57,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.understandsAddressNetworkRequirements)
     var understandsAddressNetworkRequirements: [String] = []
 
-    @AppStorageCompat(StorageType.promotionQuestionnaireFinished)
-    var promotionQuestionnaireFinished: Bool = false
-
     @AppStorageCompat(StorageType.hideSensitiveInformation)
     var isHidingSensitiveInformation: Bool = false
 
