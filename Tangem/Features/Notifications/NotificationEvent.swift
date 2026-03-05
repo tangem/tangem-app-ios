@@ -14,6 +14,7 @@ protocol NotificationEvent: Identifiable {
     var title: NotificationView.Title? { get }
     var description: String? { get }
     var colorScheme: NotificationView.ColorScheme { get }
+    var colorTheme: NotificationView.ColorTheme { get }
     var icon: NotificationView.MessageIcon { get }
     var severity: NotificationView.Severity { get }
     var isDismissable: Bool { get }
@@ -91,5 +92,9 @@ extension NotificationEvent {
             }
         }
         return nil
+    }
+
+    var colorTheme: NotificationView.ColorTheme {
+        .system
     }
 }

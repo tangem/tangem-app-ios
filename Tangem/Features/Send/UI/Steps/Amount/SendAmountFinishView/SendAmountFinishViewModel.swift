@@ -158,7 +158,7 @@ private extension SendAmountFinishViewModel {
             textField.update(value: receiveAmount.crypto)
 
             receiveSmallAmountViewModel = .init(
-                tokenHeader: tokenHeader,
+                tokenHeader: .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle),
                 tokenIconInfo: token.tokenIconInfo,
                 amountDecimalNumberTextFieldViewModel: textField,
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(

@@ -83,6 +83,7 @@ final class MarketsSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openMarketsSheetWithSwipe()
+            .tapSeeAll()
             .verifyFirstCoinsOrder(expected)
     }
 
@@ -98,12 +99,14 @@ final class MarketsSearchUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .openWalletSettings(for: "Wallet")
+            .selectAccount("Main аccount")
             .openManageTokens()
 
         let mainScreen = manageTokens
             .expandTokenIfNeeded(managedToken)
             .ensureNetworkSelected(network)
             .longPressNetworkToCopy(network, duration: 1.0)
+            .goBackToAccountSettings()
             .goBackToWalletSettings()
             .goBackToDetails()
             .goBackToMain()

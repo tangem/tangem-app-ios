@@ -50,20 +50,19 @@ struct DetailsView: View {
     }
 
     private var userWalletsSection: some View {
-        GroupedSection(
-            viewModel.walletsSectionTypes,
-            content: { type in
-                switch type {
-                case .wallet(let viewModel):
-                    SettingsUserWalletRowView(viewModel: viewModel)
-                case .addOrScanNewUserWalletButton(let viewModel):
-                    DefaultRowView(viewModel: viewModel)
-                        .appearance(.addButton)
-                }
+        ReorderableGroupedSection(
+            reorderableModels: $viewModel.userWalletRows,
+            reorderableContent: { walletRow in
+                SettingsUserWalletRowView(viewModel: walletRow.viewModel)
             },
-            footer: {
-                viewModel.userWalletsSectionFooterString.map { DefaultFooterView($0) }
-            }
+            staticModels: [viewModel.addOrScanNewUserWalletViewModel].compactMap { $0 },
+            staticContent: { viewData in
+                AddListItemButton(viewData: viewData)
+            },
+            sectionHeader: {
+                DefaultHeaderView(Localization.commonWallets)
+            },
+            sectionFooter: viewModel.userWalletsSectionFooterString.map { DefaultFooterView($0) }
         )
         .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
     }
