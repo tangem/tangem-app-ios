@@ -18,7 +18,8 @@ public struct ContractAddressValidatorFactory {
     public func makeValidator() -> AddressValidator {
         switch blockchain {
         case .binance,
-             .kaspa:
+             .kaspa,
+             .terraV1:
             return DummyContractAddressValidator()
         case .cardano:
             return CardanoTokenContractAddressService()
