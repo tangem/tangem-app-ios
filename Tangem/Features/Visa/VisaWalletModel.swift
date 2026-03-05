@@ -118,7 +118,7 @@ extension VisaWalletModel: StakingTokenBalanceProviderInput {
     }
 
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> {
-        Just(.notEnabled).eraseToAnyPublisher()
+        .just(output: stakingManagerState)
     }
 }
 
@@ -324,15 +324,11 @@ extension VisaWalletModel: WalletModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        // [REDACTED_TODO_COMMENT]
-        ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         // [REDACTED_TODO_COMMENT]
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-        return addressInfos.map { .address($0) }
+        let types = addressInfos.map { ReceiveAddressType.address($0) }
+        return .just(output: types)
     }
 
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
