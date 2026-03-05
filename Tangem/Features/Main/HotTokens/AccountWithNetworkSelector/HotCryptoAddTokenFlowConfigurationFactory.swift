@@ -70,10 +70,8 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
         let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
         let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-
         coordinator.close()
-        coordinator.openOnramp(input: sendInput, parameters: parameters)
+        coordinator.openOnramp(input: sendInput, parameters: .none)
     }
 
     static func makeAccountFilter(

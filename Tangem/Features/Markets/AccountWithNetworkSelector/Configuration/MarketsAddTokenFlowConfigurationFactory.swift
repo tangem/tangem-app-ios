@@ -115,8 +115,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             case .buy:
                 analyticsLogger.logBuyTapped()
                 let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-                let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-                coordinator.openOnramp(input: sendInput, parameters: parameters)
+                coordinator.openOnramp(input: sendInput, parameters: .none)
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
