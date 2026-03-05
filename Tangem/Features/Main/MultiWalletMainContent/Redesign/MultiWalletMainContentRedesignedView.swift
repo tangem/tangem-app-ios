@@ -152,6 +152,6 @@ struct MultiWalletMainContentRedesignedView: View {
 private extension MultiWalletMainContentRedesignedView {
     enum Constants {
         static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level3
+        static let tokenListBackgroundColor = Color.Tangem.Surface.level1
     }
 }
