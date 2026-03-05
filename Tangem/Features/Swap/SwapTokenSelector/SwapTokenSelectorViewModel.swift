@@ -15,32 +15,53 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
-    private weak var coordinator: SwapTokenSelectorRoutable?
+
+    private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
+    private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
 
     private var selectedTokenItem: TokenItem?
+
+    // MARK: - Computed
+
+    /// Returns true if user has searched during this session
+    var userHasSearchedDuringThisSession: Bool {
+        marketsTokensViewModel?.userHasSearchedDuringThisSession ?? false
+    }
 
     init(
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
-        coordinator: SwapTokenSelectorRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
-        self.coordinator = coordinator
+        self.tokenSelectorCoordinator = tokenSelectorCoordinator
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
+
+        marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        marketsTokensViewModel?.setup(selectionHandler: self)
     }
 
     func close() {
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+
+    func onAppear() {
+        Analytics.log(.swapChooseTokenScreenOpened)
     }
 
     func onDisappear() {
@@ -59,12 +80,8 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
             )
         }
     }
-}
 
-// MARK: - AccountsAwareTokenSelectorViewModelOutput
-
-extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
+    func selectToken(_ item: AccountsAwareTokenSelectorItem) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
             walletModel: item.walletModel,
@@ -79,7 +96,51 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
         }
 
         selectedTokenItem = item.walletModel.tokenItem
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+}
+
+// MARK: - AccountsAwareTokenSelectorViewModelOutput
+
+extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+        logPortfolioTokenSelected(item: item)
+        selectToken(item)
+    }
+}
+
+// MARK: - Private
+
+private extension SwapTokenSelectorViewModel {
+    func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
+            source: .portfolio,
+            userHasSearchedDuringThisSession: false
+        )
+        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+    }
+}
+
+// MARK: - ExpressExternalTokenSelectionHandler
+
+extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
+    func didSelectExternalToken(_ token: MarketsTokenModel) {
+        Task { @MainActor in
+            guard let networks = token.networks, !networks.isEmpty else {
+                AppLogger.debug("Selected tokens with no networks")
+                return
+            }
+
+            let inputData = ExpressAddTokenInputData(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                networks: networks,
+                userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
+            )
+
+            marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
+        }
     }
 }
 

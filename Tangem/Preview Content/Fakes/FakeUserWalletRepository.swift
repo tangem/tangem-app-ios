@@ -45,6 +45,7 @@ class FakeUserWalletRepository: UserWalletRepository {
     func lock() {}
     func add(userWalletModel: UserWalletModel) {}
     func delete(userWalletId: UserWalletId) {}
+    func reorder(orderedUserWalletIds: [UserWalletId]) {}
     func save() {}
     func initialize() async {}
     func updateAssociatedCard(userWalletId: UserWalletId, cardId: String) {}

@@ -51,7 +51,7 @@ struct FeeSelectorRowView: View {
 
             switch viewModel.subtitle {
             case .balance(let state):
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: state,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                     loader: .init(size: CGSize(width: 100, height: 14))
