@@ -21,6 +21,9 @@ protocol TokenFeeProvidersManager: ExpressFeeProvider {
     func update(feeOption: FeeOption)
     func update(input: TokenFeeProviderInputData)
 
+    @discardableResult
+    func updateFees() -> Task<Void, Never>
+
     func updateSelectedFeeProvider(feeTokenItem: TokenItem)
 }
 
