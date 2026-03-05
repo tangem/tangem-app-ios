@@ -176,7 +176,6 @@ extension CommonServicesManager: ServicesManager {
         mobileAccessCodeCleaner.initialize()
         stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
-        PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()

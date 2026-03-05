@@ -22,8 +22,8 @@ class CommonBannerPromotionService {
 extension CommonBannerPromotionService: BannerPromotionService {
     func loadActivePromotionsFor(walletId: String, on place: BannerPromotionPlacement) async -> [ActivePromotionInfo] {
         do {
-            let request = ExpressPromotion.NewRequest(walletId: walletId)
-            let promotionInfos = try await tangemApiService.expressPromotion(request: request).promotions
+            let request = BannerPromotion.Request(walletId: walletId)
+            let promotionInfos = try await tangemApiService.promotion(request: request).promotions
 
             let activePromotions = promotionInfos.filter { promotion in
                 PromotionLogger.info(
@@ -67,7 +67,7 @@ extension CommonBannerPromotionService: BannerPromotionService {
 // MARK: - Private
 
 private extension CommonBannerPromotionService {
-    func mapToActivePromotionInfo(promotionInfo: ExpressPromotion.Response.Promotion) throws -> ActivePromotionInfo {
+    func mapToActivePromotionInfo(promotionInfo: BannerPromotion.Response.Promotion) throws -> ActivePromotionInfo {
         guard let promotion = PromotionProgramName(rawValue: promotionInfo.name) else {
             throw Error.wrongPromotionProgramName
         }
