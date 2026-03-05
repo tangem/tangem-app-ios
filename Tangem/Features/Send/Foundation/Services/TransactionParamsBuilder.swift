@@ -134,6 +134,7 @@ struct TransactionParamsBuilder {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             throw TransactionParamsBuilderError.extraIdNotSupported

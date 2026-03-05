@@ -23,8 +23,7 @@ struct SendSourceToken {
     let fiatAvailableBalanceProvider: TokenBalanceProvider
     let transactionValidator: TransactionValidator
     let transactionCreator: TransactionCreator
-    let transactionDispatcher: TransactionDispatcher
-
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 }
 
