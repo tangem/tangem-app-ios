@@ -11,6 +11,7 @@ import Foundation
 import struct SwiftUI.Image
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 
 @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 @MainActor
@@ -21,7 +22,7 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
 
     private var selectedUserWallet: any UserWalletModel
 
-    private let balanceStateBuilder: LoadableTokenBalanceViewStateBuilder
+    private let balanceStateBuilder: LoadableBalanceViewStateBuilder
 
     private var walletSelectionTask: Task<Void, Never>?
     private var walletImagesLoadingTask: Task<Void, Never>?
@@ -46,7 +47,7 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
 
         state = .loading(userWallets: userWallets, selectedWallet: selectedUserWallet)
 
-        balanceStateBuilder = LoadableTokenBalanceViewStateBuilder()
+        balanceStateBuilder = LoadableBalanceViewStateBuilder()
         cancellables = []
 
         loadImages(for: userWallets)
