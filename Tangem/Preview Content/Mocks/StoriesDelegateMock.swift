@@ -18,7 +18,5 @@ class StoriesDelegateMock: StoriesDelegate {
 
     func orderCard() {}
 
-    func openPromotion() {}
-
     func openTokenList() {}
 }
