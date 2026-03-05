@@ -51,20 +51,9 @@ enum SwapAmountStepBuilder {
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let analyticsLogger: any SendAmountAnalyticsLogger
-        let isFixedRateMode: Bool
-
-        init(
-            sendAmountValidator: any SendAmountValidator,
-            analyticsLogger: any SendAmountAnalyticsLogger,
-            isFixedRateMode: Bool = false
-        ) {
-            self.sendAmountValidator = sendAmountValidator
-            self.analyticsLogger = analyticsLogger
-            self.isFixedRateMode = isFixedRateMode
-        }
     }
 
-    typealias ReturnValue = (step: SwapAmountStep, viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
+    typealias ReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
@@ -80,7 +69,6 @@ enum SwapAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
-            receiveTokenAmountOutput: io.receiveAmountIO?.output,
             validator: dependencies.sendAmountValidator,
             amountModifier: .none,
             notificationService: .none,
@@ -94,7 +82,6 @@ enum SwapAmountStepBuilder {
             stateProvider: io.stateProvider,
             sourceTokenInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
-            isFixedRateMode: dependencies.isFixedRateMode
         )
 
         let finish = SendAmountFinishViewModel(
@@ -106,16 +93,9 @@ enum SwapAmountStepBuilder {
             swapProvidersInput: io.swapProvidersInput,
         )
 
-        let step = SwapAmountStep(
-            viewModel: viewModel,
-            interactor: interactor,
-            interactorSaver: interactorSaver,
-            analyticsLogger: dependencies.analyticsLogger
-        )
-
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         interactorSaver.updater = amountUpdater
 
-        return (step: step, viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
+        return (viewModel: viewModel, amountUpdater: amountUpdater, finish: finish)
     }
 }
