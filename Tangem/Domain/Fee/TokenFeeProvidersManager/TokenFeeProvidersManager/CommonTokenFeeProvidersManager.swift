@@ -17,9 +17,6 @@ final class CommonTokenFeeProvidersManager {
 
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
 
-    private var alreadyUsedProviders: Set<TokenItem> = []
-    private var enoughFeeCheckingCancellable: AnyCancellable?
-
     init(
         feeProviders: [any TokenFeeProvider],
         initialSelectedProvider: any TokenFeeProvider
@@ -28,54 +25,6 @@ final class CommonTokenFeeProvidersManager {
         self.initialSelectedProvider = initialSelectedProvider
 
         selectedProviderSubject = .init(initialSelectedProvider)
-        alreadyUsedProviders = [initialSelectedProvider.feeTokenItem]
-
-        bind()
-    }
-
-    private func bind() {
-        enoughFeeCheckingCancellable = selectedProviderSubject
-            .flatMapLatest { selectedProvider -> AnyPublisher<Bool, Never> in
-                let fee = selectedProvider.selectedTokenFeePublisher
-                    .compactMap { $0.value.value?.amount.value }
-
-                let balance = selectedProvider.balanceTypePublisher
-                    .compactMap { $0.loaded }
-
-                return Publishers.CombineLatest(fee, balance)
-                    .map { fee, balance in fee > balance }
-                    .removeDuplicates()
-                    .eraseToAnyPublisher()
-            }
-            .filter { $0 }
-            .sink { [weak self] _ in
-                self?.updateToAnotherProviderWithBalance()
-            }
-    }
-
-    private func updateToAnotherProviderWithBalance() {
-        FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
-
-        let supported = tokenFeeProviders
-            .filter(\.state.isSupported)
-            .map(\.feeTokenItem)
-
-        let notUsedFeeTokenItem = supported.first(where: { !alreadyUsedProviders.contains($0) })
-
-        guard let notUsedFeeTokenItem else {
-            FeeLogger.info(self, "There are no other providers to choose from. Select the first one")
-
-            alreadyUsedProviders.removeAll()
-            alreadyUsedProviders.insert(initialSelectedProvider.feeTokenItem)
-
-            updateSelectedFeeProvider(feeTokenItem: initialSelectedProvider.feeTokenItem)
-            selectedFeeProvider.updateFees()
-            return
-        }
-
-        alreadyUsedProviders.insert(notUsedFeeTokenItem)
-        updateSelectedFeeProvider(feeTokenItem: notUsedFeeTokenItem)
-        selectedFeeProvider.updateFees()
     }
 }
 
@@ -120,6 +69,14 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
         checkSelectedProviderIsSupported()
     }
 
+    @discardableResult
+    func updateFees() -> Task<Void, Never> {
+        return Task { [weak self] in
+            await self?.selectedFeeProvider.updateFees().value
+            await self?.switchToProviderWithEnoughBalanceIfNeeded()
+        }
+    }
+
     func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
         guard let tokenFeeProvider = feeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
             FeeLogger.error(self, error: "Provider for token item \(feeTokenItem.name) not found")
@@ -132,11 +89,11 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
         }
 
         guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
-            FeeLogger.warning(self, "Try to select already selected provider with token item \(feeTokenItem.name). Will not select")
+            FeeLogger.info(self, "Try to select already selected provider with token item \(feeTokenItem.name). Will not select")
             return
         }
 
-        alreadyUsedProviders.insert(tokenFeeProvider.feeTokenItem)
+        FeeLogger.info(self, "Update selected provider to token item \(tokenFeeProvider)")
         selectedProviderSubject.send(tokenFeeProvider)
     }
 }
@@ -158,7 +115,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
     func estimatedFee(amount: Decimal) async throws -> BSDKFee {
         update(input: .cex(amount: amount))
-        await selectedFeeProvider.updateFees().value
+        await updateFees().value
 
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
@@ -169,7 +126,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             input: .dex(.ethereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee))
         )
 
-        await selectedFeeProvider.updateFees().value
+        await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
         return fee
@@ -184,7 +141,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
                 input: .common(amount: data.fromAmount, destination: data.destinationAddress)
             )
 
-            await selectedFeeProvider.updateFees().value
+            await updateFees().value
             let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
             return fee
@@ -195,7 +152,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             }
 
             update(input: .dex(.solana(compiledTransaction: transactionData)))
-            await selectedFeeProvider.updateFees().value
+            await updateFees().value
             let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
             return fee
@@ -214,7 +171,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
                 otherNativeFee: data.otherNativeFee
             )))
 
-            await selectedFeeProvider.updateFees().value
+            await updateFees().value
             let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
             return fee
@@ -225,6 +182,29 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 // MARK: - Private
 
 private extension CommonTokenFeeProvidersManager {
+    func switchToProviderWithEnoughBalanceIfNeeded() async {
+        guard let feeAmount = selectedFeeProvider.selectedTokenFee.value.value?.amount.value,
+              let balance = selectedFeeProvider.balanceFeeTokenState.loaded else {
+            return
+        }
+
+        guard feeAmount > balance else {
+            return
+        }
+
+        FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
+        let idleTokenFeeProvider = tokenFeeProviders.first(where: { $0.state.isIdle })
+
+        guard let idleTokenFeeProvider else {
+            FeeLogger.info(self, "There are no other providers to choose. Fallback to initial")
+            selectedProviderSubject.send(initialSelectedProvider)
+            return
+        }
+
+        updateSelectedFeeProvider(feeTokenItem: idleTokenFeeProvider.feeTokenItem)
+        await updateFees().value
+    }
+
     func checkSelectedProviderIsSupported() {
         guard !selectedFeeProvider.state.isSupported else {
             // All good
