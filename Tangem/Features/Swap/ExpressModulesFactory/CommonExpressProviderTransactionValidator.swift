@@ -34,9 +34,11 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
             // For other blockchains, the method’s behavior must be carefully extended,
             // since the transaction data format and encoding may differ.
             case .solana:
-                let transactionData = try Data(data.base64Decoded())
-                return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
+                if let transactionData = Data(base64Encoded: data) {
+                    return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
+                }
 
+                return true
             default:
                 return true
             }
