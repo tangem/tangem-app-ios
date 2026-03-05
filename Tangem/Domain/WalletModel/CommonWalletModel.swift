@@ -383,7 +383,6 @@ extension CommonWalletModel: WalletModelUpdater {
                 _ = await (update, quotes, staking)
                 logger.debug(self, "WalletModel was updated to state '\(walletManager.state)'")
 
-                // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
                 await _receiveAddressService.update(with: addresses)
                 logger.debug(self, "ReceiveAddressService was updated")
 
@@ -887,12 +886,16 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
-    var receiveAddressTypes: [ReceiveAddressType] {
-        _receiveAddressService.addressTypes
-    }
-
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        _receiveAddressService.addressInfos
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
+        statePublisher
+            .withWeakCaptureOf(self)
+            .map { walletModel, _ in
+                // `_receiveAddressService` gets updated in the `update(silent:features:)` method call, which in turn
+                // also updates the `_state` property and triggers `statePublisher` to emit a new value
+                walletModel._receiveAddressService.addressTypes
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 
