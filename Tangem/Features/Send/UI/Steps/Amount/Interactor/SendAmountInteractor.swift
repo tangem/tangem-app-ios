@@ -10,10 +10,12 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
 
 protocol SendAmountInteractor {
     var isReceiveTokenSelectionAvailable: Bool { get }
-    var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
+    var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
+    var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { get }
@@ -22,7 +24,6 @@ protocol SendAmountInteractor {
 
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> { get }
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
     func update(sendAmount: Decimal?) throws -> SendAmount?
@@ -54,6 +55,7 @@ class CommonSendAmountInteractor {
     private var _error: CurrentValueSubject<String?, Never> = .init(nil)
     private var _isValid: CurrentValueSubject<Bool, Never> = .init(false)
 
+    private let balanceFormatter = BalanceFormatter()
     private lazy var converter = SendAmountConverter()
     private var bag: Set<AnyCancellable> = []
 
@@ -194,6 +196,51 @@ class CommonSendAmountInteractor {
         }
         .eraseToAnyPublisher()
     }
+
+    private var validatorInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+        let info = amountModifier?.modifyingMessagePublisher ?? .just(output: nil)
+        let notification = notificationService?.notificationMessagePublisher ?? .just(output: nil)
+
+        return Publishers.Merge3(
+            info.removeDuplicates().map { $0.map { .info($0) } },
+            notification.removeDuplicates().map { $0.map { .error($0) } },
+            _error.removeDuplicates().map { $0.map { .error($0) } }
+        )
+        .eraseToAnyPublisher()
+    }
+
+    private var restrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+        guard let receiveTokenAmountInput, let receiveTokenInput else {
+            return .just(output: nil)
+        }
+
+        return Publishers.CombineLatest(
+            receiveTokenAmountInput.receiveRestrictionPublisher,
+            receiveTokenInput.receiveTokenPublisher
+        )
+        .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
+            guard let self, let restriction, let token = tokenResult.value else { return nil }
+            return mapRestrictionToInfoText(restriction, currencySymbol: token.tokenItem.currencySymbol)
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
+
+    private func mapRestrictionToInfoText(
+        _ restriction: ReceiveAmountRestriction,
+        currencySymbol: String
+    ) -> SendAmountViewModel.BottomInfoTextType {
+        switch restriction {
+        case .tooSmallAmount(let amount):
+            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            return .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
+        case .tooBigAmount(let amount):
+            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            return .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
+        case .balanceExceeded:
+            return .error(Localization.sendNotificationExceedBalanceTitle)
+        }
+    }
 }
 
 // MARK: - SendAmountInteractor
@@ -203,16 +250,15 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         receiveTokenInput?.isReceiveTokenSelectionAvailable ?? false
     }
 
-    var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
-        let info = amountModifier?.modifyingMessagePublisher ?? .just(output: nil)
-        let notification = notificationService?.notificationMessagePublisher ?? .just(output: nil)
+    var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+        Publishers.CombineLatest(restrictionInfoPublisher, validatorInfoPublisher)
+            .map { restriction, validator in restriction ?? validator }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 
-        return Publishers.Merge3(
-            info.removeDuplicates().map { $0.map { .info($0) } },
-            notification.removeDuplicates().map { $0.map { .error($0) } },
-            _error.removeDuplicates().map { $0.map { .error($0) } },
-        )
-        .eraseToAnyPublisher()
+    var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+        restrictionInfoPublisher
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
@@ -252,14 +298,6 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
 
         return receiveTokenAmountInput.receiveAmountPublisher
-    }
-
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
-        guard let receiveTokenAmountInput else {
-            return .just(output: nil)
-        }
-
-        return receiveTokenAmountInput.receiveRestrictionPublisher
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {

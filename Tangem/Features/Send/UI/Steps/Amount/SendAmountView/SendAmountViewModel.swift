@@ -174,18 +174,10 @@ private extension SendAmountViewModel {
             .store(in: &bag)
 
         interactor
-            .infoTextPublisher
+            .sourceFieldInfoPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, infoText in
-                if viewModel.receiveAmountField?.bottomInfoText != nil {
-                    if infoText == nil {
-                        // Validator passed — clear stale restriction errors
-                        viewModel.receiveAmountField?.bottomInfoText = nil
-                        viewModel.sourceAmountField.bottomInfoText = nil
-                    }
-                    return
-                }
                 viewModel.sourceAmountField.bottomInfoText = infoText
             }
             .store(in: &bag)
@@ -232,17 +224,14 @@ private extension SendAmountViewModel {
         }
         .store(in: &bag)
 
-        Publishers.CombineLatest(
-            interactor.receivedTokenPublisher.compactMap(\.value),
-            interactor.receiveRestrictionPublisher
-        )
-        .withWeakCaptureOf(self)
-        .receiveOnMain()
-        .sink { viewModel, args in
-            let (token, restriction) = args
-            viewModel.updateReceiveRestriction(restriction, token: token)
-        }
-        .store(in: &bag)
+        interactor
+            .receiveFieldInfoPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, infoText in
+                viewModel.receiveAmountField?.bottomInfoText = infoText
+            }
+            .store(in: &bag)
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
@@ -396,30 +385,6 @@ extension SendAmountViewModel {
 
         receiveAmountField = field
         return field
-    }
-
-    private func updateReceiveRestriction(_ restriction: ReceiveAmountRestriction?, token: SendReceiveToken) {
-        guard let restriction else {
-            receiveAmountField?.bottomInfoText = nil
-            sourceAmountField.bottomInfoText = nil
-            return
-        }
-
-        let symbol = token.tokenItem.currencySymbol
-        let errorText: BottomInfoTextType
-        switch restriction {
-        case .tooSmallAmount(let amount):
-            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
-            errorText = .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
-        case .tooBigAmount(let amount):
-            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
-            errorText = .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
-        case .balanceExceeded:
-            errorText = .error(Localization.sendNotificationExceedBalanceTitle)
-        }
-
-        receiveAmountField?.bottomInfoText = errorText
-        sourceAmountField.bottomInfoText = errorText
     }
 
     func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
