@@ -72,11 +72,11 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
                 .frame(minHeight: viewportHeight)
         }
         .readGeometry(\.size.width) { pageWidth = $0 }
-        .onAppear {
-            scrollOffset = CGFloat(selectedIndex) * pageWidth
-        }
         .onChange(of: selectedIndex) { newValue in
             scrollOffset = CGFloat(newValue) * pageWidth
+        }
+        .onChange(of: pageWidth) { newPageWidth in
+            scrollOffset = CGFloat(selectedIndex) * newPageWidth
         }
     }
 
