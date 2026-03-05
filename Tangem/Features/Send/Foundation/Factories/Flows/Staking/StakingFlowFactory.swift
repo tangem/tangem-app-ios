@@ -53,7 +53,7 @@ extension StakingFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension StakingFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSendAmountStep()
         let targets = makeStakingTargetsStep()
 
