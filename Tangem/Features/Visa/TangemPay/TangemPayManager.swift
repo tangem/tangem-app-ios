@@ -154,6 +154,8 @@ final class TangemPayManager: TangemPayAccountModel {
         let enrollmentState: TangemPayEnrollmentState
         do {
             (enrollmentState, customerId) = try await enrollmentStateFetcher.getEnrollmentState()
+            // [REDACTED_TODO_COMMENT]
+            try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
         } catch {
             switch error {
             case .unauthorized:
@@ -210,14 +212,7 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
-        let orderId: String
-
-        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
-            orderId = cardIssuingOrderId
-        } else {
-            orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
-            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
-        }
+        let orderId = try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
 
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
@@ -234,6 +229,17 @@ final class TangemPayManager: TangemPayAccountModel {
                 VisaLogger.error("Failed to poll order status", error: error)
             }
         )
+    }
+
+    @discardableResult
+    private func issueCardIfNeeded(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> String {
+        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
+            return cardIssuingOrderId
+        } else {
+            let orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
+            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
+            return orderId
+        }
     }
 
     private func bind() {
