@@ -51,7 +51,7 @@ extension StakingSingleActionFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let sendAmountCompactViewModel = SendAmountCompactViewModel(
             initialSourceToken: stakingableToken,
             actionType: actionType.sendFlowActionType,
