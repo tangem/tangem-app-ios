@@ -15,8 +15,7 @@ protocol SendNotificationManagerInput {
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
-    var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> { get }
-    var transactionCreationError: AnyPublisher<Error?, Never> { get }
+    var bsdkTransactionResultPublisher: AnyPublisher<Result<BSDKTransaction, Error>?, Never> { get }
 }
 
 protocol SendNotificationManager: NotificationManager {
@@ -82,35 +81,38 @@ private extension CommonSendNotificationManager {
         }
         .store(in: &bag)
 
-        input.transactionCreationError
+        input.bsdkTransactionResultPublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { manager, error in
-                manager.updateNotification(error: error)
-            }
+            .sink { $0.updateNotifications(bsdkTransaction: $1) }
             .store(in: &bag)
-
-        if let withdrawalNotificationProvider {
-            input
-                .bsdkTransactionPublisher
-                .withWeakCaptureOf(self)
-                .map { manager, transaction in
-                    transaction.flatMap {
-                        withdrawalNotificationProvider.withdrawalNotification(amount: $0.amount, fee: $0.fee)
-                    }
-                }
-                .withWeakCaptureOf(self)
-                .sink { manager, notification in
-                    manager.updateWithdrawalNotification(notification: notification)
-                }
-                .store(in: &bag)
-        }
     }
 }
 
 // MARK: - Fee
 
 private extension CommonSendNotificationManager {
+    func updateNotifications(bsdkTransaction: Result<BSDKTransaction, Error>?) {
+        switch bsdkTransaction {
+        case .none:
+            updateWithdrawalNotification(notification: .none)
+            updateNotification(error: .none)
+
+        case .failure(let error):
+            updateWithdrawalNotification(notification: .none)
+            updateNotification(error: error)
+
+        case .success(let transaction):
+            let notification = withdrawalNotificationProvider?.withdrawalNotification(
+                amount: transaction.amount,
+                fee: transaction.fee
+            )
+
+            updateWithdrawalNotification(notification: notification)
+            updateNotification(error: .none)
+        }
+    }
+
     func updateNetworkFeeUnreachable(error: Error?) {
         switch error {
         case .none:
