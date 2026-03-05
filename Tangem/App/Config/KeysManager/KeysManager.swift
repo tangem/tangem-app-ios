@@ -11,6 +11,7 @@ import BlockchainSdk
 
 protocol KeysManager {
     var appsFlyer: AppsFlyerConfig { get }
+    var customerIO: CustomerIOKeys { get }
     var moonPayKeys: MoonPayKeys { get }
     var mercuryoWidgetId: String { get }
     var mercuryoSecret: String { get }
