@@ -13,17 +13,20 @@ import SwiftUI
 class SendSummaryStep {
     private let viewModel: SendSummaryViewModel
     private let interactor: SendSummaryInteractor
+    private let autoupdatingTimer: AutoupdatingTimer?
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let sendFeeProvider: SendFeeUpdater
 
     init(
         viewModel: SendSummaryViewModel,
         interactor: SendSummaryInteractor,
+        autoupdatingTimer: AutoupdatingTimer?,
         analyticsLogger: SendSummaryAnalyticsLogger,
         sendFeeProvider: SendFeeUpdater
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.autoupdatingTimer = autoupdatingTimer
         self.analyticsLogger = analyticsLogger
         self.sendFeeProvider = sendFeeProvider
     }
@@ -49,5 +52,10 @@ extension SendSummaryStep: SendStep {
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
         sendFeeProvider.updateFees()
+        autoupdatingTimer?.resumeTimer()
+    }
+
+    func willDisappear(next step: any SendStep) {
+        autoupdatingTimer?.pauseTimer()
     }
 }
