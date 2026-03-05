@@ -32,26 +32,40 @@ struct WalletAddressResolver {
         }
 
         let seedKey = keyInfo.publicKey
+        let derivationType = try makeDerivationType(for: blockchain, keyInfo: keyInfo)
+        let walletPublicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: derivationType)
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: .v3))
 
-        let derivationType: Wallet.PublicKey.DerivationType?
+        do {
+            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+            let address = try makeAddress(for: blockchain, walletPublicKey: walletPublicKey, addressService: addressService)
+            return NetworkAddressPair(blockchainNetwork: blockchainNetwork, address: address.value)
+        } catch {
+            throw Error.addressGenerationFailed(blockchain: blockchain, underlying: error)
+        }
+    }
+
+    private func makeDerivationType(for blockchain: Blockchain, keyInfo: KeyInfo) throws -> Wallet.PublicKey.DerivationType? {
         switch blockchain {
-        case .cardano(extended: true):
-            guard let derivationPath = blockchain.derivationPath(for: .v3),
-                  let firstKey = keyInfo.derivedKeys[derivationPath],
-                  let secondPath = try? CardanoUtil().extendedDerivationPath(for: derivationPath),
-                  let secondKey = keyInfo.derivedKeys[secondPath] else {
-                throw Error.missingCardanoDerivedKeys
+        case .cardano(let extended):
+            if extended {
+                guard let derivationPath = blockchain.derivationPath(for: .v3),
+                      let firstKey = keyInfo.derivedKeys[derivationPath],
+                      let secondPath = try? CardanoUtil().extendedDerivationPath(for: derivationPath),
+                      let secondKey = keyInfo.derivedKeys[secondPath] else {
+                    throw Error.missingCardanoDerivedKeys
+                }
+                return .double(
+                    first: .init(path: derivationPath, extendedPublicKey: firstKey),
+                    second: .init(path: secondPath, extendedPublicKey: secondKey)
+                )
+            } else {
+                guard let derivationPath = blockchain.derivationPath(for: .v3),
+                      let extendedPublicKey = keyInfo.derivedKeys[derivationPath] else {
+                    throw Error.missingDerivedKey(blockchain: blockchain)
+                }
+                return .plain(.init(path: derivationPath, extendedPublicKey: extendedPublicKey))
             }
-            derivationType = .double(
-                first: .init(path: derivationPath, extendedPublicKey: firstKey),
-                second: .init(path: secondPath, extendedPublicKey: secondKey)
-            )
-        case .cardano(extended: false):
-            guard let derivationPath = blockchain.derivationPath(for: .v3),
-                  let extendedPublicKey = keyInfo.derivedKeys[derivationPath] else {
-                throw Error.missingDerivedKey(blockchain: blockchain)
-            }
-            derivationType = .plain(.init(path: derivationPath, extendedPublicKey: extendedPublicKey))
         case .hedera, .chia:
             throw Error.unsupportedBlockchain(blockchain)
         default:
@@ -59,37 +73,31 @@ struct WalletAddressResolver {
                   let extendedPublicKey = keyInfo.derivedKeys[derivationPath] else {
                 throw Error.missingDerivedKey(blockchain: blockchain)
             }
-            derivationType = .plain(.init(path: derivationPath, extendedPublicKey: extendedPublicKey))
+            return .plain(.init(path: derivationPath, extendedPublicKey: extendedPublicKey))
         }
+    }
 
-        let walletPublicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: derivationType)
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: .v3))
-
-        do {
-            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-            let address: Address
-
-            switch blockchain {
-            case .quai:
-                guard let extendedPublicKey = walletPublicKey.derivationType?.hdKey.extendedPublicKey else {
-                    throw Error.quaiRequiresDerivationType
-                }
-                let zoneDerivedResult = try QuaiDerivationUtils().derive(
-                    extendedPublicKey: extendedPublicKey,
-                    with: .default
-                )
-                let quaiWalletPublicKey = Wallet.PublicKey(
-                    seedKey: zoneDerivedResult.key.publicKey,
-                    derivationType: .none
-                )
-                address = try addressService.makeAddress(for: quaiWalletPublicKey, with: .default)
-            default:
-                address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+    private func makeAddress(
+        for blockchain: Blockchain,
+        walletPublicKey: Wallet.PublicKey,
+        addressService: AddressService
+    ) throws -> Address {
+        switch blockchain {
+        case .quai:
+            guard let extendedPublicKey = walletPublicKey.derivationType?.hdKey.extendedPublicKey else {
+                throw Error.quaiRequiresDerivationType
             }
-
-            return NetworkAddressPair(blockchainNetwork: blockchainNetwork, address: address.value)
-        } catch {
-            throw Error.addressGenerationFailed(blockchain: blockchain, underlying: error)
+            let zoneDerivedResult = try QuaiDerivationUtils().derive(
+                extendedPublicKey: extendedPublicKey,
+                with: .default
+            )
+            let quaiWalletPublicKey = Wallet.PublicKey(
+                seedKey: zoneDerivedResult.key.publicKey,
+                derivationType: .none
+            )
+            return try addressService.makeAddress(for: quaiWalletPublicKey, with: .default)
+        default:
+            return try addressService.makeAddress(for: walletPublicKey, with: .default)
         }
     }
 }
