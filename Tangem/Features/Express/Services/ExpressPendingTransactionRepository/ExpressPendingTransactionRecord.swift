@@ -12,7 +12,6 @@ import BlockchainSdk
 import TangemFoundation
 
 struct ExpressPendingTransactionRecord: Codable, Equatable {
-    let userWalletId: String
     let expressTransactionId: String
     let transactionType: TransactionType
     let transactionHash: String
@@ -47,6 +46,7 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
 
 extension ExpressPendingTransactionRecord {
     struct TokenTxInfo: Codable, Equatable {
+        let userWalletId: String?
         let tokenItem: TokenItem
         let address: String?
         let amountString: String
@@ -144,6 +144,8 @@ extension ExpressPendingTransactionRecord {
 
         func mapToTokenTxInfo() throws -> TokenTxInfo {
             return .init(
+                // Legacy TokenTxInfo doesn't have `userWalletId` and don't support long time
+                userWalletId: nil,
                 tokenItem: try tokenItem.mapToTokenItem(blockchainNetwork: blockchainNetwork),
                 address: address,
                 amountString: amountString,
@@ -181,7 +183,6 @@ extension ExpressPendingTransactionRecord {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        userWalletId = try container.decode(String.self, forKey: .userWalletId)
         expressTransactionId = try container.decode(String.self, forKey: .expressTransactionId)
         transactionType = try container.decode(ExpressPendingTransactionRecord.TransactionType.self, forKey: .transactionType)
         transactionHash = try container.decode(String.self, forKey: .transactionHash)

@@ -43,7 +43,10 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
                 }
             },
-            accountAvailabilityProvider: makeAccountAvailabilityProvider(inputData: inputData),
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: inputData.coinId,
+                availableNetworks: inputData.networks
+            ),
             analyticsLogger: analyticsLogger
         )
     }
@@ -86,7 +89,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             },
             onLater: { [weak coordinator] in
                 analyticsLogger.logLaterTapped()
-                coordinator?.close()
+                Task { @MainActor in coordinator?.close() }
             }
         )
     }
@@ -106,44 +109,45 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             accountToken == tokenItem
         }
 
-        guard
-            let actualTokenItem = accountTokenItem,
-            let walletModel = findWalletModel(for: actualTokenItem, in: account)
-        else {
-            coordinator.close()
+        guard let actualTokenItem = accountTokenItem,
+              let walletModel = findWalletModel(for: actualTokenItem, in: account) else {
+            Task { @MainActor in coordinator.close() }
             return
         }
 
-        coordinator.close()
+        let navigationTokenAction = { @MainActor in
+            let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
+            switch action {
+            case .buy:
+                analyticsLogger.logBuyTapped()
+                let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+                coordinator.openOnramp(input: sendInput, parameters: parameters)
 
-        let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
-        switch action {
-        case .buy:
-            analyticsLogger.logBuyTapped()
-            let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-            coordinator.openOnramp(input: sendInput, parameters: parameters)
-
-        case .exchange:
-            analyticsLogger.logExchangeTapped()
-            let expressInput = ExpressDependenciesInput(
-                userWalletInfo: userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(
+            case .exchange:
+                analyticsLogger.logExchangeTapped()
+                let expressInput = ExpressDependenciesDestinationInput(
                     userWalletInfo: userWalletInfo,
-                    walletModel: walletModel,
-                    expressOperationType: .swap
-                ),
-                destination: .loadingAndSet
-            )
+                    walletModel: walletModel
+                )
 
-            coordinator.openExchange(input: expressInput)
+                coordinator.openExchange(input: expressInput)
 
-        case .receive:
-            analyticsLogger.logReceiveTapped()
-            coordinator.openReceive(walletModel: walletModel)
+            case .receive:
+                analyticsLogger.logReceiveTapped()
+                coordinator.openReceive(walletModel: walletModel)
 
-        default:
-            break
+            default:
+                break
+            }
+        }
+
+        Task { @MainActor in
+            coordinator.close()
+            // We have to wait a little bit to while floating sheet is closed
+            try await Task.sleep(for: .seconds(0.2))
+
+            navigationTokenAction()
         }
     }
 
@@ -153,22 +157,5 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
-    }
-
-    static func makeAccountAvailabilityProvider(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
-        { context in
-            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworks(
-                account: context.account,
-                coinId: inputData.coinId,
-                availableNetworks: inputData.networks,
-                supportedBlockchains: context.supportedBlockchains
-            )
-
-            return isAddedOnAll
-                ? .unavailable(reason: Localization.marketsTokenAdded)
-                : .available
-        }
     }
 }

@@ -9,6 +9,7 @@
 import Combine
 import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemUI
 import TangemUIUtils
 
 protocol FeeSelectorTokensDataProvider {
@@ -86,7 +87,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, isSelected: Bool) -> FeeSelectorRowViewModel {
         let feeTokenItem = tokenFeeProvider.feeTokenItem
-        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+        let subtitleBalanceState = LoadableBalanceViewStateBuilder().build(
             type: tokenFeeProvider.formattedFeeTokenBalance,
             textBuilder: Localization.commonBalance
         )

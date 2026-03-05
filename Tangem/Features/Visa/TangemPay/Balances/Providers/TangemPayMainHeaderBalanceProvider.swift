@@ -8,22 +8,23 @@
 
 import Combine
 import TangemVisa
+import TangemUI
 
 struct TangemPayMainHeaderBalanceProvider {
     let tangemPayTokenBalanceProvider: TokenBalanceProvider
-    let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
+    let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 }
 
 // MARK: - MainHeaderBalanceProvider
 
 extension TangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
+    var balance: LoadableBalanceView.State {
         loadableTokenBalanceViewStateBuilder.build(
             type: tangemPayTokenBalanceProvider.formattedBalanceType
         )
     }
 
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+    var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         tangemPayTokenBalanceProvider.formattedBalanceTypePublisher
             .map { loadableTokenBalanceViewStateBuilder.build(type: $0) }
             .eraseToAnyPublisher()

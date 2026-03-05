@@ -99,7 +99,9 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func enterDestination(_ address: String) -> Self {
         XCTContext.runActivity(named: "Enter address '\(address)' in destination field") { _ in
-            destinationTextView.typeText(address)
+            // typeText() is flaky
+            UIPasteboard.general.string = address
+            pasteButton.waitAndTap()
         }
         return self
     }
@@ -123,7 +125,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func tapNextButtonToSummary() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Tap Next button to go to Summary screen") { _ in
-            nextButton.waitAndTap()
+            nextButton.waitAndTapWithScroll()
         }
         return SendSummaryScreen(app)
     }

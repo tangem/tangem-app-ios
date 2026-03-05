@@ -39,8 +39,6 @@ final class StakingModel {
     private let stakingManager: StakingManager
     private let sendSourceToken: SendSourceToken
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let stakingTransactionDispatcher: TransactionDispatcher
-    private let transactionDispatcher: TransactionDispatcher
     private let allowanceService: AllowanceService?
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let accountInitializationService: BlockchainAccountInitializationService?
@@ -50,7 +48,6 @@ final class StakingModel {
     private var estimatedFeeTask: Task<Void, Never>?
     private var accountInitializationFee: Fee?
 
-    private var transactionCreator: TransactionCreator { sendSourceToken.transactionCreator }
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
@@ -60,8 +57,6 @@ final class StakingModel {
         stakingManager: StakingManager,
         sendSourceToken: SendSourceToken,
         feeIncludedCalculator: FeeIncludedCalculator,
-        stakingTransactionDispatcher: TransactionDispatcher,
-        transactionDispatcher: TransactionDispatcher,
         allowanceService: AllowanceService?,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
@@ -70,8 +65,6 @@ final class StakingModel {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.stakingTransactionDispatcher = stakingTransactionDispatcher
-        self.transactionDispatcher = transactionDispatcher
         self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
@@ -316,7 +309,8 @@ private extension StakingModel {
                 update(state: makeState(amount: amount, fee: transactionsFee, target: target))
                 throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
             }
-            let result = try await stakingTransactionDispatcher.send(transaction: .staking(transactionInfo))
+            let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
+            let result = try await dispatcher.send(transaction: .staking(transactionInfo))
             stakingManager.transactionDidSent(action: action)
 
             proceed(result: result)
@@ -527,26 +521,7 @@ extension StakingModel: NotificationTapDelegate {
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .activate:
-            guard let accountInitializationService,
-                  case .blockchainAccountInitializationRequired(let initializationFee, _) = _state.value else { return }
-
-            let viewModel = BlockchainAccountInitializationViewModel(
-                accountInitializationService: accountInitializationService,
-                transactionDispatcher: transactionDispatcher,
-                tokenItem: tokenItem,
-                fee: initializationFee,
-                feeTokenItem: feeTokenItem,
-                tokenIconInfo: tokenIconInfo,
-                onStartInitialization: { [weak self] in
-                    self?.update(state: .blockchainAccountInitializationInProgress)
-                },
-                onInitialized: { [weak self] in
-                    self?.accountInitializationFee = initializationFee
-                    self?.updateState()
-                }
-            )
-
-            router?.openAccountInitializationFlow(viewModel: viewModel)
+            openAccountInitializationFlow()
         case .reduceAmountBy(let amountToReduce, _, _):
             guard let oldAmount = sourceAmount.value?.main else {
                 return
@@ -558,6 +533,33 @@ extension StakingModel: NotificationTapDelegate {
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
+    }
+
+    private func openAccountInitializationFlow() {
+        guard let accountInitializationService,
+              case .blockchainAccountInitializationRequired(let initializationFee, _) = _state.value else {
+            return
+        }
+
+        let transactionDispatcher = sendSourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+
+        let viewModel = BlockchainAccountInitializationViewModel(
+            accountInitializationService: accountInitializationService,
+            transactionDispatcher: transactionDispatcher,
+            tokenItem: tokenItem,
+            fee: initializationFee,
+            feeTokenItem: feeTokenItem,
+            tokenIconInfo: tokenIconInfo,
+            onStartInitialization: { [weak self] in
+                self?.update(state: .blockchainAccountInitializationInProgress)
+            },
+            onInitialized: { [weak self] in
+                self?.accountInitializationFee = initializationFee
+                self?.updateState()
+            }
+        )
+
+        router?.openAccountInitializationFlow(viewModel: viewModel)
     }
 }
 
