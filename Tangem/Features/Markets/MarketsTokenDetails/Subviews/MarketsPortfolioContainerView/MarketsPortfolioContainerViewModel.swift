@@ -279,8 +279,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-            coordinator.openOnramp(input: sendInput, parameters: parameters)
+            coordinator.openOnramp(input: sendInput, parameters: .none)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
