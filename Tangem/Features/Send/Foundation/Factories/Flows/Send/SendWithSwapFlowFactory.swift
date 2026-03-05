@@ -112,7 +112,6 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             userWalletInfo: userWalletInfo,
             sourceTokenInput: sendWithSwapModel,
             receiveTokenOutput: sendWithSwapModel,
-            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
             analyticsLogger: analyticsLogger
         )
 

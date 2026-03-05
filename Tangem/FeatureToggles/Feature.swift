@@ -20,6 +20,7 @@ enum Feature: String, Hashable, CaseIterable {
     case experimentService
     case expressAllTokensSearch
     case expressFixedRates
+    case mainQRScan
 
     var name: String {
         switch self {
@@ -34,6 +35,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .experimentService: return "Experiment service"
         case .expressAllTokensSearch: return "Express All Tokens Search"
         case .expressFixedRates: return "Express Fixed Rates"
+        case .mainQRScan: return "Main QR Scan"
         }
     }
 
@@ -50,6 +52,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .experimentService: return .unspecified
         case .expressAllTokensSearch: return .version("5.34")
         case .expressFixedRates: return .unspecified
+        case .mainQRScan: return .unspecified
         }
     }
 }

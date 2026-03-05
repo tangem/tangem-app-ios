@@ -78,7 +78,10 @@ final class WCSolanaSignAllTransactionsHandler {
     }
 
     private func prepareTransactionToSign(hash: String) throws -> Data {
-        let data = try Data(hash.base64Decoded())
+        guard let data = Data(base64Encoded: hash) else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Transaction must be base64 encoded")
+        }
+
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
         return signature
     }

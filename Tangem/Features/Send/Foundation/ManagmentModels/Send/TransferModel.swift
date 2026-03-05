@@ -432,12 +432,8 @@ extension TransferModel: SendNotificationManagerInput {
         _isFeeIncluded.eraseToAnyPublisher()
     }
 
-    var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> {
-        _transaction.map { $0?.value }.eraseToAnyPublisher()
-    }
-
-    var transactionCreationError: AnyPublisher<Error?, Never> {
-        _transaction.map { $0?.error }.eraseToAnyPublisher()
+    var bsdkTransactionResultPublisher: AnyPublisher<Result<BSDKTransaction, Error>?, Never> {
+        _transaction.eraseToAnyPublisher()
     }
 }
 
