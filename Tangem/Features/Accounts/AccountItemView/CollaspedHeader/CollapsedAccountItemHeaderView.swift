@@ -16,7 +16,7 @@ struct CollapsedAccountItemHeaderView: View {
     let name: String
     let iconData: AccountIconView.ViewData
     let tokensCount: String
-    let totalFiatBalance: LoadableTokenBalanceView.State
+    let totalFiatBalance: LoadableBalanceView.State
     let priceChange: TokenPriceChangeView.State
     let iconGeometryEffect: GeometryEffectPropertiesModel
     let iconBackgroundGeometryEffect: GeometryEffectPropertiesModel
@@ -49,7 +49,7 @@ struct CollapsedAccountItemHeaderView: View {
                 }
             },
             primaryTrailingView: {
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: totalFiatBalance,
                     style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                     loader: .init(size: .init(width: 40, height: 12))

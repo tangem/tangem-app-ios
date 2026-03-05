@@ -17,11 +17,11 @@ import TangemAccounts
 final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published var isAddTokenButtonDisabled: Bool = true
-    @Published var isLoadingNetworks: Bool = false
-    @Published var typeView: TypeView = .loading
-    @Published var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
-    @Published var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
+    @Published private(set) var isAddTokenButtonDisabled: Bool = true
+    @Published private(set) var isLoadingNetworks: Bool = false
+    @Published private(set) var typeView: TypeView = .loading
+    @Published private(set) var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
+    @Published private(set) var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
 
     private var bag = Set<AnyCancellable>()
 
@@ -68,30 +68,15 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func supportedState(networks: [NetworkModel]) -> SupportedStateOption {
-        let multiCurrencyUserWalletModels = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
         guard networks.isNotEmpty else {
             return .unsupported
         }
 
-        for model in multiCurrencyUserWalletModels {
-            let supportedBlockchains = model.config.supportedBlockchains
-
-            for network in networks {
-                if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    // searchable network is token
-                    if let contractAddress = network.contractAddress {
-                        if SupportedTokensFilter.canHandleToken(
-                            contractAddress: contractAddress,
-                            blockchain: supportedBlockchain
-                        ) {
-                            return .available
-                        }
-                    } else {
-                        return .available
-                    }
-                }
-            }
+        if NetworkSupportChecker.hasAnySupportedNetwork(
+            networks: networks,
+            userWalletModels: walletDataProvider.userWalletModels
+        ) {
+            return .available
         }
 
         return .unavailable
@@ -106,9 +91,18 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateExpandedAction() {
-        tokenWithExpandedQuickActions = tokenItemViewModels.singleElement?.hasZeroBalance == true
-            ? tokenItemViewModels.singleElement
-            : nil
+        let singleElement = tokenItemViewModels.singleElement
+        let oldTokenWithExpandedQuickActions = tokenWithExpandedQuickActions
+        tokenWithExpandedQuickActions = singleElement?.hasZeroBalance == true ? singleElement : nil
+
+        // SwiftUI bug workaround: sometimes update of the `tokenWithExpandedQuickActions` published property
+        // doesn't trigger the view update (`MarketsAccountsAwarePortfolioContainerView.listView`).
+        // Assigning custom `id` to that list view doesn't work and adding a proper `Equatable`
+        // implementation for the `MarketsPortfolioTokenItemViewModel` view model doesn't help either.
+        // So, we need to manually trigger view update by sending `objectWillChange`
+        if oldTokenWithExpandedQuickActions !== tokenWithExpandedQuickActions {
+            objectWillChange.send()
+        }
     }
 
     // MARK: - Reactive Bindings
@@ -413,16 +407,13 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            let expressInput = ExpressDependenciesInput(
+            let expressInput = ExpressDependenciesDestinationInput(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModel: walletModel,
-                    expressOperationType: .swap
-                ),
-                destination: .loadingAndSet
+                walletModel: walletModel
             )
-            coordinator.openExchange(input: expressInput)
+            Task { @MainActor in
+                coordinator.openExchange(input: expressInput)
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {

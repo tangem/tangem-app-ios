@@ -23,7 +23,6 @@ struct NFTCollectionDisclosureGroupView: View {
         CustomDisclosureGroup(
             isExpanded: isExpanded,
             transition: .opacity,
-            actionOnClick: onTap,
             alignment: .leading,
             // Implementation details. DrawingGroup ruins display of GIFs due
             // to flattening subtree of views into single view before rendering it
@@ -31,7 +30,8 @@ struct NFTCollectionDisclosureGroupView: View {
             // Views backed by native platform views may not render into the image. Instead, they log a warning and display a placeholder image to highlight the error.
             useDrawingGroup: !viewModel.containsGIFs,
             prompt: { label },
-            expandedView: { content }
+            expandedView: { content },
+            actionOnClick: onTap
         )
         .buttonStyle(.defaultScaled)
         .disabled(!viewModel.isExpandable)

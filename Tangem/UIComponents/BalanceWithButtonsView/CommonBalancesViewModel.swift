@@ -9,13 +9,14 @@
 import SwiftUI
 import Combine
 import TangemAccessibilityIdentifiers
+import TangemUI
 
 /// ViewModel for displaying all / available balances in the balance view.
 final class CommonBalancesViewModel: BalancesViewModel {
     var isRefreshing: Bool { false }
 
-    @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
-    @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
+    @Published var cryptoBalance: LoadableBalanceView.State = .loading()
+    @Published var fiatBalance: LoadableBalanceView.State = .loading()
 
     var balanceAccessibilityIdentifier: String? {
         switch selectedBalanceType {
@@ -95,7 +96,7 @@ final class CommonBalancesViewModel: BalancesViewModel {
     }
 
     private func setupBalance(
-        balance: inout LoadableTokenBalanceView.State,
+        balance: inout LoadableBalanceView.State,
         all: FormattedTokenBalanceType,
         available: FormattedTokenBalanceType,
         balanceType: BalanceWithButtonsViewModel.BalanceType,
@@ -105,7 +106,7 @@ final class CommonBalancesViewModel: BalancesViewModel {
         case .loaded where all.isLoading || available.isLoading:
             break
         default:
-            let builder = LoadableTokenBalanceViewStateBuilder()
+            let builder = LoadableBalanceViewStateBuilder()
             let result = if isFiat {
                 builder.buildAttributedTotalBalance(type: balanceType == .all ? all : available)
             } else {

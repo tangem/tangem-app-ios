@@ -15,10 +15,10 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
 
     var body: some View {
         switch viewModel.viewType {
-        case .wallet(let accountViewModel) where viewModel.contentVisibility == .visible:
+        case .wallet(let accountViewModel) where viewModel.contentVisibility?.isVisible == true:
             AccountsAwareTokenSelectorAccountView(viewModel: accountViewModel)
 
-        case .accounts(let walletName, let accounts) where viewModel.contentVisibility == .visible:
+        case .accounts(let walletName, let accounts) where viewModel.contentVisibility?.isVisible == true:
             LazyVStack(spacing: 8) {
                 header(walletName: walletName)
 

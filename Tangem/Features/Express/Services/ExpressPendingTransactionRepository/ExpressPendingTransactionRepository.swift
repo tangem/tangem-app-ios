@@ -15,7 +15,7 @@ protocol ExpressPendingTransactionRepository: AnyObject {
     var transactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { get }
 
     func updateItems(_ items: [ExpressPendingTransactionRecord])
-    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String)
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData)
     func hideSwapTransaction(with id: String)
 }
 

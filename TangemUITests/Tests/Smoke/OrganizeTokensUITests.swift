@@ -25,33 +25,35 @@ final class OrganizeTokensUITests: BaseTestCase {
     func testSortTokensByBalance_TokensSortedOnMain() {
         setAllureId(2754)
         let expectedTokensOrder: [String] = ["Ethereum", "POL (ex-MATIC)", "Polygon", "Bitcoin"]
+        let expected: TokensOrder = .mainAccount(expectedTokensOrder)
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .organizeTokens()
             .sortByBalance()
-            .verifyTokensOrder(expectedTokensOrder)
+            .verifyTokensOrder(expected)
 
         OrganizeTokensScreen(app)
             .applyChanges()
-            .verifyTokensOrder(expectedTokensOrder)
+            .verifyTokensOrder(expected)
     }
 
     func testChangeTokensOrder_TokensOrderChangedOnMain() {
         setAllureId(2753)
         let expectedTokensOrder: [String] = ["Bitcoin", "Polygon", "Ethereum", "POL (ex-MATIC)"]
+        let expected: TokensOrder = .mainAccount(expectedTokensOrder)
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .organizeTokens()
             .drag(one: "Polygon", to: "Ethereum")
-            .verifyTokensOrder(expectedTokensOrder)
+            .verifyTokensOrder(expected)
 
         OrganizeTokensScreen(app)
             .applyChanges()
-            .verifyTokensOrder(expectedTokensOrder)
+            .verifyTokensOrder(expected)
     }
 
     func testGroupUngroup_TokensGroupedAndUngroupedCorrectly() {

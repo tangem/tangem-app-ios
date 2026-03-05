@@ -169,10 +169,13 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func makeYieldModuleFlowFactory(input: SendInput, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        let factory = TransactionDispatcherFactory(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
-        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard input.walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: input.walletModel,
@@ -201,7 +204,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
-    private func openTokenDetails(walletModel: any WalletModel) {
+    private func openMainTokenDetails(walletModel: any WalletModel) {
         guard let userWalletModel = userWalletRepository.selectedModel else {
             return
         }
@@ -210,36 +213,13 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
-                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
-                    walletModel: walletModel
-                )
-            )
+        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        ) else {
+            return
         }
 
         tokenDetailsCoordinator = coordinator
@@ -275,7 +255,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 break
             }
         case .processing:
-            openTokenDetails(walletModel: input.walletModel)
+            openMainTokenDetails(walletModel: input.walletModel)
         case .notActive:
             openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
@@ -317,7 +297,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openExchange(input: ExpressDependenciesInput) {
+    func openExchange(input: ExpressDependenciesDestinationInput) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -328,30 +308,26 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
-                Task { @MainActor in
-                    let factory = CommonExpressModulesFactory(input: input)
-                    let coordinator = ExpressCoordinator(
-                        factory: factory,
-                        dismissAction: dismissAction,
-                        popToRootAction: self.popToRootAction
-                    )
-
-                    coordinator.start(with: .default)
-                    self.expressCoordinator = coordinator
-                }
-            }
-
-            Task { @MainActor [tangemStoriesPresenter] in
-                tangemStoriesPresenter.present(
-                    story: .swap(.initialWithoutImages),
-                    analyticsSource: .markets,
-                    presentCompletion: openSwapBlock
+                let factory = CommonExpressModulesFactory(input: input)
+                let coordinator = ExpressCoordinator(
+                    factory: factory,
+                    dismissAction: dismissAction,
+                    popToRootAction: popToRootAction
                 )
+
+                coordinator.start(with: .default)
+                expressCoordinator = coordinator
             }
+
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
-            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.destination.tokenItem) {
+            openViaYieldNotice(tokenItem: input.destination.tokenItem, action: action)
         } else {
             action()
         }
@@ -373,9 +349,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
 extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {

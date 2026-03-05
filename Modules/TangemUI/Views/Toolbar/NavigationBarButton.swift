@@ -34,18 +34,13 @@ public struct NavigationBarButton: View {
     }
 
     public var body: some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             systemLabelButton
         } else {
             circleIconButton
         }
-        #else
-        circleIconButton
-        #endif
     }
 
-    #if compiler(>=6.2)
     @available(iOS 26.0, *)
     private var systemLabelButton: some View {
         Button(action: action) {
@@ -58,7 +53,6 @@ public struct NavigationBarButton: View {
         }
         .glassEffect(.regular.interactive(), in: .circle)
     }
-    #endif
 
     private var circleIconButton: some View {
         Button(action: action) {
@@ -161,13 +155,11 @@ public extension NavigationBarButton {
                     action: { path.removeLast() }
                 )
 
-                #if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {}
                     }
                 }
-                #endif
             }
         }
     }

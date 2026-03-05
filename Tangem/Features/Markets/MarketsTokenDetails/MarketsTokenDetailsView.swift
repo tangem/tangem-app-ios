@@ -411,7 +411,8 @@ private extension MarketsTokenDetailsView {
         maxYieldApy: .zero,
         marketCap: 100_000_000_000,
         isUnderMarketCapLimit: false,
-        stakingOpportunities: nil
+        stakingOpportunities: nil,
+        networks: nil,
     )
 
     return MarketsTokenDetailsView(viewModel: .init(

@@ -220,6 +220,7 @@ struct AccountsAwareOrganizeTokensView: View {
                                         parametersProvider: parametersProvider
                                     )
                                     .hidden(isDragged)
+                                    .accessibilityHidden(isDragged)
                                     .readGeometry(
                                         \.frame,
                                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
@@ -247,6 +248,7 @@ struct AccountsAwareOrganizeTokensView: View {
                                     parametersProvider: parametersProvider
                                 )
                                 .hidden(isDragged)
+                                .accessibilityHidden(isDragged)
                                 .readGeometry(
                                     \.frame,
                                     inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
@@ -453,7 +455,12 @@ struct AccountsAwareOrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .default(let title, let iconData):
-                OrganizeTokensListOuterSectionView(title: title, iconData: iconData)
+                OrganizeTokensListOuterSectionView(
+                    title: title,
+                    iconData: iconData,
+                    outerSectionIndex: sectionIndex,
+                    accountId: section.model.id
+                )
             }
         }
         .background(Colors.Background.primary)

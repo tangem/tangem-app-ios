@@ -173,6 +173,7 @@ struct AccountDerivationPathHelper {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return true

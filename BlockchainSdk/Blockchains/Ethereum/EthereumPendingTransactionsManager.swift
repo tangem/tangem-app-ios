@@ -15,7 +15,7 @@ protocol EthereumPendingTransactionsManager {
 
     func syncPendingTransactions() async throws
 
-    func addTransaction(_ transaction: Transaction, hash: String)
+    func addTransactions(_ transactions: [Transaction], hashes: [String])
 }
 
 final class CommonEthereumPendingTransactionsManager {
@@ -52,6 +52,10 @@ final class CommonEthereumPendingTransactionsManager {
 
         let storedTransactions = getStoredTransactions()
         pendingTransactionsSubject.send(storedTransactions)
+
+        if !storedTransactions.isEmpty {
+            updatePendingTransactionsStatus()
+        }
 
         bind()
     }
@@ -122,33 +126,39 @@ extension CommonEthereumPendingTransactionsManager: EthereumPendingTransactionsM
         BSDKLogger.debug("pending transactions after update: \(pendingTransactionsSubject.value)")
     }
 
-    func addTransaction(_ transaction: Transaction, hash: String) {
-        guard !pendingTransactionsSubject.value.contains(where: { $0.hash == hash }) else {
-            return
+    func addTransactions(_ transactions: [Transaction], hashes: [String]) {
+        precondition(transactions.count == hashes.count, "Transactions and hashes count mismatch")
+
+        let existingHashes = Set(pendingTransactionsSubject.value.map(\.hash))
+
+        let records = zip(transactions, hashes).compactMap { transaction, hash -> PendingTransactionRecord? in
+            guard !existingHashes.contains(hash) else {
+                return nil
+            }
+
+            return mapper.mapToPendingTransactionRecord(
+                transaction: transaction,
+                hash: hash,
+                networkProviderType: networkService.networkProviderType
+            )
         }
 
-        let pendingTransaction = mapper.mapToPendingTransactionRecord(
-            transaction: transaction,
-            hash: hash,
-            networkProviderType: networkService.networkProviderType
-        )
-
         var currentPendingTransactions = pendingTransactionsSubject.value
-        currentPendingTransactions.append(pendingTransaction)
+        currentPendingTransactions.append(contentsOf: records)
 
         pendingTransactionsSubject.send(currentPendingTransactions)
+
+        // start status polling
+        updatePendingTransactionsStatus()
     }
 }
 
 private extension CommonEthereumPendingTransactionsManager {
     func bind() {
-        pendingTransactionsPublisher
-            .sink { [weak self] pendingTransactions in
-                self?.store(transactions: pendingTransactions)
-
-                if !pendingTransactions.isEmpty {
-                    self?.updatePendingTransactionsStatus()
-                }
+        pendingTransactionsSubject
+            .dropFirst()
+            .sink { [weak self] transactions in
+                self?.store(transactions: transactions)
             }
             .store(in: &bag)
     }

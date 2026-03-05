@@ -18,7 +18,8 @@ protocol ExpressModulesFactory {
 
     func makeSwapTokenSelectorViewModel(
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        coordinator: SwapTokenSelectorRoutable
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) -> SwapTokenSelectorViewModel
 
     func makeFeeSelectorViewModel(

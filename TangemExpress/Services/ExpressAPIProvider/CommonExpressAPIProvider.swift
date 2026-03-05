@@ -89,6 +89,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.providerInfo.id,
             rateType: .float,
             toAddress: item.destination.address,
+            toExtraId: item.destination.extraId,
             refundAddress: item.source.address,
             refundExtraId: nil, // There is no memo on the client side
             partnerOperationType: item.operationType.rawValue

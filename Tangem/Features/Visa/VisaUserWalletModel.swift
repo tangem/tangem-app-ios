@@ -436,19 +436,19 @@ extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaUserWalletModel: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
-        mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
+    var balance: LoadableBalanceView.State {
+        mapToLoadableBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
     }
 
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+    var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         stateSubject
             .combineLatest(balancesSubject)
             .withWeakCaptureOf(self)
-            .map { $0.mapToLoadableTokenBalanceViewState(state: $1.0, balances: $1.1) }
+            .map { $0.mapToLoadableBalanceViewState(state: $1.0, balances: $1.1) }
             .eraseToAnyPublisher()
     }
 
-    private func mapToLoadableTokenBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableTokenBalanceView.State {
+    private func mapToLoadableBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableBalanceView.State {
         switch state {
         case .notInitialized, .loading:
             return .loading()

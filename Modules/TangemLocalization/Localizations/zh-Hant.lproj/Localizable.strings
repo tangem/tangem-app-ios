@@ -362,6 +362,7 @@
 "common_unstake" = "Unstake";
 "common_utxo_validate_withdrawal_message_warning" = "由於 %1$@ 的限制，只有%2$li UTXO 可以放入單次交易中。這意味著您只能發送%3$@或更少數量。您需要減少數量。";
 "common_value_copied" = "Value copied";
+"common_wallets" = "Wallets";
 "common_warning" = "警告";
 "common_week" = "week";
 "common_with" = "with";
@@ -529,7 +530,6 @@
 "feedback_preface_support" = "嗨! 幫助團隊，";
 "feedback_preface_tx_failed" = "請告訴我們更多有關您的問題。提供任何細節都會帶來幫助";
 "feedback_subject_backup_problem" = "Backup issue";
-"feedback_subject_pre_activated_wallet" = "Previously activated wallet";
 "feedback_subject_rate_negative" = "我的建議";
 "feedback_subject_scan_failed" = "無法掃卡";
 "feedback_subject_support_tangem" = "Tangem反饋";
@@ -1310,6 +1310,9 @@
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
 "swap_story_first_subtitle" = "Multiple trusted providers in one place—swap any asset effortlessly in your wallet";
@@ -1376,7 +1379,7 @@
 "tangem_pay_unfreeze_card_success" = "您的卡片已解凍。";
 "tangem_pay_withdrawal" = "提現";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
-"tangempay_cancel_kyc" = "Cancel KYC";
+"tangempay_cancel_kyc" = "在主畫面隱藏身份驗證";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
 "tangempay_card_details_add_funds" = "添加资金";
 "tangempay_card_details_card_number" = "卡號";
@@ -1437,15 +1440,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "我们无法验证您的资料。如有任何疑问，请联系客服。";
 "tangempay_kyc_failed_title" = "很抱歉，我们无法验证您的身份";
-"tangempay_kyc_has_failed" = "KYC has failed";
+"tangempay_kyc_has_failed" = "KYC 被拒絕";
 "tangempay_kyc_in_progress_notification_button" = "查看状态";
 "tangempay_kyc_in_progress_notification_title" = "Tangem Pay 的 KYC 正在進行中";
 "tangempay_kyc_in_progress_popup_description" = "文件通常會在 5 分鐘內自動驗證完成。如需人工審核的特殊情況，可能需要最長 48 小時。";
 "tangempay_kyc_in_progress" = "KYC进行中";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
-"tangempay_kyc_rejected_description_span" = "your profile.";
-"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
-"tangempay_kyc_rejected" = "KYC rejected";
+"tangempay_kyc_rejected_description_span" = "您的身份";
+"tangempay_kyc_rejected_description" = "抱歉，我們無法驗證";
+"tangempay_kyc_rejected" = "已拒絕";
 "tangempay_onboarding_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
 "tangempay_onboarding_banner_title" = "使用 USDC 進行日常支付";
 "tangempay_onboarding_get_card_button_text" = "获取卡片";
@@ -1472,7 +1475,6 @@
 "tangempay_withdrawal_note_description" = "您的 USDC Polygon 鏈上餘額與卡片餘額不同，並在購買後 2 個工作日內更新。退款交易的資金不會返回到您的鏈上餘額或可供提現，但會保留在您的卡片餘額中用於購買。";
 "tangempay_withdrawal_note_title" = "請注意";
 "tangempay_your_pin_code" = "您的PIN码";
-"this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
 "toast_undo" = "Undo";
@@ -1636,7 +1638,6 @@
 "wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
 "wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "掃描卡片";
-"wallet_been_activated_message" = "此钱包之前已被激活。\n如果不是您本人激活，请联系客服。\nTangem 绝不会出售附带预生成助记词的钱包。";
 "wallet_connect_error_timeout" = "無法建立 WalletConnect 連接:超時錯誤。請稍後再試";
 "wallet_connect_multiple_transactions_description" = "To process successfully, your transaction will be split into multiple parts. You'll need to tap your card several times to complete it.";
 "wallet_connect_multiple_transactions" = "Multi-Part Transaction";
@@ -1732,6 +1733,8 @@
 "warning_express_refresh_required_title" = "Service temporarily unavailable";
 "warning_express_too_maximum_amount_title" = "The amount of tokens to be swapped must not exceed %@";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";
+"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
+"warning_express_unsupported_pair_title" = "Unsupported swap pair";
 "warning_express_wrong_amount_description" = "Please change the amount to swap";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";

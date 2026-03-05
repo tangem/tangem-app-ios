@@ -7,6 +7,7 @@
 //
 
 protocol AccountsAwareAddTokenFlowRoutable: AnyObject {
+    @MainActor
     func close()
     func presentSuccessToast(with text: String)
     func presentErrorToast(with text: String)

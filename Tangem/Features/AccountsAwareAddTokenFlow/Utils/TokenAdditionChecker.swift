@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemLocalization
 
 /// Unified checker for token addition status across accounts and wallets.
 enum TokenAdditionChecker {
@@ -63,6 +64,26 @@ enum TokenAdditionChecker {
         }
 
         return true
+    }
+
+    /// Creates an account availability provider that marks accounts as unavailable
+    /// when the token is already added on all available networks.
+    static func makeAccountAvailabilityProvider(
+        coinId: String,
+        availableNetworks: [NetworkModel]
+    ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
+        { context in
+            let isAddedOnAll = isTokenAddedOnNetworks(
+                account: context.account,
+                coinId: coinId,
+                availableNetworks: availableNetworks,
+                supportedBlockchains: context.supportedBlockchains
+            )
+
+            return isAddedOnAll
+                ? .unavailable(reason: Localization.marketsTokenAdded)
+                : .available
+        }
     }
 }
 

@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemUIUtils.AlertBinder
+import TangemUI
 
 final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     let title: Title
@@ -23,13 +24,13 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     @Published private(set) var alternativeAmount: String?
     @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
 
-    @Published private(set) var balance: LoadableTokenBalanceView.State?
+    @Published private(set) var balance: LoadableBalanceView.State?
 
     private let isApproximateAmount: Bool
     private let tokenItem: TokenItem
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
-    private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
+    private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
     private var amountPublisherSubscription: AnyCancellable?
     private var balancePublisherSubscription: AnyCancellable?
 

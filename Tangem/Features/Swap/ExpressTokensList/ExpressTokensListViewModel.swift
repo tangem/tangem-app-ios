@@ -137,7 +137,6 @@ private extension ExpressTokensListViewModel {
         unavailableWalletModels.removeAll()
 
         let availableCurrenciesSet = availableCurrencies.toSet()
-        Analytics.log(.swapChooseTokenScreenOpened, params: [.availableTokens: availableCurrencies.isEmpty ? .no : .yes])
 
         walletModels
             .forEach { walletModel in
