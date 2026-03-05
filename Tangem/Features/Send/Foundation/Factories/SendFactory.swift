@@ -9,7 +9,7 @@
 import TangemStaking
 
 protocol SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel
 }
 
 struct SendFactory {

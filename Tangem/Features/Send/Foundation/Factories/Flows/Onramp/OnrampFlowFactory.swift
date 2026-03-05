@@ -51,7 +51,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension OnrampFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let onramp = makeOnrampSummaryStep()
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: tokenItem,

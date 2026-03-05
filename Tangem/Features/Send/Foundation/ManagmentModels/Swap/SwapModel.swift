@@ -889,10 +889,6 @@ extension SwapModel: SendFeeInput {
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
-    func userDidDismissFeeSelection() {
-        updateFees()
-    }
-
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
         tokenFeeProvidersManager?.update(feeOption: feeOption)

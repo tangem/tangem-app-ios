@@ -52,7 +52,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension SwapFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSwapAmountStep()
         let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders()
@@ -95,7 +95,6 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
-            autoupdatingTimer: autoupdatingTimer,
             router: router
         )
 
@@ -105,6 +104,8 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         swapModel.router = viewModel
         swapModel.alertPresenter = viewModel
         swapModel.externalAmountUpdater = amount.amountUpdater
+
+        coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
 
         return viewModel
     }
