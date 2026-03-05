@@ -64,6 +64,7 @@ extension CommonOnrampPendingTransactionRepository: OnrampPendingTransactionRepo
             fromAmount: txData.fromAmount,
             fromCurrencyCode: txData.fromCurrencyCode,
             destinationTokenTxInfo: .init(
+                userWalletId: userWalletId,
                 tokenItem: txData.destinationTokenItem,
                 address: txData.destinationAddress,
                 amountString: "",

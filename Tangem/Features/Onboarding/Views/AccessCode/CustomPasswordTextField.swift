@@ -17,6 +17,7 @@ struct CustomPasswordTextField: View {
 
     var password: Binding<String>
     var shouldBecomeFirstResponder: Bool = true
+    var accessibilityIdentifier: String? = nil
 
     var onEditingChanged: (Bool) -> Void = { _ in }
     var onCommit: () -> Void = {}
@@ -26,6 +27,7 @@ struct CustomPasswordTextField: View {
             shouldBecomeFirstResponder: shouldBecomeFirstResponder,
             placeholder: placeholder,
             text: password,
+            accessibilityIdentifier: accessibilityIdentifier,
             onEditingChanged: onEditingChanged,
             onCommit: onCommit
         )
@@ -47,6 +49,7 @@ private extension CustomPasswordTextField {
         let shouldBecomeFirstResponder: Bool
         let placeholder: String
         let text: Binding<String>
+        var accessibilityIdentifier: String?
         var onEditingChanged: (Bool) -> Void = { _ in }
         var onCommit: () -> Void = {}
 
@@ -58,6 +61,7 @@ private extension CustomPasswordTextField {
                 text: text,
                 onCommit: onCommit
             )
+            .accessibilityIdentifier(accessibilityIdentifier)
             .focused($focusedField, equals: .secure)
             .keyboardType(.default)
             .writingToolsBehaviorDisabled()
