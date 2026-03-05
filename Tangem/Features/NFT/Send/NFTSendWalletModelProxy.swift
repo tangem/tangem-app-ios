@@ -371,12 +371,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         lhs.id == rhs.id
     }
 
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        mainTokenWalletModel.receiveAddressInfos
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
-        mainTokenWalletModel.receiveAddressTypes
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
+        mainTokenWalletModel.receiveAddressTypesPublisher
     }
 
     func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
