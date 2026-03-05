@@ -29,7 +29,7 @@ struct UserSettingsAccountsSectionView: View {
                 AddListItemButton(viewData: viewData)
             },
             sectionHeader: {
-                accountsSectionHeader
+                DefaultHeaderView(Localization.commonAccounts)
             },
             sectionFooter: viewModel.archivedAccountsButton.map {
                 makeSectionFooter(from: $0)
@@ -37,16 +37,10 @@ struct UserSettingsAccountsSectionView: View {
             footer: {
                 // there is no need to show "reorder" text if there are less than 2 accounts
                 if viewModel.moreThatOneActiveAccount {
-                    Text(Localization.accountReorderDescription)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    DefaultFooterView(Localization.accountReorderDescription)
                 }
             }
         )
-    }
-
-    private var accountsSectionHeader: some View {
-        Text(Localization.commonAccounts)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
     private func makeSectionFooter(from buttonModel: UserSettingsAccountsViewModel.ArchivedAccountsButtonViewData) -> some View {

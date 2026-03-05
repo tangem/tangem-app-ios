@@ -31,6 +31,8 @@ struct QuickNodeAPIResolver {
             return keysConfig.quickNodeSolanaCredentials
         case .plasma:
             return keysConfig.quickNodePlasmaCredentials
+        case .monad:
+            return keysConfig.quickNodeMonadCredentials
         default:
             return nil
         }

@@ -17,6 +17,9 @@ protocol TopMarketWidgetAnalyticsProvider {
 
     /// Logs when user opens the token list from widget.
     func logTopMarketTokenListOpened()
+
+    /// Logs when user opens token chart from widget.
+    func logMarketsChartScreenOpened(tokenSymbol: String)
 }
 
 // MARK: - Pulse Market Widget Analytics
@@ -31,6 +34,9 @@ protocol PulseMarketWidgetAnalyticsProvider {
 
     /// Logs the sort parameters when opening the list.
     func logTokensSort(type: String, period: String)
+
+    /// Logs when user opens token chart from widget.
+    func logMarketsChartScreenOpened(tokenSymbol: String)
 }
 
 // MARK: - News Widget Analytics

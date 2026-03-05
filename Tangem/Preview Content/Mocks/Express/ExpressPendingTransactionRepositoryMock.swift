@@ -16,9 +16,7 @@ class ExpressPendingTransactionRepositoryMock: ExpressPendingTransactionReposito
 
     func updateItems(_ items: [ExpressPendingTransactionRecord]) {}
 
-    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String) {}
-
-    func onrampTransactionDidSend(_ txData: SentOnrampTransactionData, userWalletId: String) {}
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData) {}
 
     func hideSwapTransaction(with id: String) {}
 }

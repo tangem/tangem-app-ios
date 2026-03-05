@@ -19,16 +19,16 @@ protocol SendDestinationValidator {
 class CommonSendDestinationValidator {
     private let walletAddresses: [String]
     private let addressService: AddressService
-    private let supportsCompound: Bool
+    private let allowSameAddressTransaction: Bool
 
     init(
         walletAddresses: [String],
         addressService: AddressService,
-        supportsCompound: Bool
+        allowSameAddressTransaction: Bool
     ) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
-        self.supportsCompound = supportsCompound
+        self.allowSameAddressTransaction = allowSameAddressTransaction
     }
 }
 
@@ -40,7 +40,7 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
 
         // e.g. XRP xAddress
         let resolvedAddress = addressService.resolveAddress(address)
-        if !supportsCompound, walletAddresses.contains(resolvedAddress) {
+        if !allowSameAddressTransaction, walletAddresses.contains(resolvedAddress) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 

@@ -52,8 +52,8 @@ extension CommonWCService: WCService {
                     }
 
                     switch walletRepositoryEvent {
-                    case .locked:
-                        // do nothing for locked event
+                    case .locked, .reordered:
+                        // do nothing for locked or reordered event
                         break
 
                     case .unlocked, .inserted, .unlockedWallet, .deleted, .selected:
