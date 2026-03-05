@@ -17,6 +17,7 @@ struct SwapSummaryView: View {
     @ObservedObject var viewModel: SwapSummaryViewModel
     @FocusState.Binding var keyboardActive: Bool
 
+    @State private var didInitialFocus: Bool = false
     @State private var viewGeometryInfo: GeometryInfo = .zero
     @State private var contentSize: CGSize = .zero
     @State private var bottomViewSize: CGSize = .zero
@@ -54,6 +55,14 @@ struct SwapSummaryView: View {
         .keyboardToolbar(keyboardToolbarContent)
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
+        .onChange(of: viewModel.swapAmountViewModel.isInputDisabled) { isDisabled in
+            if isDisabled {
+                keyboardActive = false
+            } else if !didInitialFocus {
+                didInitialFocus = true
+                keyboardActive = true
+            }
+        }
     }
 
     // MARK: - Fee
