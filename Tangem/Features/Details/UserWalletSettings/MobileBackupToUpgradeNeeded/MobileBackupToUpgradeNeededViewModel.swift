@@ -16,12 +16,21 @@ final class MobileBackupToUpgradeNeededViewModel {
     let description = Localization.hwBackupToUpgradeDescription
     let actionTitle = Localization.hwBackupNeedAction
 
+    private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
+    private let onBackupFinished: () -> Void
     private weak var coordinator: MobileBackupToUpgradeNeededRoutable?
-    private let onBackup: () -> Void
 
-    init(coordinator: MobileBackupToUpgradeNeededRoutable, onBackup: @escaping () -> Void) {
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        onBackupFinished: @escaping () -> Void,
+        coordinator: MobileBackupToUpgradeNeededRoutable
+    ) {
+        self.userWalletModel = userWalletModel
+        self.source = source
+        self.onBackupFinished = onBackupFinished
         self.coordinator = coordinator
-        self.onBackup = onBackup
     }
 }
 
@@ -46,8 +55,8 @@ extension MobileBackupToUpgradeNeededViewModel {
 @MainActor
 private extension MobileBackupToUpgradeNeededViewModel {
     func openMobileBackup() {
-        close()
-        onBackup()
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel, source: source))
+        coordinator?.openMobileOnboardingFromMobileBackupToUpgradeNeeded(input: input, onBackupFinished: onBackupFinished)
     }
 
     func close() {

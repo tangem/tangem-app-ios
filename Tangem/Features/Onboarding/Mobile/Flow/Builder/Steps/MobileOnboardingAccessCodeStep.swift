@@ -25,7 +25,7 @@ final class MobileOnboardingAccessCodeStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingAccessCodeView(viewModel: viewModel)
     }
 }

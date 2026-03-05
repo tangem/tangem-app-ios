@@ -8,17 +8,27 @@
 
 import SwiftUI
 
-struct AnimatableGradient: AnimatableModifier {
-    let backgroundColor: Color
-    let progressColor: Color
-    var gradientStop: CGFloat
+public struct AnimatableGradient: AnimatableModifier {
+    private let backgroundColor: Color
+    private let progressColor: Color
+    private var gradientStop: CGFloat
 
-    var animatableData: CGFloat {
+    public var animatableData: CGFloat {
         get { gradientStop }
         set { gradientStop = newValue }
     }
 
-    func body(content: Content) -> some View {
+    public init(
+        backgroundColor: Color,
+        progressColor: Color,
+        gradientStop: CGFloat
+    ) {
+        self.backgroundColor = backgroundColor
+        self.progressColor = progressColor
+        self.gradientStop = gradientStop
+    }
+
+    public func body(content: Content) -> some View {
         LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: progressColor, location: gradientStop),

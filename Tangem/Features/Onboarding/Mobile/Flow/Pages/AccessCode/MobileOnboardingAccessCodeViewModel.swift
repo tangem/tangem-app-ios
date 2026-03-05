@@ -30,6 +30,8 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     let codeLength: Int = 6
     let shakeDuration: TimeInterval = 0.3
 
+    let navigationTitle = Localization.accessCodeNavtitle
+
     var leadingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarItem()
     }
@@ -319,7 +321,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         switch state {
         case .accessCode:
-            item = nil
+            item = makeAccessCodeLeadingNavBarItem()
         case .confirmAccessCode:
             let backHandler = weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onBackTap)
             item = .back(handler: backHandler)
@@ -337,12 +339,28 @@ private extension MobileOnboardingAccessCodeViewModel {
         }
     }
 
+    func makeAccessCodeLeadingNavBarItem() -> MobileOnboardingFlowNavBarAction? {
+        switch mode {
+        case .change: makeCloseNavBarAction()
+        case .create(let canSkip): canSkip ? nil : makeCloseNavBarAction()
+        }
+    }
+
+    func makeCloseNavBarAction() -> MobileOnboardingFlowNavBarAction {
+        let handler = weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onCloseTap)
+        return .close(handler: handler)
+    }
+
     func onSkipTap() {
         alert = makeSkipAlert()
     }
 
     func onBackTap() {
         reset(state: .accessCode)
+    }
+
+    func onCloseTap() {
+        delegate?.onAccessCodeClose()
     }
 }
 
