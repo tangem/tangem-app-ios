@@ -25,7 +25,7 @@ final class MobileOnboardingSeedPhraseValidationStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseValidationView(viewModel: viewModel)
     }
 }
