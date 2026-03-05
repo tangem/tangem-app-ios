@@ -11,4 +11,5 @@ import Foundation
 protocol MobileOnboardingAccessCodeDelegate: AnyObject {
     func getUserWalletModel() -> UserWalletModel?
     func didCompleteAccessCode()
+    func onAccessCodeClose()
 }

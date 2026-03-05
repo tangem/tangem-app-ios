@@ -15,21 +15,16 @@ struct MobileOnboardingSeedPhraseRevealView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @Environment(\.dismiss) private var dismiss
-
     private let wordsVerticalSpacing: CGFloat = 18
 
     var body: some View {
         content
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(leading: {
+                MobileOnboardingFlowNavBarAction.close(handler: viewModel.onCloseTap).view()
+            })
             .screenCaptureProtection()
             .alert(item: $viewModel.alert) { $0.alert }
-            .onChange(of: viewModel.shouldDismiss, perform: dismissIfNeeded)
-    }
-
-    private func dismissIfNeeded(shouldDismiss: Bool) {
-        if shouldDismiss {
-            dismiss()
-        }
     }
 }
 
