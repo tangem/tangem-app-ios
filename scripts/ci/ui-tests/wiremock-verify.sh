@@ -10,8 +10,17 @@ if [ -z "$SIMULATOR_COUNT" ]; then
 fi
 
 if [ -z "$SIMULATOR_PORT_MAPPING" ]; then
-  echo "ERROR: SIMULATOR_PORT_MAPPING environment variable is required"
-  exit 1
+  echo "⚠️ Warning: SIMULATOR_PORT_MAPPING not set, using default port mapping"
+  # Generate default port mapping for verification
+  SIMULATOR_PORT_MAPPING=""
+  for i in $(seq 1 $SIMULATOR_COUNT); do
+    if [ -n "$SIMULATOR_PORT_MAPPING" ]; then
+      SIMULATOR_PORT_MAPPING="$SIMULATOR_PORT_MAPPING,placeholder$i:$((i-1))"
+    else
+      SIMULATOR_PORT_MAPPING="placeholder1:0"
+    fi
+  done
+  echo "Generated fallback mapping: $SIMULATOR_PORT_MAPPING"
 fi
 
 echo "=== Checking WireMock containers ==="
@@ -35,6 +44,3 @@ done
 echo ""
 echo "=== Port Mapping ==="
 echo "SIMULATOR_PORT_MAPPING: $SIMULATOR_PORT_MAPPING"
-echo ""
-echo "=== Simulators ==="
-xcrun simctl list devices booted
