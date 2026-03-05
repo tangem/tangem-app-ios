@@ -536,7 +536,7 @@ extension SwapModel {
                 swappingPairDidChange()
 
             case (.success(let source), _):
-                try await expressPairsRepository.updatePairs(
+                await updatePairsIgnoringErrors(
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
@@ -546,7 +546,7 @@ extension SwapModel {
                 update(receive: destination)
 
             case (_, .success(let destination as SendSwapableToken)):
-                try await expressPairsRepository.updatePairs(
+                await updatePairsIgnoringErrors(
                     for: destination.tokenItem.expressCurrency,
                     userWalletInfo: destination.userWalletInfo
                 )
@@ -580,6 +580,14 @@ extension SwapModel {
             if _sourceToken.value.isLoading {
                 _sourceToken.send(.failure(error))
             }
+        }
+    }
+
+    private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
+        do {
+            try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
+        } catch {
+            ExpressLogger.info("Update pairs failed with error: \(error)")
         }
     }
 }
