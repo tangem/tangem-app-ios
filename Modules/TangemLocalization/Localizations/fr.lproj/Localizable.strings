@@ -362,6 +362,7 @@
 "common_unstake" = "Unstakez";
 "common_utxo_validate_withdrawal_message_warning" = "En raison d'une limitations sur les %1$@, seuls les %2$li UTXO peuvent s'intégrer dans une seule transaction. Ce qui signifie vous ne pouvez envoyer que %3$@ ou moins. Réduisez le montant.";
 "common_value_copied" = "Valeur copiée";
+"common_wallets" = "Wallets";
 "common_warning" = "Alerte";
 "common_week" = "semaine";
 "common_with" = "avec";
@@ -529,7 +530,6 @@
 "feedback_preface_support" = "Chère équipe de support,";
 "feedback_preface_tx_failed" = "Veuillez nous en dire plus sur votre problème. Chaque petit détail peut nous aider.";
 "feedback_subject_backup_problem" = "Problème de sauvegarde";
-"feedback_subject_pre_activated_wallet" = "Portefeuille précédemment activé";
 "feedback_subject_rate_negative" = "Mes suggestions";
 "feedback_subject_scan_failed" = "Impossible de scanner une carte";
 "feedback_subject_support_tangem" = "Commentaires sur Tangem";
@@ -1310,6 +1310,9 @@
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
+"swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
 "swap_story_first_subtitle" = "Plusieurs fournisseurs de confiance en un seul endroit : échangez n'importe quel actif facilement";
@@ -1376,7 +1379,7 @@
 "tangem_pay_unfreeze_card_success" = "Votre carte est dégelée.";
 "tangem_pay_withdrawal" = "Retrait";
 "tangempay_account_unable_to_use_rooted" = "Impossible à utiliser sur un appareil rooté";
-"tangempay_cancel_kyc" = "Annuler KYC";
+"tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
 "tangempay_card_details_add_funds_subtitle" = "Options de recharge";
 "tangempay_card_details_add_funds" = "Ajouter des fonds";
 "tangempay_card_details_card_number" = "Numéro de carte";
@@ -1443,9 +1446,9 @@
 "tangempay_kyc_in_progress_popup_description" = "Les documents sont généralement vérifiés automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, le processus peut prendre jusqu’à 48 heures.";
 "tangempay_kyc_in_progress" = "KYC en cours";
 "tangempay_kyc_rejected_button_text" = "Masquer le bloc KYC";
-"tangempay_kyc_rejected_description_span" = "votre profil.";
-"tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier.";
-"tangempay_kyc_rejected" = "KYC rejeté";
+"tangempay_kyc_rejected_description_span" = "votre identité.";
+"tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier";
+"tangempay_kyc_rejected" = "Refusé";
 "tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
@@ -1472,7 +1475,6 @@
 "tangempay_withdrawal_note_description" = "Votre solde USDC Polygon on-chain diffère de votre solde de carte et se met à jour dans les 2 jours ouvrables suivant un achat. Les fonds des achats remboursés ne seront pas retournés à votre solde on-chain ni disponibles pour un retrait, mais resteront sur votre solde de carte pour vos achats.";
 "tangempay_withdrawal_note_title" = "Veuillez noter";
 "tangempay_your_pin_code" = "Votre code PIN";
-"this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
 "toast_balances_shown" = "Soldes affichés";
 "toast_undo" = "Annuler";
@@ -1636,7 +1638,6 @@
 "wallet_add_mobile_description" = "Restaurez votre portefeuille sur votre téléphone ou importez-le depuis une autre application — pratique, mais moins sécurisé qu'une carte Tangem.";
 "wallet_add_support_title" = "Que choisir ?";
 "wallet_balance_missing_derivation" = "Scanner la carte ou la bague";
-"wallet_been_activated_message" = "Ce portefeuille a déjà été activé auparavant.\nSi cela n'a pas été fait par vous, veuillez contacter le support.\nTangem ne vend jamais de portefeuilles avec le code d'accès pré-généré.";
 "wallet_connect_error_timeout" = "Échec de l'établissement de la session WalletConnect : erreur de délai d'attente. Veuillez réessayer plus tard.";
 "wallet_connect_multiple_transactions_description" = "Pour que le traitement soit effectué correctement, votre transaction sera divisée en plusieurs parties. Vous devrez passer votre carte plusieurs fois pour la finaliser.";
 "wallet_connect_multiple_transactions" = "Transaction en plusieurs parties";
@@ -1732,6 +1733,8 @@
 "warning_express_refresh_required_title" = "Service temporairement indisponible";
 "warning_express_too_maximum_amount_title" = "Le nombre de jetons à échanger ne doit pas dépasser %@";
 "warning_express_too_minimal_amount_title" = "Le montant à échanger doit être d'au moins %@";
+"warning_express_unsupported_pair_description" = "L’échange n’est pas disponible pour cette paire. Veuillez sélectionner un autre token et réessayer.";
+"warning_express_unsupported_pair_title" = "Paire d’échange non prise en charge.";
 "warning_express_wrong_amount_description" = "Veuillez modifier le montant à échanger";
 "warning_failed_to_verify_card_message" = "Cette carte pourrait être un échantillon de production ou une contrefaçon";
 "warning_failed_to_verify_card_title" = "Échec de la vérification d'authenticité";
