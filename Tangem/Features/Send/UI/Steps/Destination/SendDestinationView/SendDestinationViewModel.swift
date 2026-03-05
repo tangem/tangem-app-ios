@@ -43,7 +43,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private weak var router: SendDestinationRoutable?
     private weak var destinationAccountOutput: SendDestinationAccountOutput?
 
-    private var allFieldsIsValidSubscription: AnyCancellable?
+    private var updatingTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     weak var stepRouter: SendDestinationStepRoutable?
@@ -125,13 +125,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             .addressPublisher()
             .dropFirst()
             .withWeakCaptureOf(self)
-            .debounce(for: .seconds(1)) { viewModel, destination in
-                !destination.string.isEmpty && viewModel.interactor.willResolve(address: destination.string)
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, destination in
-                viewModel.interactor.update(destination: destination.string, source: destination.source)
-            }
+            .receiveOnMain()
+            .sink { $0.addressDidChanged(destination: $1) }
             .store(in: &bag)
 
         interactor.destinationResolvedAddress
@@ -241,38 +236,51 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
+    private func userDidTapSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
         FeedbackGenerator.success()
 
         // Set destination account info, which forwards to analytics logger
         destinationAccountOutput?.setDestinationAccountInfo(
-            analyticsProvider: destination.accountModelAnalyticsProvider
+            analyticsProvider: suggestedDestination.accountModelAnalyticsProvider
         )
 
-        destinationAddressViewModel.update(address: .init(
-            string: destination.address,
-            source: destination.type.source
-        ))
+        let destination = SendDestinationAddressViewModel.Address(
+            string: suggestedDestination.address,
+            source: suggestedDestination.type.source
+        )
 
-        if let additionalField = destination.additionalField {
+        destinationAddressViewModel.update(address: destination)
+
+        if let additionalField = suggestedDestination.additionalField {
             additionalFieldViewModel?.update(text: additionalField)
         }
 
-        allFieldsIsValidSubscription = interactor.allFieldsIsValid
-            // Drop initial value
-            .dropFirst()
-            .combineLatest(destinationAddressViewModel.addressPublisher())
-            // Take only one with this address
-            .first { $1.string == destination.address }
-            // Give some time to update UI fields
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            // Move to next steps only when all is valid
-            .filter { $0.0 }
-            .withWeakCaptureOf(self)
-            .sink {
-                $0.0.allFieldsIsValidSubscription?.cancel()
-                $0.0.stepRouter?.destinationStepFulfilled()
+        // Waiting when updatingTask is finished
+        Task {
+            try await addressDidChanged(destination: destination).value
+            await MainActor.run { stepRouter?.destinationStepFulfilled() }
+        }
+    }
+
+    @discardableResult
+    func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
+        let hasValue = !destination.string.isEmpty
+        let shouldResolve = interactor.shouldResolve(address: destination.string)
+        let shouldDebounce = hasValue && shouldResolve
+
+        let newUpdatingTask = Task { [weak self] in
+            if shouldDebounce {
+                try await Task.sleep(for: .seconds(1))
+                try Task.checkCancellation()
             }
+
+            await self?.interactor.update(destination: destination.string, source: destination.source)
+        }
+
+        updatingTask?.cancel()
+        updatingTask = newUpdatingTask
+
+        return newUpdatingTask
     }
 }
 
