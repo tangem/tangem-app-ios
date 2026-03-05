@@ -194,12 +194,16 @@ private extension CommonTokenFeeProvider {
 
         feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
             .balanceTypePublisher
-            .map { $0.loaded ?? 0 }
+            .map { $0.value ?? 0 }
             .map { allowsZeroFeePaid ? $0 >= 0 : $0 > 0 }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { feeProvider, hasFeeCurrency in
-                if !hasFeeCurrency {
+                if hasFeeCurrency {
+                    if case .unavailable(.noTokenBalance) = feeProvider.stateSubject.value {
+                        feeProvider.updateState(state: .idle)
+                    }
+                } else {
                     feeProvider.updateState(state: .unavailable(.noTokenBalance))
                 }
             }
