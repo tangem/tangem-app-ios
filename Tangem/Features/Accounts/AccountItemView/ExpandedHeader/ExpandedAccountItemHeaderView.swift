@@ -120,7 +120,7 @@ struct ExpandedAccountItemHeaderView: View {
         if shouldShowBalance {
             LoadableBalanceView(
                 state: totalFiatBalance,
-                style: .init(font: .Tangem.caption1Medium, textColor: .Tangem.Text.Neutral.tertiary),
+                style: .init(font: Font.Tangem.Caption12.semibold, textColor: .Tangem.Text.Neutral.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .matchedGeometryEffect(balanceGeometryEffect)

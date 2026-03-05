@@ -162,14 +162,14 @@ struct LoadableTextView_Previews: PreviewProvider {
                 HStack(spacing: 8) {
                     LoadableTextView(
                         state: .loading,
-                        font: .Tangem.caption1,
+                        font: .Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12)
                     )
 
                     LoadableTextView(
                         state: .loaded(text: "0.21432543264 ETH"),
-                        font: .Tangem.caption1,
+                        font: .Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12)
                     )
@@ -184,7 +184,7 @@ struct LoadableTextView_Previews: PreviewProvider {
                 HStack(spacing: 8) {
                     LoadableTextView(
                         state: .loading,
-                        font: .Tangem.caption1,
+                        font: .Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12),
                         loaderCornerRadiusStyle: .capsule
@@ -192,7 +192,7 @@ struct LoadableTextView_Previews: PreviewProvider {
 
                     LoadableTextView(
                         state: .loaded(text: "0.21432543264 ETH"),
-                        font: .Tangem.caption1,
+                        font: .Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12),
                         loaderCornerRadiusStyle: .capsule
@@ -205,7 +205,7 @@ struct LoadableTextView_Previews: PreviewProvider {
             ForEach(states.indexed(), id: \.1.1) { _, state in
                 LoadableTextView(
                     state: state.0,
-                    font: .Tangem.caption1,
+                    font: .Tangem.Caption12.regular,
                     textColor: .Tangem.Text.Neutral.tertiary,
                     loaderSize: .init(width: 100, height: 20)
                 )

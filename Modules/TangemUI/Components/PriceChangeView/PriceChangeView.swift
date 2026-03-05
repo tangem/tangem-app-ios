@@ -87,7 +87,7 @@ public struct PriceChangeView: View {
     @ViewBuilder
     private func styledText(_ text: String, textColor: Color? = nil) -> some View {
         let color = textColor ?? defaultTextColor
-        let font: Font = useRedesignColors ? .Tangem.caption1 : Fonts.Regular.caption1
+        let font: Font = useRedesignColors ? .Tangem.Caption12.regular : Fonts.Regular.caption1
         Text(text)
             .style(font, color: color)
             .lineLimit(1)
