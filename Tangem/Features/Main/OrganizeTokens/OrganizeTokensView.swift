@@ -212,6 +212,7 @@ struct OrganizeTokensView: View {
                             parametersProvider: parametersProvider
                         )
                         .hidden(isDragged)
+                        .accessibilityHidden(isDragged)
                         .readGeometry(
                             \.frame,
                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
@@ -234,6 +235,7 @@ struct OrganizeTokensView: View {
                         parametersProvider: parametersProvider
                     )
                     .hidden(isDragged)
+                    .accessibilityHidden(isDragged)
                     .readGeometry(
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)

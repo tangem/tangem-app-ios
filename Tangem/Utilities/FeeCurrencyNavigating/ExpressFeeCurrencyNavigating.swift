@@ -17,7 +17,9 @@ protocol ExpressFeeCurrencyNavigating: FeeCurrencyNavigating {
 // MARK: - Default implementation
 
 extension ExpressFeeCurrencyNavigating {
-    func makeExpressCoordinator(factory: any ExpressModulesFactory) -> ExpressCoordinator {
+    func makeExpressCoordinator(
+        factory: any ExpressModulesFactory,
+    ) -> ExpressCoordinator {
         return ExpressCoordinator(
             factory: factory,
             dismissAction: makeExpressCoordinatorDismissAction(),

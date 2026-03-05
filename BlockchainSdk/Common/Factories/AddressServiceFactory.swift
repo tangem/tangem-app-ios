@@ -73,6 +73,7 @@ public struct AddressServiceFactory {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return EVMAddressService()

@@ -92,11 +92,12 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         )
     }
 
-    func sendTransactionEvent(txHash: String, operation: String) async throws {
+    func sendTransactionEvent(txHash: String, operation: String, userAddress: String?) async throws {
         try await request(
             for: .transactionEvents(
                 txHash: txHash,
                 operation: operation,
+                userAddress: userAddress,
             )
         )
     }
