@@ -15,7 +15,6 @@ enum SendStepType {
     case finish(SendFinishViewModel)
     case targets(StakingTargetsViewModel)
     case onramp(OnrampSummaryViewModel)
-    case swapAmount(SwapAmountViewModel)
     case swap(SwapSummaryViewModel)
 
     var isSummary: Bool {
@@ -41,7 +40,6 @@ extension SendStepType: Identifiable {
     var id: ObjectIdentifier {
         switch self {
         case .amount(let viewModel): viewModel.id
-        case .swapAmount(let viewModel): viewModel.id
         case .destination(let viewModel): viewModel.id
         case .targets(let viewModel): viewModel.id
         case .summary(let viewModel): viewModel.id
@@ -63,7 +61,7 @@ extension SendStepType: Equatable {
 extension SendStepType {
     var analyticsSourceParameterValue: Analytics.ParameterValue {
         switch self {
-        case .amount, .swapAmount: .amount
+        case .amount: .amount
         case .destination: .address
         case .targets: .stakeSourceValidators
         case .summary: .summary
