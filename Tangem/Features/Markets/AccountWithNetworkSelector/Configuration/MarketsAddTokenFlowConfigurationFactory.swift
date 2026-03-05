@@ -53,7 +53,19 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         analyticsLogger: GetTokenAnalyticsLogger,
         coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration {
-        AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+        let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
+
+        return AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+            isBuyAvailable: { tokenItem, accountSelectorCell in
+                let config = accountSelectorCell.userWalletModel.config
+                guard config.isFeatureVisible(.exchange) else { return false }
+                return expressAvailabilityProvider.canOnramp(tokenItem: tokenItem)
+            },
+            isExchangeAvailable: { tokenItem, accountSelectorCell in
+                let config = accountSelectorCell.userWalletModel.config
+                guard config.isFeatureVisible(.swapping) else { return false }
+                return expressAvailabilityProvider.canSwap(tokenItem: tokenItem)
+            },
             onBuy: { [weak coordinator] tokenItem, accountSelectorCell in
                 handleGetTokenAction(
                     action: .buy,
@@ -115,8 +127,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             case .buy:
                 analyticsLogger.logBuyTapped()
                 let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-                let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-                coordinator.openOnramp(input: sendInput, parameters: parameters)
+                coordinator.openOnramp(input: sendInput, parameters: .none)
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()

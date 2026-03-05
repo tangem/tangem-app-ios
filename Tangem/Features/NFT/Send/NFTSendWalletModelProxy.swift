@@ -114,11 +114,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.qrReceiveMessage
     }
 
-    var balanceState: WalletModelBalanceState? {
-        // The presence of an NFT asset implicitly means that we have a positive balance
-        .positive
-    }
-
     var isDemo: Bool {
         // By definition, NFT assets can't be used in demo
         false
@@ -187,6 +182,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.updateAfterSendingTransaction()
     }
 
+    var feeTokenItemBalanceProvider: any TokenBalanceProvider {
+        mainTokenWalletModel.feeTokenItemBalanceProvider
+    }
+
     var availableBalanceProvider: TokenBalanceProvider {
         tokenBalanceProvider
     }
@@ -232,20 +231,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    var customFeeProvider: (any CustomFeeProvider)? {
-        mainTokenWalletModel.customFeeProvider
+    var customFeeProviderBuilder: CustomFeeProviderBuilder {
+        mainTokenWalletModel.customFeeProviderBuilder
     }
 
-    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
-        mainTokenWalletModel.makeTokenFeeLoader(for: tokenItem)
-    }
-
-    func hasFeeCurrency() -> Bool {
-        mainTokenWalletModel.hasFeeCurrency()
-    }
-
-    func getFeeCurrencyBalance() -> Decimal {
-        mainTokenWalletModel.getFeeCurrencyBalance()
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
+        mainTokenWalletModel.tokenFeeLoaderBuilder
     }
 
     var blockchainDataProvider: BlockchainDataProvider {
@@ -258,6 +249,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var assetRequirementsManager: AssetRequirementsManager? {
         mainTokenWalletModel.assetRequirementsManager
+    }
+
+    var transactionFeeProvider: TransactionFeeProvider {
+        mainTokenWalletModel.transactionFeeProvider
     }
 
     var transactionCreator: TransactionCreator {
@@ -274,6 +269,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var multipleTransactionsSender: (any MultipleTransactionsSender)? {
         mainTokenWalletModel.multipleTransactionsSender
+    }
+
+    var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? {
+        mainTokenWalletModel.compiledTransactionFeeProvider
     }
 
     var compiledTransactionSender: CompiledTransactionSender? {
@@ -372,12 +371,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         lhs.id == rhs.id
     }
 
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        mainTokenWalletModel.receiveAddressInfos
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
-        mainTokenWalletModel.receiveAddressTypes
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
+        mainTokenWalletModel.receiveAddressTypesPublisher
     }
 
     func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {

@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 enum WelcomeStoryPage: CaseIterable {
-    case learn
     case meetTangem
     case awe
     case backup
@@ -20,7 +19,7 @@ enum WelcomeStoryPage: CaseIterable {
 
     var duration: Double {
         switch self {
-        case .learn, .meetTangem:
+        case .meetTangem:
             return 8
         default:
             return 6
