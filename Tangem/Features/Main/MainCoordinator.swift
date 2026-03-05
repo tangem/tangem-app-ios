@@ -50,6 +50,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
+    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -59,7 +60,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
-    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
@@ -367,20 +367,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
-        Task { @MainActor in
-            let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
-                switch options {
-                case .dismiss, .main:
-                    self?.mobileUpgradeCoordinator = nil
-                }
-            }
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
 
-            let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
-            let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
-            coordinator.start(with: inputOptions)
-            mobileUpgradeCoordinator = coordinator
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.hardwareBackupTypesCoordinator = nil
+            }
         }
+
+        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        hardwareBackupTypesCoordinator = coordinator
     }
 
     func openTangemPayIssuingYourCardPopup() {
