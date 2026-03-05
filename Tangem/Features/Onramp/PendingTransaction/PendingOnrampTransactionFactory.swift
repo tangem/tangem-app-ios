@@ -61,6 +61,7 @@ struct PendingOnrampTransactionFactory {
 
         transactionRecord.transactionStatus = currentStatus
         transactionRecord.destinationTokenTxInfo = .init(
+            userWalletId: transactionRecord.destinationTokenTxInfo.userWalletId,
             tokenItem: transactionRecord.destinationTokenTxInfo.tokenItem,
             address: transactionRecord.destinationTokenTxInfo.address,
             amountString: currentOnrampTransaction.toAmount.map(\.stringValue) ?? "",

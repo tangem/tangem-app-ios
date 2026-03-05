@@ -8,6 +8,8 @@
 
 final class NoOpAddTokenFlowAnalyticsLogger: AddTokenFlowAnalyticsLogger {
     func logTokenAdded(tokenItem: TokenItem, isMainAccount: Bool) {}
+    func logAddTokenButtonTapped() {}
+    func logAddTokenScreenOpened() {}
     func logBuyTapped() {}
     func logExchangeTapped() {}
     func logReceiveTapped() {}
