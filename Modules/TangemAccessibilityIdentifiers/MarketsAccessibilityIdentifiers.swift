@@ -56,4 +56,5 @@ public enum MarketsAccessibilityIdentifiers {
     public static let securityScoreInfoButton = "marketsTokenDetailsSecurityScoreInfoButton"
     public static let securityScoreDetailsTitle = "marketsTokenDetailsSecurityScoreDetailsTitle"
     public static let securityScoreDetailsProviderLink = "marketsTokenDetailsSecurityScoreDetailsProviderLink"
+    public static let marketsSeeAllButton = "marketsSeeAllButton"
 }

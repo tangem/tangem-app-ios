@@ -148,6 +148,8 @@ final class AccountsAwareAddTokenViewModel: ObservableObject, FloatingSheetConte
     private func addToken() {
         guard !isSaving else { return }
 
+        analyticsLogger.logAddTokenButtonTapped()
+
         isSaving = true
 
         Task { [weak self] in

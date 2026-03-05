@@ -43,7 +43,7 @@ struct SendAmountCompactTokenView: View {
             Spacer()
 
             if let balance = viewModel.balance {
-                LoadableTokenBalanceView(
+                LoadableBalanceView(
                     state: balance,
                     style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
                     loader: .init(size: CGSize(width: 100, height: 18))

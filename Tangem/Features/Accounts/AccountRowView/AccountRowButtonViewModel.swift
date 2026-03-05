@@ -12,6 +12,7 @@ import CombineExt
 import TangemAccounts
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 
 final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     // MARK: - View State
@@ -77,7 +78,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
         iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
     }
 
-    private func updateSubtitleState(description: String, balanceState: LoadableTokenBalanceView.State) {
+    private func updateSubtitleState(description: String, balanceState: LoadableBalanceView.State) {
         if case .unavailable(let reason) = availability, let reason {
             subtitleState = .unavailableWithReason(reason)
             return
@@ -103,8 +104,8 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
 extension AccountRowButtonViewModel {
     enum SubtitleState: Equatable {
         case descriptionOnly(String)
-        case descriptionWithBalance(String, LoadableTokenBalanceView.State)
-        case balanceOnly(LoadableTokenBalanceView.State)
+        case descriptionWithBalance(String, LoadableBalanceView.State)
+        case balanceOnly(LoadableBalanceView.State)
         case unavailableWithReason(String)
         case none
     }
