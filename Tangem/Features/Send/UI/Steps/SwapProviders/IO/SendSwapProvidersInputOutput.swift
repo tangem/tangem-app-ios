@@ -11,7 +11,7 @@ import TangemExpress
 import TangemFoundation
 
 protocol SendSwapProvidersInput: AnyObject {
-    var expressProviders: [ExpressAvailableProvider] { get async }
+    var expressProviders: [ExpressAvailableProvider] { get }
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? { get }
