@@ -530,26 +530,65 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         )
     }
 
-    func getGaslessApproveFee(
+    func getGaslessTransactionFee(
         feeToken: Token,
-        approveData: Data,
-        contractAddress: String,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
-        // Get fee for the approve transaction using pre-built calldata. Pick the fastest fee (index 2).
-        let approveFee = try await getFee(destination: contractAddress, value: nil, data: approveData).async()
+        // Get fee for the transaction using pre-built calldata. Pick the market fee (index 1).
+        let fees = try await getFee(destination: destination, value: value, data: data).async()
 
-        guard let params = approveFee[safe: 2]?.parameters as? EthereumEIP1559FeeParameters else {
+        guard let params = fees[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
 
-        return try await buildGaslessFee(
+        var fee = try await buildGaslessFee(
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
             transactionFeeParameters: params
         )
+
+        // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
+        if let otherNativeFee, otherNativeFee > 0 {
+            fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
+        }
+
+        return fee
+    }
+
+    func getEstimatedGaslessTransactionFee(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee {
+        // Build EIP-1559 fee parameters from fee history and the provided gas limit
+        let feeHistory = try await networkService.getFeeHistory().async()
+        let eip1559Params = EthereumEIP1559FeeParameters(
+            gasLimit: BigUInt(estimatedGasLimit),
+            baseFee: feeHistory.marketBaseFee,
+            priorityFee: feeHistory.marketPriorityFee
+        )
+
+        var fee = try await buildGaslessFee(
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            transactionFeeParameters: eip1559Params
+        )
+
+        // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
+        if let otherNativeFee, otherNativeFee > 0 {
+            fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
+        }
+
+        return fee
     }
 }
 
@@ -609,6 +648,15 @@ private extension EthereumWalletManager {
 
         // 8) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: gaslessParams)
+    }
+
+    /// Converts `otherNativeFee` (e.g. bridge fee in native coin) to the fee token and adds it to the fee amount.
+    func addOtherNativeFee(_ otherNativeFee: Decimal, to fee: Fee, feeToken: Token, nativeToFeeTokenRate: Decimal) -> Fee {
+        // Apply 1% buffer to the conversion rate, matching the buffering in buildGaslessFee (bufferedNativeToFeeTokenRate)
+        let otherNativeFeeInToken = (otherNativeFee * nativeToFeeTokenRate * 1.01)
+            .rounded(scale: feeToken.decimalCount)
+
+        return Fee(.init(with: fee.amount, value: fee.amount.value + otherNativeFeeInToken), parameters: fee.parameters)
     }
 }
 
