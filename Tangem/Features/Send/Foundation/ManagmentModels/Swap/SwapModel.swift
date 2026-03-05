@@ -907,7 +907,7 @@ extension SwapModel: FeeSelectorOutput {
 
 extension SwapModel: SendFeeUpdater {
     func updateFees() {
-        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+        tokenFeeProvidersManager?.updateFees()
     }
 }
 
@@ -1149,7 +1149,7 @@ extension SwapModel: NotificationTapDelegate {
         switch action {
         case .refreshFee:
             let tokenFeeProvidersManager = try? selectedExpressProvider?.get().getTokenFeeProvidersManager()
-            tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+            tokenFeeProvidersManager?.updateFees()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
