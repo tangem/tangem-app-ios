@@ -39,6 +39,7 @@ enum SwapSummaryStepBuilder {
 
     struct Dependencies {
         let notificationManager: any NotificationManager
+        let autoupdatingTimer: AutoupdatingTimer
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
     }
@@ -74,6 +75,7 @@ enum SwapSummaryStepBuilder {
         let step = SwapSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
+            autoupdatingTimer: dependencies.autoupdatingTimer,
             analyticsLogger: dependencies.analyticsLogger
         )
 

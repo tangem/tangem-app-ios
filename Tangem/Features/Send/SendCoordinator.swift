@@ -32,14 +32,28 @@ final class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var qrScanViewCoordinator: QRScanViewCoordinator?
-    @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
-    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
+    @Published var qrScanViewCoordinator: QRScanViewCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
 
     // MARK: - Child view models
 
-    @Published var expressApproveViewModel: ExpressApproveViewModel?
-    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
+    @Published var expressApproveViewModel: ExpressApproveViewModel? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
@@ -47,6 +61,8 @@ final class SendCoordinator: CoordinatorObject {
 
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
+
+    private let stateProvider = CommonSendCoordinatorStateProvider()
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -58,7 +74,7 @@ final class SendCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let flowFactory = SendFactory().flowFactory(options: options)
-        rootViewModel = flowFactory.make(router: self)
+        rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
     }
 
     private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
@@ -105,27 +121,6 @@ extension SendCoordinator {
     enum DismissOptions {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
         case closeButtonTap
-    }
-}
-
-// MARK: - SendDestinationRoutable
-
-extension SendCoordinator: SendDestinationRoutable {
-    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
-        guard qrScanViewCoordinator == nil else {
-            AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
-            return
-        }
-
-        let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
-            self?.qrScanViewCoordinator = nil
-        }
-
-        let text = Localization.sendQrcodeScanInfo(networkName)
-        let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
-        qrScanViewCoordinator.start(with: options)
-
-        self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 }
 
@@ -212,6 +207,27 @@ extension SendCoordinator: SendRoutable {
                 onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
             )
         }
+    }
+}
+
+// MARK: - SendDestinationRoutable
+
+extension SendCoordinator: SendDestinationRoutable {
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        guard qrScanViewCoordinator == nil else {
+            AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
+            return
+        }
+
+        let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
+            self?.qrScanViewCoordinator = nil
+        }
+
+        let text = Localization.sendQrcodeScanInfo(networkName)
+        let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
+        qrScanViewCoordinator.start(with: options)
+
+        self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 }
 

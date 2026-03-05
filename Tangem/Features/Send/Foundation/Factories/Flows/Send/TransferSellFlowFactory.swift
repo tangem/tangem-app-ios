@@ -59,7 +59,7 @@ class TransferSellFlowFactory: SendFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension TransferSellFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let sendDestinationCompactViewModel = SendDestinationCompactViewModel(
             input: sendModel
         )
