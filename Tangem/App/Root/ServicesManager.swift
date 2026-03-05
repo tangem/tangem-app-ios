@@ -53,6 +53,7 @@ final class CommonServicesManager {
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
+    private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
 
@@ -61,6 +62,7 @@ final class CommonServicesManager {
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
+        customerIOWrapper = CustomerIOWrapper()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -160,6 +162,7 @@ extension CommonServicesManager: ServicesManager {
         AmplitudeWrapper.shared.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
+        customerIOWrapper.configure()
 
         configureBlockchainSdkExceptionHandler()
 
