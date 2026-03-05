@@ -51,7 +51,7 @@ class CommonSwapStepsManager {
 // MARK: - SwapStepsManager
 
 extension CommonSwapStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { true }
+    var initialKeyboardState: Bool { false }
     var initialFlowActionType: SendFlowActionType { .swap }
     var initialStep: any SendStep { summaryStep }
 
