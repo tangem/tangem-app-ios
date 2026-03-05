@@ -10,6 +10,5 @@ struct CommonSendReceiveToken: SendReceiveToken {
     let tokenItem: TokenItem
     let isCustom: Bool
     let fiatItem: FiatItem
-    let address: String?
-    let extraId: String?
+    let destination: SendReceiveTokenDestination?
 }
