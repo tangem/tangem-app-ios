@@ -277,7 +277,9 @@ if [ $SETTLE_TIME -gt 30 ]; then SETTLE_TIME=30; fi
 echo "Waiting ${SETTLE_TIME}s for $BOOTED_COUNT simulator(s) to settle before daemon checks..."
 sleep $SETTLE_TIME
 
-# Verify system daemons are responsive on each simulator (PARALLEL)
+# Verify system daemons are responsive on each simulator (PARALLEL check only)
+# NOTE: Recovery is done SEQUENTIALLY after this phase to avoid thundering herd —
+# 8 concurrent erase+boot operations can spike load avg to 900+ and exhaust memory.
 echo "Verifying system daemon readiness..."
 DAEMON_STATUS_DIR=$(mktemp -d)
 for UDID in $SIMULATOR_UDIDS; do
@@ -285,7 +287,9 @@ for UDID in $SIMULATOR_UDIDS; do
     MAX_RETRIES=30
     RETRY=0
     while [ $RETRY -lt $MAX_RETRIES ]; do
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
+      # Use 'launchctl list' (one line per service) instead of 'launchctl print system'
+      # (full hierarchy dump) — much less data and I/O per check
+      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl list 2>/dev/null || true)
       if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
         echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
         echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
@@ -296,29 +300,7 @@ for UDID in $SIMULATOR_UDIDS; do
       sleep 3
     done
 
-    # Daemon check timed out — attempt recovery: shutdown -> erase -> reboot -> recheck
-    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts. Attempting recovery..."
-    run_with_timeout 15 xcrun simctl shutdown "$UDID" 2>/dev/null || true
-    sleep 2
-    run_with_timeout 15 xcrun simctl erase "$UDID" 2>/dev/null || true
-    sleep 2
-    run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
-    sleep 5
-
-    # Recheck after recovery
-    RECOVERY_RETRIES=10
-    for r in $(seq 1 $RECOVERY_RETRIES); do
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
-      if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
-        echo "Simulator $UDID: recovered after erase+reboot (attempt $r)"
-        echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
-        exit 0
-      fi
-      echo "Simulator $UDID: recovery daemon check $r/$RECOVERY_RETRIES..."
-      sleep 3
-    done
-
-    echo "ERROR: Simulator $UDID failed daemon recovery"
+    echo "WARNING: Simulator $UDID daemons not ready after $MAX_RETRIES attempts"
     echo "fail" > "$DAEMON_STATUS_DIR/$UDID"
   ) &
 done
@@ -340,6 +322,60 @@ for UDID in $SIMULATOR_UDIDS; do
   fi
 done
 rm -rf "$DAEMON_STATUS_DIR"
+
+# Sequential recovery for simulators that failed daemon checks.
+# One at a time to avoid overloading the machine (thundering herd prevention).
+if [ $DAEMON_FAILURES -gt 0 ]; then
+  echo "Attempting SEQUENTIAL recovery for $DAEMON_FAILURES failed simulator(s)..."
+  RECOVERED_UDIDS=""
+  PERMANENTLY_FAILED_UDIDS=""
+
+  for UDID in $DAEMON_FAILED_UDIDS; do
+    echo "--- Recovering simulator $UDID ---"
+
+    echo "  Shutting down..."
+    run_with_timeout 15 xcrun simctl shutdown "$UDID" 2>/dev/null || true
+    sleep 2
+
+    echo "  Erasing..."
+    run_with_timeout 15 xcrun simctl erase "$UDID" 2>/dev/null || true
+    sleep 2
+
+    echo "  Booting..."
+    run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
+
+    echo "  Waiting 10s for simulator to settle..."
+    sleep 10
+
+    # Recheck daemon with lightweight command
+    RECOVERY_OK=false
+    RECOVERY_RETRIES=10
+    for r in $(seq 1 $RECOVERY_RETRIES); do
+      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl list 2>/dev/null || true)
+      if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
+        echo "  Simulator $UDID: recovered after erase+reboot (attempt $r)"
+        RECOVERY_OK=true
+        break
+      fi
+      echo "  Simulator $UDID: recovery daemon check $r/$RECOVERY_RETRIES..."
+      sleep 3
+    done
+
+    if [ "$RECOVERY_OK" = "true" ]; then
+      RECOVERED_UDIDS="$RECOVERED_UDIDS $UDID"
+    else
+      echo "  ERROR: Simulator $UDID permanently failed recovery"
+      PERMANENTLY_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS $UDID"
+    fi
+  done
+
+  # Update failure tracking: only permanently failed simulators count
+  DAEMON_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS"
+  DAEMON_FAILURES=$(echo "$PERMANENTLY_FAILED_UDIDS" | wc -w | tr -d ' ')
+  RECOVERED_COUNT=$(echo "$RECOVERED_UDIDS" | wc -w | tr -d ' ')
+
+  echo "Recovery complete: $RECOVERED_COUNT recovered, $DAEMON_FAILURES permanently failed"
+fi
 
 if [ $DAEMON_FAILURES -gt 0 ]; then
   echo "WARNING: $DAEMON_FAILURES simulator(s) have unresponsive system daemons"
