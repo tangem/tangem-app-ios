@@ -12,7 +12,7 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationValidator {
-    func validate(destination: String) throws
+    func validate(destination: String) throws(SendAddressServiceError)
     func canEmbedAdditionalField(into address: String) -> Bool
 }
 
@@ -33,7 +33,7 @@ class CommonSendDestinationValidator {
 }
 
 extension CommonSendDestinationValidator: SendDestinationValidator {
-    func validate(destination address: String) throws {
+    func validate(destination address: String) throws(SendAddressServiceError) {
         if address.isEmpty {
             throw SendAddressServiceError.emptyAddress
         }
