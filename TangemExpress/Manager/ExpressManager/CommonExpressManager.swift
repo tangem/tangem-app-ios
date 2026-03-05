@@ -180,19 +180,19 @@ private extension CommonExpressManager {
 
                 return ExpressAvailableProvider(
                     provider: provider,
+                    manager: manager,
                     isBest: false,
                     isAvailable: availableProviderIds.contains(provider.id),
-                    manager: manager
                 )
             }
         }
 
         allProviders.forEach { provider in
-            provider.isBest = false
-
             let isSupportedBySource = pair.source.supportedProvidersFilter.isSupported(provider: provider.provider)
             let isSupportedByExpress = availableProviderIds.contains(provider.provider.id)
-            provider.isAvailable = isSupportedBySource && isSupportedByExpress
+
+            provider.update(isBest: false)
+            provider.update(isAvailable: isSupportedBySource && isSupportedByExpress)
         }
     }
 
@@ -218,7 +218,8 @@ private extension CommonExpressManager {
 
         availableProviders.forEach { provider in
             // We set the `isBest` flag only if we have more than one enabled provider
-            provider.isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
+            let isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
+            provider.update(isBest: isBest)
 
             ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
