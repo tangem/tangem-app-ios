@@ -22,7 +22,7 @@ extension XCTestCase {
     func checkCondition(
         _ description: String,
         _ condition: Bool,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) {
         XCTContext.runActivity(named: "Checking that \(description)") { _ in
@@ -39,7 +39,7 @@ extension XCTestCase {
         _ description: String,
         _ value: T,
         _ compareTo: T,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) where T: Equatable {
         XCTContext.runActivity(named: "Checking that \(description)") { _ in
@@ -56,7 +56,7 @@ extension XCTestCase {
         _ description: String,
         _ value: T,
         _ compareTo: T,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) where T: Equatable {
         XCTContext.runActivity(named: "Checking that \(description)") { _ in
