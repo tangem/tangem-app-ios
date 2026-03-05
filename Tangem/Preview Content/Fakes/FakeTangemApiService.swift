@@ -11,11 +11,7 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
-    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
-        throw "Not implemented"
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response {
         throw "Not implemented"
     }
 
@@ -87,26 +83,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
-        throw "Not implemented"
-    }
-
-    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
         throw "Not implemented"
     }
 

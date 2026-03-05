@@ -1,5 +1,5 @@
 //
-//  ExpressPromotion.swift
+//  BannerPromotion.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,10 @@
 
 import Foundation
 
-enum ExpressPromotion {}
+enum BannerPromotion {}
 
-extension ExpressPromotion {
+extension BannerPromotion {
     struct Request: Encodable {
-        let programName: String
-    }
-
-    struct NewRequest: Encodable {
         let walletId: String
     }
 
