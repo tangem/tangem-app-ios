@@ -10,4 +10,5 @@ import Foundation
 
 protocol MobileOnboardingSeedPhraseValidationDelegate: AnyObject {
     func didValidateSeedPhrase()
+    func onSeedPhraseValidationBack()
 }
