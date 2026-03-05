@@ -1,5 +1,5 @@
 //
-//  MobileWalletAddressResolver.swift
+//  WalletAddressResolver.swift
 //  Tangem
 //
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -35,7 +35,7 @@ struct WalletAddressResolver {
 
         let derivationType: Wallet.PublicKey.DerivationType?
         switch blockchain {
-        case .cardano:
+        case .cardano(extended: true):
             guard let derivationPath = blockchain.derivationPath(for: .v3),
                   let firstKey = keyInfo.derivedKeys[derivationPath],
                   let secondPath = try? CardanoUtil().extendedDerivationPath(for: derivationPath),
@@ -46,6 +46,12 @@ struct WalletAddressResolver {
                 first: .init(path: derivationPath, extendedPublicKey: firstKey),
                 second: .init(path: secondPath, extendedPublicKey: secondKey)
             )
+        case .cardano(extended: false):
+            guard let derivationPath = blockchain.derivationPath(for: .v3),
+                  let extendedPublicKey = keyInfo.derivedKeys[derivationPath] else {
+                throw Error.missingDerivedKey(blockchain: blockchain)
+            }
+            derivationType = .plain(.init(path: derivationPath, extendedPublicKey: extendedPublicKey))
         case .hedera, .chia:
             throw Error.unsupportedBlockchain(blockchain)
         default:
