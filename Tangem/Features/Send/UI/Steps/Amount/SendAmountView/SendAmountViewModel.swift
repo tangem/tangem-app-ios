@@ -25,8 +25,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published var sendAmountTokenViewData: SendAmountTokenViewData?
     @Published var receivedTokenViewType: ReceivedTokenViewType?
-    @Published var activeField: ActiveAmountField = .source
+    @Published var activeField: ActiveAmountField = .send
     @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
+    @Published private(set) var isAccordionSwitchingLocked: Bool = false
 
     var useFiatCalculation: Bool {
         get { sourceAmountField.amountType == .fiat }
@@ -60,7 +61,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
-    private var lastUpdateSource: UpdateSource?
+    private var lastUpdateSource: ActiveAmountField?
     private var currentReceiveToken: SendReceiveToken?
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
@@ -69,6 +70,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var sourceCurrencySymbol: String = ""
     private var bag: Set<AnyCancellable> = []
     private var sourceFieldBag: AnyCancellable?
+    private var receiveFieldBag: AnyCancellable?
 
     init(
         sourceToken: SendSourceToken,
@@ -112,19 +114,44 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func removeReceivedToken() {
         receiveAmountField = nil
+        receiveFieldBag = nil
         lastUpdateSource = nil
-        activeField = .source
+        activeField = .send
         currentReceiveToken = nil
         compactSourceSubtitle = nil
         interactor.userDidRequestClearReceiveToken()
     }
 
     func userDidTapCompactSource() {
-        activeField = .source
+        guard !isAccordionSwitchingLocked else { return }
+
+        if isFixedRateMode, activeField == .receive,
+           let currentSourceCrypto = sourceAmountField.cryptoTextFieldViewModel.value {
+            isAccordionSwitchingLocked = true
+            activeField = .send
+            lastUpdateSource = .send
+            // Trigger float rate recalculation
+            let amount = try? interactor.update(sendAmount: currentSourceCrypto)
+            sourceAmountField.updateAmountsUI(amount: amount)
+        } else {
+            activeField = .send
+        }
     }
 
     func userDidTapCompactReceive() {
-        activeField = .receive
+        guard !isAccordionSwitchingLocked else { return }
+
+        if isFixedRateMode, activeField == .send,
+           let currentReceiveCrypto = receiveAmountField?.cryptoTextFieldViewModel.value {
+            isAccordionSwitchingLocked = true
+            activeField = .receive
+            lastUpdateSource = .receive
+            // Trigger fixed rate recalculation
+            let amount = interactor.update(receiveAmount: currentReceiveCrypto)
+            receiveAmountField?.updateAmountsUI(amount: amount)
+        } else {
+            activeField = .receive
+        }
     }
 }
 
@@ -149,13 +176,17 @@ private extension SendAmountViewModel {
         interactor
             .infoTextPublisher
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .sink { viewModel, infoText in
                 if viewModel.receiveAmountField?.bottomInfoText != nil {
-                    viewModel.sourceAmountField.bottomInfoText = nil
-                } else {
-                    viewModel.sourceAmountField.bottomInfoText = infoText
+                    if infoText == nil {
+                        // Validator passed — clear stale restriction errors
+                        viewModel.receiveAmountField?.bottomInfoText = nil
+                        viewModel.sourceAmountField.bottomInfoText = nil
+                    }
+                    return
                 }
+                viewModel.sourceAmountField.bottomInfoText = infoText
             }
             .store(in: &bag)
 
@@ -163,7 +194,7 @@ private extension SendAmountViewModel {
             .sourceTokenPublisher
             .compactMap { $0.value }
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .sink { $0.updateSourceToken(sourceToken: $1) }
             .store(in: &bag)
 
@@ -171,11 +202,21 @@ private extension SendAmountViewModel {
             .sourceAmountPublisher
             .compactMap(\.value)
             .removeDuplicates { $0.crypto == $1.crypto }
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, amount in
-                guard viewModel.lastUpdateSource != .source else { return }
+                guard viewModel.lastUpdateSource != .send else { return }
                 viewModel.sourceAmountField.updateAmountsUI(amount: amount)
+            }
+            .store(in: &bag)
+
+        interactor
+            .sourceAmountPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                guard viewModel.isFixedRateMode else { return }
+                viewModel.updateCompactSourceSubtitle(sourceAmount: result)
             }
             .store(in: &bag)
 
@@ -184,7 +225,7 @@ private extension SendAmountViewModel {
             interactor.receivedTokenAmountPublisher,
         )
         .withWeakCaptureOf(self)
-        .receive(on: DispatchQueue.main)
+        .receiveOnMain()
         .sink { viewModel, args in
             let (token, amount) = args
             viewModel.updateReceivedToken(receiveToken: token.value, amount: amount)
@@ -196,7 +237,7 @@ private extension SendAmountViewModel {
             interactor.receiveRestrictionPublisher
         )
         .withWeakCaptureOf(self)
-        .receive(on: DispatchQueue.main)
+        .receiveOnMain()
         .sink { viewModel, args in
             let (token, restriction) = args
             viewModel.updateReceiveRestriction(restriction, token: token)
@@ -205,20 +246,15 @@ private extension SendAmountViewModel {
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
-        lastUpdateSource = .source
-        let amount = try? interactor.update(amount: amount)
-        sourceAmountField.alternativeAmount = sourceAmountField.sendAmountFormatter.formattedAlternative(sendAmount: amount, type: sourceAmountField.amountType)
+        lastUpdateSource = .send
+        let amount = try? interactor.update(sendAmount: amount)
+        sourceAmountField.updateAlternativeUI(amount: amount)
+    }
 
-        // Update another text field value
-        switch amount?.type {
-        case .typical(_, let fiat):
-            sourceAmountField.fiatTextFieldViewModel.update(value: fiat)
-        case .alternative(_, let crypto):
-            sourceAmountField.cryptoTextFieldViewModel.update(value: crypto)
-        case .none:
-            sourceAmountField.cryptoTextFieldViewModel.update(value: nil)
-            sourceAmountField.fiatTextFieldViewModel.update(value: nil)
-        }
+    func receiveTextFieldValueDidChange(amount: Decimal?) {
+        lastUpdateSource = .receive
+        let amount = interactor.update(receiveAmount: amount)
+        receiveAmountField?.updateAlternativeUI(amount: amount)
     }
 
     func update(amountType: SendAmountCalculationType) {
@@ -275,23 +311,6 @@ extension SendAmountViewModel {
                 let isFirstSelection = currentReceiveToken == nil
                 currentReceiveToken = receiveToken
 
-                // Update compact source subtitle based on loading state
-                // Use `.balance` type consistently to maintain structural identity
-                // (the default subtitle is `.balance`, switching to `.receive` would break animation)
-                switch amount {
-                case .loading:
-                    compactSourceSubtitle = .balance(state: .loading())
-                case .success:
-                    if let crypto = sourceAmountField.cryptoTextFieldViewModel.value {
-                        let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                        compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
-                    } else {
-                        compactSourceSubtitle = nil
-                    }
-                case .failure:
-                    compactSourceSubtitle = nil
-                }
-
                 let expandedReceiveData = SendAmountTokenViewData(
                     tokenIconInfo: receiveTokenIconInfo,
                     title: receiveToken.tokenItem.name,
@@ -336,6 +355,11 @@ extension SendAmountViewModel {
                         field.updateAmountsUI(amount: sendAmount)
                     }
                 }
+
+                // Unlock when receive recalculation finishes (Source→Receive switch)
+                if !amount.isLoading, isAccordionSwitchingLocked, lastUpdateSource == .send {
+                    isAccordionSwitchingLocked = false
+                }
             } else {
                 let tokenViewData = SendAmountTokenViewData(
                     tokenIconInfo: receiveTokenIconInfo,
@@ -360,9 +384,15 @@ extension SendAmountViewModel {
         field.cryptoIconURL = tokenIconInfo.imageURL
 
         field.onValueChanged = { [weak self] value in
-            self?.lastUpdateSource = .receive
-            self?.interactor.updateReceiveAmount(amount: value.map { SendAmount(type: .typical(crypto: $0, fiat: nil)) })
+            self?.receiveTextFieldValueDidChange(amount: value)
         }
+
+        receiveFieldBag = field.$amountType
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] type in
+                self?.interactor.update(receiveType: type)
+            }
 
         receiveAmountField = field
         return field
@@ -371,19 +401,45 @@ extension SendAmountViewModel {
     private func updateReceiveRestriction(_ restriction: ReceiveAmountRestriction?, token: SendReceiveToken) {
         guard let restriction else {
             receiveAmountField?.bottomInfoText = nil
+            sourceAmountField.bottomInfoText = nil
             return
         }
 
         let symbol = token.tokenItem.currencySymbol
+        let errorText: BottomInfoTextType
         switch restriction {
         case .tooSmallAmount(let amount):
             let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
-            receiveAmountField?.bottomInfoText = .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
+            errorText = .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
         case .tooBigAmount(let amount):
             let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
-            receiveAmountField?.bottomInfoText = .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
+            errorText = .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
         case .balanceExceeded:
-            receiveAmountField?.bottomInfoText = .error(Localization.sendNotificationExceedBalanceTitle)
+            errorText = .error(Localization.sendNotificationExceedBalanceTitle)
+        }
+
+        receiveAmountField?.bottomInfoText = errorText
+        sourceAmountField.bottomInfoText = errorText
+    }
+
+    func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
+        switch sourceAmount {
+        case .loading:
+            compactSourceSubtitle = .balance(state: .loading())
+        case .success(let amount):
+            if let crypto = amount.crypto {
+                let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
+                compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+            } else {
+                compactSourceSubtitle = nil
+            }
+        case .failure:
+            compactSourceSubtitle = nil
+        }
+
+        // Unlock when source recalculation finishes (Receive→Source switch)
+        if !sourceAmount.isLoading, isAccordionSwitchingLocked, lastUpdateSource == .receive {
+            isAccordionSwitchingLocked = false
         }
     }
 
@@ -427,15 +483,5 @@ extension SendAmountViewModel {
             expandedReceiveData: SendAmountTokenViewData,
             compactReceiveData: SendAmountTokenViewData
         )
-    }
-
-    enum ActiveAmountField: Hashable {
-        case source
-        case receive
-    }
-
-    enum UpdateSource {
-        case source
-        case receive
     }
 }

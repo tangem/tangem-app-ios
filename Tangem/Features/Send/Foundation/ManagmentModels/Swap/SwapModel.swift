@@ -694,12 +694,18 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     }
 
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
-        _sourceAmount.map { amount in
-            switch amount {
-            case .none: .failure(SendAmountError.noAmount)
-            case .some(let amount): .success(amount)
+        Publishers.CombineLatest(_providersState, _sourceAmount)
+            .map { state, amount in
+                if case .loading(.rates) = state {
+                    return .loading
+                }
+
+                switch amount {
+                case .none: return .failure(SendAmountError.noAmount)
+                case .some(let amount): return .success(amount)
+                }
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     func sourceAmountDidChanged(amount: SendAmount?) {
@@ -824,7 +830,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         return result
     }
 
-    func receiveAmountDidChanged(amount: SendAmount?) {
+    func receiveAmountDidChange(amount: SendAmount?) {
         update(receiveAmount: amount)
     }
 }

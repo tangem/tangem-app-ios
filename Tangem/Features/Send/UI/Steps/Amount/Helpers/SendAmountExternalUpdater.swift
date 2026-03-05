@@ -22,7 +22,7 @@ struct SendAmountExternalUpdater {
     }
 
     func externalUpdate(amount: Decimal?) {
-        let amount = try? interactor.update(amount: amount)
+        let amount = try? interactor.update(sendAmount: amount)
         viewModel.externalUpdate(amount: amount)
     }
 }

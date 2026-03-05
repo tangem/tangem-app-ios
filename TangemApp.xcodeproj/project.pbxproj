@@ -4085,6 +4085,7 @@
 		EF407E6E2C04D81100366733 /* Period.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E6D2C04D81100366733 /* Period.swift */; };
 		EF40C1122CF5EE1A007EF710 /* Sequence+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6D82A96AC8800172491 /* Sequence+.swift */; };
 		EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4193792C2DE0CB006A30A5 /* SendAmount.swift */; };
+		6ADC8A8148A2A0565C48E6D0 /* ActiveAmountField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520C08D3A0242981BCF41D41 /* ActiveAmountField.swift */; };
 		EF4194542ED9C19500798992 /* ExpressTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4194532ED9C19400798992 /* ExpressTransactionValidator.swift */; };
 		EF4194572ED9C1B500798992 /* BSDKExpressTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4194562ED9C1B500798992 /* BSDKExpressTransactionValidator.swift */; };
 		EF4194592ED9C1C600798992 /* TangemPayExpressTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4194582ED9C1C600798992 /* TangemPayExpressTransactionValidator.swift */; };
@@ -8988,6 +8989,7 @@
 		EF407E6B2C04D80100366733 /* RewardType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardType.swift; sourceTree = "<group>"; };
 		EF407E6D2C04D81100366733 /* Period.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Period.swift; sourceTree = "<group>"; };
 		EF4193792C2DE0CB006A30A5 /* SendAmount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmount.swift; sourceTree = "<group>"; };
+		520C08D3A0242981BCF41D41 /* ActiveAmountField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveAmountField.swift; sourceTree = "<group>"; };
 		EF4194532ED9C19400798992 /* ExpressTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionValidator.swift; sourceTree = "<group>"; };
 		EF4194562ED9C1B500798992 /* BSDKExpressTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BSDKExpressTransactionValidator.swift; sourceTree = "<group>"; };
 		EF4194582ED9C1C600798992 /* TangemPayExpressTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayExpressTransactionValidator.swift; sourceTree = "<group>"; };
@@ -25658,6 +25660,7 @@
 		EFBC4EEF2E819EE70080271D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				520C08D3A0242981BCF41D41 /* ActiveAmountField.swift */,
 				EF4193792C2DE0CB006A30A5 /* SendAmount.swift */,
 			);
 			path = Models;
@@ -30186,6 +30189,7 @@
 				2D5AA23C2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift in Sources */,
 				EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */,
 				EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */,
+				6ADC8A8148A2A0565C48E6D0 /* ActiveAmountField.swift in Sources */,
 				DA76BF422CEF5BBE00199317 /* PollingService.swift in Sources */,
 				DC18D5AB2F238DA9003E1BC4 /* NewsPagerDataSource.swift in Sources */,
 				EFF6CC052F55D4480096CFA1 /* WalletModelSendingRestrictionsProvider.swift in Sources */,

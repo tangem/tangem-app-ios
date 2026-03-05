@@ -25,10 +25,11 @@ protocol SendAmountInteractor {
     var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> { get }
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
-    func update(amount: Decimal?) throws -> SendAmount?
+    func update(sendAmount: Decimal?) throws -> SendAmount?
     func update(type: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
-    func updateReceiveAmount(amount: SendAmount?)
+    func update(receiveAmount: Decimal?) -> SendAmount?
+    func update(receiveType: SendAmountCalculationType)
 
     func userDidRequestClearReceiveToken()
 }
@@ -47,6 +48,7 @@ class CommonSendAmountInteractor {
     private let notificationService: SendAmountNotificationService?
     private var saver: SendAmountInteractorSaver
     private var type: SendAmountCalculationType
+    private var receiveType: SendAmountCalculationType = .crypto
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
     private var _error: CurrentValueSubject<String?, Never> = .init(nil)
@@ -114,7 +116,7 @@ class CommonSendAmountInteractor {
         } catch SendAmountValidatorError.zeroAmount {
             update(amount: .none, isValid: false, error: .none)
         } catch {
-            update(amount: .none, isValid: false, error: error)
+            update(amount: amount, isValid: false, error: error)
         }
     }
 
@@ -268,26 +270,26 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         return receiveTokenAmountInput.highPriceImpactPublisher
     }
 
-    func update(amount: Decimal?) throws -> SendAmount? {
-        guard let amount else {
+    func update(sendAmount: Decimal?) throws -> SendAmount? {
+        guard let sendAmount else {
             _cachedAmount.send(nil)
             return nil
         }
 
-        let sendAmount: SendAmount = try {
+        let amount: SendAmount = try {
             switch type {
             case .crypto:
-                let fiat = try convertToFiat(cryptoValue: amount)
-                return makeSendAmount(crypto: amount, fiat: fiat)
+                let fiat = try convertToFiat(cryptoValue: sendAmount)
+                return makeSendAmount(crypto: sendAmount, fiat: fiat)
             case .fiat:
-                let crypto = try convertToCrypto(fiatValue: amount)
-                return makeSendAmount(crypto: crypto, fiat: amount)
+                let crypto = try convertToCrypto(fiatValue: sendAmount)
+                return makeSendAmount(crypto: crypto, fiat: sendAmount)
             }
         }()
 
-        _cachedAmount.send(sendAmount)
+        _cachedAmount.send(amount)
 
-        return sendAmount
+        return amount
     }
 
     func update(type: SendAmountCalculationType) throws -> SendAmount? {
@@ -318,8 +320,33 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
     }
 
-    func updateReceiveAmount(amount: SendAmount?) {
-        receiveTokenAmountOutput?.receiveAmountDidChanged(amount: amount)
+    func update(receiveAmount: Decimal?) -> SendAmount? {
+        guard let receiveAmount else {
+            receiveTokenAmountOutput?.receiveAmountDidChange(amount: nil)
+            return nil
+        }
+
+        guard let tokenItem = receiveTokenInput?.receiveToken.value?.tokenItem else {
+            receiveTokenAmountOutput?.receiveAmountDidChange(amount: nil)
+            return nil
+        }
+
+        let amount: SendAmount
+        switch receiveType {
+        case .crypto:
+            let fiat = converter.convertToFiat(receiveAmount, tokenItem: tokenItem)
+            amount = SendAmount(type: .typical(crypto: receiveAmount, fiat: fiat))
+        case .fiat:
+            let crypto = converter.convertToCrypto(receiveAmount, tokenItem: tokenItem)
+            amount = SendAmount(type: .alternative(fiat: receiveAmount, crypto: crypto))
+        }
+
+        receiveTokenAmountOutput?.receiveAmountDidChange(amount: amount)
+        return amount
+    }
+
+    func update(receiveType: SendAmountCalculationType) {
+        self.receiveType = receiveType
     }
 
     func userDidRequestClearReceiveToken() {
