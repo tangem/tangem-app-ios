@@ -18,6 +18,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
 
+    lazy var autoupdatingTimer = AutoupdatingTimer()
+
     lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
     lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
@@ -27,6 +29,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         onrampDataRepository: dependencies.dataRepository,
         onrampRepository: dependencies.repository,
         analyticsLogger: analyticsLogger,
+        autoupdatingTimer: autoupdatingTimer,
         predefinedValues: .init(amount: parameters.amount)
     )
 
@@ -112,6 +115,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         onrampModel.router = stepsManager
 
         onrampModel.alertPresenter = viewModel
+
+        coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
 
         return viewModel
     }

@@ -40,8 +40,8 @@ class OnrampModel {
     private let onrampRepository: OnrampRepository
     private let analyticsLogger: OnrampSendAnalyticsLogger
 
+    private let autoupdatingTimer: AutoupdatingTimer
     private var task: Task<Void, Never>?
-    private var timerCancellable: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -53,6 +53,7 @@ class OnrampModel {
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
         analyticsLogger: OnrampSendAnalyticsLogger,
+        autoupdatingTimer: AutoupdatingTimer,
         predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
@@ -62,6 +63,7 @@ class OnrampModel {
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
         self.analyticsLogger = analyticsLogger
+        self.autoupdatingTimer = autoupdatingTimer
 
         _amount = .init(predefinedValues.amount)
         _currency = .init(
@@ -119,21 +121,13 @@ private extension OnrampModel {
     // MARK: - Timer
 
     func stopTimer() {
-        log("Stop timer")
-        timerCancellable?.cancel()
+        autoupdatingTimer.stopTimer()
     }
 
     func restartTimer() {
-        log("Restart timer")
-        timerCancellable?.cancel()
-        timerCancellable = Just(())
-            .delay(for: 10, scheduler: DispatchQueue.global())
-            .sink(receiveCompletion: { [weak self] completion in
-                self?.log("Timer completion \(completion)")
-            }, receiveValue: { [weak self] _ in
-                self?.log("Timer will call autoupdate")
-                self?.autoupdate()
-            })
+        autoupdatingTimer.restartTimer { [weak self] in
+            self?.autoupdate()
+        }
     }
 
     // MARK: - Providers list
