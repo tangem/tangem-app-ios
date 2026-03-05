@@ -32,7 +32,6 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private let priceChangeFormatter: PriceChangeFormatter
     private let analyticsLogger: SendSwapProvidersAnalyticsLogger
 
-    private var providers: ThreadSafeContainer<[ExpressAvailableProvider]> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -59,10 +58,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         .init(root: self, default: false) { root in
             root.selectedProvider?.provider.id == providerId
         } set: { root, isSelected in
-            if let provider = root.providers.read().first(where: { $0.provider.id == providerId }) {
-                root.selectedProvider = provider
-                root.userDidTap(provider: provider)
-            }
+            root.userDidTap(providerId: providerId)
         }
     }
 
@@ -89,14 +85,6 @@ private extension SendSwapProvidersSelectorViewModel {
             .receiveOnMain()
             .map { $0.mapToFCAWarningIfNeeded(providers: $1) }
             .assign(to: &$ukNotificationInput)
-
-        input?
-            .expressProvidersPublisher
-            .withWeakCaptureOf(self)
-            .sink { viewModel, providers in
-                viewModel.providers.mutate { $0 = providers }
-            }
-            .store(in: &bag)
 
         input?
             .selectedExpressProviderPublisher
@@ -153,10 +141,18 @@ private extension SendSwapProvidersSelectorViewModel {
         )
     }
 
-    func userDidTap(provider: ExpressAvailableProvider) {
+    func userDidTap(providerId: String) {
+        guard let provider = input?.expressProviders.first(where: { $0.provider.id == providerId }) else {
+            return
+        }
+
+        // Update current UI
+        selectedProvider = provider
+
         // Cancel subscription that view do not jump
         analyticsLogger.logSendSwapProvidersChosen(provider: provider.provider)
         output?.userDidSelect(provider: provider)
+
         Task { @MainActor in dismiss() }
     }
 
