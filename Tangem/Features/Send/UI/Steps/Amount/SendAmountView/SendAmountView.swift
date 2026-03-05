@@ -111,7 +111,8 @@ struct SendAmountView: View {
 
     private var sourceAccordionSection: some View {
         SendAmountAccordionSectionView(
-            isExpanded: viewModel.activeField == .source,
+            isExpanded: viewModel.activeField == .send,
+            isLocked: viewModel.isAccordionSwitchingLocked,
             expandedTokenData: viewModel.sendAmountTokenViewData,
             compactTokenData: viewModel.compactSourceTokenViewData,
             onTapCompact: viewModel.userDidTapCompactSource
@@ -131,6 +132,7 @@ struct SendAmountView: View {
     ) -> some View {
         SendAmountAccordionSectionView(
             isExpanded: viewModel.activeField == .receive,
+            isLocked: viewModel.isAccordionSwitchingLocked,
             expandedTokenData: expandedData,
             compactTokenData: compactData,
             onTapCompact: viewModel.userDidTapCompactReceive
@@ -183,11 +185,11 @@ struct SendAmountView: View {
             .readGeometry(\.frame.size, bindTo: $convertButtonSize)
     }
 
-    private func updateAccordionFocus(for activeField: SendAmountViewModel.ActiveAmountField) {
+    private func updateAccordionFocus(for activeField: ActiveAmountField) {
         guard case .accordion = viewModel.receivedTokenViewType else { return }
 
         switch activeField {
-        case .source:
+        case .send:
             focusedField = viewModel.useFiatCalculation ? .sourceFiat : .sourceCrypto
         case .receive:
             focusedField = viewModel.useReceiveFiatCalculation ? .receiveFiat : .receiveCrypto

@@ -13,6 +13,7 @@ import TangemUI
 
 struct SendAmountAccordionSectionView<ExpandedContent: View>: View {
     let isExpanded: Bool
+    let isLocked: Bool
     let expandedTokenData: SendAmountTokenViewData?
     let compactTokenData: SendAmountTokenViewData?
     let onTapCompact: () -> Void
@@ -31,7 +32,7 @@ struct SendAmountAccordionSectionView<ExpandedContent: View>: View {
                 SendAmountTokenView(data: tokenData)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        guard !isExpanded, tokenData.action == nil else { return }
+                        guard !isExpanded, !isLocked, tokenData.action == nil else { return }
                         FeedbackGenerator.heavy()
                         onTapCompact()
                     }

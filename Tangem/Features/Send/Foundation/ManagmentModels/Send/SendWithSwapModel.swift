@@ -334,8 +334,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 // MARK: - SendReceiveTokenAmountOutput
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
-    func receiveAmountDidChanged(amount: SendAmount?) {
-        swapModel.receiveAmountDidChanged(amount: amount)
+    func receiveAmountDidChange(amount: SendAmount?) {
+        swapModel.receiveAmountDidChange(amount: amount)
     }
 }
 

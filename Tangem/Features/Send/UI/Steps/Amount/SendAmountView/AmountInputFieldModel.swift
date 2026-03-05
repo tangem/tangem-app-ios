@@ -77,6 +77,22 @@ class AmountInputFieldModel: ObservableObject {
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
     }
 
+    /// Updates only the non-active text field and the alternative amount label.
+    /// Use when the user is actively typing — avoids overwriting the field they're typing in.
+    func updateAlternativeUI(amount: SendAmount?) {
+        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
+
+        switch amount?.type {
+        case .typical(_, let fiat):
+            fiatTextFieldViewModel.update(value: fiat)
+        case .alternative(_, let crypto):
+            cryptoTextFieldViewModel.update(value: crypto)
+        case .none:
+            cryptoTextFieldViewModel.update(value: nil)
+            fiatTextFieldViewModel.update(value: nil)
+        }
+    }
+
     func reconfigure(tokenItem: TokenItem, fiatItem: FiatItem, possibleToConvertToFiat: Bool) {
         currencyId = tokenItem.currencyId
         self.possibleToConvertToFiat = possibleToConvertToFiat
