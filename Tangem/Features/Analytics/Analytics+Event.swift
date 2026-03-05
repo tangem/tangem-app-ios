@@ -639,6 +639,10 @@ extension Analytics {
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
 
+        case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
+        case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
+        case visaOnboardingVisaKYCPassedAndOrderCreated = "[Visa Onboarding] Visa KYC Passed And Order Created"
+
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
         case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
