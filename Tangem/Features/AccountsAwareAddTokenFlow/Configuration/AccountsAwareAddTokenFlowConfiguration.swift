@@ -91,6 +91,8 @@ extension AccountsAwareAddTokenFlowConfiguration {
 
 extension AccountsAwareAddTokenFlowConfiguration {
     struct GetTokenConfiguration {
+        let isBuyAvailable: (TokenItem, AccountSelectorCellModel) -> Bool
+        let isExchangeAvailable: (TokenItem, AccountSelectorCellModel) -> Bool
         let onBuy: (TokenItem, AccountSelectorCellModel) -> Void
         let onExchange: (TokenItem, AccountSelectorCellModel) -> Void
         let onReceive: (TokenItem, AccountSelectorCellModel) -> Void
