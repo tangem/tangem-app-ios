@@ -328,7 +328,7 @@ extension TransferModel: SendFeeUpdater {
         }
 
         _sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
-        _sourceToken.tokenFeeProvidersManager.selectedFeeProvider.updateFees()
+        _sourceToken.tokenFeeProvidersManager.updateFees()
     }
 }
 
