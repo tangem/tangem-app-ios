@@ -23,11 +23,11 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
         animation: Animation? = .default,
         isExpanded: Bool,
         transition: AnyTransition? = nil,
-        actionOnClick: @escaping () -> Void,
         alignment: HorizontalAlignment = .center,
         useDrawingGroup: Bool = true,
         prompt: () -> Prompt,
-        expandedView: () -> ExpandedView
+        expandedView: () -> ExpandedView,
+        actionOnClick: @escaping () -> Void
     ) {
         self.actionOnClick = actionOnClick
         self.isExpanded = isExpanded

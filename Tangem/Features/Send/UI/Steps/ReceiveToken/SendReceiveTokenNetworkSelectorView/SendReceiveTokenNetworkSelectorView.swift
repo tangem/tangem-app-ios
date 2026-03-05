@@ -30,6 +30,8 @@ struct SendReceiveTokenNetworkSelectorView: View {
             }
 
             overlayContent
+                .transition(.opacity)
+                .animation(.easeInOut, value: viewModel.state)
         }
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.primary

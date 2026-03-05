@@ -12,6 +12,10 @@ public protocol YieldSupplyService {
     func isSupported() -> Bool
     func getYieldSupplyContractAddresses() throws -> YieldSupplyContractAddresses
     func getYieldContract() async throws -> String
+
+    func storeYieldContract(_ yieldContract: String) async
+    func storedYieldContract() async -> String?
+
     func calculateYieldContract() async throws -> String
     func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus
     func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount
@@ -46,15 +50,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 
     public func getYieldContract() async throws -> String {
-        let walletAddressPart = Data(hex: wallet.defaultAddress.value).getSHA256().hexString
-
-        let storageKey = [
-            walletAddressPart,
-            wallet.blockchain.coinId,
-            Constants.yieldContractAddressStorageKey,
-        ].joined(separator: "_")
-
-        let storedYieldContractAddress: String? = await dataStorage.get(key: storageKey)
+        let storedYieldContractAddress = await storedYieldContract()
         switch storedYieldContractAddress {
         case .some(let address):
             return address
@@ -72,10 +68,18 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                 throw YieldModuleError.noYieldContractFound
             }
 
-            await dataStorage.store(key: storageKey, value: yieldContract)
+            await dataStorage.store(key: storageKey(), value: yieldContract)
 
             return yieldContract
         }
+    }
+
+    public func storeYieldContract(_ yieldContract: String) async {
+        await dataStorage.store(key: storageKey(), value: yieldContract)
+    }
+
+    public func storedYieldContract() async -> String? {
+        await dataStorage.get(key: storageKey())
     }
 
     public func calculateYieldContract() async throws -> String {
@@ -225,19 +229,19 @@ private extension EthereumYieldSupplyService {
 }
 
 private extension EthereumYieldSupplyService {
-    private func getEffectiveBalance(token: Token) async throws -> Decimal {
+    func getEffectiveBalance(token: Token) async throws -> Decimal {
         let method = EffectiveBalanceMethod(tokenContractAddress: token.contractAddress)
 
         return try await getBalance(method: method, decimalsCount: token.decimalCount)
     }
 
-    private func getEffectiveProtocolBalance(token: Token) async throws -> Decimal {
+    func getEffectiveProtocolBalance(token: Token) async throws -> Decimal {
         let method = EffectiveProtocolBalanceMethod(tokenContractAddress: token.contractAddress)
 
         return try await getBalance(method: method, decimalsCount: token.decimalCount)
     }
 
-    private func getBalance(method: SmartContractMethod, decimalsCount: Int) async throws -> Decimal {
+    func getBalance(method: SmartContractMethod, decimalsCount: Int) async throws -> Decimal {
         async let request = YieldSmartContractRequest(
             contractAddress: getYieldContract(),
             method: method
@@ -253,6 +257,15 @@ private extension EthereumYieldSupplyService {
         }
 
         return result
+    }
+
+    func storageKey() -> String {
+        let walletAddressPart = Data(hex: wallet.defaultAddress.value).getSHA256().hexString
+        return [
+            walletAddressPart,
+            wallet.blockchain.coinId,
+            Constants.yieldContractAddressStorageKey,
+        ].joined(separator: "_")
     }
 }
 
