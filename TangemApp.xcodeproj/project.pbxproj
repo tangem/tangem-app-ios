@@ -2840,6 +2840,7 @@
 		C265B21C2E5698950011C01D /* WalletConnectSessionNamespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C265B21B2E5698890011C01D /* WalletConnectSessionNamespace.swift */; };
 		C265B21E2E5698F70011C01D /* WalletConnectAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C265B21D2E5698EE0011C01D /* WalletConnectAccount.swift */; };
 		C268366B2F3E17FA005E54DB /* WalletConnectDuplicateRequestFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C268366A2F3E17F2005E54DB /* WalletConnectDuplicateRequestFilterTests.swift */; };
+		BA6BB3D52AF3989ADC07AF8A /* SafeNetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9FEFA6BFE19A9867B738C90 /* SafeNetworkMonitorTests.swift */; };
 		C269F83C2F34BBC700AD84EB /* FloatingSheetRegistry+YieldModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C269F83B2F34BBBD00AD84EB /* FloatingSheetRegistry+YieldModule.swift */; };
 		C2734B792E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2734B782E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift */; };
 		C274DF982DDA385300B1D97B /* WalletConnectDAppConnectionViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DF972DDA385100B1D97B /* WalletConnectDAppConnectionViewState.swift */; };
@@ -3242,6 +3243,7 @@
 		DC0003372DC2090600305FB6 /* SolanaWalletConnectSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00029F2DC2090600305FB6 /* SolanaWalletConnectSigner.swift */; };
 		DC00033B2DC2090600305FB6 /* ABIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002982DC2090600305FB6 /* ABIType.swift */; };
 		DC00033C2DC2090600305FB6 /* WalletConnectV2DefaultSocketFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002CD2DC2090600305FB6 /* WalletConnectV2DefaultSocketFactory.swift */; };
+		0C1DD96C8A731DF0656FF8CF /* SafeNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4FEFAC8548DFEB8578FCE2 /* SafeNetworkMonitor.swift */; };
 		DC00033D2DC2090600305FB6 /* ABIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002972DC2090600305FB6 /* ABIError.swift */; };
 		DC00033F2DC2090600305FB6 /* WalletConnectMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002A32DC2090600305FB6 /* WalletConnectMessageHandler.swift */; };
 		DC0003402DC2090600305FB6 /* WCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002D92DC2090600305FB6 /* WCService.swift */; };
@@ -7735,6 +7737,7 @@
 		C265B21B2E5698890011C01D /* WalletConnectSessionNamespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionNamespace.swift; sourceTree = "<group>"; };
 		C265B21D2E5698EE0011C01D /* WalletConnectAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAccount.swift; sourceTree = "<group>"; };
 		C268366A2F3E17F2005E54DB /* WalletConnectDuplicateRequestFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDuplicateRequestFilterTests.swift; sourceTree = "<group>"; };
+		D9FEFA6BFE19A9867B738C90 /* SafeNetworkMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeNetworkMonitorTests.swift; sourceTree = "<group>"; };
 		C269F83B2F34BBBD00AD84EB /* FloatingSheetRegistry+YieldModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+YieldModule.swift"; sourceTree = "<group>"; };
 		C2734B782E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectURIParsingError.swift; sourceTree = "<group>"; };
 		C274DF972DDA385100B1D97B /* WalletConnectDAppConnectionViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionViewState.swift; sourceTree = "<group>"; };
@@ -8145,6 +8148,7 @@
 		DC0002C92DC2090600305FB6 /* WalletConnectEthTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthTransaction.swift; sourceTree = "<group>"; };
 		DC0002CC2DC2090600305FB6 /* BlockchainSDK+WalletConnectChainId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlockchainSDK+WalletConnectChainId.swift"; sourceTree = "<group>"; };
 		DC0002CD2DC2090600305FB6 /* WalletConnectV2DefaultSocketFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2DefaultSocketFactory.swift; sourceTree = "<group>"; };
+		6B4FEFAC8548DFEB8578FCE2 /* SafeNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeNetworkMonitor.swift; sourceTree = "<group>"; };
 		DC0002D62DC2090600305FB6 /* WCServiceV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCServiceV2.swift; sourceTree = "<group>"; };
 		DC0002D82DC2090600305FB6 /* CommonWCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWCService.swift; sourceTree = "<group>"; };
 		DC0002D92DC2090600305FB6 /* WCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCService.swift; sourceTree = "<group>"; };
@@ -18908,6 +18912,7 @@
 		C26836692F3E17CE005E54DB /* WalletConnect */ = {
 			isa = PBXGroup;
 			children = (
+				D9FEFA6BFE19A9867B738C90 /* SafeNetworkMonitorTests.swift */,
 				C268366A2F3E17F2005E54DB /* WalletConnectDuplicateRequestFilterTests.swift */,
 			);
 			path = WalletConnect;
@@ -20103,6 +20108,7 @@
 			isa = PBXGroup;
 			children = (
 				DC0002CC2DC2090600305FB6 /* BlockchainSDK+WalletConnectChainId.swift */,
+				6B4FEFAC8548DFEB8578FCE2 /* SafeNetworkMonitor.swift */,
 				DC0002CD2DC2090600305FB6 /* WalletConnectV2DefaultSocketFactory.swift */,
 			);
 			path = Utilities;
@@ -29926,6 +29932,7 @@
 				DC0003372DC2090600305FB6 /* SolanaWalletConnectSigner.swift in Sources */,
 				DC00033B2DC2090600305FB6 /* ABIType.swift in Sources */,
 				DC00033C2DC2090600305FB6 /* WalletConnectV2DefaultSocketFactory.swift in Sources */,
+				0C1DD96C8A731DF0656FF8CF /* SafeNetworkMonitor.swift in Sources */,
 				DC00033D2DC2090600305FB6 /* ABIError.swift in Sources */,
 				DC00033F2DC2090600305FB6 /* WalletConnectMessageHandler.swift in Sources */,
 				DC0003402DC2090600305FB6 /* WCService.swift in Sources */,
@@ -30274,6 +30281,7 @@
 				B672634A2E8E9A0000F120E6 /* WalletModelTestsMock.swift in Sources */,
 				B672634C2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift in Sources */,
 				C268366B2F3E17FA005E54DB /* WalletConnectDuplicateRequestFilterTests.swift in Sources */,
+				BA6BB3D52AF3989ADC07AF8A /* SafeNetworkMonitorTests.swift in Sources */,
 				B67263502E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift in Sources */,
 				B672633E2C7FB0D400F120E6 /* DecimalExtensionsTests.swift in Sources */,
 				5D51037B27C53E6E0025EA55 /* EIP712TypedDataTests.swift in Sources */,
