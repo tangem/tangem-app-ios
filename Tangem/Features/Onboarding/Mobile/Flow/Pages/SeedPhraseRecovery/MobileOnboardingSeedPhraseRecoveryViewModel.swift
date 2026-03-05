@@ -18,6 +18,7 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
 
+    let navigationTitle = Localization.commonBackup
     let continueButtonTitle = Localization.commonContinue
     let responsibilityDescription = Localization.backupSeedResponsibility
 
@@ -26,7 +27,6 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     }
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-    private var isFirstAppeared: Bool = true
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
@@ -48,14 +48,16 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
 }
 
 extension MobileOnboardingSeedPhraseRecoveryViewModel {
-    func onAppear() {
-        guard isFirstAppeared else { return }
-        isFirstAppeared = false
+    func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
 
     func onContinueTap() {
         delegate?.seedPhraseRecoveryContinue()
+    }
+
+    func onBackTap() {
+        delegate?.onSeedPhraseRecoveryBack()
     }
 }
 

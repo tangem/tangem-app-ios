@@ -59,13 +59,11 @@ enum MobileOnboardingFlowSource {
 
     enum WalletSettingsAction {
         case accessCode
-        case upgrade
         case remove
 
         var analyticsParameterValue: Analytics.ParameterValue {
             switch self {
             case .accessCode: .accessCode
-            case .upgrade: .upgrade
             case .remove: .remove
             }
         }
