@@ -45,7 +45,7 @@ struct BasicTooltipView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
                     Text(message)
-                        .lineLimit(2)
+                        .lineLimit(3)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
 
