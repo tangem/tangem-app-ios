@@ -57,15 +57,15 @@ public extension TaskGroup {
                 }
 
                 Task.detached {
-                    try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+                    await withTaskGroup(of: Void.self) { taskGroup in
                         defer { taskGroup.cancelAll() }
 
                         taskGroup.addTask {
                             do {
                                 let result = try await code()
-                                await continuationWrapper.resumeIfNeeded(returning: result)
+                                continuationWrapper.resumeIfNeeded(returning: result)
                             } catch {
-                                await continuationWrapper.resumeIfNeeded(throwing: error)
+                                continuationWrapper.resumeIfNeeded(throwing: error)
                             }
                         }
 
@@ -73,13 +73,13 @@ public extension TaskGroup {
                             do {
                                 try await Task.sleep(for: timeout, tolerance: tolerance, clock: clock)
                                 try Task.checkCancellation()
-                                await continuationWrapper.resumeIfNeeded(throwing: TimeoutError())
+                                continuationWrapper.resumeIfNeeded(throwing: TimeoutError())
                             } catch {
-                                await continuationWrapper.resumeIfNeeded(throwing: error)
+                                continuationWrapper.resumeIfNeeded(throwing: error)
                             }
                         }
 
-                        await taskGroup.nextResult()
+                        let _ = await taskGroup.next()
                     }
                 }.eraseToAnyCancellable().store(in: cancellableWrapper)
             }
@@ -156,7 +156,7 @@ public extension TaskGroup<Void> {
     ///   - items: The items to process.
     ///   - action: The async work to perform for each item.
     static func executeKeepingOrder<Item>(items: [Item], action: @escaping (Item) async -> Void) async {
-        _ = await executeKeepingOrder(items: items, action: action)
+        let _: [Void] = await executeKeepingOrder(items: items, action: action)
     }
 
     /// Executes an async throwing action for each item concurrently.
@@ -165,7 +165,7 @@ public extension TaskGroup<Void> {
     ///   - action: The async throwing work to perform for each item.
     /// - Throws: Rethrows any error thrown by `action`.
     static func tryExecuteKeepingOrder<Item>(items: [Item], action: @escaping (Item) async throws -> Void) async throws {
-        _ = try await tryExecuteKeepingOrder(items: items, action: action)
+        let _: [Void] = try await tryExecuteKeepingOrder(items: items, action: action)
     }
 }
 
