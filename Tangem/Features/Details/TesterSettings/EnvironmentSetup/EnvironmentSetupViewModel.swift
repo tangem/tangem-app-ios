@@ -17,8 +17,6 @@ import TangemAccessibilityIdentifiers
 import TangemPay
 
 final class EnvironmentSetupViewModel: ObservableObject {
-    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
-
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
@@ -32,11 +30,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     /// FirebaseMessaging
     @Published private(set) var fcmToken: String = ""
-
-    // Promotion
-    @Published var currentPromoCode: String = ""
-    @Published var finishedPromotionNames: String = ""
-    @Published var awardedPromotionNames: String = ""
 
     /// Application UID
     @Published var applicationUid: String = ""
@@ -191,12 +184,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
             }),
         ]
 
-        updateCurrentPromoCode()
-
-        updateFinishedPromotionNames()
-
-        updateAwardedPromotionNames()
-
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
 
         $forcedDemoCardId
@@ -222,32 +209,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateApplicationUid()
     }
 
-    func resetCurrentPromoCode() {
-        promotionService.setPromoCode(nil)
-        updateCurrentPromoCode()
-    }
-
-    func resetFinishedPromotionNames() {
-        promotionService.resetFinishedPromotions()
-        updateFinishedPromotionNames()
-    }
-
-    func resetAward() {
-        // [REDACTED_TODO_COMMENT]
-//        runTask { [weak self] in
-//            guard let self else { return }
-//
-//            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
-//
-//            DispatchQueue.main.async {
-//                let feedbackGenerator = UINotificationFeedbackGenerator()
-//                feedbackGenerator.notificationOccurred(success ? .success : .error)
-//
-//                self.updateAwardedPromotionNames()
-//            }
-//        }
-    }
-
     func showExitAlert() {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
@@ -255,28 +216,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
             secondaryButton: .cancel()
         )
         self.alert = AlertBinder(alert: alert)
-    }
-
-    private func updateCurrentPromoCode() {
-        currentPromoCode = promotionService.promoCode ?? "none"
-    }
-
-    private func updateFinishedPromotionNames() {
-        let finishedPromotionNames = promotionService.finishedPromotionNames()
-        if finishedPromotionNames.isEmpty {
-            self.finishedPromotionNames = "[none]"
-        } else {
-            self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
-        }
-    }
-
-    private func updateAwardedPromotionNames() {
-        let awardedPromotionNames = promotionService.awardedPromotionNames()
-        if awardedPromotionNames.isEmpty {
-            self.awardedPromotionNames = "[none]"
-        } else {
-            self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
-        }
     }
 
     private func updateApplicationUid() {
