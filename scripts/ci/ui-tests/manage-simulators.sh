@@ -287,9 +287,7 @@ for UDID in $SIMULATOR_UDIDS; do
     MAX_RETRIES=30
     RETRY=0
     while [ $RETRY -lt $MAX_RETRIES ]; do
-      # Use 'launchctl list' (one line per service) instead of 'launchctl print system'
-      # (full hierarchy dump) — much less data and I/O per check
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl list 2>/dev/null || true)
+      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
       if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
         echo "Simulator $UDID: SpringBoard daemon is running (attempt $((RETRY + 1)))"
         echo "ok" > "$DAEMON_STATUS_DIR/$UDID"
@@ -347,11 +345,11 @@ if [ $DAEMON_FAILURES -gt 0 ]; then
     echo "  Waiting 10s for simulator to settle..."
     sleep 10
 
-    # Recheck daemon with lightweight command
+    # Recheck daemon after recovery
     RECOVERY_OK=false
     RECOVERY_RETRIES=10
     for r in $(seq 1 $RECOVERY_RETRIES); do
-      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl list 2>/dev/null || true)
+      DAEMON_OUTPUT=$(run_with_timeout 10 xcrun simctl spawn "$UDID" launchctl print system 2>/dev/null || true)
       if echo "$DAEMON_OUTPUT" | grep -q "com.apple.springboard"; then
         echo "  Simulator $UDID: recovered after erase+reboot (attempt $r)"
         RECOVERY_OK=true
