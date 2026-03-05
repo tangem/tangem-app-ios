@@ -33,7 +33,7 @@ enum SwapNotificationEvent: Hashable {
 
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
-    case validationErrorEvent(event: ValidationErrorEvent, context: ValidationErrorContext)
+    case validationErrorEvent(event: ValidationErrorEvent)
 
     // The notifications which is used only on the PendingExpressTxStatusBottomSheetView
     case verificationRequired
@@ -76,7 +76,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         case .withdrawalNotificationEvent(let event):
             return event.title
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.title
         case .refunded(tokenItem: let tokenItem):
             return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName))
@@ -112,11 +112,11 @@ extension SwapNotificationEvent: NotificationEvent {
         case .feeWillBeSubtractFromSendingAmount(let cryptoAmountFormatted, let fiatAmountFormatted):
             return Localization.commonNetworkFeeWarningContent(cryptoAmountFormatted, fiatAmountFormatted)
         // Only for dustRestriction we have to use different description
-        case .validationErrorEvent(.dustRestriction(let minimumAmountFormatted, let minimumChangeFormatted), _):
+        case .validationErrorEvent(.dustRestriction(let minimumAmountFormatted, let minimumChangeFormatted)):
             return Localization.warningExpressDustMessage(minimumAmountFormatted, minimumChangeFormatted)
         case .withdrawalNotificationEvent(let event):
             return event.description
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.description
         case .refunded(tokenItem: let tokenItem):
             let url = TangemBlogUrlBuilder().url(post: .refundedDex)
@@ -148,7 +148,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .action
         case .withdrawalNotificationEvent(let event):
             return event.colorScheme
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.colorScheme
         }
     }
@@ -176,7 +176,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .withdrawalNotificationEvent(let event):
             return event.icon
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.icon
         case .refunded(let tokenItem):
             let iconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
@@ -206,7 +206,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .critical
         case .withdrawalNotificationEvent(let event):
             return event.severity
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.severity
         }
     }
@@ -219,7 +219,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(.refresh, withLoader: true)
         case .verificationRequired, .cexOperationFailed, .longTimeAverageDuration:
             return .init(.goToProvider)
-        case .validationErrorEvent(let event, _):
+        case .validationErrorEvent(let event):
             return event.buttonAction
         case .withdrawalNotificationEvent(let event):
             return event.buttonAction
