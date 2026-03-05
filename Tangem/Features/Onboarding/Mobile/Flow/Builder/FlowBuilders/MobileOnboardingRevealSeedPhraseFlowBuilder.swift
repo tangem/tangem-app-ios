@@ -17,15 +17,14 @@ final class MobileOnboardingRevealSeedPhraseFlowBuilder: MobileOnboardingFlowBui
     init(context: MobileWalletContext, coordinator: MobileOnboardingFlowRoutable) {
         self.context = context
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: false)
     }
 
     override func setupFlow() {
-        let seedPhraseRevealStep = MobileOnboardingSeedPhraseRevealStep(context: context)
-            .configureNavBar(
-                title: Localization.commonBackup,
-                leadingAction: navBarCloseAction
-            )
+        let seedPhraseRevealStep = MobileOnboardingSeedPhraseRevealStep(
+            context: context,
+            delegate: self
+        )
         append(step: seedPhraseRevealStep)
     }
 }
@@ -42,12 +41,10 @@ private extension MobileOnboardingRevealSeedPhraseFlowBuilder {
     }
 }
 
-// MARK: - Private methods
+// MARK: - MobileOnboardingSeedPhraseRevealDelegate
 
-private extension MobileOnboardingRevealSeedPhraseFlowBuilder {
-    var navBarCloseAction: MobileOnboardingFlowNavBarAction {
-        MobileOnboardingFlowNavBarAction.close(handler: { [weak self] in
-            self?.closeOnboarding()
-        })
+extension MobileOnboardingRevealSeedPhraseFlowBuilder: MobileOnboardingSeedPhraseRevealDelegate {
+    func onSeedPhraseRevealClose() {
+        closeOnboarding()
     }
 }

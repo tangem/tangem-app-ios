@@ -26,24 +26,21 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
         self.userWalletModel = userWalletModel
         self.source = source
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: false)
     }
 
     override func setupFlow() {
-        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(userWalletModel: userWalletModel, source: source, delegate: self)
-            .configureNavBar(
-                title: Localization.commonBackup,
-                leadingAction: .close(handler: { [weak self] in
-                    self?.logSeedPhraseIntroCloseAnalytics()
-                    self?.closeOnboarding()
-                })
-            )
+        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
+        )
         append(step: seedPhraseIntroStep)
 
-        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletModel: userWalletModel, source: source, delegate: self)
-        seedPhraseRecoveryStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
+        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
         )
         append(step: seedPhraseRecoveryStep)
 
@@ -52,23 +49,35 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
             source: source,
             delegate: self
         )
-        seedPhraseValidationStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
-        )
         append(step: seedPhraseValidationStep)
 
         append(step: completeStep())
     }
 
     func completeStep() -> Step {
-        makeDoneStep()
+        if case .hardwareWallet(let action) = source, action == .upgrade {
+            makeContinueStep()
+        } else {
+            makeDoneStep()
+        }
     }
 }
 
 // MARK: - Private methods
 
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
+    func makeContinueStep() -> Step {
+        let step = MobileOnboardingSuccessStep(
+            type: .seedPhaseBackupContinue,
+            navigationTitle: Localization.commonBackup,
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+            },
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
+        )
+        return step
+    }
+
     func makeDoneStep() -> Step {
         let successType: MobileOnboardingSuccessViewModel.SuccessType
         if case .walletSettings(let action) = source, action == .accessCode {
@@ -79,13 +88,13 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
 
         let step = MobileOnboardingSuccessStep(
             type: successType,
+            navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
                 self?.openConfetti()
             },
             onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
         )
-        step.configureNavBar(title: Localization.commonBackup)
         return step
     }
 }
@@ -116,6 +125,11 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
     func seedPhraseIntroContinue() {
         openNext()
     }
+
+    func seedPhraseIntroClose() {
+        logSeedPhraseIntroCloseAnalytics()
+        closeOnboarding()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseRecoveryDelegate
@@ -123,6 +137,10 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
 extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhraseRecoveryDelegate {
     func seedPhraseRecoveryContinue() {
         openNext()
+    }
+
+    func onSeedPhraseRecoveryBack() {
+        back()
     }
 }
 
@@ -133,6 +151,10 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
         logSeedPhraseValidatedAnalytics()
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
+    }
+
+    func onSeedPhraseValidationBack() {
+        back()
     }
 }
 
