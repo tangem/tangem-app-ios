@@ -22,16 +22,9 @@ extension SendWithSwapFlowBaseDependenciesFactory {
             transferModel: transferModel,
             swapModel: swapModel,
             initialSourceToken: transferableToken,
-            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),
             analyticsLogger: analyticsLogger
         )
-    }
-
-    // MARK: - Receive token
-
-    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
-        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: transferableToken.fiatItem)
     }
 
     // MARK: - Notifications
