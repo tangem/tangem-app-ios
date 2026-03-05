@@ -16,8 +16,10 @@ struct ExpressProviderRowView: View {
 
     var body: some View {
         if let action = viewModel.tapAction {
-            Button(action: action) { content }
-                .disabled(viewModel.isDisabled)
+            Button(action: { action() }) {
+                content
+            }
+            .disabled(viewModel.isDisabled)
         } else {
             content
         }
@@ -45,6 +47,7 @@ struct ExpressProviderRowView: View {
         .frame(maxWidth: .infinity)
         .background(backgroundView)
         .overlay { SelectionOverlay().opacity(viewModel.detailsType?.isSelected == true ? 1 : 0) }
+        .gesture(DragGesture(minimumDistance: 1))
     }
 
     private var backgroundView: some View {

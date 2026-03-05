@@ -80,6 +80,7 @@ extension PublicKeyType {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             self = PublicKeyType.secp256k1Extended
