@@ -9,14 +9,26 @@
 import SwiftUI
 import TangemAssets
 
-struct ProgressBar: View {
-    let height: CGFloat
+public struct ProgressBar: View {
+    private let height: CGFloat
     /// Must be in 0...1 range. Values smaller than 0 displays no progress, and > 1 displays max progress
-    let currentProgress: CGFloat
-    var backgroundColor: Color = Colors.Icon.primary1.opacity(0.2)
-    var progressColor: Color = Colors.Icon.primary1
+    private let currentProgress: CGFloat
+    private let backgroundColor: Color
+    private let progressColor: Color
 
-    var body: some View {
+    public init(
+        height: CGFloat,
+        currentProgress: CGFloat,
+        backgroundColor: Color = Colors.Icon.primary1.opacity(0.2),
+        progressColor: Color = Colors.Icon.primary1
+    ) {
+        self.height = height
+        self.currentProgress = currentProgress
+        self.backgroundColor = backgroundColor
+        self.progressColor = progressColor
+    }
+
+    public var body: some View {
         Rectangle()
             .modifier(
                 AnimatableGradient(

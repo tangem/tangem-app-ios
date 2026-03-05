@@ -12,10 +12,10 @@ import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 final class MobileOnboardingSuccessViewModel {
+    let navigationTitle: String
+
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
-
-    private var isAppeared = false
 
     private let type: SuccessType
     private let onAppear: () -> Void
@@ -23,10 +23,12 @@ final class MobileOnboardingSuccessViewModel {
 
     init(
         type: SuccessType,
+        navigationTitle: String,
         onAppear: @escaping () -> Void,
         onComplete: @escaping () -> Void
     ) {
         self.type = type
+        self.navigationTitle = navigationTitle
         self.onAppear = onAppear
         self.onComplete = onComplete
     }
@@ -35,9 +37,7 @@ final class MobileOnboardingSuccessViewModel {
 // MARK: - Internal methods
 
 extension MobileOnboardingSuccessViewModel {
-    func onWillAppear() {
-        guard !isAppeared else { return }
-        isAppeared = true
+    func onFirstAppear() {
         onAppear()
     }
 
