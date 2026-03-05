@@ -122,12 +122,6 @@ extension SendCoordinator {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
         case closeButtonTap
     }
-
-    enum CoordinatorState {
-        case root
-        /// State if coordinator has any presented child view / coordinator
-        case child
-    }
 }
 
 // MARK: - SendRoutable
@@ -349,12 +343,10 @@ extension SendCoordinator: OnrampRoutable {
 
 extension SendCoordinator: ExpressApproveRoutable {
     func didSendApproveTransaction() {
-        stateProvider.childDismissed()
         expressApproveViewModel = nil
     }
 
     func userDidCancel() {
-        stateProvider.childDismissed()
         expressApproveViewModel = nil
     }
 
@@ -367,7 +359,6 @@ extension SendCoordinator: ExpressApproveRoutable {
 
 extension SendCoordinator: FeeSelectorRoutable {
     func closeFeeSelector() {
-        stateProvider.childDismissed()
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 }
