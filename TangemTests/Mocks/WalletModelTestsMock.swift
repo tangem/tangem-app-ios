@@ -55,7 +55,7 @@ final class WalletModelTestsMock: WalletModel {
     // MARK: - AvailableTokenBalanceProviderInput
 
     var state: WalletModelState { .loaded(0) }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { Just(state).eraseToAnyPublisher() }
+    var statePublisher: AnyPublisher<WalletModelState, Never> { .just(output: state) }
 
     // MARK: - FiatTokenBalanceProviderInput
 
@@ -67,17 +67,16 @@ final class WalletModelTestsMock: WalletModel {
         }
     }
 
-    var ratePublisher: AnyPublisher<WalletModelRate, Never> { Just(rate).eraseToAnyPublisher() }
+    var ratePublisher: AnyPublisher<WalletModelRate, Never> { .just(output: rate) }
 
     // MARK: - StakingTokenBalanceProviderInput
 
     var stakingManagerState: StakingManagerState { .notEnabled }
-    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { Just(stakingManagerState).eraseToAnyPublisher() }
+    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { .just(output: stakingManagerState) }
 
     // MARK: - ReceiveAddressTypesProvider
 
-    var receiveAddressTypes: [ReceiveAddressType] { [] }
-    var receiveAddressInfos: [ReceiveAddressInfo] { [] }
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { .just(output: []) }
 
     // MARK: - WalletModelResolvable
 
@@ -95,9 +94,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelRentProvider
 
-    func updateRentWarning() -> AnyPublisher<String?, Never> {
-        Just(nil).eraseToAnyPublisher()
-    }
+    func updateRentWarning() -> AnyPublisher<String?, Never> { .just(output: nil) }
 
     // MARK: - WalletModelFeesProvider
 
@@ -133,7 +130,7 @@ final class WalletModelTestsMock: WalletModel {
     var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
-    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
