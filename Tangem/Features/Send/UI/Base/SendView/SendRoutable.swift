@@ -22,7 +22,7 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, Se
     func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input)
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder)
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?)
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
     func openFeeSelectorLearnMoreURL(_ url: URL)

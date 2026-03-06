@@ -173,11 +173,12 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
             dismissAction: { [weak self] in
                 self?.sendReceiveTokenCoordinator = nil
+                onDismiss?()
             }, popToRootAction: popToRootAction
         )
 

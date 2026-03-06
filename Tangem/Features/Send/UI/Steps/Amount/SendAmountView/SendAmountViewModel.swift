@@ -93,6 +93,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     /// Guards against stale CombineLatest emissions after removal.
     /// Set in `removeReceivedToken`, cleared in `case .none:` of `updateReceivedToken`.
     private var isDestinationTokenClearing = false
+    /// Set when destination token is first selected; cleared after the first `.success` amount triggers reverse calculation.
+    private var pendingFirstSelectionRecalculation = false
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
@@ -139,7 +141,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func userDidTapReceivedTokenSelection() {
         analyticsLogger.logTapConvertToAnotherToken()
 
-        router?.openReceiveTokensList()
+        openReceiveTokensList()
     }
 
     func removeReceivedToken() {
@@ -160,6 +162,17 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             self?.pendingFocusField = .send
         }
+    }
+
+    private func openReceiveTokensList() {
+        router?.openReceiveTokensList(onDismiss: { [weak self] in
+            guard let self, currentDestinationToken == nil else { return }
+
+            // Token picker was dismissed without selection — refocus FROM field
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                self?.pendingFocusField = .send
+            }
+        })
     }
 
     func userDidTapCompactField(_ tappedField: ActiveAmountField) {
@@ -346,6 +359,7 @@ extension SendAmountViewModel {
         switch destinationToken {
         case .none:
             isDestinationTokenClearing = false
+            pendingFirstSelectionRecalculation = false
             destinationTokenViewType = .selectButton
             currentDestinationToken = nil
             compactDestinationSubtitle = nil
@@ -370,7 +384,7 @@ extension SendAmountViewModel {
                         subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
                         detailsType: .select(individualAction: nil),
                         action: { [weak self] in
-                            self?.router?.openReceiveTokensList()
+                            self?.openReceiveTokensList()
                         }
                     )
 
@@ -398,6 +412,7 @@ extension SendAmountViewModel {
 
                     if isFirstSelection {
                         activeField = .receive
+                        pendingFirstSelectionRecalculation = true
 
                         // Delay until the token-picker sheet finishes dismissing,
                         // then trigger the view's `.onChange` to claim focus.
@@ -420,6 +435,14 @@ extension SendAmountViewModel {
                         // When the user edited the source (From) field or on initial load,
                         // fully update the destination field including the crypto value from the quote
                         field.updateAmountsUI(amount: sendAmount)
+
+                        // On first selection, switch to "receive-driven" mode and trigger
+                        // reverse calculation so FROM is recalculated at the fixed rate
+                        if pendingFirstSelectionRecalculation {
+                            pendingFirstSelectionRecalculation = false
+                            lastUpdateSource = .receive
+                            _ = interactor.update(receiveAmount: sendAmount.crypto)
+                        }
                     }
                 }
 
@@ -434,7 +457,7 @@ extension SendAmountViewModel {
                     subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount),
                     detailsType: .select(individualAction: nil),
                     action: { [weak self] in
-                        self?.router?.openReceiveTokensList()
+                        self?.openReceiveTokensList()
                     }
                 )
                 destinationTokenViewType = .selected(tokenViewData)
