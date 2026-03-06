@@ -132,14 +132,9 @@ if [ "$AVAILABLE" -lt "$MIN_FREE_GB" ]; then
   check_space
 fi
 
-# --- Stage 10: Clean old simulator device data (unavailable devices) ---
-if [ "$AVAILABLE" -lt "$MIN_FREE_GB" ]; then
-  echo "🧹 Stage 10: Removing unavailable simulator devices..."
-  xcrun simctl delete unavailable 2>/dev/null || true
-  AVAILABLE=$(get_available_gb)
-  echo "  → ${AVAILABLE}GB free"
-  check_space
-fi
+# --- Stage 10: Skipped ---
+# NOTE: Do NOT delete "unavailable" simulators — Xcode version mismatch
+# can mark valid simulators as unavailable (e.g., iOS 26.2 on Xcode 26.3)
 
 # --- Final check ---
 AVAILABLE=$(get_available_gb)

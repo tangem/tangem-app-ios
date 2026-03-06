@@ -96,7 +96,4 @@ if [ "$MATCHING_COUNT" -gt 0 ]; then
   [ "$DELETED" -gt 0 ] && echo "Deleted $DELETED non-matching simulator(s)"
 fi
 
-# Clean up unavailable simulators (stale runtimes)
-xcrun simctl delete unavailable 2>/dev/null || true
-
 echo "Simulator cleanup complete: kept $MATCHING_COUNT $SIM_DEVICE iOS $RUNTIME simulator(s)"
