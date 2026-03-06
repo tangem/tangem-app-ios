@@ -33,6 +33,18 @@ public enum CommonUIAccessibilityIdentifiers {
 
     public static let retryButton = "commonRetryButton"
 
+    /// Token selector
+    public static let tokenSelectorItemPrefix = "commonUITokenSelectorItem_"
+
+    public static func tokenSelectorItem(name: String) -> String {
+        "\(tokenSelectorItemPrefix)\(name)"
+    }
+
+    /// Account selector
+    public static func accountSelectorCell(name: String) -> String {
+        "commonUIAccountSelectorCell_\(name)"
+    }
+
     // Addresses info
     public static let addressesInfoButton = "commonUIAddressesInfoButton"
     public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
