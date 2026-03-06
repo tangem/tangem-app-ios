@@ -415,60 +415,82 @@ else
   sleep 3
 fi
 
-# Wait for system load to stabilize before final verification.
-# Boot + warmup can leave the system hot; spawning into sims while load is
-# 300+ will always time out, creating a false-negative cascade.
-echo "Waiting for system load to stabilize before final verification..."
-for _wait_i in $(seq 1 12); do
-  LOAD_1MIN=$(sysctl -n vm.loadavg 2>/dev/null | awk '{printf "%.0f", $2}')
-  CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
-  THRESHOLD=$((CPU_CORES * 4))
-  if [ "${LOAD_1MIN:-999}" -le "$THRESHOLD" ]; then
-    echo "System load ($LOAD_1MIN) is acceptable (threshold: $THRESHOLD)"
-    break
-  fi
-  echo "System load ($LOAD_1MIN) still high (threshold: $THRESHOLD), waiting 10s..."
-  sleep 10
-done
-
-# Final verification: ensure all simulators can respond to simctl commands
-echo "Final system readiness verification..."
+# Final verification: ensure all simulators can launch apps.
+# Uses `simctl launch` (via SpringBoard) instead of `simctl spawn` (via launchd_sim)
+# because spawn is unreliable on freshly-migrated simulators — it hangs indefinitely
+# even after bootstatus reports "Finished" and SpringBoard is responsive.
+echo "Final system readiness verification (launch-based)..."
 FINAL_FAILURES=0
+FINAL_FAILED_UDIDS=""
+TOTAL_POOL=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
+
 for UDID in $SIMULATOR_UDIDS; do
-  if run_with_timeout 60 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+  if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences >/dev/null 2>&1; then
+    run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
     echo "Simulator $UDID: responsive"
   else
-    echo "WARNING: Simulator $UDID is NOT responsive to spawn commands"
+    echo "WARNING: Simulator $UDID is NOT responsive to launch commands"
     FINAL_FAILURES=$((FINAL_FAILURES + 1))
+    FINAL_FAILED_UDIDS="$FINAL_FAILED_UDIDS $UDID"
   fi
 done
 
-TOTAL_POOL=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
 PASSING=$((TOTAL_POOL - FINAL_FAILURES))
 
-# If every simulator timed out, the host may still be under extreme load.
-# Wait 30s and do one retry pass before giving up entirely.
+# If every simulator failed, wait and retry once
 if [ "$PASSING" -eq 0 ]; then
-  echo "WARNING: All spawn checks timed out. Waiting 60s for system to settle and retrying..."
+  echo "WARNING: All launch checks failed. Waiting 60s for system to settle and retrying..."
   sleep 60
   FINAL_FAILURES=0
+  FINAL_FAILED_UDIDS=""
   for UDID in $SIMULATOR_UDIDS; do
-    if run_with_timeout 60 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+    if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences >/dev/null 2>&1; then
+      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
       echo "Simulator $UDID: responsive (retry)"
     else
       echo "WARNING: Simulator $UDID is still NOT responsive"
       FINAL_FAILURES=$((FINAL_FAILURES + 1))
+      FINAL_FAILED_UDIDS="$FINAL_FAILED_UDIDS $UDID"
     fi
   done
   PASSING=$((TOTAL_POOL - FINAL_FAILURES))
 fi
 
+# Exclude non-responsive simulators instead of failing entirely
 if [ "$PASSING" -eq 0 ]; then
   echo "ERROR: No simulators passed final verification. Cannot proceed."
   exit 1
 fi
 if [ "$FINAL_FAILURES" -gt 0 ]; then
   echo "WARNING: $FINAL_FAILURES/$TOTAL_POOL simulator(s) failed final verification ($PASSING healthy)"
+  echo "Excluding failed simulators from pool..."
+  NEW_SIMULATOR_UDIDS=""
+  NEW_PORT_MAPPING=""
+  NEW_DEVICES_YAML=""
+  NEW_INDEX=0
+  for UDID in $SIMULATOR_UDIDS; do
+    IS_FAILED=false
+    for FAILED_UDID in $FINAL_FAILED_UDIDS; do
+      if [ "$UDID" = "$FAILED_UDID" ]; then
+        IS_FAILED=true
+        break
+      fi
+    done
+    if [ "$IS_FAILED" = "false" ]; then
+      NEW_SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS $UDID"
+      if [ -n "$NEW_PORT_MAPPING" ]; then
+        NEW_PORT_MAPPING="$NEW_PORT_MAPPING,$UDID:$NEW_INDEX"
+      else
+        NEW_PORT_MAPPING="$UDID:$NEW_INDEX"
+      fi
+      NEW_DEVICES_YAML=$(printf '%s\n      - type: simulator\n        udid: "%s"' "$NEW_DEVICES_YAML" "$UDID")
+      NEW_INDEX=$((NEW_INDEX + 1))
+    fi
+  done
+  SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS"
+  PORT_MAPPING="$NEW_PORT_MAPPING"
+  DEVICES_YAML="$NEW_DEVICES_YAML"
+  echo "Final pool: $PASSING simulator(s)"
 fi
 
 echo "=== Booted simulators ==="
