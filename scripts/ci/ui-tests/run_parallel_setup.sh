@@ -41,6 +41,18 @@ trap cleanup_background EXIT
 
 echo "=== Starting Setup ==="
 
+# Resolve simulator runtime (handles Xcode version mismatches gracefully)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+source "$SCRIPT_DIR/resolve-runtime.sh"
+echo "Resolved simulator config: $RESOLVED_DEVICE (iOS $RESOLVED_RUNTIME)"
+
+# Persist for subsequent workflow steps (Fastlane, manage-simulators, etc.)
+if [ -n "$GITHUB_ENV" ]; then
+  echo "IOS_SIM_RUNTIME=$RESOLVED_RUNTIME" >> "$GITHUB_ENV"
+  echo "IOS_SIM_DEVICE=$RESOLVED_DEVICE" >> "$GITHUB_ENV"
+fi
+
 # Resource monitoring (lightweight: vm_stat only, no top which burns CPU)
 echo "📊 Starting resource monitoring..."
 (
@@ -94,6 +106,32 @@ echo "========================================"
     # Start WireMock
     ./scripts/ci/ui-tests/wiremock-start.sh
 ) > "$WIREMOCK_LOG_FILE" 2>&1 & WIREMOCK_PID=$!
+
+# 1b. Ensure at least one simulator exists for the build destination.
+# Fastlane's run_tests (build_for_marathon) needs a matching simulator device
+# even when only building for testing. If the previous run deleted all sims
+# (old shutdown script), the build fails with "No simulators found".
+echo ""
+echo "========================================"
+echo "  PHASE 1b: Ensure build destination"
+echo "========================================"
+SIM_DEVICE="$RESOLVED_DEVICE"
+SIM_RUNTIME="$RESOLVED_RUNTIME"
+
+EXISTING_SIM=$(xcrun simctl list devices available | sed -n "/-- iOS $SIM_RUNTIME/,/^--/p" | grep -E "iPhone .+ \(" | head -1)
+if [ -z "$EXISTING_SIM" ]; then
+  echo "No simulators found for $SIM_DEVICE (iOS $SIM_RUNTIME), creating one for build..."
+  DEV_TYPE_ID=$(xcrun simctl list devicetypes | grep -w "$SIM_DEVICE" | head -1 | sed 's/.*(\(.*\))/\1/')
+  RUNTIME_ID="com.apple.CoreSimulator.SimRuntime.iOS-$(echo "$SIM_RUNTIME" | tr '.' '-')"
+  if [ -n "$DEV_TYPE_ID" ]; then
+    xcrun simctl create "$SIM_DEVICE" "$DEV_TYPE_ID" "$RUNTIME_ID"
+    echo "Created simulator: $SIM_DEVICE (iOS $SIM_RUNTIME)"
+  else
+    echo "WARNING: Could not resolve device type for '$SIM_DEVICE', build may fail"
+  fi
+else
+  echo "Found existing simulator: $(echo "$EXISTING_SIM" | xargs)"
+fi
 
 # 2. Build App (Foreground — CPU + memory intensive, needs full resources)
 echo ""
