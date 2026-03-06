@@ -211,6 +211,16 @@ extension SwapModel {
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
             let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
 
+            // Populate _receiveAmount from the quote so the destination field
+            // shows the calculated value when a TO token is selected after entering FROM amount
+            if let quote = provider.selected?.getState().quote {
+                let crypto = quote.expectAmount
+                let fiat = destination.tokenItem.currencyId.flatMap {
+                    self.balanceConverter.convertToFiat(crypto, currencyId: $0)
+                }
+                _receiveAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
+            }
+
             return provider
         }
     }
