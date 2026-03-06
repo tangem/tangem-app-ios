@@ -92,9 +92,9 @@ cat Marathondevices
   echo 'testOutputTimeoutMillis: 300000'
   echo 'testBatchTimeoutMillis: 480000'
   echo ''
-  # Lower device init timeout since simulators are pre-booted and warmed up
-  # Default is 300s; 60s is plenty for already-running simulators
-  echo 'deviceInitializationTimeoutMillis: 60000'
+  # Device init timeout: simulators are pre-booted and apps pre-installed,
+  # but SpringBoard can still be slow on loaded runners
+  echo 'deviceInitializationTimeoutMillis: 180000'
   echo ''
   # Only keep video recordings for failed tests to save disk space
   echo 'screenRecordingPolicy: ON_FAILURE'
@@ -166,3 +166,36 @@ fi
 
 echo "Generated Marathonfile.generated:"
 cat Marathonfile.generated
+
+# Pre-install app and test runner on each simulator BEFORE Marathon runs.
+# Marathon tries to install+launch on all simulators simultaneously, which
+# overwhelms SpringBoard and causes "Busy (Application failed preflight checks)".
+# Sequential pre-install ensures SpringBoard has processed the install and is
+# idle by the time Marathon sends launch requests.
+echo ""
+echo "=== Pre-installing apps on simulators ==="
+
+# Extract UDIDs from PORT_MAPPING (format: UDID1:0,UDID2:1,...)
+PRE_INSTALL_UDIDS=$(echo "$PORT_MAPPING" | tr ',' '\n' | cut -d: -f1)
+
+for UDID in $PRE_INSTALL_UDIDS; do
+  echo "Installing on $UDID..."
+
+  # Install main app
+  if ! xcrun simctl install "$UDID" "$APP_PATH" 2>&1; then
+    echo "  WARNING: Failed to install app on $UDID"
+  fi
+
+  # Install test runner
+  if [ "$TEST_RUNNER_PATH" != "$APP_PATH" ]; then
+    if ! xcrun simctl install "$UDID" "$TEST_RUNNER_PATH" 2>&1; then
+      echo "  WARNING: Failed to install test runner on $UDID"
+    fi
+  fi
+
+  # Brief pause to let SpringBoard process the install
+  sleep 2
+done
+
+echo "Pre-installation complete. Allowing SpringBoard to settle..."
+sleep 5
