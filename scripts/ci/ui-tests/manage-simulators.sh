@@ -174,7 +174,7 @@ fi
 
 # Boot simulators that are not already booted (PARALLEL with staggered startup)
 echo "Booting simulators in parallel with staggered startup..."
-BATCH_SIZE=4  # Boot in batches to balance speed vs resource contention
+BATCH_SIZE=2  # Small batches to avoid resource spikes (Data Migration is very heavy)
 SIMULATOR_ARRAY=($SIMULATOR_UDIDS)
 TOTAL_SIMULATORS=${#SIMULATOR_ARRAY[@]}
 
@@ -183,9 +183,9 @@ for ((batch_start=0; batch_start<TOTAL_SIMULATORS; batch_start+=BATCH_SIZE)); do
   if [ $batch_end -gt $TOTAL_SIMULATORS ]; then
     batch_end=$TOTAL_SIMULATORS
   fi
-  
+
   echo "Booting batch $((batch_start/BATCH_SIZE + 1)): simulators $((batch_start + 1))-$batch_end"
-  
+
   # Boot current batch in parallel
   for ((i=batch_start; i<batch_end; i++)); do
     UDID=${SIMULATOR_ARRAY[$i]}
@@ -198,11 +198,11 @@ for ((batch_start=0; batch_start<TOTAL_SIMULATORS; batch_start+=BATCH_SIZE)); do
     fi
   done
   wait
-  
-  # Small delay between batches to prevent resource spikes
+
+  # Delay between batches to prevent resource spikes from Data Migration
   if [ $batch_end -lt $TOTAL_SIMULATORS ]; then
-    echo "Waiting 3 seconds before next batch..."
-    sleep 3
+    echo "Waiting 10 seconds before next batch..."
+    sleep 10
   fi
 done
 
@@ -287,31 +287,42 @@ for UDID in $SIMULATOR_UDIDS; do
   fi
 done
 
-# Recovery: erase + reboot simulators that failed boot status, one at a time
+# Recovery: shutdown + reboot simulators that failed boot status, one at a time.
+# NOTE: We do NOT erase — erasing forces a full Data Migration on reboot,
+# which takes 2+ minutes under load and makes recovery slower, not faster.
 if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
   echo "Attempting SEQUENTIAL recovery for $BOOT_CHECK_FAILURES failed simulator(s)..."
+  echo "Waiting 30s for system resources to free up before recovery..."
+  sleep 30
   PERMANENTLY_FAILED_UDIDS=""
 
   for UDID in $BOOT_CHECK_FAILED_UDIDS; do
     echo "--- Recovering simulator $UDID ---"
 
     echo "  Shutting down..."
-    run_with_timeout 15 xcrun simctl shutdown "$UDID" 2>/dev/null || true
-    sleep 2
-
-    echo "  Erasing..."
-    run_with_timeout 15 xcrun simctl erase "$UDID" 2>/dev/null || true
-    sleep 2
+    run_with_timeout 30 xcrun simctl shutdown "$UDID" 2>/dev/null || true
+    sleep 5
 
     echo "  Booting..."
-    run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
+    run_with_timeout 30 xcrun simctl boot "$UDID" 2>/dev/null || true
 
     echo "  Waiting for boot completion..."
-    if run_with_timeout 120 xcrun simctl bootstatus "$UDID" 2>&1; then
-      echo "  Simulator $UDID: recovered after erase+reboot"
+    if run_with_timeout 180 xcrun simctl bootstatus "$UDID" 2>&1; then
+      echo "  Simulator $UDID: recovered after reboot"
     else
-      echo "  ERROR: Simulator $UDID permanently failed recovery"
-      PERMANENTLY_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS $UDID"
+      # Last resort: erase and reboot (triggers Data Migration but may fix corrupted state)
+      echo "  Reboot failed, trying erase as last resort..."
+      run_with_timeout 30 xcrun simctl shutdown "$UDID" 2>/dev/null || true
+      sleep 2
+      run_with_timeout 30 xcrun simctl erase "$UDID" 2>/dev/null || true
+      sleep 2
+      run_with_timeout 30 xcrun simctl boot "$UDID" 2>/dev/null || true
+      if run_with_timeout 180 xcrun simctl bootstatus "$UDID" 2>&1; then
+        echo "  Simulator $UDID: recovered after erase+reboot"
+      else
+        echo "  ERROR: Simulator $UDID permanently failed recovery"
+        PERMANENTLY_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS $UDID"
+      fi
     fi
   done
 
@@ -369,59 +380,62 @@ if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
 fi
 
 # Warm up SpringBoard on each simulator to prevent "Application failed preflight checks" / "Busy" errors
-# This forces SpringBoard to complete its initialization before Marathon sends test batches
-echo "Warming up SpringBoard on simulators (parallel)..."
+# This forces SpringBoard to complete its initialization before Marathon sends test batches.
+# SEQUENTIAL warmup: parallel warmup causes resource thrashing on loaded systems
+# (N concurrent simctl launch calls + SpringBoard inits overwhelm CPU/memory).
+echo "Warming up SpringBoard on simulators (sequential)..."
 WARMUP_MAX_ATTEMPTS=3
-WARMUP_STATUS_DIR=$(mktemp -d)
-for UDID in $SIMULATOR_UDIDS; do
-  (
-    echo "Warming up $UDID..."
-    WARMUP_SUCCESS=false
-    for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
-      if run_with_timeout 20 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
-        sleep 1
-        run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-        WARMUP_SUCCESS=true
-        [ "$attempt" -gt 1 ] && echo "Simulator $UDID: warmup succeeded on attempt $attempt"
-        break
-      else
-        echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
-        [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ] && sleep 5
-      fi
-    done
-    if [ "$WARMUP_SUCCESS" = "false" ]; then
-      echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
-      echo "fail" > "$WARMUP_STATUS_DIR/$UDID"
-    else
-      echo "ok" > "$WARMUP_STATUS_DIR/$UDID"
-    fi
-  ) &
-done
-wait
-
 WARMUP_FAILURES=0
+
 for UDID in $SIMULATOR_UDIDS; do
-  if [ -f "$WARMUP_STATUS_DIR/$UDID" ] && [ "$(cat "$WARMUP_STATUS_DIR/$UDID")" = "fail" ]; then
+  echo "Warming up $UDID..."
+  WARMUP_SUCCESS=false
+  for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
+    if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
+      sleep 2
+      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
+      WARMUP_SUCCESS=true
+      [ "$attempt" -gt 1 ] && echo "Simulator $UDID: warmup succeeded on attempt $attempt"
+      break
+    else
+      echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
+      [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ] && sleep 10
+    fi
+  done
+  if [ "$WARMUP_SUCCESS" = "false" ]; then
+    echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
     WARMUP_FAILURES=$((WARMUP_FAILURES + 1))
   fi
 done
-rm -rf "$WARMUP_STATUS_DIR"
 
 if [ $WARMUP_FAILURES -gt 0 ]; then
   echo "WARNING: $WARMUP_FAILURES simulator(s) failed SpringBoard warm-up. Allowing extra settle time..."
   sleep 15
 else
-  # All warmups succeeded; short settle time is sufficient since
-  # SpringBoard is confirmed running and the final verification below
-  # will catch any remaining issues
   sleep 3
 fi
+
+# Wait for system load to stabilize before final verification.
+# Boot + warmup can leave the system hot; spawning into sims while load is
+# 300+ will always time out, creating a false-negative cascade.
+echo "Waiting for system load to stabilize before final verification..."
+for _wait_i in $(seq 1 12); do
+  LOAD_1MIN=$(sysctl -n vm.loadavg 2>/dev/null | awk '{printf "%.0f", $2}')
+  CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
+  THRESHOLD=$((CPU_CORES * 4))
+  if [ "${LOAD_1MIN:-999}" -le "$THRESHOLD" ]; then
+    echo "System load ($LOAD_1MIN) is acceptable (threshold: $THRESHOLD)"
+    break
+  fi
+  echo "System load ($LOAD_1MIN) still high (threshold: $THRESHOLD), waiting 10s..."
+  sleep 10
+done
 
 # Final verification: ensure all simulators can respond to simctl commands
 echo "Final system readiness verification..."
 FINAL_FAILURES=0
 for UDID in $SIMULATOR_UDIDS; do
-  if run_with_timeout 45 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+  if run_with_timeout 60 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
     echo "Simulator $UDID: responsive"
   else
     echo "WARNING: Simulator $UDID is NOT responsive to spawn commands"
@@ -435,11 +449,11 @@ PASSING=$((TOTAL_POOL - FINAL_FAILURES))
 # If every simulator timed out, the host may still be under extreme load.
 # Wait 30s and do one retry pass before giving up entirely.
 if [ "$PASSING" -eq 0 ]; then
-  echo "WARNING: All spawn checks timed out. Waiting 30s and retrying..."
-  sleep 30
+  echo "WARNING: All spawn checks timed out. Waiting 60s for system to settle and retrying..."
+  sleep 60
   FINAL_FAILURES=0
   for UDID in $SIMULATOR_UDIDS; do
-    if run_with_timeout 45 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+    if run_with_timeout 60 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
       echo "Simulator $UDID: responsive (retry)"
     else
       echo "WARNING: Simulator $UDID is still NOT responsive"

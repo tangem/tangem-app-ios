@@ -126,6 +126,35 @@ echo ""
 echo "========================================"
 echo "  PHASE 3: Simulator Setup"
 echo "========================================"
+
+# Kill leftover build processes that inflate load average and steal memory.
+# SourceKitService, swift-frontend, etc. are no longer needed after build.
+echo "Cleaning up leftover build processes..."
+pkill -f SourceKitService 2>/dev/null || true
+pkill -f "swift-frontend.*-typecheck" 2>/dev/null || true
+pkill -f "clang.*-index-store-path" 2>/dev/null || true
+pkill -f SwiftCompile 2>/dev/null || true
+
+# Wait for system load to drop after the build before booting simulators.
+# The build leaves the system hot; booting sims immediately causes thrashing.
+echo "Waiting for system load to normalize before booting simulators..."
+MAX_LOAD_WAIT=120  # seconds
+LOAD_WAITED=0
+while [ $LOAD_WAITED -lt $MAX_LOAD_WAIT ]; do
+  LOAD_1MIN=$(sysctl -n vm.loadavg 2>/dev/null | awk '{printf "%.0f", $2}')
+  CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
+  THRESHOLD=$((CPU_CORES * 3))
+  if [ "${LOAD_1MIN:-999}" -le "$THRESHOLD" ]; then
+    echo "System load ($LOAD_1MIN) is within threshold ($THRESHOLD), proceeding"
+    break
+  fi
+  echo "System load ($LOAD_1MIN) exceeds threshold ($THRESHOLD), waiting... (${LOAD_WAITED}s/${MAX_LOAD_WAIT}s)"
+  sleep 10
+  LOAD_WAITED=$((LOAD_WAITED + 10))
+done
+if [ $LOAD_WAITED -ge $MAX_LOAD_WAIT ]; then
+  echo "WARNING: Load did not normalize after ${MAX_LOAD_WAIT}s, proceeding anyway"
+fi
 ORIGINAL_GITHUB_OUTPUT="${GITHUB_OUTPUT:-}"
 export GITHUB_OUTPUT="$PWD/$SIM_OUTPUT_FILE"
 set +e
