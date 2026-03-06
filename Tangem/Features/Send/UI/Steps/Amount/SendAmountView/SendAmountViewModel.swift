@@ -283,12 +283,20 @@ private extension SendAmountViewModel {
         lastUpdateSource = .send
         let amount = try? interactor.update(sendAmount: amount)
         sourceAmountField.updateAlternativeUI(amount: amount)
+
+        if amount == nil {
+            destinationAmountField?.updateAmountsUI(amount: nil)
+        }
     }
 
     func destinationTextFieldValueDidChange(amount: Decimal?) {
         lastUpdateSource = .receive
         let amount = interactor.update(receiveAmount: amount)
         destinationAmountField?.updateAlternativeUI(amount: amount)
+
+        if amount == nil {
+            sourceAmountField.updateAlternativeUI(amount: nil)
+        }
     }
 
     func update(amountType: SendAmountCalculationType) {
