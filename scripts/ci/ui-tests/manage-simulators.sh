@@ -370,33 +370,42 @@ fi
 
 # Warm up SpringBoard on each simulator to prevent "Application failed preflight checks" / "Busy" errors
 # This forces SpringBoard to complete its initialization before Marathon sends test batches
-echo "Warming up SpringBoard on simulators..."
-WARMUP_FAILURES=0
+echo "Warming up SpringBoard on simulators (parallel)..."
 WARMUP_MAX_ATTEMPTS=3
+WARMUP_STATUS_DIR=$(mktemp -d)
 for UDID in $SIMULATOR_UDIDS; do
-  echo "Warming up $UDID..."
-  WARMUP_SUCCESS=false
-  for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
-    if run_with_timeout 20 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
-      sleep 1
-      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-      WARMUP_SUCCESS=true
-      if [ "$attempt" -gt 1 ]; then
-        echo "Simulator $UDID: warmup succeeded on attempt $attempt"
+  (
+    echo "Warming up $UDID..."
+    WARMUP_SUCCESS=false
+    for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
+      if run_with_timeout 20 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
+        sleep 1
+        run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
+        WARMUP_SUCCESS=true
+        [ "$attempt" -gt 1 ] && echo "Simulator $UDID: warmup succeeded on attempt $attempt"
+        break
+      else
+        echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
+        [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ] && sleep 5
       fi
-      break
+    done
+    if [ "$WARMUP_SUCCESS" = "false" ]; then
+      echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
+      echo "fail" > "$WARMUP_STATUS_DIR/$UDID"
     else
-      echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
-      if [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ]; then
-        sleep 5
-      fi
+      echo "ok" > "$WARMUP_STATUS_DIR/$UDID"
     fi
-  done
-  if [ "$WARMUP_SUCCESS" = "false" ]; then
-    echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
+  ) &
+done
+wait
+
+WARMUP_FAILURES=0
+for UDID in $SIMULATOR_UDIDS; do
+  if [ -f "$WARMUP_STATUS_DIR/$UDID" ] && [ "$(cat "$WARMUP_STATUS_DIR/$UDID")" = "fail" ]; then
     WARMUP_FAILURES=$((WARMUP_FAILURES + 1))
   fi
 done
+rm -rf "$WARMUP_STATUS_DIR"
 
 if [ $WARMUP_FAILURES -gt 0 ]; then
   echo "WARNING: $WARMUP_FAILURES simulator(s) failed SpringBoard warm-up. Allowing extra settle time..."
@@ -412,7 +421,7 @@ fi
 echo "Final system readiness verification..."
 FINAL_FAILURES=0
 for UDID in $SIMULATOR_UDIDS; do
-  if run_with_timeout 10 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+  if run_with_timeout 45 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
     echo "Simulator $UDID: responsive"
   else
     echo "WARNING: Simulator $UDID is NOT responsive to spawn commands"
@@ -422,6 +431,24 @@ done
 
 TOTAL_POOL=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
 PASSING=$((TOTAL_POOL - FINAL_FAILURES))
+
+# If every simulator timed out, the host may still be under extreme load.
+# Wait 30s and do one retry pass before giving up entirely.
+if [ "$PASSING" -eq 0 ]; then
+  echo "WARNING: All spawn checks timed out. Waiting 30s and retrying..."
+  sleep 30
+  FINAL_FAILURES=0
+  for UDID in $SIMULATOR_UDIDS; do
+    if run_with_timeout 45 xcrun simctl spawn "$UDID" uname -a >/dev/null 2>&1; then
+      echo "Simulator $UDID: responsive (retry)"
+    else
+      echo "WARNING: Simulator $UDID is still NOT responsive"
+      FINAL_FAILURES=$((FINAL_FAILURES + 1))
+    fi
+  done
+  PASSING=$((TOTAL_POOL - FINAL_FAILURES))
+fi
+
 if [ "$PASSING" -eq 0 ]; then
   echo "ERROR: No simulators passed final verification. Cannot proceed."
   exit 1
