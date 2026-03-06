@@ -154,8 +154,6 @@ final class TangemPayManager: TangemPayAccountModel {
         let enrollmentState: TangemPayEnrollmentState
         do {
             (enrollmentState, customerId) = try await enrollmentStateFetcher.getEnrollmentState()
-            // [REDACTED_TODO_COMMENT]
-            try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
         } catch {
             switch error {
             case .unauthorized:
@@ -192,9 +190,16 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, contextParams: .userWallet(userWalletId))
 
-        case .kycRequired:
+        case .kycRequired(let productInstanceExists):
             orderStatusPollingService.cancel()
             stateSubject.value = .kycRequired(weakReferenceHolder)
+            if !productInstanceExists {
+                do {
+                    try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
+                } catch {
+                    stateSubject.value = .unavailable
+                }
+            }
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
