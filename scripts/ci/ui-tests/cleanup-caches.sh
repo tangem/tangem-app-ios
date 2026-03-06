@@ -85,8 +85,8 @@ if [ "$AGGRESSIVE" = true ]; then
   # Xcode archives
   rm -rf "$HOME/Library/Developer/Xcode/Archives" 2>/dev/null || true
 
-  # Unavailable simulator devices
-  xcrun simctl delete unavailable 2>/dev/null || true
+  # NOTE: Do NOT delete "unavailable" simulators — Xcode version mismatch
+  # can mark valid simulators as unavailable (e.g., iOS 26.2 on Xcode 26.3)
 fi
 
 echo "  Cleanup done."
