@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
+    @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
 
     var body: some View {
         content
@@ -31,7 +32,7 @@ struct MainView: View {
     private var content: some View {
         if FeatureProvider.isAvailable(.redesign) {
             fullPagePagerContent
-                .northernLightsBackground(backgroundColor: .Tangem.Surface.level1)
+                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2)
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -63,6 +64,9 @@ struct MainView: View {
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: overlayCollapsedHeight)
+        }
     }
 
     private var cardsInfoPagerContent: some View {

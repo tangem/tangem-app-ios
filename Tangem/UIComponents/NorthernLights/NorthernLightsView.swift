@@ -15,12 +15,13 @@ struct NorthernLightsView: UIViewRepresentable {
         mtkView.colorPixelFormat = .bgra8Unorm
         mtkView.delegate = renderer
         context.coordinator.renderer = renderer
+        renderer.backgroundColor = UIColor(backgroundColor)
 
         return mtkView
     }
 
     func updateUIView(_ mtkView: MTKView, context: Context) {
-        context.coordinator.renderer?.backgroundRGB = backgroundColor.toRGB() ?? .zero
+        context.coordinator.renderer?.backgroundColor = UIColor(backgroundColor)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -34,7 +35,7 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
 
-    var backgroundRGB: RGB = .zero
+    var backgroundColor: UIColor = .clear
     private var startTime = CACurrentMediaTime()
 
     init(device: MTLDevice) throws {
@@ -66,6 +67,7 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
         }
 
         let elapsed = Float(CACurrentMediaTime() - startTime)
+        let bgRGB = backgroundColor.resolvedRGB(in: view.traitCollection)
 
         var uniforms = Uniforms(
             uTime: elapsed,
@@ -74,7 +76,7 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
             uColor1: NorthernLightsColors.track2.evaluate(at: elapsed),
             uColor2: NorthernLightsColors.track3.evaluate(at: elapsed),
             uColor3: NorthernLightsColors.track4.evaluate(at: elapsed),
-            uColor4: backgroundRGB
+            uColor4: bgRGB
         )
 
         guard let commandBuffer = commandQueue.makeCommandBuffer(),
@@ -98,15 +100,16 @@ extension NorthernLightsRenderer {
     }
 }
 
-private extension Color {
-    func toRGB() -> RGB? {
+private extension UIColor {
+    func resolvedRGB(in traitCollection: UITraitCollection) -> RGB {
+        let resolved = resolvedColor(with: traitCollection)
         guard
-            let components = UIColor(self).cgColor.components,
+            let components = resolved.cgColor.components,
             let r = components[safe: 0],
             let g = components[safe: 1],
             let b = components[safe: 2]
         else {
-            return nil
+            return .zero
         }
 
         return RGB(Float(r), Float(g), Float(b))
