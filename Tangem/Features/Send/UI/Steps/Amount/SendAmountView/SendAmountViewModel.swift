@@ -26,8 +26,27 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var sendAmountTokenViewData: SendAmountTokenViewData?
     @Published var receivedTokenViewType: ReceivedTokenViewType?
     @Published var activeField: ActiveAmountField = .send
-    @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
+    @Published var compactSendSubtitle: SendAmountTokenViewData.SubtitleType?
+    @Published var compactReceiveSubtitle: SendAmountTokenViewData.SubtitleType?
     @Published private(set) var isAccordionSwitchingLocked: Bool = false
+
+    /// Set to `false` before an `activeField` change that should not animate (e.g. first accordion entry).
+    /// The view resets it to `true` inside `.onChange(of: activeField)`.
+    var animateActiveFieldChange = true
+
+    /// Fires after a short delay when removing the receive token so the view
+    /// transfers focus to the source field once the layout has settled.
+    @Published var shouldFocusSendField = false
+
+    /// Set to `true` only in `removeReceivedToken` so the accordion→non-accordion
+    /// structural change is animated. Entry (non-accordion→accordion) never animates.
+    var animateAccordionExit = false
+
+    /// Fires after a delay on first accordion entry so the view claims focus
+    /// on the receive field once the token-picker sheet has fully dismissed.
+    /// Using `@Published` ensures the view's `.onChange` handler runs in the
+    /// live view context, avoiding stale `@FocusState` captures.
+    @Published var shouldFocusReceiveField = false
 
     var useFiatCalculation: Bool {
         get { sourceAmountField.amountType == .fiat }
@@ -47,15 +66,26 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     let isFixedRateMode: Bool
 
-    var compactSourceTokenViewData: SendAmountTokenViewData? {
+    var compactSendTokenViewData: SendAmountTokenViewData? {
         sendAmountTokenViewData.map {
             SendAmountTokenViewData(
                 tokenIconInfo: $0.tokenIconInfo,
                 title: $0.title,
-                subtitle: compactSourceSubtitle ?? $0.subtitle,
+                subtitle: compactSendSubtitle ?? $0.subtitle,
                 detailsType: .none
             )
         }
+    }
+
+    var compactReceiveTokenViewData: SendAmountTokenViewData? {
+        guard case .accordion(_, let baseCompactData) = receivedTokenViewType else { return nil }
+        return SendAmountTokenViewData(
+            tokenIconInfo: baseCompactData.tokenIconInfo,
+            title: baseCompactData.title,
+            subtitle: compactReceiveSubtitle ?? baseCompactData.subtitle,
+            detailsType: baseCompactData.detailsType,
+            action: baseCompactData.action
+        )
     }
 
     private let flowActionType: SendFlowActionType
@@ -63,6 +93,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let analyticsLogger: SendAmountAnalyticsLogger
     private var lastUpdateSource: ActiveAmountField?
     private var currentReceiveToken: SendReceiveToken?
+    /// Guards against stale CombineLatest emissions after removal.
+    /// Set in `removeReceivedToken`, cleared in `case .none:` of `updateReceivedToken`.
+    private var isReceiveTokenClearing = false
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
@@ -113,13 +146,23 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func removeReceivedToken() {
+        isReceiveTokenClearing = true
+        animateAccordionExit = true
         receiveAmountField = nil
         receiveFieldBag = nil
         lastUpdateSource = nil
         activeField = .send
+        receivedTokenViewType = .selectButton
         currentReceiveToken = nil
-        compactSourceSubtitle = nil
+        compactSendSubtitle = nil
+        compactReceiveSubtitle = nil
         interactor.userDidRequestClearReceiveToken()
+
+        // Short delay for the source field to appear in the hierarchy
+        // after transitioning from collapsed accordion to expanded.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            self?.shouldFocusSendField = true
+        }
     }
 
     func userDidTapCompactSource() {
@@ -292,45 +335,70 @@ extension SendAmountViewModel {
 
         switch receiveToken {
         case .none:
+            isReceiveTokenClearing = false
             receivedTokenViewType = .selectButton
+            currentReceiveToken = nil
+            compactReceiveSubtitle = nil
         case .some(let receiveToken):
+            guard !isReceiveTokenClearing else { return }
             let receiveTokenIconInfo = tokenIconInfoBuilder.build(from: receiveToken.tokenItem, isCustom: receiveToken.isCustom)
 
             if isFixedRateMode {
                 let isFirstSelection = currentReceiveToken == nil
+                let tokenDidChange = currentReceiveToken?.tokenItem.id != receiveToken.tokenItem.id
                 currentReceiveToken = receiveToken
-
-                let expandedReceiveData = SendAmountTokenViewData(
-                    tokenIconInfo: receiveTokenIconInfo,
-                    title: receiveToken.tokenItem.name,
-                    subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
-                    detailsType: .select(individualAction: nil),
-                    action: { [weak self] in
-                        self?.router?.openReceiveTokensList()
-                    }
-                )
-
-                let compactReceiveData = SendAmountTokenViewData(
-                    tokenIconInfo: receiveTokenIconInfo,
-                    title: receiveToken.tokenItem.name,
-                    subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
-                    detailsType: .none,
-                    action: { [weak self] in
-                        FeedbackGenerator.heavy()
-                        self?.userDidTapCompactReceive()
-                    }
-                )
 
                 let field = receiveAmountField ?? createReceiveAmountField(for: receiveToken, tokenIconInfo: receiveTokenIconInfo)
 
-                receivedTokenViewType = .accordion(
-                    expandedReceiveData: expandedReceiveData,
-                    compactReceiveData: compactReceiveData
-                )
+                // Only rebuild accordion structure when the token itself changes,
+                // NOT on every amount update. This prevents view re-creation that
+                // clears @FocusState during the focus-claim window.
+                if tokenDidChange {
+                    let expandedReceiveData = SendAmountTokenViewData(
+                        tokenIconInfo: receiveTokenIconInfo,
+                        title: receiveToken.tokenItem.name,
+                        subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+                        detailsType: .select(individualAction: nil),
+                        action: { [weak self] in
+                            self?.router?.openReceiveTokensList()
+                        }
+                    )
 
-                if isFirstSelection {
-                    activeField = .receive
+                    let compactReceiveData = SendAmountTokenViewData(
+                        tokenIconInfo: receiveTokenIconInfo,
+                        title: receiveToken.tokenItem.name,
+                        subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
+                        detailsType: .none,
+                        action: { [weak self] in
+                            FeedbackGenerator.heavy()
+                            self?.userDidTapCompactReceive()
+                        }
+                    )
+
+                    if isFirstSelection {
+                        // Disable animation BEFORE any @Published changes so the
+                        // `.animation(_, value:)` modifier reads `false` during render.
+                        animateActiveFieldChange = false
+                    }
+
+                    receivedTokenViewType = .accordion(
+                        expandedReceiveData: expandedReceiveData,
+                        compactReceiveData: compactReceiveData
+                    )
+
+                    if isFirstSelection {
+                        activeField = .receive
+
+                        // Delay until the token-picker sheet finishes dismissing,
+                        // then trigger the view's `.onChange` to claim focus.
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            self?.shouldFocusReceiveField = true
+                        }
+                    }
                 }
+
+                // Always update the compact subtitle separately (drives compactReceiveTokenViewData)
+                compactReceiveSubtitle = mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount)
 
                 // Update receive fields from external amount
                 if case .success(let sendAmount) = amount {
@@ -390,16 +458,16 @@ extension SendAmountViewModel {
     func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
         switch sourceAmount {
         case .loading:
-            compactSourceSubtitle = .balance(state: .loading())
+            compactSendSubtitle = .balance(state: .loading())
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+                compactSendSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
             } else {
-                compactSourceSubtitle = nil
+                compactSendSubtitle = nil
             }
         case .failure:
-            compactSourceSubtitle = nil
+            compactSendSubtitle = nil
         }
 
         // Unlock when source recalculation finishes (Receive→Source switch)
@@ -448,5 +516,10 @@ extension SendAmountViewModel {
             expandedReceiveData: SendAmountTokenViewData,
             compactReceiveData: SendAmountTokenViewData
         )
+
+        var isAccordion: Bool {
+            if case .accordion = self { return true }
+            return false
+        }
     }
 }
