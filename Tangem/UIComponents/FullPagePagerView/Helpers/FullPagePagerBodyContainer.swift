@@ -27,19 +27,15 @@ struct FullPagePagerBodyContainer<Data, Content>: View
             pageCount: data.count
         )
 
-        ZStack(alignment: .leading) {
+        ZStack(alignment: .top) {
             ForEach(visibleIndices, id: \.self) { index in
                 let element = data[data.index(data.startIndex, offsetBy: index)]
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    contentFactory(element)
-                }
-                .frame(width: pageWidth)
-                .offset(x: CGFloat(index) * pageWidth - scrollOffset)
-                .scrollBounceBehavior(.basedOnSize)
+                contentFactory(element)
+                    .frame(width: pageWidth)
+                    .offset(x: CGFloat(index) * pageWidth - scrollOffset)
             }
         }
-        .frame(maxHeight: .infinity, alignment: .leading)
         .frame(width: pageWidth)
         .clipped()
     }
