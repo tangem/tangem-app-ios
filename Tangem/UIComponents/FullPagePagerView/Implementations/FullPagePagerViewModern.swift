@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemUIUtils
 
 /// iOS 17+ implementation using native ScrollView paging with `.scrollTargetBehavior(.paging)`.
@@ -82,8 +83,14 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     private func headerScrollView(pageWidth: CGFloat) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
-                ForEach(data) { element in
+                ForEach(indexed: data.indexed()) { index, element in
+                    let pagePosition = CGFloat(index) * pageWidth
+                    let distance = abs(scrollOffset - pagePosition)
+                    let stationaryOpacity = max(0, 1 - distance / pageWidth)
+
                     headerFactory(element)
+                        .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)
+                        .environment(\.pagerStationaryOpacity, stationaryOpacity)
                         .frame(width: pageWidth)
                         .id(element.id)
                 }
