@@ -256,7 +256,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
-            token.press(forDuration: 1.0)
+
+            // Retry long press if context menu doesn't appear (can be flaky on CI)
+            let contextMenuIndicator = app.buttons["Send"].firstMatch
+            let maxAttempts = 3
+            for _ in 1 ... maxAttempts {
+                token.press(forDuration: 1.5)
+                if contextMenuIndicator.waitForExistence(timeout: .quick) {
+                    break
+                }
+            }
+
             return ContextMenuScreen(app)
         }
     }
