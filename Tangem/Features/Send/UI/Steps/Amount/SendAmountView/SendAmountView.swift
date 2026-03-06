@@ -26,35 +26,61 @@ struct SendAmountView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
-            if case .accordion(let expandedReceiveData, let compactReceiveData) = viewModel.receivedTokenViewType {
-                sourceAccordionSection
-                receiveAccordionSection(expandedData: expandedReceiveData, compactData: compactReceiveData)
-            } else {
-                sourceContent
-                receiveContent
-            }
+            sourceSection
+            receiveSection
         }
-        .animation(.easeInOut(duration: 0.45), value: viewModel.activeField)
+        .animation(viewModel.animateActiveFieldChange ? .easeInOut(duration: 0.45) : nil, value: viewModel.activeField)
+        .animation(viewModel.animateAccordionExit ? .easeInOut(duration: 0.45) : nil, value: viewModel.receivedTokenViewType?.isAccordion ?? false)
         .onChange(of: viewModel.activeField) { activeField in
+            // On first accordion entry animateActiveFieldChange is `false`.
+            // Skip updateAccordionFocus — the delayed shouldFocusReceiveField
+            // trigger will claim focus once the TextField is in the hierarchy.
+            let isFirstAccordionEntry = !viewModel.animateActiveFieldChange
+            viewModel.animateActiveFieldChange = true
+
+            guard !isFirstAccordionEntry else { return }
             updateAccordionFocus(for: activeField)
+        }
+        .onChange(of: viewModel.shouldFocusSendField) { shouldFocus in
+            guard shouldFocus else { return }
+            viewModel.shouldFocusSendField = false
+            focusedField = viewModel.useFiatCalculation ? .sourceFiat : .sourceCrypto
+        }
+        .onChange(of: viewModel.shouldFocusReceiveField) { shouldFocus in
+            guard shouldFocus else { return }
+            viewModel.shouldFocusReceiveField = false
+            focusedField = viewModel.useReceiveFiatCalculation ? .receiveFiat : .receiveCrypto
+        }
+        .onChange(of: focusedField) { newValue in
+            print("🔴 [SendAmountView] focusedField changed to: \(String(describing: newValue))")
+        }
+        .onChange(of: viewModel.receivedTokenViewType?.isAccordion ?? false) { _ in
+            viewModel.animateAccordionExit = false
         }
         .onAppear(perform: viewModel.onAppear)
     }
 
     // MARK: - Source
 
-    private var sourceContent: some View {
-        VStack(alignment: .center, spacing: .zero) {
+    private var sourceSection: some View {
+        let isAccordion = viewModel.receivedTokenViewType?.isAccordion ?? false
+
+        return SendAmountAccordionSectionView(
+            isExpanded: isAccordion ? viewModel.activeField == .send : true,
+            isLocked: isAccordion ? viewModel.isAccordionSwitchingLocked : true,
+            expandedTokenData: viewModel.sendAmountTokenViewData,
+            compactTokenData: isAccordion ? viewModel.compactSendTokenViewData : nil,
+            onTapCompact: viewModel.userDidTapCompactSource
+        ) {
             sourceHeaderWithInput
-                .padding(.vertical, 45)
-
-            Separator(color: Colors.Stroke.primary)
-
-            if let sendAmountTokenViewData = viewModel.sendAmountTokenViewData {
-                SendAmountTokenView(data: sendAmountTokenViewData)
+        }
+        .overlay(alignment: .bottom) {
+            if isAccordion {
+                convertButton
+                    .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+        .zIndex(isAccordion ? 1 : 0)
     }
 
     private var sourceHeaderWithInput: some View {
@@ -71,13 +97,16 @@ struct SendAmountView: View {
     // MARK: - Receive
 
     @ViewBuilder
-    private var receiveContent: some View {
+    private var receiveSection: some View {
         switch viewModel.receivedTokenViewType {
-        case .none, .accordion:
+        case .none:
             EmptyView()
 
         case .selectButton:
-            Button(action: viewModel.userDidTapReceivedTokenSelection) {
+            Button {
+                focusedField = nil
+                viewModel.userDidTapReceivedTokenSelection()
+            } label: {
                 HStack(spacing: 8) {
                     Assets.Glyphs.convertMiniNew.image
                         .resizable()
@@ -104,40 +133,17 @@ struct SendAmountView: View {
                 convertButton
                     .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
             }
-        }
-    }
 
-    // MARK: - Accordion
-
-    private var sourceAccordionSection: some View {
-        SendAmountAccordionSectionView(
-            isExpanded: viewModel.activeField == .send,
-            isLocked: viewModel.isAccordionSwitchingLocked,
-            expandedTokenData: viewModel.sendAmountTokenViewData,
-            compactTokenData: viewModel.compactSourceTokenViewData,
-            onTapCompact: viewModel.userDidTapCompactSource
-        ) {
-            sourceHeaderWithInput
-        }
-        .overlay(alignment: .bottom) {
-            convertButton
-                .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
-        }
-        .zIndex(1)
-    }
-
-    private func receiveAccordionSection(
-        expandedData: SendAmountTokenViewData,
-        compactData: SendAmountTokenViewData
-    ) -> some View {
-        SendAmountAccordionSectionView(
-            isExpanded: viewModel.activeField == .receive,
-            isLocked: viewModel.isAccordionSwitchingLocked,
-            expandedTokenData: expandedData,
-            compactTokenData: compactData,
-            onTapCompact: viewModel.userDidTapCompactReceive
-        ) {
-            receiveHeaderWithInput
+        case .accordion(let expandedReceiveData, _):
+            SendAmountAccordionSectionView(
+                isExpanded: viewModel.activeField == .receive,
+                isLocked: viewModel.isAccordionSwitchingLocked,
+                expandedTokenData: expandedReceiveData,
+                compactTokenData: viewModel.compactReceiveTokenViewData,
+                onTapCompact: viewModel.userDidTapCompactReceive
+            ) {
+                receiveHeaderWithInput
+            }
         }
     }
 
@@ -186,7 +192,7 @@ struct SendAmountView: View {
     }
 
     private func updateAccordionFocus(for activeField: ActiveAmountField) {
-        guard case .accordion = viewModel.receivedTokenViewType else { return }
+        guard viewModel.receivedTokenViewType?.isAccordion == true else { return }
 
         switch activeField {
         case .send:
