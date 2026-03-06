@@ -48,9 +48,9 @@ public extension TangemBadge {
 
         var font: Font {
             switch self {
-            case .x4: .Tangem.caption2Semibold
-            case .x6: .Tangem.caption1Medium
-            case .x9: .Tangem.footnoteSemibold
+            case .x4: .Tangem.Caption11.semibold
+            case .x6: .Tangem.Caption12.semibold
+            case .x9: .Tangem.Caption13.semibold
             }
         }
     }

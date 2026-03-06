@@ -53,7 +53,7 @@ extension StakingFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension StakingFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSendAmountStep()
         let targets = makeStakingTargetsStep()
 
@@ -118,8 +118,8 @@ extension StakingFlowFactory: SendBaseBuildable {
                 baseDataInput: stakingModel,
                 sourceTokenInput: stakingModel
             ),
-            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceTokenInput: stakingModel,
+            approveViewModelInputDataBuilder: CommonStakingApproveViewModelInputDataBuilder(
+                sourceToken: stakingableToken,
                 approveDataInput: stakingModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
