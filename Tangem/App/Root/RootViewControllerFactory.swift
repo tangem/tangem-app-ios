@@ -15,11 +15,6 @@ struct RootViewControllerFactory {
     @Injected(\.overlayContentContainerInitializer) private var overlayContentContainer: OverlayContentContainerInitializable
 
     func makeRootViewController(for rootView: some View, coordinator: AppCoordinator, window: UIWindow) -> UIViewController {
-        let rootView = rootView
-            .environment(\.mainWindowSize, window.screen.bounds.size)
-
-        let contentViewController = UIHostingController(rootView: rootView)
-
         let overlayCollapsedHeight: CGFloat
         let overlayCornerRadius: CGFloat
 
@@ -30,6 +25,12 @@ struct RootViewControllerFactory {
             overlayCollapsedHeight = Constants.notchlessDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
             overlayCornerRadius = Constants.notchlessDevicesOverlayCornerRadius
         }
+
+        let rootView = rootView
+            .environment(\.mainWindowSize, window.screen.bounds.size)
+            .environment(\.overlayCollapsedHeight, overlayCollapsedHeight)
+
+        let contentViewController = UIHostingController(rootView: rootView)
 
         let containerViewController = OverlayContentContainerViewController(
             contentViewController: contentViewController,
