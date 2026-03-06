@@ -20,6 +20,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var confirmButton = button(.confirmButton)
     private lazy var chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle]
     private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
+    private lazy var fromTokenSelector = app.buttons.matching(
+        NSPredicate(format: "identifier == %@ AND label CONTAINS %@", SwapAccessibilityIdentifiers.fromAmountTextField, "chevronDownMini")
+    ).firstMatch
     private lazy var receiveTokenSelector = app.buttons[SwapAccessibilityIdentifiers.tokenSelector].firstMatch
     private lazy var priceChangeInfoButton = app.buttons[SwapAccessibilityIdentifiers.priceChangeInfoButton].firstMatch
 
@@ -168,6 +171,17 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         return self
     }
 
+    /// Selects a receive token from the inline token list shown on the swap screen
+    @discardableResult
+    func selectReceiveToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select receive token '\(tokenName)' from inline token list") { _ in
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token list")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
     @discardableResult
     func tapSwapTokensButton() -> Self {
         XCTContext.runActivity(named: "Tap swap tokens (reverse) button") { _ in
@@ -182,6 +196,16 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         XCTContext.runActivity(named: "Tap receive token selector") { _ in
             waitAndAssertTrue(receiveTokenSelector, "Receive token selector button should exist")
             receiveTokenSelector.waitAndTap()
+
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapFromTokenSelector() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap from token selector") { _ in
+            waitAndAssertTrue(fromTokenSelector, "From token selector button should exist")
+            fromTokenSelector.waitAndTap()
 
             return SwapTokenSelectorScreen(app)
         }
