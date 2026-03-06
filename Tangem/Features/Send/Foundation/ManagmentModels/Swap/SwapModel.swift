@@ -84,6 +84,7 @@ final class SwapModel {
         if shouldStartInitialLoading {
             Task { await initialLoading() }
         }
+
         setupAutoupdatingTimerSubscription()
     }
 
@@ -109,14 +110,17 @@ extension SwapModel {
 
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
-        case .loaded(_, .some, .requiredRefresh), .loaded(_, .some, .restriction):
-            autoupdatingTimer.stopTimer()
-        case .loaded(_, .some, _):
-            autoupdatingTimer.restartTimer { [weak self] in
+        // Use timer to check pending transactions
+        case .loaded(_, .some, .restriction(.hasPendingTransaction, _)),
+             .loaded(_, .some, .restriction(.hasPendingApproveTransaction, _)),
+             .loaded(_, .some, .previewCEX),
+             .loaded(_, .some, .readyToSwap):
+
+            autoupdatingTimer.setup { [weak self] in
                 self?.autoupdatingRates()
             }
         default:
-            autoupdatingTimer.stopTimer()
+            autoupdatingTimer.setup(refresh: .none)
         }
     }
 }
@@ -581,7 +585,7 @@ extension SwapModel {
                 swappingPairDidChange()
 
             case (.success(let source), _):
-                try await expressPairsRepository.updatePairs(
+                await updatePairsIgnoringErrors(
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
@@ -591,7 +595,7 @@ extension SwapModel {
                 update(receive: destination)
 
             case (_, .success(let destination as SendSwapableToken)):
-                try await expressPairsRepository.updatePairs(
+                await updatePairsIgnoringErrors(
                     for: destination.tokenItem.expressCurrency,
                     userWalletInfo: destination.userWalletInfo
                 )
@@ -625,6 +629,14 @@ extension SwapModel {
             if _sourceToken.value.isLoading {
                 _sourceToken.send(.failure(error))
             }
+        }
+    }
+
+    private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
+        do {
+            try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
+        } catch {
+            ExpressLogger.info("Update pairs failed with error: \(error)")
         }
     }
 }
@@ -964,10 +976,6 @@ extension SwapModel: SendFeeInput {
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
-    func userDidDismissFeeSelection() {
-        updateFees()
-    }
-
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
         tokenFeeProvidersManager?.update(feeOption: feeOption)
@@ -982,7 +990,7 @@ extension SwapModel: FeeSelectorOutput {
 
 extension SwapModel: SendFeeUpdater {
     func updateFees() {
-        tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+        tokenFeeProvidersManager?.updateFees()
     }
 }
 
@@ -1224,7 +1232,7 @@ extension SwapModel: NotificationTapDelegate {
         switch action {
         case .refreshFee:
             let tokenFeeProvidersManager = try? selectedExpressProvider?.get().getTokenFeeProvidersManager()
-            tokenFeeProvidersManager?.selectedFeeProvider.updateFees()
+            tokenFeeProvidersManager?.updateFees()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):

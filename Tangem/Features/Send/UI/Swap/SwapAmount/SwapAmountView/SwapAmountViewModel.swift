@@ -24,6 +24,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     @Published private(set) var sourceExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var sourceDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published private(set) var isSwapButtonDisabled: Bool = false
+    @Published private(set) var isInputDisabled: Bool = true
     @Published private(set) var receiveExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var receiveCryptoAmountState: LoadableTextView.State = .initialized
 
@@ -154,7 +155,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 // MARK: - Private
 
 private extension SwapAmountViewModel {
-    private func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
+    func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
         switch providersState {
         case .loaded(_, _, .restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
@@ -167,13 +168,26 @@ private extension SwapAmountViewModel {
         default:
             sourceExpressCurrencyViewModel.update(errorState: .none)
         }
+
+        updateExpressCurrencyInputEnabledState(providersState: providersState)
+    }
+
+    func updateExpressCurrencyInputEnabledState(providersState: SwapModel.ProvidersState) {
+        switch providersState {
+        case .loaded(let providers, _, _):
+            isInputDisabled = providers.isEmpty
+        case .loading(.rates), .loading(.autoupdate), .loading(.fee):
+            break // Keep current state during rates/autoupdate/fee loading to avoid interrupting typing
+        case .idle, .failure, .loading(.providers), .loading(.provider):
+            isInputDisabled = true
+        }
     }
 
     func update(amount: Decimal?) -> SendAmount? {
         try? interactor.update(sendAmount: amount)
     }
 
-    private func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
+    func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
         sourceExpressCurrencyViewModel.update(
             wallet: sourceToken.mapValue { $0 as SendGenericToken },
             initialWalletId: .init(tokenItem: initialTokenItem)
@@ -203,7 +217,7 @@ private extension SwapAmountViewModel {
         }
     }
 
-    private func updateSourceFiat(amount: SendAmount?) {
+    func updateSourceFiat(amount: SendAmount?) {
         switch amount {
         case .none:
             let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
@@ -215,7 +229,7 @@ private extension SwapAmountViewModel {
         }
     }
 
-    private func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
+    func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
             initialWalletId: .init(tokenItem: initialTokenItem)
