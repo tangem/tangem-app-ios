@@ -1,28 +1,10 @@
 #!/bin/bash
-# Find available simulators, boot them, and build port mapping for WireMock
+# Find available simulators, boot them (recreating if broken), and build port mapping for WireMock
 # Required env: SIMULATOR_COUNT
-# Optional env: RUNTIME (default: 26.2)
+# Optional env: RUNTIME (default from .ios-sim-runtime line 2), BOOT_TIMEOUT (default: 120)
 # Outputs to GITHUB_OUTPUT: simulator_udids, port_mapping, devices_yaml
 
 set -e
-
-# Timeout wrapper for macOS (no GNU timeout available).
-# Runs a command with a deadline; kills it if it exceeds the limit.
-# Usage: run_with_timeout <seconds> <command> [args...]
-run_with_timeout() {
-  local timeout=$1; shift
-  "$@" &
-  local cmd_pid=$!
-  ( sleep "$timeout" && kill "$cmd_pid" 2>/dev/null ) &
-  local timer_pid=$!
-  wait "$cmd_pid" 2>/dev/null
-  local exit_code=$?
-  # Kill the timer subshell and its child sleep process
-  pkill -P "$timer_pid" 2>/dev/null || true
-  kill "$timer_pid" 2>/dev/null || true
-  wait "$timer_pid" 2>/dev/null || true
-  return $exit_code
-}
 
 if [ -z "$SIMULATOR_COUNT" ]; then
   echo "ERROR: SIMULATOR_COUNT environment variable is required"
@@ -31,468 +13,259 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SIM_DEVICE=$(sed -n '1p' "$REPO_ROOT/.ios-sim-runtime" | xargs)
 RUNTIME="${RUNTIME:-$(sed -n '2p' "$REPO_ROOT/.ios-sim-runtime" | tr -d '[:space:]')}"
+BOOT_TIMEOUT="${BOOT_TIMEOUT:-120}"
 
-# 1. Get list of ALL available iPhone simulators for the given runtime
-# Format: "iPhone 17 Pro Max (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) (Shutdown)"
-EXISTING_DEVICES=$(xcrun simctl list devices available | sed -n "/-- iOS $RUNTIME/,/^--/p" | grep -E "iPhone .+ \(") || true
-EXISTING_COUNT=$(echo "$EXISTING_DEVICES" | grep -c . || echo "0")
+# --- Helper functions ---
 
-if [ -z "$EXISTING_DEVICES" ]; then EXISTING_COUNT=0; fi
+# Verify a simulator reaches Booted state within a timeout.
+# Usage: verify_simulator_booted <udid> [timeout_seconds]
+# Returns 0 if booted successfully, 1 on timeout/failure.
+verify_simulator_booted() {
+  local udid="$1"
+  local timeout="${2:-$BOOT_TIMEOUT}"
 
-echo "Found $EXISTING_COUNT existing iPhone simulators."
+  # Wait for boot completion using bootstatus with a timeout via background process.
+  # bootstatus -b will itself wait for the simulator to reach Booted state,
+  # so we don't need a separate state check that could race with boot.
+  xcrun simctl bootstatus "$udid" -b &
+  local pid=$!
+  local elapsed=0
 
-# 1b. Health-check existing simulators — delete any whose data directory is missing
-# (happens when CoreSimulator/Caches was cleaned while simulators were registered)
-if [ -n "$EXISTING_DEVICES" ]; then
-  HEALTHY_DEVICES=""
-  CORRUPTED=0
-  while IFS= read -r LINE; do
-    UDID=$(echo "$LINE" | grep -oE "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}")
-    DATA_DIR="$HOME/Library/Developer/CoreSimulator/Devices/$UDID/data"
-    if [ -d "$DATA_DIR" ]; then
-      if [ -z "$HEALTHY_DEVICES" ]; then
-        HEALTHY_DEVICES="$LINE"
-      else
-        HEALTHY_DEVICES="$HEALTHY_DEVICES
-$LINE"
-      fi
-    else
-      echo "⚠️ Simulator $UDID is corrupted (missing $DATA_DIR), deleting..."
-      xcrun simctl delete "$UDID" 2>/dev/null || true
-      CORRUPTED=$((CORRUPTED + 1))
+  while kill -0 "$pid" 2>/dev/null; do
+    if [ "$elapsed" -ge "$timeout" ]; then
+      echo "  Timeout (${timeout}s) waiting for simulator $udid to finish booting"
+      kill "$pid" 2>/dev/null || true
+      wait "$pid" 2>/dev/null || true
+      return 1
     fi
-  done <<< "$EXISTING_DEVICES"
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
 
-  if [ $CORRUPTED -gt 0 ]; then
-    echo "Deleted $CORRUPTED corrupted simulator(s)"
-    EXISTING_DEVICES="$HEALTHY_DEVICES"
-    EXISTING_COUNT=$(echo "$EXISTING_DEVICES" | grep -c . 2>/dev/null || echo "0")
-    if [ -z "$EXISTING_DEVICES" ]; then EXISTING_COUNT=0; fi
-    echo "Healthy simulators remaining: $EXISTING_COUNT"
-  fi
-fi
-
-# 2. Check if we need to create more
-NEEDED=$((SIMULATOR_COUNT - EXISTING_COUNT))
-
-if [ $NEEDED -gt 0 ]; then
-  echo "Need to create $NEEDED more simulators..."
-  
-  # Determine which model to create
-  if [ $EXISTING_COUNT -gt 0 ]; then
-    # Reuse model of the first existing simulator
-    # "iPhone 17 Pro Max (..." -> "iPhone 17 Pro Max"
-    FIRST_LINE=$(echo "$EXISTING_DEVICES" | head -1)
-    MODEL_NAME=$(echo "$FIRST_LINE" | sed 's/ (.*//' | xargs)
+  # Check if bootstatus exited successfully
+  if wait "$pid"; then
+    return 0
   else
-    # No existing devices found - this should not happen on a properly configured agent
-    echo "ERROR: No existing iPhone simulators found for iOS $RUNTIME! Cannot determine which model to clone."
-    echo "This runner is expected to have at least one iPhone simulator pre-installed."
-    echo "Available runtimes:"
-    xcrun simctl list runtimes
-    exit 1
+    echo "  bootstatus check failed for simulator $udid"
+    return 1
   fi
-  
-  echo "Will create $NEEDED instances of '$MODEL_NAME'"
-  
-  # Resolve IDs
-  DEV_TYPE_ID=$(xcrun simctl list devicetypes | grep -w "$MODEL_NAME" | head -1 | sed 's/.*(\(.*\))/\1/')
-  
-  if [ -z "$DEV_TYPE_ID" ]; then
-    echo "ERROR: Could not resolve Device Type ID for '$MODEL_NAME'"
-    # Fallback cleanup?
-    exit 1
-  fi
-  
-  RUNTIME_SUFFIX=$(echo "$RUNTIME" | tr '.' '-')
-  RUNTIME_ID="com.apple.CoreSimulator.SimRuntime.iOS-$RUNTIME_SUFFIX"
-  
-  # Create in parallel
-  CREATE_PIDS=()
-  for i in $(seq 1 $NEEDED); do
-    echo "Creating simulator #$i: '$MODEL_NAME'"
-    xcrun simctl create "$MODEL_NAME" "$DEV_TYPE_ID" "$RUNTIME_ID" &
-    CREATE_PIDS+=($!)
-  done
-  CREATE_FAILURES=0
-  for pid in "${CREATE_PIDS[@]}"; do
-    if ! wait "$pid"; then
-      CREATE_FAILURES=$((CREATE_FAILURES + 1))
-    fi
-  done
-  if [ $CREATE_FAILURES -gt 0 ]; then
-    echo "WARNING: $CREATE_FAILURES simulator creation(s) failed"
-  fi
-  
-  # Refresh list
-  EXISTING_DEVICES=$(xcrun simctl list devices available | sed -n "/-- iOS $RUNTIME/,/^--/p" | grep -E "iPhone .+ \(")
-fi
+}
 
-# 3. Select the required number of simulators
-AVAILABLE_SIMS=$(echo "$EXISTING_DEVICES" | head -n $SIMULATOR_COUNT)
+# Delete a broken simulator and create a fresh replacement.
+# Usage: recreate_simulator <old_udid> <sim_name>
+# Prints the new UDID to stdout. Returns 1 on failure.
+recreate_simulator() {
+  local old_udid="$1"
+  local sim_name="$2"
 
-echo "=== Available simulators ==="
+  echo "  Deleting broken simulator $old_udid ($sim_name)..." >&2
+  xcrun simctl delete "$old_udid" 2>/dev/null || true
+
+  # Resolve the runtime identifier (e.g. "com.apple.CoreSimulator.SimRuntime.iOS-26-2")
+  local runtime_id
+  runtime_id=$(xcrun simctl list runtimes | grep "iOS $RUNTIME" | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.[^ ]+' | head -1)
+  if [ -z "$runtime_id" ]; then
+    echo "  ERROR: Could not find runtime identifier for iOS $RUNTIME" >&2
+    return 1
+  fi
+
+  echo "  Creating new simulator '$sim_name' with runtime $runtime_id..." >&2
+  local new_udid
+  new_udid=$(xcrun simctl create "$sim_name" "$sim_name" "$runtime_id" 2>&1)
+
+  # Validate that we got a UDID back
+  if ! echo "$new_udid" | grep -qE '^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$'; then
+    echo "  ERROR: simctl create did not return a valid UDID: $new_udid" >&2
+    return 1
+  fi
+
+  echo "$new_udid"
+  return 0
+}
+
+# --- Phase 1: Discovery ---
+
+echo "Looking for $SIMULATOR_COUNT available iPhone simulators with iOS $RUNTIME..."
+
+# Get all available simulators matching $SIM_DEVICE for the given runtime.
+# Collect all candidates so Phase 2 can skip broken ones and still find enough healthy simulators.
+# Format: "iPhone 17 Pro Max (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) (Shutdown)"
+AVAILABLE_SIMS=$(xcrun simctl list devices available | grep -E -A 100 -- "-- iOS $RUNTIME" | grep "$SIM_DEVICE" | grep -E "\(" || true)
+
+echo "=== Candidate simulators ==="
 echo "$AVAILABLE_SIMS"
 
-# Extract UDIDs
-UDIDS=$(echo "$AVAILABLE_SIMS" | grep -oE "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}")
+# Extract UDIDs and names
+CANDIDATE_UDIDS=$(echo "$AVAILABLE_SIMS" | grep -oE "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}")
 
+# Build associative-style lookup: SIM_NAME_<udid_underscored>=name
+for UDID in $CANDIDATE_UDIDS; do
+  NAME=$(echo "$AVAILABLE_SIMS" | grep "$UDID" | sed 's/ (.*//g' | xargs)
+  # Store name in a variable keyed by UDID (replace dashes with underscores for valid var name)
+  UDID_KEY=$(echo "$UDID" | tr '-' '_')
+  printf -v "SIM_NAME_${UDID_KEY}" '%s' "$NAME"
+done
+
+# --- Phase 1b: Create additional simulators if needed ---
+
+FOUND_COUNT=$(echo "$CANDIDATE_UDIDS" | wc -w | tr -d ' ')
+if [ "$FOUND_COUNT" -lt "$SIMULATOR_COUNT" ]; then
+  NEEDED=$((SIMULATOR_COUNT - FOUND_COUNT))
+  echo ""
+  echo "Found only $FOUND_COUNT simulators, creating $NEEDED more ($SIM_DEVICE, iOS $RUNTIME)..."
+
+  RUNTIME_ID=$(xcrun simctl list runtimes | grep "iOS $RUNTIME" | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.[^ ]+' | head -1)
+  if [ -z "$RUNTIME_ID" ]; then
+    echo "ERROR: Could not find runtime identifier for iOS $RUNTIME"
+    exit 1
+  fi
+
+  for i in $(seq 1 $NEEDED); do
+    NEW_UDID=$(xcrun simctl create "$SIM_DEVICE" "$SIM_DEVICE" "$RUNTIME_ID" 2>&1)
+    if echo "$NEW_UDID" | grep -qE '^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$'; then
+      echo "  Created: $SIM_DEVICE ($NEW_UDID)"
+      CANDIDATE_UDIDS="$CANDIDATE_UDIDS $NEW_UDID"
+      UDID_KEY=$(echo "$NEW_UDID" | tr '-' '_')
+      printf -v "SIM_NAME_${UDID_KEY}" '%s' "$SIM_DEVICE"
+    else
+      echo "  Failed to create simulator: $NEW_UDID"
+    fi
+  done
+fi
+
+# --- Phase 2: Boot, verify, and optionally recreate ---
+
+echo ""
+echo "=== Booting and verifying simulators ==="
+VERIFIED_UDIDS=""
+VERIFIED_COUNT=0
+
+for UDID in $CANDIDATE_UDIDS; do
+  # Stop once we have enough healthy simulators
+  if [ "$VERIFIED_COUNT" -ge "$SIMULATOR_COUNT" ]; then
+    echo "Reached $SIMULATOR_COUNT healthy simulators, skipping remaining candidates"
+    break
+  fi
+
+  UDID_KEY=$(echo "$UDID" | tr '-' '_')
+  SIM_NAME_VAR="SIM_NAME_${UDID_KEY}"
+  SIM_NAME="${!SIM_NAME_VAR}"
+
+  echo "Processing: $SIM_NAME ($UDID)"
+
+  # Check current state
+  STATE=$(xcrun simctl list devices | grep "$UDID" | grep -o "(Booted)\|(Shutdown)" | tr -d '()' || true)
+
+  if [ "$STATE" = "Booted" ]; then
+    echo "  Already booted, verifying health..."
+    if verify_simulator_booted "$UDID"; then
+      echo "  OK - simulator is healthy"
+      VERIFIED_UDIDS="$VERIFIED_UDIDS $UDID"
+      VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
+      continue
+    fi
+    echo "  Booted but unhealthy, will recreate"
+  fi
+
+  # Attempt to boot (Shutdown or unhealthy Booted)
+  if [ "$STATE" = "Shutdown" ]; then
+    echo "  Booting simulator..."
+    if xcrun simctl boot "$UDID" 2>&1; then
+      # Give it a moment then verify
+      sleep 3
+      if verify_simulator_booted "$UDID"; then
+        echo "  OK - simulator booted successfully"
+        VERIFIED_UDIDS="$VERIFIED_UDIDS $UDID"
+        VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
+        continue
+      fi
+      echo "  Boot command succeeded but verification failed"
+    else
+      echo "  Boot command failed"
+    fi
+  fi
+
+  # Boot failed or verification failed — try to recreate
+  echo "  Attempting to recreate simulator..."
+  NEW_UDID=$(recreate_simulator "$UDID" "$SIM_NAME") || {
+    echo "  SKIP - failed to recreate simulator for slot $SIM_NAME"
+    continue
+  }
+  echo "  Created new simulator: $NEW_UDID"
+
+  echo "  Booting new simulator..."
+  if xcrun simctl boot "$NEW_UDID" 2>&1; then
+    sleep 3
+    if verify_simulator_booted "$NEW_UDID"; then
+      echo "  OK - recreated simulator booted successfully"
+      VERIFIED_UDIDS="$VERIFIED_UDIDS $NEW_UDID"
+      VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
+      continue
+    fi
+    echo "  Recreated simulator failed verification"
+  else
+    echo "  Failed to boot recreated simulator"
+  fi
+
+  # Cleanup the failed recreation
+  echo "  SKIP - giving up on slot $SIM_NAME"
+  xcrun simctl delete "$NEW_UDID" 2>/dev/null || true
+done
+
+# --- Phase 3: Validate and build outputs ---
+
+# Trim leading space
+VERIFIED_UDIDS=$(echo "$VERIFIED_UDIDS" | xargs)
+
+VERIFIED_COUNT=$(echo "$VERIFIED_UDIDS" | wc -w | tr -d ' ')
+echo ""
+echo "=== Verification result: $VERIFIED_COUNT of $SIMULATOR_COUNT simulators healthy ==="
+
+if [ "$VERIFIED_COUNT" -eq 0 ]; then
+  echo "ERROR: No simulators are available after boot verification. Cannot proceed."
+  echo "All candidate simulators failed to boot or were unhealthy."
+  echo "Available iPhone simulators on this runner:"
+  xcrun simctl list devices available | grep -E "iPhone"
+  exit 1
+fi
+
+if [ "$VERIFIED_COUNT" -lt "$SIMULATOR_COUNT" ]; then
+  echo "Warning: Only $VERIFIED_COUNT simulators available, requested $SIMULATOR_COUNT"
+  echo "Continuing with reduced simulator count."
+fi
+
+# Build output variables from verified UDIDs with consecutive indices
 SIMULATOR_UDIDS=""
 PORT_MAPPING=""
 DEVICES_YAML=""
 INDEX=0
 
-for UDID in $UDIDS; do
+for UDID in $VERIFIED_UDIDS; do
   # Get simulator name for logging
-  SIM_NAME=$(echo "$AVAILABLE_SIMS" | grep "$UDID" | sed 's/ (.*//g' | xargs)
-  echo "Found simulator: $SIM_NAME (UDID: $UDID, port offset: $INDEX, WireMock port: $((8081 + INDEX)))"
-  
+  SIM_NAME=$(xcrun simctl list devices | grep "$UDID" | sed 's/ (.*//g' | xargs)
+  echo "Verified simulator: $SIM_NAME (UDID: $UDID, port offset: $INDEX, WireMock port: $((8081 + INDEX)))"
+
   # Build UDID list (space-separated for later use)
   SIMULATOR_UDIDS="$SIMULATOR_UDIDS $UDID"
-  
+
   # Build port mapping (comma-separated format: UDID1:0,UDID2:1,UDID3:2)
   if [ -n "$PORT_MAPPING" ]; then
     PORT_MAPPING="$PORT_MAPPING,$UDID:$INDEX"
   else
     PORT_MAPPING="$UDID:$INDEX"
   fi
-  
+
   # Build devices YAML for Marathondevices file (use printf for newlines)
   DEVICES_YAML=$(printf '%s\n      - type: simulator\n        udid: "%s"' "$DEVICES_YAML" "$UDID")
-  
+
   INDEX=$((INDEX + 1))
 done
 
-# Verify we found enough simulators
-FOUND_COUNT=$(echo "$UDIDS" | wc -w | tr -d ' ')
-if [ "$FOUND_COUNT" -lt "$SIMULATOR_COUNT" ]; then
-  echo "⚠️ Warning: Found only $FOUND_COUNT simulators, requested $SIMULATOR_COUNT"
-  echo "Available iPhone simulators on this runner:"
-  xcrun simctl list devices available | grep -E "iPhone"
-fi
+# --- Phase 4: Output ---
 
-# Boot simulators that are not already booted (PARALLEL with staggered startup)
-echo "Booting simulators in parallel with staggered startup..."
-BATCH_SIZE=2  # Small batches to avoid resource spikes (Data Migration is very heavy)
-SIMULATOR_ARRAY=($SIMULATOR_UDIDS)
-TOTAL_SIMULATORS=${#SIMULATOR_ARRAY[@]}
-
-for ((batch_start=0; batch_start<TOTAL_SIMULATORS; batch_start+=BATCH_SIZE)); do
-  batch_end=$((batch_start + BATCH_SIZE))
-  if [ $batch_end -gt $TOTAL_SIMULATORS ]; then
-    batch_end=$TOTAL_SIMULATORS
-  fi
-
-  echo "Booting batch $((batch_start/BATCH_SIZE + 1)): simulators $((batch_start + 1))-$batch_end"
-
-  # Boot current batch in parallel
-  for ((i=batch_start; i<batch_end; i++)); do
-    UDID=${SIMULATOR_ARRAY[$i]}
-    STATE=$(xcrun simctl list devices | grep "$UDID" | grep -o "(Booted)\|(Shutdown)" | tr -d '()')
-    if [ "$STATE" = "Shutdown" ]; then
-      echo "Booting simulator $UDID..."
-      xcrun simctl boot "$UDID" &
-    else
-      echo "Simulator $UDID already booted"
-    fi
-  done
-  wait
-
-  # Delay between batches to prevent resource spikes from Data Migration
-  if [ $batch_end -lt $TOTAL_SIMULATORS ]; then
-    echo "Waiting 10 seconds before next batch..."
-    sleep 10
-  fi
-done
-
-# Wait for simulators to be ready IN PARALLEL (with timeout to prevent indefinite hangs)
-# xcrun simctl bootstatus -b blocks forever if system app never becomes ready,
-# so we poll instead with a hard timeout per simulator.
-BOOT_TIMEOUT=120  # seconds per simulator
-BOOT_STATUS_DIR=$(mktemp -d)
-echo "Waiting for all simulators to be ready in parallel (timeout: ${BOOT_TIMEOUT}s each)..."
-
-for UDID in $SIMULATOR_UDIDS; do
-  (
-    SECONDS_WAITED=0
-    while [ $SECONDS_WAITED -lt $BOOT_TIMEOUT ]; do
-      # Check device state via simctl list (with 10s timeout to prevent hangs)
-      DEVICE_STATE=$(run_with_timeout 10 xcrun simctl list devices 2>/dev/null || true)
-      if echo "$DEVICE_STATE" | grep "$UDID" | grep -q "(Booted)"; then
-        echo "Simulator $UDID: booted and ready (${SECONDS_WAITED}s)"
-        echo "ok" > "$BOOT_STATUS_DIR/$UDID"
-        exit 0
-      fi
-      sleep 3
-      SECONDS_WAITED=$((SECONDS_WAITED + 3))
-    done
-    # Timed out — attempt shutdown + reboot recovery
-    echo "WARNING: Simulator $UDID did not boot within ${BOOT_TIMEOUT}s"
-    echo "  Attempting shutdown + reboot..."
-    run_with_timeout 15 xcrun simctl shutdown "$UDID" 2>/dev/null || true
-    sleep 2
-    run_with_timeout 15 xcrun simctl boot "$UDID" 2>/dev/null || true
-    sleep 5
-    RECOVERY_STATE=$(run_with_timeout 10 xcrun simctl list devices 2>/dev/null || true)
-    if echo "$RECOVERY_STATE" | grep "$UDID" | grep -q "(Booted)"; then
-      echo "  Simulator $UDID: recovered after reboot"
-      echo "ok" > "$BOOT_STATUS_DIR/$UDID"
-    else
-      echo "  ERROR: Simulator $UDID failed to recover"
-      echo "fail" > "$BOOT_STATUS_DIR/$UDID"
-    fi
-  ) &
-done
-wait
-
-# Check results from parallel boot checks
-BOOT_FAILURES=0
-for UDID in $SIMULATOR_UDIDS; do
-  if [ -f "$BOOT_STATUS_DIR/$UDID" ]; then
-    STATUS=$(cat "$BOOT_STATUS_DIR/$UDID")
-    if [ "$STATUS" = "fail" ]; then
-      BOOT_FAILURES=$((BOOT_FAILURES + 1))
-    fi
-  else
-    echo "WARNING: No boot status recorded for $UDID"
-    BOOT_FAILURES=$((BOOT_FAILURES + 1))
-  fi
-done
-rm -rf "$BOOT_STATUS_DIR"
-
-if [ $BOOT_FAILURES -gt 0 ]; then
-  echo "WARNING: $BOOT_FAILURES simulator(s) failed to boot"
-  if [ $BOOT_FAILURES -eq $FOUND_COUNT ]; then
-    echo "ERROR: All simulators failed to boot. Cannot proceed."
-    exit 1
-  fi
-fi
-
-# Verify each simulator has fully completed its boot sequence using Apple's bootstatus API.
-# This replaces the fragile launchctl-based daemon check that doesn't work reliably
-# across all Xcode/macOS versions and CI environments.
-BOOTED_COUNT=$((FOUND_COUNT - BOOT_FAILURES))
-echo "Verifying boot completion for $BOOTED_COUNT simulator(s) via simctl bootstatus..."
-BOOT_CHECK_FAILURES=0
-BOOT_CHECK_FAILED_UDIDS=""
-for UDID in $SIMULATOR_UDIDS; do
-  echo "Checking boot status for $UDID..."
-  if run_with_timeout 120 xcrun simctl bootstatus "$UDID" 2>&1; then
-    echo "Simulator $UDID: fully booted and ready"
-  else
-    echo "WARNING: Simulator $UDID failed boot status check"
-    BOOT_CHECK_FAILURES=$((BOOT_CHECK_FAILURES + 1))
-    BOOT_CHECK_FAILED_UDIDS="$BOOT_CHECK_FAILED_UDIDS $UDID"
-  fi
-done
-
-# Recovery: shutdown + reboot simulators that failed boot status, one at a time.
-# NOTE: We do NOT erase — erasing forces a full Data Migration on reboot,
-# which takes 2+ minutes under load and makes recovery slower, not faster.
-if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
-  echo "Attempting SEQUENTIAL recovery for $BOOT_CHECK_FAILURES failed simulator(s)..."
-  echo "Waiting 30s for system resources to free up before recovery..."
-  sleep 30
-  PERMANENTLY_FAILED_UDIDS=""
-
-  for UDID in $BOOT_CHECK_FAILED_UDIDS; do
-    echo "--- Recovering simulator $UDID ---"
-
-    echo "  Shutting down..."
-    run_with_timeout 30 xcrun simctl shutdown "$UDID" 2>/dev/null || true
-    sleep 5
-
-    echo "  Booting..."
-    run_with_timeout 30 xcrun simctl boot "$UDID" 2>/dev/null || true
-
-    echo "  Waiting for boot completion..."
-    if run_with_timeout 180 xcrun simctl bootstatus "$UDID" 2>&1; then
-      echo "  Simulator $UDID: recovered after reboot"
-    else
-      # Last resort: erase and reboot (triggers Data Migration but may fix corrupted state)
-      echo "  Reboot failed, trying erase as last resort..."
-      run_with_timeout 30 xcrun simctl shutdown "$UDID" 2>/dev/null || true
-      sleep 2
-      run_with_timeout 30 xcrun simctl erase "$UDID" 2>/dev/null || true
-      sleep 2
-      run_with_timeout 30 xcrun simctl boot "$UDID" 2>/dev/null || true
-      if run_with_timeout 180 xcrun simctl bootstatus "$UDID" 2>&1; then
-        echo "  Simulator $UDID: recovered after erase+reboot"
-      else
-        echo "  ERROR: Simulator $UDID permanently failed recovery"
-        PERMANENTLY_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS $UDID"
-      fi
-    fi
-  done
-
-  BOOT_CHECK_FAILED_UDIDS="$PERMANENTLY_FAILED_UDIDS"
-  BOOT_CHECK_FAILURES=$(echo "$PERMANENTLY_FAILED_UDIDS" | wc -w | tr -d ' ')
-  echo "Recovery complete: $BOOT_CHECK_FAILURES permanently failed"
-fi
-
-if [ $BOOT_CHECK_FAILURES -gt 0 ]; then
-  echo "WARNING: $BOOT_CHECK_FAILURES simulator(s) failed boot verification"
-
-  # Exclude unhealthy simulators from pool
-  echo "Excluding unhealthy simulators and rebuilding pool..."
-  for FAILED_UDID in $BOOT_CHECK_FAILED_UDIDS; do
-    echo "Shutting down unhealthy simulator $FAILED_UDID..."
-    run_with_timeout 15 xcrun simctl shutdown "$FAILED_UDID" 2>/dev/null || true
-  done
-
-  # Rebuild SIMULATOR_UDIDS, PORT_MAPPING, DEVICES_YAML excluding failed simulators
-  NEW_SIMULATOR_UDIDS=""
-  NEW_PORT_MAPPING=""
-  NEW_DEVICES_YAML=""
-  NEW_INDEX=0
-  for UDID in $SIMULATOR_UDIDS; do
-    IS_FAILED=false
-    for FAILED_UDID in $BOOT_CHECK_FAILED_UDIDS; do
-      if [ "$UDID" = "$FAILED_UDID" ]; then
-        IS_FAILED=true
-        break
-      fi
-    done
-    if [ "$IS_FAILED" = "false" ]; then
-      NEW_SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS $UDID"
-      if [ -n "$NEW_PORT_MAPPING" ]; then
-        NEW_PORT_MAPPING="$NEW_PORT_MAPPING,$UDID:$NEW_INDEX"
-      else
-        NEW_PORT_MAPPING="$UDID:$NEW_INDEX"
-      fi
-      NEW_DEVICES_YAML=$(printf '%s\n      - type: simulator\n        udid: "%s"' "$NEW_DEVICES_YAML" "$UDID")
-      NEW_INDEX=$((NEW_INDEX + 1))
-    fi
-  done
-
-  SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS"
-  PORT_MAPPING="$NEW_PORT_MAPPING"
-  DEVICES_YAML="$NEW_DEVICES_YAML"
-
-  HEALTHY_COUNT=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
-  echo "Healthy simulator pool: $HEALTHY_COUNT simulator(s)"
-
-  if [ "$HEALTHY_COUNT" -eq 0 ]; then
-    echo "ERROR: Zero healthy simulators remaining. Cannot proceed."
-    exit 1
-  fi
-fi
-
-# Warm up SpringBoard on each simulator to prevent "Application failed preflight checks" / "Busy" errors
-# This forces SpringBoard to complete its initialization before Marathon sends test batches.
-# SEQUENTIAL warmup: parallel warmup causes resource thrashing on loaded systems
-# (N concurrent simctl launch calls + SpringBoard inits overwhelm CPU/memory).
-echo "Warming up SpringBoard on simulators (sequential)..."
-WARMUP_MAX_ATTEMPTS=3
-WARMUP_FAILURES=0
-
-for UDID in $SIMULATOR_UDIDS; do
-  echo "Warming up $UDID..."
-  WARMUP_SUCCESS=false
-  for attempt in $(seq 1 $WARMUP_MAX_ATTEMPTS); do
-    if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences 2>/dev/null; then
-      sleep 2
-      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-      WARMUP_SUCCESS=true
-      [ "$attempt" -gt 1 ] && echo "Simulator $UDID: warmup succeeded on attempt $attempt"
-      break
-    else
-      echo "WARNING: Warmup attempt $attempt/$WARMUP_MAX_ATTEMPTS failed for $UDID"
-      [ "$attempt" -lt "$WARMUP_MAX_ATTEMPTS" ] && sleep 10
-    fi
-  done
-  if [ "$WARMUP_SUCCESS" = "false" ]; then
-    echo "WARNING: Failed to warm up $UDID after $WARMUP_MAX_ATTEMPTS attempts — SpringBoard may not be fully initialized"
-    WARMUP_FAILURES=$((WARMUP_FAILURES + 1))
-  fi
-done
-
-if [ $WARMUP_FAILURES -gt 0 ]; then
-  echo "WARNING: $WARMUP_FAILURES simulator(s) failed SpringBoard warm-up. Allowing extra settle time..."
-  sleep 15
-else
-  sleep 3
-fi
-
-# Final verification: ensure all simulators can launch apps.
-# Uses `simctl launch` (via SpringBoard) instead of `simctl spawn` (via launchd_sim)
-# because spawn is unreliable on freshly-migrated simulators — it hangs indefinitely
-# even after bootstatus reports "Finished" and SpringBoard is responsive.
-echo "Final system readiness verification (launch-based)..."
-FINAL_FAILURES=0
-FINAL_FAILED_UDIDS=""
-TOTAL_POOL=$(echo "$SIMULATOR_UDIDS" | wc -w | tr -d ' ')
-
-for UDID in $SIMULATOR_UDIDS; do
-  if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences >/dev/null 2>&1; then
-    run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-    echo "Simulator $UDID: responsive"
-  else
-    echo "WARNING: Simulator $UDID is NOT responsive to launch commands"
-    FINAL_FAILURES=$((FINAL_FAILURES + 1))
-    FINAL_FAILED_UDIDS="$FINAL_FAILED_UDIDS $UDID"
-  fi
-done
-
-PASSING=$((TOTAL_POOL - FINAL_FAILURES))
-
-# If every simulator failed, wait and retry once
-if [ "$PASSING" -eq 0 ]; then
-  echo "WARNING: All launch checks failed. Waiting 60s for system to settle and retrying..."
-  sleep 60
-  FINAL_FAILURES=0
-  FINAL_FAILED_UDIDS=""
-  for UDID in $SIMULATOR_UDIDS; do
-    if run_with_timeout 30 xcrun simctl launch "$UDID" com.apple.Preferences >/dev/null 2>&1; then
-      run_with_timeout 10 xcrun simctl terminate "$UDID" com.apple.Preferences 2>/dev/null || true
-      echo "Simulator $UDID: responsive (retry)"
-    else
-      echo "WARNING: Simulator $UDID is still NOT responsive"
-      FINAL_FAILURES=$((FINAL_FAILURES + 1))
-      FINAL_FAILED_UDIDS="$FINAL_FAILED_UDIDS $UDID"
-    fi
-  done
-  PASSING=$((TOTAL_POOL - FINAL_FAILURES))
-fi
-
-# Exclude non-responsive simulators instead of failing entirely
-if [ "$PASSING" -eq 0 ]; then
-  echo "ERROR: No simulators passed final verification. Cannot proceed."
-  exit 1
-fi
-if [ "$FINAL_FAILURES" -gt 0 ]; then
-  echo "WARNING: $FINAL_FAILURES/$TOTAL_POOL simulator(s) failed final verification ($PASSING healthy)"
-  echo "Excluding failed simulators from pool..."
-  NEW_SIMULATOR_UDIDS=""
-  NEW_PORT_MAPPING=""
-  NEW_DEVICES_YAML=""
-  NEW_INDEX=0
-  for UDID in $SIMULATOR_UDIDS; do
-    IS_FAILED=false
-    for FAILED_UDID in $FINAL_FAILED_UDIDS; do
-      if [ "$UDID" = "$FAILED_UDID" ]; then
-        IS_FAILED=true
-        break
-      fi
-    done
-    if [ "$IS_FAILED" = "false" ]; then
-      NEW_SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS $UDID"
-      if [ -n "$NEW_PORT_MAPPING" ]; then
-        NEW_PORT_MAPPING="$NEW_PORT_MAPPING,$UDID:$NEW_INDEX"
-      else
-        NEW_PORT_MAPPING="$UDID:$NEW_INDEX"
-      fi
-      NEW_DEVICES_YAML=$(printf '%s\n      - type: simulator\n        udid: "%s"' "$NEW_DEVICES_YAML" "$UDID")
-      NEW_INDEX=$((NEW_INDEX + 1))
-    fi
-  done
-  SIMULATOR_UDIDS="$NEW_SIMULATOR_UDIDS"
-  PORT_MAPPING="$NEW_PORT_MAPPING"
-  DEVICES_YAML="$NEW_DEVICES_YAML"
-  echo "Final pool: $PASSING simulator(s)"
-fi
-
+echo ""
 echo "=== Booted simulators ==="
 xcrun simctl list devices booted
 
