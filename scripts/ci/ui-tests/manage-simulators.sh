@@ -85,6 +85,30 @@ recreate_simulator() {
   return 0
 }
 
+# Warm up SpringBoard by launching and terminating Preferences.
+# Prevents "Application failed preflight checks" / "Busy" errors when Marathon
+# tries to launch the test runner on a freshly-booted simulator.
+# Usage: warmup_simulator <udid>
+# Returns 0 on success, 1 if all attempts fail.
+warmup_simulator() {
+  local udid="$1"
+  local max_attempts=3
+
+  for attempt in $(seq 1 $max_attempts); do
+    if xcrun simctl launch "$udid" com.apple.Preferences 2>/dev/null; then
+      sleep 2
+      xcrun simctl terminate "$udid" com.apple.Preferences 2>/dev/null || true
+      [ "$attempt" -gt 1 ] && echo "  Warmup succeeded on attempt $attempt"
+      return 0
+    fi
+    echo "  Warmup attempt $attempt/$max_attempts failed"
+    [ "$attempt" -lt "$max_attempts" ] && sleep 10
+  done
+
+  echo "  WARNING: Failed to warm up SpringBoard after $max_attempts attempts"
+  return 1
+}
+
 # --- Phase 1: Discovery ---
 
 echo "Looking for $SIMULATOR_COUNT available iPhone simulators with iOS $RUNTIME..."
@@ -161,7 +185,8 @@ for UDID in $CANDIDATE_UDIDS; do
   if [ "$STATE" = "Booted" ]; then
     echo "  Already booted, verifying health..."
     if verify_simulator_booted "$UDID"; then
-      echo "  OK - simulator is healthy"
+      echo "  OK - simulator is healthy, warming up..."
+      warmup_simulator "$UDID"
       VERIFIED_UDIDS="$VERIFIED_UDIDS $UDID"
       VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
       continue
@@ -176,7 +201,8 @@ for UDID in $CANDIDATE_UDIDS; do
       # Give it a moment then verify
       sleep 3
       if verify_simulator_booted "$UDID"; then
-        echo "  OK - simulator booted successfully"
+        echo "  OK - simulator booted successfully, warming up..."
+        warmup_simulator "$UDID"
         VERIFIED_UDIDS="$VERIFIED_UDIDS $UDID"
         VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
         continue
@@ -199,7 +225,8 @@ for UDID in $CANDIDATE_UDIDS; do
   if xcrun simctl boot "$NEW_UDID" 2>&1; then
     sleep 3
     if verify_simulator_booted "$NEW_UDID"; then
-      echo "  OK - recreated simulator booted successfully"
+      echo "  OK - recreated simulator booted successfully, warming up..."
+      warmup_simulator "$NEW_UDID"
       VERIFIED_UDIDS="$VERIFIED_UDIDS $NEW_UDID"
       VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
       continue
