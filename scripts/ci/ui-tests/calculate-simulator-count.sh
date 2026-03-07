@@ -18,6 +18,19 @@ TESTS_PER_SIM=3    # sweet spot: amortises ~40s device-prep overhead
 MIN_SIMULATORS=2   # always keep basic parallelism
 MAX_SIMULATORS="${MAX_SIMULATORS:-8}"
 
+# Resource-based cap: Marathon launches xcodebuild on ALL sims simultaneously.
+# Each sim needs ~2 dedicated cores (xcodebuild + SpringBoard + backboardd).
+# On an 8-core machine, 8 concurrent test launches cause "Application failed
+# preflight checks / Busy" because SpringBoard can't keep up with IO/CPU contention.
+# Cap at (CPU_CORES - 2) to leave headroom for the host and Marathon itself.
+CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
+RESOURCE_CAP=$(( CPU_CORES - 2 ))
+[ "$RESOURCE_CAP" -lt "$MIN_SIMULATORS" ] && RESOURCE_CAP=$MIN_SIMULATORS
+if [ "$MAX_SIMULATORS" -gt "$RESOURCE_CAP" ]; then
+    echo "Resource cap: $CPU_CORES CPU cores detected, limiting to $RESOURCE_CAP simulators (was $MAX_SIMULATORS)"
+    MAX_SIMULATORS=$RESOURCE_CAP
+fi
+
 count_test_methods() {
     local file="$1"
     grep -c '^\s*func test' "$file" 2>/dev/null || echo 0
