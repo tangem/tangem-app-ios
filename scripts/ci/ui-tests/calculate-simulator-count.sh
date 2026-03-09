@@ -18,16 +18,24 @@ TESTS_PER_SIM=3    # sweet spot: amortises ~40s device-prep overhead
 MIN_SIMULATORS=2   # always keep basic parallelism
 MAX_SIMULATORS="${MAX_SIMULATORS:-8}"
 
-# Resource-based cap: Marathon launches xcodebuild on ALL sims simultaneously.
-# Each sim needs ~2 dedicated cores (xcodebuild + SpringBoard + backboardd).
-# On an 8-core machine, 8 concurrent test launches cause "Application failed
-# preflight checks / Busy" because SpringBoard can't keep up with IO/CPU contention.
-# Cap at (CPU_CORES - 2) to leave headroom for the host and Marathon itself.
+# CPU cap: ~67% of cores — each sim needs ~1.5 cores (xcodebuild + SpringBoard),
+# leaving ~33% for OS, Marathon, Docker/WireMock.
 CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
-RESOURCE_CAP=$(( CPU_CORES - 2 ))
+CPU_CAP=$(( (CPU_CORES * 2) / 3 ))
+
+# Memory cap: each sim needs ~3GB (xcodebuild + SpringBoard + app).
+# Reserve ~33% of RAM for OS, Docker/WireMock, Marathon.
+RAM_BYTES=$(sysctl -n hw.memsize 2>/dev/null || echo 17179869184)
+RAM_GB=$(( RAM_BYTES / 1024 / 1024 / 1024 ))
+MEM_CAP=$(( RAM_GB / 3 ))
+
+# Take the more restrictive cap
+RESOURCE_CAP=$CPU_CAP
+[ "$MEM_CAP" -lt "$RESOURCE_CAP" ] && RESOURCE_CAP=$MEM_CAP
 [ "$RESOURCE_CAP" -lt "$MIN_SIMULATORS" ] && RESOURCE_CAP=$MIN_SIMULATORS
+
 if [ "$MAX_SIMULATORS" -gt "$RESOURCE_CAP" ]; then
-    echo "Resource cap: $CPU_CORES CPU cores detected, limiting to $RESOURCE_CAP simulators (was $MAX_SIMULATORS)"
+    echo "Resource cap: $CPU_CORES cores / ${RAM_GB}GB RAM -> limiting to $RESOURCE_CAP simulators (CPU cap: $CPU_CAP, mem cap: $MEM_CAP, was $MAX_SIMULATORS)"
     MAX_SIMULATORS=$RESOURCE_CAP
 fi
 
