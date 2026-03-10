@@ -27,6 +27,17 @@ public extension View {
         }
     }
 
+    /// Adds a navigation toolbar with a Tangem logo at leading position.
+    /// Accepts `ToolbarContent` so each `ToolbarItem` is placed independently.
+    @ViewBuilder
+    func tangemLogoNavigationToolbar(@ToolbarContentBuilder trailingItems: () -> some ToolbarContent) -> some View {
+        if #available(iOS 26.0, *) {
+            liquidGlassToolbar(trailingItems: trailingItems)
+        } else {
+            regularToolbar(trailingItems: trailingItems)
+        }
+    }
+
     @available(iOS 26.0, *)
     private func liquidGlassToolbar(trailingItem: some View) -> some View {
         // [REDACTED_USERNAME], ToolbarItemPlacement.principal + ToolbarRole.editor is the trick to force leading placement
@@ -45,6 +56,19 @@ public extension View {
         .toolbarRole(.editor)
     }
 
+    @available(iOS 26.0, *)
+    private func liquidGlassToolbar(@ToolbarContentBuilder trailingItems: () -> some ToolbarContent) -> some View {
+        toolbar {
+            ToolbarItem(placement: .principal) {
+                tangemLogo
+            }
+            .sharedBackgroundVisibility(.hidden)
+
+            trailingItems()
+        }
+        .toolbarRole(.editor)
+    }
+
     private func regularToolbar(trailingItem: some View) -> some View {
         toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -54,6 +78,16 @@ public extension View {
             ToolbarItem(placement: .topBarTrailing) {
                 trailingItem
             }
+        }
+    }
+
+    private func regularToolbar(@ToolbarContentBuilder trailingItems: () -> some ToolbarContent) -> some View {
+        toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                tangemLogo
+            }
+
+            trailingItems()
         }
     }
 }
