@@ -38,6 +38,12 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
             waitAndAssertTrue(countryButton, "Country '\(countryName)' should exist")
             countryButton.tap()
 
+            // Wait for the residence selector sheet to dismiss
+            XCTAssertTrue(
+                searchField.waitForNonExistence(timeout: .robustUIUpdate),
+                "Residence screen should dismiss after selecting a country"
+            )
+
             return OnrampSettingsScreen(app)
         }
     }
