@@ -1,17 +1,12 @@
 //
-//  AccountsAwareTokenSelectorCryptoAccountModelItemsProvider.swift
+//  CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Combine
-
-protocol AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
-    var items: [AccountsAwareTokenSelectorItem] { get }
-    var itemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never> { get }
-}
 
 struct CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
     let userWalletInfo: UserWalletInfo
@@ -36,7 +31,7 @@ struct CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
 
 // MARK: - AccountsAwareTokenSelectorCryptoAccountModelItemsProvider
 
-extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider: AccountsAwareTokenSelectorAccountModelItemsProvider {
     var items: [AccountsAwareTokenSelectorItem] {
         tokenSectionsAdapter
             .organizedSections(from: cryptoAccount.walletModelsManager.walletModels)
@@ -64,8 +59,7 @@ private extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvide
     private func mapToAccountsAwareTokenSelectorItem(walletModel: any WalletModel) -> AccountsAwareTokenSelectorItem {
         AccountsAwareTokenSelectorItem(
             userWalletInfo: userWalletInfo,
-            account: cryptoAccount,
-            walletModel: walletModel,
+            kind: .crypto(walletModel, cryptoAccount),
         )
     }
 }
