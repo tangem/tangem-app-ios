@@ -31,6 +31,9 @@ protocol SendAmountInteractor {
     func updateToMaxAmount() throws -> SendAmount
     func update(receiveAmount: Decimal?) -> SendAmount?
     func update(receiveType: SendAmountCalculationType)
+    /// Validates the source amount populated externally (e.g. from a reverse quote)
+    /// without propagating back to the model via `saver`, avoiding a feedback loop.
+    func validateExternalSourceAmount(_ amount: SendAmount?)
 
     func userDidRequestClearReceiveToken()
 }
@@ -209,7 +212,24 @@ class CommonSendAmountInteractor {
         .eraseToAnyPublisher()
     }
 
-    private var restrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+    private var sourceRestrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
+        guard let receiveTokenAmountInput, let sourceTokenInput else {
+            return .just(output: nil)
+        }
+
+        return Publishers.CombineLatest(
+            receiveTokenAmountInput.receiveRestrictionPublisher,
+            sourceTokenInput.sourceTokenPublisher
+        )
+        .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
+            guard let self, let restriction, let token = tokenResult.value else { return nil }
+            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: type)
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
+
+    private var receiveRestrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
         guard let receiveTokenAmountInput, let receiveTokenInput else {
             return .just(output: nil)
         }
@@ -220,7 +240,7 @@ class CommonSendAmountInteractor {
         )
         .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
             guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, currencySymbol: token.tokenItem.currencySymbol)
+            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: receiveType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
@@ -228,17 +248,42 @@ class CommonSendAmountInteractor {
 
     private func mapRestrictionToInfoText(
         _ restriction: ReceiveAmountRestriction,
-        currencySymbol: String
+        tokenItem: TokenItem,
+        calculationType: SendAmountCalculationType
     ) -> SendAmountViewModel.BottomInfoTextType {
         switch restriction {
         case .tooSmallAmount(let amount):
-            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            // Round UP so the displayed minimum is always sufficient after conversion
+            let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .up)
             return .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
         case .tooBigAmount(let amount):
-            let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            // Round DOWN so the displayed maximum is always achievable after conversion
+            let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .down)
             return .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
         case .balanceExceeded:
             return .error(Localization.sendNotificationExceedBalanceTitle)
+        }
+    }
+
+    private func formatRestrictionAmount(
+        _ cryptoAmount: Decimal,
+        tokenItem: TokenItem,
+        calculationType: SendAmountCalculationType,
+        roundingMode: NSDecimalNumber.RoundingMode
+    ) -> String {
+        switch calculationType {
+        case .crypto:
+            var options = BalanceFormattingOptions.defaultCryptoFormattingOptions
+            options.roundingType = .default(roundingMode: roundingMode, scale: options.maxFractionDigits)
+            return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol, formattingOptions: options)
+        case .fiat:
+            guard let currencyId = tokenItem.currencyId,
+                  let rawFiat = BalanceConverter().convertToFiat(cryptoAmount, currencyId: currencyId) else {
+                return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol)
+            }
+            var options = BalanceFormattingOptions.defaultFiatFormattingOptions
+            options.roundingType = .default(roundingMode: roundingMode, scale: 2)
+            return balanceFormatter.formatFiatBalance(rawFiat, formattingOptions: options)
         }
     }
 }
@@ -251,14 +296,14 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
     }
 
     var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
-        Publishers.CombineLatest(restrictionInfoPublisher, validatorInfoPublisher)
+        Publishers.CombineLatest(sourceRestrictionInfoPublisher, validatorInfoPublisher)
             .map { restriction, validator in restriction ?? validator }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
-        restrictionInfoPublisher
+        receiveRestrictionInfoPublisher
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
@@ -385,6 +430,23 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     func update(receiveType: SendAmountCalculationType) {
         self.receiveType = receiveType
+    }
+
+    func validateExternalSourceAmount(_ amount: SendAmount?) {
+        do {
+            if let crypto = amount?.crypto {
+                try validator.validate(amount: crypto)
+            }
+
+            _error.send(nil)
+            _isValid.send(amount != nil)
+        } catch SendAmountValidatorError.zeroAmount {
+            _error.send(nil)
+            _isValid.send(false)
+        } catch {
+            _error.send(getValidationErrorDescription(error: error))
+            _isValid.send(false)
+        }
     }
 
     func userDidRequestClearReceiveToken() {

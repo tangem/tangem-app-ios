@@ -178,8 +178,22 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func userDidTapCompactField(_ tappedField: ActiveAmountField) {
         guard !isAccordionSwitchingLocked else { return }
 
-        if isFixedRateMode, activeField == tappedField.opposite,
-           let currentCrypto = amountField(for: tappedField).cryptoTextFieldViewModel.value {
+        if isFixedRateMode, activeField == tappedField.opposite {
+            let field = amountField(for: tappedField)
+
+            // Read the value matching the field's current calculation type (crypto or fiat)
+            // so the interactor interprets it correctly
+            let currentValue: Decimal? = switch field.amountType {
+            case .crypto: field.cryptoTextFieldViewModel.value
+            case .fiat: field.fiatTextFieldViewModel.value
+            }
+
+            guard let currentValue else {
+                // No value in the tapped field — just switch without recalculation
+                activeField = tappedField
+                return
+            }
+
             isAccordionSwitchingLocked = true
             activeField = tappedField
             lastUpdateSource = tappedField
@@ -187,10 +201,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             // Trigger rate recalculation for the tapped field
             switch tappedField {
             case .send:
-                let amount = try? interactor.update(sendAmount: currentCrypto)
+                let amount = try? interactor.update(sendAmount: currentValue)
                 sourceAmountField.updateAmountsUI(amount: amount)
             case .receive:
-                let amount = interactor.update(receiveAmount: currentCrypto)
+                let amount = interactor.update(receiveAmount: currentValue)
                 destinationAmountField?.updateAmountsUI(amount: amount)
             }
         } else {
@@ -257,6 +271,7 @@ private extension SendAmountViewModel {
             .sink { viewModel, amount in
                 guard viewModel.lastUpdateSource != .send else { return }
                 viewModel.sourceAmountField.updateAmountsUI(amount: amount)
+                viewModel.interactor.validateExternalSourceAmount(amount)
             }
             .store(in: &bag)
 
