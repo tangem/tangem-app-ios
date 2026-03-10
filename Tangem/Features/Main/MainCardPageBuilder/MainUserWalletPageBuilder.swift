@@ -80,16 +80,21 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    @ViewBuilder
     var header: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            MainUserWalletHeader(model: MainUserWalletHeaderModel(
-                headerViewModel: headerModel,
-                actionButtonsViewModel: actionButtonsViewModel
-            ))
-        } else {
-            MainHeaderView(viewModel: headerModel)
-        }
+        MainHeaderView(viewModel: headerModel)
+    }
+
+    func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
+        MainUserWalletHeader(model: MainUserWalletHeaderModel(
+            headerViewModel: headerModel,
+            actionButtonsViewModel: actionButtonsViewModel,
+            paginationState: totalPages > 1
+                ? MainUserWalletHeaderModel.PaginationState(
+                    totalPages: totalPages,
+                    currentIndex: currentIndex
+                )
+                : nil
+        ))
     }
 
     @ViewBuilder
