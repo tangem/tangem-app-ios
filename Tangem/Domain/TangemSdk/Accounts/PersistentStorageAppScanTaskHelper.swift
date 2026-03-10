@@ -24,7 +24,6 @@ struct PersistentStorageAppScanTaskHelper {
     }
 
     func extractDerivations(forWalletsOnCard card: CardDTO, config: UserWalletConfig) -> [EllipticCurve: [DerivationPath]] {
-        var derivations: [EllipticCurve: [DerivationPath]] = [:]
         let persistentBlockchains = config.persistentBlockchains
         let allBlockchainNetworks: Set<BlockchainNetwork>
 
@@ -56,12 +55,14 @@ struct PersistentStorageAppScanTaskHelper {
                 .toSet()
         }
 
-        for blockchainNetwork in allBlockchainNetworks {
-            if let wallet = card.wallets.first(where: { $0.curve == blockchainNetwork.blockchain.curve }) {
-                derivations[wallet.curve, default: []].append(contentsOf: blockchainNetwork.derivationPaths())
-            }
-        }
+        let existingCurves = card
+            .walletCurves
+            .toSet()
 
-        return derivations
+        return allBlockchainNetworks
+            .filter { existingCurves.contains($0.blockchain.curve) }
+            .reduce(into: [:]) { partialResult, blockchainNetwork in
+                partialResult[blockchainNetwork.blockchain.curve, default: []] += blockchainNetwork.derivationPaths()
+            }
     }
 }
