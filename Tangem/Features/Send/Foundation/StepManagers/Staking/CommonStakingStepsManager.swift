@@ -128,7 +128,7 @@ extension CommonStakingStepsManager: SendStepsManager {
         case .amount where isEditAction: return .init(action: .continue)
         case .targets where isEditAction: return .init(action: .continue)
         case .amount: return .init(action: .next)
-        case .summary: return .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
+        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: return .init(action: .close)
         default: return .empty
         }

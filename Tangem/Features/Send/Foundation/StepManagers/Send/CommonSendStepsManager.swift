@@ -118,7 +118,7 @@ extension CommonSendStepsManager: SendStepsManager {
         case .destination where isEditAction: .init(action: .continue)
         case .amount: .init(action: .next)
         case .destination: .init(action: .next)
-        case .summary: .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
+        case .summary: .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: .init(action: .close)
         default: .empty
         }
