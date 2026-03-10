@@ -48,13 +48,13 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if let viewModel = viewModel.tangemPayAccountViewModel {
-                TangemPayAccountView(viewModel: viewModel)
-            }
+            VStack(spacing: 8.0) {
+                if let viewModel = viewModel.tangemPayAccountViewModel {
+                    TangemPayAccountView(viewModel: viewModel)
+                }
 
-            listContent
+                listContent
+            }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 NFTEntrypointView(viewModel: nftEntrypointViewModel)
