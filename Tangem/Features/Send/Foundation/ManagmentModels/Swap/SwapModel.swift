@@ -130,8 +130,9 @@ extension SwapModel {
 extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
-        _sourceAmount.send(sourceAmount)
 
+        // Send .loading before updating the amount to prevent CombineLatest
+        // from briefly emitting .success(newAmount) with the old providers state
         updateTask(loadingType: .rates) { [weak self] expressManager in
             if sourceAmount != nil {
                 // Add some debounce
@@ -151,6 +152,8 @@ extension SwapModel {
             return result
         }
 
+        _sourceAmount.send(sourceAmount)
+
         if sourceAmount == nil {
             _receiveAmount.send(nil)
         }
@@ -158,8 +161,9 @@ extension SwapModel {
 
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
-        _receiveAmount.send(receiveAmount)
 
+        // Send .loading before updating the amount to prevent CombineLatest
+        // from briefly emitting .success(newAmount) with the old providers state
         updateTask(loadingType: .rates) { [weak self] expressManager in
             if receiveAmount != nil {
                 // Add some debounce
@@ -178,6 +182,8 @@ extension SwapModel {
 
             return result
         }
+
+        _receiveAmount.send(receiveAmount)
 
         if receiveAmount == nil {
             _sourceAmount.send(nil)

@@ -84,7 +84,6 @@ extension SendAmount {
 
 enum SendAmountError: LocalizedError {
     case noAmount
-    case receiveRestriction(ReceiveAmountRestriction)
 }
 
 enum ReceiveAmountRestriction: Equatable {
