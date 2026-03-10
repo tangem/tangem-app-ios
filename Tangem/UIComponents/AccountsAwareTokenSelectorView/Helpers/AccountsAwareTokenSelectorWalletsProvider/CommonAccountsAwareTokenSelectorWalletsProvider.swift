@@ -54,13 +54,28 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         )
     }
 
-    func mapToAccountsAwareTokenSelectorAccount(userWalletInfo: UserWalletInfo, cryptoAccount: any CryptoAccountModel) -> AccountsAwareTokenSelectorAccount {
+    func mapToAccountsAwareTokenSelectorAccount(
+        userWalletInfo: UserWalletInfo,
+        cryptoAccount: any CryptoAccountModel
+    ) -> AccountsAwareTokenSelectorAccount {
         let itemsProvider = CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider(
             userWalletInfo: userWalletInfo,
             cryptoAccount: cryptoAccount
         )
 
-        return AccountsAwareTokenSelectorAccount(cryptoAccount: cryptoAccount, itemsProvider: itemsProvider)
+        return AccountsAwareTokenSelectorAccount(account: cryptoAccount, itemsProvider: itemsProvider)
+    }
+
+    func mapToAccountsAwareTokenSelectorAccount(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccountModel: any TangemPayAccountModel
+    ) -> AccountsAwareTokenSelectorAccount {
+        let itemsProvider = CommonAccountsAwareTokenSelectorTangemPayAccountModelItemsProvider(
+            userWalletInfo: userWalletInfo,
+            tangemPayAccountModel: tangemPayAccountModel
+        )
+
+        return AccountsAwareTokenSelectorAccount(account: tangemPayAccountModel, itemsProvider: itemsProvider)
     }
 
     func mapToAccountType(
@@ -68,21 +83,35 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         userWalletInfo: UserWalletInfo,
         isUserWalletLocked: Bool
     ) -> AccountsAwareTokenSelectorWallet.AccountType {
-        switch accountModels.firstStandard() {
-        case .none:
+        let firstStandard = accountModels.firstStandard()
+        if firstStandard == nil {
             assert(isUserWalletLocked, "Non-locked wallet should contain at least one crypto account (main)")
             return .multiple([])
-        case .standard(.single(let account)):
-            return .single(
-                mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)
-            )
-        case .standard(.multiple(let accounts)):
-            let accounts = accounts
-                .map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
-
-            return .multiple(accounts)
-        case .tangemPay:
-            return .multiple([])
         }
+
+        let items: [AccountsAwareTokenSelectorAccount] = accountModels
+            .flatMap { accountModel -> [AccountsAwareTokenSelectorAccount] in
+                switch accountModel {
+                case .standard(.single(let account)):
+                    [mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)]
+
+                case .standard(.multiple(let accounts)):
+                    accounts.map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
+
+                case .tangemPay(let tangemPayAccountModel):
+                    [
+                        mapToAccountsAwareTokenSelectorAccount(
+                            userWalletInfo: userWalletInfo,
+                            tangemPayAccountModel: tangemPayAccountModel
+                        ),
+                    ]
+                }
+            }
+
+        if items.count == 1, let first = items.first {
+            return .single(first)
+        }
+
+        return .multiple(items)
     }
 }
