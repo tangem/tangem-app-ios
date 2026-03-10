@@ -25,7 +25,7 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard)
-            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails))
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     @ViewBuilder
@@ -112,32 +112,48 @@ struct MainView: View {
 
 private struct MainViewNavigationModifier: ViewModifier {
     let openDetailsAction: () -> Void
+    let openQRScanAction: () -> Void
 
     func body(content: Content) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
             content
                 .tangemNavigationHeader(
+                    secondaryTrailingAction: openQRScanAction,
                     trailingAction: openDetailsAction,
                     accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
                         trailingButton: MainAccessibilityIdentifiers.detailsButton,
-                        trailingButtonLabel: Localization.voiceOverOpenCardDetails
+                        trailingButtonLabel: Localization.voiceOverOpenCardDetails,
+                        secondaryTrailingButton: MainAccessibilityIdentifiers.scanQrButton,
+                        secondaryTrailingButtonLabel: Localization.voiceOverOpenNewWalletConnectSession
                     )
                 )
         } else {
             content
-                .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
-        }
-    }
+                .tangemLogoNavigationToolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: openQRScanAction) {
+                            Assets.Glyphs.scanQrIcon.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                        }
+                        .buttonStyle(.plain)
+                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+                        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+                    }
 
-    private var detailsNavigationButton: some View {
-        Button(action: openDetailsAction) {
-            NavbarDotsImage()
-                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: openDetailsAction) {
+                            NavbarDotsImage()
+                                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        }
+                        .buttonStyle(.plain)
+                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+                        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
+                    }
+                }
         }
-        .buttonStyle(.plain)
-        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 }
 
