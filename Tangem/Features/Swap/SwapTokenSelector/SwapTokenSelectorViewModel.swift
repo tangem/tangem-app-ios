@@ -108,7 +108,7 @@ private extension SwapTokenSelectorViewModel {
             source: .portfolio,
             userHasSearchedDuringThisSession: false
         )
-        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+        analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 
     func selectToken(_ item: AccountsAwareTokenSelectorItem) {
@@ -119,7 +119,7 @@ private extension SwapTokenSelectorViewModel {
             output?.swapTokenSelectorDidRequestUpdate(sender: item)
         }
 
-        selectedTokenItem = item.walletModel.tokenItem
+        selectedTokenItem = item.tokenItem
         tokenSelectorCoordinator?.closeSwapTokenSelector()
     }
 }
