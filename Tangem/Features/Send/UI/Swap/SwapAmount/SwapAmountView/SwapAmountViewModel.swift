@@ -184,7 +184,7 @@ private extension SwapAmountViewModel {
     }
 
     func update(amount: Decimal?) -> SendAmount? {
-        try? interactor.update(sendAmount: amount)
+        try? interactor.update(sourceAmount: amount)
     }
 
     func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
