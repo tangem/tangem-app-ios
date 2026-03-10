@@ -59,6 +59,7 @@ class CommonSendAmountInteractor {
     private var _isValid: CurrentValueSubject<Bool, Never> = .init(false)
 
     private let balanceFormatter = BalanceFormatter()
+    private let balanceConverter = BalanceConverter()
     private lazy var converter = SendAmountConverter()
     private var bag: Set<AnyCancellable> = []
 
@@ -278,7 +279,7 @@ class CommonSendAmountInteractor {
             return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol, formattingOptions: options)
         case .fiat:
             guard let currencyId = tokenItem.currencyId,
-                  let rawFiat = BalanceConverter().convertToFiat(cryptoAmount, currencyId: currencyId) else {
+                  let rawFiat = balanceConverter.convertToFiat(cryptoAmount, currencyId: currencyId) else {
                 return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol)
             }
             var options = BalanceFormattingOptions.defaultFiatFormattingOptions
