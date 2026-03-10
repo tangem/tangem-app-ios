@@ -11,6 +11,7 @@ import TangemAccounts
 struct TokenHeaderProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+    @Injected(\.tangemPayAccountGlobalStateProvider) private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
 
     private let userWalletName: String
     private let account: (any BaseAccountModel)?
@@ -28,7 +29,8 @@ struct TokenHeaderProvider {
             return .wallet(name: userWalletName, hasOnlyOneWallet: userWalletRepository.hasOnlyOneWallet)
         }
 
-        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+        let hasMultipleCryptoAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+        let hasMultipleAccounts = hasMultipleCryptoAccounts || tangemPayAccountGlobalStateProvider.hasTangemPayAccount
 
         if hasMultipleAccounts, let account {
             let icon = AccountModelUtils.UI.iconViewData(accountModel: account)
