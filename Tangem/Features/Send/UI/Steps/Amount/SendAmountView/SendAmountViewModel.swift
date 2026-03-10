@@ -31,18 +31,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var compactDestinationSubtitle: SendAmountTokenViewData.SubtitleType?
     @Published private(set) var isInputFieldSwitchingLocked: Bool = false
 
-    /// Set to `false` before an `activeField` change that should not animate (e.g. first editable destination entry).
-    /// The view resets it to `true` inside `.onChange(of: activeField)`.
+    /// Gates the `.animation(_, value: activeField)` modifier.
+    /// Temporarily set to `false` on first destination entry to prevent animation.
     var animateActiveFieldChange = true
 
-    /// Set to `true` only in `removeReceivedToken` so the structural change
-    /// (editable → non-editable destination) is animated. Entry never animates.
+    /// Gates the `.animation(_, value: isAmountEditable)` modifier.
+    /// Set to `true` in `removeReceivedToken` so the removal animates. Entry never animates.
     var animateDestinationRemoval = false
 
-    /// Fires after a short delay so the view transfers focus to the specified field
-    /// once the layout has settled (e.g. after destination entry/exit or sheet dismissal).
-    /// Using `@Published` ensures the view's `.onChange` handler runs in the
-    /// live view context, avoiding stale `@FocusState` captures.
+    /// The single mechanism for driving `@FocusState` from the ViewModel.
+    /// The view observes this via `.onChange` and transfers focus accordingly.
     @Published var pendingFocusField: ActiveAmountField?
 
     var useFiatCalculation: Bool {
@@ -148,6 +146,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func removeReceivedToken() {
         isDestinationTokenClearing = true
+        animateActiveFieldChange = true
         animateDestinationRemoval = true
         destinationAmountField = nil
         destinationFieldBag = nil
@@ -180,6 +179,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func userDidTapCompactField(_ tappedField: ActiveAmountField) {
         guard !isInputFieldSwitchingLocked else { return }
 
+        animateActiveFieldChange = true
+
         if isFixedRateMode, activeField == tappedField.opposite {
             let field = amountField(for: tappedField)
 
@@ -193,11 +194,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             guard let currentValue else {
                 // No value in the tapped field — just switch without recalculation
                 activeField = tappedField
+                pendingFocusField = tappedField
                 return
             }
 
             isInputFieldSwitchingLocked = true
             activeField = tappedField
+            pendingFocusField = tappedField
             lastUpdateSource = tappedField
 
             // Trigger rate recalculation for the tapped field
@@ -211,6 +214,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             }
         } else {
             activeField = tappedField
+            pendingFocusField = tappedField
         }
     }
 
@@ -377,6 +381,7 @@ extension SendAmountViewModel {
         case .none:
             isDestinationTokenClearing = false
             pendingReverseRecalculation = false
+            animateDestinationRemoval = false
             destinationTokenViewType = .selectButton
             currentDestinationToken = nil
             compactDestinationSubtitle = nil
@@ -425,8 +430,8 @@ extension SendAmountViewModel {
                     )
 
                     if isFirstSelection {
-                        // Disable animation BEFORE any @Published changes so the
-                        // `.animation(_, value:)` modifier reads `false` during render.
+                        // Suppress expand/collapse animation on first entry.
+                        // Re-enabled in userDidTapCompactField on first switch.
                         animateActiveFieldChange = false
                     }
 
@@ -439,8 +444,7 @@ extension SendAmountViewModel {
                         activeField = .receive
                         pendingReverseRecalculation = true
 
-                        // Delay until the token-picker sheet finishes dismissing,
-                        // then trigger the view's `.onChange` to claim focus.
+                        // Delay until the token-picker sheet finishes dismissing
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             self?.pendingFocusField = .receive
                         }

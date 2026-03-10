@@ -74,7 +74,7 @@ enum SwapAmountStepBuilder {
             amountModifier: .none,
             notificationService: .none,
             saver: interactorSaver,
-            type: .crypto
+            sourceType: .crypto
         )
 
         let viewModel = SwapAmountViewModel(
