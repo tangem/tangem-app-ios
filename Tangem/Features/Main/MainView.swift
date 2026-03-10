@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
+    @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
 
     var body: some View {
         content
@@ -24,14 +25,14 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard)
-            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails))
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     @ViewBuilder
     private var content: some View {
         if FeatureProvider.isAvailable(.redesign) {
             fullPagePagerContent
-                .northernLightsBackground(backgroundColor: .Tangem.Surface.level1)
+                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2)
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -48,9 +49,12 @@ struct MainView: View {
                     onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
                     onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
                     content: { ratio in
-                        page.header
-                            .scaleEffect(ratio)
-                            .opacity(ratio)
+                        page.redesignedHeader(
+                            totalPages: viewModel.pages.count,
+                            currentIndex: viewModel.selectedCardIndex
+                        )
+                        .scaleEffect(ratio)
+                        .opacity(ratio)
                     }
                 )
             },
@@ -60,6 +64,9 @@ struct MainView: View {
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: overlayCollapsedHeight)
+        }
     }
 
     private var cardsInfoPagerContent: some View {
@@ -105,32 +112,48 @@ struct MainView: View {
 
 private struct MainViewNavigationModifier: ViewModifier {
     let openDetailsAction: () -> Void
+    let openQRScanAction: () -> Void
 
     func body(content: Content) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
             content
                 .tangemNavigationHeader(
+                    secondaryTrailingAction: openQRScanAction,
                     trailingAction: openDetailsAction,
                     accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
                         trailingButton: MainAccessibilityIdentifiers.detailsButton,
-                        trailingButtonLabel: Localization.voiceOverOpenCardDetails
+                        trailingButtonLabel: Localization.voiceOverOpenCardDetails,
+                        secondaryTrailingButton: MainAccessibilityIdentifiers.scanQrButton,
+                        secondaryTrailingButtonLabel: Localization.voiceOverOpenNewWalletConnectSession
                     )
                 )
         } else {
             content
-                .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
-        }
-    }
+                .tangemLogoNavigationToolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: openQRScanAction) {
+                            Assets.Glyphs.scanQrIcon.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                        }
+                        .buttonStyle(.plain)
+                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+                        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+                    }
 
-    private var detailsNavigationButton: some View {
-        Button(action: openDetailsAction) {
-            NavbarDotsImage()
-                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: openDetailsAction) {
+                            NavbarDotsImage()
+                                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        }
+                        .buttonStyle(.plain)
+                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+                        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
+                    }
+                }
         }
-        .buttonStyle(.plain)
-        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 }
 
