@@ -36,6 +36,7 @@ struct FullPagePagerView<Data, Header, Body>: View
     // MARK: - State
 
     @Binding private var selectedIndex: Int
+    @State private var viewportHeight: CGFloat = 0
 
     // MARK: - Configuration
 
@@ -63,9 +64,11 @@ struct FullPagePagerView<Data, Header, Body>: View
     var body: some View {
         RefreshScrollView(
             stateObject: refreshScrollViewStateObject,
-            contentSettings: .simpleContent,
-            content: makePageContent
-        )
+            contentSettings: .simpleContent
+        ) {
+            makePageContent(viewportHeight: viewportHeight)
+        }
+        .readGeometry(\.size.height) { viewportHeight = $0 }
     }
 }
 
@@ -73,12 +76,13 @@ struct FullPagePagerView<Data, Header, Body>: View
 
 private extension FullPagePagerView {
     @ViewBuilder
-    func makePageContent() -> some View {
+    func makePageContent(viewportHeight: CGFloat) -> some View {
         if #available(iOS 17.0, *) {
             FullPagePagerViewModern(
                 data: data,
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
+                viewportHeight: viewportHeight,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -88,6 +92,7 @@ private extension FullPagePagerView {
                 data: data,
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
+                viewportHeight: viewportHeight,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory

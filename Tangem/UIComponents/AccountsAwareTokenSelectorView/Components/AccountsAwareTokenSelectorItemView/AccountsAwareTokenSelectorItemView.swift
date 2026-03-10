@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 
 struct AccountsAwareTokenSelectorItemView: View {
@@ -36,6 +37,7 @@ struct AccountsAwareTokenSelectorItemView: View {
         }
         .disabled(viewModel.disabledReason != nil)
         .background(Colors.Background.action)
+        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: viewModel.name))
     }
 
     @ViewBuilder
