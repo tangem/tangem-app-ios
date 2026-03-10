@@ -11,18 +11,18 @@ import TangemFoundation
 class CommonUnspentOutputManager {
     private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
 
-    private let address: any Address
+    private let changeAddress: any Address
     private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
     private let lockingScriptBuilder: LockingScriptBuilder
     private let sorter: UTXOTransactionInputsSorter
 
     init(
-        address: any Address,
+        changeAddress: any Address,
         preImageTransactionBuilder: UTXOPreImageTransactionBuilder,
         sorter: UTXOTransactionInputsSorter,
         lockingScriptBuilder: LockingScriptBuilder
     ) {
-        self.address = address
+        self.changeAddress = changeAddress
         self.preImageTransactionBuilder = preImageTransactionBuilder
         self.sorter = sorter
         self.lockingScriptBuilder = lockingScriptBuilder
@@ -73,7 +73,7 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
 
 private extension CommonUnspentOutputManager {
     func preImage(amount: Int, fee: UTXOPreImageTransactionBuilderFee, destination: String, opReturn: Data?) async throws -> PreImageTransaction {
-        let changeScript = try lockingScriptBuilder.lockingScript(for: address)
+        let changeScript = try lockingScriptBuilder.lockingScript(for: changeAddress)
         let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)
 
         let preImage = try await preImageTransactionBuilder.preImage(

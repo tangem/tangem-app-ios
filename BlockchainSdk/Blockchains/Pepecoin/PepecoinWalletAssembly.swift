@@ -12,7 +12,7 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let blockchain = input.wallet.blockchain
         let unspentOutputManager: UnspentOutputManager = .pepecoin(
-            address: input.wallet.defaultAddress,
+            changeAddress: input.wallet.changeAddress,
             isTestnet: input.wallet.blockchain.isTestnet
         )
 

@@ -10,7 +10,7 @@ import Foundation
 
 struct LitecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .litecoin(address: input.wallet.defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .litecoin(changeAddress: input.wallet.changeAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: LitecoinNetworkParams(),
             unspentOutputManager: unspentOutputManager,

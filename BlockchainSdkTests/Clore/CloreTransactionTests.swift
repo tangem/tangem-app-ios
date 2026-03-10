@@ -19,7 +19,7 @@ struct CloreTransactionTests {
         let pubKey = Data(hexString: "03a08920b8940d992d58f2ac6f285a97f126634d709e31e28fb5892614e6494e5c")
         let addressService = BitcoinLegacyAddressService(networkParams: CloreMainNetworkParams())
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .clore(address: address)
+        let unspentOutputManager: UnspentOutputManager = .clore(changeAddress: address)
 
         unspentOutputManager.update(
             outputs: [

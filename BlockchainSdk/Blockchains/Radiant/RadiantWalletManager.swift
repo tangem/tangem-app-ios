@@ -49,7 +49,7 @@ final class RadiantWalletManager: BaseManager, DustRestrictable {
 
 private extension RadiantWalletManager {
     func updateWallet(with response: UTXOResponse) {
-        unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
+        unspentOutputManager.update(outputs: response.outputs, for: wallet.changeAddress)
         let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 

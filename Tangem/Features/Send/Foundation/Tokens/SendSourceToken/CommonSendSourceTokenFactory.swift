@@ -55,7 +55,7 @@ struct CommonSendSourceTokenFactory {
             feeTokenItem: walletModel.feeTokenItem,
             isFixedFee: !walletModel.shouldShowFeeSelector,
             isCustom: walletModel.isCustom,
-            defaultAddressString: walletModel.defaultAddressString,
+            defaultAddress: walletModel.defaultAddressString,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             allowanceService: allowanceService,

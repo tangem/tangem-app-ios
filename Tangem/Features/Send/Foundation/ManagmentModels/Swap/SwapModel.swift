@@ -567,7 +567,7 @@ extension SwapModel {
         let expressSentResult = ExpressTransactionSentResult(
             hash: result.hash,
             source: source.tokenItem.expressCurrency,
-            address: source.defaultAddressString,
+            address: source.defaultAddress,
             data: data
         )
 

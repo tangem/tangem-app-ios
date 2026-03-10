@@ -34,7 +34,7 @@ class OnrampModel {
 
     private let userWalletId: String
     private let tokenItem: TokenItem
-    private let defaultAddressString: String
+    private let defaultAddress: String
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
@@ -48,7 +48,7 @@ class OnrampModel {
     init(
         userWalletId: String,
         tokenItem: TokenItem,
-        defaultAddressString: String,
+        defaultAddress: String,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
@@ -58,7 +58,7 @@ class OnrampModel {
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
-        self.defaultAddressString = defaultAddressString
+        self.defaultAddress = defaultAddress
         self.onrampManager = onrampManager
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
@@ -313,7 +313,7 @@ private extension OnrampModel {
             fiatCurrency: currency,
             country: country,
             destination: tokenItem.expressCurrency,
-            address: defaultAddressString
+            address: defaultAddress
         )
     }
 
@@ -452,7 +452,7 @@ extension OnrampModel: OnrampRedirectingOutput {
             provider: provider.provider,
             paymentMethod: provider.paymentMethod,
             destinationTokenItem: tokenItem,
-            destinationAddress: defaultAddressString,
+            destinationAddress: defaultAddress,
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
