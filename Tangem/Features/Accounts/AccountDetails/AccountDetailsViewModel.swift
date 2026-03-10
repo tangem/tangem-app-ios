@@ -237,5 +237,10 @@ private extension AccountDetailsViewModel {
                 }
             }
         }
+
+        /// TangemPay does not support archiving
+        func resolve(accountModel: any TangemPayAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
     }
 }
