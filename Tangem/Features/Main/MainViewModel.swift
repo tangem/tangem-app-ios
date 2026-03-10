@@ -111,6 +111,10 @@ final class MainViewModel: ObservableObject {
         coordinator?.openDetails()
     }
 
+    func openQRScan() {
+        coordinator?.openQRScan()
+    }
+
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         guard !isLoggingOut else { return }
