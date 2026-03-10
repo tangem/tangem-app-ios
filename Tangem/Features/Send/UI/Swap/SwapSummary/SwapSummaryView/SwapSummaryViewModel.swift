@@ -73,10 +73,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
             .assign(to: &$mainButtonNeedsHold)
     }
 
-    func userDidTapSwapProvider() {
-        router?.summaryStepRequestEditProviders()
-    }
-
     func userDidTapFee() {
         router?.summaryStepRequestEditFee()
     }
