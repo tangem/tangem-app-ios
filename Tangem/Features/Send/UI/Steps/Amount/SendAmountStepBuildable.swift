@@ -91,8 +91,7 @@ enum SendAmountStepBuilder {
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
             notificationService: dependencies.notificationService,
-            saver: interactorSaver,
-            type: .crypto
+            saver: interactorSaver
         )
 
         let viewModel = SendAmountViewModel(
