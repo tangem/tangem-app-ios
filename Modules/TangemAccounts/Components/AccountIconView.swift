@@ -55,25 +55,27 @@ public struct AccountIconView: View {
     }
 
     private var labelFrameSize: CGSize {
-        switch data.nameMode {
-        case .letter, .imageType:
-            CGSize(width: scaledWidth, height: scaledHeight)
-
-        case .tangemPay:
+        switch data.backgroundColor {
+        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
+        // [REDACTED_TODO_COMMENT]
+        case .clear:
             CGSize(
                 width: scaledWidth + scaledPadding * 2,
                 height: scaledHeight + scaledPadding * 2
             )
+        default:
+            CGSize(width: scaledWidth, height: scaledHeight)
         }
     }
 
     private var labelPadding: CGFloat {
-        switch data.nameMode {
-        case .letter, .imageType:
-            scaledPadding
-
-        case .tangemPay:
+        switch data.backgroundColor {
+        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
+        // [REDACTED_TODO_COMMENT]
+        case .clear:
             .zero
+        default:
+            scaledPadding
         }
     }
 
@@ -88,15 +90,12 @@ public struct AccountIconView: View {
 
         case .imageType(let imageType, let config):
             imageType.image
-                .renderingMode(.template)
+                // case .clear currently serves as a workaround for correctly displaying TangemPay account icon
+                // [REDACTED_TODO_COMMENT]
+                .renderingMode(data.backgroundColor == .clear ? .original : .template)
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
-
-        case .tangemPay:
-            Assets.Visa.accountAvatar.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
         }
     }
 }
@@ -119,7 +118,7 @@ public extension AccountIconView {
             switch nameMode {
             case .letter(let letter, _):
                 return ViewData(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .imageType, .tangemPay:
+            case .imageType:
                 return self
             }
         }
@@ -140,7 +139,6 @@ public extension AccountIconView {
     enum NameMode: Hashable {
         case letter(String, LetterConfig = .default)
         case imageType(ImageType, ImageConfig = .default)
-        case tangemPay
     }
 }
 
