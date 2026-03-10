@@ -51,8 +51,18 @@ class CommonSendAmountInteractor {
     private let amountModifier: SendAmountModifier?
     private let notificationService: SendAmountNotificationService?
     private var saver: SendAmountInteractorSaver
-    private var sourceType: SendAmountCalculationType
-    private var receiveType: SendAmountCalculationType = .crypto
+    private let _sourceType: CurrentValueSubject<SendAmountCalculationType, Never>
+    private let _receiveType: CurrentValueSubject<SendAmountCalculationType, Never> = .init(.crypto)
+
+    private var sourceType: SendAmountCalculationType {
+        get { _sourceType.value }
+        set { _sourceType.send(newValue) }
+    }
+
+    private var receiveType: SendAmountCalculationType {
+        get { _receiveType.value }
+        set { _receiveType.send(newValue) }
+    }
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
     private var _error: CurrentValueSubject<String?, Never> = .init(nil)
@@ -74,8 +84,10 @@ class CommonSendAmountInteractor {
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
         saver: any SendAmountInteractorSaver,
-        sourceType: SendAmountCalculationType = .crypto
+        sourceType initialSourceType: SendAmountCalculationType = .crypto
     ) {
+        _sourceType = CurrentValueSubject(initialSourceType)
+
         self.sourceTokenInput = sourceTokenInput
         self.sourceTokenAmountInput = sourceTokenAmountInput
         self.receiveTokenInput = receiveTokenInput
@@ -86,7 +98,6 @@ class CommonSendAmountInteractor {
         self.amountModifier = amountModifier
         self.notificationService = notificationService
         self.saver = saver
-        self.sourceType = sourceType
 
         _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.sourceAmount.value)
 
@@ -218,13 +229,14 @@ class CommonSendAmountInteractor {
             return .just(output: nil)
         }
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             receiveTokenAmountInput.receiveRestrictionPublisher,
-            sourceTokenInput.sourceTokenPublisher
+            sourceTokenInput.sourceTokenPublisher,
+            _sourceType
         )
-        .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
+        .map { [weak self] restriction, tokenResult, calculationType -> SendAmountViewModel.BottomInfoTextType? in
             guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: sourceType)
+            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: calculationType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
@@ -235,13 +247,14 @@ class CommonSendAmountInteractor {
             return .just(output: nil)
         }
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             receiveTokenAmountInput.receiveRestrictionPublisher,
-            receiveTokenInput.receiveTokenPublisher
+            receiveTokenInput.receiveTokenPublisher,
+            _receiveType
         )
-        .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
+        .map { [weak self] restriction, tokenResult, calculationType -> SendAmountViewModel.BottomInfoTextType? in
             guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: receiveType)
+            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: calculationType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
