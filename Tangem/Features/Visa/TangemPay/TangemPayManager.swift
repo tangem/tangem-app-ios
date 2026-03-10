@@ -29,6 +29,10 @@ final class TangemPayManager: TangemPayAccountModel {
             .eraseToAnyPublisher()
     }
 
+    var id: TangemPayAccountId {
+        TangemPayAccountId(userWalletId: userWalletId)
+    }
+
     private(set) var customerId: String?
 
     private var customerWalletId: String {
@@ -182,7 +186,8 @@ final class TangemPayManager: TangemPayAccountModel {
             orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             let account = tangemPayAccountBuilder.makeTangemPayAccount(
                 customerInfo: customerInfo,
-                productInstance: productInstance
+                productInstance: productInstance,
+                account: self
             )
             runTask {
                 await account.loadBalance()
