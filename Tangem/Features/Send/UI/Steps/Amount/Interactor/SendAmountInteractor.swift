@@ -26,8 +26,8 @@ protocol SendAmountInteractor {
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 
-    func update(sendAmount: Decimal?) throws -> SendAmount?
-    func update(type: SendAmountCalculationType) throws -> SendAmount?
+    func update(sourceAmount: Decimal?) throws -> SendAmount?
+    func update(sourceType: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
     func update(receiveAmount: Decimal?) -> SendAmount?
     func update(receiveType: SendAmountCalculationType)
@@ -51,7 +51,7 @@ class CommonSendAmountInteractor {
     private let amountModifier: SendAmountModifier?
     private let notificationService: SendAmountNotificationService?
     private var saver: SendAmountInteractorSaver
-    private var type: SendAmountCalculationType
+    private var sourceType: SendAmountCalculationType
     private var receiveType: SendAmountCalculationType = .crypto
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -74,7 +74,7 @@ class CommonSendAmountInteractor {
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
         saver: any SendAmountInteractorSaver,
-        type: SendAmountCalculationType = .crypto
+        sourceType: SendAmountCalculationType = .crypto
     ) {
         self.sourceTokenInput = sourceTokenInput
         self.sourceTokenAmountInput = sourceTokenAmountInput
@@ -86,7 +86,7 @@ class CommonSendAmountInteractor {
         self.amountModifier = amountModifier
         self.notificationService = notificationService
         self.saver = saver
-        self.type = type
+        self.sourceType = sourceType
 
         _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.sourceAmount.value)
 
@@ -158,7 +158,7 @@ class CommonSendAmountInteractor {
     }
 
     private func makeSendAmount(crypto: Decimal?, fiat: Decimal?) -> SendAmount {
-        switch type {
+        switch sourceType {
         case .crypto:
             return .init(type: .typical(crypto: crypto, fiat: fiat))
         case .fiat:
@@ -224,7 +224,7 @@ class CommonSendAmountInteractor {
         )
         .map { [weak self] restriction, tokenResult -> SendAmountViewModel.BottomInfoTextType? in
             guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: type)
+            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: sourceType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
@@ -354,20 +354,20 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         return receiveTokenAmountInput.highPriceImpactPublisher
     }
 
-    func update(sendAmount: Decimal?) throws -> SendAmount? {
-        guard let sendAmount else {
+    func update(sourceAmount: Decimal?) throws -> SendAmount? {
+        guard let sourceAmount else {
             _cachedAmount.send(nil)
             return nil
         }
 
         let amount: SendAmount = try {
-            switch type {
+            switch sourceType {
             case .crypto:
-                let fiat = try convertToFiat(cryptoValue: sendAmount)
-                return makeSendAmount(crypto: sendAmount, fiat: fiat)
+                let fiat = try convertToFiat(cryptoValue: sourceAmount)
+                return makeSendAmount(crypto: sourceAmount, fiat: fiat)
             case .fiat:
-                let crypto = try convertToCrypto(fiatValue: sendAmount)
-                return makeSendAmount(crypto: crypto, fiat: sendAmount)
+                let crypto = try convertToCrypto(fiatValue: sourceAmount)
+                return makeSendAmount(crypto: crypto, fiat: sourceAmount)
             }
         }()
 
@@ -376,13 +376,13 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         return amount
     }
 
-    func update(type: SendAmountCalculationType) throws -> SendAmount? {
-        guard self.type != type else {
+    func update(sourceType newSourceType: SendAmountCalculationType) throws -> SendAmount? {
+        guard sourceType != newSourceType else {
             return sourceTokenAmountInput?.sourceAmount.value
         }
 
-        self.type = type
-        let sendAmount = _cachedAmount.value?.toggle(type: type)
+        sourceType = newSourceType
+        let sendAmount = _cachedAmount.value?.toggle(type: newSourceType)
         validateAndUpdate(amount: sendAmount)
         return sendAmount
     }
@@ -390,7 +390,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
     func updateToMaxAmount() throws -> SendAmount {
         let maxAmount = try source().availableBalanceProvider.balanceType.value
 
-        switch type {
+        switch sourceType {
         case .crypto:
             let fiat = try convertToFiat(cryptoValue: maxAmount)
             let amount = SendAmount(type: .typical(crypto: maxAmount, fiat: fiat))
