@@ -24,10 +24,11 @@ CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo 8)
 CPU_CAP=$(( (CPU_CORES * 2) / 3 ))
 
 # Memory cap: each sim needs ~3GB (xcodebuild + SpringBoard + app).
-# Reserve ~33% of RAM for OS, Docker/WireMock, Marathon.
+# Reserve 4GB for OS, Docker/WireMock, Marathon JVM — then 3GB per sim.
+# 16GB: (16-4)/3=4, 32GB: (32-4)/3=9, 64GB: (64-4)/3=20
 RAM_BYTES=$(sysctl -n hw.memsize 2>/dev/null || echo 17179869184)
 RAM_GB=$(( RAM_BYTES / 1024 / 1024 / 1024 ))
-MEM_CAP=$(( RAM_GB / 3 ))
+MEM_CAP=$(( (RAM_GB - 4) / 3 ))
 
 # Take the more restrictive cap
 RESOURCE_CAP=$CPU_CAP
