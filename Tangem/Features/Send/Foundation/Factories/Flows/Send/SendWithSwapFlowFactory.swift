@@ -265,7 +265,11 @@ extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
 
 extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, swapModelStateProvider: swapModel)
+        SendSummaryStepBuilder.IO(
+            input: sendWithSwapModel,
+            output: sendWithSwapModel,
+            swapModelStateProvider: swapModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {

@@ -93,8 +93,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     /// Guards against stale CombineLatest emissions after removal.
     /// Set in `removeReceivedToken`, cleared in `case .none:` of `updateReceivedToken`.
     private var isDestinationTokenClearing = false
-    /// Set when destination token is first selected; cleared after the first `.success` amount triggers reverse calculation.
-    private var pendingFirstSelectionRecalculation = false
+    /// When true, the next `.success` on the receive amount publisher triggers a reverse
+    /// calculation so FROM is recalculated at the fixed rate. Set on destination token change.
+    private var pendingReverseRecalculation = false
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
@@ -375,7 +376,7 @@ extension SendAmountViewModel {
         switch destinationToken {
         case .none:
             isDestinationTokenClearing = false
-            pendingFirstSelectionRecalculation = false
+            pendingReverseRecalculation = false
             destinationTokenViewType = .selectButton
             currentDestinationToken = nil
             compactDestinationSubtitle = nil
@@ -394,6 +395,14 @@ extension SendAmountViewModel {
                 // NOT on every amount update. This prevents view re-creation that
                 // clears @FocusState during the focus-claim window.
                 if tokenDidChange {
+                    if !isFirstSelection {
+                        field.reconfigure(
+                            tokenItem: destinationToken.tokenItem,
+                            fiatItem: destinationToken.fiatItem,
+                            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+                        )
+                        field.cryptoIconURL = destinationTokenIconInfo.imageURL
+                    }
                     let expandedDestinationData = SendAmountTokenViewData(
                         tokenIconInfo: destinationTokenIconInfo,
                         title: destinationToken.tokenItem.name,
@@ -428,13 +437,18 @@ extension SendAmountViewModel {
 
                     if isFirstSelection {
                         activeField = .receive
-                        pendingFirstSelectionRecalculation = true
+                        pendingReverseRecalculation = true
 
                         // Delay until the token-picker sheet finishes dismissing,
                         // then trigger the view's `.onChange` to claim focus.
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                             self?.pendingFocusField = .receive
                         }
+                    } else if lastUpdateSource == .receive {
+                        // Token changed while user was editing TO — trigger reverse
+                        // calculation with the user's current field value once the
+                        // pair-change quote completes
+                        pendingReverseRecalculation = true
                     }
                 }
 
@@ -443,7 +457,18 @@ extension SendAmountViewModel {
 
                 // Update destination fields from external amount
                 if case .success(let sendAmount) = amount {
-                    if lastUpdateSource == .receive {
+                    if pendingReverseRecalculation {
+                        pendingReverseRecalculation = false
+                        lastUpdateSource = .receive
+
+                        // If the field is empty (first selection), populate from the forward quote
+                        if field.cryptoTextFieldViewModel.value == nil {
+                            field.updateAmountsUI(amount: sendAmount)
+                        }
+
+                        let receiveValue = field.cryptoTextFieldViewModel.value
+                        _ = interactor.update(receiveAmount: receiveValue)
+                    } else if lastUpdateSource == .receive {
                         // When the user edited the destination (To) field, only update fiat/alternative
                         // to avoid overwriting the crypto value the user typed
                         field.updateFromExternalAmount(sendAmount, tokenItem: destinationToken.tokenItem)
@@ -451,14 +476,6 @@ extension SendAmountViewModel {
                         // When the user edited the source (From) field or on initial load,
                         // fully update the destination field including the crypto value from the quote
                         field.updateAmountsUI(amount: sendAmount)
-
-                        // On first selection, switch to "receive-driven" mode and trigger
-                        // reverse calculation so FROM is recalculated at the fixed rate
-                        if pendingFirstSelectionRecalculation {
-                            pendingFirstSelectionRecalculation = false
-                            lastUpdateSource = .receive
-                            _ = interactor.update(receiveAmount: sendAmount.crypto)
-                        }
                     }
                 }
 
