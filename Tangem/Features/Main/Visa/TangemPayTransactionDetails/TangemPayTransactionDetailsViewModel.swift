@@ -8,6 +8,7 @@
 
 import Combine
 import TangemUI
+import TangemFoundation
 import TangemLocalization
 
 final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
@@ -27,13 +28,13 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     // MARK: - Dependencies
 
     private let transaction: TangemPayTransactionRecord
-    private let userWalletId: String
+    private let userWalletId: UserWalletId
     private let customerId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     init(
         transaction: TangemPayTransactionRecord,
-        userWalletId: String,
+        userWalletId: UserWalletId,
         customerId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
@@ -70,7 +71,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
-        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked, contextParams: .userWallet(userWalletId))
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default
@@ -78,7 +79,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         let dataCollector = TangemPaySupportDataCollector(
             source: .transactionDetails(transaction),
-            userWalletId: userWalletId,
+            userWalletId: userWalletId.stringValue,
             customerId: customerId
         )
 

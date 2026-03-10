@@ -49,7 +49,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenChangePinScreenShown)
+        Analytics.log(.visaScreenChangePinScreenShown, contextParams: .userWallet(tangemPayAccount.userWalletId))
     }
 
     func close() {
@@ -66,7 +66,8 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func submit() {
-        Analytics.log(.visaScreenChangePinSubmitClicked)
+        let userWalletId = tangemPayAccount.userWalletId
+        Analytics.log(.visaScreenChangePinSubmitClicked, contextParams: .userWallet(userWalletId))
         isLoading = true
 
         runTask(in: self) { [pin] viewModel in
@@ -85,7 +86,10 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                     viewModel.isLoading = false
                     switch response.result {
                     case .success:
-                        Analytics.log(.visaScreenChangePinSuccessShown)
+                        Analytics.log(
+                            .visaScreenChangePinSuccessShown,
+                            contextParams: .userWallet(userWalletId)
+                        )
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
