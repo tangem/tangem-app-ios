@@ -43,7 +43,8 @@ extension CommonSendApproveViewModelInputDataBuilder: SendApproveViewModelInputD
             feeFooterText: Localization.swapGivePermissionFeeFooter,
             tokenItem: sourceToken.tokenItem,
             selectedPolicy: selectedPolicy,
-            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
+            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: sourceToken.userWalletInfo)
         )
 
         let feeFormatter = CommonFeeFormatter()
