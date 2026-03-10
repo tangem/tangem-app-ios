@@ -8,7 +8,11 @@
 
 import TangemExpress
 
-struct CommonSendSwapableTokenFactory {
+protocol SendSwapableTokenFactory {
+    func makeSwapableToken() -> SendSwapableToken
+}
+
+struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
     let operationType: ExpressOperationType

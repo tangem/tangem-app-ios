@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import stellarsdk
 
 struct StellarAddressResolver {
     private let networkService: StellarNetworkService
@@ -22,7 +23,12 @@ extension StellarAddressResolver: AddressResolver {
     func requiresResolution(address: String) -> Bool { true }
 
     func resolve(_ address: String) async throws -> AddressResolverResult {
-        let requiresDestinationTag = try await networkService.checkIsMemoRequired(for: address).async()
-        return AddressResolverResult(resolved: address, requiresDestinationTag: requiresDestinationTag)
+        do {
+            let requiresDestinationTag = try await networkService.checkIsMemoRequired(for: address).async()
+            return AddressResolverResult(resolved: address, requiresDestinationTag: requiresDestinationTag)
+        } catch HorizonRequestError.notFound {
+            // If the destination account is not created, we can't check that a memo is required
+            return AddressResolverResult(resolved: address, requiresDestinationTag: false)
+        }
     }
 }
