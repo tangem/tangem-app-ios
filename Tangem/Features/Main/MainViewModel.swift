@@ -148,7 +148,6 @@ final class MainViewModel: ObservableObject {
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
         // being placed over the authorization screen.
-        // This is a workaround until [REDACTED_INFO] is implemented.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
@@ -606,7 +605,6 @@ private extension MainViewModel {
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 0.5
-        // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }
