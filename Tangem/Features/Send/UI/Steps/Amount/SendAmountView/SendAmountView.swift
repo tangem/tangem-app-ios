@@ -27,23 +27,10 @@ struct SendAmountView: View {
         }
         .animation(viewModel.animateActiveFieldChange ? .easeInOut(duration: 0.45) : nil, value: viewModel.activeField)
         .animation(viewModel.animateDestinationRemoval ? .easeInOut(duration: 0.45) : nil, value: viewModel.destinationTokenViewType?.isAmountEditable ?? false)
-        .onChange(of: viewModel.activeField) { activeField in
-            // On first destination entry animateActiveFieldChange is `false`.
-            // Skip focus update — the delayed pendingFocusField
-            // trigger will claim focus once the TextField is in the hierarchy.
-            let isFirstDestinationEntry = !viewModel.animateActiveFieldChange
-            viewModel.animateActiveFieldChange = true
-
-            guard !isFirstDestinationEntry else { return }
-            updateInputFocus(for: activeField)
-        }
         .onChange(of: viewModel.pendingFocusField) { field in
             guard let field else { return }
             viewModel.pendingFocusField = nil
             focusedField = focusTarget(for: field)
-        }
-        .onChange(of: viewModel.destinationTokenViewType?.isAmountEditable ?? false) { _ in
-            viewModel.animateDestinationRemoval = false
         }
         .onAppear(perform: viewModel.onAppear)
     }
@@ -186,11 +173,6 @@ struct SendAmountView: View {
         case .receive:
             return viewModel.useDestinationFiatCalculation ? .destinationFiat : .destinationCrypto
         }
-    }
-
-    private func updateInputFocus(for activeField: ActiveAmountField) {
-        guard viewModel.destinationTokenViewType?.isAmountEditable == true else { return }
-        focusedField = focusTarget(for: activeField)
     }
 }
 
