@@ -572,8 +572,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
         switch (sourceFlow, flow, type) {
-        case (.sendAndSwap, .send, .action),
-             (.sendAndSwap, .send, .holdAction):
+        case (.sendAndSwap, .send, .action):
             guard let sourceTokenItem else {
                 return
             }
