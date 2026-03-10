@@ -4701,6 +4701,9 @@
 		EFAF8A942E86E521009C3CF9 /* OnrampFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF8A932E86E521009C3CF9 /* OnrampFlowFactory.swift */; };
 		EFAF8A992E86F17D009C3CF9 /* OnrampFlowBaseDependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF8A982E86F17D009C3CF9 /* OnrampFlowBaseDependenciesFactory.swift */; };
 		EFAFC55B2F608CCF00BD42C4 /* SendReceiveTokenFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAFC55A2F608CCF00BD42C4 /* SendReceiveTokenFilter.swift */; };
+		EFAFC4EB2F60609800BD42C4 /* Wallet+AddressesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAFC4EA2F60609800BD42C4 /* Wallet+AddressesProvider.swift */; };
+		EFAFC4ED2F60622300BD42C4 /* CommonAddressesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAFC4EC2F60622300BD42C4 /* CommonAddressesProvider.swift */; };
+		EFAFC4F02F60663600BD42C4 /* EmptyAddressesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAFC4EF2F60663600BD42C4 /* EmptyAddressesProvider.swift */; };
 		EFB0193F2C4160D7009EE857 /* StakeKitDTO+Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB0193E2C4160D7009EE857 /* StakeKitDTO+Transaction.swift */; };
 		EFB019412C4160EF009EE857 /* StakeKitDTO+Balances.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB019402C4160EF009EE857 /* StakeKitDTO+Balances.swift */; };
 		EFB019432C41710F009EE857 /* StakingBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB019422C41710F009EE857 /* StakingBalanceInfo.swift */; };
@@ -9779,6 +9782,9 @@
 		EFAF8A932E86E521009C3CF9 /* OnrampFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampFlowFactory.swift; sourceTree = "<group>"; };
 		EFAF8A982E86F17D009C3CF9 /* OnrampFlowBaseDependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampFlowBaseDependenciesFactory.swift; sourceTree = "<group>"; };
 		EFAFC55A2F608CCF00BD42C4 /* SendReceiveTokenFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenFilter.swift; sourceTree = "<group>"; };
+		EFAFC4EA2F60609800BD42C4 /* Wallet+AddressesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet+AddressesProvider.swift"; sourceTree = "<group>"; };
+		EFAFC4EC2F60622300BD42C4 /* CommonAddressesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAddressesProvider.swift; sourceTree = "<group>"; };
+		EFAFC4EF2F60663600BD42C4 /* EmptyAddressesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyAddressesProvider.swift; sourceTree = "<group>"; };
 		EFB0193E2C4160D7009EE857 /* StakeKitDTO+Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Transaction.swift"; sourceTree = "<group>"; };
 		EFB019402C4160EF009EE857 /* StakeKitDTO+Balances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Balances.swift"; sourceTree = "<group>"; };
 		EFB019422C41710F009EE857 /* StakingBalanceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceInfo.swift; sourceTree = "<group>"; };
@@ -18235,11 +18241,10 @@
 				B62D3F6C2CBC79D900C2460E /* TransactionSendResult.swift */,
 				B62D3F6D2CBC79D900C2460E /* UnixTimestamp.swift */,
 				0AC8489B2ED0A6EB001A2884 /* UnsignedTransactionData.swift */,
-				B62D3F6E2CBC79D900C2460E /* Wallet.swift */,
-				B62D3F6F2CBC79D900C2460E /* Wallet+PublicKey.swift */,
 				B62D3F702CBC79D900C2460E /* WalletCoreAddressService.swift */,
 				B62D3F732CBC79D900C2460E /* WalletManagerAssembly.swift */,
 				EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */,
+				EFAFC4E92F60575700BD42C4 /* Wallet */,
 				B62D3ECA2CBC79D900C2460E /* Account */,
 				B62D3ED02CBC79D900C2460E /* Address */,
 				B62D3EE62CBC79D900C2460E /* API */,
@@ -26429,6 +26434,26 @@
 			path = Flows;
 			sourceTree = "<group>";
 		};
+		EFAFC4E92F60575700BD42C4 /* Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				B62D3F6E2CBC79D900C2460E /* Wallet.swift */,
+				B62D3F6F2CBC79D900C2460E /* Wallet+PublicKey.swift */,
+				EFAFC4EE2F60622B00BD42C4 /* AddressesProvider */,
+			);
+			path = Wallet;
+			sourceTree = "<group>";
+		};
+		EFAFC4EE2F60622B00BD42C4 /* AddressesProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFAFC4EA2F60609800BD42C4 /* Wallet+AddressesProvider.swift */,
+				EFAFC4EC2F60622300BD42C4 /* CommonAddressesProvider.swift */,
+				EFAFC4EF2F60663600BD42C4 /* EmptyAddressesProvider.swift */,
+			);
+			path = AddressesProvider;
+			sourceTree = "<group>";
+		};
 		EFB150572BD6B29E0023B128 /* UserWalletSettings */ = {
 			isa = PBXGroup;
 			children = (
@@ -31972,6 +31997,7 @@
 				B62D41482CBC79DA00C2460E /* NEARTransactionBuilder.swift in Sources */,
 				B62D41642CBC79DA00C2460E /* PolkadotNetwork.swift in Sources */,
 				B62D40A12CBC79DA00C2460E /* AreonExternalLinkProvider.swift in Sources */,
+				EFAFC4F02F60663600BD42C4 /* EmptyAddressesProvider.swift in Sources */,
 				B62D41382CBC79DA00C2460E /* NEARNetworkResult.AccessKeyInfo.swift in Sources */,
 				B62D40202CBC79DA00C2460E /* OP_TUCK.swift in Sources */,
 				B62D42452CBC79DB00C2460E /* APIKeysInfoProvider.swift in Sources */,
@@ -32094,6 +32120,7 @@
 				B62D40EC2CBC79DA00C2460E /* HederaTransactionIdConverter.swift in Sources */,
 				B62D405F2CBC79DA00C2460E /* ChiaExternalLinkProvider.swift in Sources */,
 				B62D3FC02CBC79DA00C2460E /* BitcoinAddressService.swift in Sources */,
+				EFAFC4ED2F60622300BD42C4 /* CommonAddressesProvider.swift in Sources */,
 				B62D3FFC2CBC79DA00C2460E /* OP_VERIFY.swift in Sources */,
 				B62D40CC2CBC79DA00C2460E /* EthereumOptimisticRollupWalletAssembly.swift in Sources */,
 				EF7E9CA52D9D39E6003A4AA9 /* KaspaUnspentOutputManager.swift in Sources */,
@@ -32449,6 +32476,7 @@
 				B62D42682CBC79DB00C2460E /* WithdrawalNotificationProvider.swift in Sources */,
 				0A9AB28F2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift in Sources */,
 				B62D412E2CBC79DA00C2460E /* NEARAccountInfo.swift in Sources */,
+				EFAFC4EB2F60609800BD42C4 /* Wallet+AddressesProvider.swift in Sources */,
 				B62D426A2CBC79DB00C2460E /* DustRestrictable.swift in Sources */,
 				B62D41112CBC79DA00C2460E /* KoinosTransactionParams.swift in Sources */,
 				A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */,
