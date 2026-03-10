@@ -70,13 +70,11 @@ struct ExpressApproveView: View {
 
     private var buttons: some View {
         VStack(spacing: 10) {
-            MainButton(
-                title: Localization.commonApprove,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-                isLoading: viewModel.isLoading,
-                isDisabled: viewModel.mainButtonIsDisabled,
-                action: viewModel.didTapApprove
-            )
+            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                holdToApproveButton
+            } else {
+                approveButton
+            }
 
             MainButton(
                 title: Localization.commonCancel,
@@ -86,5 +84,24 @@ struct ExpressApproveView: View {
         }
         // This fix for text's font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
+    }
+
+    private var approveButton: some View {
+        MainButton(
+            title: Localization.commonApprove,
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
+            isLoading: viewModel.isLoading,
+            isDisabled: viewModel.mainButtonIsDisabled,
+            action: viewModel.didTapApprove
+        )
+    }
+
+    private var holdToApproveButton: some View {
+        HoldToConfirmButton(
+            title: Localization.commonApprove,
+            isLoading: viewModel.isLoading,
+            isDisabled: viewModel.mainButtonIsDisabled,
+            action: viewModel.didTapApprove
+        )
     }
 }
