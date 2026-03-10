@@ -95,7 +95,7 @@ final class PromocodeActivationViewModel: ObservableObject {
             }
         }
 
-        guard let walletModel = walletModels.first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) }) else {
+        guard let walletModel = walletModels.first(where: { $0.tokenItem.blockchain.isBitcoin }) else {
             throw PromocodeActivationError.noAddress
         }
 
