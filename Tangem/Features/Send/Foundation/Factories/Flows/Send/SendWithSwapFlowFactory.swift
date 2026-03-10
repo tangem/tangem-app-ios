@@ -134,6 +134,9 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         destination.step.set(stepRouter: stepsManager)
         summary.set(router: stepsManager)
 
+        transferModel.router = viewModel
+        sendWithSwapModel.alertPresenter = viewModel
+
         sendWithSwapModel.router = viewModel
         sendWithSwapModel.alertPresenter = viewModel
 
