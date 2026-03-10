@@ -62,7 +62,8 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
             if items.count > 1 {
                 TangemPagination(
                     totalPages: items.count,
-                    currentIndex: safeCurrentIndex
+                    currentIndex: safeCurrentIndex,
+                    hasBackground: true
                 )
             }
         }
