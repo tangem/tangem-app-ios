@@ -13,6 +13,7 @@ protocol SwapSummaryInput: AnyObject {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
+    var isActionInProcessing: AnyPublisher<Bool, Never> { get }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> { get }
 }
