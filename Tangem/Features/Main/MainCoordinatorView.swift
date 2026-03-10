@@ -92,6 +92,9 @@ struct MainCoordinatorView: CoordinatorView {
             ) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
+            .fullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
+                MainQRScanFlowCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }

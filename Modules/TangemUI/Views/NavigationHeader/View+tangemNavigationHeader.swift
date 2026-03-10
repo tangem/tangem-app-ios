@@ -12,16 +12,24 @@ public extension View {
     /// Adds a navigation header with Tangem icon on the left and a menu button on the right.
     /// Uses variable blur effect that fades from top (iOS < 26 only, as iOS 26+ uses native scrollEdgeEffect).
     func tangemNavigationHeader(
+        secondaryTrailingAction: (() -> Void)? = nil,
         trailingAction: @escaping () -> Void,
         accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers
     ) -> some View {
-        modifier(TangemNavigationHeaderModifier(trailingAction: trailingAction, accessibilityIdentifiers: accessibilityIdentifiers))
+        modifier(
+            TangemNavigationHeaderModifier(
+                secondaryTrailingAction: secondaryTrailingAction,
+                trailingAction: trailingAction,
+                accessibilityIdentifiers: accessibilityIdentifiers
+            )
+        )
     }
 }
 
 // MARK: - Modifier
 
 private struct TangemNavigationHeaderModifier: ViewModifier {
+    let secondaryTrailingAction: (() -> Void)?
     let trailingAction: () -> Void
     let accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers
 
@@ -29,7 +37,11 @@ private struct TangemNavigationHeaderModifier: ViewModifier {
         content
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top) {
-                TangemNavigationHeader(trailingAction: trailingAction, accessibilityIdentifiers: accessibilityIdentifiers)
+                TangemNavigationHeader(
+                    secondaryTrailingAction: secondaryTrailingAction,
+                    trailingAction: trailingAction,
+                    accessibilityIdentifiers: accessibilityIdentifiers
+                )
             }
     }
 }

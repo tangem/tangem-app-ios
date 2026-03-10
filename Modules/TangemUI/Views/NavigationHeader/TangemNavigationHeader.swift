@@ -12,13 +12,16 @@ import TangemUIUtils
 import BlurSwiftUI
 
 public struct TangemNavigationHeader: View {
+    private let secondaryTrailingAction: (() -> Void)?
     private let trailingAction: () -> Void
     private let accessibilityIdentifiers: AccessibilityIdentifiers
 
     public init(
+        secondaryTrailingAction: (() -> Void)? = nil,
         trailingAction: @escaping () -> Void,
         accessibilityIdentifiers: AccessibilityIdentifiers
     ) {
+        self.secondaryTrailingAction = secondaryTrailingAction
         self.trailingAction = trailingAction
         self.accessibilityIdentifiers = accessibilityIdentifiers
     }
@@ -55,12 +58,31 @@ public struct TangemNavigationHeader: View {
     }
 
     private var trailingMenuButton: some View {
-        TangemButton(content: .icon(Assets.horizontalDots), action: trailingAction)
-            .setCornerStyle(.rounded)
-            .setStyleType(.secondary)
-            .setSize(.x10)
-            .accessibility(label: Text(accessibilityIdentifiers.trailingButtonLabel))
-            .accessibilityIdentifier(accessibilityIdentifiers.trailingButton)
+        HStack(spacing: 8) {
+            if let secondaryTrailingAction {
+                if let secondaryTrailingButton = accessibilityIdentifiers.secondaryTrailingButton,
+                   let secondaryTrailingButtonLabel = accessibilityIdentifiers.secondaryTrailingButtonLabel {
+                    TangemButton(content: .icon(Assets.Glyphs.scanQrIcon), action: secondaryTrailingAction)
+                        .setCornerStyle(.rounded)
+                        .setStyleType(.secondary)
+                        .setSize(.x10)
+                        .accessibility(label: Text(secondaryTrailingButtonLabel))
+                        .accessibilityIdentifier(secondaryTrailingButton)
+                } else {
+                    TangemButton(content: .icon(Assets.Glyphs.scanQrIcon), action: secondaryTrailingAction)
+                        .setCornerStyle(.rounded)
+                        .setStyleType(.secondary)
+                        .setSize(.x10)
+                }
+            }
+
+            TangemButton(content: .icon(Assets.horizontalDots), action: trailingAction)
+                .setCornerStyle(.rounded)
+                .setStyleType(.secondary)
+                .setSize(.x10)
+                .accessibility(label: Text(accessibilityIdentifiers.trailingButtonLabel))
+                .accessibilityIdentifier(accessibilityIdentifiers.trailingButton)
+        }
     }
 }
 
@@ -70,13 +92,19 @@ public extension TangemNavigationHeader {
     struct AccessibilityIdentifiers {
         public let trailingButton: String
         public let trailingButtonLabel: String
+        public let secondaryTrailingButton: String?
+        public let secondaryTrailingButtonLabel: String?
 
         public init(
             trailingButton: String,
-            trailingButtonLabel: String
+            trailingButtonLabel: String,
+            secondaryTrailingButton: String? = nil,
+            secondaryTrailingButtonLabel: String? = nil
         ) {
             self.trailingButton = trailingButton
             self.trailingButtonLabel = trailingButtonLabel
+            self.secondaryTrailingButton = secondaryTrailingButton
+            self.secondaryTrailingButtonLabel = secondaryTrailingButtonLabel
         }
     }
 }
