@@ -43,14 +43,14 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     let colors: [GridItemColor] = AccountModel.Icon.Color
-        .allCases
+        .cryptoAccountColors
         .map { iconColor in
             let color = AccountModelUtils.UI.iconColor(from: iconColor)
 
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name.allCases
+    let images: [GridItemImage] = AccountModel.Icon.Name.cryptoAccountIcons
         .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
@@ -113,9 +113,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             iconName = account.icon.name
             accountName = account.name
         case .create:
-            let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
-            iconColor = newAccountIcon.color
-            iconName = newAccountIcon.name
+            let newIcon = AccountModelUtils.UI.newAccountIcon()
+            iconColor = newIcon.color
+            iconName = newIcon.name
             accountName = ""
         }
 
@@ -455,6 +455,11 @@ private extension AccountFormViewModel {
 
         func resolve(accountModel: any CryptoAccountModel) -> Result {
             accountModel.descriptionString
+        }
+
+        /// TangemPay accounts don't have an editable description
+        func resolve(accountModel: any TangemPayAccountModel) -> String? {
+            nil
         }
     }
 }

@@ -94,9 +94,11 @@ private extension AccountsAwareActionButtonsBuyViewModel {
 
 extension AccountsAwareActionButtonsBuyViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
-        ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
+        guard let walletModel = item.kind.walletModel else {
+            return
+        }
 
-        let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
+        let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
         coordinator?.openOnramp(input: sendInput, parameters: .none)
     }
 }
