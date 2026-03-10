@@ -15,6 +15,7 @@ protocol SwapSummaryInteractor: AnyObject {
     var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> { get }
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
+    var isActionInProcessing: AnyPublisher<Bool, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
     func userDidRequestMaxAmount()
@@ -80,6 +81,15 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         }
 
         return input.isUpdatingPublisher
+    }
+
+    var isActionInProcessing: AnyPublisher<Bool, Never> {
+        guard let input else {
+            assertionFailure("SendSummaryInput is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.isActionInProcessing
     }
 
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
