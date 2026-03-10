@@ -121,6 +121,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
         self.isFixedRateMode = isFixedRateMode
+        sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
             .sink { [weak self] in self?.objectWillChange.send() }
