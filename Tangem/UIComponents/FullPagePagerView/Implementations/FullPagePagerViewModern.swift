@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemUIUtils
 
 /// iOS 17+ implementation using native ScrollView paging with `.scrollTargetBehavior(.paging)`.
@@ -32,9 +33,11 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     @Binding private var selectedIndex: Int
     @State private var scrolledID: Data.Element.ID?
     @State private var scrollOffset: CGFloat = 0
+    @State private var pageWidth: CGFloat = 0
 
     // MARK: - Configuration
 
+    private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
@@ -46,6 +49,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         data: Data,
         selectedIndex: Binding<Int>,
         isScrollDisabled: Bool,
+        viewportHeight: CGFloat,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
@@ -53,27 +57,28 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         self.data = data
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
+        self.viewportHeight = viewportHeight
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
+
+        let index = selectedIndex.wrappedValue
+        let initialID = data.indices.contains(index) ? data[index].id : data.first?.id
+        _scrolledID = State(initialValue: initialID)
     }
 
     // MARK: - Body
 
     var body: some View {
-        GeometryReader { geometry in
-            let pageWidth = geometry.size.width
+        VStack(spacing: 0) {
+            headerScrollView(pageWidth: pageWidth)
 
-            VStack(spacing: 0) {
-                headerScrollView(pageWidth: pageWidth)
-                bodyOffsetView(pageWidth: pageWidth)
-            }
-            .onAppear {
-                updateScrolledID(from: selectedIndex)
-            }
-            .onChange(of: selectedIndex) { _, newIndex in
-                updateScrolledID(from: newIndex)
-            }
+            bodyOffsetView(pageWidth: pageWidth)
+                .frame(minHeight: viewportHeight)
+        }
+        .readGeometry(\.size.width) { pageWidth = $0 }
+        .onChange(of: selectedIndex) { _, newIndex in
+            updateScrolledID(from: newIndex)
         }
     }
 
@@ -82,8 +87,14 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     private func headerScrollView(pageWidth: CGFloat) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
-                ForEach(data) { element in
+                ForEach(indexed: data.indexed()) { index, element in
+                    let pagePosition = CGFloat(index) * pageWidth
+                    let distance = abs(scrollOffset - pagePosition)
+                    let stationaryOpacity = max(0, 1 - distance / pageWidth)
+
                     headerFactory(element)
+                        .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)
+                        .environment(\.pagerStationaryOpacity, stationaryOpacity)
                         .frame(width: pageWidth)
                         .id(element.id)
                 }
