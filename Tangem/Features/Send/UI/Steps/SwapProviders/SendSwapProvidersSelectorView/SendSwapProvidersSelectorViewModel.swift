@@ -135,7 +135,6 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
-            isDisabled: state.quote == nil,
             badge: badge,
             subtitles: subtitles
         )
