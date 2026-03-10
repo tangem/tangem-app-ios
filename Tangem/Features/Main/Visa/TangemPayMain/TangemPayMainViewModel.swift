@@ -293,7 +293,8 @@ final class TangemPayMainViewModel: ObservableObject {
             params: [
                 .status: transaction.record.analyticsStatus,
                 .type: transaction.transactionType.rawValue,
-            ]
+            ],
+            contextParams: .userWallet(userWalletInfo.id)
         )
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
