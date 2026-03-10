@@ -157,26 +157,31 @@ struct SendView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         if let mainButtonType = viewModel.bottomBarSettings.action {
-            Group {
-                if mainButtonType == .holdAction {
-                    bottomHoldAction(mainButtonType)
-                } else {
-                    bottomAction(mainButtonType)
-                }
-            }
-            .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
-            .padding(.bottom, 14)
-            .padding(.horizontal, 16)
+            bottomActionButton(mainButtonType)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
+                .padding(.bottom, 14)
+                .padding(.horizontal, 16)
         }
     }
 
-    private func bottomAction(_ mainButtonType: SendMainButtonType) -> some View {
+    @ViewBuilder
+    private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
+        if viewModel.mainButtonUpdating {
+            bottomAction(type: mainButtonType, isLoading: true)
+        } else if viewModel.needsHoldAction(mainButtonType: mainButtonType) {
+            bottomHoldAction(mainButtonType)
+        } else {
+            bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
+        }
+    }
+
+    private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
             title: mainButtonType.title(action: viewModel.flowActionType),
             icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
             style: .primary,
             size: .default,
-            isLoading: viewModel.mainButtonLoading,
+            isLoading: isLoading,
             isDisabled: !viewModel.actionIsAvailable,
             action: {
                 viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
