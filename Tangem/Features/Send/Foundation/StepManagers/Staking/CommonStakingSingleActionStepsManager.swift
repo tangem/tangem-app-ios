@@ -93,7 +93,7 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .summary: .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
+        case .summary: .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: .init(action: .close)
         default: .empty
         }
