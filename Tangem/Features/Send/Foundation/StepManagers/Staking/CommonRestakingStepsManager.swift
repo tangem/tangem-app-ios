@@ -105,7 +105,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .targets where isEditAction: return .init(action: .continue)
         case .targets: return .init(action: .next)
-        case .summary: return .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
+        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: return .init(action: .close)
         default: return .empty
         }
