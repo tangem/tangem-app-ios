@@ -203,7 +203,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             // Trigger rate recalculation for the tapped field
             switch tappedField {
             case .send:
-                let amount = try? interactor.update(sendAmount: currentValue)
+                let amount = try? interactor.update(sourceAmount: currentValue)
                 sourceAmountField.updateAmountsUI(amount: amount)
             case .receive:
                 let amount = interactor.update(receiveAmount: currentValue)
@@ -311,7 +311,7 @@ private extension SendAmountViewModel {
 
     func textFieldValueDidChanged(amount: Decimal?) {
         lastUpdateSource = .send
-        let amount = try? interactor.update(sendAmount: amount)
+        let amount = try? interactor.update(sourceAmount: amount)
         sourceAmountField.updateAlternativeUI(amount: amount)
 
         if amount == nil {
@@ -330,7 +330,7 @@ private extension SendAmountViewModel {
     }
 
     func update(amountType: SendAmountCalculationType) {
-        let amount = try? interactor.update(type: amountType)
+        let amount = try? interactor.update(sourceType: amountType)
         sourceAmountField.updateAmountsUI(amount: amount)
     }
 }
