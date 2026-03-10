@@ -40,6 +40,8 @@ extension AccountModelUtils {
                 return Colors.Accounts.ufoGreen
             case .vitalGreen:
                 return Colors.Accounts.vitalGreen
+            case .clear:
+                return .clear
             }
         }
 
@@ -81,13 +83,15 @@ extension AccountModelUtils {
                 return Assets.Accounts.user
             case .wallet:
                 return Assets.Accounts.walletAccounts
+            case .tangemPay:
+                return Assets.Visa.accountAvatar
             }
         }
 
         static func newAccountIcon() -> AccountModel.Icon {
-            let iconColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+            let iconColor = AccountModel.Icon.Color.cryptoAccountColors.randomElement() ?? .azure
 
-            var allIconNames = AccountModel.Icon.Name.allCases.toSet()
+            var allIconNames = AccountModel.Icon.Name.cryptoAccountIcons.toSet()
             allIconNames.remove(.letter)
             allIconNames.remove(.star)
             let iconName = allIconNames.randomElement() ?? .wallet
