@@ -4,6 +4,8 @@ import MetalKit
 struct NorthernLightsView: UIViewRepresentable {
     let backgroundColor: Color
 
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeUIView(context: Context) -> MTKView {
         guard let device = MTLCreateSystemDefaultDevice(),
               let renderer = try? NorthernLightsRenderer(device: device) else {
@@ -14,14 +16,16 @@ struct NorthernLightsView: UIViewRepresentable {
         let mtkView = MTKView(frame: .zero, device: device)
         mtkView.colorPixelFormat = .bgra8Unorm
         mtkView.delegate = renderer
+        mtkView.contentScaleFactor = 0.5
+        mtkView.preferredFramesPerSecond = 30
+
         context.coordinator.renderer = renderer
-        renderer.backgroundColor = UIColor(backgroundColor)
 
         return mtkView
     }
 
     func updateUIView(_ mtkView: MTKView, context: Context) {
-        context.coordinator.renderer?.backgroundColor = UIColor(backgroundColor)
+        context.coordinator.renderer?.backgroundRGB = UIColor(backgroundColor).resolvedRGB(in: mtkView.traitCollection)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -32,10 +36,11 @@ struct NorthernLightsView: UIViewRepresentable {
 }
 
 final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
+    var backgroundRGB: RGB = .zero
+
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
 
-    var backgroundColor: UIColor = .clear
     private var startTime = CACurrentMediaTime()
 
     init(device: MTLDevice) throws {
@@ -67,7 +72,6 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
         }
 
         let elapsed = Float(CACurrentMediaTime() - startTime)
-        let bgRGB = backgroundColor.resolvedRGB(in: view.traitCollection)
 
         var uniforms = Uniforms(
             uTime: elapsed,
@@ -76,7 +80,7 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
             uColor1: NorthernLightsColors.track2.evaluate(at: elapsed),
             uColor2: NorthernLightsColors.track3.evaluate(at: elapsed),
             uColor3: NorthernLightsColors.track4.evaluate(at: elapsed),
-            uColor4: bgRGB
+            uColor4: backgroundRGB
         )
 
         guard let commandBuffer = commandQueue.makeCommandBuffer(),
