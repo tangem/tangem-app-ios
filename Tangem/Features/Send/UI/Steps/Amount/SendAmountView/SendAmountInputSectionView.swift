@@ -1,5 +1,5 @@
 //
-//  SendAmountAccordionSectionView.swift
+//  SendAmountInputSectionView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemAssets
 import TangemFoundation
 import TangemUI
 
-struct SendAmountAccordionSectionView<ExpandedContent: View>: View {
+struct SendAmountInputSectionView<ExpandedContent: View>: View {
     let isExpanded: Bool
     let isLocked: Bool
     let expandedTokenData: SendAmountTokenViewData?

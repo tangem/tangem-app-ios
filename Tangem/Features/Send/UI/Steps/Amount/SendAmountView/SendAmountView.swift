@@ -20,34 +20,30 @@ struct SendAmountView: View {
     @FocusState private var focusedField: FocusedField?
     @State private var convertButtonSize: CGSize = .zero
 
-    private let scrollViewSpacing: CGFloat = 8
-    /// Matches AccountIconView.Settings.smallSized total height (10pt icon + 4pt × 2 padding)
-    private let accordionHeaderMinHeight: CGFloat = 18
-
     var body: some View {
-        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: Constants.scrollViewSpacing)) {
             sourceSection
             destinationSection
         }
         .animation(viewModel.animateActiveFieldChange ? .easeInOut(duration: 0.45) : nil, value: viewModel.activeField)
-        .animation(viewModel.animateAccordionExit ? .easeInOut(duration: 0.45) : nil, value: viewModel.destinationTokenViewType?.isAccordion ?? false)
+        .animation(viewModel.animateDestinationRemoval ? .easeInOut(duration: 0.45) : nil, value: viewModel.destinationTokenViewType?.isAmountEditable ?? false)
         .onChange(of: viewModel.activeField) { activeField in
-            // On first accordion entry animateActiveFieldChange is `false`.
-            // Skip updateAccordionFocus — the delayed pendingFocusField
+            // On first destination entry animateActiveFieldChange is `false`.
+            // Skip focus update — the delayed pendingFocusField
             // trigger will claim focus once the TextField is in the hierarchy.
-            let isFirstAccordionEntry = !viewModel.animateActiveFieldChange
+            let isFirstDestinationEntry = !viewModel.animateActiveFieldChange
             viewModel.animateActiveFieldChange = true
 
-            guard !isFirstAccordionEntry else { return }
-            updateAccordionFocus(for: activeField)
+            guard !isFirstDestinationEntry else { return }
+            updateInputFocus(for: activeField)
         }
         .onChange(of: viewModel.pendingFocusField) { field in
             guard let field else { return }
             viewModel.pendingFocusField = nil
             focusedField = focusTarget(for: field)
         }
-        .onChange(of: viewModel.destinationTokenViewType?.isAccordion ?? false) { _ in
-            viewModel.animateAccordionExit = false
+        .onChange(of: viewModel.destinationTokenViewType?.isAmountEditable ?? false) { _ in
+            viewModel.animateDestinationRemoval = false
         }
         .onAppear(perform: viewModel.onAppear)
     }
@@ -55,31 +51,31 @@ struct SendAmountView: View {
     // MARK: - Source
 
     private var sourceSection: some View {
-        let isAccordion = viewModel.destinationTokenViewType?.isAccordion ?? false
+        let isAmountEditable = viewModel.destinationTokenViewType?.isAmountEditable ?? false
 
-        return SendAmountAccordionSectionView(
-            isExpanded: isAccordion ? viewModel.activeField == .send : true,
-            isLocked: isAccordion ? viewModel.isAccordionSwitchingLocked : true,
+        return SendAmountInputSectionView(
+            isExpanded: isAmountEditable ? viewModel.activeField == .send : true,
+            isLocked: isAmountEditable ? viewModel.isInputFieldSwitchingLocked : true,
             expandedTokenData: viewModel.sourceAmountTokenViewData,
-            compactTokenData: isAccordion ? viewModel.compactSourceTokenViewData : nil,
+            compactTokenData: isAmountEditable ? viewModel.compactSourceTokenViewData : nil,
             onTapCompact: { viewModel.userDidTapCompactField(.send) }
         ) {
             sourceHeaderWithInput
         }
         .overlay(alignment: .bottom) {
-            if isAccordion {
+            if isAmountEditable {
                 convertButton
-                    .offset(y: convertButtonSize.height / 2 + scrollViewSpacing / 2)
+                    .offset(y: convertButtonSize.height / 2 + Constants.scrollViewSpacing / 2)
             }
         }
-        .zIndex(isAccordion ? 1 : 0)
+        .zIndex(isAmountEditable ? 1 : 0)
     }
 
     private var sourceHeaderWithInput: some View {
         VStack(alignment: .center, spacing: 12) {
             if let header = viewModel.tokenHeader {
                 SendTokenHeaderView(header: header)
-                    .frame(minHeight: accordionHeaderMinHeight)
+                    .frame(minHeight: Constants.headerMinHeight)
             }
 
             sourceAmountInputView
@@ -123,13 +119,13 @@ struct SendAmountView: View {
                 .innerContentPadding(0)
 
                 convertButton
-                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                    .offset(y: -(convertButtonSize.height + Constants.scrollViewSpacing) / 2)
             }
 
-        case .accordion(let expandedDestinationData, _):
-            SendAmountAccordionSectionView(
+        case .selectedEditableAmount(let expandedDestinationData, _):
+            SendAmountInputSectionView(
                 isExpanded: viewModel.activeField == .receive,
-                isLocked: viewModel.isAccordionSwitchingLocked,
+                isLocked: viewModel.isInputFieldSwitchingLocked,
                 expandedTokenData: expandedDestinationData,
                 compactTokenData: viewModel.compactDestinationTokenViewData,
                 onTapCompact: { viewModel.userDidTapCompactField(.receive) }
@@ -143,7 +139,7 @@ struct SendAmountView: View {
         VStack(alignment: .center, spacing: 12) {
             Text(Localization.sendWithSwapRecipientAmountTitle)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .frame(minHeight: accordionHeaderMinHeight)
+                .frame(minHeight: Constants.headerMinHeight)
 
             if let destinationField = viewModel.destinationAmountField {
                 SendAmountInputView(
@@ -192,9 +188,17 @@ struct SendAmountView: View {
         }
     }
 
-    private func updateAccordionFocus(for activeField: ActiveAmountField) {
-        guard viewModel.destinationTokenViewType?.isAccordion == true else { return }
+    private func updateInputFocus(for activeField: ActiveAmountField) {
+        guard viewModel.destinationTokenViewType?.isAmountEditable == true else { return }
         focusedField = focusTarget(for: activeField)
+    }
+}
+
+extension SendAmountView {
+    enum Constants {
+        static let scrollViewSpacing: CGFloat = 8
+        /// Matches AccountIconView.Settings.smallSized total height (10pt icon + 4pt × 2 padding)
+        static let headerMinHeight: CGFloat = 18
     }
 }
 

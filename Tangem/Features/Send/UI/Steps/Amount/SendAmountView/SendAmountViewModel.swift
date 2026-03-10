@@ -29,18 +29,18 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var activeField: ActiveAmountField = .send
     @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
     @Published var compactDestinationSubtitle: SendAmountTokenViewData.SubtitleType?
-    @Published private(set) var isAccordionSwitchingLocked: Bool = false
+    @Published private(set) var isInputFieldSwitchingLocked: Bool = false
 
-    /// Set to `false` before an `activeField` change that should not animate (e.g. first accordion entry).
+    /// Set to `false` before an `activeField` change that should not animate (e.g. first editable destination entry).
     /// The view resets it to `true` inside `.onChange(of: activeField)`.
     var animateActiveFieldChange = true
 
-    /// Set to `true` only in `removeReceivedToken` so the accordion→non-accordion
-    /// structural change is animated. Entry (non-accordion→accordion) never animates.
-    var animateAccordionExit = false
+    /// Set to `true` only in `removeReceivedToken` so the structural change
+    /// (editable → non-editable destination) is animated. Entry never animates.
+    var animateDestinationRemoval = false
 
     /// Fires after a short delay so the view transfers focus to the specified field
-    /// once the layout has settled (e.g. after accordion entry/exit or sheet dismissal).
+    /// once the layout has settled (e.g. after destination entry/exit or sheet dismissal).
     /// Using `@Published` ensures the view's `.onChange` handler runs in the
     /// live view context, avoiding stale `@FocusState` captures.
     @Published var pendingFocusField: ActiveAmountField?
@@ -75,7 +75,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     var compactDestinationTokenViewData: SendAmountTokenViewData? {
-        guard case .accordion(_, let baseCompactData) = destinationTokenViewType else { return nil }
+        guard case .selectedEditableAmount(_, let baseCompactData) = destinationTokenViewType else { return nil }
         return SendAmountTokenViewData(
             tokenIconInfo: baseCompactData.tokenIconInfo,
             title: baseCompactData.title,
@@ -148,7 +148,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func removeReceivedToken() {
         isDestinationTokenClearing = true
-        animateAccordionExit = true
+        animateDestinationRemoval = true
         destinationAmountField = nil
         destinationFieldBag = nil
         lastUpdateSource = nil
@@ -160,7 +160,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         interactor.userDidRequestClearReceiveToken()
 
         // Short delay for the source field to appear in the hierarchy
-        // after transitioning from collapsed accordion to expanded.
+        // after removing the destination field.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             self?.pendingFocusField = .send
         }
@@ -178,7 +178,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapCompactField(_ tappedField: ActiveAmountField) {
-        guard !isAccordionSwitchingLocked else { return }
+        guard !isInputFieldSwitchingLocked else { return }
 
         if isFixedRateMode, activeField == tappedField.opposite {
             let field = amountField(for: tappedField)
@@ -196,7 +196,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 return
             }
 
-            isAccordionSwitchingLocked = true
+            isInputFieldSwitchingLocked = true
             activeField = tappedField
             lastUpdateSource = tappedField
 
@@ -391,7 +391,7 @@ extension SendAmountViewModel {
 
                 let field = destinationAmountField ?? createDestinationAmountField(for: destinationToken, tokenIconInfo: destinationTokenIconInfo)
 
-                // Only rebuild accordion structure when the token itself changes,
+                // Only rebuild the destination section when the token itself changes,
                 // NOT on every amount update. This prevents view re-creation that
                 // clears @FocusState during the focus-claim window.
                 if tokenDidChange {
@@ -430,7 +430,7 @@ extension SendAmountViewModel {
                         animateActiveFieldChange = false
                     }
 
-                    destinationTokenViewType = .accordion(
+                    destinationTokenViewType = .selectedEditableAmount(
                         expandedDestinationData: expandedDestinationData,
                         compactDestinationData: compactDestinationData
                     )
@@ -480,8 +480,8 @@ extension SendAmountViewModel {
                 }
 
                 // Unlock when destination recalculation finishes (Source→Destination switch)
-                if !amount.isLoading, isAccordionSwitchingLocked, lastUpdateSource == .send {
-                    isAccordionSwitchingLocked = false
+                if !amount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .send {
+                    isInputFieldSwitchingLocked = false
                 }
             } else {
                 let tokenViewData = SendAmountTokenViewData(
@@ -537,8 +537,8 @@ extension SendAmountViewModel {
         }
 
         // Unlock when source recalculation finishes (Receive→Source switch)
-        if !sourceAmount.isLoading, isAccordionSwitchingLocked, lastUpdateSource == .receive {
-            isAccordionSwitchingLocked = false
+        if !sourceAmount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .receive {
+            isInputFieldSwitchingLocked = false
         }
     }
 
@@ -578,13 +578,13 @@ extension SendAmountViewModel {
     enum DestinationTokenViewType {
         case selectButton
         case selected(SendAmountTokenViewData)
-        case accordion(
+        case selectedEditableAmount(
             expandedDestinationData: SendAmountTokenViewData,
             compactDestinationData: SendAmountTokenViewData
         )
 
-        var isAccordion: Bool {
-            if case .accordion = self { return true }
+        var isAmountEditable: Bool {
+            if case .selectedEditableAmount = self { return true }
             return false
         }
     }
