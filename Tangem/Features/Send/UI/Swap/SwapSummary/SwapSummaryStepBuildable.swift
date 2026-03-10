@@ -67,6 +67,7 @@ enum SwapSummaryStepBuilder {
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
             feeCompactViewModel: feeCompactViewModel,
+            sourceTokenInput: io.sourceTokenInput
         )
 
         swapAmountViewModel.router = viewModel
