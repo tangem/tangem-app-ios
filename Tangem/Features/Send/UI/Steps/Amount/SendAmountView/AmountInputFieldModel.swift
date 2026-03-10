@@ -126,7 +126,7 @@ class AmountInputFieldModel: ObservableObject {
             alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: displayAmount, type: .crypto)
         case .fiat:
             cryptoTextFieldViewModel.update(value: crypto)
-            fiatTextFieldViewModel.update(value: fiat)
+            // Don't update fiatTextFieldViewModel — user is actively typing there
             let displayAmount = fiat.map { SendAmount(type: .alternative(fiat: $0, crypto: crypto)) }
             alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: displayAmount, type: .fiat)
         }
