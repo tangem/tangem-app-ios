@@ -18,8 +18,5 @@ protocol AccountModelResolving {
     func resolve(accountModel: any SmartAccountModel) -> Result
     #endif // false
 
-    // Uncomment when this account type is added
-    #if false
-    func resolve(accountModel: any VisaAccountModel) -> Result
-    #endif // false
+    func resolve(accountModel: any TangemPayAccountModel) -> Result
 }

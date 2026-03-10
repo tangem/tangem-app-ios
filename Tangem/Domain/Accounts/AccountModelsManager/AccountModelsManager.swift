@@ -67,7 +67,7 @@ extension AccountModelsManager {
         .eraseToAnyPublisher()
     }
 
-    var tangemPayAccountModel: TangemPayAccountModel? {
+    var tangemPayAccountModel: (any TangemPayAccountModel)? {
         let tangemPayAccountModels = accountModels
             .compactMap { accountModel in
                 if case .tangemPay(let model) = accountModel {
@@ -79,11 +79,11 @@ extension AccountModelsManager {
         return tangemPayAccountModels.first
     }
 
-    var tangemPayAccountModelPublisher: AnyPublisher<TangemPayAccountModel?, Never> {
+    var tangemPayAccountModelPublisher: AnyPublisher<(any TangemPayAccountModel)?, Never> {
         accountModelsPublisher
-            .map { accountModels -> TangemPayAccountModel? in
+            .map { accountModels -> (any TangemPayAccountModel)? in
                 let tangemPayAccountModels = accountModels
-                    .compactMap { accountModel -> TangemPayAccountModel? in
+                    .compactMap { accountModel -> (any TangemPayAccountModel)? in
                         switch accountModel {
                         case .standard:
                             nil
