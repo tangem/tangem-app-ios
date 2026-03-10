@@ -13,9 +13,8 @@ import TangemUI
 enum SendMainButtonType: Hashable {
     case next
     case `continue`
-    case action
+    case action(needsHold: Bool)
     case close
-    case holdAction
 }
 
 enum SendFlowActionType: Hashable {
@@ -70,7 +69,7 @@ extension SendMainButtonType {
             Localization.commonNext
         case .continue:
             Localization.commonContinue
-        case .action, .holdAction:
+        case .action:
             action.title
         case .close:
             Localization.commonClose
