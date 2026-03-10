@@ -13,6 +13,7 @@ import TangemFoundation
 
 struct TangemPaySourceTokenFactory {
     let userWalletInfo: UserWalletInfo
+    let account: (any TangemPayAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let defaultAddressString: String
@@ -21,7 +22,11 @@ struct TangemPaySourceTokenFactory {
     let cexTransactionDispatcher: any TransactionDispatcher
 
     func makeSourceToken() -> SendSourceToken {
-        let header = TokenHeaderProvider(userWalletName: userWalletInfo.name, account: nil).makeHeader()
+        let header = TokenHeaderProvider(
+            userWalletName: userWalletInfo.name,
+            account: account
+        )
+        .makeHeader()
         let fiatItem = FiatItem(
             iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),
             currencyCode: AppSettings.shared.selectedCurrencyCode,
