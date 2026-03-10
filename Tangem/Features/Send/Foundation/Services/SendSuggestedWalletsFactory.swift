@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemAccounts
-import TangemPay
+import TangemAssets
 import TangemLocalization
 
 struct SendSuggestedWalletsFactory {
@@ -50,16 +50,16 @@ struct SendSuggestedWalletsFactory {
                 )
             }
 
-            if walletModel.tokenItem.token == TangemPayUtilities.usdcTokenItem.token,
-               walletModel.tokenItem.blockchain == TangemPayUtilities.usdcTokenItem.blockchain,
-               let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
+            if let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
+               walletModel.tokenItem.token == tangemPayAccount.paymentTokenItem.token,
+               walletModel.tokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
                let depositAddress = tangemPayAccount.depositAddress {
                 results.append(
                     SendDestinationSuggestedWallet(
                         name: userWalletModel.name,
                         address: depositAddress,
                         account: SendDestinationSuggestedWallet.Account(
-                            icon: .init(backgroundColor: .clear, nameMode: .tangemPay),
+                            icon: .init(backgroundColor: .clear, nameMode: .imageType(Assets.Visa.accountAvatar)),
                             name: Localization.tangempayPaymentAccount
                         ),
                         accountModelAnalyticsProvider: nil

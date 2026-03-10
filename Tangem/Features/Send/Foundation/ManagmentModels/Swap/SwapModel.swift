@@ -604,15 +604,15 @@ extension SwapModel: SwapModelStateProvider {
 
 extension SwapModel: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem) {
-        let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
-        let token = factory.makeSwapableToken()
+        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
         update(source: token)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem) {
-        let factory = CommonSendSwapableTokenFactory(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel, operationType: .swap)
-        let token = factory.makeSwapableToken()
+        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
         update(receive: token)
     }
@@ -947,12 +947,14 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
-            _isSending,
-            _providersState.filter { $0.filter(loading: [.autoupdate]) }.map { $0.isLoading },
-        )
-        .map { $0 || $1 }
-        .eraseToAnyPublisher()
+        _providersState
+            .filter { $0.filter(loading: [.autoupdate]) }
+            .map { $0.isLoading }
+            .eraseToAnyPublisher()
+    }
+
+    var isActionInProcessing: AnyPublisher<Bool, Never> {
+        _isSending.eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {

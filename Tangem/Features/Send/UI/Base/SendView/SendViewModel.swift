@@ -31,11 +31,14 @@ final class SendViewModel: ObservableObject {
     @Published var flowActionType: SendFlowActionType
     @Published var isKeyboardActive: Bool = false
 
-    @Published var closeButtonDisabled = false
-    @Published var trailingButtonDisabled = false
-    @Published var isUserInteractionDisabled = false
-    @Published var mainButtonLoading: Bool = false
-    @Published var actionIsAvailable: Bool = false
+    @Published private(set) var mainButtonUpdating: Bool = false
+    @Published private(set) var actionInProcessing: Bool = false
+    @Published private(set) var actionIsAvailable: Bool = false
+
+    var mainButtonLoading: Bool { actionInProcessing }
+    var closeButtonDisabled: Bool { actionInProcessing }
+    var trailingButtonDisabled: Bool { actionInProcessing }
+    var isUserInteractionDisabled: Bool { actionInProcessing }
 
     var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
@@ -114,11 +117,16 @@ final class SendViewModel: ObservableObject {
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
             performApprove()
-        case .action, .holdAction:
+        case .action:
             performAction()
         case .close:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
+    }
+
+    func needsHoldAction(mainButtonType: SendMainButtonType) -> Bool {
+        guard case .action(let needsHold) = mainButtonType else { return false }
+        return needsHold && flowActionType != .approve
     }
 
     func userDidTapBackButton() {
@@ -278,29 +286,13 @@ private extension SendViewModel {
 
         isUpdatingSubscription = step.isUpdatingPublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
+            .assign(to: \.mainButtonUpdating, on: self, ownership: .weak)
     }
 
     func bind() {
         interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.trailingButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isUserInteractionDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$actionInProcessing)
     }
 }
 
