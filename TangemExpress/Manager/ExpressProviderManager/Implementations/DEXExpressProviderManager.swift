@@ -154,9 +154,10 @@ private extension DEXExpressProviderManager {
                     throw ExpressProviderError.allowanceProviderNotFound
                 case .enoughAllowance:
                     break
-                case .permissionRequired(let approveData):
+                case .permissionRequired(let data):
+                    let fee = try await expressFeeProvider.transactionFee(txData: data.txData, toContractAddress: data.toContractAddress)
                     return .permissionRequired(
-                        .init(provider: provider, policy: request.approvePolicy, data: approveData, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: data, fee: fee, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)
