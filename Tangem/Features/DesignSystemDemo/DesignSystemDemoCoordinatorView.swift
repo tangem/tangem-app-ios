@@ -31,6 +31,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemBadgeDemoViewModel) {
                 TangemBadgeDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemCalloutDemoViewModel) {
+                TangemCalloutDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemMainActionButtonDemoViewModel) {
                 TangemMainActionButtonDemoView(viewModel: $0)
             }
@@ -58,6 +61,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemBadge") {
                 viewModel.openTangemBadgeDemo()
+            }
+
+            MainButton(title: "TangemCallout") {
+                viewModel.openTangemCalloutDemo()
             }
 
             MainButton(title: "MainActionButton") {
