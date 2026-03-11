@@ -48,6 +48,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    @discardableResult
+    func waitForSwapButtonNotAvailable() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button is not available on single-currency card") { _ in
+            waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
+            let buttonTexts = actionButtonsList.buttons.allElementsBoundByIndex.map { $0.label }
+            XCTAssertFalse(buttonTexts.contains("Swap"), "Swap button should not be available on single-currency cards")
+            XCTAssertFalse(buttonTexts.contains("Exchange"), "Exchange button should not be available on single-currency cards")
+            return self
+        }
+    }
+
     // MARK: - Main action buttons
 
     @discardableResult
@@ -258,12 +269,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
-            let contextMenuIndicator = app.buttons["Send"].firstMatch
+            let contextMenuIndicator = app.buttons["Buy"].firstMatch
             let maxAttempts = 3
-            for _ in 1 ... maxAttempts {
+            for attempt in 1 ... maxAttempts {
                 token.press(forDuration: 1.5)
                 if contextMenuIndicator.waitForExistence(timeout: .quick) {
                     break
+                }
+
+                // Dismiss any opened context menu before retrying
+                if attempt < maxAttempts {
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+                    _ = token.waitForExistence(timeout: .quick)
                 }
             }
 
