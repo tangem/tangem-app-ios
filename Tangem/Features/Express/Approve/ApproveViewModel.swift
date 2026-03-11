@@ -1,5 +1,5 @@
 //
-//  ExpressApproveViewModel.swift
+//  ApproveViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,45 +8,41 @@
 
 import Combine
 import TangemExpress
-import UIKit
+import TangemUI
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
+import TangemAssets
+import BlockchainSdk
 
-final class ExpressApproveViewModel: ObservableObject, Identifiable {
+final class ApproveViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var subtitle: String
+    let subtitle: String
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
     @Published var selectedAction: BSDKApprovePolicy
-    @Published var feeRowViewModel: DefaultRowViewModel?
+    @Published var feeCompactViewModel: FeeCompactViewModel?
 
     @Published var isLoading = false
     @Published var mainButtonIsDisabled = false
     @Published var errorAlert: AlertBinder?
 
     let tangemIconProvider: TangemIconProvider
-    let confirmTransactionPolicy: ConfirmTransactionPolicy
     let feeFooterText: String
 
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
     private let feeFormatter: FeeFormatter
-    private let approveViewModelInput: ApproveViewModelInput
-    private weak var coordinator: ExpressApproveRoutable?
+    private let interactor: ApproveInteractor
+    private weak var coordinator: ApproveCoordinating?
 
-    private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        input: Input,
-        coordinator: ExpressApproveRoutable
-    ) {
+    init(input: Input) {
         feeFormatter = input.feeFormatter
-        approveViewModelInput = input.approveViewModelInput
-        self.coordinator = coordinator
+        interactor = input.interactor
 
         tokenItem = input.settings.tokenItem
 
@@ -54,23 +50,22 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
         tangemIconProvider = input.settings.tangemIconProvider
-        confirmTransactionPolicy = input.settings.confirmTransactionPolicy
 
         menuRowViewModel = .init(
             title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
             actions: [.unlimited, .specified]
         )
 
-        feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
-        updateView(state: approveViewModelInput.approveFeeValue)
+        feeCompactViewModel = FeeCompactViewModel(canEditFee: input.supportFeeSelection, showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
         bind()
     }
 
-    func didTapInfoButton() {
-        errorAlert = AlertBinder(
-            title: Localization.swappingApproveInformationTitle,
-            message: Localization.swappingApproveInformationText
-        )
+    func setCoordinator(_ coordinator: ApproveCoordinating) {
+        self.coordinator = coordinator
+    }
+
+    func didTapFeeSelectorButton() {
+        coordinator?.openFeeTokenSelection()
     }
 
     func didTapApprove() {
@@ -94,11 +89,24 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         }
         coordinator?.openLearnMore()
     }
+
+    func approveInfoSubtitle() -> AttributedString {
+        var attr = AttributedString(Localization.givePermissionPolicyTypeFooter + " " + Localization.commonLearnMore)
+        attr.font = Fonts.Regular.footnote
+        attr.foregroundColor = Colors.Text.tertiary
+
+        if let range = attr.range(of: Localization.commonLearnMore) {
+            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].link = URL(string: " ")
+        }
+
+        return attr
+    }
 }
 
 // MARK: - Navigation
 
-extension ExpressApproveViewModel {
+extension ApproveViewModel {
     @MainActor
     func didSendApproveTransaction() {
         coordinator?.didSendApproveTransaction()
@@ -107,13 +115,20 @@ extension ExpressApproveViewModel {
 
 // MARK: - Private
 
-private extension ExpressApproveViewModel {
+private extension ApproveViewModel {
     func bind() {
-        approveViewModelInput.approveFeeValuePublisher
+        let approveFeePublisher = interactor.approveFeePublisher
+            .receiveOnMain()
+
+        feeCompactViewModel?.bind(
+            selectedFeePublisher: approveFeePublisher.eraseToAnyPublisher(),
+            supportFeeSelectionPublisher: Empty(completeImmediately: true).eraseToAnyPublisher()
+        )
+
+        approveFeePublisher
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, state in
-                viewModel.updateView(state: state)
+            .sink { viewModel, tokenFee in
+                viewModel.updateView(tokenFee: tokenFee)
             }
             .store(in: &bag)
 
@@ -122,19 +137,17 @@ private extension ExpressApproveViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, policy in
-                viewModel.approveViewModelInput.updateApprovePolicy(policy: policy)
+                viewModel.interactor.updateApprovePolicy(policy: policy)
             }
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingResult<ApproveInputFee, any Error>) {
-        switch state {
-        case .success(let fee):
-            updateFeeAmount(fee: fee)
+    func updateView(tokenFee: TokenFee) {
+        switch tokenFee.value {
+        case .success:
             isLoading = false
             mainButtonIsDisabled = false
         case .loading:
-            feeRowViewModel?.update(detailsType: .loader)
             isLoading = true
             mainButtonIsDisabled = false
         case .failure(let error):
@@ -144,27 +157,24 @@ private extension ExpressApproveViewModel {
         }
     }
 
-    func updateFeeAmount(fee: ApproveInputFee) {
-        let formatted = feeFormatter.format(fee: fee.fee.amount.value, tokenItem: fee.feeTokenItem)
-        feeRowViewModel?.update(detailsType: .text(formatted))
-    }
-
     func sendApproveTransaction() {
+        mainButtonIsDisabled = true
+        isLoading = true
+
         runTask(in: self) { viewModel in
             do {
-                await runOnMain {
-                    viewModel.isLoading = true
-                }
-                try await viewModel.approveViewModelInput.sendApproveTransaction()
+                try await viewModel.interactor.sendApproveTransaction()
                 try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
                 await runOnMain {
+                    viewModel.mainButtonIsDisabled = false
                     viewModel.isLoading = false
                 }
             } catch {
                 ExpressLogger.error(error: error)
                 await runOnMain {
+                    viewModel.mainButtonIsDisabled = false
                     viewModel.isLoading = false
                     viewModel.errorAlert = .init(title: Localization.commonError, message: error.localizedDescription)
                 }
@@ -173,11 +183,12 @@ private extension ExpressApproveViewModel {
     }
 }
 
-extension ExpressApproveViewModel {
+extension ApproveViewModel {
     struct Input {
         let settings: Settings
         let feeFormatter: FeeFormatter
-        let approveViewModelInput: ApproveViewModelInput
+        let interactor: ApproveInteractor
+        var supportFeeSelection: Bool = false
     }
 
     struct Settings {
@@ -186,21 +197,5 @@ extension ExpressApproveViewModel {
         let tokenItem: TokenItem
         let selectedPolicy: BSDKApprovePolicy
         let tangemIconProvider: TangemIconProvider
-        let confirmTransactionPolicy: ConfirmTransactionPolicy
-    }
-}
-
-extension BSDKApprovePolicy: @retroactive Identifiable {
-    public var id: Int { hashValue }
-}
-
-extension BSDKApprovePolicy: DefaultMenuRowViewModelAction {
-    public var title: String {
-        switch self {
-        case .specified:
-            return Localization.givePermissionCurrentTransaction
-        case .unlimited:
-            return Localization.givePermissionUnlimited
-        }
     }
 }
