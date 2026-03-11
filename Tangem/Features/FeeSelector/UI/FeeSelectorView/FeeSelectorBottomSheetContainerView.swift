@@ -11,29 +11,32 @@ import TangemUI
 import TangemAssets
 import TangemUIUtils
 
-struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionContent: View, MainContent: View>: View {
+struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionContent: View, MainContent: View, ButtonContent: View>: View {
     // MARK: - UI
 
     private let state: AnyHashable
     private let headerContent: HeaderContent
     private let descriptionContent: DescriptionContent
     private let mainContent: MainContent
-    private let button: MainButton?
+    private let buttonContent: ButtonContent
+    private let showsButton: Bool
 
     // MARK: - Init
 
     init(
         state: AnyHashable,
-        button: MainButton?,
+        showsButton: Bool = true,
+        @ViewBuilder button: () -> ButtonContent,
         @ViewBuilder headerContent: () -> HeaderContent = { EmptyView() },
         @ViewBuilder descriptionContent: () -> DescriptionContent = { EmptyView() },
         @ViewBuilder mainContent: () -> MainContent = { EmptyView() }
     ) {
         self.state = state
+        self.showsButton = showsButton
+        buttonContent = button()
         self.headerContent = headerContent()
         self.descriptionContent = descriptionContent()
         self.mainContent = mainContent()
-        self.button = button
     }
 
     // MARK: - View Body
@@ -52,7 +55,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
         ScrollView {
             mainContentView
                 .padding(.top, Constants.standardSpacing)
-                .padding(.bottom, button == nil ? .zero : Constants.mainContentViewBottomPadding)
+                .padding(.bottom, showsButton ? Constants.mainContentViewBottomPadding : .zero)
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             buttonView
@@ -72,7 +75,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     // MARK: - Sub Views
 
     private var buttonView: some View {
-        button
+        buttonContent
             .background(ListFooterOverlayShadowView())
             .transition(.footer)
             .animation(.contentFrameUpdate, value: state)
