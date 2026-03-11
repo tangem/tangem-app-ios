@@ -450,20 +450,7 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap -> AnyPublisher<SendSummaryTransactionData?, Never> in
                 if isSwap {
-                    return Publishers
-                        .CombineLatest(
-                            model.transferModel.summaryTransactionDataPublisher,
-                            model.swapModel.summaryTransactionDataPublisher
-                        )
-                        .map { transferData, swapData -> SendSummaryTransactionData? in
-                            guard case .send(let amount, let fee) = transferData,
-                                  case .swap(let provider) = swapData else {
-                                return nil
-                            }
-
-                            return .sendWithSwap(amount: amount, fee: fee, provider: provider)
-                        }
-                        .eraseToAnyPublisher()
+                    return model.swapModel.summaryTransactionDataPublisher
                 } else {
                     return model.transferModel.summaryTransactionDataPublisher
                 }

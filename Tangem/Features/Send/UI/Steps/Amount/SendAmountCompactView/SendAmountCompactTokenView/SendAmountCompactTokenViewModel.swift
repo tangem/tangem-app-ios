@@ -25,7 +25,7 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var balance: LoadableBalanceView.State?
 
-    private let isApproximateAmount: Bool
+    private var isApproximateAmount: Bool
     private let tokenItem: TokenItem
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
@@ -77,12 +77,21 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         loadableTokenBalanceViewStateBuilder = .init()
     }
 
-    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
+    func bind(
+        amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>,
+        isApproximateAmountPublisher: AnyPublisher<Bool, Never>? = nil
+    ) {
+        let approxPublisher: AnyPublisher<Bool, Never> = isApproximateAmountPublisher?
+            .removeDuplicates()
+            .eraseToAnyPublisher() ?? Just(isApproximateAmount).eraseToAnyPublisher()
+
         amountPublisherSubscription = amountPublisher
+            .combineLatest(approxPublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, amount in
-                viewModel.updateAmount(from: amount)
+            .sink { viewModel, pair in
+                viewModel.isApproximateAmount = pair.1
+                viewModel.updateAmount(from: pair.0)
             }
     }
 
