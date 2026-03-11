@@ -84,6 +84,55 @@ final class SwapWarningsUITests: BaseTestCase {
             .waitForAlertAndDismiss()
     }
 
+    // MARK: - Solana Rent Fee Warning Tests
+
+    func testRentFeeWarningDisplayed_WhenRemainingBalanceLessThanRent() {
+        setAllureId(2830)
+
+        let swapScreen = prepareSwapSolanaFlow()
+
+        swapScreen
+            .enterFromAmount("0.0016941")
+            .waitForNotificationShown(title: "Invalid amount")
+            .waitForNotificationIcon()
+            .waitForConfirmButtonDisabled()
+    }
+
+    func testRentFeeWarningNotDisplayed_WhenRemainingBalanceEqualsZero() {
+        setAllureId(2831)
+
+        let swapScreen = prepareSwapSolanaFlow()
+
+        swapScreen
+            .enterFromAmount("0.00168933")
+            .waitForNotificationNotShown()
+            .waitForConfirmButtonEnabled()
+    }
+
+    func testRentFeeWarningNotDisplayed_WhenRemainingBalanceEqualsRent() {
+        setAllureId(2832)
+
+        let swapScreen = prepareSwapSolanaFlow()
+
+        swapScreen
+            .enterFromAmount("0.001689338")
+            .waitForNotificationNotShown()
+            .waitForConfirmButtonEnabled()
+    }
+
+    func testRentFeeWarningNotDisplayed_WhenRemainingBalanceGreaterThanRent() {
+        setAllureId(2833)
+
+        let swapScreen = prepareSwapSolanaFlow()
+
+        swapScreen
+            .enterFromAmount("0.0000941")
+            .waitForNotificationNotShown()
+            .waitForConfirmButtonEnabled()
+    }
+
+    // MARK: - High Price Impact Tests
+
     func testHighPriceImpactDEX() {
         setAllureId(8504)
 
@@ -110,5 +159,25 @@ final class SwapWarningsUITests: BaseTestCase {
         swapScreen
             .tapPriceChangeInfoButton()
             .waitForAlertAndDismiss()
+    }
+
+    // MARK: - Private
+
+    private func prepareSwapSolanaFlow() -> SwapScreen {
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "SolanaUSDC"),
+                ScenarioConfig(name: "quotes_api", initialState: "SolanaUSDC"),
+            ]
+        )
+
+        return CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken("Solana")
+            .tapSwapButton()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
     }
 }
