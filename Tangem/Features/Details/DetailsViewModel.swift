@@ -192,6 +192,7 @@ private extension DetailsViewModel {
 
     func openGetTangemPay() {
         coordinator?.openGetTangemPay()
+        Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
     }
 
     func openSupportChat() {
