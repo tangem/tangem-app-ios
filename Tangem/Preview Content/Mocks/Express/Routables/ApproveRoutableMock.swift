@@ -1,5 +1,5 @@
 //
-//  ExpressApproveRoutableMock.swift
+//  ApproveRoutableMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExpress
 
-class ExpressApproveRoutableMock: ExpressApproveRoutable {
+class ApproveRoutableMock: ApproveRoutable {
     func didSendApproveTransaction() {}
     func userDidCancel() {}
     func openLearnMore() {}
