@@ -591,19 +591,20 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - SendApproveDataBuilderInput
+// MARK: - ApproveFlowDataProvider, ApproveOutput
 
-extension SendWithSwapModel: SendApproveDataBuilderInput {
-    var approveRequestedByExpressProvider: ExpressProvider? {
-        isSwapMode ? swapModel.approveRequestedByExpressProvider : nil
+extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
+    func approveFlowInput() throws -> ApproveFlowInput {
+        guard isSwapMode else {
+            throw SendApproveViewModelInputDataBuilderError.notSupported
+        }
+
+        return try swapModel.approveFlowInput()
     }
 
-    var approveViewModelInput: (any ApproveViewModelInput)? {
-        isSwapMode ? swapModel.approveViewModelInput : nil
-    }
-
-    var approveRequestedWithSelectedPolicy: ApprovePolicy? {
-        isSwapMode ? swapModel.approveRequestedWithSelectedPolicy : nil
+    func approveDidSendTransaction() {
+        guard isSwapMode else { return }
+        swapModel.approveDidSendTransaction()
     }
 }
 
