@@ -1,5 +1,5 @@
 //
-//  ExpressApproveRoutable.swift
+//  ApproveRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExpress
 
-protocol ExpressApproveRoutable: AnyObject {
+protocol ApproveRoutable: AnyObject {
     func didSendApproveTransaction()
     func userDidCancel()
     func openLearnMore()

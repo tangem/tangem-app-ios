@@ -25,68 +25,63 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
     var allowsFeeSelection: Bool { false }
 
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
-        guard let feeToken else {
-            throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
-        }
-
-        guard let feeRecipientAddress = await networkManager.feeRecipientAddress else {
-            throw TokenFeeLoaderError.missingFeeRecipientAddress
-        }
-
+        let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
 
-        // Native coin of the network (e.g. ETH)
-        let nativeAssetId = tokenItem.blockchain.coinId
-
-        // Asset used to pay the fee
-        guard let feeAssetId = feeToken.id else {
-            throw TokenFeeLoaderError.feeTokenIdNotFound
-        }
-
-        // Calculate coin-to-token rate
-        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(from: nativeAssetId, to: feeAssetId)
-
         let fee = try await gaslessTransactionFeeProvider.getEstimatedGaslessFee(
-            feeToken: feeToken,
+            feeToken: params.feeToken,
             amount: amount,
-            feeRecipientAddress: feeRecipientAddress,
-            nativeToFeeTokenRate: nativeToFeeTokenRate
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
         return [fee]
     }
 
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
-        guard let feeToken else {
-            throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
-        }
-
-        guard let feeRecipientAddress = await networkManager.feeRecipientAddress else {
-            throw TokenFeeLoaderError.missingFeeRecipientAddress
-        }
-
-        // Asset used to pay the fee (e.g. USDC)
-        guard let feeAssetId = feeToken.id else {
-            throw TokenFeeLoaderError.feeTokenIdNotFound
-        }
-
-        // Native coin of the network (e.g. ETH)
-        let nativeAssetId = tokenItem.blockchain.coinId
-
-        // Calculate coin-to-token rate
-        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
-            from: nativeAssetId,
-            to: feeAssetId
-        )
-
+        let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
 
         let fee = try await gaslessTransactionFeeProvider.getGaslessFee(
-            feeToken: feeToken,
+            feeToken: params.feeToken,
             amount: amount,
             destination: destination,
-            feeRecipientAddress: feeRecipientAddress,
-            nativeToFeeTokenRate: nativeToFeeTokenRate
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
+
+        return [fee]
+    }
+}
+
+// MARK: - EthereumTokenFeeLoader
+
+extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
+        let params = try await resolveGaslessParameters()
+
+        let fee = try await gaslessTransactionFeeProvider.getEstimatedGaslessTransactionFee(
+            feeToken: params.feeToken,
+            estimatedGasLimit: estimatedGasLimit,
+            otherNativeFee: otherNativeFee,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
+
+        return fee
+    }
+
+    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+        let params = try await resolveGaslessParameters()
+
+        let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
+            feeToken: params.feeToken,
+            destination: destination,
+            value: amount.encodedForSend,
+            data: txData,
+            otherNativeFee: otherNativeFee,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
         return [fee]
@@ -98,5 +93,24 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
 private extension CommonGaslessTokenFeeLoader {
     func makeAmount(amount: Decimal) -> BSDKAmount {
         BSDKAmount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
+    }
+
+    func resolveGaslessParameters() async throws -> (feeToken: Token, feeRecipientAddress: String, nativeToFeeTokenRate: Decimal) {
+        guard let feeToken else {
+            throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+        }
+
+        guard let feeRecipientAddress = await networkManager.feeRecipientAddress else {
+            throw TokenFeeLoaderError.missingFeeRecipientAddress
+        }
+
+        guard let feeAssetId = feeToken.id else {
+            throw TokenFeeLoaderError.feeTokenIdNotFound
+        }
+
+        let nativeAssetId = tokenItem.blockchain.coinId
+        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(from: nativeAssetId, to: feeAssetId)
+
+        return (feeToken, feeRecipientAddress, nativeToFeeTokenRate)
     }
 }
