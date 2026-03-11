@@ -303,6 +303,14 @@ extension SwapModel {
         case .idle:
             return .idle
 
+        case .error(_, let quote) where hasPendingTransaction():
+            guard let quote else {
+                return .restriction(.hasPendingTransaction, quote: .none)
+            }
+
+            let mappedQuote = try await map(provider: selected.provider, quote: quote)
+            return .restriction(.hasPendingTransaction, quote: mappedQuote)
+
         case .error(let error, .none):
             return .requiredRefresh(occurredError: error, quote: .none)
 
