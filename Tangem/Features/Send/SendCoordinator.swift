@@ -169,6 +169,7 @@ extension SendCoordinator: SendRoutable {
 
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
         Task { @MainActor in
+            UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -187,6 +188,7 @@ extension SendCoordinator: SendRoutable {
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
         Task { @MainActor in
+            UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
