@@ -27,6 +27,9 @@ extension CommonAddressesProvider: Wallet.AddressesProvider {
         _defaultAddress
     }
 
+    public var receiveAddress: any Address { _defaultAddress }
+    public var changeAddress: any Address { _defaultAddress }
+
     public mutating func update(address: any Address) {
         switch address.type {
         case .default: _defaultAddress = address

@@ -26,6 +26,7 @@ protocol WalletModel:
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
     var defaultAddressString: String { get }
+    var receiveAddress: Address { get }
     var addressNames: [String] { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
@@ -76,6 +77,10 @@ extension WalletModel {
 
     var defaultAddressString: String {
         defaultAddress.value
+    }
+
+    var receiveAddress: Address {
+        defaultAddress
     }
 
     var walletConnectAddress: String {

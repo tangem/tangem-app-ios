@@ -22,7 +22,7 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(changeAddress: address, isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when
@@ -63,7 +63,7 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(changeAddress: address, isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when
@@ -89,7 +89,7 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(changeAddress: address, isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when

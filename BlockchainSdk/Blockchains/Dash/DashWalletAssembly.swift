@@ -11,7 +11,7 @@ import Foundation
 struct DashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let unspentOutputManager: UnspentOutputManager = .dash(
-            address: input.wallet.defaultAddress,
+            changeAddress: input.wallet.changeAddress,
             isTestnet: input.isTestnet
         )
 

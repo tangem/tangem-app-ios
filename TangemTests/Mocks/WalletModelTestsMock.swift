@@ -120,6 +120,8 @@ final class WalletModelTestsMock: WalletModel {
         PlainAddress(value: "mock", publicKey: publicKey, type: .default)
     }
 
+    var receiveAddress: Address { defaultAddress }
+
     var addressNames: [String] { [] }
     var isMainToken: Bool { true }
     var tokenItem: TokenItem { .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)) }

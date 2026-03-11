@@ -11,10 +11,16 @@ public extension Wallet {
         var addresses: [Address] { get }
         var defaultAddress: Address { get }
 
+        var receiveAddress: Address { get }
+        var changeAddress: Address { get }
+
         mutating func update(address: Address)
     }
 }
 
 public extension Wallet.AddressesProvider {
+    var receiveAddress: Address { defaultAddress }
+    var changeAddress: Address { defaultAddress }
+
     var defaultAddressString: String { defaultAddress.value }
 }
