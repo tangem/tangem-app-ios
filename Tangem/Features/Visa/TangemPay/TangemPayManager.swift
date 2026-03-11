@@ -195,9 +195,16 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, contextParams: .userWallet(userWalletId))
 
-        case .kycRequired:
+        case .kycRequired(let productInstanceExists):
             orderStatusPollingService.cancel()
             stateSubject.value = .kycRequired(weakReferenceHolder)
+            if !productInstanceExists {
+                do {
+                    try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
+                } catch {
+                    stateSubject.value = .unavailable
+                }
+            }
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
@@ -215,14 +222,7 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
-        let orderId: String
-
-        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
-            orderId = cardIssuingOrderId
-        } else {
-            orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
-            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
-        }
+        let orderId = try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
 
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
@@ -239,6 +239,17 @@ final class TangemPayManager: TangemPayAccountModel {
                 VisaLogger.error("Failed to poll order status", error: error)
             }
         )
+    }
+
+    @discardableResult
+    private func issueCardIfNeeded(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> String {
+        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
+            return cardIssuingOrderId
+        } else {
+            let orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
+            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
+            return orderId
+        }
     }
 
     private func bind() {
