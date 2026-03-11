@@ -22,14 +22,18 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
+    @Published private(set) var isActionInProcessing: Bool = false
 
-    @Published private(set) var mainButtonIsLoading: Bool = false
+    @Published private(set) var mainButtonIsUpdating: Bool = false
     @Published private(set) var mainButtonIsEnabled: Bool = false
     @Published private(set) var mainButtonIcon: MainButton.Icon?
+    @Published private(set) var mainButtonNeedsHold: Bool = false
     @Published private(set) var mainButtonState: MainButtonState = .swap
 
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
+
+    var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
@@ -44,6 +48,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
+        sourceTokenInput: SendSourceTokenInput
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -53,6 +58,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.feeCompactViewModel = feeCompactViewModel
 
         bind()
+        bind(sourceTokenInput: sourceTokenInput)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
@@ -60,10 +66,11 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
             .compactMap { $0.value }
             .map { CommonTangemIconProvider(config: $0.userWalletInfo.config).getMainButtonIcon() }
             .assign(to: &$mainButtonIcon)
-    }
 
-    func userDidTapSwapProvider() {
-        router?.summaryStepRequestEditProviders()
+        sourceTokenInput.sourceTokenPublisher
+            .compactMap { $0.value }
+            .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .assign(to: &$mainButtonNeedsHold)
     }
 
     func userDidTapFee() {
@@ -130,7 +137,12 @@ private extension SwapSummaryViewModel {
         interactor
             .isUpdatingPublisher
             .receiveOnMain()
-            .assign(to: &$mainButtonIsLoading)
+            .assign(to: &$mainButtonIsUpdating)
+
+        interactor
+            .isActionInProcessing
+            .receiveOnMain()
+            .assign(to: &$isActionInProcessing)
 
         notificationManager
             .notificationPublisher

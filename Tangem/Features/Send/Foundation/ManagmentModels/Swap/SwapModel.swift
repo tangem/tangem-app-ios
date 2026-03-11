@@ -665,23 +665,15 @@ extension SwapModel: SwapModelStateProvider {
 
 extension SwapModel: SwapTokenSelectorOutput {
     func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem) {
-        let factory = CommonSendSwapableTokenFactory(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            operationType: .swap
-        )
-        let token = factory.makeSwapableToken()
+        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
         update(source: token)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem) {
-        let factory = CommonSendSwapableTokenFactory(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel,
-            operationType: .swap
-        )
-        let token = factory.makeSwapableToken()
+        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
         update(receive: token)
     }
@@ -883,16 +875,16 @@ extension SwapModel: SendSwapProvidersInput {
             .filter { $0.filter(loading: [.rates]) }
             .withWeakCaptureOf(self)
             .map { $0.mapToLoadingExpressAvailableProvider(providersState: $1) }
-            .eraseToAnyPublisher().eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {
         switch providersState {
-        case .idle: return .none
-        case .failure(let error): return .failure(error)
-        case .loading(.rates): return .loading
-        case .loading: return .none
-        case .loaded(_, let selected, _): return selected.map { .success($0) }
+        case .idle: .none
+        case .failure(let error): .failure(error)
+        case .loading(.rates): .loading
+        case .loading: .none
+        case .loaded(_, let selected, _): selected.map { .success($0) }
         }
     }
 }
@@ -1034,12 +1026,14 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
-            _isSending,
-            _providersState.filter { $0.filter(loading: [.autoupdate]) }.map { $0.isLoading },
-        )
-        .map { $0 || $1 }
-        .eraseToAnyPublisher()
+        _providersState
+            .filter { $0.filter(loading: [.autoupdate]) }
+            .map { $0.isLoading }
+            .eraseToAnyPublisher()
+    }
+
+    var isActionInProcessing: AnyPublisher<Bool, Never> {
+        _isSending.eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {

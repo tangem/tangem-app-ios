@@ -69,9 +69,12 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        SendFeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: viewModel.userDidTapFee)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+        SendFeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: {
+            keyboardActive = false
+            viewModel.userDidTapFee()
+        })
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
     }
 
     private var informationSection: some View {
@@ -89,18 +92,43 @@ struct SwapSummaryView: View {
             VStack(spacing: 12) {
                 legalView
 
-                MainButton(
-                    title: viewModel.mainButtonState.title,
-                    icon: viewModel.mainButtonIcon,
-                    isLoading: viewModel.mainButtonIsLoading,
-                    isDisabled: !viewModel.mainButtonIsEnabled,
-                    action: viewModel.userDidTapMainActionButton
-                )
-                .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
+                mainButton
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
         .disableAnimations() // To force `.animation(nil)` behavior
+    }
+
+    @ViewBuilder
+    private var mainButton: some View {
+        if viewModel.mainButtonIsUpdating {
+            mainActionButton(isLoading: true)
+        } else if viewModel.mainButtonNeedsHold {
+            mainHoldActionButton
+        } else {
+            mainActionButton(isLoading: viewModel.mainButtonIsLoading)
+        }
+    }
+
+    private func mainActionButton(isLoading: Bool) -> some View {
+        MainButton(
+            title: viewModel.mainButtonState.title,
+            icon: viewModel.mainButtonIcon,
+            isLoading: isLoading,
+            isDisabled: !viewModel.mainButtonIsEnabled,
+            action: viewModel.userDidTapMainActionButton
+        )
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
+    }
+
+    private var mainHoldActionButton: some View {
+        HoldToConfirmButton(
+            title: viewModel.mainButtonState.title,
+            isLoading: viewModel.mainButtonIsLoading,
+            isDisabled: !viewModel.mainButtonIsEnabled,
+            action: viewModel.userDidTapMainActionButton
+        )
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
     }
 
     @ViewBuilder

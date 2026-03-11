@@ -12,6 +12,7 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
+import TangemPay
 
 final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     // MARK: - Injected
@@ -155,17 +156,13 @@ extension AccountsAwareActionButtonsSwapViewModel {
         source: AccountsAwareTokenSelectorItem,
         receive: AccountsAwareTokenSelectorItem,
     ) {
-        let source = CommonSendSwapableTokenFactory(
-            userWalletInfo: source.userWalletInfo,
-            walletModel: source.walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
+        let source = source
+            .makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
-        let receive = CommonSendSwapableTokenFactory(
-            userWalletInfo: receive.userWalletInfo,
-            walletModel: receive.walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
+        let receive = receive
+            .makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
         let input = PredefinedSwapParameters.from(source, receive: receive)
         coordinator?.openSwap(input: input)
@@ -178,7 +175,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
     func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
-            tokenSymbol: item.walletModel.tokenItem.currencySymbol
+            tokenSymbol: item.tokenItem.currencySymbol
         )
 
         let viewModel = itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) {}
@@ -187,7 +184,9 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             source = .token(item, viewModel: viewModel)
             destination = .placeholder(text: Localization.actionButtonsYouWantToReceive)
 
-            coordinator?.showYieldNotificationIfNeeded(for: item.walletModel, completion: nil)
+            if let walletModel = item.kind.walletModel {
+                coordinator?.showYieldNotificationIfNeeded(for: walletModel, completion: nil)
+            }
         }
 
         await updatePairs(sourceItem: item)
@@ -208,13 +207,13 @@ private extension AccountsAwareActionButtonsSwapViewModel {
                 self.tokenSelectorState = .loading
             } operation: {
                 try await self.expressPairsRepository.updatePairs(
-                    for: sourceItem.walletModel.tokenItem.expressCurrency,
+                    for: sourceItem.tokenItem.expressCurrency,
                     userWalletInfo: sourceItem.userWalletInfo
                 )
             }.value
 
             // We set the `filterTokenItem` after pairs is loading
-            filterTokenItem.send(sourceItem.walletModel.tokenItem)
+            filterTokenItem.send(sourceItem.tokenItem)
 
             await MainActor.run {
                 tokenSelectorState = .selector
@@ -262,7 +261,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         case .token(let item, _):
             let tokenHeader = TokenHeaderProvider(
                 userWalletName: item.userWalletInfo.name,
-                account: item.account
+                account: item.kind.account
             ).makeHeader()
 
             return tokenHeader.asSendTokenHeader(actionType: .swap, isSource: isSource)
@@ -274,7 +273,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             source: .portfolio,
             userHasSearchedDuringThisSession: false
         )
-        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+        analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 }
 
@@ -293,7 +292,7 @@ extension AccountsAwareActionButtonsSwapViewModel {
         var tokenItem: TokenItem? {
             switch self {
             case .placeholder: .none
-            case .token(let item, _): item.walletModel.tokenItem
+            case .token(let item, _): item.tokenItem
             }
         }
     }

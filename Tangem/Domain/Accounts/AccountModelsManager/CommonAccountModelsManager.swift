@@ -20,6 +20,7 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+    private nonisolated let tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private nonisolated let tangemPayManager: TangemPayManager
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
@@ -60,7 +61,13 @@ actor CommonAccountModelsManager {
         @Injected(\.cryptoAccountsGlobalStateProvider)
         var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
         self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
+
+        @Injected(\.tangemPayAccountGlobalStateProvider)
+        var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
+        self.tangemPayAccountGlobalStateProvider = tangemPayAccountGlobalStateProvider
+
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
+        tangemPayAccountGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize(forUserWalletWithId: userWalletId)
     }
@@ -70,7 +77,6 @@ actor CommonAccountModelsManager {
     }
 
     private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
-        // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
         var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
 
@@ -487,6 +493,7 @@ extension CommonAccountModelsManager: AccountModelsReordering {
 extension CommonAccountModelsManager: DisposableEntity {
     nonisolated func dispose() {
         cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
+        tangemPayAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
 
         for accountModel in accountModels {
             switch accountModel {
