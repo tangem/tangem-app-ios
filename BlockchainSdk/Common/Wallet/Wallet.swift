@@ -22,6 +22,8 @@ public struct Wallet {
 
     public var addresses: [Address] { addressesProvider.addresses }
     public var defaultAddress: Address { addressesProvider.defaultAddress }
+    public var receiveAddress: Address { addressesProvider.receiveAddress }
+    public var changeAddress: Address { addressesProvider.changeAddress }
 
     /// `publicKey` from default address
     public var publicKey: Wallet.PublicKey { defaultAddress.publicKey }

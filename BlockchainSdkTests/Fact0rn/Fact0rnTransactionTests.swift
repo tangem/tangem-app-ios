@@ -16,7 +16,7 @@ struct Fact0rnTransactionTests {
         let pubKey = Data(hexString: "03f605d4a94e07ae7ddc1dafea08ade5f6db0fb9f0d40c0409007b1e47e4ac3bed")
         let addressService = AddressServiceFactory(blockchain: .fact0rn).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .fact0rn(address: address)
+        let unspentOutputManager: UnspentOutputManager = .fact0rn(changeAddress: address)
 
         unspentOutputManager.update(
             outputs: [

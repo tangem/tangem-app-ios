@@ -11,18 +11,18 @@ import TangemFoundation
 class CommonUnspentOutputManager {
     private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
 
-    private let address: any Address
+    private let changeAddress: any Address
     private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
     private let lockingScriptBuilder: LockingScriptBuilder
     private let sorter: UTXOTransactionInputsSorter
 
     init(
-        address: any Address,
+        changeAddress: any Address,
         preImageTransactionBuilder: UTXOPreImageTransactionBuilder,
         sorter: UTXOTransactionInputsSorter,
         lockingScriptBuilder: LockingScriptBuilder
     ) {
-        self.address = address
+        self.changeAddress = changeAddress
         self.preImageTransactionBuilder = preImageTransactionBuilder
         self.sorter = sorter
         self.lockingScriptBuilder = lockingScriptBuilder
@@ -48,16 +48,16 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         self.outputs.mutate { $0[script] = outputs }
     }
 
-    func preImage(amount: Int, fee: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction {
+    func preImage(amount: Int, fee: Int, destination: String) async throws -> PreImageTransaction {
         assert(fee > 0, "Fee can't be zero")
 
-        return try await preImage(amount: amount, fee: .exactly(fee: fee), destination: destination, opReturn: opReturn)
+        return try await preImage(amount: amount, fee: .exactly(fee: fee), destination: destination)
     }
 
-    func preImage(amount: Int, feeRate: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction {
+    func preImage(amount: Int, feeRate: Int, destination: String) async throws -> PreImageTransaction {
         assert(feeRate > 0, "FeeRate can't be zero")
 
-        return try await preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination, opReturn: opReturn)
+        return try await preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination)
     }
 
     func confirmedBalance() -> UInt64 {
@@ -72,8 +72,8 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
 // MARK: - Private
 
 private extension CommonUnspentOutputManager {
-    func preImage(amount: Int, fee: UTXOPreImageTransactionBuilderFee, destination: String, opReturn: Data?) async throws -> PreImageTransaction {
-        let changeScript = try lockingScriptBuilder.lockingScript(for: address)
+    func preImage(amount: Int, fee: UTXOPreImageTransactionBuilderFee, destination: String) async throws -> PreImageTransaction {
+        let changeScript = try lockingScriptBuilder.lockingScript(for: changeAddress)
         let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)
 
         let preImage = try await preImageTransactionBuilder.preImage(
@@ -94,7 +94,7 @@ private extension CommonUnspentOutputManager {
             outputs.append(.change(changeScript, value: preImage.change))
         }
 
-        let preImageTransaction = PreImageTransaction(inputs: inputs, outputs: outputs, fee: preImage.fee, opReturn: opReturn)
+        let preImageTransaction = PreImageTransaction(inputs: inputs, outputs: outputs, fee: preImage.fee)
 
         assert(!preImageTransaction.inputs.isEmpty, "Inputs has to have at least one UTXO")
         assert(!preImageTransaction.outputs.isEmpty, "Outputs has to have at least destination output")

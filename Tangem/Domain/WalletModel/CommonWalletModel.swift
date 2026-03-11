@@ -262,6 +262,8 @@ extension CommonWalletModel: WalletModel {
 
     var defaultAddress: any Address { wallet.defaultAddress }
 
+    var receiveAddress: any Address { wallet.receiveAddress }
+
     var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
 
     var isMainToken: Bool {

@@ -20,7 +20,7 @@ final class LitecoinTransactionTests {
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
-        let unspentOutputManager: UnspentOutputManager = .litecoin(address: defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .litecoin(changeAddress: defaultAddress)
         unspentOutputManager.update(
             outputs: [.init(blockId: 2876580, txId: "b530464567f64eea2566fcda6d5953f567474c05cae13dd3dbba9dcf8d990310", index: 3, amount: 5000000)],
             for: defaultAddress
