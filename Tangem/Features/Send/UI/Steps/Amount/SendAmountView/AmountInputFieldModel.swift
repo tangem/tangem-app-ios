@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import struct TangemUI.TokenIconInfo
 
 class AmountInputFieldModel: ObservableObject {
     // MARK: - Published
