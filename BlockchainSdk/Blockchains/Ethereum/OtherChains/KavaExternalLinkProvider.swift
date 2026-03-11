@@ -26,7 +26,7 @@ extension KavaExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://explorer.testnet.kava.io/tx/\(hash)")
         }
 
-        return URL(string: "https://explorer.kava.io/tx/\(hash)")
+        return URL(string: "https://kavascan.com/tx/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
@@ -34,6 +34,6 @@ extension KavaExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://explorer.testnet.kava.io/address/\(address)")
         }
 
-        return URL(string: "https://explorer.kava.io/address/\(address)")
+        return URL(string: "https://kavascan.com/address/\(address)")
     }
 }
