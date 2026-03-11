@@ -41,6 +41,8 @@ enum SwapNotificationEvent: Hashable {
 
     case refunded(tokenItem: TokenItem)
 
+    case notEnoughBalanceForSwapping
+
     /// If the client's transaction takes longer than the average time by x5 times
     case longTimeAverageDuration
 }
@@ -80,6 +82,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return event.title
         case .refunded(tokenItem: let tokenItem):
             return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName))
+        case .notEnoughBalanceForSwapping:
+            return .string("Insufficient balance")
         case .longTimeAverageDuration:
             return .string(Localization.expressExchangeNotificationLongTransactionTimeTitle)
         }
@@ -122,6 +126,8 @@ extension SwapNotificationEvent: NotificationEvent {
             let url = TangemBlogUrlBuilder().url(post: .refundedDex)
             let readMore = "[\(Localization.commonReadMore)](\(url.absoluteString))"
             return Localization.expressExchangeNotificationRefundText(tokenItem.currencySymbol, readMore)
+        case .notEnoughBalanceForSwapping:
+            return "The amount including network fee exceeds your available balance. Please reduce the amount or add funds."
         case .longTimeAverageDuration:
             return Localization.expressExchangeNotificationLongTransactionTimeText
         }
@@ -135,7 +141,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .noDestinationTokens,
              .unsupportedPair,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .notEnoughBalanceForSwapping:
             return .secondary
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
@@ -172,7 +179,8 @@ extension SwapNotificationEvent: NotificationEvent {
         case .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .cexOperationFailed,
-             .notEnoughReceivedAmountForReserve:
+             .notEnoughReceivedAmountForReserve,
+             .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .withdrawalNotificationEvent(let event):
             return event.icon
@@ -199,7 +207,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .noDestinationTokens,
              .unsupportedPair,
-             .notEnoughReceivedAmountForReserve:
+             .notEnoughReceivedAmountForReserve,
+             .notEnoughBalanceForSwapping:
             return .warning
         case .refreshRequired,
              .cexOperationFailed:
@@ -244,6 +253,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .feeWillBeSubtractFromSendingAmount,
              .notEnoughReceivedAmountForReserve,
+             .notEnoughBalanceForSwapping,
              .withdrawalNotificationEvent,
              .validationErrorEvent:
             return true
