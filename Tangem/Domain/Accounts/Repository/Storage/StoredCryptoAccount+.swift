@@ -28,7 +28,7 @@ extension StoredCryptoAccount {
 
     @available(iOS, deprecated: 100000.0, message: "For troubleshooting only, will be removed after accounts migration is complete ([REDACTED_INFO])")
     static func dummy(withDerivationIndex derivationIndex: Int) -> Self {
-        let icon = AccountModel.Icon(name: .allCases[0], color: .allCases[0])
+        let icon = AccountModel.Icon(name: .cryptoAccountIcons[0], color: .cryptoAccountColors[0])
         let config = CryptoAccountPersistentConfig(derivationIndex: derivationIndex, name: nil, icon: icon)
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default)
@@ -59,16 +59,6 @@ extension StoredCryptoAccount {
 
 extension StoredCryptoAccount.Token {
     var isToken: Bool { contractAddress != nil }
-
-    // [REDACTED_TODO_COMMENT]
-    var coinId: String? {
-        switch blockchainNetwork {
-        case .known(let blockchainNetwork):
-            return contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        case .unknown:
-            return nil
-        }
-    }
 
     var walletModelId: WalletModelId? {
         guard let tokenItem = toTokenItem() else {
