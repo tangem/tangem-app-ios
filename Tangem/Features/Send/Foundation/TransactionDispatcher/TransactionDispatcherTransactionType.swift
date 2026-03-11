@@ -16,7 +16,7 @@ import TangemMacro
 enum TransactionDispatcherTransactionType {
     case transfer(BSDKTransaction)
     case staking(StakingTransactionAction)
-    case approve(data: ApproveTransactionData)
+    case approve(data: ApproveTransactionData, fee: BSDKFee)
     case cex(data: ExpressTransactionData, fee: BSDKFee)
     case dex(data: ExpressTransactionData, fee: BSDKFee)
 }
