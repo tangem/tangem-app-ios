@@ -1,5 +1,5 @@
 //
-//  TangemPayAvailabilityServiceBuilder.swift
+//  PaymentAccountAvailabilityServiceBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 
-public struct TangemPayAvailabilityServiceBuilder {
+public struct PaymentAccountAvailabilityServiceBuilder {
     private let apiType: VisaAPIType
     private let bffStaticToken: String
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
@@ -26,8 +26,8 @@ public struct TangemPayAvailabilityServiceBuilder {
 
     public func build(
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
-    ) -> TangemPayAvailabilityService {
-        CommonTangemPayAvailabilityService(
+    ) -> PaymentAccountAvailabilityService {
+        CommonPaymentAccountAvailabilityService(
             apiType: apiType,
             apiService: TangemPayAPIService(
                 provider: TangemPayProviderBuilder().buildProvider(

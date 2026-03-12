@@ -159,6 +159,18 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
+    @AppStorageCompat(StorageType.paymentWalletDerivedForCustomerWalletId)
+    var paymentWalletDerivedForCustomerWalletId: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.vaOnboardingOrderIdForCustomerWalletId)
+    var vaOnboardingOrderIdForCustomerWalletId: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.vaOnboardingWalletIdForCustomerWalletId)
+    var vaOnboardingWalletIdForCustomerWalletId: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.virtualAccountCachedLocalState)
+    var virtualAccountCachedLocalState: [String: String] = [:]
+
     static let shared: AppSettings = .init()
 
     private init() {}
@@ -223,5 +235,57 @@ extension AppSettings: TangemPayCachedStateStorage {
         }
 
         tangemPayCachedLocalState[customerWalletId] = jsonString
+    }
+}
+
+extension AppSettings: PaymentWalletFlagStorage {
+    func isPaymentWalletDerived(customerWalletId: String) -> Bool {
+        paymentWalletDerivedForCustomerWalletId[customerWalletId, default: false]
+    }
+
+    func setPaymentWalletDerived(_ value: Bool, for customerWalletId: String) {
+        paymentWalletDerivedForCustomerWalletId[customerWalletId] = value
+    }
+}
+
+extension AppSettings: VirtualAccountOrderIdStorage {
+    func vaOnboardingOrderId(customerWalletId: String) -> String? {
+        vaOnboardingOrderIdForCustomerWalletId[customerWalletId]
+    }
+
+    func vaOnboardingWalletId(customerWalletId: String) -> String? {
+        vaOnboardingWalletIdForCustomerWalletId[customerWalletId]
+    }
+
+    func saveVAOnboarding(orderId: String, walletId: String, customerWalletId: String) {
+        vaOnboardingOrderIdForCustomerWalletId[customerWalletId] = orderId
+        vaOnboardingWalletIdForCustomerWalletId[customerWalletId] = walletId
+    }
+
+    func deleteVAOnboarding(customerWalletId: String) {
+        vaOnboardingOrderIdForCustomerWalletId[customerWalletId] = nil
+        vaOnboardingWalletIdForCustomerWalletId[customerWalletId] = nil
+    }
+}
+
+extension AppSettings: VirtualAccountCachedStateStorage {
+    func cachedLocalState(customerWalletId: String) -> VirtualAccountCachedLocalState? {
+        guard let jsonString = virtualAccountCachedLocalState[customerWalletId],
+              let data = jsonString.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(VirtualAccountCachedLocalState.self, from: data)
+    }
+
+    func saveCachedLocalState(_ state: VirtualAccountCachedLocalState, customerWalletId: String) {
+        guard let data = try? JSONEncoder().encode(state),
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
+            return
+        }
+
+        virtualAccountCachedLocalState[customerWalletId] = jsonString
     }
 }

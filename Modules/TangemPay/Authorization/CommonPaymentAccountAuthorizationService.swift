@@ -1,5 +1,5 @@
 //
-//  CommonTangemPayAuthorizationService.swift
+//  CommonPaymentAccountAuthorizationService.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,15 @@
 
 import TangemFoundation
 
-public protocol TangemPayAuthorizationTokensRepository {
+public protocol PaymentAccountAuthorizationTokensRepository {
     func save(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws
     func deleteTokens(customerWalletId: String) throws
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens?
 }
 
-final class CommonTangemPayAuthorizationService {
+final class CommonPaymentAccountAuthorizationService {
     private let customerWalletId: String
-    private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    private let authorizationTokensRepository: PaymentAccountAuthorizationTokensRepository
 
     private let apiType: VisaAPIType
     private let apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
@@ -30,7 +30,7 @@ final class CommonTangemPayAuthorizationService {
 
     init(
         customerWalletId: String,
-        authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
+        authorizationTokensRepository: PaymentAccountAuthorizationTokensRepository,
         apiType: VisaAPIType,
         apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>,
         tokens: TangemPayAuthorizationTokens?
@@ -67,7 +67,7 @@ final class CommonTangemPayAuthorizationService {
     }
 }
 
-extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
+extension CommonPaymentAccountAuthorizationService: PaymentAccountAuthorizationService {
     func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
@@ -93,7 +93,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
     }
 }
 
-extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
+extension CommonPaymentAccountAuthorizationService: PaymentAccountAuthorizationTokensHandler {
     var authorizationHeader: String? {
         guard let tokens else {
             return nil

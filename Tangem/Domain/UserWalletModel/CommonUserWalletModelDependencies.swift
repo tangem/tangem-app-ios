@@ -77,6 +77,13 @@ struct CommonUserWalletModelDependencies {
         )
         .buildTangemPayManager()
 
+        let virtualAccountManager = VirtualAccountBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: config.tangemSigner
+        )
+        .buildVirtualAccountManager()
+
         if hasAccounts {
             let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
                 userWalletId: userWalletId,
@@ -90,6 +97,7 @@ struct CommonUserWalletModelDependencies {
                 keysRepository: keysRepository,
                 cryptoAccountsRepository: accountModelsManagerDependencies.repository,
                 tangemPayManager: tangemPayManager,
+                virtualAccountManager: virtualAccountManager,
                 cryptoAccountsNetworkMapper: accountModelsManagerDependencies.mapper,
                 archivedCryptoAccountsProvider: accountModelsManagerDependencies.provider,
                 derivationManager: derivationManager,
@@ -312,6 +320,7 @@ private extension CommonUserWalletModelDependencies {
         keysRepository: CommonKeysRepository,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
+        virtualAccountManager: VirtualAccountManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -340,6 +349,7 @@ private extension CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             cryptoAccountsRepository: cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
+            virtualAccountManager: virtualAccountManager,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported

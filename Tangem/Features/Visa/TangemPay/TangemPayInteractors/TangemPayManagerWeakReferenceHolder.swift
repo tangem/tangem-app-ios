@@ -16,9 +16,9 @@ final class TangemPayManagerWeakReferenceHolder {
     }
 }
 
-// MARK: - TangemPayManagerWeakReferenceHolder+TangemPayKYCInteractor
+// MARK: - TangemPayManagerWeakReferenceHolder+PaymentAccountKYCInteractor
 
-extension TangemPayManagerWeakReferenceHolder: TangemPayKYCInteractor {
+extension TangemPayManagerWeakReferenceHolder: PaymentAccountKYCInteractor {
     var customerId: String? {
         tangemPayManager?.customerId
     }

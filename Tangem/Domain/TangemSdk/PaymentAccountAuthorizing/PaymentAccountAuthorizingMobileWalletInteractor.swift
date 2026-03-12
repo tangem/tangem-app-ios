@@ -1,5 +1,5 @@
 //
-//  TangemPayAuthorizingMobileWalletInteractor.swift
+//  PaymentAccountAuthorizingMobileWalletInteractor.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,36 +15,42 @@ import TangemVisa
 import TangemLocalization
 import TangemPay
 
-class TangemPayAuthorizingMobileWalletInteractor {
+class PaymentAccountAuthorizingMobileWalletInteractor {
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
+    private let utilities: PaymentAccountUtilities
     private let mobileWalletSdk = CommonMobileWalletSdk()
 
-    init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig) {
+    init(
+        userWalletId: UserWalletId,
+        userWalletConfig: UserWalletConfig,
+        utilities: PaymentAccountUtilities
+    ) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
+        self.utilities = utilities
     }
 }
 
-// MARK: - TangemPayAuthorizing
+// MARK: - PaymentAccountAuthorizing
 
-extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
+extension PaymentAccountAuthorizingMobileWalletInteractor: PaymentAccountAuthorizing {
     var syncNeededTitle: String {
         Localization.tangempaySyncNeededRestoreAccess
     }
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+        authorizationService: PaymentAccountAuthorizationService
+    ) async throws -> PaymentAccountAuthorizingResponse {
         let context = try await unlock()
         let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
-        guard let seedKey = mobileWallet.wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+        guard let seedKey = mobileWallet.wallets.first(where: { $0.curve == utilities.mandatoryCurve })?.publicKey else {
             throw TangemSdkError.walletNotFound
         }
 
-        let derivationPath = TangemPayUtilities.derivationPath
+        let derivationPath = utilities.derivationPath
         let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: [seedKey: [derivationPath]])
         let derivationResult: DerivationResult = rawResult.reduce(into: [:]) { partialResult, keyInfo in
             partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
@@ -64,7 +70,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             )
         )
 
-        let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+        let customerWalletAddress = try utilities.makeAddress(using: walletPublicKey)
         let tokens = try await handleCustomerWalletAuthorization(
             context: context,
             walletPublicKey: walletPublicKey,
@@ -73,7 +79,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             authorizationService: authorizationService
         )
 
-        return TangemPayAuthorizingResponse(
+        return PaymentAccountAuthorizingResponse(
             customerWalletAddress: customerWalletAddress,
             tokens: tokens,
             derivationResult: derivationResult
@@ -85,7 +91,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         walletPublicKey: Wallet.PublicKey,
         customerWalletId: String,
         customerWalletAddress: String,
-        authorizationService: TangemPayAuthorizationService
+        authorizationService: PaymentAccountAuthorizationService
     ) async throws -> TangemPayAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
@@ -96,7 +102,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
 
         VisaLogger.info("Received challenge to sign")
 
-        let signRequest = try TangemPayUtilities.prepareForSign(challengeResponse: challengeResponse)
+        let signRequest = try utilities.prepareForSign(challengeResponse: challengeResponse)
 
         let dataToSign = SignData(
             derivationPath: walletPublicKey.derivationPath,
@@ -133,7 +139,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
     }
 }
 
-private extension TangemPayAuthorizingMobileWalletInteractor {
+private extension PaymentAccountAuthorizingMobileWalletInteractor {
     func unlock() async throws -> MobileWalletContext {
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletId,
@@ -158,7 +164,7 @@ private extension TangemPayAuthorizingMobileWalletInteractor {
     }
 }
 
-extension TangemPayAuthorizingMobileWalletInteractor {
+extension PaymentAccountAuthorizingMobileWalletInteractor {
     enum Error: Swift.Error {
         case derivedKeyNotFound
         case signatureNotFound

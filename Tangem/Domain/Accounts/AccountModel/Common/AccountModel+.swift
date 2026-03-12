@@ -17,6 +17,8 @@ extension AccountModel {
             return cryptoAccounts.cryptoAccount(with: identifier)
         case .tangemPay:
             return nil
+        case .virtualAccount:
+            return nil
         }
     }
 }
@@ -69,6 +71,8 @@ extension Array where Element == AccountModel {
             case .standard(.multiple(let cryptoAccountModels)):
                 return count + cryptoAccountModels.count
             case .tangemPay:
+                return count
+            case .virtualAccount:
                 return count
             }
         }

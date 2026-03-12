@@ -1,5 +1,5 @@
 //
-//  TangemPayOrderStatusPollingService.swift
+//  PaymentAccountOrderStatusPollingService.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-public final class TangemPayOrderStatusPollingService {
+public final class PaymentAccountOrderStatusPollingService {
     private let customerService: CustomerInfoManagementService
 
     private var orderStatusPollingTask: Task<Void, Never>?

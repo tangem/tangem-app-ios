@@ -19,7 +19,9 @@ final class TangemPayNotificationManager {
 
     /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
     private var syncNeededTitle: String {
-        userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle
+        userWalletModel.makePaymentAccountAuthorizingInteractor(
+            utilities: .tangemPay
+        ).syncNeededTitle
     }
 
     /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline

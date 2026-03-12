@@ -1,19 +1,19 @@
 //
-//  TangemPayEnrollmentStateFetcher.swift
+//  PaymentAccountEnrollmentStateFetcher.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public struct TangemPayEnrollmentStateFetcher {
+public struct PaymentAccountEnrollmentStateFetcher {
     public let customerWalletId: String
-    public let availabilityService: TangemPayAvailabilityService
+    public let availabilityService: PaymentAccountAvailabilityService
     public let customerService: CustomerInfoManagementService
 
     public init(
         customerWalletId: String,
-        availabilityService: TangemPayAvailabilityService,
+        availabilityService: PaymentAccountAvailabilityService,
         customerService: CustomerInfoManagementService
     ) {
         self.customerWalletId = customerWalletId
@@ -21,7 +21,7 @@ public struct TangemPayEnrollmentStateFetcher {
         self.customerService = customerService
     }
 
-    public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> (state: TangemPayEnrollmentState, customerId: String) {
+    public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> (state: PaymentAccountEnrollmentState, customerId: String) {
         let customerInfo = try await customerService.loadCustomerInfo()
         let customerId = customerInfo.id
 

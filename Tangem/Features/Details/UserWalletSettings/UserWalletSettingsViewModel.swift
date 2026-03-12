@@ -590,10 +590,10 @@ private extension UserWalletSettingsViewModel {
                     walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
-            case .standard(.multiple), .tangemPay:
+            case .standard(.multiple), .tangemPay, .virtualAccount:
                 // In multiple accounts case we don't support managing tokens from this screen,
                 // instead users should manage tokens from respective account details screens.
-                // TangemPay currently doesn't support managing tokens at all
+                // TangemPay and VirtualAccount currently don't support managing tokens at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
                 // Reachable case - the saved wallet has been deleted from the app

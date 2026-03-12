@@ -59,18 +59,18 @@ extension VisaPaymentAccountInteractorBuilder {
     }
 }
 
-extension TangemPayCustomerInfoManagementServiceBuilder {
+extension PaymentAccountCustomerInfoManagementServiceBuilder {
     init() {
-        self = TangemPayCustomerInfoManagementServiceBuilder(
+        self = PaymentAccountCustomerInfoManagementServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
             bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }
 
-extension TangemPayAvailabilityServiceBuilder {
+extension PaymentAccountAvailabilityServiceBuilder {
     init() {
-        self = TangemPayAvailabilityServiceBuilder(
+        self = PaymentAccountAvailabilityServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
             bffStaticToken: TangemPayUtilities.getBFFStaticToken(),
             paeraCustomerFlagRepository: AppSettings.shared
@@ -78,14 +78,14 @@ extension TangemPayAvailabilityServiceBuilder {
     }
 }
 
-extension TangemPayAuthorizationServiceBuilder {
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+extension PaymentAccountAuthorizationServiceBuilder {
+    @Injected(\.paymentAccountAuthorizationTokensRepository)
+    private static var paymentAccountAuthorizationTokensRepository: PaymentAccountAuthorizationTokensRepository
 
     init() {
-        self = TangemPayAuthorizationServiceBuilder(
+        self = PaymentAccountAuthorizationServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository,
+            authorizationTokensRepository: Self.paymentAccountAuthorizationTokensRepository,
             bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }

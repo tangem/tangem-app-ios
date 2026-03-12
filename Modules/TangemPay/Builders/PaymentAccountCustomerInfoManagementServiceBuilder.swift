@@ -1,5 +1,5 @@
 //
-//  TangemPayCustomerInfoManagementServiceBuilder.swift
+//  PaymentAccountCustomerInfoManagementServiceBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 
-public struct TangemPayCustomerInfoManagementServiceBuilder {
+public struct PaymentAccountCustomerInfoManagementServiceBuilder {
     private let apiType: VisaAPIType
     private let bffStaticToken: String
 
@@ -19,7 +19,7 @@ public struct TangemPayCustomerInfoManagementServiceBuilder {
     }
 
     public func build(
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
+        authorizationTokensHandler: PaymentAccountAuthorizationTokensHandler,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> CustomerInfoManagementService {
         CommonCustomerInfoManagementService(

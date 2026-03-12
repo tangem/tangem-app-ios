@@ -1,5 +1,5 @@
 //
-//  TangemPayAuthorizingCardInteractor.swift
+//  PaymentAccountAuthorizingCardInteractor.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,27 +11,30 @@ import TangemVisa
 import TangemLocalization
 import TangemPay
 
-final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
+final class PaymentAccountAuthorizingCardInteractor: PaymentAccountAuthorizing {
     var syncNeededTitle: String {
         Localization.homeButtonScan
     }
 
     private let tangemSdk: TangemSdk
     private let filter: SessionFilter
+    private let utilities: PaymentAccountUtilities
 
-    init(with cardInfo: CardInfo) {
+    init(with cardInfo: CardInfo, utilities: PaymentAccountUtilities) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
         filter = config.cardSessionFilter
+        self.utilities = utilities
     }
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+        authorizationService: PaymentAccountAuthorizationService
+    ) async throws -> PaymentAccountAuthorizingResponse {
         let task = CustomerWalletAuthorizationTask(
             customerWalletId: customerWalletId,
-            authorizationService: authorizationService
+            authorizationService: authorizationService,
+            utilities: utilities
         )
 
         let response = try await withCheckedThrowingContinuation { continuation in
@@ -47,7 +50,7 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
             }
         }
 
-        return TangemPayAuthorizingResponse(
+        return PaymentAccountAuthorizingResponse(
             customerWalletAddress: response.customerWalletAddress,
             tokens: response.tokens,
             derivationResult: response.derivationResult

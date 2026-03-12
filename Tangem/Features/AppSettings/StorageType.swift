@@ -62,4 +62,8 @@ enum StorageType: String {
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
+    case paymentWalletDerivedForCustomerWalletId = "payment_wallet_created_for_customer_wallet_id"
+    case vaOnboardingOrderIdForCustomerWalletId = "va_onboarding_order_id_for_customer_wallet_id"
+    case vaOnboardingWalletIdForCustomerWalletId = "va_onboarding_wallet_id_for_customer_wallet_id"
+    case virtualAccountCachedLocalState = "virtual_account_cached_local_state"
 }

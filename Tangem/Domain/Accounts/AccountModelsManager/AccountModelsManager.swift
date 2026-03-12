@@ -32,7 +32,7 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 
-    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async
+    func acceptTangemPayOffer(authorizingInteractor: PaymentAccountAuthorizing) async
 }
 
 // MARK: - Convenience extensions
@@ -49,6 +49,8 @@ extension AccountModelsManager {
                     return cryptoAccountModels
                 case .tangemPay:
                     return []
+                case .virtualAccount:
+                    return []
                 }
             }
     }
@@ -61,6 +63,7 @@ extension AccountModelsManager {
                 case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
                 case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
                 case .tangemPay: []
+                case .virtualAccount: []
                 }
             }
         }
@@ -85,7 +88,7 @@ extension AccountModelsManager {
                 let tangemPayAccountModels = accountModels
                     .compactMap { accountModel -> (any TangemPayAccountModel)? in
                         switch accountModel {
-                        case .standard:
+                        case .standard, .virtualAccount:
                             nil
                         case .tangemPay(let model):
                             model
@@ -93,6 +96,38 @@ extension AccountModelsManager {
                     }
                 assert(tangemPayAccountModels.count < 2)
                 return tangemPayAccountModels.first
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var virtualAccountModel: (any VirtualAccountModel)? {
+        let virtualAccountModels = accountModels
+            .compactMap { accountModel in
+                if case .virtualAccount(let model) = accountModel {
+                    return model
+                }
+                return nil
+            }
+        assert(virtualAccountModels.count < 2)
+        return virtualAccountModels.first
+    }
+
+    var virtualAccountModelPublisher: AnyPublisher<(any VirtualAccountModel)?, Never> {
+        accountModelsPublisher
+            .map { accountModels -> (any VirtualAccountModel)? in
+                let virtualAccountModels = accountModels
+                    .compactMap { accountModel -> (any VirtualAccountModel)? in
+                        switch accountModel {
+                        case .standard:
+                            nil
+                        case .tangemPay:
+                            nil
+                        case .virtualAccount(let model):
+                            model
+                        }
+                    }
+                assert(virtualAccountModels.count < 2)
+                return virtualAccountModels.first
             }
             .eraseToAnyPublisher()
     }

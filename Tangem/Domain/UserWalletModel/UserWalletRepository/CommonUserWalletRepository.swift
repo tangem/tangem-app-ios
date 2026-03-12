@@ -19,8 +19,9 @@ import TangemPay
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+
+    @Injected(\.paymentAccountAuthorizationTokensRepository)
+    private var paymentAccountAuthorizationTokensRepository: PaymentAccountAuthorizationTokensRepository
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -231,7 +232,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         associatedCardIds.forEach {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
-        try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
+        try? paymentAccountAuthorizationTokensRepository
+            .deleteTokens(customerWalletId: userWalletId.stringValue)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }

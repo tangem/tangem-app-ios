@@ -17,7 +17,7 @@ import TangemPay
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    func makePaymentAccountAuthorizingInteractor(utilities: PaymentAccountUtilities) -> PaymentAccountAuthorizing { PaymentAccountAuthorizingMock() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(keys: .cardWallet(keys: []))

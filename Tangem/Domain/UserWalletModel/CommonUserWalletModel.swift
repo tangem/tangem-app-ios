@@ -351,15 +351,16 @@ extension CommonUserWalletModel: KeysDerivingProvider {
     }
 }
 
-extension CommonUserWalletModel: TangemPayAuthorizingProvider {
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+extension CommonUserWalletModel: PaymentAccountAuthorizingProvider {
+    func makePaymentAccountAuthorizingInteractor(utilities: PaymentAccountUtilities) -> PaymentAccountAuthorizing {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return TangemPayAuthorizingCardInteractor(with: cardInfo)
+            return PaymentAccountAuthorizingCardInteractor(with: cardInfo, utilities: utilities)
         case .mobileWallet:
-            return TangemPayAuthorizingMobileWalletInteractor(
+            return PaymentAccountAuthorizingMobileWalletInteractor(
                 userWalletId: userWalletId,
-                userWalletConfig: config
+                userWalletConfig: config,
+                utilities: utilities
             )
         }
     }

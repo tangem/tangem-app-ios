@@ -14,22 +14,25 @@ import TangemVisa
 
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     private let customerWalletId: String
-    private let authorizationService: TangemPayAuthorizationService
+    private let authorizationService: PaymentAccountAuthorizationService
+    private let utilities: PaymentAccountUtilities
 
     public init(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
+        authorizationService: PaymentAccountAuthorizationService,
+        utilities: PaymentAccountUtilities
     ) {
         self.customerWalletId = customerWalletId
         self.authorizationService = authorizationService
+        self.utilities = utilities
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
-        let derivationPath = TangemPayUtilities.derivationPath
+        let derivationPath = utilities.derivationPath
 
         runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
             do {
-                guard let seedKey = session.environment.card?.wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+                guard let seedKey = session.environment.card?.wallets.first(where: { $0.curve == handler.utilities.mandatoryCurve })?.publicKey else {
                     throw TangemSdkError.walletNotFound
                 }
 
@@ -53,7 +56,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
                     )
                 )
 
-                let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+                let customerWalletAddress = try handler.utilities.makeAddress(using: walletPublicKey)
                 let tokens = try await handler.handleCustomerWalletAuthorization(
                     session: session,
                     walletPublicKey: walletPublicKey,
@@ -88,7 +91,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
         VisaLogger.info("Received challenge to sign")
 
-        let signRequest = try TangemPayUtilities.prepareForSign(challengeResponse: challengeResponse)
+        let signRequest = try utilities.prepareForSign(challengeResponse: challengeResponse)
 
         let signResponse = try await SignHashCommand(
             hash: signRequest.hash,

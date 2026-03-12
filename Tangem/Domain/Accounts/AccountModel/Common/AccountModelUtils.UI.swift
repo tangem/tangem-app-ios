@@ -85,6 +85,8 @@ extension AccountModelUtils {
                 return Assets.Accounts.walletAccounts
             case .tangemPay:
                 return Assets.Visa.accountAvatar
+            case .virtualAccount:
+                return Assets.Visa.accountAvatar
             }
         }
 
