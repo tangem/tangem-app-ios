@@ -321,6 +321,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         cryptoAccountModel.walletModelsManager.walletModels.forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
                     case .standard(.multiple(let cryptoAccountModels)):
                         cryptoAccountModels.flatMap(\.walletModelsManager.walletModels).forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
+                    case .tangemPay(_):
+                        break
                     }
                 }
             }
