@@ -730,12 +730,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
-    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
-        coordinator?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+    func openTangemPayKYCInProgressPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor) {
+        coordinator?.openTangemPayKYCInProgressPopup(paymentAccountKYCInteractor: paymentAccountKYCInteractor)
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
-        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+    func openTangemPayKYCDeclinedPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor) {
+        coordinator?.openTangemPayKYCDeclinedPopup(paymentAccountKYCInteractor: paymentAccountKYCInteractor)
     }
 
     func openTangemPayIssuingYourCardPopup() {

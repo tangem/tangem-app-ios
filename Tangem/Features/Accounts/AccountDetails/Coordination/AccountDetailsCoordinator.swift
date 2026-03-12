@@ -122,5 +122,8 @@ private extension AccountDetailsCoordinator {
 
         /// TangemPay does not support token management
         func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Virtual accounts do not support token management
+        func resolve(accountModel: any VirtualAccountModel) {}
     }
 }

@@ -125,6 +125,8 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
             return cryptoAccounts
         case .tangemPay:
             return []
+        case .virtualAccount:
+            return []
         }
     }
 

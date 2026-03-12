@@ -32,7 +32,9 @@ final class TokenEntriesDerivator {
             var subscription: AnyCancellable?
 
             let accountModelsManager = userWalletModel.accountModelsManager
-            let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
+            let paymentAccountAuthorizingInteractor = userWalletModel.makePaymentAccountAuthorizingInteractor(
+                utilities: .tangemPay
+            )
 
             // One-time subscription to get the latest list of crypto accounts
             subscription = accountModelsManager
@@ -49,7 +51,9 @@ final class TokenEntriesDerivator {
 
                     if let tangemPayAccount {
                         group.enter()
-                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
+                        tangemPayAccount.syncTokens(
+                            authorizingInteractor: paymentAccountAuthorizingInteractor
+                        ) {
                             group.leave()
                         }
                     }

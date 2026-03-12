@@ -15,7 +15,7 @@ public struct TangemPayProviderBuilder {
 
     public func buildProvider<T: TargetType>(
         bffStaticToken: String,
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler?,
+        authorizationTokensHandler: PaymentAccountAuthorizationTokensHandler?,
         configuration: URLSessionConfiguration
     ) -> TangemProvider<T> {
         var plugins: [PluginType] = [
@@ -50,7 +50,7 @@ struct TangemPayDefaultHeadersPlugin: PluginType {
 
 struct TangemPayAuthorizationPlugin: PluginType {
     let bffStaticToken: String
-    let authorizationTokensHandler: TangemPayAuthorizationTokensHandler?
+    let authorizationTokensHandler: PaymentAccountAuthorizationTokensHandler?
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request

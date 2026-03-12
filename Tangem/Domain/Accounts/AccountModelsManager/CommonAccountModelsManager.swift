@@ -20,9 +20,10 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
-    private nonisolated let tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
+    private nonisolated let paymentAccountGlobalStateProvider: PaymentAccountGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private nonisolated let tangemPayManager: TangemPayManager
+    private nonisolated let virtualAccountManager: VirtualAccountManager
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let dependenciesFactory: CryptoAccountDependenciesFactory
 
@@ -43,6 +44,7 @@ actor CommonAccountModelsManager {
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
+        virtualAccountManager: VirtualAccountManager,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
@@ -50,6 +52,7 @@ actor CommonAccountModelsManager {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.tangemPayManager = tangemPayManager
+        self.virtualAccountManager = virtualAccountManager
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
@@ -62,12 +65,12 @@ actor CommonAccountModelsManager {
         var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
         self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
 
-        @Injected(\.tangemPayAccountGlobalStateProvider)
-        var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
-        self.tangemPayAccountGlobalStateProvider = tangemPayAccountGlobalStateProvider
+        @Injected(\.paymentAccountGlobalStateProvider)
+        var paymentAccountGlobalStateProvider: PaymentAccountGlobalStateProvider
+        self.paymentAccountGlobalStateProvider = paymentAccountGlobalStateProvider
 
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
-        tangemPayAccountGlobalStateProvider.register(self, forIdentifier: userWalletId)
+        paymentAccountGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize(forUserWalletWithId: userWalletId)
     }
@@ -204,8 +207,16 @@ actor CommonAccountModelsManager {
                         : []
                 }
 
-            let combined = Publishers.CombineLatest(crypto, tangemPay)
-                .map(+)
+            let virtualAccount = virtualAccountManager
+                .isVirtualAccountCustomerPublisher
+                .map { [virtualAccountManager] isVACustomer in
+                    isVACustomer
+                        ? [AccountModel.virtualAccount(virtualAccountManager)]
+                        : []
+                }
+
+            let combined = Publishers.CombineLatest3(crypto, tangemPay, virtualAccount)
+                .map { $0 + $1 + $2 }
                 .handleEvents(receiveOutput: { [weak self] accountModels in
                     self?.criticalSection {
                         self?.unsafeAccountModels = accountModels
@@ -443,7 +454,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {
+    func acceptTangemPayOffer(authorizingInteractor: any PaymentAccountAuthorizing) async {
         await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
         guard case .kycRequired = tangemPayManager.state else {
             return
@@ -493,7 +504,7 @@ extension CommonAccountModelsManager: AccountModelsReordering {
 extension CommonAccountModelsManager: DisposableEntity {
     nonisolated func dispose() {
         cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
-        tangemPayAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
+        paymentAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
 
         for accountModel in accountModels {
             switch accountModel {
@@ -502,6 +513,8 @@ extension CommonAccountModelsManager: DisposableEntity {
             case .standard(.multiple(let cryptoAccountModels)):
                 cryptoAccountModels.forEach { $0.dispose() }
             case .tangemPay:
+                break
+            case .virtualAccount:
                 break
             }
         }

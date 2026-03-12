@@ -47,6 +47,11 @@ public extension TangemPayUtilities {
     struct SignRequestData {
         public let message: String
         public let hash: Data
+
+        public init(message: String, hash: Data) {
+            self.message = message
+            self.hash = hash
+        }
     }
 
     enum Error: Swift.Error {

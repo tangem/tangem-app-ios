@@ -16,8 +16,8 @@ import TangemUI
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
-    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
-    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
+    func openTangemPayKYCInProgressPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor)
+    func openTangemPayKYCDeclinedPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
 }
 
@@ -49,10 +49,10 @@ final class TangemPayAccountViewModel: ObservableObject {
         switch tangemPayLocalState {
         case .loading, .syncNeeded, .syncInProgress, .unavailable:
             break
-        case .kycRequired(let tangemPayKYCInteractor):
-            router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
-        case .kycDeclined(let tangemPayKYCInteractor):
-            router?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .kycRequired(let paymentAccountKYCInteractor):
+            router?.openTangemPayKYCInProgressPopup(paymentAccountKYCInteractor: paymentAccountKYCInteractor)
+        case .kycDeclined(let paymentAccountKYCInteractor):
+            router?.openTangemPayKYCDeclinedPopup(paymentAccountKYCInteractor: paymentAccountKYCInteractor)
         case .issuingCard:
             router?.openTangemPayIssuingYourCardPopup()
         case .failedToIssueCard:

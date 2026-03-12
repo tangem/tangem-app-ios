@@ -51,7 +51,10 @@ struct AccountModelUtilsTests {
 
     @Test("cryptoAccountIcons contains all Name cases except .tangemPay")
     func testCryptoIconsAreAllCasesMinusTangemPay() {
-        let expected = Set(AccountModel.Icon.Name.allCases).subtracting([AccountModel.Icon.Name.tangemPay])
+        let expected = Set(AccountModel.Icon.Name.allCases)
+            .subtracting([AccountModel.Icon.Name.tangemPay])
+            .subtracting([AccountModel.Icon.Name.virtualAccount])
+
         let actual = Set(AccountModel.Icon.Name.cryptoAccountIcons)
 
         #expect(actual == expected)

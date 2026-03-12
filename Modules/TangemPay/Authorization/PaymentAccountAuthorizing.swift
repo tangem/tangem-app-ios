@@ -1,5 +1,5 @@
 //
-//  TangemPayAuthorizing.swift
+//  PaymentAccountAuthorizing.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import Foundation
 import TangemSdk
 
-public protocol TangemPayAuthorizing: TangemPayAuthorizerSyncNeededTitleProvider {
+public protocol PaymentAccountAuthorizing: PaymentAccountAuthorizerSyncNeededTitleProvider {
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse
+        authorizationService: PaymentAccountAuthorizationService
+    ) async throws -> PaymentAccountAuthorizingResponse
 }
 
-public struct TangemPayAuthorizingResponse {
+public struct PaymentAccountAuthorizingResponse {
     public let customerWalletAddress: String
     public let tokens: TangemPayAuthorizationTokens
     public let derivationResult: [Data: DerivedKeys]

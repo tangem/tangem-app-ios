@@ -21,21 +21,21 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     private let source: TangemPayOnboardingSource
     private let availableSelection: TangemPayWalletSelectionType
-    private let availabilityService: TangemPayAvailabilityService
+    private let availabilityService: PaymentAccountAvailabilityService
     private weak var coordinator: TangemPayOnboardingRoutable?
 
     init(
         source: TangemPayOnboardingSource,
         availableSelection: TangemPayWalletSelectionType,
-        availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build(),
         coordinator: TangemPayOnboardingRoutable?,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
         self.source = source
         self.availableSelection = availableSelection
-        self.availabilityService = availabilityService
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
+
+        availabilityService = PaymentAccountAvailabilityServiceBuilder().build()
     }
 
     @MainActor

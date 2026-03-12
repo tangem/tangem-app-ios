@@ -57,7 +57,7 @@ final class TangemPayAccount {
     let customerService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
-    private let orderStatusPollingService: TangemPayOrderStatusPollingService
+    private let orderStatusPollingService: PaymentAccountOrderStatusPollingService
 
     var depositAddress: String? {
         customerInfoSubject.value.customerInfo.depositAddress
@@ -85,7 +85,7 @@ final class TangemPayAccount {
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
         expressCEXTransactionDispatcher: any TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
-        orderStatusPollingService: TangemPayOrderStatusPollingService,
+        orderStatusPollingService: PaymentAccountOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         account: (any TangemPayAccountModel)?
     ) {

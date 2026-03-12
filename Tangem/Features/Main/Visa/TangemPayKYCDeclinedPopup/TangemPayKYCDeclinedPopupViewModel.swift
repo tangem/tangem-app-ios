@@ -18,7 +18,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    let tangemPayKYCInteractor: TangemPayKYCInteractor
+    let paymentAccountKYCInteractor: PaymentAccountKYCInteractor
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     var primaryButton: MainButton.Settings {
@@ -57,10 +57,10 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     init(
-        tangemPayKYCInteractor: TangemPayKYCInteractor,
+        paymentAccountKYCInteractor: PaymentAccountKYCInteractor,
         coordinator: TangemPayKYCDeclinedRoutable
     ) {
-        self.tangemPayKYCInteractor = tangemPayKYCInteractor
+        self.paymentAccountKYCInteractor = paymentAccountKYCInteractor
         self.coordinator = coordinator
     }
 
@@ -72,7 +72,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         coordinator?.closeKYCDeclinedPopup()
         runTask(in: self) { viewModel in
             do {
-                try await viewModel.tangemPayKYCInteractor.launchKYC()
+                try await viewModel.paymentAccountKYCInteractor.launchKYC()
             } catch {
                 VisaLogger.error("Failed to launch KYC from hyperlink", error: error)
             }
@@ -83,7 +83,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         dismiss()
         let logsComposer = LogsComposer(
             infoProvider: TangemPayKYCDeclinedDataCollector(
-                customerId: tangemPayKYCInteractor.customerId
+                customerId: paymentAccountKYCInteractor.customerId
             ),
             includeZipLogs: false
         )
@@ -99,7 +99,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     private func hideKYC() {
-        tangemPayKYCInteractor.cancelKYC { [weak self] succeeded in
+        paymentAccountKYCInteractor.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }

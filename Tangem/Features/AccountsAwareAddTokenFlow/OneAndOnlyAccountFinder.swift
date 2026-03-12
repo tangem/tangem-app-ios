@@ -31,6 +31,8 @@ enum OneAndOnlyAccountFinder {
         case .tangemPay:
             // Currently it's impossible to have TangemPay account without having any other account
             nil
+        case .virtualAccount:
+            nil
         }
 
         guard let cryptoAccountModel else {

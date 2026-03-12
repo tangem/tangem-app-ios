@@ -1,12 +1,12 @@
 //
-//  TangemPayAuthorizationTokensHandler.swift
+//  PaymentAccountAuthorizationTokensHandler.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public protocol TangemPayAuthorizationTokensHandler: AnyObject {
+public protocol PaymentAccountAuthorizationTokensHandler: AnyObject {
     var authorizationHeader: String? { get }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws

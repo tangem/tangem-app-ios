@@ -14,8 +14,8 @@ enum TangemPayLocalState {
 
     case unavailable
 
-    case kycRequired(TangemPayKYCInteractor)
-    case kycDeclined(TangemPayKYCInteractor)
+    case kycRequired(PaymentAccountKYCInteractor)
+    case kycDeclined(PaymentAccountKYCInteractor)
     case issuingCard
     case failedToIssueCard
 

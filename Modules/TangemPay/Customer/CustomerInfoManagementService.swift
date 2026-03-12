@@ -32,7 +32,8 @@ public protocol CustomerInfoManagementService: AnyObject {
         signature: TangemPayWithdrawSignature
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult
 
-    func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+    func placeTangemPayOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+    func placeVirtualAccountOrder(request: VirtualAccountPlaceOrderRequest) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
     @discardableResult
@@ -40,7 +41,7 @@ public protocol CustomerInfoManagementService: AnyObject {
 }
 
 final class CommonCustomerInfoManagementService {
-    private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
+    private let authorizationTokenHandler: PaymentAccountAuthorizationTokensHandler
     private let apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
 
     private let apiType: VisaAPIType
@@ -52,7 +53,7 @@ final class CommonCustomerInfoManagementService {
 
     init(
         apiType: VisaAPIType,
-        authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
+        authorizationTokenHandler: PaymentAccountAuthorizationTokensHandler,
         apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
     ) {
         self.apiType = apiType
@@ -145,8 +146,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: apiType.baseURL.absoluteString)
     }
 
-    public func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
-        try await request(for: .placeOrder(customerWalletAddress: customerWalletAddress))
+    public func placeTangemPayOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+        try await request(for: .placeTangemPayOrder(customerWalletAddress: customerWalletAddress))
+    }
+
+    public func placeVirtualAccountOrder(request: VirtualAccountPlaceOrderRequest) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+        try await self.request(for: .placeVirtualAccountOrder(request))
     }
 
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {

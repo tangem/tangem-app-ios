@@ -15,8 +15,8 @@ final class CommonAccountsAwareTokenSelectorWalletsProvider {
     @Injected(\.cryptoAccountsGlobalStateProvider)
     private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
-    @Injected(\.tangemPayAccountGlobalStateProvider)
-    private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
+    @Injected(\.paymentAccountGlobalStateProvider)
+    private var paymentAccountGlobalStateProvider: PaymentAccountGlobalStateProvider
 }
 
 // MARK: - AccountsAwareTokenSelectorWalletsProvider
@@ -104,11 +104,16 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
                         tangemPayAccountModel: tangemPayAccountModel
                     ),
                 ]
+
+            case .virtualAccount:
+                []
             }
         }
 
         switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
-        case .single where tangemPayAccountGlobalStateProvider.hasTangemPayAccount:
+        case .single where paymentAccountGlobalStateProvider.hasTangemPayAccount:
+            return .multiple(items)
+        case .single where paymentAccountGlobalStateProvider.hasVirtualAccount:
             return .multiple(items)
         case .single:
             if let item = items.singleElement {

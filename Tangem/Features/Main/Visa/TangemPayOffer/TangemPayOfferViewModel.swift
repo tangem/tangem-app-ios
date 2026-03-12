@@ -87,8 +87,11 @@ final class TangemPayOfferViewModel: ObservableObject {
     func acceptOffer(on userWalletModel: UserWalletModel) {
         isLoading = true
         runTask(in: self) { viewModel in
+            let interactor = userWalletModel.makePaymentAccountAuthorizingInteractor(
+                utilities: .tangemPay
+            )
             await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+                authorizingInteractor: interactor
             )
             await viewModel.closeOfferScreen()
         }

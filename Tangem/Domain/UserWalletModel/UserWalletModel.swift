@@ -22,7 +22,7 @@ protocol UserWalletModel:
     EmailDataProvider,
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
-    TangemPayAuthorizingProvider,
+    PaymentAccountAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,

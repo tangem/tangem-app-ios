@@ -193,5 +193,5 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
     func dispose() {}
 
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
+    func acceptTangemPayOffer(authorizingInteractor: any PaymentAccountAuthorizing) async {}
 }

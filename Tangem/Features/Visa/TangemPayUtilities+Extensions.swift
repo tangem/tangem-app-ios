@@ -7,12 +7,13 @@
 //
 
 import BlockchainSdk
+import TangemSdk
 import TangemVisa
 import TangemPay
 
 extension TangemPayUtilities {
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    @Injected(\.paymentAccountAuthorizationTokensRepository)
+    private static var tangemPayAuthorizationTokensRepository: PaymentAccountAuthorizationTokensRepository
 
     @Injected(\.keysManager)
     private static var keysManager: KeysManager
@@ -89,6 +90,18 @@ extension TangemPayUtilities {
         }
 
         return (customerWalletAddress, tokens)
+    }
+
+    static func _prepareForSign(challengeResponse: PaymentAccountGetChallengeResponse) throws -> SignRequestData {
+        let signingRequestMessage = "Tangem Pay wants to sign in with your account. Nonce: \(challengeResponse.nonce)"
+        let eip191Message = "\u{19}Ethereum Signed Message:\n\(signingRequestMessage.count)\(signingRequestMessage)"
+
+        guard let eip191MessageData = eip191Message.data(using: .utf8) else {
+            throw Error.failedToCreateEIP191Message(content: signingRequestMessage)
+        }
+
+        let hash = eip191MessageData.sha3(.keccak256)
+        return SignRequestData(message: signingRequestMessage, hash: hash)
     }
 
     static func getBFFStaticToken() -> String {

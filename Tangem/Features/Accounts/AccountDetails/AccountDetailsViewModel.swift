@@ -242,5 +242,10 @@ private extension AccountDetailsViewModel {
         func resolve(accountModel: any TangemPayAccountModel) -> Task<Void, Never> {
             Task {}
         }
+
+        /// Virtual accounts do not support archiving
+        func resolve(accountModel: any VirtualAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
     }
 }
