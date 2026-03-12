@@ -115,12 +115,8 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var addresses: [Address] { [defaultAddress] }
-    var defaultAddress: Address {
-        PlainAddress(value: "mock", publicKey: publicKey, type: .default)
-    }
-
-    var receiveAddress: Address { defaultAddress }
+    var addresses: [String] { [defaultAddress] }
+    var defaultAddress: String { "mock" }
 
     var addressNames: [String] { [] }
     var isMainToken: Bool { true }

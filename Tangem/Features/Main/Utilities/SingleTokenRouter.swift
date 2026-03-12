@@ -187,7 +187,7 @@ private extension SingleTokenRouter {
     func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
         SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
-            address: walletModel.defaultAddressString,
+            address: walletModel.defaultAddress,
             amountType: walletModel.tokenItem.amountType
         )
     }

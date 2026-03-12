@@ -14,10 +14,6 @@ public struct EmptyAddressesProvider: Wallet.AddressesProvider {
         fatalError("EmptyAddressesProvider doesn't have a default address")
     }
 
-    public var receiveAddress: any Address {
-        fatalError("EmptyAddressesProvider doesn't have a receive address")
-    }
-
     public var changeAddress: any Address {
         fatalError("EmptyAddressesProvider doesn't have a change address")
     }

@@ -27,14 +27,14 @@ struct TokenActionAvailabilityProvider {
         self.walletModel = walletModel
         sellCryptoUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddressString
+            address: walletModel.defaultAddress
         )
     }
 
     /// Check if we have an address to interact with
     private func hasAddressToInteract() -> Bool {
         let addresses = walletModel.addresses
-        let hasAtLeastOneAddress = addresses.contains { !$0.value.isEmpty }
+        let hasAtLeastOneAddress = addresses.contains { !$0.isEmpty }
         return hasAtLeastOneAddress
     }
 

@@ -24,7 +24,7 @@ protocol SendSourceToken: SendReceiveToken {
     var fiatItem: FiatItem { get }
 
     var possibleToConvertToFiat: Bool { get }
-    var defaultAddressString: String { get }
+    var defaultAddress: String { get }
 
     // Common dependencies
 
@@ -64,7 +64,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
 
-    let defaultAddressString: String
+    let defaultAddress: String
 
     // Only for send
 

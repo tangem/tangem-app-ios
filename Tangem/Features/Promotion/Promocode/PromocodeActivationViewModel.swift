@@ -99,7 +99,7 @@ final class PromocodeActivationViewModel: ObservableObject {
             throw PromocodeActivationError.noAddress
         }
 
-        return (walletModel.defaultAddressString, userWalletModel.userWalletId)
+        return (walletModel.defaultAddress, userWalletModel.userWalletId)
     }
 }
 
