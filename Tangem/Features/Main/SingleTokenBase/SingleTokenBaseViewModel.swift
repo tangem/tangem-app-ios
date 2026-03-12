@@ -78,7 +78,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        walletAddresses: walletModel.addresses.map { $0.value },
+        addresses: walletModel.addresses,
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )
@@ -118,7 +118,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         if addresses.count == 1 {
             openAddressExplorer(at: 0)
         } else {
-            openAddressSelector(addresses) { [weak self] index in
+            openAddressSelector { [weak self] index in
                 self?.openAddressExplorer(at: index)
             }
         }
@@ -185,7 +185,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func copyDefaultAddress() {
-        UIPasteboard.general.string = walletModel.receiveAddress.value
+        UIPasteboard.general.string = walletModel.defaultAddress
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
     }
@@ -592,13 +592,14 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    private func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
-        if addresses.isEmpty {
+    private func openAddressSelector(callback: @escaping (Int) -> Void) {
+        let addressNames = walletModel.addressNames
+        if addressNames.isEmpty {
             return
         }
 
-        let addressButtons = addresses.enumerated().map { index, address in
-            ConfirmationDialogViewModel.Button(title: address.localizedName) {
+        let addressButtons = addressNames.enumerated().map { index, name in
+            ConfirmationDialogViewModel.Button(title: name) {
                 callback(index)
             }
         }

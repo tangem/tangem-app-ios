@@ -29,7 +29,7 @@ struct GaslessTransactionBuilder {
         }
 
         let transaction = try await makeTransaction(from: bsdkTransaction)
-        let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
+        let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddress)
 
         let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
         let transactionData = TransactionData(transaction: transaction, fee: feeData, nonce: smartContractNonce)
@@ -45,7 +45,7 @@ struct GaslessTransactionBuilder {
         return GaslessTransaction(
             gaslessTransaction: transactionData,
             signature: signedData.eip712Signature,
-            userAddress: walletModel.defaultAddressString,
+            userAddress: walletModel.defaultAddress,
             chainId: chainId,
             eip7702auth: .init(
                 chainId: signedData.eip7702Auth.chainId,
@@ -137,7 +137,7 @@ struct GaslessTransactionBuilder {
             fee: fee,
             nonce: nonce,
             chainId: chainId,
-            verifyingContract: walletModel.defaultAddress.value,
+            verifyingContract: walletModel.defaultAddress,
         )
 
         return typedData.signHash

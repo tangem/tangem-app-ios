@@ -147,7 +147,7 @@ extension AccountsAwareTokenSelectorItem {
                 account: account,
                 tokenItem: TangemPayUtilities.usdcTokenItem,
                 feeTokenItem: TangemPayUtilities.usdcTokenItem,
-                defaultAddressString: depositAddress,
+                defaultAddress: depositAddress,
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
                 fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
                 cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,

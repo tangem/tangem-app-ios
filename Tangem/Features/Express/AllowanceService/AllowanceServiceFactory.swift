@@ -26,7 +26,7 @@ struct AllowanceServiceFactory {
         let allowanceChecker = AllowanceChecker(
             blockchain: tokenItem.blockchain,
             amountType: tokenItem.amountType,
-            walletAddress: walletModel.defaultAddressString,
+            walletAddress: walletModel.defaultAddress,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
         )

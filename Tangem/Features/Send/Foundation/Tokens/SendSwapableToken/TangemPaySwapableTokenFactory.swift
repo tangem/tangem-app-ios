@@ -14,7 +14,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
     let account: (any TangemPayAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
-    let defaultAddressString: String
+    let defaultAddress: String
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let cexTransactionDispatcher: any TransactionDispatcher
@@ -27,7 +27,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             account: account,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
-            defaultAddressString: defaultAddressString,
+            defaultAddress: defaultAddress,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             cexTransactionDispatcher: cexTransactionDispatcher

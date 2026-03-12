@@ -32,7 +32,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
     var isFixedFee: Bool { sourceToken.isFixedFee }
     var isCustom: Bool { sourceToken.isCustom }
-    var defaultAddressString: String { sourceToken.defaultAddressString }
+    var defaultAddress: String { sourceToken.defaultAddress }
 
     var availableBalanceProvider: any TokenBalanceProvider { sourceToken.availableBalanceProvider }
     var fiatAvailableBalanceProvider: any TokenBalanceProvider { sourceToken.fiatAvailableBalanceProvider }

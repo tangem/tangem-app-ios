@@ -16,7 +16,7 @@ enum WalletModelFinder {
     static func findMainWalletModel(defaultAddress: String) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-            if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddressString == defaultAddress }) {
+            if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddress == defaultAddress }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)
             }
         }

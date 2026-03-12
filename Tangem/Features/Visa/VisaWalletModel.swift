@@ -243,14 +243,14 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
-    var addresses: [any Address] {
+    var addresses: [String] {
         // [REDACTED_TODO_COMMENT]
         []
     }
 
-    var defaultAddress: any Address {
+    var defaultAddress: String {
         // [REDACTED_TODO_COMMENT]
-        PlainAddress(value: "", publicKey: publicKey, type: .default)
+        ""
     }
 
     var addressNames: [String] {
@@ -326,9 +326,7 @@ extension VisaWalletModel: WalletModel {
 
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         // [REDACTED_TODO_COMMENT]
-        let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-        let types = addressInfos.map { ReceiveAddressType.address($0) }
-        return .just(output: types)
+        .just(output: [])
     }
 
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {

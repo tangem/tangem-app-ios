@@ -16,7 +16,7 @@ struct TangemPaySourceTokenFactory {
     let account: (any TangemPayAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
-    let defaultAddressString: String
+    let defaultAddress: String
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let cexTransactionDispatcher: any TransactionDispatcher
@@ -46,7 +46,7 @@ struct TangemPaySourceTokenFactory {
             feeTokenItem: feeTokenItem,
             isFixedFee: false,
             isCustom: false,
-            defaultAddressString: defaultAddressString,
+            defaultAddress: defaultAddress,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             allowanceService: nil,
@@ -56,7 +56,7 @@ struct TangemPaySourceTokenFactory {
             accountModelAnalyticsProvider: nil,
             tokenItem: tokenItem,
             fiatItem: fiatItem,
-            address: defaultAddressString,
+            address: defaultAddress,
             extraId: nil
         )
     }

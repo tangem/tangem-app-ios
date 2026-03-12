@@ -16,7 +16,7 @@ struct SendSuggestedWalletsFactory {
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     func makeSuggestedWallets(walletModel: any WalletModel) -> [SendDestinationSuggestedWallet] {
-        let ignoredAddresses = walletModel.addresses.map(\.value).toSet()
+        let ignoredAddresses = walletModel.addresses.toSet()
         let targetNetworkId = walletModel.tokenItem.blockchain.networkId
         let shouldShowAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
@@ -31,7 +31,7 @@ struct SendSuggestedWalletsFactory {
             let suggestedWalletModels = walletModels.filter { walletModel in
                 let blockchain = walletModel.tokenItem.blockchain
                 let sameNetwork = blockchain.networkId == targetNetworkId
-                let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
+                let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddress) }
 
                 return sameNetwork && walletModel.isMainToken && shouldBeIncluded()
             }
@@ -44,7 +44,7 @@ struct SendSuggestedWalletsFactory {
 
                 return SendDestinationSuggestedWallet(
                     name: userWalletModel.name,
-                    address: walletModel.defaultAddressString,
+                    address: walletModel.defaultAddress,
                     account: shouldShowAccounts ? account : .none,
                     accountModelAnalyticsProvider: walletModel.account
                 )

@@ -64,16 +64,16 @@ private extension SendReceiveTokenWalletDataProvider {
     }
 
     func makeWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let walletAddresses = walletModel.addresses.map(\.value)
+        let addresses = walletModel.addresses
 
         return .init(
-            walletAddresses: walletAddresses,
+            addresses: addresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel),
             destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
                 transactionHistoryUpdater: walletModel,
                 transactionHistoryMapper: TransactionHistoryMapper(
                     currencySymbol: walletModel.tokenItem.currencySymbol,
-                    walletAddresses: walletAddresses,
+                    addresses: addresses,
                     showSign: false,
                     isToken: walletModel.tokenItem.isToken
                 )

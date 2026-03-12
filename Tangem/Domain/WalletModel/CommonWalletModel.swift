@@ -258,11 +258,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [Address] { wallet.addresses }
+    var addresses: [String] { wallet.addresses.map(\.value) }
 
-    var defaultAddress: any Address { wallet.defaultAddress }
-
-    var receiveAddress: any Address { wallet.receiveAddress }
+    var defaultAddress: String { wallet.defaultAddress.value }
 
     var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
 
@@ -385,7 +383,7 @@ extension CommonWalletModel: WalletModelUpdater {
                 _ = await (update, quotes, staking)
                 logger.debug(self, "WalletModel was updated to state '\(walletManager.state)'")
 
-                await _receiveAddressService.update(with: addresses)
+                await _receiveAddressService.update(with: wallet.addresses)
                 logger.debug(self, "ReceiveAddressService was updated")
 
                 await walletManagerDidUpdate()
@@ -563,7 +561,7 @@ extension CommonWalletModel: WalletModelHelpers {
         )
 
         return CommonYieldModuleManager(
-            walletAddress: wallet.defaultAddress.value,
+            walletAddress: defaultAddress,
             userWalletId: userWalletId.stringValue,
             token: token,
             blockchain: wallet.blockchain,
@@ -888,6 +886,10 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        _receiveAddressService.addressTypes
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         statePublisher
             .withWeakCaptureOf(self)
