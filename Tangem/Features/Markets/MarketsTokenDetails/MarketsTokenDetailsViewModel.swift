@@ -275,6 +275,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func shareTokenDetails() {
+        Analytics.log(event: .marketsChartButtonShare, params: [.token: tokenInfo.symbol.uppercased()])
+
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
         let url = baseUrl
             .appendingPathComponent("cryptocurrencies")
