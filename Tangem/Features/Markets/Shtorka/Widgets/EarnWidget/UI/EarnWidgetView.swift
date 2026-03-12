@@ -45,20 +45,28 @@ struct EarnWidgetView: View {
             case .loading:
                 loadingSkeletons
             case .success(let tokenViewModels):
-                VStack(spacing: .zero) {
-                    ForEach(tokenViewModels) { tokenViewModel in
-                        EarnTokenItemView(viewModel: tokenViewModel)
+                if FeatureProvider.isAvailable(.redesign) {
+                    HStack(spacing: .unit(.x2)) {
+                        ForEach(tokenViewModels) { tokenViewModel in
+                            EarnTokenTileView(viewModel: tokenViewModel)
+                        }
                     }
+                } else {
+                    VStack(spacing: .zero) {
+                        ForEach(tokenViewModels) { tokenViewModel in
+                            EarnTokenItemView(viewModel: tokenViewModel)
+                        }
+                    }
+                    .defaultRoundedBackground(
+                        with: Color.Tangem.Surface.level4,
+                        verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+                        horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+                    )
                 }
             case .failure:
                 MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
         }
-        .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level4,
-            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-        )
         .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
     }
 

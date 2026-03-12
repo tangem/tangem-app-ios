@@ -429,7 +429,7 @@
 		2D257C562F3FB2DF008CB69E /* EarnDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C4B2F3FB2DF008CB69E /* EarnDataFilterProvider.swift */; };
 		2D257C572F3FB2DF008CB69E /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C4C2F3FB2DF008CB69E /* EarnDataProvider.swift */; };
 		2D257C582F3FB2DF008CB69E /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C342F3FB2DF008CB69E /* EarnMostlyUsedView.swift */; };
-		2D257C592F3FB2DF008CB69E /* EarnMostlyUsedTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C332F3FB2DF008CB69E /* EarnMostlyUsedTileView.swift */; };
+		2D257C592F3FB2DF008CB69E /* EarnTokenTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C332F3FB2DF008CB69E /* EarnTokenTileView.swift */; };
 		2D257C5A2F3FB2DF008CB69E /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C382F3FB2DF008CB69E /* EarnDetailViewModel.swift */; };
 		2D257C5B2F3FB2DF008CB69E /* EarnNetworkFilterNetworkRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C3C2F3FB2DF008CB69E /* EarnNetworkFilterNetworkRowView.swift */; };
 		2D257C5C2F3FB2DF008CB69E /* EarnDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D257C412F3FB2DF008CB69E /* EarnDTO.swift */; };
@@ -5396,7 +5396,7 @@
 		2D257C302F3FB2DF008CB69E /* EarnBestOpportunitiesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnBestOpportunitiesListView.swift; sourceTree = "<group>"; };
 		2D257C312F3FB2DF008CB69E /* EarnDetailHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailHeaderView.swift; sourceTree = "<group>"; };
 		2D257C322F3FB2DF008CB69E /* EarnFilterHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterHeaderView.swift; sourceTree = "<group>"; };
-		2D257C332F3FB2DF008CB69E /* EarnMostlyUsedTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedTileView.swift; sourceTree = "<group>"; };
+		2D257C332F3FB2DF008CB69E /* EarnTokenTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTokenTileView.swift; sourceTree = "<group>"; };
 		2D257C342F3FB2DF008CB69E /* EarnMostlyUsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedView.swift; sourceTree = "<group>"; };
 		2D257C362F3FB2DF008CB69E /* EarnDetailRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailRoutable.swift; sourceTree = "<group>"; };
 		2D257C372F3FB2DF008CB69E /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
@@ -10988,7 +10988,7 @@
 				2D257C302F3FB2DF008CB69E /* EarnBestOpportunitiesListView.swift */,
 				2D257C312F3FB2DF008CB69E /* EarnDetailHeaderView.swift */,
 				2D257C322F3FB2DF008CB69E /* EarnFilterHeaderView.swift */,
-				2D257C332F3FB2DF008CB69E /* EarnMostlyUsedTileView.swift */,
+				2D257C332F3FB2DF008CB69E /* EarnTokenTileView.swift */,
 				2D257C342F3FB2DF008CB69E /* EarnMostlyUsedView.swift */,
 			);
 			path = Components;
@@ -30405,7 +30405,7 @@
 				2D257C562F3FB2DF008CB69E /* EarnDataFilterProvider.swift in Sources */,
 				2D257C572F3FB2DF008CB69E /* EarnDataProvider.swift in Sources */,
 				2D257C582F3FB2DF008CB69E /* EarnMostlyUsedView.swift in Sources */,
-				2D257C592F3FB2DF008CB69E /* EarnMostlyUsedTileView.swift in Sources */,
+				2D257C592F3FB2DF008CB69E /* EarnTokenTileView.swift in Sources */,
 				2D257C5A2F3FB2DF008CB69E /* EarnDetailViewModel.swift in Sources */,
 				2D257C5B2F3FB2DF008CB69E /* EarnNetworkFilterNetworkRowView.swift in Sources */,
 				2D257C5C2F3FB2DF008CB69E /* EarnDTO.swift in Sources */,
