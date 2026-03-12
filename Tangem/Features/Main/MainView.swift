@@ -17,6 +17,8 @@ struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
 
+    @State private var redesignedHeaderHeightRatio: CGFloat?
+
     var body: some View {
         content
             .onAppear(perform: viewModel.onViewAppear)
@@ -44,19 +46,13 @@ struct MainView: View {
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
-            headerFactory: { page in
+            headerFactory: { pageBuilder in
                 TangemElasticContainer(
-                    onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
-                    onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
-                    content: { ratio in
-                        page.redesignedHeader(
-                            totalPages: viewModel.pages.count,
-                            currentIndex: viewModel.selectedCardIndex
-                        )
-                        .scaleEffect(ratio)
-                        .opacity(ratio)
-                    }
+                    onAddScrollViewObserver: viewModel.refreshScrollViewStateObject.addObserver,
+                    onRemoveScrollViewObserver: viewModel.refreshScrollViewStateObject.removeObserver,
+                    content: makeRedesignedHeader(pageBuilder: pageBuilder)
                 )
+                .onPreferenceChange(TangemElasticContainerHeightRatio.self) { redesignedHeaderHeightRatio = $0 }
             },
             bodyFactory: { page in
                 page.body
@@ -67,6 +63,19 @@ struct MainView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             Color.clear.frame(height: overlayCollapsedHeight)
         }
+    }
+
+    private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        let scale: CGFloat = max(0.5, redesignedHeaderHeightRatio ?? 1.0)
+        let opacity: CGFloat = redesignedHeaderHeightRatio ?? 1.0
+
+        return pageBuilder.redesignedHeader(
+            totalPages: viewModel.pages.count,
+            currentIndex: viewModel.selectedCardIndex
+        )
+        .scaleEffect(scale)
+        .opacity(opacity)
+        .animation(.default, value: redesignedHeaderHeightRatio)
     }
 
     private var cardsInfoPagerContent: some View {
