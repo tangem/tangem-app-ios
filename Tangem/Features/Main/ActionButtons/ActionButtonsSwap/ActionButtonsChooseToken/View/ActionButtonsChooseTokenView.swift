@@ -73,17 +73,6 @@ struct ActionButtonsChooseTokenView: View {
         if let selectedToken {
             ActionButtonsTokenSelectItemView(model: selectedToken, action: {})
                 .background(Colors.Background.action)
-        } else {
-            Text(viewModel.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                .padding(.init(top: 12, leading: 33, bottom: 12, trailing: 33))
-                .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center)
-                .background {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(style: .init(lineWidth: 1, dash: [4], dashPhase: 6))
-                        .foregroundStyle(Colors.Icon.informative)
-                }
         }
     }
 }
