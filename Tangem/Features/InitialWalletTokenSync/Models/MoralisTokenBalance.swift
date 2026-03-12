@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MoralisTokenBalance: Equatable {
+struct MoralisTokenBalance: Equatable, Sendable {
     let contractAddress: String?
     let symbol: String
     let name: String
