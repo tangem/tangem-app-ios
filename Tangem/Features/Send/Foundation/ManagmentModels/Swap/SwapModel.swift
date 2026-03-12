@@ -36,6 +36,10 @@ final class SwapModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
 
+    var isFixedRateSupportedByProviderPublisher: AnyPublisher<Bool, Never> {
+        _isFixedRateSupportedByProvider.removeDuplicates().eraseToAnyPublisher()
+    }
+
     weak var router: SwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -49,7 +53,8 @@ final class SwapModel {
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
-    private let isFixedRatesEnabled: Bool
+    private let isFixedRatesFeatureEnabled: Bool
+    private let _isFixedRateSupportedByProvider = CurrentValueSubject<Bool, Never>(false)
     private let balanceConverter = BalanceConverter()
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var updateTask: Task<Void, Never>?
@@ -74,7 +79,7 @@ final class SwapModel {
         self.expressAPIProvider = expressAPIProvider
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
-        self.isFixedRatesEnabled = isFixedRatesEnabled
+        isFixedRatesFeatureEnabled = isFixedRatesEnabled
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
@@ -231,16 +236,37 @@ extension SwapModel {
         updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
+                self?._isFixedRateSupportedByProvider.send(false)
                 let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
                 return provider
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+            var result: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+
+            // Check fixed rate availability for this pair
+            var isFixedRateSupported = false
+            if isFixedRatesFeatureEnabled {
+                let fixedProviders = try await expressPairsRepository
+                    .getAvailableProviders(for: pair, rateType: .fixed)
+                isFixedRateSupported = !fixedProviders.isEmpty
+            }
+            _isFixedRateSupportedByProvider.send(isFixedRateSupported)
+
+            // If fixed rate is NOT supported but ExpressManager was in .to() mode,
+            // switch to forward calculation so we get a float quote from source amount
+            if !isFixedRateSupported,
+               let currentAmountType = await expressManager.getAmountType(),
+               currentAmountType.rateType == .fixed,
+               let sourceAmount = _sourceAmount.value?.crypto {
+                result = try await expressManager.update(
+                    amountType: .from(sourceAmount), by: .pairChange
+                )
+            }
 
             // Populate _receiveAmount from the quote so the destination field
             // shows the calculated value when a TO token is selected after entering FROM amount
-            if let quote = provider.selected?.getState().quote {
+            if let quote = result.selected?.getState().quote {
                 let crypto = quote.expectAmount
                 let fiat = destination.tokenItem.currencyId.flatMap {
                     self.balanceConverter.convertToFiat(crypto, currencyId: $0)
@@ -248,7 +274,7 @@ extension SwapModel {
                 _receiveAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
             }
 
-            return provider
+            return result
         }
     }
 

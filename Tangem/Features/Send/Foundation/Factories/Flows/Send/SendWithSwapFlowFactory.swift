@@ -27,7 +27,6 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
 
     lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
-    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
 
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
@@ -35,7 +34,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         shouldStartInitialLoading: false,
-        isFixedRatesEnabled: isFixedRateMode
+        isFixedRatesEnabled: FeatureProvider.isAvailable(.expressFixedRates)
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
@@ -197,7 +196,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            isFixedRateMode: isFixedRateMode
+            isFixedRateSupportedByProviderPublisher: swapModel.isFixedRateSupportedByProviderPublisher
         )
     }
 }

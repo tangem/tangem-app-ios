@@ -59,12 +59,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    let isFixedRateMode: Bool
+    @Published private(set) var isFixedRateSupportedByProvider: Bool = false
 
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        $lastUpdateSource.map { [isFixedRateMode] source in
-            !isFixedRateMode || source == .send
-        }.eraseToAnyPublisher()
+        Publishers.CombineLatest($lastUpdateSource, $isFixedRateSupportedByProvider)
+            .map { source, isSupported in !isSupported || source == .send }
+            .eraseToAnyPublisher()
     }
 
     var compactSourceTokenViewData: SendAmountTokenViewData? {
@@ -92,6 +92,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
+    private let isFixedRateSupportedByProviderPublisher: AnyPublisher<Bool, Never>?
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
     /// Guards against stale CombineLatest emissions after removal.
@@ -114,7 +115,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        isFixedRateMode: Bool = false
+        isFixedRateSupportedByProviderPublisher: AnyPublisher<Bool, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -125,7 +126,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
-        self.isFixedRateMode = isFixedRateMode
+        self.isFixedRateSupportedByProviderPublisher = isFixedRateSupportedByProviderPublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -187,7 +188,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         animateActiveFieldChange = true
 
-        if isFixedRateMode, activeField == tappedField.opposite {
+        if isFixedRateSupportedByProvider, activeField == tappedField.opposite {
             let field = amountField(for: tappedField)
 
             // Read the value matching the field's current calculation type (crypto or fiat)
@@ -292,7 +293,7 @@ private extension SendAmountViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
-                guard viewModel.isFixedRateMode else { return }
+                guard viewModel.isFixedRateSupportedByProvider else { return }
                 viewModel.updateCompactSourceSubtitle(sourceAmount: result)
             }
             .store(in: &bag)
@@ -317,6 +318,40 @@ private extension SendAmountViewModel {
                 viewModel.destinationAmountField?.bottomInfoText = infoText
             }
             .store(in: &bag)
+
+        isFixedRateSupportedByProviderPublisher?
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isSupported in
+                viewModel.handleFixedRateSupportChange(isSupported)
+            }
+            .store(in: &bag)
+    }
+
+    func handleFixedRateSupportChange(_ isSupported: Bool) {
+        guard isFixedRateSupportedByProvider != isSupported else { return }
+        isFixedRateSupportedByProvider = isSupported
+
+        if !isSupported {
+            // Transitioning from supported → unsupported: tear down editable TO
+            pendingReverseRecalculation = false
+            isInputFieldSwitchingLocked = false
+
+            if activeField == .receive {
+                animateActiveFieldChange = true
+                activeField = .send
+                pendingFocusField = .send
+            }
+
+            destinationAmountField = nil
+            destinationFieldBag = nil
+            compactSourceSubtitle = nil
+
+            // Reset so the next CombineLatest emission treats it as "token changed"
+            // and rebuilds the destination view in non-editable mode
+            currentDestinationToken = nil
+        }
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
@@ -395,7 +430,7 @@ extension SendAmountViewModel {
             guard !isDestinationTokenClearing else { return }
             let destinationTokenIconInfo = tokenIconInfoBuilder.build(from: destinationToken.tokenItem, isCustom: destinationToken.isCustom)
 
-            if isFixedRateMode {
+            if isFixedRateSupportedByProvider {
                 let isFirstSelection = currentDestinationToken == nil
                 let tokenDidChange = currentDestinationToken?.tokenItem.id != destinationToken.tokenItem.id
                 currentDestinationToken = destinationToken

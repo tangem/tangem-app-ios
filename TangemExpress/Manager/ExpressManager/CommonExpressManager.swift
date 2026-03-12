@@ -170,7 +170,20 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws {
-        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair, rateType: rateType).toSet()
+        let availableProviderIds: Set<ExpressProvider.Id>
+
+        if rateType == .float {
+            // For forward calculations (.from), include all providers regardless
+            // of rate type support. Fixed-rate-only providers can still provide
+            // quotes for FROM amount requests.
+            async let floatIds = expressRepository.getAvailableProviders(for: pair, rateType: .float)
+            async let fixedIds = expressRepository.getAvailableProviders(for: pair, rateType: .fixed)
+            availableProviderIds = try await Set(floatIds + fixedIds)
+        } else {
+            // For reverse calculations (.to), only fixed-rate providers
+            availableProviderIds = try await expressRepository.getAvailableProviders(for: pair, rateType: rateType).toSet()
+        }
+
         let providers = try await expressRepository.providers()
 
         availableProviders = try providers.compactMap { provider in
