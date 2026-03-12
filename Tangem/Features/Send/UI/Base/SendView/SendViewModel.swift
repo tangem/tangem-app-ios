@@ -176,8 +176,8 @@ final class SendViewModel: ObservableObject {
 private extension SendViewModel {
     func performApprove() {
         do {
-            let input = try approveViewModelInputDataBuilder.makeExpressApproveViewModelInput()
-            coordinator?.openApproveView(expressApproveViewModelInput: input)
+            let factory = try approveViewModelInputDataBuilder.makeApproveFlowFactory()
+            coordinator?.openApproveView(flowFactory: factory)
         } catch {
             showAlert(error.alertBinder)
         }
@@ -264,7 +264,7 @@ private extension SendViewModel {
                     .makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .approve(let approveData):
+            case .approve(let approveData, _):
                 let (emailDataCollector, recipient) = try mailDataBuilder
                     .makeMailData(approveTransaction: approveData, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
