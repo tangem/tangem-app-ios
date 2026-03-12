@@ -640,6 +640,9 @@
 		2D96E9822E55D25300B69F91 /* ReceiveMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */; };
 		2D96E9832E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E92E2E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift */; };
 		2D96E9862E55D37500B69F91 /* ReceiveAddressTypeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */; };
+		2D97E58A2F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */; };
+		2D97E58B2F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */; };
+		2D97E58D2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */; };
 		2D9DCB3C2F31F59700C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */; };
 		2D9FAB932E13E118005AE305 /* EthereumAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */; };
 		2D9FAB942E13E118005AE305 /* EthereumAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */; };
@@ -862,6 +865,8 @@
 		2DF123452F28A1B10NEWS0002 /* NewsIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */; };
 		2DF123452F28A1B10NEWS0004 /* NewsIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */; };
 		2DF123452F28A1B10NEWS0006 /* NewsDeeplinkValidationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0005 /* NewsDeeplinkValidationServiceTests.swift */; };
+		2DF24A202F605ED100E9D89A /* MoralisRateLimitedRequestQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF24A1C2F605ED100E9D89A /* MoralisRateLimitedRequestQueueTests.swift */; };
+		2DF24A212F605ED100E9D89A /* RateLimitedMoralisTokenBalanceClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF24A1D2F605ED100E9D89A /* RateLimitedMoralisTokenBalanceClientTests.swift */; };
 		2DFB00D42EF58396006C2392 /* MarketsMainSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFB00D32EF58396006C2392 /* MarketsMainSearchView.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
 		2DFC27922C78E833009B247E /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */; };
@@ -5608,6 +5613,9 @@
 		2D96E95C2E55D25300B69F91 /* ReceiveMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainView.swift; sourceTree = "<group>"; };
 		2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainViewModel.swift; sourceTree = "<group>"; };
 		2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAddressTypeProvider.swift; sourceTree = "<group>"; };
+		2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisRateLimitedRequestQueue.swift; sourceTree = "<group>"; };
+		2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitedMoralisTokenBalanceClient.swift; sourceTree = "<group>"; };
+		2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoralisTokenBalanceClient+InjectedValues.swift"; sourceTree = "<group>"; };
 		2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainTokenDetailsCoordinatorFactory.swift; sourceTree = "<group>"; };
 		2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressResolver.swift; sourceTree = "<group>"; };
 		2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressUtils.swift; sourceTree = "<group>"; };
@@ -5822,6 +5830,8 @@
 		2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParser.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParserTests.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0005 /* NewsDeeplinkValidationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDeeplinkValidationServiceTests.swift; sourceTree = "<group>"; };
+		2DF24A1C2F605ED100E9D89A /* MoralisRateLimitedRequestQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisRateLimitedRequestQueueTests.swift; sourceTree = "<group>"; };
+		2DF24A1D2F605ED100E9D89A /* RateLimitedMoralisTokenBalanceClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitedMoralisTokenBalanceClientTests.swift; sourceTree = "<group>"; };
 		2DFB00D32EF58396006C2392 /* MarketsMainSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainSearchView.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
 		2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
@@ -11498,11 +11508,14 @@
 		2D80539D2F600D0800442A32 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */,
 				2D8053982F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift */,
 				2D8053992F600D0800442A32 /* MoralisTokenBalanceClient.swift */,
 				2D80539A2F600D0800442A32 /* MoralisTokenBalanceDTO.swift */,
 				2D80539B2F600D0800442A32 /* MoralisTokenBalanceError.swift */,
 				2D80539C2F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift */,
+				2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */,
+				2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -12390,6 +12403,15 @@
 				AF4C9100313E4A3AB618D254 /* Testing+NewsTag.swift */,
 			);
 			path = News;
+			sourceTree = "<group>";
+		};
+		2DF24A1E2F605ED100E9D89A /* InitialWalletTokenSync */ = {
+			isa = PBXGroup;
+			children = (
+				2DF24A1C2F605ED100E9D89A /* MoralisRateLimitedRequestQueueTests.swift */,
+				2DF24A1D2F605ED100E9D89A /* RateLimitedMoralisTokenBalanceClientTests.swift */,
+			);
+			path = InitialWalletTokenSync;
 			sourceTree = "<group>";
 		};
 		2DFC27912C78E833009B247E /* TokenItemInfo */ = {
@@ -23027,6 +23049,7 @@
 		EAF6A6822DF9C44A0094B883 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				2DF24A1E2F605ED100E9D89A /* InitialWalletTokenSync */,
 				2DF123452F28A1B10NEWS0007 /* Markets */,
 				EAF6A6812DF9C44A0094B883 /* IncomingActions */,
 				C26836692F3E17CE005E54DB /* WalletConnect */,
@@ -29840,6 +29863,9 @@
 				DC7AFA2B2E840856005AA071 /* AccountSelectorViewModel.swift in Sources */,
 				DC7AFA2C2E840856005AA071 /* AccountSelectorView.swift in Sources */,
 				C2DB41942DCA2A640028E6B0 /* WalletConnectErrorViewModel.swift in Sources */,
+				2D97E58A2F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift in Sources */,
+				2D97E58B2F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */,
+				2D97E58D2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				30DEC76A2E9FDF6C007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift in Sources */,
 				DAFD693D2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift in Sources */,
@@ -30535,6 +30561,8 @@
 				1D4A3154D7C14B0EA3D4B86F /* NewsListViewModelTests.swift in Sources */,
 				8FC4834AAC364EB18C9DD38D /* NewsDTOListRequestTests.swift in Sources */,
 				5B3D2FAE3D734302A4C1E97A /* Testing+NewsTag.swift in Sources */,
+				2DF24A202F605ED100E9D89A /* MoralisRateLimitedRequestQueueTests.swift in Sources */,
+				2DF24A212F605ED100E9D89A /* RateLimitedMoralisTokenBalanceClientTests.swift in Sources */,
 				EAF6A6842DF9C44A0094B883 /* IncomingURLValidatorTests.swift in Sources */,
 				EAF6A6852DF9C44A0094B883 /* IncomingActionsTests.swift in Sources */,
 				DA19D8C82B39AE6C001C91C4 /* QRCodeParserTests.swift in Sources */,
