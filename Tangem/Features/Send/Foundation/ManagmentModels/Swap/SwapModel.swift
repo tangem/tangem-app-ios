@@ -292,8 +292,11 @@ extension SwapModel {
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
+                    let rateType = await input.expressManager.getAmountType()?.rateType
+                    let filteredProviders = updatingResult.providers.filteredByRateType(rateType)
+
                     input.update(providersState: .loaded(
-                        providers: updatingResult.providers,
+                        providers: filteredProviders,
                         selected: updatingResult.selected,
                         state: state
                     ))
