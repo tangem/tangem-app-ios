@@ -51,10 +51,19 @@ struct YieldModuleTransactionView: View {
             .frame(size: .init(bothDimensions: 56))
     }
 
-    private var mainButton: MainButton {
+    @ViewBuilder
+    private var mainButton: some View {
+        if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+            mainActionHoldButton
+        } else {
+            mainActionButton
+        }
+    }
+
+    private var mainActionButton: some View {
         MainButton(settings: .init(
             title: viewModel.action.buttonTitle,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
             style: .primary,
             isLoading: viewModel.isProcessingRequest,
             isDisabled: !viewModel.isActionButtonAvailable,
@@ -62,8 +71,17 @@ struct YieldModuleTransactionView: View {
         ))
     }
 
+    private var mainActionHoldButton: some View {
+        HoldToConfirmButton(
+            title: viewModel.action.buttonTitle,
+            isLoading: viewModel.isProcessingRequest,
+            isDisabled: !viewModel.isActionButtonAvailable,
+            action: viewModel.onActionTap
+        )
+    }
+
     private var header: some View {
-        BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
+        BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackTap) })
     }
 }
 

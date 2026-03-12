@@ -18,6 +18,7 @@ extension MainCoordinator {
         @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
         @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
         @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+        @Injected(\.newsDeeplinkValidationService) private var newsDeeplinkValidationService: NewsDeeplinkValidating
 
         weak var coordinator: MainRoutable?
 
@@ -69,7 +70,7 @@ extension MainCoordinator {
             case .swap:
                 return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
 
-            case .onboardVisa:
+            case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
                     params: navigationAction.params,
                     deeplinkString: navigationAction.deeplinkString
@@ -77,7 +78,24 @@ extension MainCoordinator {
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
+
+            case .news:
+                return routeNewsAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
             }
+        }
+
+        private func routeNewsAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+            guard let coordinator,
+                  let idString = params.id,
+                  let newsId = Int(idString)
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            newsDeeplinkValidationService.setDeeplinkURL(deeplinkString)
+            coordinator.openDeepLink(.newsDetails(newsId: newsId))
+            return true
         }
 
         private func routePromoAction(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -88,7 +106,10 @@ extension MainCoordinator {
                 return false
             }
 
-            coordinator.openDeepLink(.promo(code: promoCode))
+            let refcode = params.refcode?.nilIfEmpty
+            let campaign = params.campaign?.nilIfEmpty
+
+            coordinator.openDeepLink(.promo(code: promoCode, refcode: refcode, campaign: campaign))
             return true
         }
 
@@ -174,6 +195,9 @@ extension MainCoordinator {
                 return false
             }
 
+            // Trigger the update without awaiting completion
+            walletModel.startUpdateTask()
+
             if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
                 return routeExpressTransactionStatusAction(
                     coordinator: coordinator,
@@ -183,8 +207,6 @@ extension MainCoordinator {
                     userWalletModel: userWalletModel
                 )
             } else {
-                // Trigger the update without retaining the subscription — it's internally managed by WalletModel and TransactionHistoryService
-                walletModel.generalUpdate(silent: false)
                 coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
                 return true
             }
@@ -238,7 +260,8 @@ extension MainCoordinator {
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 workMode: workMode,
-                tokenIconInfoBuilder: TokenIconInfoBuilder()
+                tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                userWalletModel: userWalletModel
             )
 
             coordinator.openDeepLink(.referral(input: input))
@@ -270,23 +293,14 @@ extension MainCoordinator {
             params: DeeplinkNavigationAction.Params,
             deeplinkString: String
         ) -> Bool {
-            guard FeatureProvider.isAvailable(.visa),
-                  let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel,
-                  // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayUtilities.getWalletAddressAndAuthorizationTokens(
-                      customerWalletId: userWalletModel.userWalletId.stringValue,
-                      keysRepository: userWalletModel.keysRepository
-                  ) == nil
-            else {
+            guard let coordinator else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
             coordinator.openDeepLink(
                 .onboardVisa(
-                    deeplinkString: deeplinkString,
-                    userWalletModel: userWalletModel
+                    deeplinkString: deeplinkString
                 )
             )
             return true

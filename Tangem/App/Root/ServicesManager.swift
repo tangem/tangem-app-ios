@@ -29,7 +29,7 @@ extension InjectedValues {
 protocol ServicesManager {
     var initialized: Bool { get }
 
-    func initialize()
+    func initialize(delegate: AppDelegate)
     func initializeKeychainSensitiveServices() async
 }
 
@@ -44,11 +44,16 @@ final class CommonServicesManager {
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
+    @Injected(\.referralService) private var referralService: ReferralService
+    @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
+    private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
 
@@ -57,6 +62,7 @@ final class CommonServicesManager {
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
+        customerIOWrapper = CustomerIOWrapper()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -76,15 +82,6 @@ final class CommonServicesManager {
         FirebaseApp.configure(options: options)
     }
 
-    private func configureAmplitude() {
-        guard !AppEnvironment.current.isDebug else {
-            return
-        }
-
-        AmplitudeWrapper.shared.configure()
-        experimentService.configure()
-    }
-
     private func configureBlockchainSdkExceptionHandler() {
         ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
     }
@@ -100,6 +97,7 @@ final class CommonServicesManager {
         AppLogger.info(sessionMessage)
         AppLogger.info(launchNumberMessage)
         AppLogger.info(deviceInfoMessage)
+        AppLogger.info(RTCUtil().checkStatus())
 
         return initialLaunches
     }
@@ -125,8 +123,11 @@ final class CommonServicesManager {
         }
 
         if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
-            StorageCleaner.clearCachedFiles()
+            UITestsStorageCleaner.clearCachedFiles()
+            UITestsStorageCleaner.clearStoriesState()
         }
+
+        UITestsStorageCleaner.clearWalletData()
 
         UIView.setAnimationsEnabled(false)
     }
@@ -137,14 +138,16 @@ extension CommonServicesManager: ServicesManager {
         _initialized
     }
 
-    func initialize() {
+    func initialize(delegate: AppDelegate) {
         if _initialized {
             return
         }
 
-        SettingsMigrator.migrateIfNeeded()
+        AppLogger.info("Start services initializing")
 
         configureForUITests()
+
+        SettingsMigrator.migrateIfNeeded()
 
         TangemLoggerConfigurator().initialize()
 
@@ -155,11 +158,11 @@ extension CommonServicesManager: ServicesManager {
             KeychainCleaner.cleanAllData()
         }
 
-        AppLogger.info("Start services initializing")
-
         configureFirebase()
-        configureAmplitude()
-        AppsFlyerConfigurator.configure()
+        AmplitudeWrapper.shared.configure()
+        experimentService.configure()
+        AppsFlyerWrapper.shared.configure(delegate: delegate)
+        customerIOWrapper.configure()
 
         configureBlockchainSdkExceptionHandler()
 
@@ -174,7 +177,11 @@ extension CommonServicesManager: ServicesManager {
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
+        stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
+        gaslessTransactionsNetworkManager.initialize()
+        referralService.retryBindingIfNeeded()
+        mobileUpgradeBannerStorageManager.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

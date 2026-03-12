@@ -21,13 +21,23 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         userWalletModel.config.userWalletAccessCodeStatus == .none
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileOnboardingFlowRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        coordinator: MobileOnboardingFlowRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: true)
     }
 
     override func setupFlow() {
@@ -48,19 +58,16 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
                 permissionManager: permissionManager,
                 delegate: self
             )
-            pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
             append(step: pushNotificationsStep)
         }
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
+            navigationTitle: Localization.commonDone,
             onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
         )
-        doneStep.configureNavBar(title: Localization.commonDone)
         append(step: doneStep)
-
-        setupProgress()
     }
 }
 
@@ -68,52 +75,47 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
 
 private extension MobileOnboardingActivateWalletFlowBuilder {
     func setupSeedPhraseBackupFlow() {
-        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(delegate: self)
-            .configureNavBar(
-                title: Localization.commonBackup,
-                leadingAction: .close(handler: { [weak self] in
-                    Analytics.log(.backupNoticeCanceled)
-
-                    self?.closeOnboarding()
-                })
-            )
+        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
+        )
         append(step: seedPhraseIntroStep)
 
-        let userWalletId = userWalletModel.userWalletId
-
-        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
-        seedPhraseRecoveryStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
+        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
         )
         append(step: seedPhraseRecoveryStep)
 
         let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletModel: userWalletModel,
+            source: source,
             delegate: self
-        )
-        seedPhraseValidationStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
         )
         append(step: seedPhraseValidationStep)
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
-            onAppear: {},
+            navigationTitle: Localization.commonBackup,
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+            },
             onComplete: { [weak self] in
-                Analytics.log(.settingAccessCodeStarted)
-
+                self?.logSettingAccessCodeAnalytics()
                 self?.openNext()
             }
         )
-        doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
     }
 
     func setupAccessCodeFlow() {
-        let accessCodeStep = MobileOnboardingAccessCodeStep(delegate: self)
-        accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(
+            mode: .create(canSkip: true),
+            source: source,
+            delegate: self
+        )
         append(step: accessCodeStep)
     }
 }
@@ -144,6 +146,11 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseI
     func seedPhraseIntroContinue() {
         openNext()
     }
+
+    func seedPhraseIntroClose() {
+        logSeedPhraseIntroCloseAnalytics()
+        closeOnboarding()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseRecoveryDelegate
@@ -152,15 +159,23 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseR
     func seedPhraseRecoveryContinue() {
         openNext()
     }
+
+    func onSeedPhraseRecoveryBack() {
+        back()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseValidationDelegate
 
 extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseValidationDelegate {
     func didValidateSeedPhrase() {
-        Analytics.log(event: .backupFinished, params: [.cardsCount: String(0)])
+        logSeedPhraseValidatedAnalytics()
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
+    }
+
+    func onSeedPhraseValidationBack() {
+        back()
     }
 }
 
@@ -174,6 +189,8 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingAccessCodeD
     func didCompleteAccessCode() {
         openNext()
     }
+
+    func onAccessCodeClose() {}
 }
 
 // MARK: - PushNotificationsPermissionRequestDelegate
@@ -181,5 +198,33 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingAccessCodeD
 extension MobileOnboardingActivateWalletFlowBuilder: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         next()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingActivateWalletFlowBuilder {
+    func logSeedPhraseIntroCloseAnalytics() {
+        Analytics.log(.backupNoticeCanceled, contextParams: analyticsContextParams)
+    }
+
+    func logSeedPhraseValidatedAnalytics() {
+        Analytics.log(
+            event: .backupFinished,
+            params: [.cardsCount: String(0)],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logBackupCompletedScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsBackupCompleteScreen,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logSettingAccessCodeAnalytics() {
+        Analytics.log(.settingAccessCodeStarted, contextParams: analyticsContextParams)
     }
 }

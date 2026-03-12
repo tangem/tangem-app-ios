@@ -13,8 +13,11 @@ import UIKit // [REDACTED_TODO_COMMENT]
 import TangemFoundation
 
 final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
+    private typealias EntitiesCache = ThreadSafeContainer<Cache>
+
     private let userWalletModel: UserWalletModel
-    private let cache: ThreadSafeContainer<Cache>
+    private let manageTokensActionFactory: (any CryptoAccountModel) -> () -> Void
+    private let cache: EntitiesCache
     private let mappingQueue: DispatchQueue
 
     /// Shared source of truth for both plain and account sections publishers.
@@ -23,9 +26,11 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private var purgeCacheSubscription: AnyCancellable?
 
     init(
-        userWalletModel: UserWalletModel
+        userWalletModel: UserWalletModel,
+        manageTokensActionFactory: @escaping (any CryptoAccountModel) -> () -> Void
     ) {
         self.userWalletModel = userWalletModel
+        self.manageTokensActionFactory = manageTokensActionFactory
 
         mappingQueue = DispatchQueue(
             label: "com.tangem.AccountsAwareMultiWalletMainContentViewSectionsProvider.mappingQueue",
@@ -38,6 +43,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private func makeCommonSectionsPublisher() -> some Publisher<CommonSectionInput, Never> {
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
         let cache = cache
+        let mappingQueue = mappingQueue
         let publisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
@@ -55,14 +61,14 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
                 return cryptoAccountModels
                     .map { cryptoAccountModel in
-                        let tokenSectionsAdapter = provider
+                        let tokenSectionsAdapter = Self
                             .makeOrGetCachedTokenSectionsAdapter(for: cryptoAccountModel, using: cache)
 
                         let tokenSectionsSourcePublisher = sourcePublisherFactory
-                            .makeSourcePublisher(for: cryptoAccountModel)
+                            .makeSourcePublisher(for: cryptoAccountModel, in: provider.userWalletModel)
 
                         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-                            .organizedSections(from: tokenSectionsSourcePublisher, on: provider.mappingQueue)
+                            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
 
                         return organizedTokensSectionsPublisher
                             .map { AccountSectionInput(cryptoAccountModel: cryptoAccountModel, sections: $0) }
@@ -73,18 +79,18 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             }
             .share(replay: 1)
 
-        subscribeToCachePurgePublisher(publisher)
+        subscribeToPurgeCache(publisher)
 
         return publisher
     }
 
-    private func makeOrGetCachedTokenSectionsAdapter(
+    private static func makeOrGetCachedTokenSectionsAdapter(
         for cryptoAccountModel: any CryptoAccountModel,
-        using cache: ThreadSafeContainer<Cache>
+        using cache: EntitiesCache
     ) -> TokenSectionsAdapter {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
-        if let cachedAdapter: TokenSectionsAdapter = cache.tokenSectionsAdapters[cacheKey] {
+        if let cachedAdapter = cache.tokenSectionsAdapters[cacheKey] {
             let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
             return cachedAdapter
         }
@@ -104,16 +110,30 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
         return tokenSectionsAdapter
     }
 
-    private func makeOrGetCachedAccountItemViewModel(for cryptoAccountModel: any CryptoAccountModel) -> ExpandableAccountItemViewModel {
+    private static func makeOrGetCachedAccountItemViewModel(
+        for cryptoAccountModel: any CryptoAccountModel,
+        in userWallet: UserWalletModel,
+        using cache: EntitiesCache,
+        onManageTokensTap: @escaping () -> Void
+    ) -> ExpandableAccountItemViewModel {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
-        if let cachedItemViewModel: ExpandableAccountItemViewModel = cache.accountItemViewModels[cacheKey] {
+        if let cachedItemViewModel = cache.accountItemViewModels[cacheKey] {
             let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
             return cachedItemViewModel
         }
         let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_purge")
 
-        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel)
+        @Injected(\.expandableAccountItemStateStorageProvider)
+        var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
+
+        let stateStorage = expandableAccountItemStateStorageProvider.makeStateStorage(for: userWallet.userWalletId)
+        let itemViewModel = ExpandableAccountItemViewModel(
+            accountModel: cryptoAccountModel,
+            stateStorage: stateStorage,
+            onManageTokensTap: onManageTokensTap
+        )
+
         cache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
 
         return itemViewModel
@@ -121,7 +141,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private func convertToSections(
         _ sections: [TokenSectionsAdapter.Section],
-        using cache: ThreadSafeContainer<Cache>
+        using cache: EntitiesCache
     ) -> [MultiWalletMainContentPlainSection] {
         if sections.count == 1, sections[0].items.isEmpty {
             return []
@@ -139,7 +159,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
                 switch item {
                 case .default(let walletModel):
                     let cacheKey = ObjectIdentifier(walletModel)
-                    if let cachedViewModel: TokenItemViewModel = cache.tokenItemViewModels[cacheKey] {
+                    if let cachedViewModel = cache.tokenItemViewModels[cacheKey] {
                         _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
                         return cachedViewModel
                     }
@@ -169,7 +189,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     }
 
     /// This subscription is needed for purging the cache.
-    private func subscribeToCachePurgePublisher(_ publisher: some Publisher<CommonSectionInput, Never>) {
+    private func subscribeToPurgeCache(_ publisher: some Publisher<CommonSectionInput, Never>) {
         // Clearing previous subscriptions, shouldn't happen but just in case
         purgeCacheSubscription?.cancel()
 
@@ -182,7 +202,6 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private func purgeCache(using sections: [AccountSectionInput]) {
         _ = print("\(#function) called at \(CACurrentMediaTime()) with accounts")
-
         // Token item view models are cached per wallet model
         let actualTokenItemViewModelsCacheKeys = sections
             .flatMap(\.sections)
@@ -214,18 +233,14 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
         purgeCacheIfNeeded(
             tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
             tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
-            accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete,
-            actualTokenItemViewModelsCacheKeys: actualTokenItemViewModelsCacheKeys,
-            actualSectionItemViewModelsCacheKeys: actualSectionItemViewModelsCacheKeys
+            accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
         )
     }
 
     private func purgeCacheIfNeeded(
         tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
         tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
-        accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
-        actualTokenItemViewModelsCacheKeys: Set<ObjectIdentifier>,
-        actualSectionItemViewModelsCacheKeys: Set<ObjectIdentifier>,
+        accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
     ) {
         guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
             || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
@@ -239,22 +254,16 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             let before_tokenSectionsAdapters = cache.tokenSectionsAdapters.keys.count // [REDACTED_TODO_COMMENT]
             let before_accountItemViewModels = cache.accountItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
             for key in tokenItemViewModelsCacheKeysToDelete {
-                if cache.tokenItemViewModels.keys.contains(key) {
-                    _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenItemViewModel=\(cache.tokenItemViewModels[key])")
-                    cache.tokenItemViewModels.removeValue(forKey: key)
-                }
+                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenItemViewModel=\(cache.tokenItemViewModels[key])")
+                cache.tokenItemViewModels.removeValue(forKey: key)
             }
             for key in tokenSectionsAdaptersCacheKeysToDelete {
-                if cache.tokenSectionsAdapters.keys.contains(key) {
-                    _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenSectionsAdapters=\(cache.tokenSectionsAdapters[key])")
-                    cache.tokenSectionsAdapters.removeValue(forKey: key)
-                }
+                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenSectionsAdapters=\(cache.tokenSectionsAdapters[key])")
+                cache.tokenSectionsAdapters.removeValue(forKey: key)
             }
             for key in accountItemViewModelsCacheKeysToDelete {
-                if cache.accountItemViewModels.keys.contains(key) {
-                    _ = print("\(#function) called at \(CACurrentMediaTime()) purging_accountItemViewModels=\(cache.accountItemViewModels[key])")
-                    cache.accountItemViewModels.removeValue(forKey: key)
-                }
+                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_accountItemViewModels=\(cache.accountItemViewModels[key])")
+                cache.accountItemViewModels.removeValue(forKey: key)
             }
             let after_tokenItemViewModels = cache.tokenItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
             let after_tokenSectionsAdapters = cache.tokenSectionsAdapters.keys.count // [REDACTED_TODO_COMMENT]
@@ -308,7 +317,12 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
             .withWeakCaptureOf(self)
             .map { provider, input in
                 return input.map { input in
-                    let model = provider.makeOrGetCachedAccountItemViewModel(for: input.cryptoAccountModel)
+                    let model = Self.makeOrGetCachedAccountItemViewModel(
+                        for: input.cryptoAccountModel,
+                        in: provider.userWalletModel,
+                        using: cache,
+                        onManageTokensTap: provider.manageTokensActionFactory(input.cryptoAccountModel)
+                    )
                     let items = provider.convertToSections(input.sections, using: cache)
 
                     return MultiWalletMainContentAccountSection(model: model, items: items)

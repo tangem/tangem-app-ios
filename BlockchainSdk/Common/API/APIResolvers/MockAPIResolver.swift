@@ -9,23 +9,39 @@
 import Foundation
 
 struct MockAPIResolver {
-    func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
-        switch providerType {
-        case .mock:
-            switch blockchain {
-            case .chia:
-                return .init(url: URL(string: "https://wiremock.tests-d.com/chia")!)
-            case .cardano:
-                return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
-            case .dogecoin:
-                return .init(url: URL(string: "https://wiremock.tests-d.com/dogecoin")!)
-            case .solana:
-                return .init(url: URL(string: "https://wiremock.tests-d.com/solana")!)
-            default:
-                return nil
-            }
+    /// Dynamic WireMock base URL for parallel test execution support.
+    /// Reads from environment variable, falls back to remote server for local development.
+    private static var baseURL: String {
+        ProcessInfo.processInfo.environment["WIREMOCK_BASE_URL"] ?? "http://localhost:8081"
+    }
+
+    private static func urlString(for blockchain: Blockchain) -> String? {
+        switch blockchain {
+        case .bitcoin:
+            return "\(baseURL)/bitcoin"
+        case .chia:
+            return "\(baseURL)/chia"
+        case .cardano:
+            return "\(baseURL)/cardano"
+        case .dogecoin:
+            return "\(baseURL)/dogecoin"
+        case .solana:
+            return "\(baseURL)/solana"
         default:
             return nil
         }
+    }
+
+    func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
+        guard case .mock = providerType else {
+            return nil
+        }
+
+        guard let urlString = Self.urlString(for: blockchain),
+              let url = URL(string: urlString) else {
+            return nil
+        }
+
+        return .init(url: url)
     }
 }

@@ -24,8 +24,6 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private let _applicationEntries: CurrentValueSubject<[ApplicationWalletEntry], Never> = .init([])
 
-    @MainActor private var isInitialized = false
-
     private var initialSubscription: AnyCancellable?
     private var permissionSubscription: AnyCancellable?
     private var appSettingsSubscription: AnyCancellable?
@@ -121,8 +119,8 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             let pendingNameUpdates = service.findUserWalletsToUpdate()
 
             pendingNameUpdates.forEach {
-                if case .name(let value, let userWalletId) = $0 {
-                    service.updateRemoteWallet(name: value, by: userWalletId)
+                if case .name(let value, let userWalletId, let context) = $0 {
+                    service.updateRemoteWallet(name: value, context: context, userWalletId: userWalletId)
                 }
             }
         }
@@ -162,20 +160,23 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
 
     /// Initializes the push notifications service.
     /// Checks the registration of appUid (creates or updates the application on the server),
-    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
+    /// fetches the list of wallets linked to the appUid.
     /// After successful initialization, sends a synchronization event.
     func initialize() {
         runTask(in: self) { service in
             let fcmToken = Messaging.messaging().fcmToken ?? ""
 
-            switch service.defineInitializeType() {
-            case .create:
-                await service.createApplication(fcmToken: fcmToken)
-            case .update:
-                await service.updateApplication(fcmToken: fcmToken)
+            do {
+                switch service.defineInitializeType() {
+                case .create:
+                    try await service.createApplication(fcmToken: fcmToken)
+                case .update:
+                    try await service.updateApplication(fcmToken: fcmToken)
+                }
+            } catch {
+                AppLogger.error("Failed to initialize push notifications service", error: error)
+                return
             }
-
-            await service.update(isInitialized: true)
 
             await service.fetchEntries()
 
@@ -195,44 +196,38 @@ private extension CommonUserTokensPushNotificationsService {
         applicationUid.isEmpty ? .create : .update
     }
 
-    func createApplication(fcmToken: String) async {
-        do {
-            let deviceInfo = DeviceInfo()
+    func createApplication(fcmToken: String) async throws {
+        let deviceInfo = DeviceInfo()
 
-            let requestModel = ApplicationDTO.Request(
-                pushToken: fcmToken,
-                platform: deviceInfo.platform,
-                device: deviceInfo.device,
-                systemVersion: deviceInfo.systemVersion,
-                language: deviceInfo.appLanguageCode,
-                timezone: deviceInfo.timezone,
-                version: deviceInfo.version
-            )
+        let requestModel = ApplicationDTO.Request(
+            pushToken: fcmToken,
+            platform: deviceInfo.platform,
+            device: deviceInfo.device,
+            systemVersion: deviceInfo.systemVersion,
+            language: deviceInfo.appLanguageCode,
+            timezone: deviceInfo.timezone,
+            version: deviceInfo.version,
+            appsflyerId: AppsFlyerWrapper.shared.appsflyerId
+        )
 
-            let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
+        let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
 
-            await MainActor.run {
-                AppLogger.info("Application has been created for uid: \(response.uid)")
-                AppSettings.shared.applicationUid = response.uid
-                AppSettings.shared.lastStoredFCMToken = fcmToken
-            }
-        } catch {
-            AppLogger.error(error: error)
+        AppLogger.info("Application has been created for uid: \(response.uid)")
+
+        await MainActor.run {
+            AppSettings.shared.applicationUid = response.uid
+            AppSettings.shared.lastStoredFCMToken = fcmToken
         }
     }
 
-    func updateApplication(fcmToken: String?) async {
-        do {
-            let requestModel = ApplicationDTO.Update.Request(pushToken: fcmToken)
-            try await tangemApiService.updateUserWalletsApplications(uid: applicationUid, requestModel: requestModel)
+    func updateApplication(fcmToken: String?) async throws {
+        let requestModel = ApplicationDTO.Update.Request(pushToken: fcmToken)
+        try await tangemApiService.updateUserWalletsApplications(uid: applicationUid, requestModel: requestModel)
 
-            await MainActor.run {
-                AppSettings.shared.lastStoredFCMToken = fcmToken
-            }
+        AppLogger.info("Application has been updated for uid: \(applicationUid)")
 
-            AppLogger.info("Application has been updated for uid: \(applicationUid)")
-        } catch {
-            AppLogger.error(error: error)
+        await MainActor.run {
+            AppSettings.shared.lastStoredFCMToken = fcmToken
         }
     }
 
@@ -270,7 +265,7 @@ private extension CommonUserTokensPushNotificationsService {
 
     func updateEntryByUserWalletModelIfNeeded() async {
         guard await AppSettings.shared.saveUserWallets else {
-            await createAndConnectWallet(entries: [])
+            await connectWallets(entries: [])
             return
         }
 
@@ -298,35 +293,53 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        await createAndConnectWallet(entries: toUpdateEntries)
+        await connectWallets(entries: toUpdateEntries)
     }
 
-    func createAndConnectWallet(entries: [ApplicationWalletEntry]) async {
-        let toUpdateItems = entries.map {
-            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
-        }.toSet()
-
+    func connectWallets(entries: [ApplicationWalletEntry], shouldRetry: Bool = true) async {
         do {
-            try await tangemApiService.createAndConnectUserWallet(
-                applicationUid: applicationUid,
-                items: toUpdateItems
-            )
-
+            let walletIds = entries.uniqueProperties(\.id)
+            let request = ApplicationDTO.Connect.Request(walletIds: walletIds)
+            try await tangemApiService.connectUserWallets(uid: applicationUid, requestModel: request)
             await update(entries: entries)
+        } catch let error as TangemAPIError where error.code == .badRequest {
+            if shouldRetry {
+                await createMissingWallets(entries: entries)
+                await connectWallets(entries: entries, shouldRetry: false)
+            } else {
+                AppLogger.error(error: error)
+            }
         } catch {
             // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
             AppLogger.error(error: error)
         }
     }
 
-    @MainActor
-    func update(entries: [ApplicationWalletEntry]) async {
-        _applicationEntries.send(entries)
+    func createMissingWallets(entries: [ApplicationWalletEntry]) async {
+        await withTaskGroup { group in
+            for entry in entries {
+                guard let model = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == entry.id }) else {
+                    return
+                }
+
+                let helper = WalletCreationHelper(
+                    userWalletId: model.userWalletId,
+                    userWalletName: model.name,
+                    userWalletConfig: model.config
+                )
+
+                group.addTask {
+                    try? await helper.createWallet()
+                }
+            }
+
+            await group.waitForAll()
+        }
     }
 
     @MainActor
-    func update(isInitialized: Bool) async {
-        self.isInitialized = isInitialized
+    func update(entries: [ApplicationWalletEntry]) async {
+        _applicationEntries.send(entries)
     }
 }
 
@@ -343,22 +356,30 @@ private extension CommonUserTokensPushNotificationsService {
             }
 
             if userWalletModel.name != entry.name {
-                pendingUpdates.append(.name(value: userWalletModel.name, userWalletId: userWalletModel.userWalletId.stringValue))
+                let context = userWalletModel.config
+                    .contextBuilder
+                    .enrich(withName: userWalletModel.name)
+                    .build()
+
+                pendingUpdates.append(.name(
+                    value: userWalletModel.name,
+                    userWalletId: userWalletModel.userWalletId.stringValue,
+                    context: context
+                ))
             }
         }
 
         return pendingUpdates
     }
 
-    func updateRemoteWallet(name: String, by userWalletId: String) {
+    func updateRemoteWallet(name: String, context: some Encodable, userWalletId: String) {
         runTask { [weak self] in
             guard let self else {
                 return
             }
 
             do {
-                let requestModel = UserWalletDTO.Update.Request(name: name)
-                try await tangemApiService.updateUserWallet(by: userWalletId, requestModel: requestModel)
+                try await tangemApiService.updateWallet(by: userWalletId, context: context)
 
                 let toLocalUpdateEntries = _applicationEntries.value.map {
                     let updateName = $0.id == userWalletId ? name : $0.name
@@ -375,8 +396,22 @@ private extension CommonUserTokensPushNotificationsService {
 
     func updateLocalWallet(name: String, by userWalletId: String) {
         guard let userWalletModel = userWalletRepository.models.first(where: {
-            $0.userWalletId.stringValue == userWalletId && $0.name != name
+            $0.userWalletId.stringValue == userWalletId
         }) else {
+            return
+        }
+
+        if name.isEmpty, userWalletModel.name.isEmpty {
+            let defaultName = UserWalletNameIndexationHelper().suggestedName(userWalletConfig: userWalletModel.config)
+            userWalletModel.update(type: .newName(defaultName))
+            return
+        }
+
+        if name.isEmpty, userWalletModel.name.isNotEmpty {
+            return
+        }
+
+        if name == userWalletModel.name {
             return
         }
 
@@ -433,7 +468,7 @@ extension CommonUserTokensPushNotificationsService {
     }
 
     enum PendingToUpdateUserWalletItem {
-        case name(value: String, userWalletId: String)
+        case name(value: String, userWalletId: String, context: Encodable)
     }
 
     enum Constants {
@@ -446,16 +481,15 @@ extension CommonUserTokensPushNotificationsService {
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         runTask(in: self) { service in
-            // Skip when service is not initialized
-            guard await service.isInitialized else {
-                return
-            }
-
             let appUid = await AppSettings.shared.applicationUid
             let lastStoredFCMToken = await AppSettings.shared.lastStoredFCMToken
 
             if !appUid.isEmpty, lastStoredFCMToken != fcmToken {
-                await service.updateApplication(fcmToken: fcmToken)
+                do {
+                    try await service.updateApplication(fcmToken: fcmToken)
+                } catch {
+                    AppLogger.error("Failed to update FCM token", error: error)
+                }
             }
         }
     }

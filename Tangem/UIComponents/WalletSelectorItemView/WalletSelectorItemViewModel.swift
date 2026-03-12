@@ -10,12 +10,13 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 
-class WalletSelectorItemViewModel: ObservableObject, Identifiable {
+final class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
-    @Published var balanceState: LoadableTokenBalanceView.State = .loading()
+    @Published var balanceState: LoadableBalanceView.State = .loading()
     @Published var isSelected: Bool = false
 
     let userWalletId: UserWalletId
@@ -61,7 +62,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
             }
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }
@@ -90,7 +91,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
             return
         }
 
-        balanceState = LoadableTokenBalanceViewStateBuilder().buildTotalBalance(state: state)
+        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
     }
 
     func onTapAction() {

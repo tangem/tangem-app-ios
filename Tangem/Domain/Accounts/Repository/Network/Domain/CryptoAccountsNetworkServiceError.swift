@@ -17,6 +17,8 @@ enum CryptoAccountsNetworkServiceError: Error {
     case noAccountsCreated
     /// Other underlying errors (network errors, etc).
     case underlyingError(Error)
+    /// Pretty much impossible case, when there are no retries left, but no error occurred.
+    case noRetriesLeft
 }
 
 // MARK: - Convenience extensions
@@ -28,8 +30,21 @@ extension CryptoAccountsNetworkServiceError {
             return error.isCancellationError
         case .missingRevision,
              .inconsistentState,
-             .noAccountsCreated:
+             .noAccountsCreated,
+             .noRetriesLeft:
             return false
+        }
+    }
+
+    var underlyingError: Error? {
+        switch self {
+        case .underlyingError(let error):
+            return error
+        case .missingRevision,
+             .inconsistentState,
+             .noAccountsCreated,
+             .noRetriesLeft:
+            return nil
         }
     }
 }

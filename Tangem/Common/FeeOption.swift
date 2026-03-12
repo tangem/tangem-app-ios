@@ -10,7 +10,9 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemMacro
 
+@CaseFlagable
 enum FeeOption: Hashable, Equatable, Comparable {
     case suggestedByDApp(dappName: String)
     case slow

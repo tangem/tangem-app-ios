@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public enum TangemAPIType: String, CaseIterable, Codable {
     case prod
@@ -23,7 +24,20 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         case .stage:
             return URL(string: "https://api.tests-s.com/v1")!
         case .mock:
-            return URL(string: "https://wiremock.tests-d.com/v1")!
+            return URL(string: "\(WireMockEnvironment.baseURL)/v1")!
+        }
+    }
+
+    public var apiBaseUrlv2: URL {
+        switch self {
+        case .prod:
+            return URL(string: "https://api.tangem.org/v2")!
+        case .dev:
+            return URL(string: "https://api.tests-d.com/v2")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com/v2")!
+        case .mock:
+            return URL(string: "\(WireMockEnvironment.baseURL)/v2")!
         }
     }
 
@@ -45,7 +59,7 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         case .stage:
             return URL(string: "https://api.tests-s.com/promo/v1")!
         case .mock:
-            return URL(string: "https://wiremock.tests-d.com/promo/v1")!
+            return URL(string: "\(WireMockEnvironment.baseURL)/promo/v1")!
         }
     }
 

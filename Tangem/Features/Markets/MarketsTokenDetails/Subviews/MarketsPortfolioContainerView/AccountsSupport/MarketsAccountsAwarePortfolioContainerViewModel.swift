@@ -17,11 +17,11 @@ import TangemAccounts
 final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published var isAddTokenButtonDisabled: Bool = true
-    @Published var isLoadingNetworks: Bool = false
-    @Published var typeView: TypeView = .loading
-    @Published var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
-    @Published var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
+    @Published private(set) var isAddTokenButtonDisabled: Bool = true
+    @Published private(set) var isLoadingNetworks: Bool = false
+    @Published private(set) var typeView: TypeView = .loading
+    @Published private(set) var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
+    @Published private(set) var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
 
     private var bag = Set<AnyCancellable>()
 
@@ -31,7 +31,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
 
-    private var coinId: String
+    private let coinId: String
+    private let coinName: String
+    private let coinSymbol: String
 
     // Make networks a publisher so changes trigger reactive pipeline
     private let networksSubject = CurrentValueSubject<[NetworkModel]?, Never>(nil)
@@ -50,6 +52,8 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         addTokenTapAction: (() -> Void)?
     ) {
         coinId = inputData.coinId
+        coinName = inputData.coinName
+        coinSymbol = inputData.coinSymbol
         self.walletDataProvider = walletDataProvider
         self.coordinator = coordinator
         self.addTokenTapAction = addTokenTapAction
@@ -68,124 +72,49 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func supportedState(networks: [NetworkModel]) -> SupportedStateOption {
-        let multiCurrencyUserWalletModels = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
-        guard !networks.isEmpty else {
+        guard networks.isNotEmpty else {
             return .unsupported
         }
 
-        for model in multiCurrencyUserWalletModels {
-            let supportedBlockchains = model.config.supportedBlockchains
-
-            for network in networks {
-                if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    if network.contractAddress == nil {
-                        return .available
-                    }
-
-                    // searchable network is token
-                    if supportedBlockchain.canHandleTokens {
-                        return .available
-                    }
-                }
-            }
+        if NetworkSupportChecker.hasAnySupportedNetwork(
+            networks: networks,
+            userWalletModels: walletDataProvider.userWalletModels
+        ) {
+            return .available
         }
 
         return .unavailable
     }
 
-    private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        guard availableNetworks.isNotEmpty else {
-            return true
-        }
-
-        let multiCurrencyWallets = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
-        for wallet in multiCurrencyWallets {
-            let accounts = wallet.accountModelsManager.cryptoAccountModels
-
-            for account in accounts {
-                let networksToCheck = networksToCheckForAccount(
-                    account: account,
-                    availableNetworks: availableNetworks,
-                    supportedBlockchains: wallet.config.supportedBlockchains
+    private func areTokenItemsAddedInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
+        TokenAdditionChecker.areTokenItemsAddedInAllAccounts(
+            userWalletModels: walletDataProvider.userWalletModels,
+            tokenItemsFactory: { [coinId, coinName, coinSymbol] account, supportedBlockchains in
+                MarketsTokenItemsProvider.calculateTokenItems(
+                    coinId: coinId,
+                    coinName: coinName,
+                    coinSymbol: coinSymbol,
+                    networks: availableNetworks,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: account
                 )
-
-                guard networksToCheck.isNotEmpty else {
-                    continue
-                }
-
-                let addedNetworkIds = collectAddedNetworkIds(from: account)
-                let missingNetworkIds = networksToCheck.subtracting(addedNetworkIds)
-
-                if missingNetworkIds.isNotEmpty {
-                    return false
-                }
             }
-        }
-
-        return true
-    }
-
-    /// Determines which networks should be checked for a given account.
-    /// For main accounts, all networks are checked.
-    /// For non-main accounts, only networks whose blockchains support accounts are checked
-    private func networksToCheckForAccount(
-        account: any CryptoAccountModel,
-        availableNetworks: [NetworkModel],
-        supportedBlockchains: Set<Blockchain>
-    ) -> Set<String> {
-        // Main account can have tokens on all networks
-        guard !account.isMainAccount else {
-            return Set(availableNetworks.map(\.networkId))
-        }
-
-        // Non-main accounts can only have tokens on networks that support accounts
-        return availableNetworks.compactMap { network in
-            AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: supportedBlockchains)
-                ? network.networkId
-                : nil
-        }
-        .toSet()
-    }
-
-    private func collectAddedNetworkIds(from account: any CryptoAccountModel) -> Set<String> {
-        let l2BlockchainIds = Set(SupportedBlockchains.l2Blockchains.map(\.coinId))
-        var addedNetworkIds = Set<String>()
-
-        for token in account.userTokensManager.userTokens {
-            if let networkId = matchingNetworkId(for: token, l2BlockchainIds: l2BlockchainIds) {
-                addedNetworkIds.insert(networkId)
-            }
-        }
-
-        return addedNetworkIds
-    }
-
-    private func matchingNetworkId(for token: TokenItem, l2BlockchainIds: Set<String>) -> String? {
-        guard let tokenId = token.id else {
-            return nil
-        }
-
-        let networkId = token.networkId
-
-        // Check L2 networks for Ethereum
-        if coinId == Blockchain.ethereum(testnet: false).coinId, l2BlockchainIds.contains(tokenId) {
-            return networkId
-        }
-
-        // Check if token matches the current coinId
-        guard tokenId == coinId else {
-            return nil
-        }
-
-        return networkId
+        )
     }
 
     private func updateExpandedAction() {
-        tokenWithExpandedQuickActions = tokenItemViewModels.singleElement?.hasZeroBalance == true
-            ? tokenItemViewModels.singleElement
-            : nil
+        let singleElement = tokenItemViewModels.singleElement
+        let oldTokenWithExpandedQuickActions = tokenWithExpandedQuickActions
+        tokenWithExpandedQuickActions = singleElement?.hasZeroBalance == true ? singleElement : nil
+
+        // SwiftUI bug workaround: sometimes update of the `tokenWithExpandedQuickActions` published property
+        // doesn't trigger the view update (`MarketsAccountsAwarePortfolioContainerView.listView`).
+        // Assigning custom `id` to that list view doesn't work and adding a proper `Equatable`
+        // implementation for the `MarketsPortfolioTokenItemViewModel` view model doesn't help either.
+        // So, we need to manually trigger view update by sending `objectWillChange`
+        if oldTokenWithExpandedQuickActions !== tokenWithExpandedQuickActions {
+            objectWillChange.send()
+        }
     }
 
     // MARK: - Reactive Bindings
@@ -202,7 +131,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         bag.removeAll()
 
         let walletDataPublishers = userWalletModels.map { userWalletModel in
-            userWalletModel.accountModelsManager.accountModelsPublisher
+            userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
                 .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
                     let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
 
@@ -286,7 +217,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                     let accountData = TypeView.AccountData(
                         id: account.id.toAnyHashable(),
                         name: account.name,
-                        iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
+                        iconInfo: AccountModelUtils.UI.iconViewData(accountModel: account)
                     )
 
                     accountsWithTokenItems.append(
@@ -414,9 +345,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
-        if let networks = networks {
+        if let networks {
             let supportedState = supportedState(networks: networks)
-            isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
+            isAddTokenButtonDisabled = areTokenItemsAddedInAllAccounts(availableNetworks: networks)
 
             let targetState = determineTypeViewState(hasTokens: hasTokens, listStyle: listStyle, supportedState: supportedState)
 
@@ -475,29 +406,36 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             return
         }
 
-        let expressInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
-
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(input: sendInput)
+            coordinator.openOnramp(input: sendInput, parameters: .none)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(input: expressInput)
+            let swapableToken = CommonSendSwapableTokenFactory(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
+
+            Task { @MainActor in
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             break
@@ -508,6 +446,8 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
 extension MarketsAccountsAwarePortfolioContainerViewModel {
     struct InputData {
         let coinId: String
+        let coinName: String
+        let coinSymbol: String
     }
 
     enum SupportedStateOption {

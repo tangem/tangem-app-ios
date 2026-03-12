@@ -20,7 +20,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class MobileUpgradeViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     lazy var info = makeInfo()
@@ -31,6 +31,14 @@ final class MobileUpgradeViewModel: ObservableObject {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
+    private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
+        Analytics.CardScanSource.upgrade.cardWasScannedParameterValue
+    }
 
     private let userWalletModel: UserWalletModel
     private let context: MobileWalletContext
@@ -55,6 +63,7 @@ final class MobileUpgradeViewModel: ObservableObject {
 extension MobileUpgradeViewModel {
     func onUpgradeTap() {
         scanCard()
+        logUpgradeTapAnalytics()
     }
 
     func onBuyTap() {
@@ -77,7 +86,7 @@ extension MobileUpgradeViewModel {
         )
 
         let backupTrait = TraitItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.tangemUpgrade,
             title: Localization.hwUpgradeBackupTitle,
             subtitle: Localization.hwUpgradeBackupDescription
         )
@@ -143,6 +152,7 @@ extension MobileUpgradeViewModel {
 private extension MobileUpgradeViewModel {
     func scanCard() {
         isScanning = true
+        logScanCardTapAnalytics()
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -158,8 +168,7 @@ private extension MobileUpgradeViewModel {
                 }
 
             case .error(let error):
-                Analytics.logScanError(error, source: .introduction)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+                viewModel.logScanCardAnalytics(error: error)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -180,7 +189,7 @@ private extension MobileUpgradeViewModel {
                 }
 
             case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+                viewModel.logScanCardTroubleshootingAnalytics()
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -254,7 +263,7 @@ private extension MobileUpgradeViewModel {
         let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
         let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .upgrade).build(
             backupCardsCount: backupCardsCount,
             cardInteractor: cardInteractor
         )
@@ -291,10 +300,10 @@ private extension MobileUpgradeViewModel {
         }
 
         let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
-            self?.requestSupport()
+            self?.scanCardRequestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -307,7 +316,8 @@ private extension MobileUpgradeViewModel {
     }
 
     func openBuyCard() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .upgrade))
     }
 
     func openScanCardManual() {
@@ -327,14 +337,67 @@ private extension MobileUpgradeViewModel {
 
 private extension MobileUpgradeViewModel {
     func scanCardTryAgain() {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction])
+        logScanCardTryAgainAnalytics()
         scanCard()
     }
 
-    func requestSupport() {
-        Analytics.log(.requestSupport, params: [.source: .introduction])
+    func scanCardRequestSupport() {
+        logScanCardRequestSupportAnalytics()
         failedCardScanTracker.resetCounter()
         openMail()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileUpgradeViewModel {
+    func logUpgradeTapAnalytics() {
+        Analytics.log(.walletSettingsButtonStartUpgrade, contextParams: analyticsContextParams)
+    }
+
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            .introductionProcessButtonScanCard,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardTryAgainAnalytics() {
+        Analytics.log(
+            .cantScanTheCardTryAgainButton,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardRequestSupportAnalytics() {
+        Analytics.log(
+            .requestSupport,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardTroubleshootingAnalytics() {
+        Analytics.log(
+            .cantScanTheCard,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardAnalytics(error: Error) {
+        Analytics.logScanError(error, source: .upgrade, contextParams: analyticsContextParams)
+        Analytics.logVisaCardScanErrorIfNeeded(error, source: .upgrade)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.upgrade.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

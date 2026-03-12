@@ -17,6 +17,15 @@ struct UserTokenList: Codable {
     var sort: SortType
     var notifyStatus: Bool?
 
+    /// Name of the new wallet
+    var name: String?
+    /// Type of the new wallet
+    var type: String?
+    /// Referral of the new wallet
+    var ref: String?
+    /// Referral campaign of the new wallet
+    var campaign: String?
+
     private let version: Int
 
     init(
@@ -24,13 +33,21 @@ struct UserTokenList: Codable {
         group: GroupType,
         sort: SortType,
         notifyStatus: Bool? = nil,
-        version: Int
+        version: Int,
+        name: String?,
+        type: String?,
+        ref: String?,
+        campaign: String?
     ) {
         self.tokens = tokens
         self.group = group
         self.sort = sort
         self.notifyStatus = notifyStatus
         self.version = version
+        self.name = name
+        self.type = type
+        self.ref = ref
+        self.campaign = campaign
     }
 }
 

@@ -29,11 +29,10 @@ struct CommonAccountRateProviderTests {
         )
 
         // Then
-        guard case .loaded(let quote) = receivedRate else {
-            Issue.record("Expected loaded state")
+        guard case .failure = receivedRate else {
+            Issue.record("Expected failure state")
             return
         }
-        #expect(quote.priceChange24h == 0)
     }
 
     @Test("Calculate if total balance is loading")

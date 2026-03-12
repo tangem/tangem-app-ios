@@ -12,24 +12,20 @@ import TangemAssets
 import TangemUI
 
 struct AppSettingsView: View {
-    @ObservedObject private var viewModel: AppSettingsViewModel
-
-    init(viewModel: AppSettingsViewModel) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: AppSettingsViewModel
 
     var body: some View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 24) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
                 appCurrencySection
 
                 warningSection
 
-                savingWalletSection
+                useBiometricAuthenticationSection
 
-                savingAccessCodesSection
+                requireAccessCodesSection
 
                 sensitiveTextAvailabilitySection
 
@@ -41,41 +37,39 @@ struct AppSettingsView: View {
         .navigationBarTitle(Text(Localization.appSettingsTitle), displayMode: .inline)
     }
 
-    @ViewBuilder
     private var appCurrencySection: some View {
         GroupedSection(viewModel.currencySelectionViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
 
-    @ViewBuilder
     private var warningSection: some View {
         GroupedSection(viewModel.warningViewModel) {
             DefaultWarningRow(viewModel: $0)
         }
     }
 
-    private var savingWalletSection: some View {
-        GroupedSection(viewModel.savingWalletViewModel) {
+    private var useBiometricAuthenticationSection: some View {
+        GroupedSection(viewModel.useBiometricAuthenticationViewModel) {
             DefaultToggleRowView(viewModel: $0)
                 // Workaround for force rendering the view
                 // Will be update in [REDACTED_INFO]
                 // Use @Published from directly from the ViewModel
-                .id(viewModel.isSavingWallet)
+                .id(viewModel.useBiometricAuthentication)
         } footer: {
-            DefaultFooterView(Localization.appSettingsSavedWalletFooter)
+            DefaultFooterView(Localization.appSettingsBiometricsFooter(viewModel.biometricsTitle))
         }
     }
 
-    private var savingAccessCodesSection: some View {
-        GroupedSection(viewModel.savingAccessCodesViewModel) {
+    private var requireAccessCodesSection: some View {
+        GroupedSection(viewModel.requireAccessCodesViewModel) {
             DefaultToggleRowView(viewModel: $0)
                 // Workaround for force rendering the view
                 // Will be update in [REDACTED_INFO]
                 // Use @Published from directly from the ViewModel
-                .id(viewModel.isSavingAccessCodes)
+                .id(viewModel.requireAccessCodes)
         } footer: {
-            DefaultFooterView(Localization.appSettingsSavedAccessCodesFooter)
+            DefaultFooterView(Localization.appSettingsRequireAccessCodeFooter)
         }
     }
 

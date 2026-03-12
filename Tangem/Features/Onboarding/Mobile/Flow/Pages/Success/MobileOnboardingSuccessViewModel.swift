@@ -9,8 +9,11 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 final class MobileOnboardingSuccessViewModel {
+    let navigationTitle: String
+
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
 
@@ -20,10 +23,12 @@ final class MobileOnboardingSuccessViewModel {
 
     init(
         type: SuccessType,
+        navigationTitle: String,
         onAppear: @escaping () -> Void,
         onComplete: @escaping () -> Void
     ) {
         self.type = type
+        self.navigationTitle = navigationTitle
         self.onAppear = onAppear
         self.onComplete = onComplete
     }
@@ -32,8 +37,19 @@ final class MobileOnboardingSuccessViewModel {
 // MARK: - Internal methods
 
 extension MobileOnboardingSuccessViewModel {
-    func onWillAppear() {
+    func onFirstAppear() {
         onAppear()
+    }
+
+    var actionButtonAccessibilityIdentifier: String {
+        switch type {
+        case .walletImported:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
+        case .walletReady:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessFinishButton
+        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
+        }
     }
 }
 
@@ -51,7 +67,9 @@ private extension MobileOnboardingSuccessViewModel {
         }
 
         let description = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported:
+            Localization.walletImportSuccessDescription
+        case .seedPhaseBackupContinue:
             Localization.backupCompleteDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription

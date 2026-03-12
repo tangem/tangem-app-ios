@@ -29,7 +29,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -79,7 +79,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -131,7 +131,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -163,7 +163,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [polkadotScenario, polkadotQuotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .tapSend()
@@ -202,7 +202,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -253,7 +253,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .tapSend()
@@ -290,7 +290,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .tapSend()
@@ -345,7 +345,7 @@ final class SendAddressUITests: BaseTestCase {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -354,5 +354,102 @@ final class SendAddressUITests: BaseTestCase {
             .enterAmount(sendAmount)
             .tapNextButton()
             .waitForAddressScreenElements()
+    }
+
+    func testAddressScreen_PasteButtonValidation() {
+        setAllureId(4543)
+
+        let tokenName = "Dogecoin"
+        let sendAmount = "1"
+        let validAddress = "DJQR3bdhBKcFGMHX2BkMCkrMFApNWNzr6V"
+        let invalidAddress = "invalid_address_123"
+
+        let dogecoinScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: tokenName
+        )
+
+        let dogecoinQuotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: tokenName
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [dogecoinScenario, dogecoinQuotesScenario]
+        )
+
+        let sendScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .longPressToken(tokenName)
+            .waitForActionButtons()
+            .tapSend()
+            .waitForDisplay()
+            .enterAmount(sendAmount)
+            .tapNextButton()
+
+        sendScreen
+            .pasteDestination(validAddress)
+            .waitForDestinationValue(validAddress)
+            .waitForNextButtonEnabled()
+            .waitForInvalidAddressErrorNotDisplayed()
+
+        sendScreen
+            .clearDestination()
+            .pasteDestination(invalidAddress)
+            .waitForDestinationValue(invalidAddress)
+            .waitForInvalidAddressText()
+            .waitForNextButtonDisabled()
+
+        sendScreen
+            .clearDestination()
+            .validateDestinationIsEmpty()
+            .waitForInvalidAddressErrorNotDisplayed()
+    }
+
+    func testAddressScreen_EnsAddressValidation() {
+        setAllureId(4009)
+
+        let tokenName = "Ethereum"
+        let sendAmount = "1"
+        let validEnsAddress = "louded.eth"
+        let invalidEnsAddress = "invalid.eth"
+
+        let ethCallValidScenario = ScenarioConfig(
+            name: "eth_call_api",
+            initialState: "EnsName"
+        )
+
+        let ethCallInvalidScenario = ScenarioConfig(
+            name: "eth_call_api",
+            initialState: "Started"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [ethCallValidScenario]
+        )
+
+        let sendScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .longPressToken(tokenName)
+            .waitForActionButtons()
+            .tapSend()
+            .waitForDisplay()
+            .enterAmount(sendAmount)
+            .tapNextButton()
+
+        sendScreen
+            .enterDestination(validEnsAddress)
+            .waitForResolvedAddressDisplayed()
+            .waitForNextButtonEnabled()
+
+        setupWireMockScenarios([ethCallInvalidScenario])
+
+        sendScreen
+            .clearDestination()
+            .enterDestination(invalidEnsAddress)
+            .waitForInvalidAddressText()
+            .waitForNextButtonDisabled()
     }
 }

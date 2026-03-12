@@ -19,7 +19,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.safariManager)
     private var safariManager: any SafariManager
 
-    // MARK: - Propeties
+    // MARK: - Properties
 
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
@@ -53,7 +53,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     func openFeeCurrency(walletModel: any WalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            dismiss(with: .init(userWalletId: walletModel.userWalletId, feeTokenItem: walletModel.feeTokenItem))
+            dismiss(with: .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem))
         }
     }
 

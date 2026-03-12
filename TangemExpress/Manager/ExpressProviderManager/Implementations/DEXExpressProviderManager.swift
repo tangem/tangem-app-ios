@@ -9,46 +9,52 @@
 import Foundation
 import TangemFoundation
 
-actor DEXExpressProviderManager {
+final class DEXExpressProviderManager {
     // MARK: - Dependencies
 
     private let provider: ExpressProvider
+    private let swappingPair: ExpressManagerSwappingPair
+    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
-    private let transactionValidator: ExpressProviderTransactionValidator
 
     // MARK: - State
 
-    private var _state: ExpressProviderManagerState = .idle
+    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
 
     init(
         provider: ExpressProvider,
+        swappingPair: ExpressManagerSwappingPair,
+        expressFeeProvider: ExpressFeeProvider,
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper,
-        transactionValidator: ExpressProviderTransactionValidator
+        mapper: ExpressManagerMapper
     ) {
         self.provider = provider
+        self.swappingPair = swappingPair
+        self.expressFeeProvider = expressFeeProvider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
-        self.transactionValidator = transactionValidator
     }
 }
 
 // MARK: - ExpressProviderManager
 
 extension DEXExpressProviderManager: ExpressProviderManager {
+    var pair: ExpressManagerSwappingPair { swappingPair }
+    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
+
     func getState() -> ExpressProviderManagerState {
-        _state
+        _state.read()
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state = state
+        _state.mutate { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        guard case .ready(let state) = _state else {
+        guard case .ready(let state) = _state.read() else {
             throw ExpressProviderError.transactionDataNotFound
         }
 
@@ -61,50 +67,73 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 private extension DEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
-            let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id, providerType: provider.type)
+            let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
-            if let restriction = await checkRestriction(request: request, quote: quote) {
+            // For .to flow, the actual source amount comes from the quote, not the request
+            let sourceAmount: Decimal
+            switch request.amountType {
+            case .from:
+                sourceAmount = request.amount
+            case .to:
+                sourceAmount = quote.fromAmount
+            }
+
+            if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
                 return restriction
             }
 
-            let dataItem = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
-            try Task.checkCancellation()
+            do {
+                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type, quoteId: quote.quoteId)
+                let data = try await expressAPIProvider.exchangeData(item: dataItem)
+                try Task.checkCancellation()
 
-            return try await proceed(request: request, quote: quote, data: data)
+                return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
+            } catch {
+                return proceed(error: error, quote: quote)
+            }
+        } catch {
+            return proceed(error: error, quote: .none)
+        }
+    }
 
-        } catch let error as ExpressAPIError {
+    func proceed(error: Error, quote: ExpressQuote?) -> ExpressProviderManagerState {
+        switch error {
+        case let error as ExpressAPIError:
             guard let amount = error.value?.amount else {
-                return .error(error, quote: .none)
+                return .error(error, quote: quote)
             }
 
             switch error.errorCode {
             case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount), quote: .none)
+                return .restriction(.tooSmallAmount(amount), quote: quote)
             case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount), quote: .none)
+                return .restriction(.tooBigAmount(amount), quote: quote)
             default:
-                return .error(error, quote: .none)
+                return .error(error, quote: quote)
             }
-        } catch {
-            return .error(error, quote: .none)
+        case let error:
+            return .error(error, quote: quote)
         }
     }
 
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote) async -> ExpressProviderManagerState? {
-        // Check Balance
+    func checkRestriction(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote
+    ) async -> ExpressProviderManagerState? {
         do {
-            let sourceBalance = try request.pair.source.balanceProvider.getBalance()
-            let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
+            let sourceBalance = try pair.source.balanceProvider.getBalance()
+            let isNotEnoughBalanceForSwapping = sourceAmount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
-                return .restriction(.insufficientBalance(request.amount), quote: quote)
+                return .restriction(.insufficientBalance(sourceAmount), quote: quote)
             }
 
             // Check fee currency balance at least more then zero
-            guard request.pair.source.balanceProvider.feeCurrencyHasPositiveBalance else {
-                return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
+            guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
+                let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
+                return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
             }
 
         } catch {
@@ -114,16 +143,21 @@ private extension DEXExpressProviderManager {
         // Check Permission
         if let spender = quote.allowanceContract {
             do {
-                let allowanceState = try await request.pair.source.allowanceProvider?.allowanceState(request: request, spender: spender)
+                let allowanceState = try await pair.source.allowanceProvider?.allowanceState(
+                    request: request,
+                    contractAddress: pair.source.currency.contractAddress,
+                    spender: spender
+                )
 
                 switch allowanceState {
                 case .none:
                     throw ExpressProviderError.allowanceProviderNotFound
                 case .enoughAllowance:
                     break
-                case .permissionRequired(let approveData):
+                case .permissionRequired(let data):
+                    let fee = try await expressFeeProvider.transactionFee(txData: data.txData, toContractAddress: data.toContractAddress)
                     return .permissionRequired(
-                        .init(policy: request.approvePolicy, data: approveData, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: data, fee: fee, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)
@@ -136,13 +170,19 @@ private extension DEXExpressProviderManager {
         return nil
     }
 
-    func proceed(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState {
-        if data.txValue > request.pair.source.balanceProvider.getFeeCurrencyBalance() {
-            let estimateFee = try await estimateFee(request: request, data: data)
+    func proceed(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        data: ExpressTransactionData
+    ) async throws -> ExpressProviderManagerState {
+        let coinBalance = try pair.source.balanceProvider.getCoinBalance()
+        if data.txValue > coinBalance {
+            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data)
             return .restriction(estimateFee, quote: quote)
         }
 
-        if let txData = data.txData, !transactionValidator.validateTransactionSize(data: txData) {
+        if let txData = data.txData, !pair.source.providerTransactionValidator.validateTransactionSize(data: txData) {
             throw ExpressProviderError.transactionSizeNotSupported
         }
 
@@ -150,63 +190,41 @@ private extension DEXExpressProviderManager {
             let ready = try await ready(request: request, quote: quote, data: data)
             return .ready(ready)
         } catch {
-            let estimateFee = try await estimateFee(request: request, data: data)
-            return .restriction(estimateFee, quote: quote)
+            return .error(error, quote: quote)
         }
     }
 
-    func estimateFee(request: ExpressManagerSwappingPairRequest, data: ExpressTransactionData) async throws -> ExpressRestriction {
+    func estimateFee(sourceAmount: Decimal, data: ExpressTransactionData) async throws -> ExpressRestriction {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
-            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(estimatedGasLimit: estimatedGasLimit)
-            let estimateTxValue = otherNativeFee + estimateFee.amount.value
+            let estimateFee = try await expressFeeProvider.estimatedFee(
+                estimatedGasLimit: estimatedGasLimit,
+                otherNativeFee: otherNativeFee
+            )
 
-            return .feeCurrencyInsufficientBalanceForTxValue(estimateTxValue)
+            let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
+            return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value, isFeeCurrency: isFeeCurrency)
         }
 
-        let estimatedAmount = request.amount + otherNativeFee
+        let estimatedAmount = sourceAmount + otherNativeFee
         return .insufficientBalance(estimatedAmount)
     }
 
-    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
-        var variants = try await request.pair.source.feeProvider.getFee(
-            amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: data.txData),
-            destination: data.destinationAddress
-        )
+    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.Ready {
+        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
 
         try Task.checkCancellation()
-        if let otherNativeFee = data.otherNativeFee {
-            variants = include(otherNativeFee: otherNativeFee, in: variants)
-            ExpressLogger.info(self, "The fee was increased by otherNativeFee \(otherNativeFee)")
-        }
 
         // better to make the quote from the data
-        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        let fee = ExpressFee(option: request.feeOption, variants: variants)
-        return .init(fee: fee, data: data, quote: quoteData)
-    }
-
-    func include(otherNativeFee: Decimal, in variants: ExpressFee.Variants) -> ExpressFee.Variants {
-        switch variants {
-        case .single(let fee):
-            return .single(add(value: otherNativeFee, to: fee))
-        case .double(let market, let fast):
-            return .double(
-                market: add(value: otherNativeFee, to: market),
-                fast: add(value: otherNativeFee, to: fast)
-            )
-        }
-    }
-
-    func add(value: Decimal, to fee: Fee) -> Fee {
-        Fee(.init(with: fee.amount, value: fee.amount.value + value), parameters: fee.parameters)
+        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId)
+        return .init(provider: provider, data: data, fee: fee, quote: quoteData)
     }
 }
 
 // MARK: - CustomStringConvertible
 
-extension DEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+extension DEXExpressProviderManager: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }

@@ -11,7 +11,18 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
+    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response {
+        throw "Not implemented"
+    }
+
     private let geoIpRegionCode: String
+
+    // MARK: - News Handlers (Tests/Previews)
+
+    var loadNewsListHandler: ((NewsDTO.List.Request) async throws -> NewsDTO.List.Response)?
+    var loadNewsDetailsHandler: ((NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response)?
+    var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
+    var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -75,34 +86,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        throw "Not implemented"
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        throw "Not implemented"
-    }
-
-    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
-        throw "Not implemented"
-    }
-
     func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }
@@ -159,10 +142,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func setWalletInitialized(userWalletId: String) async throws {
-        throw "Not implemented"
-    }
-
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         throw "Not implemented"
     }
@@ -183,16 +162,20 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
+    func updateWallet(by userWalletId: String, context: some Encodable) async throws {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
+    func connectUserWallets(uid: String, requestModel: ApplicationDTO.Connect.Request) async throws {
         throw "Not implemented"
     }
 
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
+    }
+
+    func createWallet(with context: some Encodable) async throws -> String? {
+        throw "Not implemented"
     }
 
     func getUserAccounts(
@@ -217,6 +200,66 @@ final class FakeTangemApiService: TangemApiService {
 
     func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
+    }
+
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        if let handler = loadTrendingNewsHandler {
+            return try await handler(limit, lang)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        if let handler = loadNewsListHandler {
+            return try await handler(requestModel)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        if let handler = loadNewsDetailsHandler {
+            return try await handler(requestModel)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        if let handler = loadNewsCategoriesHandler {
+            return try await handler()
+        }
+
+        throw "Not implemented"
+    }
+
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        throw "Not implemented"
+    }
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        try MockEarnProvider().loadEarnList()
+    }
+
+    func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
+        try MockEarnProvider().loadEarnNetworks()
+    }
+}
+
+private struct MockEarnProvider {
+    private static let decoder: JSONDecoder = {
+        let d = JSONDecoder()
+        d.keyDecodingStrategy = .convertFromSnakeCase
+        return d
+    }()
+
+    func loadEarnList() throws -> EarnDTO.List.Response {
+        try JsonUtils.readBundleFile(with: "earnTokens", type: EarnDTO.List.Response.self, decoder: Self.decoder)
+    }
+
+    func loadEarnNetworks() throws -> EarnDTO.Networks.Response {
+        try JsonUtils.readBundleFile(with: "earnNetworks", type: EarnDTO.Networks.Response.self, decoder: Self.decoder)
     }
 }
 

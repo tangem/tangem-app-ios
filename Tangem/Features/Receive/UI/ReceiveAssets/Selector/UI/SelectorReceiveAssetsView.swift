@@ -15,7 +15,7 @@ struct SelectorReceiveAssetsView: View {
     @ObservedObject var viewModel: SelectorReceiveAssetsViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: Layout.Container.spacingContent) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: Layout.Container.spacingContent)) {
             ForEach(viewModel.sections, id: \.id) { section in
                 switch section.id {
                 case .default:
@@ -35,6 +35,7 @@ struct SelectorReceiveAssetsView: View {
         }
         .padding(.top, Layout.Container.paddingTop)
         .padding(.bottom, Layout.Container.paddingBottom)
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     private func defaultSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
@@ -44,7 +45,7 @@ struct SelectorReceiveAssetsView: View {
     }
 
     private func domainSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
-        GroupedSection(viewModels) {
+        ForEach(viewModels, id: \.id) {
             SelectorReceiveAssetsContentItemView(viewModel: $0)
         }
     }

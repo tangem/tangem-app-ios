@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import TangemUI
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
@@ -19,6 +19,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Root ViewModels
 
@@ -27,20 +29,27 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
 
     @Published var tokenNetworkSelectorCoordinator: MarketsTokenNetworkSelectorCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var newsPagerViewModel: NewsPagerViewModel? = nil
+    @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-
-    private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+    private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+    private var isDeeplinkMode: Bool = false
+
+    var isMarketsSheetFlow: Bool {
+        presentationStyle == .marketsSheet
+    }
 
     // MARK: - Init
 
@@ -53,6 +62,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        presentationStyle = options.style
+        isDeeplinkMode = options.isDeeplinkMode
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -67,6 +78,13 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
+        let isDeeplinkMode: Bool
+
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle, isDeeplinkMode: Bool = false) {
+            self.info = info
+            self.style = style
+            self.isDeeplinkMode = isDeeplinkMode
+        }
     }
 }
 
@@ -86,9 +104,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
-            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-            userWalletDataProvider: walletDataProvider,
+        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+            coinId: model.id,
+            coinName: model.name,
+            coinSymbol: model.symbol,
+            networks: model.availableNetworks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(
+            inputData: inputData,
+            coordinator: self
+        )
+
+        let viewModel = AccountsAwareAddTokenFlowViewModel(
+            userWalletModels: walletDataProvider.userWalletModels,
+            configuration: configuration,
             coordinator: self
         )
 
@@ -136,11 +166,124 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         coordinator.start(with: options)
         stakingDetailsCoordinator = coordinator
     }
+
+    func makeYieldModuleFlowFactory(input: SendInput, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard input.walletModel.multipleTransactionsSender != nil else {
+            return nil
+        }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
+
+        return CommonYieldModuleFlowFactory(
+            walletModel: input.walletModel,
+            yieldModuleManager: manager,
+            transactionDispatcher: dispatcher
+        )
+    }
+
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
+        yieldModuleActiveCoordinator = coordinator
+    }
+
+    private func openMainTokenDetails(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
+        }
+
+        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        ) else {
+            return
+        }
+
+        tokenDetailsCoordinator = coordinator
+    }
+
+    func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager) {
+        guard let factory = makeYieldModuleFlowFactory(input: input, manager: yieldModuleManager) else { return }
+
+        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem, userWalletId: input.walletModel.userWalletId)
+
+        func openActiveYield() {
+            logger.logEarningApyClicked(state: .enabled)
+            openYieldModuleActiveInfo(factory: factory)
+        }
+
+        func openPromoYield() {
+            if let apy = yieldModuleManager.state?.marketInfo?.apy {
+                openYieldModulePromoView(apy: apy, factory: factory)
+                logger.logEarningApyClicked(state: .disabled)
+            }
+        }
+
+        switch yieldModuleManager.state?.state {
+        case .active:
+            openActiveYield()
+        case .failedToLoad(_, let cached?):
+            switch cached {
+            case .active:
+                openActiveYield()
+            case .notActive:
+                openPromoYield()
+            default:
+                break
+            }
+        case .processing:
+            openMainTokenDetails(walletModel: input.walletModel)
+        case .notActive:
+            openPromoYield()
+        case .disabled, .failedToLoad, .loading, .none:
+            break
+        }
+    }
+
+    func shareTokenDetails(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    @MainActor
+    func openNews(newsIds: [Int], selectedIndex: Int) {
+        let viewModel = NewsPagerViewModel(
+            newsIds: newsIds,
+            initialIndex: selectedIndex,
+            isDeeplinkMode: false, // Always false - nested news screen should show back button, not close
+            isMarketsSheetFlow: presentationStyle == .marketsSheet,
+            dataSource: SingleNewsDataSource(),
+            analyticsSource: .token,
+            coordinator: self
+        )
+        newsPagerViewModel = viewModel
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
 
-extension MarketsTokenDetailsCoordinator {
+extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -150,74 +293,69 @@ extension MarketsTokenDetailsCoordinator {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openExchange(input: ExpressDependenciesInput) {
+    func openSwap(input: PredefinedSwapParameters, destination: TokenItem) {
         let action = { [weak self] in
             guard let self else { return }
 
-            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] _ in
-                self?.expressCoordinator = nil
+            let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] option in
+                self?.sendCoordinator = nil
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
             }
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
-                Task { @MainActor in
-                    let factory = CommonExpressModulesFactory(input: input)
-                    let coordinator = ExpressCoordinator(
-                        factory: factory,
-                        dismissAction: dismissAction,
-                        popToRootAction: self.popToRootAction
-                    )
-
-                    coordinator.start(with: .default)
-                    self.expressCoordinator = coordinator
-                }
-            }
-
-            Task { @MainActor [tangemStoriesPresenter] in
-                tangemStoriesPresenter.present(
-                    story: .swap(.initialWithoutImages),
-                    analyticsSource: .markets,
-                    presentCompletion: openSwapBlock
+                let coordinator = SendCoordinator(
+                    dismissAction: dismissAction,
+                    popToRootAction: popToRootAction
                 )
+
+                coordinator.start(with: .init(type: .swap(input), source: .markets))
+                sendCoordinator = coordinator
             }
+
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
-            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: destination) {
+            openViaYieldNotice(tokenItem: destination, action: action)
         } else {
             action()
         }
     }
 
-    func openOnramp(input: SendInput) {
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(input: input, type: .onramp(), source: .markets)
+        let options = SendCoordinator.Options(type: .onramp(sourceToken, parameters: parameters), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 }
 
-// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+// MARK: - AccountsAwareAddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func presentSuccessToast(with text: String) {
@@ -244,8 +382,9 @@ extension MarketsTokenDetailsCoordinator {
         safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                walletModel.update(silent: true)
+            Task {
+                try await Task.sleep(for: .seconds(1))
+                await walletModel.update(silent: true, features: .balances)
             }
         }
     }
@@ -263,5 +402,32 @@ extension MarketsTokenDetailsCoordinator {
 private extension MarketsTokenDetailsCoordinator {
     enum ToastConstants {
         static let topPadding: CGFloat = 52
+    }
+}
+
+extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
+
+// MARK: - NewsDetailsRoutable
+
+extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
+    func dismissNewsDetails() {
+        newsPagerViewModel = nil
+    }
+
+    func share(url: String) {
+        guard let url = URL(string: url) else { return }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openTokenDetails(_ token: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.newsRelatedTokenDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
+        newsRelatedTokenDetailsCoordinator = coordinator
     }
 }

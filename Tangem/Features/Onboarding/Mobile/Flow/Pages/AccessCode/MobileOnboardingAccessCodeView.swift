@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileOnboardingAccessCodeView: View {
     typealias ViewModel = MobileOnboardingAccessCodeViewModel
@@ -17,13 +18,16 @@ struct MobileOnboardingAccessCodeView: View {
 
     var body: some View {
         content
-            .ifLet(viewModel.leadingBavBarItem) { view, item in
-                view.flowNavBar(leadingItem: item.view)
-            }
-            .ifLet(viewModel.trailingBavBarItem) { view, item in
-                view.flowNavBar(trailingItem: item.view)
-            }
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(
+                leading: { viewModel.leadingNavBarItem?.view() },
+                trailing: { viewModel.trailingNavBarItem?.view() }
+            )
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .onDisappear {
+                UIApplication.shared.endEditing()
+            }
             .animation(.default, value: viewModel.state)
     }
 }
@@ -38,11 +42,19 @@ private extension MobileOnboardingAccessCodeView {
 
             OnboardingPinStackView(
                 maxDigits: viewModel.codeLength,
+                handleKeyboard: false,
                 isDisabled: false,
+                accessibilityIdentifier: OnboardingAccessibilityIdentifiers.accessCodeInputField,
                 pinText: viewModel.code
             )
             .pinStackColor(viewModel.pinColor)
             .pinStackSecured(viewModel.isPinSecured)
+            .shake(
+                trigger: viewModel.shakeTrigger,
+                duration: viewModel.shakeDuration,
+                shakesPerUnit: 3,
+                travelDistance: 10
+            )
         }
         .padding(.top, 32)
     }
@@ -50,6 +62,7 @@ private extension MobileOnboardingAccessCodeView {
     func infoView(_ item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
+                .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             Text(item.description)

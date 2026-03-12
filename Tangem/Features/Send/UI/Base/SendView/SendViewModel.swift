@@ -13,6 +13,7 @@ import TangemAssets
 import TangemExpress
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 protocol SendViewAlertPresenter: AnyObject {
@@ -30,11 +31,14 @@ final class SendViewModel: ObservableObject {
     @Published var flowActionType: SendFlowActionType
     @Published var isKeyboardActive: Bool = false
 
-    @Published var closeButtonDisabled = false
-    @Published var trailingButtonDisabled = false
-    @Published var isUserInteractionDisabled = false
-    @Published var mainButtonLoading: Bool = false
-    @Published var actionIsAvailable: Bool = false
+    @Published private(set) var mainButtonUpdating: Bool = false
+    @Published private(set) var actionInProcessing: Bool = false
+    @Published private(set) var actionIsAvailable: Bool = false
+
+    var mainButtonLoading: Bool { actionInProcessing }
+    var closeButtonDisabled: Bool { actionInProcessing }
+    var trailingButtonDisabled: Bool { actionInProcessing }
+    var isUserInteractionDisabled: Bool { actionInProcessing }
 
     var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
@@ -44,10 +48,14 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
+    let tangemIconProvider: TangemIconProvider
+
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let alertBuilder: SendAlertBuilder
-    private let dataBuilder: SendGenericBaseDataBuilder
+    private let mailDataBuilder: SendMailDataBuilder
+    private let approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder
+    private let feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
     private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     private weak var coordinator: SendRoutable?
@@ -63,17 +71,23 @@ final class SendViewModel: ObservableObject {
         interactor: SendBaseInteractor,
         stepsManager: SendStepsManager,
         alertBuilder: SendAlertBuilder,
-        dataBuilder: SendGenericBaseDataBuilder,
+        mailDataBuilder: SendMailDataBuilder,
+        approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder,
+        feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
+        tangemIconProvider: TangemIconProvider,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
         self.stepsManager = stepsManager
         self.alertBuilder = alertBuilder
+        self.mailDataBuilder = mailDataBuilder
+        self.approveViewModelInputDataBuilder = approveViewModelInputDataBuilder
+        self.feeCurrencyProviderDataBuilder = feeCurrencyProviderDataBuilder
         self.analyticsLogger = analyticsLogger
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
-        self.dataBuilder = dataBuilder
+        self.tangemIconProvider = tangemIconProvider
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -103,13 +117,16 @@ final class SendViewModel: ObservableObject {
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
             performApprove()
-        case .action where flowActionType == .onramp:
-            performOnramp()
         case .action:
             performAction()
         case .close:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
+    }
+
+    func needsHoldAction(mainButtonType: SendMainButtonType) -> Bool {
+        guard case .action(let needsHold) = mainButtonType else { return false }
+        return needsHold && flowActionType != .approve
     }
 
     func userDidTapBackButton() {
@@ -157,25 +174,10 @@ final class SendViewModel: ObservableObject {
 // MARK: - Private
 
 private extension SendViewModel {
-    func performOnramp() {
-        do {
-            if let demoAlertMessage = try dataBuilder.onrampBuilder().demoAlertMessage() {
-                showAlert(AlertBuilder.makeDemoAlert(demoAlertMessage))
-                return
-            }
-
-            isKeyboardActive = false
-            let onrampRedirectingBuilder = try dataBuilder.onrampBuilder().makeDataForOnrampRedirecting()
-            coordinator?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
     func performApprove() {
         do {
-            let (settings, approveViewModelInput) = try dataBuilder.stakingBuilder().makeDataForExpressApproveViewModel()
-            coordinator?.openApproveView(settings: settings, approveViewModelInput: approveViewModelInput)
+            let factory = try approveViewModelInputDataBuilder.makeApproveFlowFactory()
+            coordinator?.openApproveView(flowFactory: factory)
         } catch {
             showAlert(error.alertBinder)
         }
@@ -189,7 +191,7 @@ private extension SendViewModel {
                 await viewModel.proceed(result: result)
             } catch let error as TransactionDispatcherResult.Error {
                 // The demo alert doesn't show without delay
-                try? await Task.sleep(seconds: 1)
+                try? await Task.sleep(for: .seconds(1))
                 await viewModel.proceed(error: error)
             } catch _ as CancellationError {
                 // Do nothing
@@ -240,7 +242,7 @@ private extension SendViewModel {
         analyticsLogger.logRequestSupport()
 
         do {
-            let (emailDataCollector, recipient) = try dataBuilder.stakingBuilder().makeMailData(stakingRequestError: error)
+            let (emailDataCollector, recipient) = try mailDataBuilder.makeMailData(stakingRequestError: error)
             coordinator?.openMail(with: emailDataCollector, recipient: recipient)
         } catch {
             showAlert(error.alertBinder)
@@ -253,23 +255,23 @@ private extension SendViewModel {
         do {
             switch transaction {
             case .transfer(let transaction):
-                let builder = try dataBuilder.sendBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(transaction: transaction, error: error)
+                let (emailDataCollector, recipient) = try mailDataBuilder
+                    .makeMailData(transaction: transaction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
             case .staking(let stakingTransactionAction):
-                let builder = try dataBuilder.stakingBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(action: stakingTransactionAction, error: error)
+                let (emailDataCollector, recipient) = try mailDataBuilder
+                    .makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .express(.default(let transaction)):
-                let builder = try dataBuilder.sendBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(transaction: transaction, error: error)
+            case .approve(let approveData, _):
+                let (emailDataCollector, recipient) = try mailDataBuilder
+                    .makeMailData(approveTransaction: approveData, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .express(.compiled(let transactionData)):
-                let builder = try dataBuilder.sendBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(transactionData: transactionData, error: error)
+            case .cex(let expressTransaction, _), .dex(let expressTransaction, _):
+                let (emailDataCollector, recipient) = try mailDataBuilder
+                    .makeMailData(expressTransaction: expressTransaction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
             }
         } catch {
@@ -284,45 +286,36 @@ private extension SendViewModel {
 
         isUpdatingSubscription = step.isUpdatingPublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
+            .assign(to: \.mainButtonUpdating, on: self, ownership: .weak)
     }
 
     func bind() {
         interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.trailingButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isUserInteractionDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$actionInProcessing)
     }
 }
 
-// MARK: - SendModelRoutable
+// MARK: - TransferModelRoutable
 
-extension SendViewModel: SendModelRoutable {
+extension SendViewModel: TransferModelRoutable {
     func openNetworkCurrency() {
         do {
-            let builder = try dataBuilder.sendBuilder()
-            let feeCurrency = builder.makeFeeCurrencyData()
+            let feeCurrency = try feeCurrencyProviderDataBuilder.makeFeeCurrencyData()
             coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
             showAlert(error.alertBinder)
         }
     }
 
+    func openApproveSheet() {
+        performApprove()
+    }
+}
+
+// MARK: - SendWithSwapModelRoutable
+
+extension SendViewModel: SendWithSwapModelRoutable {
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
         coordinator?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
     }
@@ -330,65 +323,21 @@ extension SendViewModel: SendModelRoutable {
     func resetFlow() {
         stepsManager.resetFlow()
     }
+}
 
+// MARK: - StakingModelRoutable
+
+extension SendViewModel: StakingModelRoutable {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
         coordinator?.openAccountInitializationFlow(viewModel: viewModel)
     }
 }
 
-// MARK: - SendAmountRoutable
+// MARK: - SwapModelRoutable
 
-extension SendViewModel: SendAmountRoutable {
-    func openReceiveTokensList() {
-        do {
-            isKeyboardActive = false
-            let builder = try dataBuilder.sendBuilder()
-            let tokensListBuilder = builder.makeSendReceiveTokensList()
-            coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-}
-
-// MARK: - OnrampModelRoutable
-
-extension SendViewModel: OnrampModelRoutable {
-    func openOnrampCountryBottomSheet(country: OnrampCountry) {
-        do {
-            isKeyboardActive = false
-            let builder = try dataBuilder.onrampBuilder()
-            let (repository, dataRepository) = builder.makeDataForOnrampCountryBottomSheet()
-            coordinator?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
-    func openOnrampCountrySelectorView() {
-        do {
-            let builder = try dataBuilder.onrampBuilder()
-            let (repository, dataRepository) = builder.makeDataForOnrampCountrySelectorView()
-            coordinator?.openOnrampCountrySelector(
-                repository: repository,
-                dataRepository: dataRepository
-            )
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
-    func openOnrampRedirecting() {
-        // The new onramp performed straight from onramp model
-        performOnramp()
-    }
-
-    func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
-        coordinator?.openOnrampWebView(url: url, onDismiss: onDismiss, onSuccess: onSuccess)
-    }
-
-    func openFinishStep() {
-        stepsManager.performFinish()
+extension SendViewModel: SwapModelRoutable {
+    func performSwapAction() {
+        performAction()
     }
 }
 
@@ -403,6 +352,14 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
+    func stopSwapProvidersAutoUpdateTimer() {
+        interactor.stopSwapProvidersAutoUpdateTimer()
+    }
+
+    func setKeyboardActive(_ isActive: Bool) {
+        isKeyboardActive = isActive
+    }
+
     func update(step newStep: any SendStep) {
         step.willDisappear(next: newStep)
         newStep.willAppear(previous: step)

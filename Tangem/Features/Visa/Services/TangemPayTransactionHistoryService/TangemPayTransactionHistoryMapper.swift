@@ -8,6 +8,7 @@
 
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayTransactionHistoryMapper {
     private let calendar: Calendar = .current
@@ -63,12 +64,13 @@ struct TangemPayTransactionHistoryMapper {
         return TransactionViewModel(
             hash: transaction.id,
             index: index,
-            interactionAddress: .custom(message: mapper.categoryName()),
+            interactionAddress: .custom(message: mapper.categoryName(detailed: false)),
             timeFormatted: mapper.time(),
             amount: mapper.amount(),
             isOutgoing: mapper.isOutgoing(),
             transactionType: mapper.type(),
-            status: mapper.status()
+            status: mapper.status(),
+            isFromYieldContract: false
         )
     }
 }

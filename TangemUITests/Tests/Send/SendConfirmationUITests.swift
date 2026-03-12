@@ -24,7 +24,7 @@ final class SendConfirmationUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -43,17 +43,19 @@ final class SendConfirmationUITests: BaseTestCase {
             .validateFiatAmount(newFiatAmount)
     }
 
-    func testCurrencySwitch_WhenTogglingBetweenCryptoAndFiat() {
+    func testAmountScreen_CurrencyEquivalentSwitchingAndSummaryValidation() {
         setAllureId(552)
 
         let tokenName = "Ethereum"
         let inputAmount = "1"
-        let ethereumAmount = "ETH 1.00"
+        let ethereumAmount = "ETH\u{00A0}1.00"
         let fiatAmount = "$2,535.63"
+        let summaryEthereumAmount = "1.00"
+        let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -67,6 +69,11 @@ final class SendConfirmationUITests: BaseTestCase {
             .toggleCurrency()
             .validateCurrencySymbol("ETH")
             .waitForFiatAmount(fiatAmount)
+            .tapNextButton()
+            .enterDestination(destination)
+            .tapNextButtonToSummary()
+            .validateCryptoAmount(summaryEthereumAmount)
+            .validateFiatAmount(fiatAmount)
     }
 
     func testNetworkFeeLessThanSignDisplayed_WhenFeeCannotBeAccuratelyCalculated() {
@@ -79,7 +86,7 @@ final class SendConfirmationUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSendButton()
@@ -109,7 +116,7 @@ final class SendConfirmationUITests: BaseTestCase {
             scenarios: [ethEstimateGasScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -139,7 +146,7 @@ final class SendConfirmationUITests: BaseTestCase {
             scenarios: [tokensScenario, quotesScenario, gasUnreachableScenario]
         )
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()

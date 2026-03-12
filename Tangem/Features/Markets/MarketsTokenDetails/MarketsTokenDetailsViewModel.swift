@@ -11,11 +11,17 @@ import Combine
 import CombineExt
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
+    /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
+    /// Using a static set ensures the event is only logged once per app session per token.
+    private static var loggedNewsCarouselScrolledTokenIds: Set<String> = []
 
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
     @Published private(set) var isLoading = true
@@ -60,9 +66,17 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private var tokenInsights: MarketsTokenDetailsInsights?
 
+    @Published private(set) var tokenNewsItems: [CarouselNewsItem] = []
+
+    private var loadedNewsIds: [Int] = []
+
+    var isAvailableNews: Bool {
+        !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
+    }
+
     var price: String? { priceInfo?.price }
 
-    var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
+    var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
@@ -120,6 +134,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private lazy var priceHelper = MarketsTokenDetailsPriceInfoHelper()
     private lazy var dateHelper = MarketsTokenDetailsDateHelper(initialDate: initialDate)
+    private lazy var newsMapper = NewsModelMapper(readStatusProvider: readStatusProvider)
 
     private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
@@ -131,6 +146,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
     private let walletDataProvider = MarketsWalletDataProvider()
+    private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
     private var loadedInfo: MarketsTokenDetailsModel?
     private var loadingTask: AnyCancellable?
@@ -179,16 +195,19 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         isLoading = true
         loadingTask?.cancel()
         loadingTask = runTask(in: self) { viewModel in
+            let currencyId = viewModel.tokenInfo.id
+
             do {
                 let baseCurrencyCode = await AppSettings.shared.selectedCurrencyCode
-                let currencyId = viewModel.tokenInfo.id
                 AppLogger.info(viewModel, "Attempt to load token markets data for token with id: \(currencyId)")
                 let result = try await viewModel.dataProvider.loadTokenDetails(for: currencyId, baseCurrencyCode: baseCurrencyCode)
                 viewModel.marketsQuotesUpdateHelper.updateQuote(marketToken: result, for: baseCurrencyCode)
+                await viewModel.performLoadNews(with: currencyId)
                 await viewModel.handleLoadDetailedInfo(.success(result))
             } catch {
                 await viewModel.handleLoadDetailedInfo(.failure(error))
             }
+
             viewModel.loadingTask = nil
         }.eraseToAnyCancellable()
     }
@@ -254,11 +273,63 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
             coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
         }
     }
+
+    func shareTokenDetails() {
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl
+            .appendingPathComponent(Locale.shareLinkLanguageCode)
+            .appendingPathComponent("cryptocurrencies")
+            .appendingPathComponent(tokenInfo.id.lowercased())
+        coordinator?.shareTokenDetails(url: url)
+    }
+
+    func logCarouselScrolledIfNeeded() {
+        guard !Self.loggedNewsCarouselScrolledTokenIds.contains(tokenInfo.id) else { return }
+        Self.loggedNewsCarouselScrolledTokenIds.insert(tokenInfo.id)
+        Analytics.log(
+            event: .coinPageTokenNewsCarouselScrolled,
+            params: [.token: tokenInfo.symbol]
+        )
+    }
 }
 
 // MARK: - Details response processing
 
 private extension MarketsTokenDetailsViewModel {
+    func performLoadNews(with currencyId: String) async {
+        do {
+            let result = try await marketsNewsProvider.loadRelatedNews(for: currencyId)
+            let newsIds = result.items.map(\.id)
+
+            await runOnMain {
+                loadedNewsIds = newsIds
+                tokenNewsItems = newsMapper.mapCarouselNewsItem(
+                    from: result,
+                    onTap: { [weak self] newsIdString in
+                        guard let self, let newsId = Int(newsIdString) else { return }
+
+                        let selectedIndex = loadedNewsIds.firstIndex(of: newsId) ?? 0
+                        Task { @MainActor in
+                            self.coordinator?.openNews(newsIds: self.loadedNewsIds, selectedIndex: selectedIndex)
+                        }
+                    }
+                )
+
+                if !newsIds.isEmpty {
+                    Analytics.log(
+                        event: .coinPageTokenNewsViewed,
+                        params: [.token: tokenInfo.symbol]
+                    )
+                }
+            }
+        } catch {
+            AppLogger.error("Failed load news for related token with id: \(currencyId)", error: error)
+            var params = error.marketsAnalyticsParams
+            params[.token] = tokenInfo.symbol
+            Analytics.log(event: .coinPageTokenNewsLoadError, params: params)
+        }
+    }
+
     func handleLoadDetailedInfo(_ result: Result<MarketsTokenDetailsModel, Error>) async {
         defer {
             runTask(in: self) { viewModel in
@@ -355,6 +426,22 @@ private extension MarketsTokenDetailsViewModel {
                 viewModel.loadDetailedInfo()
             }
             .store(in: &bag)
+
+        readStatusProvider.readStatusChangedPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newsId in
+                viewModel.updateNewsReadStatus(newsId: newsId)
+            }
+            .store(in: &bag)
+    }
+
+    func updateNewsReadStatus(newsId: NewsId) {
+        guard let index = tokenNewsItems.firstIndex(where: { $0.id == newsId }) else {
+            return
+        }
+
+        tokenNewsItems[index] = tokenNewsItems[index].withIsRead(true)
     }
 
     func bindToHistoryChartViewModel() {
@@ -471,7 +558,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if FeatureProvider.isAvailable(.accounts) {
             accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
-                inputData: .init(coinId: tokenInfo.id),
+                inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
                 walletDataProvider: walletDataProvider,
                 coordinator: coordinator,
                 addTokenTapAction: { [weak self] in

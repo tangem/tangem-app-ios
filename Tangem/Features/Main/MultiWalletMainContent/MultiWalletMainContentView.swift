@@ -23,15 +23,12 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
-            ForEach(viewModel.tangemPayNotificationInputs) { input in
-                NotificationView(input: input)
-                    .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {
-                        $0.setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
-                    }
-            }
-
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
+            }
+
+            if let viewModel = viewModel.tangemPayBannerViewModel {
+                GetTangemPayBannerView(viewModel: viewModel)
             }
 
             ForEach(viewModel.notificationInputs) { input in
@@ -47,13 +44,17 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if let viewModel = viewModel.tangemPayAccountViewModel {
-                TangemPayAccountView(viewModel: viewModel)
+            ForEach(viewModel.tangemPayNotificationInputs) { input in
+                NotificationView(input: input)
             }
 
-            listContent
+            VStack(spacing: 8.0) {
+                if let viewModel = viewModel.tangemPayAccountViewModel {
+                    TangemPayAccountView(viewModel: viewModel)
+                }
+
+                listContent
+            }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 NFTEntrypointView(viewModel: nftEntrypointViewModel)
@@ -71,7 +72,8 @@ struct MultiWalletMainContentView: View {
             }
         }
         .padding(.horizontal, 16)
-        .onFirstAppear(perform: viewModel.onFirstAppear)
+        .onDidAppear(perform: viewModel.onDidAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
         .bindAlert($viewModel.error)
     }
 
@@ -90,15 +92,8 @@ struct MultiWalletMainContentView: View {
                 accountsList
 
                 makeTokensList(sections: viewModel.plainSections)
-                    .modifyView { view in
-                        // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
-                        // this will cause clipping of iOS context menu previews in `TokenItemView` view
-                        if #available(iOS 16.0, *) {
-                            view
-                        } else {
-                            view.cornerRadiusContinuous(Constants.cornerRadius)
-                        }
-                    }
+                    // Do not apply cornerRadius to the view directly to avoid clipping iOS context menus
+                    .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
                     .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             }
         }
@@ -119,36 +114,74 @@ struct MultiWalletMainContentView: View {
             .padding(.top, 96)
     }
 
+    private func tokenItemView(
+        item: TokenItemViewModel,
+        cornerRadius: CGFloat,
+        roundedCornersVerticalEdge: TokenItemView.RoundedCornersVerticalEdge?,
+        isFirstItem: Bool = false,
+        promoBubbleViewModel: TokenItemPromoBubbleViewModel?
+    ) -> some View {
+        VStack(spacing: .zero) {
+            if let promoBubbleViewModel {
+                TokenItemPromoBubbleView(viewModel: promoBubbleViewModel, position: isFirstItem ? .top : .normal)
+            }
+
+            TokenItemView(
+                viewModel: item,
+                cornerRadius: cornerRadius,
+                roundedCornersVerticalEdge: roundedCornersVerticalEdge
+            )
+            .overlay(alignment: .top) {
+                trianglePointer.opacity(promoBubbleViewModel == nil ? 0 : 1)
+            }
+        }
+    }
+
+    private var trianglePointer: some View {
+        Triangle()
+            .rotation(Angle(degrees: 180))
+            .fill(Colors.Control.unchecked)
+            .frame(width: 12, height: 8)
+    }
+
     private func makeTokensList(sections: [MultiWalletMainContentPlainSection]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(indexed: sections.indexed()) { sectionIndex, section in
                 let cornerRadius = Constants.cornerRadius
                 let hasTitle = section.model.title != nil
 
-                if #available(iOS 16.0, *) {
-                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
-                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
+                let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
-                    TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
-                } else {
-                    TokenSectionView(title: section.model.title)
-                }
+                VStack(spacing: .zero) {
+                    TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
 
-                ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    if #available(iOS 16.0, *) {
+                    ForEach(indexed: section.items.indexed()) { itemIndex, item in
                         let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
                         let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
-                        if isFirstItem {
-                            let isSingleItem = section.items.count == 1
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: isSingleItem ? .all : .topEdge)
-                        } else if isLastItem {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .bottomEdge)
-                        } else {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
-                        }
-                    } else {
-                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
+                        let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                        let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+
+                        let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
+                            if isFirstItem {
+                                return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
+                            }
+
+                            if isLastItem {
+                                return .bottomEdge
+                            }
+
+                            return nil
+                        }()
+
+                        tokenItemView(
+                            item: item,
+                            cornerRadius: cornerRadius,
+                            roundedCornersVerticalEdge: roundedEdges,
+                            isFirstItem: isFirstItem,
+                            promoBubbleViewModel: promoBubbleViewModel
+                        )
                     }
                 }
             }
@@ -168,7 +201,14 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
         let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            manageTokensActionFactory: { _ in {} }
+        )
+
+        let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+            userWalletModel: userWalletModel,
+            yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+            tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
         )
 
         return MultiWalletMainContentViewModel(
@@ -177,10 +217,12 @@ struct MultiWalletMainContentView: View {
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
+            tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),
-            coordinator: mainCoordinator
+            coordinator: mainCoordinator,
+            tokenItemPromoProvider: tokenItemPromoProvider
         )
     }()
 

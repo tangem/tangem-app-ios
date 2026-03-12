@@ -9,7 +9,7 @@
 import Foundation
 import TangemLocalization
 
-enum CardanoError: Error, LocalizedError {
+public enum CardanoError: Error, LocalizedError {
     case noUnspents
     case lowAda
     case derivationPathIsShort
@@ -18,7 +18,7 @@ enum CardanoError: Error, LocalizedError {
     case feeParametersNotFound
     case failedToHashTransactionData
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         Localization.genericErrorCode(errorCode)
     }
 }

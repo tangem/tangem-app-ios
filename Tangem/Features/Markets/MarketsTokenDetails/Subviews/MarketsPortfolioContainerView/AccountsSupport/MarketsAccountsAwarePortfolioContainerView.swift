@@ -26,18 +26,14 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     // MARK: - Body
 
     var body: some View {
-        contentView
-            .if(!viewModel.typeView.isList) { $0.padding(.bottom, 12) }
-    }
-
-    // MARK: - Content
-
-    private var contentView: some View {
         VStack(alignment: .leading, spacing: 14) {
             headerView
+
             contentBodyView
         }
     }
+
+    // MARK: - Content
 
     @ViewBuilder
     private var contentBodyView: some View {
@@ -72,12 +68,12 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
             Spacer()
 
             if viewModel.typeView.isList {
-                CircleButton(
-                    content: .title(icon: .trailing(Assets.plus14), title: Localization.marketsAddToken),
-                    action: viewModel.onAddTapAction
-                )
+                CapsuleButton(icon: .trailing(Assets.plus14), title: Localization.marketsAddToken, action: viewModel.onAddTapAction)
+                    .disabled(viewModel.isAddTokenButtonDisabled)
+                    .loading(viewModel.isLoadingNetworks)
             }
         }
+        .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
     }
 
     // MARK: - List Views
@@ -93,33 +89,29 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     }
 
     private func justWalletsView(walletsData: [UserWalletWithTokensData]) -> some View {
-        // Right now we need to use here VStack instead of LazyVStack because of not resolved issues
-        // with expanding and collapsing animations for quick actions. Will be investigated in [REDACTED_INFO]
-        VStack(spacing: 8) {
-            ForEach(walletsData, id: \.userWalletId) { walletData in
-                VStack(spacing: Constants.headerContentVerticalSpacing) {
-                    inlineWalletHeader(walletName: walletData.userWalletName)
-                        .padding(.top, 14)
+        ForEach(walletsData, id: \.userWalletId) { walletData in
+            // Right now we need to use here VStack instead of LazyVStack because of not resolved issues
+            // with expanding and collapsing animations for quick actions ([REDACTED_INFO])
+            VStack(spacing: Constants.headerContentVerticalSpacing) {
+                inlineWalletHeader(walletName: walletData.userWalletName)
+                    .padding(.top, 16)
 
-                    tokenItemsList(walletData.tokenItems)
-                }
-                .roundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: Constants.cardPadding)
+                tokenItemsList(walletData.tokenItems)
             }
+            .roundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: Constants.cardPadding)
         }
     }
 
     private func walletsWithAccountsView(walletsData: [UserWalletWithAccountsData]) -> some View {
-        // Right now we need to use here VStack instead of LazyVStack because of not resolved issues
-        // with expanding and collapsing animations for quick actions. Will be investigated in [REDACTED_INFO]
-        VStack(spacing: 16) {
-            ForEach(walletsData, id: \.userWalletId) { walletData in
-                VStack(alignment: .leading, spacing: Constants.headerContentVerticalSpacing) {
-                    prominentWalletHeader(walletName: walletData.userWalletName)
-                        .padding(.top, 14)
+        ForEach(walletsData, id: \.userWalletId) { walletData in
+            // Right now we need to use here VStack instead of LazyVStack because of not resolved issues
+            // with expanding and collapsing animations for quick actions ([REDACTED_INFO])
+            VStack(alignment: .leading, spacing: Constants.headerContentVerticalSpacing) {
+                prominentWalletHeader(walletName: walletData.userWalletName)
+                    .padding(.top, 6.0)
 
-                    ForEach(walletData.accountsWithTokenItems, id: \.accountData.id) { accountWithTokens in
-                        accountCard(accountWithTokens)
-                    }
+                ForEach(walletData.accountsWithTokenItems, id: \.accountData.id) { accountWithTokens in
+                    accountCard(accountWithTokens)
                 }
             }
         }
@@ -154,6 +146,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     private func prominentWalletHeader(walletName: String) -> some View {
         Text(walletName)
             .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+            .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
     }
 
     private func inlineWalletHeader(walletName: String) -> some View {
@@ -165,15 +158,9 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     }
 
     private func accountHeader(accountData: AccountData) -> some View {
-        HStack(spacing: 8) {
-            AccountIconView(data: accountData.iconInfo)
-                .settings(.extraSmallSized)
-
-            Text(accountData.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-            Spacer()
-        }
+        AccountInlineHeaderView(iconData: accountData.iconInfo, name: accountData.name)
+            .expandsHorizontally(true)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPortfolioAccountHeader(accountName: accountData.name))
     }
 
     // MARK: - Empty States
@@ -189,6 +176,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
             }
             .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var unavailableView: some View {
@@ -225,6 +213,7 @@ private extension MarketsAccountsAwarePortfolioContainerView {
     enum Constants {
         static let cardPadding: CGFloat = 14
         static let skeletonHeight: CGFloat = 15
-        static let headerContentVerticalSpacing: CGFloat = 8
+        static let headerContentVerticalSpacing: CGFloat = 10
+        static let blockHeaderHorizontalPadding: CGFloat = 8
     }
 }

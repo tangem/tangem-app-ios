@@ -16,7 +16,9 @@ class StakingAmountValidator {
     private let tokenItem: TokenItem
     private let validator: TransactionValidator
     private var minimumAmount: Decimal?
+    private var maximumAmount: Decimal?
     private let stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
+    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -31,19 +33,29 @@ class StakingAmountValidator {
     }
 
     private func bind() {
-        stakingManagerStatePublisher
-            .compactMap { state -> Decimal? in
+        let yieldPublisher = stakingManagerStatePublisher
+            .compactMap { state -> StakingYieldInfo? in
                 switch state {
                 case .availableToStake(let yieldInfo):
-                    return yieldInfo.enterMinimumRequirement
+                    return yieldInfo
                 case .staked(let staked):
-                    return staked.yieldInfo.enterMinimumRequirement
+                    return staked.yieldInfo
                 default:
                     return nil
                 }
             }
+            .eraseToAnyPublisher()
+
+        yieldPublisher
+            .map { $0.enterMinimumRequirement }
             .sink(receiveValue: { [weak self] amount in
                 self?.minimumAmount = amount
+            })
+            .store(in: &bag)
+
+        yieldPublisher
+            .sink(receiveValue: { [weak self] yieldInfo in
+                self?.maximumAmount = yieldInfo.maximumStakeAmount
             })
             .store(in: &bag)
     }
@@ -51,8 +63,17 @@ class StakingAmountValidator {
 
 extension StakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
-        if let minAmount = minimumAmount, amount < minAmount {
-            throw StakingValidationError.amountRequirementError(minAmount: minAmount)
+        if let minimumAmount, amount < minimumAmount {
+            throw StakingValidationError.minAmountRequirementError(minimumAmount, action: .stake)
+        }
+
+        if let maximumAmount, amount > maximumAmount {
+            throw StakingValidationError.maxAmountRequirementError(
+                balanceFormatter.formatCryptoBalance(
+                    maximumAmount,
+                    currencyCode: tokenItem.currencySymbol
+                )
+            )
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
@@ -61,12 +82,15 @@ extension StakingAmountValidator: SendAmountValidator {
 }
 
 enum StakingValidationError: LocalizedError {
-    case amountRequirementError(minAmount: Decimal)
+    case minAmountRequirementError(_ minAmount: Decimal, action: StakingAction.ActionType)
+    case maxAmountRequirementError(_ maxAmountFormatted: String)
 
     var errorDescription: String? {
         switch self {
-        case .amountRequirementError(let minAmount):
+        case .minAmountRequirementError(let minAmount, _):
             Localization.stakingAmountRequirementError(minAmount)
+        case .maxAmountRequirementError(let maxAmountFormatted):
+            Localization.stakingMaxAmountRequirementError(maxAmountFormatted)
         }
     }
 }

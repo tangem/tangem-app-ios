@@ -13,10 +13,11 @@ import TangemLocalization
 class CommonStakingStepsManager {
     private let provider: StakingModelStateProvider
     private let amountStep: SendAmountStep
-    private let validatorsStep: StakingValidatorsStep
+    private let targetsStep: StakingTargetsStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     private var stack: [SendStep]
     private var bag: Set<AnyCancellable> = []
@@ -26,17 +27,19 @@ class CommonStakingStepsManager {
     init(
         provider: StakingModelStateProvider,
         amountStep: SendAmountStep,
-        validatorsStep: StakingValidatorsStep,
+        targetsStep: StakingTargetsStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
-        summaryTitleProvider: SendSummaryTitleProvider
+        summaryTitleProvider: SendSummaryTitleProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy
     ) {
         self.provider = provider
         self.amountStep = amountStep
-        self.validatorsStep = validatorsStep
+        self.targetsStep = targetsStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
 
         stack = [amountStep]
         bind()
@@ -107,10 +110,10 @@ extension CommonStakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .amount:
             return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
-        case .validators:
+        case .targets:
             return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
         case .summary:
-            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+            return .init(title: summaryTitleProvider.title, trailingViewType: .closeButton)
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:
@@ -123,9 +126,9 @@ extension CommonStakingStepsManager: SendStepsManager {
 
         switch currentStep().type {
         case .amount where isEditAction: return .init(action: .continue)
-        case .validators where isEditAction: return .init(action: .continue)
+        case .targets where isEditAction: return .init(action: .continue)
         case .amount: return .init(action: .next)
-        case .summary: return .init(action: .action)
+        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: return .init(action: .close)
         default: return .empty
         }
@@ -175,7 +178,7 @@ extension CommonStakingStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        next(step: validatorsStep)
+        next(step: targetsStep)
     }
 
     func summaryStepRequestEditAmount() {

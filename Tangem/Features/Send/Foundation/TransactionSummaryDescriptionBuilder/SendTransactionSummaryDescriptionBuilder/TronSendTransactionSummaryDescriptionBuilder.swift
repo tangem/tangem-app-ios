@@ -12,25 +12,23 @@ import BlockchainSdk
 
 struct TronSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
+    init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
     }
 }
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString? {
-        guard let feeParameters = fee.parameters as? TronFeeParameters else {
+    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
+        guard let bsdkFee = fee.value.value, let feeParameters = bsdkFee.parameters as? TronFeeParameters else {
             AppLogger.error(error: "Fee parameters must be set for TronSendTransactionSummaryDescriptionBuilder")
             return nil
         }
 
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
-        let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
+        let feeInFiat = fee.tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(bsdkFee.amount.value, currencyId: $0) }
         let totalInFiat = [amountInFiat, feeInFiat].compactMap { $0 }.reduce(0, +)
 
         let formattingOptions = BalanceFormattingOptions(

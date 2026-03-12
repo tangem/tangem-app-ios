@@ -242,7 +242,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         return true
     }
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor(),
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
+        delegate: self
+    )
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
@@ -659,20 +663,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo)
-
-                if let userWalletModel, userWalletModel.hasImportedWallets {
-                    let userWalletId = userWalletModel.userWalletId.stringValue
-                    runTask(in: self) { model in
-                        try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
-                    }
-                }
+                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                logAnalytics(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
@@ -1047,7 +1043,7 @@ private extension WalletOnboardingViewModel {
             cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
         }
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(cardInteractors: cardInteractors)
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(cardInteractors: cardInteractors)
 
         resetUtil.alertPublisher
             .receiveOnMain()
@@ -1099,6 +1095,8 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        Analytics.log(.onboardingSeedButtonImport)
+
         do {
             try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
 

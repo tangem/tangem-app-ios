@@ -21,7 +21,7 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
 
     func makeSwapCoordinator(
         userWalletModel: UserWalletModel,
-        dismissAction: @escaping ExpressCoordinator.DismissAction,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator {
         ActionButtonsSwapCoordinator(
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
@@ -56,6 +56,13 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
 
     func makeMarketsTokenDetailsCoordinator() -> MarketsTokenDetailsCoordinator {
         let coordinator = MarketsTokenDetailsCoordinator()
+        return coordinator
+    }
+
+    func makeTangemPayOnboardingCoordinator(
+        dismissAction: @escaping Action<TangemPayOnboardingCoordinator.DismissOptions?>
+    ) -> TangemPayOnboardingCoordinator {
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
         return coordinator
     }
 }

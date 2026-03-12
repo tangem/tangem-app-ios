@@ -11,6 +11,7 @@ import BlockchainSdk
 
 protocol SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO { get }
+    var destinationTypes: SendDestinationStepBuilder.Types { get }
     var destinationDependencies: SendDestinationStepBuilder.Dependencies { get }
 }
 
@@ -18,6 +19,7 @@ extension SendDestinationStepBuildable {
     func makeSendDestinationStep(router: any SendDestinationRoutable) -> SendDestinationStepBuilder.ReturnValue {
         SendDestinationStepBuilder.make(
             io: destinationIO,
+            types: destinationTypes,
             dependencies: destinationDependencies,
             router: router
         )
@@ -28,7 +30,12 @@ enum SendDestinationStepBuilder {
     struct IO {
         let input: SendDestinationInput
         let output: SendDestinationOutput
-        let receiveTokenInput: SendReceiveTokenInput
+        let receiveTokenInput: SendReceiveTokenInput?
+        let destinationAccountOutput: SendDestinationAccountOutput
+    }
+
+    struct Types {
+        let initialSourceToken: SendSourceToken
     }
 
     struct Dependencies {
@@ -45,11 +52,13 @@ enum SendDestinationStepBuilder {
 
     static func make(
         io: IO,
+        types: Types,
         dependencies: Dependencies,
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let interactorSaver = CommonSendDestinationInteractorSaver(input: io.input, output: io.output)
         let interactor = CommonSendDestinationInteractor(
+            initialSourceToken: types.initialSourceToken,
             input: io.input,
             receiveTokenInput: io.receiveTokenInput,
             saver: interactorSaver,
@@ -60,7 +69,8 @@ enum SendDestinationStepBuilder {
             interactor: interactor,
             sendQRCodeService: dependencies.sendQRCodeService,
             analyticsLogger: dependencies.analyticsLogger,
-            router: router
+            router: router,
+            destinationAccountOutput: io.destinationAccountOutput
         )
 
         let step = SendDestinationStep(

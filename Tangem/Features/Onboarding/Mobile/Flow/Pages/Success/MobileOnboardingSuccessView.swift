@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileOnboardingSuccessView: View {
     typealias ViewModel = MobileOnboardingSuccessViewModel
@@ -22,9 +23,10 @@ struct MobileOnboardingSuccessView: View {
             Spacer()
             actionButton(viewModel.actionItem)
         }
-        .onAppear(perform: viewModel.onWillAppear)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
+        .stepsFlowNavBar(title: viewModel.navigationTitle)
     }
 }
 
@@ -51,5 +53,6 @@ extension MobileOnboardingSuccessView {
             title: item.title,
             action: item.action
         )
+        .accessibilityIdentifier(viewModel.actionButtonAccessibilityIdentifier)
     }
 }

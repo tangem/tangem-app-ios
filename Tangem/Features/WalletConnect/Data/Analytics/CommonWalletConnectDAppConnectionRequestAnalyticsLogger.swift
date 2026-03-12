@@ -23,7 +23,11 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         Analytics.log(event: .walletConnectSessionFailed, params: [.errorCode: "\(error.errorCode)"])
     }
 
-    func logConnectionProposalReceived(_ connectionProposal: WalletConnectDAppConnectionProposal) {
+    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    func logConnectionProposalReceived(
+        _ connectionProposal: WalletConnectDAppConnectionProposal,
+        accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
+    ) {
         let proposalReceivedDomainVerificationValue = getAnalyticsVerificationParameterValue(
             from: connectionProposal.verificationStatus
         )
@@ -34,18 +38,31 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .joined(separator: ",")
 
         let proposalReceivedEvent = Analytics.Event.walletConnectDAppSessionProposalReceived
-        let proposalReceivedParams: [Analytics.ParameterKey: String] = [
+        var proposalReceivedParams: [Analytics.ParameterKey: String] = [
             .walletConnectDAppName: connectionProposal.dAppData.name,
             .walletConnectDAppUrl: connectionProposal.dAppData.domain.absoluteString,
             .networks: blockchainNames,
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
+        if let accountAnalyticsProviding {
+            proposalReceivedParams.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
+
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
     }
 
-    func logConnectButtonTapped() {
-        Analytics.log(.walletConnectDAppConnectionRequestConnectButtonTapped)
+    /// `accountAnalyticsProviding` has to become non-optional when accounts migration is complete ([REDACTED_INFO])
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?) {
+        var params: [Analytics.ParameterKey: String] = [
+            .walletConnectDAppName: dAppName,
+        ]
+
+        if let accountAnalyticsProviding {
+            params.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
+
+        Analytics.log(event: .walletConnectDAppConnectionRequestConnectButtonTapped, params: params)
     }
 
     func logCancelButtonTapped() {
@@ -61,7 +78,11 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
-        Analytics.log(event: .walletConnectDAppConnected, params: params)
+        Analytics.log(
+            event: .walletConnectDAppConnected,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     func logDAppConnectionFailed(with error: WalletConnectDAppProposalApprovalError) {

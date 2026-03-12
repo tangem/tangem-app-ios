@@ -110,10 +110,18 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
                 return BannerNotificationManager(
                     userWalletInfo: model.userWalletInfo,
-                    walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: model),
+                    userWalletModel: model,
                     placement: .main
                 )
             }()
+
+            let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
+
+            let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+                userWalletModel: model,
+                yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+                tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+            )
 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
@@ -123,10 +131,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
-                coordinator: coordinator
+                coordinator: coordinator,
+                tokenItemPromoProvider: tokenItemPromoProvider
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
@@ -146,12 +156,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
             walletModel: dependencies.walletModel,
-            walletModelsManager: dependencies.walletModelsManager
+            walletModelsManager: dependencies.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
-            walletModel: dependencies.walletModel,
+            tokenItem: dependencies.walletModel.tokenItem,
+            walletModelUpdater: dependencies.walletModel,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
@@ -236,7 +248,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
         if FeatureProvider.isAvailable(.accounts) {
-            return AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: userWalletModel)
+            return AccountsAwareMultiWalletMainContentViewSectionsProvider(
+                userWalletModel: userWalletModel,
+                manageTokensActionFactory: { [weak coordinator] account in
+                    { coordinator?.openManageTokens(for: account, in: userWalletModel) }
+                }
+            )
         }
 
         // accounts_fixes_needed_none

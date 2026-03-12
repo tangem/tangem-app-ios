@@ -11,7 +11,10 @@ import TangemStaking
 
 protocol MarketsPortfolioContainerRoutable: AnyObject {
     func openReceive(walletModel: any WalletModel)
-    func openExchange(input: ExpressDependenciesInput)
-    func openOnramp(input: SendInput)
+
+    @MainActor
+    func openSwap(input: PredefinedSwapParameters, destination: TokenItem)
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
     func openStaking(input: SendInput, stakingManager: any StakingManager)
+    func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager)
 }

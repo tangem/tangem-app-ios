@@ -56,7 +56,14 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, total: Int(total))
+        let context = Context(
+            startDate: .now,
+            changeScript: changeScript,
+            destination: destination,
+            fee: fee,
+            totalOutputsCount: outputs.count,
+            total: Int(total)
+        )
 
         logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
         let bestVariant = try select(in: context, sorted: sorted)
@@ -239,6 +246,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         let changeScript: UTXOScriptType
         let destination: UTXOPreImageDestination
         let fee: UTXOPreImageTransactionBuilderFee
+        let totalOutputsCount: Int
         let total: Int
     }
 
@@ -292,6 +300,11 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
             change -= fee
 
+            // Skip validation if we all outputs and fee calculation
+            if context.fee.isCalculation, inputs.count == context.totalOutputsCount {
+                return UTXOPreImageTransaction(outputs: inputs, destination: recipientValue, change: change, fee: fee, size: size)
+            }
+
             // 3. Remaining change is enough to cover dust threshold
             guard change == 0 || change >= calculator.dust(type: context.changeScript) else {
                 throw VariantError.notEnoughForDustThreshold
@@ -322,9 +335,9 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             case .exactly(let fee): fee
             }
 
-            // Skip validation if we spend full balance and fee calculation
-            if context.fee.isCalculation, recipientValue == context.total {
-                // The change may be negative value
+            // If all known inputs are selected, allow single-output variant even when fee
+            // consumes the remainder (or makes effective change negative).
+            if context.fee.isCalculation, inputs.count == context.totalOutputsCount {
                 change -= fee
 
                 guard change <= 0 else {

@@ -8,7 +8,7 @@
 
 final class CommonWalletConnectAnalyticsLogger: WalletConnectAnalyticsLogger {
     func logScreenOpened() {
-        Analytics.log(.walletConnectScreenOpened)
+        Analytics.log(.walletConnectScreenOpened, analyticsSystems: .all)
     }
 
     func logDisconnectAllButtonTapped() {
