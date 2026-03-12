@@ -16,8 +16,15 @@ struct AccountsAwareActionButtonsSwapView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            header
-                .padding(.horizontal, 16)
+            if viewModel.isNonHiddenSourceHeaderWhenNoTokens {
+                sourceHeader
+                    .padding(.horizontal, 16)
+            }
+
+            if viewModel.isNonHiddenDestinationHeaderWhenNoTokens {
+                destinationHeader
+                    .padding(.horizontal, 16)
+            }
 
             notifications
 
@@ -37,7 +44,7 @@ struct AccountsAwareActionButtonsSwapView: View {
     }
 
     @ViewBuilder
-    private var header: some View {
+    private var sourceHeader: some View {
         GroupedSection(viewModel.source) { destinationType in
             switch destinationType {
             case .placeholder(let text):
@@ -53,7 +60,10 @@ struct AccountsAwareActionButtonsSwapView: View {
             )
         }
         .backgroundColor(Colors.Background.action)
+    }
 
+    @ViewBuilder
+    private var destinationHeader: some View {
         GroupedSection(viewModel.destination) { destinationType in
             switch destinationType {
             case .placeholder(let text):

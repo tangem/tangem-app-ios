@@ -39,6 +39,22 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
         makeHeaderType(for: destination, isSource: false)
     }
 
+    var isNonHiddenSourceHeaderWhenNoTokens: Bool {
+        if case .token = source {
+            return true
+        }
+
+        return false
+    }
+
+    var isNonHiddenDestinationHeaderWhenNoTokens: Bool {
+        if case .token = destination {
+            return true
+        }
+
+        return false
+    }
+
     // MARK: - Private
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
