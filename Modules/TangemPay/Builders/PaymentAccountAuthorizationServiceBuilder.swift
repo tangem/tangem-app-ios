@@ -1,5 +1,5 @@
 //
-//  TangemPayAuthorizationServiceBuilder.swift
+//  PaymentAccountAuthorizationServiceBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import Foundation
 import TangemNetworkUtils
 
-public struct TangemPayAuthorizationServiceBuilder {
+public struct PaymentAccountAuthorizationServiceBuilder {
     private let apiType: VisaAPIType
-    private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    private let authorizationTokensRepository: PaymentAccountAuthorizationTokensRepository
     private let bffStaticToken: String
 
     public init(
         apiType: VisaAPIType,
-        authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
+        authorizationTokensRepository: PaymentAccountAuthorizationTokensRepository,
         bffStaticToken: String
     ) {
         self.apiType = apiType
@@ -27,8 +27,8 @@ public struct TangemPayAuthorizationServiceBuilder {
     public func build(
         customerWalletId: String,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
-    ) -> TangemPayAuthorizationService {
-        CommonTangemPayAuthorizationService(
+    ) -> PaymentAccountAuthorizationService {
+        CommonPaymentAccountAuthorizationService(
             customerWalletId: customerWalletId,
             authorizationTokensRepository: authorizationTokensRepository,
             apiType: apiType,

@@ -17,7 +17,10 @@ protocol TangemPayAccountModel: BaseAccountModel {
     var customerId: String? { get }
 
     func refreshState() async
-    func syncTokens(authorizingInteractor: TangemPayAuthorizing, completion: @escaping () -> Void)
+    func syncTokens(
+        authorizingInteractor: PaymentAccountAuthorizing,
+        completion: @escaping () -> Void
+    )
 }
 
 // MARK: - Default implementations

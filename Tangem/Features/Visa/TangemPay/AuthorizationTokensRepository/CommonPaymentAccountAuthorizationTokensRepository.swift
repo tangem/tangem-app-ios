@@ -1,5 +1,5 @@
 //
-//  CommonTangemPayAuthorizationTokensRepository.swift
+//  CommonPaymentAccountAuthorizationTokensRepository.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemSdk
 import TangemVisa
 import TangemPay
 
-final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository {
+final class CommonPaymentAccountAuthorizationTokensRepository: PaymentAccountAuthorizationTokensRepository {
     private let secureStorage = SecureStorage()
 
     func save(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws {
@@ -79,7 +79,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
     }
 }
 
-extension CommonTangemPayAuthorizationTokensRepository {
+extension CommonPaymentAccountAuthorizationTokensRepository {
     enum StorageKey: String {
         case customerWalletIds
         case authorizationTokens

@@ -1,12 +1,12 @@
 //
-//  CommonTangemPayAvailabilityService.swift
+//  CommonPaymentAccountAvailabilityService.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-final class CommonTangemPayAvailabilityService {
+final class CommonPaymentAccountAvailabilityService {
     private let apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>
     private let apiType: VisaAPIType
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
@@ -31,7 +31,7 @@ final class CommonTangemPayAvailabilityService {
     }
 }
 
-extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
+extension CommonPaymentAccountAvailabilityService: PaymentAccountAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse {
         try await request(for: .getEligibility)
     }

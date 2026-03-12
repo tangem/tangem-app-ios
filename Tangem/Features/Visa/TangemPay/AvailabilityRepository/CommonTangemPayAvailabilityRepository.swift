@@ -70,12 +70,12 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .map { $0 && $1 }
     }
 
-    private let availabilityService: TangemPayAvailabilityService
+    private let availabilityService = PaymentAccountAvailabilityServiceBuilder()
+        .build()
+
     private var bag = Set<AnyCancellable>()
 
-    init(availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build()) {
-        self.availabilityService = availabilityService
-
+    init() {
         bind()
 
         runTask(in: self) { repo in

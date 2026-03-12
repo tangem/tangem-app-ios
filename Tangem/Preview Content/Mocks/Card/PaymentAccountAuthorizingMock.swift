@@ -1,5 +1,5 @@
 //
-//  TangemPayAuthorizingMock.swift
+//  PaymentAccountAuthorizingMock.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import TangemVisa
 import TangemPay
 
-class TangemPayAuthorizingMock: TangemPayAuthorizing {
+class PaymentAccountAuthorizingMock: PaymentAccountAuthorizing {
     var syncNeededTitle: String = "Mock Sync Needed"
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
-        TangemPayAuthorizingResponse(
+        authorizationService: PaymentAccountAuthorizationService
+    ) async throws -> PaymentAccountAuthorizingResponse {
+        PaymentAccountAuthorizingResponse(
             customerWalletAddress: "",
             tokens: TangemPayAuthorizationTokens(
                 accessToken: "",

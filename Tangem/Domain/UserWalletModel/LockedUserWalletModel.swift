@@ -116,7 +116,7 @@ final class LockedUserWalletModel: UserWalletModel {
         DummyKeysDeriving(config: config)
     }
 
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+    func makePaymentAccountAuthorizingInteractor(utilities: PaymentAccountUtilities) -> PaymentAccountAuthorizing {
         DummyTangemPayAuthorizer()
     }
 
@@ -329,13 +329,13 @@ private extension LockedUserWalletModel {
         }
     }
 
-    final class DummyTangemPayAuthorizer: TangemPayAuthorizing {
+    final class DummyTangemPayAuthorizer: PaymentAccountAuthorizing {
         var syncNeededTitle: String { .empty }
 
         func authorize(
             customerWalletId: String,
-            authorizationService: TangemPay.TangemPayAuthorizationService
-        ) async throws -> TangemPayAuthorizingResponse {
+            authorizationService: TangemPay.PaymentAccountAuthorizationService
+        ) async throws -> PaymentAccountAuthorizingResponse {
             throw "Locked wallet does not support Tangem Pay authorization using '\(#function)'"
         }
     }

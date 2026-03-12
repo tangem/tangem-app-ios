@@ -208,6 +208,9 @@ final class AccountSelectorViewModel: ObservableObject {
         case .tangemPay:
             // Currently it's not possible to add tokens to TangemPay account
             return nil
+
+        case .virtualAccount:
+            return nil
         }
     }
 
@@ -266,6 +269,9 @@ final class AccountSelectorViewModel: ObservableObject {
 
         case .tangemPay:
             // Currently it's not possible to add tokens to TangemPay account
+            return nil
+
+        case .virtualAccount:
             return nil
         }
     }

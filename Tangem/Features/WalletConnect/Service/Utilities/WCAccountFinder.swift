@@ -25,6 +25,8 @@ enum WCAccountFinder {
                 }
             case .tangemPay:
                 break
+            case .virtualAccount:
+                break
             }
         }
 
@@ -43,6 +45,8 @@ enum WCAccountFinder {
             return cryptoAccount
         case .tangemPay:
             preconditionFailure("TangemPay account is not available for WalletConnect")
+        case .virtualAccount:
+            preconditionFailure("VirtualAccount is not available for WalletConnect")
         }
     }
 }

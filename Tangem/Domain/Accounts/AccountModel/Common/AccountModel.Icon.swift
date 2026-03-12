@@ -77,6 +77,7 @@ extension AccountModel.Icon {
         case package = "Package"
         case gift = "Gift"
         case tangemPay = "TangemPay"
+        case virtualAccount = "VirtualAccount"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -101,6 +102,7 @@ extension AccountModel.Icon {
             case .package: 16
             case .gift: 17
             case .tangemPay: 18
+            case .virtualAccount: 19
             }
         }
 

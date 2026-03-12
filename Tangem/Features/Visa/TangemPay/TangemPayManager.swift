@@ -29,8 +29,8 @@ final class TangemPayManager: TangemPayAccountModel {
             .eraseToAnyPublisher()
     }
 
-    var id: TangemPayAccountId {
-        TangemPayAccountId(userWalletId: userWalletId)
+    var id: PaymentAccountId {
+        .tangemPay(userWalletId: userWalletId)
     }
 
     private(set) var customerId: String?
@@ -41,14 +41,15 @@ final class TangemPayManager: TangemPayAccountModel {
 
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
-    private let availabilityService: TangemPayAvailabilityService
-    private let authorizationService: TangemPayAuthorizationService
+    private let availabilityService: PaymentAccountAvailabilityService
+    private let authorizationService: PaymentAccountAuthorizationService
     private let customerService: CustomerInfoManagementService
-    private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
-    private let orderStatusPollingService: TangemPayOrderStatusPollingService
+    private let enrollmentStateFetcher: PaymentAccountEnrollmentStateFetcher
+    private let orderStatusPollingService: PaymentAccountOrderStatusPollingService
     private let orderIdStorage: TangemPayOrderIdStorage
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
+    private let paymentWalletFlagStorage: PaymentWalletFlagStorage
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -58,14 +59,15 @@ final class TangemPayManager: TangemPayAccountModel {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        availabilityService: TangemPayAvailabilityService,
-        authorizationService: TangemPayAuthorizationService,
+        availabilityService: PaymentAccountAvailabilityService,
+        authorizationService: PaymentAccountAuthorizationService,
         customerService: CustomerInfoManagementService,
-        enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
-        orderStatusPollingService: TangemPayOrderStatusPollingService,
+        enrollmentStateFetcher: PaymentAccountEnrollmentStateFetcher,
+        orderStatusPollingService: PaymentAccountOrderStatusPollingService,
         orderIdStorage: TangemPayOrderIdStorage,
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
+        paymentWalletFlagStorage: PaymentWalletFlagStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -78,6 +80,7 @@ final class TangemPayManager: TangemPayAccountModel {
         self.orderIdStorage = orderIdStorage
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
+        self.paymentWalletFlagStorage = paymentWalletFlagStorage
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
@@ -87,7 +90,7 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func authorizeWithCustomerWallet(authorizingInteractor: TangemPayAuthorizing) async {
+    func authorizeWithCustomerWallet(authorizingInteractor: PaymentAccountAuthorizing) async {
         do {
             let authorizingResponse = try await authorizingInteractor.authorize(
                 customerWalletId: customerWalletId,
@@ -97,6 +100,7 @@ final class TangemPayManager: TangemPayAccountModel {
             keysRepository.update(derivations: authorizingResponse.derivationResult)
             try authorizationService.saveTokens(tokens: authorizingResponse.tokens)
 
+            paymentWalletFlagStorage.setPaymentWalletDerived(true, for: customerWalletId)
             paeraCustomerFlagRepository.setIsPaeraCustomer(true, for: customerWalletId)
             paeraCustomerFlagRepository.setIsKYCHidden(false, for: customerWalletId)
         } catch {
@@ -155,7 +159,7 @@ final class TangemPayManager: TangemPayAccountModel {
             return
         }
 
-        let enrollmentState: TangemPayEnrollmentState
+        let enrollmentState: PaymentAccountEnrollmentState
         do {
             (enrollmentState, customerId) = try await enrollmentStateFetcher.getEnrollmentState()
         } catch {
@@ -213,7 +217,10 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func syncTokens(authorizingInteractor: TangemPayAuthorizing, completion: @escaping () -> Void) {
+    func syncTokens(
+        authorizingInteractor: PaymentAccountAuthorizing,
+        completion: @escaping () -> Void
+    ) {
         runTask { [self] in
             stateSubject.value = .syncInProgress
             await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
@@ -246,7 +253,7 @@ final class TangemPayManager: TangemPayAccountModel {
         if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
             return cardIssuingOrderId
         } else {
-            let orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
+            let orderId = try await customerService.placeTangemPayOrder(customerWalletAddress: customerWalletAddress).id
             orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
             return orderId
         }

@@ -25,32 +25,22 @@ final class TangemPayBuilder {
         )?.tokens
     }
 
-    private lazy var availabilityService = TangemPayAvailabilityServiceBuilder().build()
-
-    private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(customerWalletId: customerWalletId)
-
-    private lazy var customerService = TangemPayCustomerInfoManagementServiceBuilder()
-        .build(authorizationTokensHandler: authorizationService)
-
-    private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
+    private lazy var services: PaymentAccountServicesProviding = CommonPaymentAccountServices(
         customerWalletId: customerWalletId,
-        availabilityService: availabilityService,
-        customerService: customerService
-    )
-
-    private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService
+        availabilityServiceBuilder: PaymentAccountAvailabilityServiceBuilder(),
+        authorizationServiceBuilder: PaymentAccountAuthorizationServiceBuilder(),
+        customerServiceBuilder: PaymentAccountCustomerInfoManagementServiceBuilder()
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
     private lazy var balancesService = CommonTangemPayBalanceService(
-        customerInfoManagementService: customerService,
+        customerInfoManagementService: services.customerService,
         tokenBalancesRepository: tokenBalancesRepository
     )
 
     private lazy var withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
-        customerInfoManagementService: customerService,
+        customerInfoManagementService: services.customerService,
         fiatItem: TangemPayUtilities.fiatItem,
         signer: signer
     )
@@ -83,14 +73,15 @@ final class TangemPayBuilder {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            availabilityService: availabilityService,
-            authorizationService: authorizationService,
-            customerService: customerService,
-            enrollmentStateFetcher: enrollmentStateFetcher,
-            orderStatusPollingService: orderStatusPollingService,
+            availabilityService: services.availabilityService,
+            authorizationService: services.authorizationService,
+            customerService: services.customerService,
+            enrollmentStateFetcher: services.enrollmentStateFetcher,
+            orderStatusPollingService: services.orderStatusPollingService,
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
+            paymentWalletFlagStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
@@ -106,12 +97,12 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             userWalletId: userWalletId,
             customerInfo: customerInfo,
             productInstance: productInstance,
-            customerService: customerService,
+            customerService: services.customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
             expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
-            orderStatusPollingService: orderStatusPollingService,
+            orderStatusPollingService: services.orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
             account: account
         )

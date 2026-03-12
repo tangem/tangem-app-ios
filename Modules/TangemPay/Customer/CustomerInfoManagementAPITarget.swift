@@ -41,7 +41,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/withdraw/data"
         case .sendWithdrawTransaction:
             "customer/card/withdraw"
-        case .placeOrder:
+        case .placeTangemPayOrder, .placeVirtualAccountOrder:
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
@@ -62,7 +62,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin:
             .get
 
-        case .placeOrder,
+        case .placeTangemPayOrder,
+             .placeVirtualAccountOrder,
              .getCardDetails,
              .freeze,
              .unfreeze,
@@ -118,9 +119,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
             return .requestJSONEncodable(requestData)
 
-        case .placeOrder(let customerWalletAddress):
+        case .placeTangemPayOrder(let customerWalletAddress):
             let requestData = TangemPayPlaceOrderRequest(customerWalletAddress: customerWalletAddress)
             return .requestJSONEncodable(requestData)
+
+        case .placeVirtualAccountOrder(let request):
+            return .requestCustomJSONEncodable(request, encoder: encoder)
         }
     }
 
@@ -155,7 +159,8 @@ extension CustomerInfoManagementAPITarget {
         case getWithdrawSignableData(TangemPayWithdraw.SignableData.Request)
         case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)
 
-        case placeOrder(customerWalletAddress: String)
+        case placeTangemPayOrder(customerWalletAddress: String)
+        case placeVirtualAccountOrder(VirtualAccountPlaceOrderRequest)
         case getOrder(orderId: String)
     }
 }

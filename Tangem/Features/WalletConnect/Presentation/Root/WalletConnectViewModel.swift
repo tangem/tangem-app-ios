@@ -333,6 +333,9 @@ extension WalletConnectViewModel {
 
                 case .tangemPay:
                     break
+
+                case .virtualAccount:
+                    break
                 }
             }
 

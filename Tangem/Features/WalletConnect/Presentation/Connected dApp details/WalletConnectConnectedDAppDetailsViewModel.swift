@@ -202,6 +202,9 @@ extension WalletConnectConnectedDAppDetailsViewModel {
 
                     case .tangemPay:
                         break outer
+
+                    case .virtualAccount:
+                        break outer
                     }
                 }
             }
