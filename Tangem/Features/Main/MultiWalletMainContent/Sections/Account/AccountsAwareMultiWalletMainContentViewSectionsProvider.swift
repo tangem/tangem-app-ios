@@ -233,6 +233,8 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
         purgeCacheIfNeeded(
             tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
             tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
+            actualTokenItemViewModelsCacheKeys: Array(actualTokenItemViewModelsCacheKeys),  // [REDACTED_TODO_COMMENT]
+            actualSectionItemViewModelsCacheKeys: Array(actualSectionItemViewModelsCacheKeys),  // [REDACTED_TODO_COMMENT]
             accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
         )
     }
@@ -240,6 +242,8 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private func purgeCacheIfNeeded(
         tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
         tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
+        actualTokenItemViewModelsCacheKeys: [ObjectIdentifier],   // [REDACTED_TODO_COMMENT]
+        actualSectionItemViewModelsCacheKeys: [ObjectIdentifier],   // [REDACTED_TODO_COMMENT]
         accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
     ) {
         guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty

@@ -42,7 +42,7 @@ class BannerNotificationManager {
 
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
 
-        bind(walletModelsPublisher: walletModelsPublisher)
+        bind()
         load()
     }
 
@@ -55,7 +55,7 @@ class BannerNotificationManager {
         }
     }
 
-    private func bind(walletModelsPublisher: some Publisher<[any WalletModel], Never>) {
+    private func bind() {
         analyticsSubscription = notificationPublisher
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
@@ -82,7 +82,7 @@ class BannerNotificationManager {
                 }
 
                 let eventPublishers = activePromotions.map { promotion in
-                    manager.makeEvent(promotion: promotion, walletModelsPublisher: walletModelsPublisher)
+                    manager.makeEvent(promotion: promotion)
                         .first()
                         .withWeakCaptureOf(manager)
                         .map { manager, event -> NotificationViewInput? in
@@ -192,10 +192,7 @@ class BannerNotificationManager {
         return input
     }
 
-    private func makeEvent(
-        promotion: ActivePromotionInfo,
-        walletModelsPublisher: some Publisher<[any WalletModel], Never>
-    ) -> AnyPublisher<BannerNotificationEvent?, Never> {
+    private func makeEvent(promotion: ActivePromotionInfo) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
         return event(

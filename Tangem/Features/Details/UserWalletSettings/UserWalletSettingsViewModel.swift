@@ -102,9 +102,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     deinit {
         print("🔴 deinit \(objectDescription(self)) 🔴")
-    }
-
-    deinit {
         assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
