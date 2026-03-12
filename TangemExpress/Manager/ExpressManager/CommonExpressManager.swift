@@ -170,29 +170,33 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws {
-        let availableProviderIds: Set<ExpressProvider.Id>
+        async let allIds = expressRepository.getAvailableProviders(for: pair, rateType: nil)
+        async let fixedIds = expressRepository.getAvailableProviders(for: pair, rateType: .fixed)
+        let (allSet, fixedSet) = try await (Set(allIds), Set(fixedIds))
 
-        if rateType == .float {
-            // For forward calculations (.from), include all providers regardless
-            // of rate type support. Fixed-rate-only providers can still provide
-            // quotes for FROM amount requests.
-            async let floatIds = expressRepository.getAvailableProviders(for: pair, rateType: .float)
-            async let fixedIds = expressRepository.getAvailableProviders(for: pair, rateType: .fixed)
-            availableProviderIds = try await Set(floatIds + fixedIds)
-        } else {
-            // For reverse calculations (.to), only fixed-rate providers
-            availableProviderIds = try await expressRepository.getAvailableProviders(for: pair, rateType: rateType).toSet()
-        }
+        // In float mode all providers are available; in fixed mode only fixed-rate providers
+        let availableProviderIds = rateType == .float ? allSet : fixedSet
 
         let providers = try await expressRepository.providers()
 
         availableProviders = try providers.compactMap { provider in
-            try makeExpressAvailableProvider(availableProviderIds: availableProviderIds, provider: provider, pair: pair)
+            var rateTypes: Set<ExpressProviderRateType> = []
+            // Every available provider can serve float (FROM) requests
+            if allSet.contains(provider.id) { rateTypes.insert(.float) }
+            if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
+
+            return try makeExpressAvailableProvider(
+                availableProviderIds: availableProviderIds,
+                supportedRateTypes: rateTypes,
+                provider: provider,
+                pair: pair
+            )
         }
     }
 
     func makeExpressAvailableProvider(
         availableProviderIds: Set<String>,
+        supportedRateTypes: Set<ExpressProviderRateType>,
         provider: ExpressProvider,
         pair: ExpressManagerSwappingPair
     ) throws -> ExpressAvailableProvider? {
@@ -208,7 +212,7 @@ private extension CommonExpressManager {
             throw ExpressManagerError.unsupportedProviderType
         }
 
-        return ExpressAvailableProvider(provider: provider, manager: manager, isBest: false)
+        return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: supportedRateTypes, isBest: false)
     }
 
     func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressProviderUpdateSource) async {
