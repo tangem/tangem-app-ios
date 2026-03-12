@@ -14,7 +14,7 @@ public struct FloatingSheetView: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
     private let dismissSheetAction: () -> Void
 
-    @State private var sheetContentHeight = CGFloat.zero
+    @State private var sheetContentHeight: CGFloat = 0
     @State private var sheetContentHasAppeared = false
     @State private var sheetContentConfiguration = FloatingSheetConfiguration.default
 
@@ -40,19 +40,8 @@ public struct FloatingSheetView: View {
             }
         }
         .ignoresSafeArea(.all, edges: .bottom)
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            guard
-                sheetContentConfiguration.keyboardHandlingEnabled,
-                let userInfo = notification.userInfo,
-                let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
-            else {
-                return
-            }
-
-            keyboardHeight = keyboardFrame.height
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            keyboardHeight = .zero
+        .if(sheetContentConfiguration.keyboardHandlingEnabled) { view in
+            view.keyboardHeight(bindTo: $keyboardHeight)
         }
         .onChange(of: isDragging) { _ in
             // [REDACTED_USERNAME], this may happed when DragGesture got canceled and onEnded block was not executed
@@ -89,10 +78,7 @@ public struct FloatingSheetView: View {
                         )
                         .frame(maxWidth: .infinity)
                         .background {
-                            sheetContent
-                                .fixedSize(horizontal: false, vertical: true)
-                                .hidden()
-                                .readGeometry(\.size.height, bindTo: $sheetContentHeight)
+                            makeSheetContentMeasurer(for: sheetContent)
                         }
                         .background(sheetContentConfiguration.sheetBackgroundColor)
                         .contentShape(roundedRectangle)
@@ -114,6 +100,7 @@ public struct FloatingSheetView: View {
                             }
                         }
                         .onDisappear {
+                            sheetContentHeight = .zero
                             sheetContentHasAppeared = false
                         }
                 }
@@ -147,6 +134,18 @@ public struct FloatingSheetView: View {
 
     private var roundedRectangle: some InsettableShape {
         RoundedRectangle(cornerRadius: 28, style: .continuous)
+    }
+
+    @ViewBuilder
+    private func makeSheetContentMeasurer(for sheetContent: some View) -> some View {
+        // We need to measure the sheet content size only after it has appeared, otherwise
+        // incorrect height calculation may occur in some rare scenarios like [REDACTED_INFO]
+        if sheetContentHasAppeared {
+            sheetContent
+                .fixedSize(horizontal: false, vertical: true)
+                .hidden()
+                .readGeometry(\.size.height, bindTo: $sheetContentHeight)
+        }
     }
 
     private var bottomSheetPadding: CGFloat {

@@ -18,25 +18,17 @@ public struct TangemExpressFactory {
 
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
-        expressRepository: ExpressRepository,
-        analyticsLogger: ExpressAnalyticsLogger,
-        supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType,
-        transactionValidator: ExpressProviderTransactionValidator
+        expressRepository: ExpressRepository
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
-            mapper: .init(),
-            transactionValidator: transactionValidator
+            mapper: .init()
         )
 
         return CommonExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
-            expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
-            supportedProviderTypes: supportedProviderTypes,
-            operationType: operationType
+            expressRepository: expressRepository
         )
     }
 
@@ -117,6 +109,7 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
     case develop3
     case production
     case stage
+    case stage2
     case mock
 
     public var title: String {
@@ -131,6 +124,8 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
             return "prod"
         case .stage:
             return "stage"
+        case .stage2:
+            return "stage2"
         case .mock:
             return "mock"
         }

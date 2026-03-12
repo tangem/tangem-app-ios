@@ -7,32 +7,22 @@
 //
 
 import SwiftUI
-import TangemLocalization
-import TangemAssets
-import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
 
 struct StoriesBottomButtons: View {
     let isScanning: Bool
     let createWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
-
-    private let isMobileWalletEnabled = MobileWalletFeatureProvider.isAvailable
-
-    private var scanColorStyle: MainButton.Style {
-        isMobileWalletEnabled ? .secondary : .primary
-    }
+    let scanTroubleShootingDialog: Binding<ConfirmationDialogViewModel?>
 
     var body: some View {
-        if isMobileWalletEnabled {
-            createWalletButton
-        } else {
-            HStack {
-                scanCardButton
-                orderCardButton
-            }
-        }
+        createWalletButton
+            .confirmationDialog(viewModel: scanTroubleShootingDialog)
     }
 }
 
@@ -46,13 +36,14 @@ private extension StoriesBottomButtons {
             isDisabled: isScanning,
             action: createWallet
         )
+        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.getStartedButton)
     }
 
     var scanCardButton: some View {
         MainButton(
             title: Localization.homeButtonScan,
             icon: .trailing(Assets.tangemIcon),
-            style: scanColorStyle,
+            style: .secondary,
             isLoading: isScanning,
             action: scanCard
         )
@@ -75,7 +66,8 @@ struct StoriesBottomButtons_Previews: PreviewProvider {
             isScanning: false,
             createWallet: {},
             scanCard: {},
-            orderCard: {}
+            orderCard: {},
+            scanTroubleShootingDialog: .constant(nil)
         )
     }
 }

@@ -48,7 +48,7 @@ extension WalletNetworkServiceFactory {
         case .litecoin:
             throw Error.notImplemeneted
         case .stellar:
-            throw Error.notImplemeneted
+            return makeStellarNetworkService(for: blockchain)
         case .ethereum,
              .ethereumClassic,
              .ethereumPoW,
@@ -95,11 +95,14 @@ extension WalletNetworkServiceFactory {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .decimal,
+             .xdc,
+             .energyWebX,
+             .rsk:
             return makeEthereumNetworkService(for: blockchain)
-        case .rsk:
-            throw Error.notImplemeneted
         case .bitcoinCash:
             throw Error.notImplemeneted
         case .binance:
@@ -107,7 +110,7 @@ extension WalletNetworkServiceFactory {
         case .cardano:
             throw Error.notImplemeneted
         case .xrp:
-            throw Error.notImplemeneted
+            return makeXRPNetworkService(for: blockchain)
         case .tezos:
             throw Error.notImplemeneted
         case .dogecoin:
@@ -145,10 +148,6 @@ extension WalletNetworkServiceFactory {
             throw Error.notImplemeneted
         case .near:
             return makeNEARNetworkService(for: blockchain)
-        case .decimal:
-            throw Error.notImplemeneted
-        case .xdc:
-            throw Error.notImplemeneted
         case .hedera:
             throw Error.notImplemeneted
         case .radiant:
@@ -163,8 +162,6 @@ extension WalletNetworkServiceFactory {
             throw Error.notImplemeneted
         case .filecoin:
             throw Error.notImplemeneted
-        case .energyWebX:
-            throw Error.notImplemeneted
         case .casper:
             throw Error.notImplemeneted
         case .clore:
@@ -176,6 +173,34 @@ extension WalletNetworkServiceFactory {
         case .pepecoin:
             throw Error.notImplemeneted
         }
+    }
+
+    /// EVM with specific provider type
+    func makeEthereumNetworkServiceIfAvailable(
+        for blockchain: Blockchain,
+        with providerType: NetworkProviderType
+    ) -> EthereumNetworkService? {
+        let networkAssembly = NetworkProviderAssembly()
+
+        let allProviders = networkAssembly.makeEthereumJsonRpcProviders(with: NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        ))
+
+        let filteredProviders = allProviders.filter { $0.networkProviderType == providerType }
+
+        guard !filteredProviders.isEmpty else {
+            return nil
+        }
+
+        return EthereumNetworkService(
+            decimals: blockchain.decimalCount,
+            providers: filteredProviders,
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: blockchain.displayName
+        )
     }
 }
 
@@ -211,6 +236,29 @@ private extension WalletNetworkServiceFactory {
         let networkService = NEARNetworkService(blockchain: blockchain, providers: providers)
 
         return networkService
+    }
+
+    /// XRP
+    func makeXRPNetworkService(for blockchain: Blockchain) -> XRPNetworkService {
+        let providers: [XRPNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                XRPNetworkProvider(node: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return XRPNetworkService(providers: providers)
+    }
+
+    /// Stellar
+    func makeStellarNetworkService(for blockchain: Blockchain) -> StellarNetworkService {
+        let providers: [StellarNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                StellarNetworkProvider(
+                    isTestnet: blockchain.isTestnet,
+                    stellarSdk: .init(withHorizonUrl: nodeInfo.link)
+                )
+            }
+
+        return StellarNetworkService(providers: providers)
     }
 
     /// Solana

@@ -14,11 +14,24 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-class SensitiveTextVisibilityViewModel: ObservableObject {
+final class SensitiveTextVisibilityViewModel: ObservableObject {
     static let shared = SensitiveTextVisibilityViewModel()
 
-    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
-    @Published private(set) var isHidden: Bool
+    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel? {
+        didSet {
+            informationHiddenBalancesViewModel == nil
+                ? startUpdates()
+                : endUpdates()
+        }
+    }
+
+    @Published private(set) var isHidden: Bool {
+        didSet {
+            // Sync with TangemUI's SensitiveTextVisibilityState
+            SensitiveTextVisibilityState.shared.isHidden = isHidden
+        }
+    }
+
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
         manager.deviceMotionUpdateInterval = 0.3
@@ -32,6 +45,8 @@ class SensitiveTextVisibilityViewModel: ObservableObject {
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
+        // Sync initial value with TangemUI's SensitiveTextVisibilityState
+        SensitiveTextVisibilityState.shared.isHidden = isHidden
         bind()
     }
 
@@ -67,6 +82,7 @@ private extension SensitiveTextVisibilityViewModel {
     }
 
     func presetInformationBottomSheet() {
+        assert(informationHiddenBalancesViewModel == nil, "Attempting to present second InformationHiddenBalancesViewModel. Invalid state.")
         informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
     }
 
@@ -109,16 +125,6 @@ private extension SensitiveTextVisibilityViewModel {
                 self?.updateAvailability(isAvailable)
             }
             .store(in: &bag)
-
-        $informationHiddenBalancesViewModel
-            .sink { [weak self] viewModel in
-                if viewModel == nil {
-                    self?.startUpdates()
-                } else {
-                    self?.endUpdates()
-                }
-            }
-            .store(in: &bag)
     }
 
     func updateAvailability(_ isAvailable: Bool) {
@@ -132,7 +138,11 @@ private extension SensitiveTextVisibilityViewModel {
     }
 
     func startUpdates() {
-        guard AppSettings.shared.isHidingSensitiveAvailable else {
+        guard
+            AppSettings.shared.isHidingSensitiveAvailable,
+            informationHiddenBalancesViewModel == nil,
+            !manager.isDeviceMotionActive
+        else {
             return
         }
 

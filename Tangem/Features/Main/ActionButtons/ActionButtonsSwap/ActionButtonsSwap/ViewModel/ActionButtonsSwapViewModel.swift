@@ -174,30 +174,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
 
         destinationToken = token
         tokenSelectorState = .readyToSwap
-
-        guard let sourceToken, let destinationToken else { return }
-
-        let openExpressAction = { [weak coordinator, userWalletModel] in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                coordinator?.openExpress(
-                    input: .init(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        source: ExpressInteractorWalletModelWrapper(
-                            userWalletInfo: userWalletModel.userWalletInfo,
-                            walletModel: sourceToken.walletModel
-                        ),
-                        destination: .chosen(
-                            ExpressInteractorWalletModelWrapper(
-                                userWalletInfo: userWalletModel.userWalletInfo,
-                                walletModel: destinationToken.walletModel
-                            )
-                        )
-                    )
-                )
-            }
-        }
-
-        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: openExpressAction)
+        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: nil)
     }
 }
 

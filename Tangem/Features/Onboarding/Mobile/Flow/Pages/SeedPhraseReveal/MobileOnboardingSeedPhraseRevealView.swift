@@ -18,18 +18,29 @@ struct MobileOnboardingSeedPhraseRevealView: View {
     private let wordsVerticalSpacing: CGFloat = 18
 
     var body: some View {
-        switch viewModel.state {
-        case .item(let item):
-            state(item: item)
-        case .none:
-            EmptyView()
-        }
+        content
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(leading: {
+                MobileOnboardingFlowNavBarAction.close(handler: viewModel.onCloseTap).view()
+            })
+            .screenCaptureProtection()
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
 // MARK: - Subviews
 
 private extension MobileOnboardingSeedPhraseRevealView {
+    @ViewBuilder
+    var content: some View {
+        switch viewModel.state {
+        case .item(let item):
+            state(item: item)
+        case .none:
+            Color.clear
+        }
+    }
+
     func state(item: ViewModel.StateItem) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 32) {
@@ -44,7 +55,6 @@ private extension MobileOnboardingSeedPhraseRevealView {
         }
         .padding(.top, 32)
         .padding(.horizontal, 16)
-        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {

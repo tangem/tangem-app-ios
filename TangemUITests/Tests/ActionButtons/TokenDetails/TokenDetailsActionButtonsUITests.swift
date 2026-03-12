@@ -16,7 +16,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Ethereum")
@@ -37,7 +37,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             scenarios: [expressApiErrorScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Polygon")
@@ -49,13 +49,19 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
     func testTokenDetailsSwapButton_ShowErrorUnreachable() {
         setAllureId(4460)
 
+        let expressApiUnreachableScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "Unreachable"
+        )
+
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
-            clearStorage: true
+            clearStorage: true,
+            scenarios: [expressApiUnreachableScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("POL (ex-MATIC)")
@@ -73,7 +79,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Ethereum")
@@ -91,7 +97,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("Bitcoin")
             .waitForActionButtons()
@@ -109,7 +115,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        let tokenScreen = StoriesScreen(app)
+        let tokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Bitcoin")

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemAssets
+import TangemUI
 
 final class MainHeaderViewModel: ObservableObject {
     let isUserWalletLocked: Bool
@@ -16,7 +17,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: LoadableTokenBalanceView.State
+    @Published private(set) var balance: LoadableBalanceView.State
     @Published var isLoadingSubtitle: Bool = true
 
     var subtitleContainsSensitiveInfo: Bool {
@@ -75,6 +76,7 @@ final class MainHeaderViewModel: ObservableObject {
             .store(in: &bag)
 
         balanceProvider.balancePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .assign(to: \.balance, on: self, ownership: .weak)
             .store(in: &bag)

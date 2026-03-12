@@ -8,21 +8,23 @@
 
 import SwiftUI
 import Combine
+import TangemUI
 
 /// ViewModel for displaying yield balances in the balance view.
 /// It manages the loading and formatting of both crypto and fiat yield balances.
 /// It also handles the ticks of yield balances based on the current APY.
 final class YieldBalancesViewModel: BalancesViewModel {
-    @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
-    @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
+    @Published var cryptoBalance: LoadableBalanceView.State = .loading()
+    @Published var fiatBalance: LoadableBalanceView.State = .loading()
+    @Published var isRefreshing: Bool = false
 
     var balanceAccessibilityIdentifier: String? { nil }
     var isYieldActive: Bool { true }
 
     private let tokenItem: TokenItem
 
-    private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var yieldModuleStatusProvider: YieldModuleStatusProvider?
+    private weak var refreshStatusProvider: RefreshStatusProvider?
 
     private(set) var showYieldBalanceInfoAction: () -> Void
     private(set) var reloadBalance: () async -> Void
@@ -33,15 +35,15 @@ final class YieldBalancesViewModel: BalancesViewModel {
 
     init(
         tokenItem: TokenItem,
-        balanceProvider: BalanceWithButtonsViewModelBalanceProvider?,
         yieldModuleStatusProvider: YieldModuleStatusProvider?,
+        refreshStatusProvider: RefreshStatusProvider?,
         showYieldBalanceInfoAction: @escaping () -> Void,
         reloadBalance: @escaping () async -> Void
     ) {
         self.tokenItem = tokenItem
-        self.balanceProvider = balanceProvider
         self.yieldModuleStatusProvider = yieldModuleStatusProvider
         self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
+        self.refreshStatusProvider = refreshStatusProvider
         self.reloadBalance = reloadBalance
 
         bind()
@@ -49,13 +51,15 @@ final class YieldBalancesViewModel: BalancesViewModel {
     }
 
     private func bind() {
-        guard let balanceProvider else { return }
-
-        balanceProvider.totalCryptoBalancePublisher
+        refreshStatusProvider?.isRefreshing
+            .dropFirst()
+            .removeDuplicates()
+            .flatMap { isRefreshing in
+                Just(isRefreshing).delay(for: isRefreshing ? .zero : .seconds(0.7), scheduler: DispatchQueue.main)
+            }
             .receiveOnMain()
-            .sink { [weak self] balance in
-                guard let self else { return }
-                setupBalance(balance: &cryptoBalance, balanceType: balance, isFiat: false)
+            .sink { [weak self] in
+                self?.isRefreshing = $0
             }
             .store(in: &bag)
 
@@ -93,13 +97,22 @@ final class YieldBalancesViewModel: BalancesViewModel {
         case .some(let ticker):
             ticker.updateCurrentBalance(yieldBalance, apy: apy)
         case .none:
-            balanceTicker = YieldBalanceTicker(tokenItem: tokenItem, initialBalance: yieldBalance, apy: apy)
+            balanceTicker = YieldBalanceTicker(tokenItem: tokenItem, initialCryptoBalance: yieldBalance, apy: apy)
             bindYieldBalanceTicker(bag: &bag)
         }
     }
 
     private func bindYieldBalanceTicker(bag: inout Set<AnyCancellable>) {
-        balanceTicker?.currentBalancePublisher
+        balanceTicker?.currentCryptoBalancePublisher
+            .compactMap { $0 }
+            .receiveOnMain()
+            .sink { [weak self] formattedBalance in
+                guard let self else { return }
+                setupBalance(balance: &cryptoBalance, balanceType: .loaded(formattedBalance), isFiat: false)
+            }
+            .store(in: &bag)
+
+        balanceTicker?.currentFiatBalancePublisher
             .compactMap { $0 }
             .receiveOnMain()
             .sink { [weak self] formattedBalance in
@@ -110,11 +123,11 @@ final class YieldBalancesViewModel: BalancesViewModel {
     }
 
     private func setupBalance(
-        balance: inout LoadableTokenBalanceView.State,
+        balance: inout LoadableBalanceView.State,
         balanceType: FormattedTokenBalanceType,
         isFiat: Bool
     ) {
-        let builder = LoadableTokenBalanceViewStateBuilder()
+        let builder = LoadableBalanceViewStateBuilder()
         balance = if isFiat {
             builder.buildAttributedTotalBalance(type: balanceType)
         } else {

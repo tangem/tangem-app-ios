@@ -21,3 +21,9 @@ protocol SendDestinationOutput: AnyObject {
     func destinationDidChanged(_ address: SendDestination?)
     func destinationAdditionalParametersDidChanged(_ type: SendDestinationAdditionalField)
 }
+
+protocol SendDestinationAccountOutput: AnyObject {
+    func setDestinationAccountInfo(
+        analyticsProvider: (any AccountModelAnalyticsProviding)?
+    )
+}

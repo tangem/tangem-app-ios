@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
@@ -44,33 +45,50 @@ final class AccountModelsManagerMock {
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager,
-            )
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
             let secondAccount = CryptoAccountModelMock(
                 isMainAccount: false,
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager
-            )
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
             cryptoAccountModels = [mainAccount, secondAccount]
         }
     }
 
-    func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
+    private func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
         cryptoAccountModels.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier.toAnyHashable() }
+    }
+
+    private func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountArchivationError) {
+        do {
+            try await Task.sleep(for: .seconds(2)) // simulate network call
+            try Task.checkCancellation()
+            try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+            hasArchivedCryptoAccountsSubject.send(true)
+        } catch {
+            throw .unknownError(error)
+        }
     }
 }
 
 // MARK: - AccountModelsManager protocol conformance
 
 extension AccountModelsManagerMock: AccountModelsManager {
-    var hasMultipleAccounts: Bool {
+    var canAddCryptoAccounts: Bool {
         true
     }
 
-    var canAddCryptoAccounts: Bool {
-        true
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        .just(output: true)
     }
 
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
@@ -78,7 +96,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         totalAccountsCountSubject.eraseToAnyPublisher()
     }
 
@@ -90,19 +108,28 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager))
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        let cryptoAccount = CryptoAccountModelMock(
+            isMainAccount: false,
+            walletModelsManager: walletModelsManager
+        ) { [weak self] cryptoAccountModel in
+            Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+        }
+
+        cryptoAccountModels.append(cryptoAccount)
+
+        return .none
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        try? await Task.sleep(seconds: 2) // simulate network call
+        try? await Task.sleep(for: .seconds(2)) // simulate network call
         try? Task.checkCancellation()
 
         return [
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #1",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: .init(name: .cryptoAccountIcons.randomElement()!, color: .cryptoAccountColors.randomElement()!),
                 tokensCount: 3,
                 networksCount: 1,
                 derivationIndex: 10
@@ -110,7 +137,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #2",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: .init(name: .cryptoAccountIcons.randomElement()!, color: .cryptoAccountColors.randomElement()!),
                 tokensCount: 10,
                 networksCount: 10,
                 derivationIndex: 20
@@ -118,33 +145,53 @@ extension AccountModelsManagerMock: AccountModelsManager {
         ]
     }
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountArchivationError) {
-        do {
-            try await Task.sleep(seconds: 2) // simulate network call
-            try Task.checkCancellation()
-            try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
-            hasArchivedCryptoAccountsSubject.send(true)
-        } catch {
-            throw .unknownError(error)
-        }
-    }
-
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         do {
             let persistentConfig = info.toPersistentConfig()
             let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
-            let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
+            let unarchivedCryptoAccount = CryptoAccountModelMock(
+                isMainAccount: isMainAccount
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
-            try await Task.sleep(seconds: 2) // simulate network call
+            try await Task.sleep(for: .seconds(2)) // simulate network call
             try Task.checkCancellation()
 
-            unarchivedCryptoAccount.setIcon(info.icon)
-            unarchivedCryptoAccount.setName(info.name)
+            try await unarchivedCryptoAccount.edit { editor in
+                editor.setName(info.name)
+                editor.setIcon(info.icon)
+            }
             cryptoAccountModels.append(unarchivedCryptoAccount)
+
+            return .none
         } catch {
             throw .unknownError(error)
         }
     }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
+            .enumerated()
+            .reduce(into: [:]) { partialResult, element in
+                partialResult[element.element.toAnyHashable()] = element.offset
+            }
+
+        cryptoAccountModels
+            .sort { first, second in
+                guard
+                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.id.toAnyHashable()],
+                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.id.toAnyHashable()]
+                else {
+                    // Preserve existing order
+                    return false
+                }
+
+                return firstIndex < secondIndex
+            }
+    }
+
+    func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
 }

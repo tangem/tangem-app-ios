@@ -41,15 +41,14 @@ private extension HardwareBackupTypesCoordinatorView {
     }
 
     func makeHardwareCreateWalletSheetContent(coordinator: HardwareCreateWalletCoordinator) -> some View {
-        NavigationView {
+        NavigationStack {
             HardwareCreateWalletCoordinatorView(coordinator: coordinator)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        CloseButton(dismiss: self.coordinator.onHardwareCreateWalletCloseTap)
+                        CloseTextButton(action: self.coordinator.onHardwareCreateWalletCloseTap)
                     }
                 }
         }
-        .navigationViewStyle(.stack)
         .presentation(modal: true, onDismissalAttempt: coordinator.onDismissalAttempt, onDismissed: nil)
         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
             self.coordinator.modalKeeper = value

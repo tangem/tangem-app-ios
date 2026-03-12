@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
+import class UIKit.UIPasteboard
 import CombineExt
 import TangemFoundation
 import TangemStaking
@@ -19,31 +19,33 @@ import TangemMobileWalletSdk
 import TangemVisa
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
+import TangemPay
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var isLoadingTokenList: Bool = true
-    @Published var notificationInputs: [NotificationViewInput] = []
-    @Published var tokensNotificationInputs: [NotificationViewInput] = []
-    @Published var bannerNotificationInputs: [NotificationViewInput] = []
-    @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var isLoadingTokenList: Bool = true
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var bannerNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
-    @Published var accountSections: [MultiWalletMainContentAccountSection] = []
-    @Published var plainSections: [MultiWalletMainContentPlainSection] = []
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
-    @Published var tangemPayCardIssuingInProgress: Bool = false
+    @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
+    @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+    @Published private(set) var tangemPayNotificationInputs: [NotificationViewInput] = []
 
-    @Published var isScannerBusy = false
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
+    @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
-    @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
+    @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
+
+    @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -52,6 +54,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
     var isOrganizeTokensVisible: Bool {
         func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
@@ -70,6 +73,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
@@ -77,10 +81,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let sectionsProvider: any MultiWalletMainContentViewSectionsProvider
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
+    private let tangemPayNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
+    private let tokenItemPromoProvider: TokenItemPromoProvider
 
     private var derivator: TokenEntriesDerivator?
 
@@ -99,20 +105,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
+        tangemPayNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
-        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
+        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?,
+        tokenItemPromoProvider: TokenItemPromoProvider
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.sectionsProvider = sectionsProvider
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
+        self.tangemPayNotificationManager = tangemPayNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+        self.tokenItemPromoProvider = tokenItemPromoProvider
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
@@ -121,53 +131,29 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         sectionsProvider.configure(with: self)
+        tangemPayNotificationManager.setupManager(with: self)
 
         bind()
-
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        if FeatureProvider.isAvailable(.visa) {
-            userWalletModel.tangemPayAccountPublisher
-                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
-                .receiveOnMain()
-                .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
-                .store(in: &bag)
-
-            userWalletModel.tangemPayAccountPublisher
-                .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
-                .receiveOnMain()
-                .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
-                .store(in: &bag)
-
-            userWalletModel.tangemPayAccountPublisher
-                .withWeakCaptureOf(self)
-                .flatMapLatest { viewModel, tangemPayAccount in
-                    tangemPayAccount.tangemPayCardDetailsPublisher
-                        .withWeakCaptureOf(viewModel)
-                        .map { viewModel, cardDetails in
-                            guard let cardDetails = cardDetails else {
-                                return nil
-                            }
-                            return TangemPayAccountViewModel(
-                                card: cardDetails.card,
-                                balance: cardDetails.balance,
-                                tapAction: {
-                                    viewModel.openTangemPayMainView(
-                                        tangemPayAccount: tangemPayAccount,
-                                        cardNumberEnd: cardDetails.card.cardNumberEnd
-                                    )
-                                }
-                            )
-                        }
-                }
-                .receiveOnMain()
-                .assign(to: \.tangemPayAccountViewModel, on: self, ownership: .weak)
-                .store(in: &bag)
-        }
+        setupActionButtons()
+        setupTangemPayIfNeeded()
     }
 
     deinit {
         AppLogger.debug("\(userWalletModel.name) deinit")
+    }
+
+    func onDidAppear() {
+        mobileFinishActivationManager.onMain(
+            userWalletModel: userWalletModel,
+            isAppeared: true
+        )
+    }
+
+    func onWillDisappear() {
+        mobileFinishActivationManager.onMain(
+            userWalletModel: userWalletModel,
+            isAppeared: false
+        )
     }
 
     func onPullToRefresh() async {
@@ -179,14 +165,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
-    }
-
-    func onFirstAppear() {
-        finishMobileActivationIfNeeded()
-    }
-
-    func finishMobileActivationIfNeeded() {
-        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -231,28 +209,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher: AnyPublisher<Set<UserWalletId>, Never>
-
-        let hasAccounts = FeatureProvider.isAvailable(.accounts)
-
-        if hasAccounts {
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                AccountWalletModelsAggregator
-                    .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
+            AccountWalletModelsAggregator
+                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         } else {
             // accounts_fixes_needed_none
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                userWalletModel
-                    .walletModelsManager
-                    .walletModelsPublisher
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+            userWalletModel
+                .walletModelsManager
+                .walletModelsPublisher
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         }
 
         nftEntrypointViewModelPublisher
@@ -280,6 +248,32 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let accountSectionsPublisher = sectionsProvider.makeAccountSectionsPublisher()
         accountSectionsPublisher
             .assign(to: \.accountSections, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        let tokenItemPromoInputPublisher = accountSectionsPublisher
+            .eraseToAnyPublisher()
+            .combineLatest(plainSectionsPublisher.eraseToAnyPublisher()) { accountSections, plainSections in
+                return accountSections.flattenedTokenItems.nilIfEmpty ?? plainSections.flattenedTokenItems
+            }
+            .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
+
+        tokenItemPromoProvider
+            .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] output in
+                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+                logger.logYieldNoticeShown()
+            })
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, output in
+                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
+            }
+            .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
 
         subscribeToTokenListSync(
@@ -314,15 +308,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher2: $tokensNotificationInputs
         )
 
-        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAvailable in
-                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
-            }
-            .store(in: &bag)
-
         nftFeatureLifecycleHandler.startObserving()
         // [REDACTED_TODO_COMMENT]
         userWalletModel
@@ -351,6 +336,57 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func setupTangemPayIfNeeded() {
+        tangemPayNotificationManager
+            .notificationPublisher
+            .receiveOnMain()
+            .assign(to: &$tangemPayNotificationInputs)
+
+        userWalletModel.accountModelsManager
+            .tangemPayAccountModelPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, accountModel -> AnyPublisher<TangemPayAccountViewModel?, Never> in
+                if let accountModel {
+                    accountModel.statePublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, state in
+                            TangemPayAccountViewModel(
+                                tangemPayLocalState: state,
+                                userWalletId: viewModel.userWalletModel.userWalletId,
+                                cachedStateStorage: AppSettings.shared,
+                                router: viewModel
+                            )
+                        }
+                        .eraseToAnyPublisher()
+                } else {
+                    Just(nil).eraseToAnyPublisher()
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayAccountViewModel)
+
+        tangemPayAvailabilityRepository
+            .shouldShowGetTangemPayBanner(
+                for: userWalletModel.userWalletId.stringValue
+            )
+            .withWeakCaptureOf(self)
+            .map { viewModel, shouldShow in
+                shouldShow
+                    ? GetTangemPayBannerViewModel(
+                        onBannerTap: { [weak viewModel] in
+                            viewModel?.coordinator?.openGetTangemPay()
+                        }
+                    )
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayBannerViewModel)
+    }
+
+    private func setupActionButtons() {
+        actionButtonsViewModel = makeActionButtonsViewModel()
+    }
+
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
     private func makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: Bool) throws -> NFTEntrypointViewModel? {
         let hasWallets = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isNotEmpty
@@ -365,9 +401,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
-            accountModelsManager: userWalletModel.accountModelsManager
-        )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionsProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
@@ -402,44 +436,55 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        // [REDACTED_TODO_COMMENT]
-        let didSyncTokenListPublisher: AnyPublisher<Void, Never>
-        let didReceiveSectionsPublisher: AnyPublisher<Void, Never>
-
-        if FeatureProvider.isAvailable(.accounts) {
-            // The persistent storage for accounts (or, more precisely, the instance of `CryptoAccountsPersistentStorageController`)
-            // will emit the available models both after local initialization/migration and after remote synchronization,
-            // so no separate `initializedPublisher` trigger needed
-            didSyncTokenListPublisher = .just
-            // Either plain or account sections can be a trigger
-            didReceiveSectionsPublisher = plainSectionsPublisher
-                .mapToVoid()
-                .merge(with: accountSectionsPublisher.mapToVoid())
-                .eraseToAnyPublisher()
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            // accounts_fixes_needed_none
-            didSyncTokenListPublisher = userWalletModel
-                .userTokensManager
-                .initializedPublisher
+        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel
+                .accountModelsManager
+                .hasSyncedWithRemotePublisher
+                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                    // We disable loading state when the token list is synced with remote or there is at least one token
+                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+                }
                 .filter { $0 }
                 .mapToVoid()
                 .eraseToAnyPublisher()
-            // When accounts aren't enabled, we rely only on plain sections
-            didReceiveSectionsPublisher = plainSectionsPublisher
+        } else {
+            // [REDACTED_TODO_COMMENT]
+            userWalletModel
+                .userTokensManager // accounts_fixes_needed_none
+                .initializedPublisher
+                .filter { $0 }
+                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
                 .mapToVoid()
                 .eraseToAnyPublisher()
         }
 
         didSyncTokenListPublisher
-            .zip(didReceiveSectionsPublisher)
             .prefix(1)
             .mapToValue(false)
             .receiveOnMain()
             .assign(to: &$isLoadingTokenList)
     }
 
-    func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
+    private func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
+        guard let walletModel = findAvailableWalletModel(for: tokenItem) else {
+            return nil
+        }
+
+        if let stakingManager = walletModel.stakingManager {
+            return { [weak self] _ in
+                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
+            }
+        }
+
+        if let yieldAction = makeYieldApyBadgeTapAction(walletModel: walletModel) {
+            return yieldAction
+        }
+
+        return nil
+    }
+
+    private func findAvailableWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
         guard let result = try? WalletModelFinder.findWalletModel(userWalletId: userWalletModel.userWalletId, tokenItem: tokenItem),
               TokenActionAvailabilityProvider(
                   userWalletConfig: result.userWalletModel.config,
@@ -449,26 +494,23 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return nil
         }
 
-        let walletModel = result.walletModel
+        return result.walletModel
+    }
 
-        if let stakingManager = walletModel.stakingManager {
-            return { [weak self] _ in
-                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
-            }
+    private func makeYieldApyBadgeTapAction(walletModel: any WalletModel) -> ((TokenItem) -> Void)? {
+        guard let yieldManager = walletModel.yieldModuleManager,
+              let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager)
+        else {
+            return nil
         }
 
-        if let yieldManager = walletModel.yieldModuleManager,
-           let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager) {
-            return { [weak self] _ in
-                self?.handleYieldApyBadgeTapped(walletModel: walletModel, factory: factory, yieldManager: yieldManager)
-            }
+        return { [weak self] _ in
+            self?.handleYieldApyBadgeTapped(walletModel: walletModel, factory: factory, yieldManager: yieldManager)
         }
-
-        return nil
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
@@ -540,25 +582,45 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
-    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount, cardNumberEnd: String) {
-        coordinator?.openTangemPayMainView(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            tangemPayAccount: tangemPayAccount,
-            cardNumberEnd: cardNumberEnd
-        )
-    }
-
     private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        guard let dispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel, signer: userWalletModel.signer
-        ).makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletModel.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
+        )
+    }
+
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
+        TokenItemPromoBubbleViewModel(
+            id: output.walletModelId,
+            leadingImage: output.icon,
+            message: output.message,
+            onDismiss: { [weak self] in
+                self?.tokenItemPromoProvider.hidePromoBubble()
+                self?.tokenItemPromoBubbleViewModel = nil
+            },
+            onTap: { [weak self] in
+                guard let userWalletModel = self?.userWalletModel,
+                      let walletModel = AccountsFeatureAwareWalletModelsResolver
+                      .walletModels(for: userWalletModel)
+                      .first(where: { model in model.id == output.walletModelId })
+                else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: userWalletModel.userWalletId)
+                logger.logYieldNoticeClicked()
+                let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
+                navAction?(walletModel.tokenItem)
+            }
         )
     }
 
@@ -579,10 +641,9 @@ private extension MultiWalletMainContentViewModel {
         let tokenItem = tokenItemViewModel.tokenItem
         let alertBuilder = HideTokenAlertBuilder()
         let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
-        let walletModel = findWalletModel(with: tokenItemViewModel.id)
 
         do {
-            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            let hideAction = try actionFactory.makeAction(for: tokenItem)
             error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
         } catch {
             AppLogger.error("Can't hide token due to error:", error: error)
@@ -600,6 +661,14 @@ extension MultiWalletMainContentViewModel {
 
     private func openOrganizeTokens() {
         coordinator?.openOrganizeTokens(for: userWalletModel)
+    }
+
+    private func openCloreMigration() {
+        guard let walletModel = findCloreWalletModelForMigration() else {
+            return
+        }
+
+        coordinator?.openCloreMigration(walletModel: walletModel)
     }
 
     private func openSupport() {
@@ -631,24 +700,56 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openMobileFinishActivation() {
-        Analytics.log(.mainButtonFinishNow)
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        Analytics.log(.mainButtonFinalizeActivation)
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
-    private func openMobileUpgrade() {
-        runTask(in: self) { viewModel in
-            do {
-                let context = try await viewModel.unlock()
-                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
-            } catch where error.isCancellationError {
-                AppLogger.error("Unlock is canceled", error: error)
-            } catch {
-                AppLogger.error("Unlock failed:", error: error)
-                await runOnMain {
-                    viewModel.error = error.alertBinder
-                }
-            }
+    private func openHardwareBackupTypes() {
+        logMainButtonUpgradeAnalytics()
+        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
+    }
+
+    private func findCloreWalletModelForMigration() -> (any WalletModel)? {
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+
+        let walletModelWithBalance = walletModels.first {
+            $0.tokenItem.blockchain == .clore && ($0.totalTokenBalanceProvider.balanceType.value ?? 0) > 0
         }
+
+        return walletModelWithBalance ?? walletModels.first { $0.tokenItem.blockchain == .clore }
+    }
+}
+
+// MARK: - TangemPayAccountRoutable
+
+extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+    }
+
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+    }
+
+    func openTangemPayIssuingYourCardPopup() {
+        coordinator?.openTangemPayIssuingYourCardPopup()
+    }
+
+    func openTangemPayFailedToIssueCardPopup() {
+        coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
+    }
+
+    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            tangemPayAccount: tangemPayAccount,
+        )
     }
 }
 
@@ -715,12 +816,11 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .openMobileFinishActivation:
             openMobileFinishActivation()
         case .openMobileUpgrade:
-            openMobileUpgrade()
-        case .openBuyCrypto(let walletModel, let parameters):
-            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            coordinator?.openOnramp(input: input, parameters: parameters)
+            openHardwareBackupTypes()
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
+        case .openCloreMigration:
+            openCloreMigration()
         default:
             break
         }
@@ -799,9 +899,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            tokenRouter.openExchange(walletModel: walletModel)
+            tokenRouter.openSwap(walletModel: walletModel)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
+        case .yield:
+            tokenRouter.openYieldModule(walletModel: walletModel)
         case .marketsDetails, .hide:
             return
         }
@@ -845,31 +947,6 @@ private extension MultiWalletMainContentViewModel {
     }
 }
 
-// MARK: - Unlocking
-
-private extension MultiWalletMainContentViewModel {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletModel.userWalletId,
-            config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-
-        let result = try await authUtil.unlock()
-
-        switch result {
-        case .successful(let context):
-            return context
-
-        case .canceled:
-            throw CancellationError()
-
-        case .userWalletNeedsToDelete:
-            throw CancellationError()
-        }
-    }
-}
-
 // MARK: - Analytics
 
 private extension MultiWalletMainContentViewModel {
@@ -885,5 +962,12 @@ private extension MultiWalletMainContentViewModel {
         ]
 
         Analytics.log(event: .apyClicked, params: params)
+    }
+
+    func logMainButtonUpgradeAnalytics() {
+        Analytics.log(
+            .mainButtonUpgrade,
+            contextParams: .userWallet(userWalletModel.userWalletId)
+        )
     }
 }

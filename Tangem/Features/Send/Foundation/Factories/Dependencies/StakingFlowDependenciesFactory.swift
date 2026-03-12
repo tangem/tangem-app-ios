@@ -12,40 +12,33 @@ import TangemLocalization
 
 /// Sharing between Staking / Restaking / Unstaking / StakingSingleAction
 protocol StakingFlowDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+    var stakingableToken: SendStakingableToken { get }
     var actionType: StakingAction.ActionType { get }
+}
+
+extension StakingFlowDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { stakingableToken.userWalletInfo }
+    var tokenItem: TokenItem { stakingableToken.tokenItem }
+    var feeTokenItem: TokenItem { stakingableToken.feeTokenItem }
 }
 
 // MARK: - Shared dependencies
 
 extension StakingFlowDependenciesFactory {
-    func makeStakingTransactionDispatcher(
-        stakingManger: some StakingManager,
-        analyticsLogger: any StakingAnalyticsLogger
-    ) -> TransactionDispatcher {
-        transactionDispatcherFactory.makeStakingTransactionDispatcher(
-            stakingManger: stakingManger,
+    func makeStakingNotificationManager(analyticsLogger: StakingSendAnalyticsLogger) -> StakingNotificationManager {
+        CommonStakingNotificationManager(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
             analyticsLogger: analyticsLogger
         )
-    }
-
-    func makeStakingNotificationManager() -> StakingNotificationManager {
-        CommonStakingNotificationManager(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
     }
 
     func makeStakingAlertBuilder() -> SendAlertBuilder {
         StakingSendAlertBuilder()
     }
 
-    func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
-        baseDataBuilderFactory.makeStakingBaseDataBuilder(input: input)
-    }
-
     func makeStakingFeeIncludedCalculator() -> FeeIncludedCalculator {
-        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: walletModelDependenciesProvider.transactionValidator)
-    }
-
-    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
-        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: stakingableToken.transactionValidator)
     }
 
     func makeStakingSendAnalyticsLogger() -> StakingSendAnalyticsLogger {

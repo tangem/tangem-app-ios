@@ -12,51 +12,24 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class UnstakingFlowFactory: StakingFlowDependenciesFactory {
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: UserWalletInfo
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
-    var actionType: StakingAction.ActionType { action.displayType }
 
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
+    var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var unstakingModel = makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        walletModel: any WalletModel,
-        userWalletInfo: UserWalletInfo,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
-        action: UnstakingModel.Action,
+        action: RestakingModel.Action
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.stakingableToken = stakingableToken
         self.manager = manager
         self.action = action
-
-        tokenHeaderProvider = UnstakingTokenHeaderProvider()
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
-        transactionDispatcherFactory = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
     }
 }
 
@@ -69,11 +42,7 @@ extension UnstakingFlowFactory {
     ) -> UnstakingModel {
         UnstakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: makeSourceToken(),
-            transactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
+            sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
         )
@@ -94,21 +63,14 @@ extension UnstakingFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension UnstakingFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let isPartialUnstakeAllowed = unstakingModel.isPartialUnstakeAllowed
 
         let amount = makeSendAmountStep()
         amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
@@ -130,13 +92,14 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: unstakingModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: unstakingModel)
+        analyticsLogger.setup(stakingTargetsInput: unstakingModel)
 
         let stepsManager = CommonUnstakingStepsManager(
             amountStep: amount.step,
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             action: action,
             isPartialUnstakeAllowed: isPartialUnstakeAllowed
         )
@@ -164,9 +127,17 @@ extension UnstakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: unstakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: unstakingModel,
+                sourceTokenInput: unstakingModel
+            ),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: unstakingModel
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
@@ -178,6 +149,13 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
         SendAmountStepBuilder.IO(
             sourceIO: (input: unstakingModel, output: unstakingModel),
             sourceAmountIO: (input: unstakingModel, output: unstakingModel)
+        )
+    }
+
+    var amountTypes: SendAmountStepBuilder.Types {
+        .init(
+            initialSourceToken: stakingableToken,
+            flowActionType: actionType.sendFlowActionType
         )
     }
 
@@ -217,7 +195,7 @@ extension UnstakingFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }

@@ -15,7 +15,7 @@ struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             if viewModel.showHeader, let transactionTime = viewModel.transactionSentTime {
                 header(transactionTime: transactionTime)
             }
@@ -36,8 +36,8 @@ struct SendFinishView: View {
                 SendDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
-            if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
-                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+            if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
+                StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
 
             if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
@@ -58,7 +58,6 @@ struct SendFinishView: View {
 
     // MARK: - Header
 
-    @ViewBuilder
     private func header(transactionTime: String) -> some View {
         VStack(spacing: 12) {
             Assets.inProgress.image
@@ -66,7 +65,7 @@ struct SendFinishView: View {
                 .frame(width: 56, height: 56)
 
             VStack(spacing: 4) {
-                Text(Localization.sentTransactionSentTitle)
+                Text(viewModel.headerTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
                 Text(transactionTime)
@@ -82,7 +81,6 @@ struct SendFinishView: View {
         .padding(.bottom, 10)
     }
 
-    @ViewBuilder
     private func bottomButtons(url: URL) -> some View {
         HStack(spacing: 8) {
             MainButton(
@@ -98,7 +96,7 @@ struct SendFinishView: View {
                 action: { viewModel.share(url: url) }
             )
         }
-        .padding(.bottom, 8)
+        .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .transition(
             .opacity.animation(SendTransitions.animation)

@@ -7,34 +7,40 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
-    public var isBest: Bool
-    public var isAvailable: Bool
     public let manager: ExpressProviderManager
+    public var isBest: Bool { _isBest.read() }
 
-    init(provider: ExpressProvider, isBest: Bool, isAvailable: Bool, manager: ExpressProviderManager) {
+    private let _isBest: ThreadSafeContainer<Bool>
+
+    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool) {
         self.provider = provider
-        self.isBest = isBest
-        self.isAvailable = isAvailable
         self.manager = manager
+
+        _isBest = .init(isBest)
     }
 
-    public func getState() async -> ExpressProviderManagerState {
-        await manager.getState()
+    func update(isBest: Bool) {
+        _isBest.mutate { $0 = isBest }
     }
 
-    public func getPriority() async -> Priority {
-        guard isAvailable else {
-            return .lowest
-        }
+    deinit {
+        ExpressLogger.debug("deinit \(objectDescription(self))")
+    }
 
+    public func getState() -> ExpressProviderManagerState {
+        manager.getState()
+    }
+
+    public func getPriority() -> Priority {
         if isBest {
             return .highest
         }
 
-        switch await getState() {
+        switch getState() {
         case .permissionRequired(let state):
             return .high(rate: state.quote.rate)
         case .preview(let state):
@@ -49,6 +55,36 @@ public class ExpressAvailableProvider {
             return .low
         case .idle, .error:
             return .lowest
+        }
+    }
+}
+
+public extension [ExpressAvailableProvider] {
+    func sortedByPriorityAndQuotes() -> [ExpressAvailableProvider] {
+        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
+
+        return sorted { lhsProvider, rhsProvider in
+            let lhsPriority = lhsProvider.getPriority()
+            let lhsExpectedAmount = lhsProvider.getState().quote?.expectAmount ?? 0
+
+            let rhsPriority = rhsProvider.getPriority()
+            let rhsExpectedAmount = rhsProvider.getState().quote?.expectAmount ?? 0
+
+            if lhsPriority == rhsPriority {
+                return lhsExpectedAmount > rhsExpectedAmount
+            }
+
+            return lhsPriority > rhsPriority
+        }
+    }
+
+    func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
+        filter { provider in
+            // If the provider `isSelected` we are forced to show it anyway
+            let isSelected = selectedProviderId == provider.provider.id
+            let isAvailableToShow = !provider.getState().isError
+
+            return isSelected || isAvailableToShow
         }
     }
 }

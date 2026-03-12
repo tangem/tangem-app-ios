@@ -15,7 +15,7 @@ struct SendCoordinatorView: CoordinatorView {
     @State private var interactiveDismissDisabled: Bool = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 if let rootViewModel = coordinator.rootViewModel {
                     SendView(
@@ -32,7 +32,6 @@ struct SendCoordinatorView: CoordinatorView {
         .interactiveDismissDisabled(interactiveDismissDisabled)
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.onrampSettingsViewModel) {
@@ -41,17 +40,12 @@ struct SendCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.onrampRedirectingViewModel) {
                 OnrampRedirectingView(viewModel: $0)
             }
-            .emptyNavigationLink()
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.expressApproveViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                ExpressApproveView(viewModel: $0)
+            .floatingSheetContent(for: ApproveFlowViewModel.self) {
+                ApproveFlowView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.onrampCountryDetectionCoordinator,
@@ -62,8 +56,8 @@ struct SendCoordinatorView: CoordinatorView {
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
-                FeeSelectorContentView(viewModel: $0)
+            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
+                SendFeeSelectorView(viewModel: $0)
             }
             .floatingSheetContent(for: SendSwapProvidersSelectorViewModel.self) {
                 SendSwapProvidersSelectorView(viewModel: $0)
@@ -85,6 +79,9 @@ struct SendCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.swapTokenSelectorViewModel) {
+                SwapTokenSelectorView(viewModel: $0)
             }
             .floatingSheetContent(for: BlockchainAccountInitializationViewModel.self) {
                 BlockchainAccountInitializationView(viewModel: $0)

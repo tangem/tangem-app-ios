@@ -39,6 +39,10 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func isGasPriceHigh(in fee: YieldTransactionFee) -> Bool {
+        return fee.maxFeePerGas?.decimal ?? .zero > Constants.maxFeePerGasLimitWei
+    }
+
     func getAvailableBalance() -> Decimal? {
         manager.state?.state.activeInfo?.yieldModuleBalanceValue
     }
@@ -90,7 +94,7 @@ actor YieldManagerInteractor {
         let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
         let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
 
-        guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: manager.tokenId) else {
+        guard let gasInToken = converter.convertToCryptoFrom(fiatValue: gasInFiat, currencyId: manager.tokenId) else {
             throw YieldModuleError.minimalTopUpAmountNotFound
         }
 
@@ -212,5 +216,6 @@ private extension YieldManagerInteractor {
     enum Constants {
         static let minimalTopUpBuffer: Decimal = 1.25
         static let minimalTopUpFeeLimit: Decimal = 0.04
+        static let maxFeePerGasLimitWei: Decimal = 4000000000
     }
 }

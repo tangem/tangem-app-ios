@@ -11,60 +11,24 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let defaultAddressString: String
-    let userWalletInfo: UserWalletInfo
+    let stakingableToken: SendStakingableToken
     let manager: any StakingManager
-
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
-    let allowanceServiceFactory: AllowanceServiceFactory
 
     var actionType: StakingAction.ActionType { .stake }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
-        userWalletInfo: UserWalletInfo,
+        stakingableToken: SendStakingableToken,
         manager: any StakingManager,
-        walletModel: any WalletModel,
+        walletModelDependenciesProvider: WalletModelDependenciesProvider
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.stakingableToken = stakingableToken
         self.manager = manager
-
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .stake
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        defaultAddressString = walletModel.defaultAddressString
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
-        walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
-        transactionDispatcherFactory = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        allowanceServiceFactory = AllowanceServiceFactory(
-            walletModel: walletModel,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
-        )
+        self.walletModelDependenciesProvider = walletModelDependenciesProvider
     }
 }
 
@@ -77,14 +41,8 @@ extension StakingFlowFactory {
     ) -> StakingModel {
         StakingModel(
             stakingManager: stakingManager,
-            sendSourceToken: makeSourceToken(),
+            sendSourceToken: stakingableToken,
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
-            stakingTransactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
-            allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
@@ -95,29 +53,22 @@ extension StakingFlowFactory {
 // MARK: - SendGenericFlowFactory
 
 extension StakingFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSendAmountStep()
-        let validators = makeStakingValidatorsStep()
+        let targets = makeStakingTargetsStep()
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingTargetsCompactViewModel: targets.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
             sendAmountFinishViewModel: amount.finish,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingTargetsCompactViewModel: targets.compact,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
@@ -131,15 +82,16 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: stakingModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: stakingModel)
+        analyticsLogger.setup(stakingTargetsInput: stakingModel)
 
         let stepsManager = CommonStakingStepsManager(
             provider: stakingModel,
             amountStep: amount.step,
-            validatorsStep: validators.step,
+            targetsStep: targets.step,
             summaryStep: summary,
             finishStep: finish,
-            summaryTitleProvider: makeStakingSummaryTitleProvider()
+            summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
@@ -162,9 +114,22 @@ extension StakingFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeStakingAlertBuilder(),
-            dataBuilder: makeStakingBaseDataBuilder(input: stakingModel),
+            mailDataBuilder: CommonSendMailDataBuilder(
+                baseDataInput: stakingModel,
+                sourceTokenInput: stakingModel
+            ),
+            approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
+                dataProvider: stakingModel,
+                analyticsLogger: analyticsLogger,
+                output: stakingModel,
+                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
+            ),
+            feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
+                sourceTokenInput: stakingModel
+            ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
@@ -179,11 +144,18 @@ extension StakingFlowFactory: SendAmountStepBuildable {
         )
     }
 
+    var amountTypes: SendAmountStepBuilder.Types {
+        .init(
+            initialSourceToken: stakingableToken,
+            flowActionType: actionType.sendFlowActionType
+        )
+    }
+
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
-                validator: walletModelDependenciesProvider.transactionValidator,
+                validator: stakingableToken.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),
@@ -195,19 +167,18 @@ extension StakingFlowFactory: SendAmountStepBuildable {
 
 // MARK: - StakingValidatorsStepBuildable
 
-extension StakingFlowFactory: StakingValidatorsStepBuildable {
-    var stakingValidatorsIO: StakingValidatorsStepBuilder.IO {
-        StakingValidatorsStepBuilder.IO(input: stakingModel, output: stakingModel)
+extension StakingFlowFactory: StakingTargetsStepBuildable {
+    var stakingTargetsIO: StakingTargetsStepBuilder.IO {
+        StakingTargetsStepBuilder.IO(input: stakingModel, output: stakingModel)
     }
 
-    var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: actionType.sendFlowActionType, currentValidator: stakingModel.validator)
+    var stakingTargetsTypes: StakingTargetsStepBuilder.Types {
+        StakingTargetsStepBuilder.Types(actionType: actionType.sendFlowActionType, currentTarget: stakingModel.target)
     }
 
-    var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {
-        StakingValidatorsStepBuilder.Dependencies(
+    var stakingTargetsDependencies: StakingTargetsStepBuilder.Dependencies {
+        StakingTargetsStepBuilder.Dependencies(
             manager: manager,
-            sendFeeProvider: stakingModel,
             analyticsLogger: analyticsLogger
         )
     }
@@ -232,7 +203,7 @@ extension StakingFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }

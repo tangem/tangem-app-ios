@@ -26,7 +26,12 @@ struct WalletConnectQRScanView: View {
             navigationBar
             scannerOverlayElements
         }
-        .confirmationDialog(for: viewModel.state.confirmationDialog, dismissAction: dismissDialogAction)
+        .confirmationDialog(
+            viewModel: viewModel.state.confirmationDialog,
+            onDismiss: {
+                viewModel.handle(viewEvent: .closeDialogButtonTapped)
+            }
+        )
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
         }
@@ -116,43 +121,17 @@ struct WalletConnectQRScanView: View {
             .multilineTextAlignment(.center)
     }
 
-    @ViewBuilder
     private var pasteFromClipboardButton: some View {
-        if #available(iOS 16.0, *) {
-            PasteButton(payloadType: String.self) { clipboardStrings in
-                // [REDACTED_USERNAME], this handler may be called from background thread...
-                // Compiler @MainActor checks from both view and view model are simply ignored.
-                Task { @MainActor in
-                    viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(clipboardStrings.first))
-                }
+        PasteButton(payloadType: String.self) { clipboardStrings in
+            // [REDACTED_USERNAME], this handler may be called from background thread...
+            // Compiler @MainActor checks from both view and view model are simply ignored.
+            Task { @MainActor in
+                viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(clipboardStrings.first))
             }
-            .labelStyle(.titleAndIcon)
-            .tint(.clear)
-            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.pasteButton)
-        } else {
-            Button(
-                action: {
-                    viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(UIPasteboard.general.string))
-                },
-                label: {
-                    HStack(spacing: 10) {
-                        Text(Localization.walletConnectPasteFromClipboard)
-                            .style(Fonts.Bold.callout, color: Colors.Text.constantWhite)
-
-                        Assets.Glyphs.copy.image
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(Colors.Text.constantWhite)
-                    }
-                    .frame(height: 46)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 40)
-                    .contentShape(.rect)
-                }
-            )
-            .buttonStyle(.plain)
-            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.pasteButton)
         }
+        .labelStyle(.titleAndIcon)
+        .tint(.clear)
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.pasteButton)
     }
 
     private func scannerRectangle(fillColor: Color = .clear, strokeColor: Color = .clear) -> some View {
@@ -160,45 +139,5 @@ struct WalletConnectQRScanView: View {
             .fill(fillColor)
             .aspectRatio(1, contentMode: .fit)
             .padding(.horizontal, 40)
-    }
-
-    private func dismissDialogAction() {
-        viewModel.handle(viewEvent: .closeDialogButtonTapped)
-    }
-}
-
-// MARK: - ModalDialogs wrappers
-
-// [REDACTED_TODO_COMMENT]
-private extension View {
-    func confirmationDialog(
-        for dialog: WalletConnectQRScanViewState.ConfirmationDialog?,
-        dismissAction: @escaping () -> Void
-    ) -> some View {
-        confirmationDialog(
-            dialog?.title ?? "",
-            isPresented: Binding(
-                get: { dialog != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        dismissAction()
-                    }
-                }
-            ),
-            titleVisibility: .visible,
-            presenting: dialog,
-            actions: { _ in
-                dialog?.actions
-            },
-            message: { _ in
-                Text(dialog?.subtitle ?? "")
-            }
-        )
-    }
-}
-
-private extension WalletConnectQRScanViewState.ConfirmationDialog {
-    var actions: some View {
-        Button(button.title, action: button.action)
     }
 }

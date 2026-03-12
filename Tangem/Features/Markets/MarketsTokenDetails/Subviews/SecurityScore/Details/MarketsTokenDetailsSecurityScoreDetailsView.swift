@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -33,21 +34,19 @@ struct MarketsTokenDetailsSecurityScoreDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var title: some View {
         Text(viewModel.title)
             .style(Fonts.Bold.body.weight(.semibold), color: Colors.Text.primary1)
             .padding(.vertical, 12.0)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreDetailsTitle)
     }
 
-    @ViewBuilder
     private var subtitle: some View {
         Text(viewModel.subtitle)
             .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
             .padding(.vertical, Constants.defaultVerticalPadding)
     }
 
-    @ViewBuilder
     private func makeLeadingComponent(
         with provider: MarketsTokenDetailsSecurityScoreDetailsViewModel.SecurityScoreProviderData
     ) -> some View {
@@ -66,7 +65,6 @@ struct MarketsTokenDetailsSecurityScoreDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private func makeTrailingComponent(
         with provider: MarketsTokenDetailsSecurityScoreDetailsViewModel.SecurityScoreProviderData
     ) -> some View {
@@ -92,6 +90,7 @@ struct MarketsTokenDetailsSecurityScoreDetailsView: View {
                 }
             }
         )
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreDetailsProviderLink)
         .disabled(provider.auditURLTitle == nil)
     }
 }

@@ -59,6 +59,7 @@ extension ExpressDTO {
                 let id: Provider.Id
                 let name: String
                 let type: ExpressProviderType?
+                let exchangeOnlyWithinSingleAddress: Bool?
                 let imageLarge: String?
                 let imageSmall: String?
                 let termsOfUse: String?
@@ -77,7 +78,8 @@ extension ExpressDTO {
                 let toContractAddress: String
                 let toNetwork: String
                 let toDecimals: Int
-                let fromAmount: String
+                let fromAmount: String?
+                let toAmount: String?
                 let fromDecimals: Int
                 let providerId: Provider.Id
                 let rateType: Provider.RateType
@@ -89,6 +91,8 @@ extension ExpressDTO {
                 let toAmount: String
                 let toDecimals: Int
                 let allowanceContract: String?
+                let quoteId: String?
+                let expiredAt: Date?
             }
         }
 
@@ -97,17 +101,20 @@ extension ExpressDTO {
         enum ExchangeData {
             struct Request: Encodable {
                 let requestId: String
+                let quoteId: String?
                 let fromAddress: String
                 let fromContractAddress: String
                 let fromNetwork: String
                 let toContractAddress: String
                 let toNetwork: String
                 let toDecimals: Int
-                let fromAmount: String
+                let fromAmount: String?
+                let toAmount: String?
                 let fromDecimals: Int
                 let providerId: Provider.Id
                 let rateType: Provider.RateType
                 let toAddress: String // address for receiving token
+                let toExtraId: String? // memo/destination tag for recipient
                 let refundAddress: String?
                 let refundExtraId: String? // typically it's a memo or tag
                 let partnerOperationType: String
@@ -122,6 +129,7 @@ extension ExpressDTO {
                 let toDecimals: Int
                 let txDetailsJson: String
                 let signature: String
+                let payTill: Date?
             }
         }
 

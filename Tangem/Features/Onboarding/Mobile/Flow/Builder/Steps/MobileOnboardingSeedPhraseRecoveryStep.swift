@@ -12,11 +12,19 @@ import TangemFoundation
 final class MobileOnboardingSeedPhraseRecoveryStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingSeedPhraseRecoveryViewModel
 
-    init(userWalletId: UserWalletId, delegate: MobileOnboardingSeedPhraseRecoveryDelegate) {
-        viewModel = MobileOnboardingSeedPhraseRecoveryViewModel(userWalletId: userWalletId, delegate: delegate)
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseRecoveryDelegate
+    ) {
+        viewModel = MobileOnboardingSeedPhraseRecoveryViewModel(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: delegate
+        )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseRecoveryView(viewModel: viewModel)
     }
 }

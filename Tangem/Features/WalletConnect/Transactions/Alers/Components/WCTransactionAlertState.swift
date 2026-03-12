@@ -16,6 +16,8 @@ struct WCTransactionAlertState: Equatable {
     let icon: Icon
     let primaryButton: ButtonSettings
     let secondaryButton: ButtonSettings
+    let tangemIcon: MainButton.Icon?
+    let needsHoldToConfirm: Bool
 
     struct Icon: Equatable {
         let asset: ImageType
@@ -40,5 +42,7 @@ extension WCTransactionAlertState {
             style: state.secondaryButton.style,
             isLoading: isLoading
         )
+        tangemIcon = state.tangemIcon
+        needsHoldToConfirm = state.needsHoldToConfirm
     }
 }

@@ -25,6 +25,10 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
             Localization.hwRemoveWalletNotificationDescriptionHasBackup
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     lazy var removeAction: Action = makeRemoveAction()
     lazy var backupAction: Action = makeBackupAction()
 
@@ -37,6 +41,9 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            logMobileBackupNeededAnalytics()
+        }
     }
 }
 
@@ -123,6 +130,21 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 }
 
+// MARK: - Analytics
+
+private extension MobileRemoveWalletNotificationViewModel {
+    func logMobileBackupNeededAnalytics() {
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: [
+                .source: .walletSettings,
+                .action: .remove,
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+}
+
 // MARK: - Navigation
 
 @MainActor
@@ -132,7 +154,10 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 
     func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+            userWalletModel: userWalletModel,
+            source: .walletSettings(action: .remove)
+        ))
         coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
     }
 

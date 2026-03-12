@@ -20,18 +20,27 @@ class SendRoutableMock: SendRoutable {
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
+    func openApproveView(flowFactory: ApproveFlowFactory) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
+    func openOnrampCountryDetection(
+        country: OnrampCountry,
+        repository: any OnrampRepository,
+        dataRepository: any OnrampDataRepository,
+        onCountrySelected: @escaping () -> Void
+    ) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
-    func openOnrampSettings(repository: any OnrampRepository) {}
+    func openOnrampSettings(repository: any OnrampRepository, settingsRoutable: any OnrampSettingsRoutable) {}
     func openOnrampCurrencySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCurrencySelector() {}
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
+    func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
+    func closeFeeSelector() {}
+    func openFeeSelectorLearnMoreURL(_ url: URL) {}
+    func openSwapTokenSelector(swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder, direction: SwapTokenSelectorViewModel.SwapDirection) {}
 }

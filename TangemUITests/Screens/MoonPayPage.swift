@@ -10,7 +10,7 @@ import XCTest
 import Foundation
 
 final class MoonPayPage: ScreenBase<MoonPageElement> {
-    lazy var continueButton = button(.continueButton)
+    lazy var addressField = button(.addressField)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -18,19 +18,25 @@ final class MoonPayPage: ScreenBase<MoonPageElement> {
             let webView = app.webViews.firstMatch
 
             waitAndAssertTrue(webView, "MoonPay Safari web view should be displayed")
-            waitAndAssertTrue(continueButton, "Continue button should be displayed")
+            waitAndAssertTrue(addressField, "Address line should be displayed")
+
+            let urlString = addressField.value as! String
+            XCTAssertTrue(
+                urlString.contains("sell.moonpay.com"),
+                "Address should contain moonpay url, but was: \(urlString)"
+            )
         }
         return self
     }
 }
 
 enum MoonPageElement: String, UIElement {
-    case continueButton
+    case addressField
 
     var accessibilityIdentifier: String {
         switch self {
-        case .continueButton:
-            return "Continue"
+        case .addressField:
+            return "URL"
         }
     }
 }

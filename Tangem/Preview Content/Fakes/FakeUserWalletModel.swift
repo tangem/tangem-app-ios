@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemNFT
 import TangemFoundation
+import TangemPay
 
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -29,7 +30,7 @@ class FakeUserWalletModel: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
     var tangemPayAccount: TangemPayAccount? { nil }
 
     private(set) var name: String
@@ -160,6 +161,15 @@ extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
 extension FakeUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         return nil
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension FakeUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }
 

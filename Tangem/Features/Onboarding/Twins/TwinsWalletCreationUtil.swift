@@ -121,8 +121,6 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
-
                 step.send(.done(response.getCardInfo()))
             case .failure(let error):
                 occuredError.send(error)

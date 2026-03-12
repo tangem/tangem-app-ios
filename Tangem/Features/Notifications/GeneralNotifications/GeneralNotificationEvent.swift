@@ -9,6 +9,8 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemSdk
+import TangemUI
 
 enum GeneralNotificationEvent: Equatable, Hashable {
     case numberOfSignedHashesIncorrect
@@ -22,15 +24,15 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case lowSignatures(count: Int)
     case legacyDerivation
     case systemDeprecationTemporary
-    case systemDeprecationPermanent(String)
-    case missingDerivation(numberOfNetworks: Int)
+    case systemDeprecationPermanent(version: String, date: String)
+    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?)
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
     case seedSupport
     case seedSupport2
-    case mobileFinishActivation(needsAttention: Bool, hasBackup: Bool)
+    case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
     case pushNotificationsPermissionRequest
 }
@@ -81,9 +83,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseIssueTitle)
         case .seedSupport2:
             return .string(Localization.warningSeedphraseActionRequiredTitle)
-        case .mobileFinishActivation(let needsAttention, _):
+        case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
-            if needsAttention {
+            if hasPositiveBalance {
                 var string = AttributedString(text)
                 string.foregroundColor = Colors.Text.warning
                 string.font = Fonts.Bold.footnote
@@ -122,13 +124,12 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningManageTokensLegacyDerivationMessage
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateMessage
-        case .systemDeprecationPermanent(let dateString):
-            return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
-                .replacingOccurrences(of: "..", with: ".")
-        case .missingDerivation(let numberOfNetworks):
+        case .systemDeprecationPermanent(let version, let dateString):
+            return Localization.warningIosDeprecationMessage(version, dateString)
+        case .missingDerivation(let numberOfNetworks, _):
             return Localization.warningMissingDerivationMessage(numberOfNetworks)
         case .walletLocked:
-            return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
+            return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
@@ -165,6 +166,13 @@ extension GeneralNotificationEvent: NotificationEvent {
         }
     }
 
+    var colorTheme: NotificationView.ColorTheme {
+        switch self {
+        case .mobileUpgrade: .dark
+        default: .system
+        }
+    }
+
     var icon: NotificationView.MessageIcon {
         switch self {
         case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
@@ -184,11 +192,11 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
-        case .mobileFinishActivation(let needsAttention, _):
-            let imageType = needsAttention ? Assets.criticalAttentionShield : Assets.attentionShield
+        case .mobileFinishActivation(let hasPositiveBalance, _):
+            let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 36, height: 36))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner.image), size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon.image), size: CGSize(width: 54, height: 54))
         }
@@ -242,12 +250,12 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .seedSupport,
              .seedSupport2,
+             .mobileUpgrade,
              .mobileFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .rateApp,
-             .mobileUpgrade,
              .pushNotificationsPermissionRequest:
             return true
         }
@@ -277,13 +285,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation:
+        case .missingDerivation(_, let icon):
             guard let buttonAction else {
                 break
             }
 
             return .withButtons([
-                .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
+                .init(action: buttonAction, actionType: .generateAddresses(icon: icon), isWithLoader: true),
             ])
         case .rateApp:
             guard let buttonAction else {
@@ -302,22 +310,25 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
-        case .mobileFinishActivation(let needsAttention, _):
+        case .mobileFinishActivation(let hasPositiveBalance, _):
             guard let buttonAction else {
                 break
             }
             return .withButtons([
                 .init(
                     action: buttonAction,
-                    actionType: .openMobileFinishActivation(needsAttention: needsAttention),
+                    actionType: .openMobileFinishActivation(needsAttention: hasPositiveBalance),
                     isWithLoader: false
                 ),
             ])
         case .mobileUpgrade:
-            guard let tapAction else {
+            guard let buttonAction else {
                 break
             }
-            return .tappable(hasChevron: false, action: tapAction)
+            return .withButtons([
+                .init(action: buttonAction, actionType: .closeMobileUpgrade, isWithLoader: false),
+                .init(action: buttonAction, actionType: .openMobileUpgrade, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -348,14 +359,24 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
-        case .mobileFinishActivation: return nil
-        case .mobileUpgrade: return nil
+        case .mobileFinishActivation: return .noticeFinishActivation
+        case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         }
     }
 
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [:]
+        switch self {
+        case .mobileFinishActivation(let hasPositiveBalance, let hasBackup):
+            let balanceStateValue: Analytics.ParameterValue = hasPositiveBalance ? .full : .empty
+            let activationStateValue: Analytics.ParameterValue = hasBackup ? .unfinished : .notStarted
+            return [
+                .balanceState: balanceStateValue.rawValue,
+                .activationState: activationStateValue.rawValue,
+            ]
+        default:
+            return [:]
+        }
     }
 
     /// Determine if analytics event should be sent only once and tracked by service

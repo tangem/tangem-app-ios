@@ -10,14 +10,13 @@ import Combine
 import Foundation
 import UIKit
 
-class AppSettingsCoordinator: CoordinatorObject {
+final class AppSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
 
     @Published private(set) var rootViewModel: AppSettingsViewModel?
-    @Published private(set) var newRootViewModel: NewAppSettingsViewModel?
 
     // MARK: - Child view models
 
@@ -33,11 +32,7 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        if MobileWalletFeatureProvider.isAvailable {
-            newRootViewModel = NewAppSettingsViewModel(coordinator: self)
-        } else {
-            rootViewModel = AppSettingsViewModel(coordinator: self)
-        }
+        rootViewModel = AppSettingsViewModel(coordinator: self)
     }
 }
 
@@ -62,7 +57,9 @@ extension AppSettingsCoordinator: AppSettingsRoutable {
     }
 
     func openCurrencySelection() {
-        currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        Task { @MainActor in
+            currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        }
     }
 
     func openThemeSelection() {

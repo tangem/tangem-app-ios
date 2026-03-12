@@ -10,6 +10,7 @@ import Combine
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 protocol UserTokenListManager {
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 

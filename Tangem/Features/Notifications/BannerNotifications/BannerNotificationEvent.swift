@@ -30,37 +30,32 @@ struct BannerNotificationEvent: NotificationEvent {
 extension PromotionProgramName {
     var title: String {
         switch self {
-        case .sepa: Localization.notificationSepaTitle
-        case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
+        case .yield: Localization.notificationYieldPromoTitle
         }
     }
 
     var description: String? {
         switch self {
-        case .sepa: Localization.notificationSepaText
-        case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
+        case .yield: Localization.notificationYieldPromoText
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .sepa:
-            .init(
-                iconType: .image(Assets.sepaBannerImage.image),
-                size: .init(bothDimensions: 54)
-            )
-        case .visaWaitlist:
-            .init(
-                iconType: .image(Assets.promotionVisaWaitlist.image),
-                size: .init(bothDimensions: 54)
-            )
+        case .yield:
+            .init(iconType: .image(Assets.YieldModule.yieldModuleLogo.image), size: .init(bothDimensions: 36))
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .sepa: .primary
-        case .visaWaitlist: .primary
+        case .yield: .primary
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .yield: Localization.notificationYieldPromoButton
         }
     }
 }

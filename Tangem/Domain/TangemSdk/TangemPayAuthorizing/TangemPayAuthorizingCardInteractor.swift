@@ -8,8 +8,14 @@
 
 import TangemSdk
 import TangemVisa
+import TangemLocalization
+import TangemPay
 
 final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
+    var syncNeededTitle: String {
+        Localization.homeButtonScan
+    }
+
     private let tangemSdk: TangemSdk
     private let filter: SessionFilter
 
@@ -42,6 +48,7 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
         }
 
         return TangemPayAuthorizingResponse(
+            customerWalletAddress: response.customerWalletAddress,
             tokens: response.tokens,
             derivationResult: response.derivationResult
         )

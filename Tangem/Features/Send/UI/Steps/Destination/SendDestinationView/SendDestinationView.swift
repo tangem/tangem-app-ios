@@ -16,7 +16,7 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 24) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
             GroupedSection(viewModel.destinationAddressSectionType) { type in
                 switch type {
                 case .destinationAddress(let viewModel):
@@ -26,6 +26,7 @@ struct SendDestinationView: View {
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .truncationMode(.middle)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressResolvedAddress)
                 }
             } footer: {
                 DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
@@ -51,5 +52,6 @@ struct SendDestinationView: View {
             }
         }
         .onAppear(perform: viewModel.onAppear)
+        .padding(.bottom, 8)
     }
 }

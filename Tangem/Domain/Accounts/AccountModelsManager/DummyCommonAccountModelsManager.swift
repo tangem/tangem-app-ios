@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemPay
 
 /// Just a stub when there should be no accounts available (locked wallets, feature toggle is disabled, etc).
 struct DummyCommonAccountModelsManager {}
@@ -19,11 +20,15 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         false
     }
 
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
 
-    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         .just(output: accountModels.count)
     }
 
@@ -35,8 +40,8 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        throw .addingCryptoAccountsNotSupported
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        throw .unknownError(NSError.dummy)
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
@@ -49,7 +54,15 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        throw NSError.dummy
+    }
+
+    func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
 }

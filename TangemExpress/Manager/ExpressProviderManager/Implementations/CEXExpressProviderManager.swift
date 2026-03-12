@@ -9,23 +9,29 @@
 import Foundation
 import TangemFoundation
 
-actor CEXExpressProviderManager {
+final class CEXExpressProviderManager {
     // MARK: - Dependencies
 
     private let provider: ExpressProvider
+    private let swappingPair: ExpressManagerSwappingPair
+    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
 
-    private var _state: ExpressProviderManagerState = .idle
+    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
 
     init(
         provider: ExpressProvider,
+        swappingPair: ExpressManagerSwappingPair,
+        expressFeeProvider: ExpressFeeProvider,
         expressAPIProvider: ExpressAPIProvider,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
+        self.swappingPair = swappingPair
+        self.expressFeeProvider = expressFeeProvider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
     }
@@ -34,23 +40,25 @@ actor CEXExpressProviderManager {
 // MARK: - ExpressProviderManager
 
 extension CEXExpressProviderManager: ExpressProviderManager {
+    var pair: ExpressManagerSwappingPair { swappingPair }
+    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
+
     func getState() -> ExpressProviderManagerState {
-        _state
+        _state.read()
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state = state
+
+        _state.mutate { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
-        try Task.checkCancellation()
+        let quoteId = getQuoteId()
+        let adjustedRequest = try await adjustRequest(request)
 
-        let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
-        let request = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
-        let item = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
+        let item = try mapper.makeExpressSwappableDataItem(pair: pair, request: adjustedRequest, providerId: provider.id, providerType: provider.type, quoteId: quoteId)
 
         let data = try await expressAPIProvider.exchangeData(item: item)
         try Task.checkCancellation()
@@ -64,33 +72,12 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 private extension CEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
-            if try isNotEnoughBalanceForSwapping(request: request) {
-                // If we don't have the balance just load a quotes for show them to a user
-                let quote = try await loadQuote(request: request)
-                return .restriction(.insufficientBalance(request.amount), quote: quote)
+            switch request.amountType {
+            case .from:
+                return try await getStateForFromAmount(request: request)
+            case .to:
+                return try await getStateForToAmount(request: request)
             }
-
-            guard request.pair.source.balanceProvider.feeCurrencyHasPositiveBalance else {
-                let quote = try await loadQuote(request: request)
-                return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
-            }
-
-            let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
-            try Task.checkCancellation()
-
-            let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
-
-            guard try isEnoughAmountToSubtractFee(request: request, subtractFee: subtractFee) else {
-                // The amount of the request isn't enough after the fee has been subtracted
-                let quote = try await loadQuote(request: request)
-                return .restriction(.insufficientBalance(request.amount), quote: quote)
-            }
-
-            let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
-            let quote = try await loadQuote(request: previewDataRequest)
-            let fee = ExpressFee(option: request.feeOption, variants: estimatedFee)
-            return .preview(.init(fee: fee, subtractFee: subtractFee, quote: quote))
-
         } catch let error as ExpressAPIError {
             guard let amount = error.value?.amount else {
                 return .error(error, quote: .none)
@@ -110,8 +97,80 @@ private extension CEXExpressProviderManager {
         }
     }
 
+    func getStateForToAmount(request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
+        let quote = try await loadQuote(request: request)
+
+        if try isNotEnoughBalanceForSwapping(amount: quote.fromAmount) {
+            return .restriction(.insufficientBalance(quote.fromAmount), quote: quote)
+        }
+
+        guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
+            let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
+            return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
+        }
+
+        let estimatedFee = try await expressFeeProvider.estimatedFee(amount: quote.fromAmount)
+        try Task.checkCancellation()
+
+        // In .to flow we can't subtract fee — reducing fromAmount would change what user receives.
+        // Instead just check that balance covers fromAmount + fee.
+        if try !canCoverFee(amount: quote.fromAmount, estimatedFee: estimatedFee) {
+            return .restriction(.insufficientBalance(quote.fromAmount), quote: quote)
+        }
+
+        return .preview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
+    }
+
+    func getStateForFromAmount(request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
+        if try isNotEnoughBalanceForSwapping(amount: request.amount) {
+            let quote = try await loadQuote(request: request)
+            return .restriction(.insufficientBalance(request.amount), quote: quote)
+        }
+
+        guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
+            let quote = try await loadQuote(request: request)
+            let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
+            return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
+        }
+
+        let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
+        try Task.checkCancellation()
+
+        let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
+
+        guard isEnoughAmountToSubtractFee(amount: request.amount, subtractFee: subtractFee) else {
+            let quote = try await loadQuote(request: request)
+            return .restriction(.insufficientBalance(request.amount), quote: quote)
+        }
+
+        let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
+        let quote = try await loadQuote(request: previewDataRequest)
+
+        return .preview(.init(provider: provider, subtractFee: subtractFee, quote: quote, fee: estimatedFee))
+    }
+
+    func getQuoteId() -> String? {
+        if case .preview(let preview) = _state.read() {
+            return preview.quote.quoteId
+        }
+        return nil
+    }
+
+    func adjustRequest(_ request: ExpressManagerSwappingPairRequest) async throws -> ExpressManagerSwappingPairRequest {
+        switch request.amountType {
+        case .from:
+            let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
+            try Task.checkCancellation()
+
+            let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
+            return try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
+        case .to:
+            return request
+        }
+    }
+
     func loadQuote(request: ExpressManagerSwappingPairRequest) async throws -> ExpressQuote {
-        let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id, providerType: provider.type)
+        let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
         let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
         return quote
@@ -129,49 +188,46 @@ private extension CEXExpressProviderManager {
         }
 
         return ExpressManagerSwappingPairRequest(
-            pair: request.pair,
-            amount: reducedAmount,
+            amountType: .from(reducedAmount),
             feeOption: request.feeOption,
             approvePolicy: request.approvePolicy,
             operationType: request.operationType
         )
     }
 
-    func isEnoughAmountToSubtractFee(request: ExpressManagerSwappingPairRequest, subtractFee: Decimal) throws -> Bool {
-        request.amount > subtractFee
+    func isEnoughAmountToSubtractFee(amount: Decimal, subtractFee: Decimal) -> Bool {
+        amount > subtractFee
     }
 
-    func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) throws -> Bool {
-        let sourceBalance = try request.pair.source.balanceProvider.getBalance()
-        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
-
-        return isNotEnoughBalanceForSwapping
+    func isNotEnoughBalanceForSwapping(amount: Decimal) throws -> Bool {
+        let sourceBalance = try pair.source.balanceProvider.getBalance()
+        return amount > sourceBalance
     }
 
-    func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: ExpressFee.Variants) throws -> Decimal {
-        // The fee's subtraction needed only for fee currency
-        guard request.pair.source.isFeeCurrency else {
+    func canCoverFee(amount: Decimal, estimatedFee: BSDKFee) throws -> Bool {
+        guard expressFeeProvider.isFeeCurrency(source: pair.source.currency) else {
+            return true
+        }
+
+        let balance = try expressFeeProvider.feeCurrencyBalance()
+        let fee = estimatedFee.amount.value
+        return amount + fee <= balance
+    }
+
+    func subtractFee(amount: Decimal, estimatedFee: BSDKFee) throws -> Decimal {
+        guard try !canCoverFee(amount: amount, estimatedFee: estimatedFee) else {
             return 0
         }
 
-        let balance = try request.pair.source.balanceProvider.getBalance()
-        let fee = estimatedFee.fee(option: request.feeOption).amount.value
-        let fullAmount = request.amount + fee
-
-        // If we don't have enough balance
-        guard fullAmount > balance else {
-            return 0
-        }
-
-        // We're decreasing amount on the fee value
-        ExpressLogger.info(self, "Subtract fee - \(fee) from amount - \(request.amount)")
+        let fee = estimatedFee.amount.value
+        ExpressLogger.info(self, "Subtract fee - \(fee) from amount - \(amount)")
         return fee
     }
 }
 
 // MARK: - CustomStringConvertible
 
-extension CEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+extension CEXExpressProviderManager: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }

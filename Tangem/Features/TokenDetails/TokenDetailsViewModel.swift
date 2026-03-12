@@ -19,7 +19,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
@@ -29,6 +29,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
+        refreshStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
         },
@@ -139,9 +140,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             )
         case .swap:
             openExchange()
+        case .openCloreMigration:
+            openCloreMigration()
         case .generateAddresses,
              .backupCard,
-             .buyCrypto,
              .refresh,
              .refreshFee,
              .goToProvider,
@@ -163,10 +165,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
-             .tangemPayCreateAccountAndIssueCard,
+             .closeMobileUpgrade,
              .activate,
-             .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .givePermission:
@@ -174,8 +174,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     }
 
-    override func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
+    override func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
+        self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
     override func copyDefaultAddress() {
@@ -290,6 +290,7 @@ private extension TokenDetailsViewModel {
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
             .receiveOnMain()
+            .removeDuplicates()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
             }
@@ -387,8 +388,7 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule),
-              let manager = walletModel.yieldModuleManager,
+        guard let manager = walletModel.yieldModuleManager,
               let factory = makeYieldModuleFlowFactory(manager: manager)
         else {
             return .notApplicable
@@ -489,26 +489,36 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 }
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
-    var shouldShowBalanceSelector: Bool {
-        switch walletModel.stakingBalanceProvider.balanceType {
-        case .empty:
-            return false
-        case .loaded(let amount) where amount == .zero:
-            return false
-        case .failure(let cached) where cached?.balance == .zero || cached == nil:
-            return false
-        case .failure, .loading, .loaded:
-            return true
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
+        func isZeroOrNil(_ cached: TokenBalanceType.Cached?) -> Bool {
+            cached?.balance == .zero || cached == nil
         }
+
+        return walletModel.stakingBalanceProvider.balanceTypePublisher.map {
+            switch $0 {
+            case .empty:
+                return false
+            case .loaded(let amount) where amount == .zero:
+                return false
+            case .failure(let cached) where isZeroOrNil(cached),
+                 .loading(let cached) where isZeroOrNil(cached):
+                return false
+            case .failure, .loading, .loaded:
+                return true
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
-        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
@@ -531,6 +541,23 @@ extension TokenDetailsViewModel {
     }
 }
 
+extension TokenDetailsViewModel {
+    func makeCloreMigrationModuleFlowFactory() -> CloreMigrationModuleFlowFactory? {
+        guard let coordinator else { return nil }
+        return CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: coordinator)
+    }
+
+    func openCloreMigration() {
+        guard let factory = makeCloreMigrationModuleFlowFactory() else {
+            return
+        }
+
+        coordinator?.openCloreMigration(factory: factory)
+    }
+}
+
+// MARK: - YieldModuleStatusProvider
+
 extension TokenDetailsViewModel: YieldModuleStatusProvider {
     var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
         walletModel.yieldModuleManager?
@@ -539,5 +566,16 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
             ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
+    }
+}
+
+// MARK: - RefreshStatusProvider
+
+extension TokenDetailsViewModel: RefreshStatusProvider {
+    var isRefreshing: AnyPublisher<Bool, Never> {
+        refreshScrollViewStateObject
+            .statePublisher
+            .map { $0.isRefreshing }
+            .eraseToAnyPublisher()
     }
 }

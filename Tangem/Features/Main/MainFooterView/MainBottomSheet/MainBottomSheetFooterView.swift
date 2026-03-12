@@ -18,14 +18,22 @@ struct MainBottomSheetFooterView: View {
 
     var body: some View {
         VStack(spacing: 0.0) {
-            FixedSpacer.vertical(14.0)
+            if FeatureProvider.isAvailable(.redesign) {
+                GrabberView(style: .redesigned)
+                    .hidden()
+            } else {
+                FixedSpacer.vertical(14.0)
+            }
 
             // `MainBottomSheetHeaderInputView` is used here as a dummy view, used for layout calculation (i.e. footer height)
             MainBottomSheetHeaderInputView(
                 searchText: .constant(""),
                 isTextFieldFocused: .constant(false),
                 allowsHitTestingForTextField: false,
-                clearButtonAction: nil
+                clearButtonAction: nil,
+                cancelButtonAction: nil,
+                searchBarAccessibilityIdentifier: nil,
+                searchBarClearButtonAccessibilityIdentifier: nil
             )
             .padding(.bottom, bottomInset)
             .background(Colors.Background.primary) // Fills a small gap at the bottom on notchless devices
@@ -34,8 +42,9 @@ struct MainBottomSheetFooterView: View {
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
             .overlay(alignment: .top) {
-                GrabberViewFactory()
-                    .makeSwiftUIView()
+                if !FeatureProvider.isAvailable(.redesign) {
+                    GrabberView()
+                }
             }
             .background(alignment: .top) {
                 MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)

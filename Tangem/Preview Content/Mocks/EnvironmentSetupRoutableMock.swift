@@ -12,4 +12,6 @@ class EnvironmentSetupRoutableMock: EnvironmentSetupRoutable {
     func openSupportedBlockchainsPreferences() {}
     func openStakingBlockchainsPreferences() {}
     func openNFTBlockchainsPreferences() {}
+    func openAddressesInfo() {}
+    func openDesignSystemDemo() {}
 }
