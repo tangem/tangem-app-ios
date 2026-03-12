@@ -37,11 +37,9 @@ struct SettingsUserWalletRowView: View {
             }
         )
         .infinityFrame(axis: .horizontal, alignment: .leading)
-        .padding(.vertical, 12)
         .contentShape(Rectangle())
     }
 
-    @ViewBuilder
     private var icon: some View {
         image
             .frame(width: 36, height: 36)
@@ -58,19 +56,18 @@ struct SettingsUserWalletRowView: View {
         case .loading:
             Color.clear
 
-        case .loaded(let image):
+        case .success(let image):
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
 
-        case .failedToLoad:
+        case .failure:
             Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
         }
     }
 
-    @ViewBuilder
     private var textViews: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.name)
@@ -85,7 +82,7 @@ struct SettingsUserWalletRowView: View {
                     Text(AppConstants.dotSign)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                    LoadableTokenBalanceView(
+                    LoadableBalanceView(
                         state: viewModel.balanceState,
                         style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                         loader: .init(size: CGSize(width: 40, height: 12))

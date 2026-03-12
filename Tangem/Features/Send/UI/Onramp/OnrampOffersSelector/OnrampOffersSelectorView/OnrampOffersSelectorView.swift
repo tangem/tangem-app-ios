@@ -35,10 +35,10 @@ struct OnrampOffersSelectorView: View {
                 title: Localization.onrampAllOffersButtonTitle,
                 subtitle: subtitle,
                 leading: {
-                    CircleButton.back(action: viewModel.back).visible(backButtonVisible)
+                    NavigationBarButton.back(action: viewModel.back).visible(backButtonVisible)
                 },
                 trailing: {
-                    CircleButton.close(action: viewModel.close)
+                    NavigationBarButton.close(action: viewModel.close)
                 }
             )
             .subtitleSpacing(0)
@@ -48,7 +48,7 @@ struct OnrampOffersSelectorView: View {
             GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
             .padding(.bottom, 16)
         }

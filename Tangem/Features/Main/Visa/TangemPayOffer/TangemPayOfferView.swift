@@ -27,7 +27,7 @@ struct TangemPayOfferView: View {
                     Assets.Visa.card.image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: screenWidth * 0.5)
+                        .frame(width: screenWidth * 0.66)
 
                     titleSection
                         .padding(.horizontal, 20)
@@ -38,11 +38,19 @@ struct TangemPayOfferView: View {
             }
             .padding(.bottom, 12)
 
-            getCardButton
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+            VStack(spacing: 8) {
+                termsFeesAndLimitsButton
+
+                getCardButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
+            WebViewContainer(viewModel: $0)
+        }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     private var titleSection: some View {
@@ -66,7 +74,7 @@ struct TangemPayOfferView: View {
             )
 
             featureRow(
-                icon: Assets.Visa.analyticsUp,
+                icon: Assets.Visa.spendAssets,
                 title: Localization.tangempayOnboardingPayTitle,
                 description: Localization.tangempayOnboardingPayDescription
             )
@@ -74,17 +82,11 @@ struct TangemPayOfferView: View {
     }
 
     private func featureRow(icon: ImageType, title: String, description: String) -> some View {
-        HStack(alignment: .center, spacing: 16) {
-            Circle()
-                .fill(Colors.Button.secondary)
-                .frame(width: 40, height: 40)
-                .overlay(
-                    icon.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(Colors.Icon.primary1)
-                )
+        HStack(alignment: .top, spacing: 16) {
+            icon.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -98,10 +100,18 @@ struct TangemPayOfferView: View {
         }
     }
 
+    private var termsFeesAndLimitsButton: some View {
+        MainButton(
+            title: Localization.tangemPayTermsFeesLimits,
+            style: .secondary,
+            action: viewModel.termsFeesAndLimits
+        )
+    }
+
     private var getCardButton: some View {
         MainButton(
             title: Localization.tangempayOnboardingGetCardButtonText,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.getCardButtonIcon,
             style: .primary,
             action: viewModel.getCard
         )

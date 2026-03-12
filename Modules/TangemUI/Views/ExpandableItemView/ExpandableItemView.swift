@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
-import TangemUIUtils
+import TangemFoundation
 import TangemAssets
+import TangemUIUtils
 
 public struct ExpandableItemView<
     CollapsedView: View,
@@ -22,16 +23,33 @@ public struct ExpandableItemView<
     private let expandedViewHeader: ExpandedViewHeader
     private let backgroundColor: Color
     private let cornerRadius: CGFloat
+    private let backgroundGeometryEffect: GeometryEffectPropertiesModel?
+    private let expandedViewTransition: AnyTransition?
+    private let onExpandedChange: ((_ isExpanded: Bool) -> Void)?
+    private let isExpandedExternal: Bool
 
+    // MARK: - Init
+
+    /// - Note: `onExpandedChange` is called only on user interaction, not on initial state setup or programmatic changes.
     public init(
+        isExpanded: Bool,
         backgroundColor: Color = Colors.Background.primary,
         cornerRadius: CGFloat = 14,
+        backgroundGeometryEffect: GeometryEffectPropertiesModel? = nil,
+        expandedViewTransition: AnyTransition? = nil,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
-        @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader
+        @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader,
+        onExpandedChange: ((_ isExpanded: Bool) -> Void)? = nil
     ) {
+        _isExpanded = .init(initialValue: isExpanded)
+        _isExpandedContentVisible = .init(initialValue: isExpanded)
+        isExpandedExternal = isExpanded
         self.backgroundColor = backgroundColor
         self.cornerRadius = cornerRadius
+        self.backgroundGeometryEffect = backgroundGeometryEffect
+        self.expandedViewTransition = expandedViewTransition
+        self.onExpandedChange = onExpandedChange
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
         self.expandedViewHeader = expandedViewHeader()
@@ -39,77 +57,106 @@ public struct ExpandableItemView<
 
     // MARK: - State
 
-    @State private var isExpanded = false
-    @Namespace private var namespace
-    @State private var isAnimating = false
-    @State private var isPressed = false
+    /// Controls which view is displayed (collapsed vs expanded header).
+    @State private var isExpanded: Bool
+    /// Controls expanded content visibility separately from `isExpanded` to create staged animation:
+    /// on expand, content appears with slight delay after container starts expanding.
+    @State private var isExpandedContentVisible: Bool
 
     // MARK: - Body
 
     public var body: some View {
-        if isExpanded {
-            ExpandedContentWrapperView(
-                header: expandedViewHeader,
-                content: expandedView,
-                onTap: toggleExpanded
-            )
-            // Mikhail Andreev - can't extract those to reusable properties because then matchedGeometryEffect behaves funny
-            .background(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(backgroundColor)
-                    .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
-            )
-            .mask(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
-            )
-        } else {
+        ExpandableAnimatedContent(
+            collapsedView: interactiveCollapsedHeader,
+            expandedHeader: interactiveExpandedHeader,
+            expandedContent: expandedView,
+            backgroundColor: backgroundColor,
+            cornerRadius: cornerRadius,
+            isExpanded: isExpanded,
+            showExpandedContent: isExpandedContentVisible,
+            backgroundGeometryEffect: backgroundGeometryEffect,
+            expandedContentTransition: expandedViewTransition
+        )
+        .onChange(of: isExpandedExternal, perform: handleExternalExpandedChange)
+    }
+
+    // MARK: - Views
+
+    private var interactiveCollapsedHeader: some View {
+        headerButton {
             collapsedView
-                .transition(.collapsedViewTransition)
-                .background(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(backgroundColor)
-                        .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
-                )
-                .mask(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
-                )
-                .transformEffect(.identity)
-                .onTapGesture(perform: toggleExpanded)
-                .scaleEffect(isPressed ? 0.95 : 1.0)
+                .contentShape(.rect)
         }
     }
 
-    // MARK: - Private functions
+    private var interactiveExpandedHeader: some View {
+        headerButton {
+            expandedViewHeader
+                .contentShape(.rect)
+        }
+    }
+
+    private func headerButton<Label: View>(@ViewBuilder _ label: () -> Label) -> some View {
+        Button(action: toggleExpanded, label: label)
+            .buttonStyle(
+                .scaled(
+                    scaleAmount: isExpanded ? 1.0 : 0.98,
+                    dimmingAmount: isExpanded ? 1.0 : 0.7
+                )
+            )
+    }
+
+    // MARK: - Animation Control
 
     private func toggleExpanded() {
-        // [REDACTED_TODO_COMMENT]
-        guard !isAnimating else { return }
+        FeedbackGenerator.selectionChanged()
+        setExpanded(!isExpanded, notifyOnChange: true)
+    }
 
-        isAnimating = true
-
-        withAnimation(.easeInOut(duration: 0.1)) {
-            isPressed = true
+    private func setExpanded(_ expanded: Bool, notifyOnChange: Bool) {
+        if expanded {
+            expand()
+        } else {
+            collapse()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                isPressed = false
-                isExpanded.toggle()
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isAnimating = false
-            }
+        if notifyOnChange {
+            onExpandedChange?(expanded)
         }
+    }
+
+    private func expand() {
+        withAnimation(Constants.containerAnimation) {
+            isExpanded = true
+        }
+
+        // Content appears with slight delay for smoother transition
+        withAnimation(Constants.containerAnimation.delay(Constants.expandedContentDelay)) {
+            isExpandedContentVisible = true
+        }
+    }
+
+    private func collapse() {
+        withAnimation(Constants.containerAnimation) {
+            isExpanded = false
+            isExpandedContentVisible = false
+        }
+    }
+
+    // MARK: - Callbacks
+
+    private func handleExternalExpandedChange(_ newValue: Bool) {
+        setExpanded(newValue, notifyOnChange: false)
     }
 }
 
 // MARK: - Constants
 
-private enum Constants {
-    static let cornerRadius: CGFloat = 14
-    static let backgroundGeometryEffectID = "cardBG"
-    static let maskGeometryEffectID = "cardMask"
+private extension ExpandableItemView {
+    enum Constants {
+        static var animationDuration: CGFloat { 0.3 }
+        static var containerAnimation: Animation { .easeInOut(duration: animationDuration) }
+        /// Delay before showing expanded content, as a fraction of total animation duration
+        static var expandedContentDelay: CGFloat { animationDuration / 6 }
+    }
 }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct BalancesView<ViewModel: BalancesViewModel>: View {
     @ObservedObject var viewModel: ViewModel
@@ -23,18 +24,20 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
         fiatBalance
 
         cryptoBalance
+            .monospacedDigit()
     }
 
     var fiatBalance: some View {
-        LoadableTokenBalanceView(
+        LoadableBalanceView(
             state: viewModel.fiatBalance,
             style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
             loader: .init(
                 size: .init(width: 102, height: 24),
                 padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
                 cornerRadius: 6
-            )
+            ),
         )
+        .setContentTransition(viewModel.isRefreshing ? nil : .numeric(isCountdown: false))
         .accessibilityIdentifier(viewModel.balanceAccessibilityIdentifier)
     }
 
@@ -50,14 +53,15 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
         }
     }
 
-    var cryptoBalanceContent: LoadableTokenBalanceView {
-        LoadableTokenBalanceView(
+    var cryptoBalanceContent: LoadableBalanceView {
+        LoadableBalanceView(
             state: viewModel.cryptoBalance,
             style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
             loader: .init(
                 size: .init(width: 70, height: 12),
                 padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
-            )
+            ),
         )
+        .setContentTransition(viewModel.isRefreshing ? nil : .numeric(isCountdown: false))
     }
 }

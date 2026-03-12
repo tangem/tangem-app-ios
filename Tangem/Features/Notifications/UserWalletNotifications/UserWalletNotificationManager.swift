@@ -24,6 +24,7 @@ final class UserWalletNotificationManager {
     private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
     private let rateAppController: RateAppNotificationController
+    private let mobileUpgradeBannerManager: MobileUpgradeBannerManager
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: NotificationTapDelegate?
@@ -33,6 +34,11 @@ final class UserWalletNotificationManager {
 
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
+
+    private var shownMobileActivationNotificationId: NotificationViewId?
+
+    private var showMobileUpgradeNotification = false
+    private var shownMobileUpgradeNotificationId: NotificationViewId?
 
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
@@ -44,6 +50,7 @@ final class UserWalletNotificationManager {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletModel.userWalletId)
+        mobileUpgradeBannerManager = CommonMobileUpgradeBannerManager(userWalletModel: userWalletModel)
 
         bind()
     }
@@ -92,7 +99,10 @@ final class UserWalletNotificationManager {
         if numberOfPendingDerivations > 0 {
             inputs.append(
                 factory.buildNotificationInput(
-                    for: .missingDerivation(numberOfNetworks: numberOfPendingDerivations),
+                    for: .missingDerivation(
+                        numberOfNetworks: numberOfPendingDerivations,
+                        icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+                    ),
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
@@ -115,6 +125,7 @@ final class UserWalletNotificationManager {
 
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
+        showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
     }
@@ -133,10 +144,6 @@ final class UserWalletNotificationManager {
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
-        guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
-            return
-        }
-
         pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 
@@ -191,6 +198,8 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileActivationNotificationIfNeeded() {
+        hideMobileActivationNotificationIfNeeded()
+
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
         let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
@@ -213,47 +222,64 @@ final class UserWalletNotificationManager {
         let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
         let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
-        Analytics.log(
-            .noticeFinishActivation,
-            params: [.balanceState: hasPositiveBalance ? .full : .empty]
-        )
-
         let input = factory.buildNotificationInput(
-            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            for: .mobileFinishActivation(hasPositiveBalance: hasPositiveBalance, hasBackup: !needBackup),
             action: action,
             buttonAction: buttonAction,
             dismissAction: dismissAction
         )
 
+        shownMobileActivationNotificationId = input.id
         addInputIfNeeded(input)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func showMobileUpgradeNotificationIfNeeded() {
-        let isDismissed = dismissedNotifications.has(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
+    private func hideMobileActivationNotificationIfNeeded() {
+        guard let shownMobileActivationNotificationId else {
+            return
+        }
 
-        guard userWalletModel.config.hasFeature(.userWalletUpgrade), !isDismissed else {
+        hideNotification(with: shownMobileActivationNotificationId)
+        self.shownMobileActivationNotificationId = nil
+    }
+
+    private func showMobileUpgradeNotificationIfNeeded() {
+        guard showMobileUpgradeNotification else {
+            hideMobileUpgradeNotificationIfNeeded()
             return
         }
 
         let factory = NotificationsFactory()
 
-        let action: NotificationView.NotificationAction = { [weak self] id in
-            self?.delegate?.didTapNotification(with: id, action: .openMobileUpgrade)
+        let action: NotificationView.NotificationAction = { _ in }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            if case .closeMobileUpgrade = action {
+                self?.dismissNotification(with: id)
+            } else {
+                self?.delegate?.didTapNotification(with: id, action: action)
+            }
         }
 
-        let buttonAction: NotificationView.NotificationButtonTapAction = { _, _ in }
-
-        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+        let dismissAction: NotificationView.NotificationAction = { _ in }
 
         let input = factory.buildNotificationInput(
-            for: GeneralNotificationEvent.mobileUpgrade,
+            for: .mobileUpgrade,
             action: action,
             buttonAction: buttonAction,
             dismissAction: dismissAction
         )
+        shownMobileUpgradeNotificationId = input.id
 
         addInputIfNeeded(input)
+    }
+
+    private func hideMobileUpgradeNotificationIfNeeded() {
+        guard let shownMobileUpgradeNotificationId else {
+            return
+        }
+
+        hideNotification(with: shownMobileUpgradeNotificationId)
+        self.shownMobileUpgradeNotificationId = nil
     }
 
     private func bind() {
@@ -271,7 +297,7 @@ final class UserWalletNotificationManager {
                 switch value {
                 case .configurationChanged:
                     return true
-                case .nameDidChange, .tangemPayOfferAccepted:
+                case .nameDidChange:
                     return false
                 }
             }
@@ -294,18 +320,25 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
-            .map { walletModels in
-                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
-                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
-                return hasPositiveBalance
-            }
+        userWalletModel
+            .totalBalancePublisher
+            .map { $0.hasAnyPositiveBalance }
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { manager, _ in
-                manager.createNotifications()
+            .sink(receiveValue: { manager, shouldShow in
+                manager.showMobileActivationNotificationIfNeeded()
             })
+            .store(in: &bag)
+
+        mobileUpgradeBannerManager
+            .shouldShowPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, shouldShow in
+                manager.showMobileUpgradeNotification = shouldShow
+                manager.showMobileUpgradeNotificationIfNeeded()
+            }
             .store(in: &bag)
     }
 
@@ -335,7 +368,7 @@ final class UserWalletNotificationManager {
                 .pendingDerivationsCount
         }
 
-        return userWalletModel
+        let crypto = userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
@@ -345,6 +378,22 @@ final class UserWalletNotificationManager {
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
+
+        let tangemPay = userWalletModel.accountModelsManager
+            .tangemPayAccountModelPublisher
+            .flatMapLatest { accountModel -> AnyPublisher<Int, Never> in
+                guard let accountModel else {
+                    return Just(0).eraseToAnyPublisher()
+                }
+
+                return accountModel
+                    .statePublisher
+                    .map { $0.isSyncNeeded || $0.isSyncInProgress ? 1 : 0 }
+                    .eraseToAnyPublisher()
+            }
+
+        return Publishers.CombineLatest(crypto, tangemPay)
+            .map(+)
             .eraseToAnyPublisher()
     }
 
@@ -390,7 +439,7 @@ extension UserWalletNotificationManager: NotificationManager {
             case .rateApp:
                 rateAppController.dismissAppRate()
             case .mobileUpgrade:
-                dismissedNotifications.add(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
+                mobileUpgradeBannerManager.shouldClose()
             default:
                 break
             }

@@ -14,51 +14,48 @@ import TangemAccessibilityIdentifiers
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
 
-    private let imageSize: CGSize = .init(width: 120, height: 106)
-    private let horizontalSpacing: CGFloat = 6
-    private let cornerRadius = 14.0
+    @ScaledMetric private var heightScaled = Size.height
 
-    @State private var containerSize: CGSize = .zero
-    @State private var balanceTextSize: CGSize = .zero
+    @ScaledMetric private var titleStubWidthScaled = Size.titleStub.width
+    @ScaledMetric private var titleStubHeightScaled = Size.titleStub.height
+
+    @ScaledMetric private var subtitleStubWidthScaled = Size.subtitleStub.width
+    @ScaledMetric private var subtitleStubHeightScaled = Size.subtitleStub.height
 
     var body: some View {
-        let contentSettings = contentSettings(containerWidth: containerSize.width)
+        VStack(alignment: .leading, spacing: 0) {
+            Text(viewModel.userWalletName)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-        return HStack(alignment: .bottom, spacing: 0) {
-            VStack(alignment: .leading, spacing: 0) {
-                titleView
+            Spacer(minLength: 6)
 
-                Spacer(minLength: 6)
-
-                if viewModel.isUserWalletLocked {
-                    Colors.Field.primary
-                        .frame(width: 102, height: 24)
-                        .cornerRadiusContinuous(6)
-                        .padding(.vertical, 5)
-                } else {
-                    LoadableTokenBalanceView(
-                        state: viewModel.balance,
-                        style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                        loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
-                        accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
-                    )
-                    .readGeometry(\.size, bindTo: $balanceTextSize)
-                }
-
-                Spacer(minLength: 10)
-
-                HStack {
-                    subtitleText
-
-                    Spacer()
-                }
+            if viewModel.isUserWalletLocked {
+                Colors.Field.primary
+                    .frame(width: titleStubWidthScaled, height: titleStubHeightScaled)
+                    .cornerRadiusContinuous(6)
+                    .padding(.vertical, 5)
+            } else {
+                LoadableBalanceView(
+                    state: viewModel.balance,
+                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
+                    loader: .init(size: CGSize(width: titleStubWidthScaled, height: titleStubHeightScaled), cornerRadius: 6),
+                    accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
+                )
             }
-            .lineLimit(1)
-            .padding(.vertical, 12)
-        }
-        .background(alignment: .bottom, content: {
+
+            Spacer(minLength: 10)
+
             HStack {
-                Spacer(minLength: horizontalSpacing)
+                subtitleText
+
+                Spacer()
+            }
+        }
+        .lineLimit(1)
+        .padding(.vertical, 12)
+        .background(alignment: .bottom) {
+            HStack {
+                Spacer(minLength: 6)
 
                 // A transparent 1px image is used to preserve the structural identity of the view,
                 // otherwise visual glitches may ocurr during the header swipe animation
@@ -67,37 +64,29 @@ struct MainHeaderView: View {
                 // that breaks the view's structural identity (`if`, `switch`, etc)
                 (viewModel.cardImage ?? Assets.clearColor1px)
                     .image
-                    .frame(size: imageSize)
+                    .frame(width: Size.cardImage.width, height: Size.cardImage.height)
                     .accessibilityIdentifier(MainAccessibilityIdentifiers.headerCardImage)
             }
-            .hidden(!contentSettings.shouldShowTrailingContent)
-        })
-        .readGeometry(\.size, bindTo: $containerSize)
+            .hidden(viewModel.cardImage == nil)
+        }
         .padding(.horizontal, 14)
+        .frame(height: heightScaled)
         .background(Colors.Background.primary)
-        .cornerRadiusContinuous(cornerRadius)
-        .previewContentShape(cornerRadius: cornerRadius)
-        .frame(minHeight: imageSize.height)
+        .cornerRadiusContinuous(Size.cornerRadius)
+        .previewContentShape(cornerRadius: Size.cornerRadius)
     }
 
-    @ViewBuilder private var titleView: some View {
-        Text(viewModel.userWalletName)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-    }
+    private var subtitleText: some View {
+        HStack(spacing: 6) {
+            ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
+                if viewModel.subtitleContainsSensitiveInfo {
+                    SensitiveText(message)
+                } else {
+                    Text(message)
+                }
 
-    @ViewBuilder private var subtitleText: some View {
-        Group {
-            HStack(spacing: 6) {
-                ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
-                    if viewModel.subtitleContainsSensitiveInfo {
-                        SensitiveText(message)
-                    } else {
-                        Text(message)
-                    }
-
-                    if message != viewModel.subtitleInfo.messages.last {
-                        SubtitleSeparator()
-                    }
+                if message != viewModel.subtitleInfo.messages.last {
+                    SubtitleSeparator()
                 }
             }
         }
@@ -107,27 +96,12 @@ struct MainHeaderView: View {
         )
         .truncationMode(.middle)
         .if(!viewModel.isUserWalletLocked) {
-            $0.skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
+            $0.skeletonable(
+                isShown: viewModel.isLoadingSubtitle,
+                size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
+                radius: 3
+            )
         }
-    }
-
-    private func widthForBalanceWithImage(containerWidth: CGFloat) -> CGFloat {
-        if viewModel.cardImage == nil {
-            return containerWidth
-        }
-
-        return containerWidth - imageSize.width - horizontalSpacing
-    }
-
-    private func contentSettings(containerWidth: CGFloat) -> (leadingContentSize: CGSize, shouldShowTrailingContent: Bool) {
-        let widthForBalanceWithImage = widthForBalanceWithImage(containerWidth: containerWidth)
-        if balanceTextSize.width > widthForBalanceWithImage {
-            return (.init(width: containerWidth, height: balanceTextSize.height), false)
-        }
-
-        let hasImage = viewModel.cardImage != nil
-        let balanceAvailableWidth = max(widthForBalanceWithImage, 0)
-        return (.init(width: balanceAvailableWidth, height: balanceTextSize.height), hasImage)
     }
 }
 
@@ -138,6 +112,18 @@ private extension MainHeaderView {
                 .clipShape(Circle())
                 .frame(size: .init(bothDimensions: 2.5))
         }
+    }
+}
+
+extension MainHeaderView {
+    private enum Size {
+        static let height: CGFloat = 106
+
+        static let cardImage = CGSize(width: 120, height: Self.height)
+        static let titleStub = CGSize(width: 102, height: 24)
+        static let subtitleStub = CGSize(width: 52, height: 12)
+
+        static let cornerRadius: CGFloat = 14
     }
 }
 

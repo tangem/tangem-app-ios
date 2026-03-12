@@ -6,39 +6,51 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemAssets
 import Foundation
+import CombineExt
+import Combine
+import TangemAssets
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 import TangemAccounts
 import TangemFoundation
-import CombineExt
-import Combine
 
 final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Dynamic State
 
+    /// - Note: For use in the UI only, for validation and other logic use `trimmedAccountName` property.
     @Published var accountName: String
 
     @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
     @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
     @Published var alert: AlertBinder?
-    @Published var description: String?
     @Published var isLoading: Bool = false
+    @Published private var totalAccountsCount: Int = 0
 
     // MARK: - Static state
 
     var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
 
+    var description: String? {
+        switch flowType {
+        case .edit(let account):
+            return account.resolve(using: DescriptionResolver())
+
+        case .create:
+            return Localization.accountFormAccountIndex(totalAccountsCount)
+        }
+    }
+
     let colors: [GridItemColor] = AccountModel.Icon.Color
-        .allCases
+        .cryptoAccountColors
         .map { iconColor in
             let color = AccountModelUtils.UI.iconColor(from: iconColor)
 
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name.allCases
+    let images: [GridItemImage] = AccountModel.Icon.Name.cryptoAccountIcons
         .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
@@ -47,11 +59,41 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return GridItemImage(id: iconName, kind: kind)
         }
 
+    // MARK: - Private
+
+    private var nameMode: AccountIconView.NameMode {
+        switch selectedIcon.kind {
+        case .image(let imageType):
+            return .imageType(imageType)
+
+        case .letter:
+            if let firstLetter = trimmedAccountName.first {
+                return .letter(String(firstLetter))
+            }
+
+            return .imageType(
+                Assets.tangemIcon,
+                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
+            )
+        }
+    }
+
+    /// - Note: For use in validation and other logic, for UI use `accountName` property.
+    private var trimmedAccountName: String {
+        accountName.trimmed()
+    }
+
+    private var accountIcon: AccountModel.Icon {
+        AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+    }
+
+    private var activeTask: AnyCancellable?
+
     // MARK: - Dependencies
 
     private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
-    private let closeAction: () -> Void
+    private let closeAction: (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     private let accountModelsManager: AccountModelsManager
 
     private var bag = Set<AnyCancellable>()
@@ -59,41 +101,33 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     init(
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
-        closeAction: @escaping () -> Void
+        closeAction: @escaping (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     ) {
         let accountName: String
-        let selectedColor: GridItemColor<AccountModel.Icon.Color>
-        let selectedIcon: GridItemImage<AccountModel.Icon.Name>
+        let iconColor: AccountModel.Icon.Color
+        let iconName: AccountModel.Icon.Name
 
         switch flowType {
         case .edit(let account):
+            iconColor = account.icon.color
+            iconName = account.icon.name
             accountName = account.name
-            let accountColor = account.icon.color
-            selectedColor = GridItemColor(
-                id: accountColor,
-                color: AccountModelUtils.UI.iconColor(from: accountColor)
-            )
-
-            let gridItemImageKind: GridItemImageKind = switch account.icon.name {
-            case .letter:
-                .letter(visualImageRepresentation: Assets.Accounts.letter)
-
-            default:
-                .image(AccountModelUtils.UI.iconAsset(from: account.icon.name))
-            }
-
-            selectedIcon = GridItemImage(id: account.icon.name, kind: gridItemImageKind)
-
         case .create:
-            let randomAccountColor = AccountModelUtils.UI.getRandomIconColor()
-            let color = AccountModelUtils.UI.iconColor(from: randomAccountColor)
-            selectedColor = GridItemColor(id: randomAccountColor, color: color)
-            selectedIcon = GridItemImage(
-                id: .letter,
-                kind: .letter(visualImageRepresentation: Assets.Accounts.letter)
-            )
+            let newIcon = AccountModelUtils.UI.newAccountIcon()
+            iconColor = newIcon.color
+            iconName = newIcon.name
             accountName = ""
         }
+
+        let selectedColor = GridItemColor(
+            id: iconColor,
+            color: AccountModelUtils.UI.iconColor(from: iconColor)
+        )
+
+        let selectedIcon = GridItemImage(
+            id: iconName,
+            kind: Self.gridItemImageKind(from: iconName)
+        )
 
         self.accountName = accountName
         self.selectedColor = selectedColor
@@ -102,23 +136,20 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
 
-        // [REDACTED_TODO_COMMENT]
-        description = if let cryptoAccount = flowType.account as? any CryptoAccountModel {
-            cryptoAccount.descriptionString
-        } else {
-            nil
-        }
-
         initialStateSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
 
-        bind()
+        setupDescription()
+    }
+
+    deinit {
+        activeTask?.cancel()
     }
 
     // MARK: - ViewData
 
     var iconViewData: AccountIconView.ViewData {
-        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
-        // see nameMode
+        // Can't use `AccountModelUtils.UI.iconViewData(icon:accountName:)` here because of
+        // slightly different logic of `nameMode` creation, see `nameMode` property implementation
         AccountIconView.ViewData(
             backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
             nameMode: nameMode
@@ -135,7 +166,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     var mainButtonDisabled: Bool {
-        accountName.isEmpty
+        !AccountModelUtils.isAccountNameValid(trimmedAccountName)
     }
 
     var title: String {
@@ -158,33 +189,76 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Actions
 
+    func onAppear() {
+        if case .edit(let account) = flowType {
+            let params = account.analyticsParameters(with: SingleAccountAnalyticsBuilder())
+            Analytics.log(event: .accountSettingsEditScreenOpened, params: params)
+        }
+    }
+
     @MainActor
     func onMainButtonTap() {
-        Task {
-            isLoading = true
-            defer { isLoading = false }
+        logMainButtonAnalytics()
 
-            let accountIcon = AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+        activeTask = runTask(in: self) { viewModel in
+            viewModel.isLoading = true
 
-            switch flowType {
-            case .edit(let account):
-                account.setName(accountName)
-                account.setIcon(accountIcon)
-                close()
+            defer { viewModel.isLoading = false }
 
-            case .create:
-                do {
-                    try await accountModelsManager.addCryptoAccount(name: accountName, icon: accountIcon)
-                    close()
-                } catch {
-                    alert = makeUnableToCreateAccountAlert()
+            // Accounts are created with a derivation index incremented by one from the last existing account, which makes
+            // it possible to determine the derivation index of the next newly created account from the `totalAccountsCount`
+            // Not the most robust solution, but it allows to avoid passing the id of the newly created account from the manager
+            let newAccountDerivationIndex = viewModel.totalAccountsCount
+            let result: AccountOperationResult
+
+            do throws(AccountEditError) {
+                switch viewModel.flowType {
+                case .edit(let account):
+                    try await viewModel.editAccount(account: account)
+                    // Tokens redistribution can't be performed when editing an existing account
+                    result = .none
+                case .create:
+                    result = try await viewModel.accountModelsManager.addCryptoAccount(
+                        name: viewModel.trimmedAccountName,
+                        icon: viewModel.accountIcon
+                    )
                 }
+                viewModel.handleFlowSuccess(result: result, newAccountDerivationIndex: newAccountDerivationIndex)
+            } catch {
+                viewModel.handleFlowFailure(error: error)
             }
+        }.eraseToAnyCancellable()
+    }
+
+    private func logMainButtonAnalytics() {
+        switch flowType {
+        case .edit(let account):
+            var params: [Analytics.ParameterKey: String] = [
+                .accountName: trimmedAccountName,
+                .accountColor: selectedColor.id.rawValue,
+                .accountIcon: selectedIcon.id.rawValue,
+            ]
+
+            params.enrich(with: account.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+            Analytics.log(event: .accountSettingsButtonSave, params: params)
+
+        case .create:
+            let params: [Analytics.ParameterKey: String] = [
+                .accountName: trimmedAccountName,
+                .accountColor: selectedColor.id.rawValue,
+                .accountIcon: selectedIcon.id.rawValue,
+                // In analytics this field is named "Derivation", but in the form we don't want to
+                // expose any knowledge about derivation — as far as we're concerned, it's the account's ordinal number
+                .accountDerivation: String(totalAccountsCount),
+            ]
+
+            Analytics.log(event: .accountSettingsButtonAddNewAccount, params: params)
         }
     }
 
     func onClose() {
-        let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+        let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
+
         if currentSnapshot != initialStateSnapshot {
             let message = switch flowType {
             case .edit:
@@ -194,50 +268,141 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             }
 
             alert = makeExitAlert(message: message)
-            return
+        } else {
+            // No changes were made, no tokens redistribution performed
+            close(result: .none, createdAccount: nil)
         }
-
-        close()
     }
 
     // MARK: - Private
 
-    private func close() {
-        closeAction()
-    }
+    private func editAccount(account: any BaseAccountModel) async throws(AccountEditError) {
+        let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
-    private func bind() {
-        accountModelsManager.totalAccountsCountPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, amount in
-                if case .create = viewModel.flowType {
-                    Localization.accountFormAccountIndex(amount)
-                } else {
-                    nil
-                }
+        try await account.edit { editor in
+            if currentSnapshot.name != initialStateSnapshot.name {
+                editor.setName(trimmedAccountName)
             }
-            .assign(to: \.description, on: self, ownership: .weak)
-            .store(in: &bag)
-    }
-
-    private var nameMode: AccountIconView.NameMode {
-        switch selectedIcon.kind {
-        case .image(let imageType):
-            return .imageType(imageType)
-
-        case .letter:
-            if let firstLetter = accountName.first {
-                return .letter(String(firstLetter))
+            if currentSnapshot.color != initialStateSnapshot.color || currentSnapshot.image != initialStateSnapshot.image {
+                editor.setIcon(accountIcon)
             }
-
-            return .imageType(
-                Assets.tangemIcon,
-                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
-            )
         }
     }
 
-    // MARK: - Alerts
+    private func close(result: AccountOperationResult, createdAccount: (any CryptoAccountModel)?) {
+        activeTask?.cancel()
+        closeAction(result, createdAccount)
+    }
+
+    @MainActor
+    private func handleFlowSuccess(result: AccountOperationResult, newAccountDerivationIndex: Int?) {
+        let toastText: String
+
+        switch flowType {
+        case .edit:
+            toastText = Localization.accountEditSuccessMessage
+            close(result: result, createdAccount: nil)
+        case .create:
+            toastText = Localization.accountCreateSuccessMessage
+            var subscription: AnyCancellable?
+
+            let accountFoundPublisher = accountModelsManager
+                .cryptoAccountModelsPublisher
+                .compactMap { cryptoAccountModels in
+                    cryptoAccountModels.first { account in
+                        // `AnyHashable` unwraps underlying value and allows comparing `Int` with `Int?` without explicit unwrapping
+                        account.id.toPersistentIdentifier().toAnyHashable() == newAccountDerivationIndex.toAnyHashable()
+                    }
+                }
+                .first()
+                .mapToOptional()
+
+            let timeoutPublisher: some Publisher<(any CryptoAccountModel)?, Never> = Just(nil)
+                .delay(for: .seconds(Constants.fallbackTimeout), scheduler: DispatchQueue.main)
+
+            // One-time subscription to get the latest list of crypto accounts.
+            // Falls back to `nil` from `timeoutPublisher` after a timeout if the account model isn't found.
+            subscription = accountFoundPublisher
+                .amb(timeoutPublisher)
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, cryptoAccountModel in
+                    assert(
+                        cryptoAccountModel != nil,
+                        "Newly created account with derivation index '\(String(describing: newAccountDerivationIndex))' was not found"
+                    )
+
+                    Analytics.log(.walletSettingsAccountCreated)
+                    viewModel.close(result: result, createdAccount: cryptoAccountModel)
+                    withExtendedLifetime(subscription) {}
+                }
+        }
+
+        Toast(view: SuccessToast(text: toastText))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleFlowFailure(error: AccountEditError) {
+        let source: Analytics.ParameterValue
+        switch flowType {
+        case .edit: source = .accountSourceEdit
+        case .create: source = .accountSourceNew
+        }
+
+        Analytics.log(event: .accountSettingsAccountError, params: [
+            .source: source.rawValue,
+            .errorDescription: String(describing: error),
+        ])
+
+        let title: String
+        let message: String
+        let buttonText: String
+
+        switch error {
+        case .tooManyAccounts:
+            title = Localization.accountAddLimitDialogTitle
+            message = Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
+            buttonText = Localization.commonGotIt
+        case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
+            message = Localization.accountFormNameAlreadyExistErrorDescription
+            buttonText = Localization.commonGotIt
+        case .invalidAccountName,
+             .missingAccountName:
+            // These two errors should never be thrown because this VM validates account name before trying to edit/create an account
+            fallthrough
+        case .unknownError:
+            title = Localization.commonSomethingWentWrong
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
+        }
+
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: title,
+            message: message,
+            buttonText: buttonText
+        )
+    }
+
+    private func setupDescription() {
+        guard case .create = flowType else { return }
+
+        accountModelsManager.totalCryptoAccountsCountPublisher
+            .receiveOnMain()
+            .assign(to: &$totalAccountsCount)
+    }
+
+    private static func gridItemImageKind(from accountIconName: AccountModel.Icon.Name) -> GridItemImageKind {
+        switch accountIconName {
+        case .letter:
+            return .letter(visualImageRepresentation: Assets.Accounts.letter)
+        default:
+            return .image(AccountModelUtils.UI.iconAsset(from: accountIconName))
+        }
+    }
+
+    // MARK: - Alerts and toasts
 
     private func makeExitAlert(message: String) -> AlertBinder {
         AlertBuilder.makeExitAlert(
@@ -245,30 +410,20 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             message: message,
             keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
             discardButtonText: Localization.accountUnsavedDialogActionSecond,
-            discardAction: close
-        )
-    }
-
-    private func makeUnableToCreateAccountAlert() -> AlertBinder {
-        AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
-            message: Localization.accountCouldNotCreate,
-            buttonText: Localization.commonOk
+            discardAction: { [weak self] in
+                // No accounts were added and no tokens redistribution performed
+                self?.close(result: .none, createdAccount: nil)
+            }
         )
     }
 }
+
+// MARK: - Auxiliary types
 
 extension AccountFormViewModel {
     enum FlowType {
         case edit(account: any BaseAccountModel)
         case create(CreatedAccountType)
-
-        var account: (any BaseAccountModel)? {
-            switch self {
-            case .create: nil
-            case .edit(let account): account
-            }
-        }
     }
 }
 
@@ -289,5 +444,30 @@ extension AccountFormViewModel {
         let name: String
         let color: GridItemColor<AccountModel.Icon.Color>
         let image: GridItemImage<AccountModel.Icon.Name>
+    }
+}
+
+// MARK: - DescriptionResolver
+
+private extension AccountFormViewModel {
+    struct DescriptionResolver: AccountModelResolving {
+        typealias Result = String?
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
+            accountModel.descriptionString
+        }
+
+        /// TangemPay accounts don't have an editable description
+        func resolve(accountModel: any TangemPayAccountModel) -> String? {
+            nil
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension AccountFormViewModel {
+    enum Constants {
+        static let fallbackTimeout: TimeInterval = 3.0
     }
 }

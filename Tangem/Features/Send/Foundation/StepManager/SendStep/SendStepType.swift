@@ -13,8 +13,9 @@ enum SendStepType {
     case amount(SendAmountViewModel)
     case summary(SendSummaryViewModel)
     case finish(SendFinishViewModel)
-    case validators(StakingValidatorsViewModel)
+    case targets(StakingTargetsViewModel)
     case onramp(OnrampSummaryViewModel)
+    case swap(SwapSummaryViewModel)
 
     var isSummary: Bool {
         if case .summary = self {
@@ -40,10 +41,11 @@ extension SendStepType: Identifiable {
         switch self {
         case .amount(let viewModel): viewModel.id
         case .destination(let viewModel): viewModel.id
-        case .validators(let viewModel): viewModel.id
+        case .targets(let viewModel): viewModel.id
         case .summary(let viewModel): viewModel.id
         case .finish(let viewModel): viewModel.id
         case .onramp(let viewModel): viewModel.id
+        case .swap(let viewModel): viewModel.id
         }
     }
 }
@@ -61,10 +63,11 @@ extension SendStepType {
         switch self {
         case .amount: .amount
         case .destination: .address
-        case .validators: .stakeSourceValidators
+        case .targets: .stakeSourceValidators
         case .summary: .summary
         case .finish: .finish
         case .onramp: .onramp
+        case .swap: .swap
         }
     }
 }

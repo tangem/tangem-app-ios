@@ -21,6 +21,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         return section
     }
 
+    var hasNonEmptyDestinationAddress: Bool {
+        !destinationAddressViewModel.address.string.isEmpty
+    }
+
     @Published var additionalFieldViewModel: SendDestinationAdditionalFieldViewModel?
 
     @Published var shouldShowSuggestedDestination: Bool = true
@@ -37,8 +41,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private let sendQRCodeService: SendQRCodeService
     private let analyticsLogger: SendDestinationAnalyticsLogger
     private weak var router: SendDestinationRoutable?
+    private weak var destinationAccountOutput: SendDestinationAccountOutput?
 
-    private var allFieldsIsValidSubscription: AnyCancellable?
+    private var updatingTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     weak var stepRouter: SendDestinationStepRoutable?
@@ -49,12 +54,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
         analyticsLogger: SendDestinationAnalyticsLogger,
-        router: SendDestinationRoutable
+        router: SendDestinationRoutable,
+        destinationAccountOutput: SendDestinationAccountOutput
     ) {
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
         self.analyticsLogger = analyticsLogger
         self.router = router
+        self.destinationAccountOutput = destinationAccountOutput
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
@@ -67,6 +74,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         interactor.preloadTransactionsHistoryIfNeeded()
+    }
+
+    func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
+        destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
     }
 
     private func updateView(tokenItem: TokenItem) {
@@ -113,12 +124,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel
             .addressPublisher()
             .dropFirst()
-            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, destination in
-                viewModel.interactor.update(destination: destination.string, source: destination.source)
-            }
+            .receiveOnMain()
+            .sink { $0.addressDidChanged(destination: $1) }
             .store(in: &bag)
 
         interactor.destinationResolvedAddress
@@ -228,32 +236,51 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
+    private func userDidTapSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
         FeedbackGenerator.success()
-        destinationAddressViewModel.update(address: .init(
-            string: destination.address,
-            source: destination.type.source
-        ))
 
-        if let additionalField = destination.additionalField {
+        // Set destination account info, which forwards to analytics logger
+        destinationAccountOutput?.setDestinationAccountInfo(
+            analyticsProvider: suggestedDestination.accountModelAnalyticsProvider
+        )
+
+        let destination = SendDestinationAddressViewModel.Address(
+            string: suggestedDestination.address,
+            source: suggestedDestination.type.source
+        )
+
+        destinationAddressViewModel.update(address: destination)
+
+        if let additionalField = suggestedDestination.additionalField {
             additionalFieldViewModel?.update(text: additionalField)
         }
 
-        allFieldsIsValidSubscription = interactor.allFieldsIsValid
-            // Drop initial value
-            .dropFirst()
-            .combineLatest(destinationAddressViewModel.addressPublisher())
-            // Take only one with this address
-            .first { $1.string == destination.address }
-            // Give some time to update UI fields
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            // Move to next steps only when all is valid
-            .filter { $0.0 }
-            .withWeakCaptureOf(self)
-            .sink {
-                $0.0.allFieldsIsValidSubscription?.cancel()
-                $0.0.stepRouter?.destinationStepFulfilled()
+        // Waiting when updatingTask is finished
+        Task {
+            try await addressDidChanged(destination: destination).value
+            await MainActor.run { stepRouter?.destinationStepFulfilled() }
+        }
+    }
+
+    @discardableResult
+    func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
+        let hasValue = !destination.string.isEmpty
+        let shouldResolve = interactor.shouldResolve(address: destination.string)
+        let shouldDebounce = hasValue && shouldResolve
+
+        let newUpdatingTask = Task { [weak self] in
+            if shouldDebounce {
+                try await Task.sleep(for: .seconds(1))
+                try Task.checkCancellation()
             }
+
+            await self?.interactor.update(destination: destination.string, source: destination.source)
+        }
+
+        updatingTask?.cancel()
+        updatingTask = newUpdatingTask
+
+        return newUpdatingTask
     }
 }
 
@@ -293,11 +320,12 @@ extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
     }
 
     func externalUpdate(additionalField: SendDestinationAdditionalField) {
-        guard case .filled(_, let value, _) = additionalField else {
-            return
+        switch additionalField {
+        case .notSupported, .empty:
+            additionalFieldViewModel?.update(text: "")
+        case .filled(_, let value, _):
+            additionalFieldViewModel?.update(text: value)
         }
-
-        additionalFieldViewModel?.update(text: value)
     }
 }
 

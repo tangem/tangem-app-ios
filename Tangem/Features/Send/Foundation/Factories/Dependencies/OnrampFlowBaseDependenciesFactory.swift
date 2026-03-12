@@ -8,18 +8,26 @@
 
 import TangemExpress
 
-protocol OnrampFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var defaultAddressString: String { get }
-
-    var pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder { get }
+protocol OnrampFlowBaseDependenciesFactory {
+    var sourceToken: SendSourceToken { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
+}
+
+extension OnrampFlowBaseDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
+    var tokenItem: TokenItem { sourceToken.tokenItem }
+    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
 }
 
 extension OnrampFlowBaseDependenciesFactory {
     // MARK: - Analytics
 
     func makeOnrampSendAnalyticsLogger(source: SendCoordinator.Source) -> OnrampSendAnalyticsLogger {
-        CommonOnrampSendAnalyticsLogger(tokenItem: tokenItem, source: source)
+        CommonOnrampSendAnalyticsLogger(
+            tokenItem: tokenItem,
+            source: source,
+            accountModelAnalyticsProvider: sourceToken.accountModelAnalyticsProvider
+        )
     }
 
     // MARK: - OnrampDependencies
@@ -59,16 +67,18 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampDataRepository: some OnrampDataRepository,
         onrampRepository: some OnrampRepository,
         analyticsLogger: some OnrampSendAnalyticsLogger,
+        autoupdatingTimer: AutoupdatingTimer,
         predefinedValues: OnrampModel.PredefinedValues
     ) -> OnrampModel {
         OnrampModel(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            defaultAddressString: defaultAddressString,
+            defaultAddressString: sourceToken.defaultAddressString,
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
             analyticsLogger: analyticsLogger,
+            autoupdatingTimer: autoupdatingTimer,
             predefinedValues: predefinedValues
         )
     }
@@ -77,7 +87,7 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampRepository: OnrampRepository,
         onrampDataRepository: OnrampDataRepository,
         onrampRedirectingBuilder: OnrampRedirectingBuilder
-    ) -> OnrampBaseDataBuilder {
+    ) -> OnrampRouterDataBuilder {
         CommonOnrampBaseDataBuilder(
             config: userWalletInfo.config,
             onrampRepository: onrampRepository,
@@ -94,11 +104,5 @@ extension OnrampFlowBaseDependenciesFactory {
 
     func makeOnrampNotificationManager(input: OnrampNotificationManagerInput, delegate: NotificationTapDelegate) -> OnrampNotificationManager {
         CommonOnrampNotificationManager(input: input, delegate: delegate)
-    }
-
-    func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager {
-        pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
-            expressAPIProvider: expressDependenciesFactory.expressAPIProvider
-        )
     }
 }

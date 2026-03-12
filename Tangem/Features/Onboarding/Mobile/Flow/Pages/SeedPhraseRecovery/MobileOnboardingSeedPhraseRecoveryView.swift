@@ -18,6 +18,19 @@ struct MobileOnboardingSeedPhraseRecoveryView: View {
     private let wordsVerticalSpacing: CGFloat = 18
 
     var body: some View {
+        content
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(leading: {
+                MobileOnboardingFlowNavBarAction.back(handler: viewModel.onBackTap).view()
+            })
+    }
+}
+
+// MARK: - Subviews
+
+private extension MobileOnboardingSeedPhraseRecoveryView {
+    @ViewBuilder
+    var content: some View {
         switch viewModel.state {
         case .item(let item):
             state(item: item)
@@ -25,11 +38,7 @@ struct MobileOnboardingSeedPhraseRecoveryView: View {
             EmptyView()
         }
     }
-}
 
-// MARK: - Subviews
-
-private extension MobileOnboardingSeedPhraseRecoveryView {
     func state(item: ViewModel.StateItem) -> some View {
         VStack(spacing: 0) {
             ScrollView(.vertical, showsIndicators: false) {
@@ -62,10 +71,9 @@ private extension MobileOnboardingSeedPhraseRecoveryView {
         .padding(.top, 32)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
+        .screenCaptureProtection()
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear {
-            viewModel.onAppear()
-        }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {

@@ -16,6 +16,20 @@ public enum FeeAccessibilityIdentifiers {
     public static let fastFeeOption = "feeOptionFast"
     public static let customFeeOption = "feeOptionCustom"
 
+    /// Fee selector title
+    public static let feeSelectorChooseSpeedTitle = "feeSelectorChooseSpeedTitle"
+
+    /// Token options
+    public static let suggestedFeeCurrency = "feeCurrencySuggested"
+    public static let feeCurrencyOption = "feeCurrencyOption"
+
     /// Fee selector actions
     public static let feeSelectorDoneButton = "feeSelectorDoneButton"
+
+    /// Custom fee fields
+    public static let customFeeMaxFeeField = "customFeeMaxFeeField"
+    public static let customFeeMaxFeeFiatValue = "customFeeMaxFeeFiatValue"
+    public static let customFeeSatoshiPerByteField = "customFeeSatoshiPerByteField"
+    public static let customFeeNonceField = "customFeeNonceField"
+    public static let customFeeTotalAmountField = "customFeeTotalAmountField"
 }

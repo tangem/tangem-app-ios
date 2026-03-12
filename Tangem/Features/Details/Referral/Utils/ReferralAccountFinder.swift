@@ -12,12 +12,13 @@ enum ReferralAccountFinder {
             let walletModels = account.walletModelsManager.walletModels
 
             for walletModel in walletModels {
+                // Addresses are compared in a case-insensitive manner (mirrors the Android implementation)
                 if walletModel.addresses.contains(where: { $0.value == address }) {
                     return account
                 }
             }
         }
 
-        return accounts.first { $0.isMainAccount }
+        return nil
     }
 }

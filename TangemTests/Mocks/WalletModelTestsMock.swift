@@ -55,7 +55,7 @@ final class WalletModelTestsMock: WalletModel {
     // MARK: - AvailableTokenBalanceProviderInput
 
     var state: WalletModelState { .loaded(0) }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { Just(state).eraseToAnyPublisher() }
+    var statePublisher: AnyPublisher<WalletModelState, Never> { .just(output: state) }
 
     // MARK: - FiatTokenBalanceProviderInput
 
@@ -67,17 +67,16 @@ final class WalletModelTestsMock: WalletModel {
         }
     }
 
-    var ratePublisher: AnyPublisher<WalletModelRate, Never> { Just(rate).eraseToAnyPublisher() }
+    var ratePublisher: AnyPublisher<WalletModelRate, Never> { .just(output: rate) }
 
     // MARK: - StakingTokenBalanceProviderInput
 
     var stakingManagerState: StakingManagerState { .notEnabled }
-    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { Just(stakingManagerState).eraseToAnyPublisher() }
+    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { .just(output: stakingManagerState) }
 
     // MARK: - ReceiveAddressTypesProvider
 
-    var receiveAddressTypes: [ReceiveAddressType] { [] }
-    var receiveAddressInfos: [ReceiveAddressInfo] { [] }
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { .just(output: []) }
 
     // MARK: - WalletModelResolvable
 
@@ -87,25 +86,20 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        Just(state).eraseToAnyPublisher()
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func updateTransactionsHistory() async {}
 
     func updateAfterSendingTransaction() {}
 
     // MARK: - WalletModelRentProvider
 
-    func updateRentWarning() -> AnyPublisher<String?, Never> {
-        Just(nil).eraseToAnyPublisher()
-    }
+    func updateRentWarning() -> AnyPublisher<String?, Never> { .just(output: nil) }
+
+    // MARK: - WalletModelFeesProvider
+
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { fatalError() }
+    var customFeeProviderBuilder: CustomFeeProviderBuilder { fatalError() }
 
     // MARK: - TransactionHistoryFetcher
 
@@ -136,17 +130,18 @@ final class WalletModelTestsMock: WalletModel {
     var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
-    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
-    var balanceState: WalletModelBalanceState? { nil }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { nil }
+    var sendingRestrictions: SendingRestrictions? { nil }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
+    var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { nil }
     var yieldModuleManager: YieldModuleManager? { nil }
+    var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
@@ -155,10 +150,12 @@ final class WalletModelTestsMock: WalletModel {
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var assetRequirementsManager: AssetRequirementsManager? { nil }
+    var transactionFeeProvider: TransactionFeeProvider { fatalError() }
     var transactionCreator: TransactionCreator { fatalError() }
     var transactionValidator: TransactionValidator { fatalError() }
     var transactionSender: TransactionSender { fatalError() }
     var multipleTransactionsSender: MultipleTransactionsSender? { nil }
+    var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { nil }
     var compiledTransactionSender: CompiledTransactionSender? { nil }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
@@ -166,6 +163,7 @@ final class WalletModelTestsMock: WalletModel {
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var isSupportedTransactionHistory: Bool { false }
     var hasPendingTransactions: Bool { false }
     var hasAnyPendingTransactions: Bool { false }
@@ -174,6 +172,8 @@ final class WalletModelTestsMock: WalletModel {
     var isEmptyIncludingPendingIncomingTxs: Bool { false }
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible
 
@@ -186,8 +186,6 @@ final class WalletModelTestsMock: WalletModel {
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal { 0 }
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool { false }
     func getFee(compiledTransaction data: Data) async throws -> [Fee] { [] }
     func hash(into hasher: inout Hasher) {}
     static func == (lhs: WalletModelTestsMock, rhs: WalletModelTestsMock) -> Bool { false }

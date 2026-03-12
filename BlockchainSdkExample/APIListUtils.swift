@@ -54,12 +54,15 @@ struct ConfigUtils {
                 quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
                 quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
+                quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
                 bittensorDwellirKey: keys.bittensorDwellirKey,
+                dwellirApiKey: keys.dwellirApiKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
                 blinkApiKey: keys.blinkApiKey,
                 tatumApiKey: keys.tatumApiKey,
                 yieldModuleApiKey: keys.yieldModuleApiKey,
+                gaslessTxApiKey: keys.gaslessTxApiKey
             )
         } catch {
             return .init(
@@ -79,12 +82,15 @@ struct ConfigUtils {
                 quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
+                quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
                 bittensorDwellirKey: "",
+                dwellirApiKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: "",
                 blinkApiKey: "",
                 tatumApiKey: "",
                 yieldModuleApiKey: "",
+                gaslessTxApiKey: "",
             )
         }
     }
@@ -207,14 +213,18 @@ struct Keys: Decodable {
     let quiknodePlasmaSubdomain: String
     let bscQuiknodeApiKey: String
     let bscQuiknodeSubdomain: String
+    let quiknodeMonadApiKey: String
+    let quiknodeMonadSubdomain: String
     let etherscanApiKey: String
     let koinosProApiKey: String
     let bittensorDwellirKey: String
+    let dwellirApiKey: String
     let bittensorOnfinalityKey: String
     let alephiumTangemApiKey: String
     let blinkApiKey: String
     let tatumApiKey: String
     let yieldModuleApiKey: String
+    let gaslessTxApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {

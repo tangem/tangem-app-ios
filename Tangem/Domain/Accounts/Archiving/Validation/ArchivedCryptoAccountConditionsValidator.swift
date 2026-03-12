@@ -30,12 +30,7 @@ struct ArchivedCryptoAccountConditionsValidator {
 
             let cryptoAccountModel = try await accountModelPublisher.async()
 
-            // [REDACTED_TODO_COMMENT]
-            return cryptoAccountModel
-                .walletModelsManager
-                .walletModels
-                .flatMap(\.addresses)
-                .contains { $0.value.caseInsensitiveEquals(to: referralAddress) }
+            return ReferralAccountFinder.find(forAddress: referralAddress, accounts: [cryptoAccountModel]) != nil
         }
     }
 
@@ -53,7 +48,7 @@ struct ArchivedCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    typealias ValidationError = Error
+    typealias ValidationError = AccountArchivationError
 
     func validate() async throws(ValidationError) {
         do {
@@ -67,14 +62,5 @@ extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValid
             // Wrap unexpected errors (e.g., network errors)
             throw .unknownError(error)
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension ArchivedCryptoAccountConditionsValidator {
-    enum Error: Swift.Error {
-        case participatesInReferralProgram
-        case unknownError(Swift.Error)
     }
 }

@@ -12,7 +12,6 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 /// Header UI component containing an input field.
-/// - Note: Text field focus state control is supported on iOS 15 and above.
 struct MainBottomSheetHeaderInputView: View {
     @Binding var searchText: String
 
@@ -21,6 +20,10 @@ struct MainBottomSheetHeaderInputView: View {
     let allowsHitTestingForTextField: Bool
 
     let clearButtonAction: (() -> Void)?
+    let cancelButtonAction: (() -> Void)?
+
+    var searchBarAccessibilityIdentifier: String? = MainAccessibilityIdentifiers.searchThroughMarketField
+    var searchBarClearButtonAccessibilityIdentifier: String? = MainAccessibilityIdentifiers.searchThroughMarketClearButton
 
     var body: some View {
         FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
@@ -32,15 +35,20 @@ struct MainBottomSheetHeaderInputView: View {
             searchText: $searchText,
             placeholder: Localization.marketsSearchHeaderTitle,
             keyboardType: .alphabet,
-            style: .translucent,
-            clearButtonAction: clearButtonAction
+            style: customSearchBarStyle,
+            accessibilityIdentifier: searchBarAccessibilityIdentifier,
+            clearButtonAccessibilityIdentifier: searchBarClearButtonAccessibilityIdentifier,
+            clearButtonAction: clearButtonAction,
+            cancelButtonAction: cancelButtonAction
         )
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
-
         .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.topInset)
         .padding(.bottom, Constants.bottomInset)
+    }
+
+    private var customSearchBarStyle: CustomSearchBar.Style {
+        FeatureProvider.isAvailable(.marketsAndNews) ? .focused : .translucent
     }
 }
 

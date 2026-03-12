@@ -24,7 +24,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
     var notSupportedTitle: String {
         // It's should be the same token name in all token items
-        if let tokenName = networks.first?.token?.name {
+        if let tokenName = networks.first?.name {
             return Localization.expressSwapNotSupportedTitle(tokenName)
         }
 
@@ -36,7 +36,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private let networks: [TokenItem]
     private let coin: CoinModel
     private let userWalletInfo: UserWalletInfo
-    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
@@ -49,7 +48,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         networks: [TokenItem],
         coin: CoinModel,
         userWalletInfo: UserWalletInfo,
-        receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
@@ -58,7 +56,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.networks = networks
         self.coin = coin
         self.userWalletInfo = userWalletInfo
-        self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
         self.router = router
 
@@ -116,7 +113,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func loadNetworks() async throws -> [SendReceiveTokenNetworkSelectorNetworkViewData] {
-        guard let sourceToken = sourceTokenInput?.sourceToken else {
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
             throw CommonError.objectReleased
         }
 
@@ -138,7 +135,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func availableNetworks() async throws -> [TokenItem] {
-        guard let sourceToken = sourceTokenInput?.sourceToken else {
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
             throw CommonError.objectReleased
         }
 
@@ -163,9 +160,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
-        receiveTokenOutput?.userDidRequestSelect(
-            receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem)
-        ) { [weak self] selected in
+        receiveTokenOutput?.userDidRequestSelect(receiveTokenItem: tokenItem) { [weak self] selected in
             self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)
         }

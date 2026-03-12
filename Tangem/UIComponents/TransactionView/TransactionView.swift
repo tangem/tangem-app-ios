@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import Kingfisher
+import TangemUI
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
@@ -37,29 +38,28 @@ struct TransactionView: View {
 
     private var twoRowsTextContent: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
+            HStack(spacing: .zero) {
                 name
-                Spacer()
+                Spacer(minLength: 8)
                 amount
             }
 
-            HStack(spacing: 6) {
+            HStack(spacing: .zero) {
                 description
-                Spacer()
+                Spacer(minLength: 6)
                 subtitle
             }
         }
     }
 
     private var twoColumnsTextContent: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: .zero) {
             VStack(alignment: .leading, spacing: 4) {
                 name
                 description
             }
-            .layoutPriority(viewModel.transactionDescriptionLayoutPriority)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 4) {
                 amount
@@ -95,7 +95,8 @@ struct TransactionView: View {
     @ViewBuilder
     private var amount: some View {
         TransactionViewAmountView(data: viewModel.amount, size: .medium)
-            .layoutPriority(2)
+            // The amount has priority to show
+            .layoutPriority(1)
     }
 
     private var subtitle: some View {
@@ -114,7 +115,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "443 wxDAI",
             isOutgoing: false,
             transactionType: .transfer,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -124,7 +126,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "50 wxDAI",
             isOutgoing: false,
             transactionType: .transfer,
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -134,7 +137,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "0 wxDAI",
             isOutgoing: true,
             transactionType: .approve,
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -144,7 +148,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "15 wxDAI",
             isOutgoing: true,
             transactionType: .swap,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -154,7 +159,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "0.000000532154 ETH",
             isOutgoing: false,
             transactionType: .swap,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -164,7 +170,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "0.532154 USDT",
             isOutgoing: true,
             transactionType: .swap,
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -174,7 +181,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "0.0012 ETH",
             isOutgoing: true,
             transactionType: .approve,
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -184,7 +192,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "0.0012 ETH",
             isOutgoing: true,
             transactionType: .approve,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
     ]
 
@@ -197,7 +206,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "−0.500913 BTC",
             isOutgoing: true,
             transactionType: .operation(name: "Sending"),
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -207,7 +217,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "+0.500913 BTC",
             isOutgoing: false,
             transactionType: .swap,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -217,7 +228,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "+0.500913 BTC",
             isOutgoing: false,
             transactionType: .approve,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -227,7 +239,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "+0.500913 BTC",
             isOutgoing: false,
             transactionType: .swap,
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         ),
     ]
 
@@ -240,7 +253,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "−0.500913 BTC",
             isOutgoing: true,
             transactionType: .operation(name: "Sending"),
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -250,7 +264,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "+0.500913 BTC",
             isOutgoing: false,
             transactionType: .approve,
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -260,7 +275,8 @@ struct TransactionView_Previews: PreviewProvider {
             amount: "+0.500913 BTC",
             isOutgoing: false,
             transactionType: .swap,
-            status: .failed
+            status: .failed,
+            isFromYieldContract: false
         ),
     ]
 

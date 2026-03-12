@@ -15,7 +15,7 @@ enum ValidationErrorEvent: Hashable {
     // Amount/Fee notifications
     case invalidNumber
     case insufficientBalance
-    case insufficientBalanceForFee(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
+    case insufficientBalanceForFee(configuration: SendingRestrictions.NotEnoughFeeConfiguration)
 
     // Blockchain specific notifications
     case dustRestriction(minimumAmountFormatted: String, minimumChangeFormatted: String)
@@ -152,7 +152,7 @@ extension ValidationErrorEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .insufficientBalanceForFee(let configuration):
-            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
+            return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .invalidNumber,
              .insufficientBalance,
              .dustRestriction,

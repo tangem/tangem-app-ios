@@ -11,6 +11,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class UserWalletSettingsCoordinator: CoordinatorObject {
@@ -35,7 +36,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
-    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
+    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child view models
 
@@ -46,6 +47,11 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published private var pendingManageTokensContext: ManageTokensNavigationContext?
+
+    var noActiveCreateOrArchiveAccountFlows: Bool {
+        archivedAccountsCoordinator == nil && accountFormViewModel == nil && pendingManageTokensContext == nil
+    }
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -107,23 +113,18 @@ extension UserWalletSettingsCoordinator:
         userTokensManager: UserTokensManager,
         userWalletConfig: UserWalletConfig
     ) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.manageTokensCoordinator = nil
-        }
-
-        let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
         let context = LegacyManageTokensContext(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager
         )
 
-        coordinator.start(
-            with: .init(
-                context: context,
-                userWalletConfig: userWalletConfig
-            )
-        )
-        manageTokensCoordinator = coordinator
+        openManageTokens(
+            context: context,
+            userWalletConfig: userWalletConfig,
+            analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
+        ) { [weak self] _ in
+            self?.manageTokensCoordinator = nil
+        }
     }
 
     func openTransactionNotifications() {
@@ -134,11 +135,14 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel, onBackupFinished: @escaping () -> Void) {
-        Analytics.log(.walletSettingsNoticeBackupFirst)
-
+    func openMobileBackupNeeded(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        onBackupFinished: @escaping () -> Void
+    ) {
         let viewModel = MobileBackupNeededViewModel(
             userWalletModel: userWalletModel,
+            source: source,
             onBackupFinished: onBackupFinished,
             coordinator: self
         )
@@ -156,33 +160,25 @@ extension UserWalletSettingsCoordinator:
             }
         }
 
-        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .backup)
         let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
         mobileBackupTypesCoordinator = coordinator
     }
 
     @MainActor
-    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
-        let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
             switch options {
-            case .dismiss:
-                self?.mobileUpgradeCoordinator = nil
             case .main(let userWalletModel):
                 self?.openMain(userWalletModel: userWalletModel)
             }
         }
 
-        let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
-        let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
-        mobileUpgradeCoordinator = coordinator
-    }
-
-    @MainActor
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
-        let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
-        floatingSheetPresenter.enqueue(sheet: sheet)
+        hardwareBackupTypesCoordinator = coordinator
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
@@ -231,16 +227,45 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: UserSettingsAccountsRoutable
 
-    func addNewAccount(accountModelsManager: any AccountModelsManager) {
+    func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
             // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
             // will vary
             flowType: .create(.crypto),
-            closeAction: { [weak self] in
+            closeAction: { [weak self] result, createdAccount in
                 self?.accountFormViewModel = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
+
+                if let createdAccount {
+                    self?.pendingManageTokensContext = ManageTokensNavigationContext(
+                        account: createdAccount,
+                        accountModelsManager: accountModelsManager,
+                        userWalletConfig: userWalletConfig
+                    )
+                }
             }
         )
+    }
+
+    func handleAccountFormDismissed() {
+        guard let pendingManageTokensContext else {
+            return
+        }
+
+        let manageTokensContext = AccountsAwareManageTokensContext(
+            accountModelsManager: pendingManageTokensContext.accountModelsManager,
+            currentAccount: pendingManageTokensContext.account
+        )
+
+        openManageTokens(
+            context: manageTokensContext,
+            userWalletConfig: pendingManageTokensContext.userWalletConfig,
+            analyticsSourceRawValue: Analytics.ParameterValue.accountSourceNew.rawValue
+        ) { [weak self] _ in
+            self?.manageTokensCoordinator = nil
+            self?.pendingManageTokensContext = nil
+        }
     }
 
     func openAccountDetails(account: any BaseAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
@@ -264,8 +289,9 @@ extension UserWalletSettingsCoordinator:
 
     func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
         let coordinator = ArchivedAccountsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] result in
                 self?.archivedAccountsCoordinator = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
             },
             popToRootAction: popToRootAction
         )
@@ -311,19 +337,43 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
     }
 }
 
-// MARK: - MobileBackupToUpgradeNeededRoutable
-
-extension UserWalletSettingsCoordinator: MobileBackupToUpgradeNeededRoutable {
-    func dismissMobileBackupToUpgradeNeeded() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
-}
-
 // MARK: - MobileRemoveWalletDelegate
 
 extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
     func didRemoveMobileWallet() {
         dismiss()
+    }
+}
+
+// MARK: - Pending Navigation
+
+private extension UserWalletSettingsCoordinator {
+    struct ManageTokensNavigationContext {
+        let account: any CryptoAccountModel
+        let accountModelsManager: any AccountModelsManager
+        let userWalletConfig: UserWalletConfig
+    }
+
+    func openManageTokens(
+        context: ManageTokensContext,
+        userWalletConfig: UserWalletConfig,
+        analyticsSourceRawValue: String,
+        dismissAction: @escaping Action<Void>
+    ) {
+        let coordinator = ManageTokensCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: ManageTokensCoordinator.Options(
+                context: context,
+                userWalletConfig: userWalletConfig,
+                analyticsSourceRawValue: analyticsSourceRawValue
+            )
+        )
+
+        manageTokensCoordinator = coordinator
     }
 }
 

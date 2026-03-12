@@ -14,6 +14,7 @@ class CommonStakingSingleActionStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private let action: StakingSingleActionModel.Action
 
     private var stack: [SendStep]
@@ -23,11 +24,13 @@ class CommonStakingSingleActionStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
         action: UnstakingModel.Action
     ) {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.action = action
 
         stack = [summaryStep]
@@ -80,7 +83,7 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
         case .summary:
-            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+            return .init(title: summaryTitleProvider.title, trailingViewType: .closeButton)
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:
@@ -90,7 +93,7 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .summary: .init(action: .action)
+        case .summary: .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: .init(action: .close)
         default: .empty
         }

@@ -22,6 +22,8 @@ public struct TwoLineRowWithIcon<
     private let secondaryLeadingView: SecondaryLeading
     private let secondaryTrailingView: SecondaryTrailing
 
+    private var linesSpacing: CGFloat = 4
+
     // MARK: - State
 
     @State private var textBlockWidth: CGFloat = .zero
@@ -44,7 +46,7 @@ public struct TwoLineRowWithIcon<
         HStack(alignment: .center, spacing: 12) {
             icon
 
-            VStack(spacing: 4) {
+            VStack(spacing: linesSpacing) {
                 firstLine
                 secondLine
             }
@@ -73,12 +75,10 @@ public struct TwoLineRowWithIcon<
     }
 }
 
-public extension TwoLineRowWithIcon {
-    enum SecondLineMode {
-        case hidden
-        case exists(
-            secondaryLeadingView: () -> SecondaryLeading,
-            secondaryTrailingView: () -> SecondaryTrailing,
-        )
+// MARK: - Setupable
+
+extension TwoLineRowWithIcon: Setupable {
+    public func linesSpacing(_ linesSpacing: CGFloat) -> Self {
+        map { $0.linesSpacing = linesSpacing }
     }
 }

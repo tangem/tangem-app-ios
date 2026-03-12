@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import TangemFoundation
 import enum BlockchainSdk.Blockchain
+import TangemSdk
 
 @available(iOS, deprecated: 100000.0, message: "Superseded by 'CryptoAccountsNetworkMapper', will be removed in the future ([REDACTED_INFO])")
 struct UserTokenListConverter {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let supportedBlockchains: Set<Blockchain>
     private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
@@ -21,7 +25,7 @@ struct UserTokenListConverter {
 
     // MARK: - Stored to Remote
 
-    func convertStoredToRemote(_ storedUserTokenList: StoredUserTokenList) -> UserTokenList {
+    func convertStoredToRemote(_ storedUserTokenList: StoredUserTokenList, userWalletId: Data) -> UserTokenList {
         let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
 
         let tokens = storedUserTokenList
@@ -50,13 +54,35 @@ struct UserTokenListConverter {
 
         let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
 
+        let context = getContext(userWalletId: userWalletId)
+
         return UserTokenList(
             tokens: tokens,
             group: convertToGroupType(groupingOption: storedUserTokenList.grouping),
             sort: convertToSortType(sortingOption: storedUserTokenList.sorting),
             notifyStatus: notifyStatusValue,
-            version: Constants.apiVersion
+            version: Constants.apiVersion,
+            name: context["name"],
+            type: context["type"],
+            ref: context["ref"],
+            campaign: context["campaign"]
         )
+    }
+
+    private func getContext(userWalletId: Data) -> [String: String] {
+        guard let model = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }) else {
+            return [:]
+        }
+
+        let contextBuilder = model.config.contextBuilder
+        let context = contextBuilder
+            .enrichReferral()
+
+        if model.name.isNotEmpty {
+            _ = context.enrich(withName: model.name)
+        }
+
+        return context.buildRaw()
     }
 
     private func convertToGroupType(

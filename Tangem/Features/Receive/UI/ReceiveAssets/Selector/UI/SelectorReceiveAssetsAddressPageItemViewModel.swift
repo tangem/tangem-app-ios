@@ -21,8 +21,14 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
         TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
     }
 
-    var address: NSAttributedString {
+    var address: AttributedString {
         stringForAddress(addressInfo.address)
+    }
+
+    var isLoading: Bool {
+        // Some blockchains (e.g., Hedera) delivers the address asynchronously,
+        // so it may be empty at the moment of creating the view model
+        addressInfo.address.isEmpty
     }
 
     // MARK: - Private Properties
@@ -63,18 +69,46 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
 
     // MARK: - Private Implementation
 
-    private func stringForAddress(_ address: String) -> NSAttributedString {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineBreakMode = .byCharWrapping
-        paragraphStyle.alignment = .center
+    private func stringForAddress(_ address: String) -> AttributedString {
+        let chunkedAddress = chunkWithZeroWidthSpace(address, chunkSize: 4)
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        paragraph.lineBreakMode = .byCharWrapping
+        paragraph.lineBreakStrategy = []
+        paragraph.hyphenationFactor = 0
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .paragraphStyle: paragraphStyle,
             .font: UIFonts.Regular.footnote,
             .foregroundColor: UIColor(Colors.Text.tertiary),
+            .paragraphStyle: paragraph,
         ]
 
-        return NSAttributedString(string: address, attributes: attributes)
+        let nsAttributed = NSAttributedString(string: chunkedAddress, attributes: attributes)
+
+        return AttributedString(nsAttributed)
+    }
+
+    private func chunkWithZeroWidthSpace(_ string: String, chunkSize: Int) -> String {
+        guard chunkSize > 0 else { return string }
+
+        var result = ""
+        var currentIndex = string.startIndex
+
+        while currentIndex < string.endIndex {
+            let nextIndex = string.index(currentIndex, offsetBy: chunkSize, limitedBy: string.endIndex) ?? string.endIndex
+            let chunk = string[currentIndex ..< nextIndex]
+
+            if !result.isEmpty {
+                // zero‑width space as safe break point
+                result.append("\u{200B}")
+            }
+
+            result.append(String(chunk))
+            currentIndex = nextIndex
+        }
+
+        return result
     }
 }
 

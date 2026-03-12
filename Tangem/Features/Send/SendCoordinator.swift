@@ -32,20 +32,37 @@ final class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var qrScanViewCoordinator: QRScanViewCoordinator?
-    @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
-    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
+    @Published var qrScanViewCoordinator: QRScanViewCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
 
     // MARK: - Child view models
 
-    @Published var expressApproveViewModel: ExpressApproveViewModel?
+    @Published var expressApproveViewModel: ApproveViewModel? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
 
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
+    private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
+
+    private let stateProvider = CommonSendCoordinatorStateProvider()
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -57,7 +74,7 @@ final class SendCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let flowFactory = SendFactory().flowFactory(options: options)
-        rootViewModel = flowFactory.make(router: self)
+        rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
     }
 
     private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
@@ -75,7 +92,6 @@ final class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
-        let input: SendInput
         let type: SendType
         let source: Source
     }
@@ -108,27 +124,6 @@ extension SendCoordinator {
     }
 }
 
-// MARK: - SendDestinationRoutable
-
-extension SendCoordinator: SendDestinationRoutable {
-    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
-        guard qrScanViewCoordinator == nil else {
-            AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
-            return
-        }
-
-        let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
-            self?.qrScanViewCoordinator = nil
-        }
-
-        let text = Localization.sendQrcodeScanInfo(networkName)
-        let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
-        qrScanViewCoordinator.start(with: options)
-
-        self.qrScanViewCoordinator = qrScanViewCoordinator
-    }
-}
-
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
@@ -158,19 +153,19 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
-        expressApproveViewModel = .init(
-            settings: settings,
-            feeFormatter: CommonFeeFormatter(
-                balanceFormatter: .init(),
-                balanceConverter: .init()
-            ),
-            approveViewModelInput: approveViewModelInput,
-            coordinator: self
-        )
+    func openApproveView(flowFactory: ApproveFlowFactory) {
+        let viewModel = flowFactory.make(router: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+    func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {
+        guard let viewModel = feeSelectorBuilder.makeSendFeeSelector(router: self) else {
+            return
+        }
+
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -178,6 +173,7 @@ extension SendCoordinator: SendRoutable {
 
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
         Task { @MainActor in
+            UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -196,6 +192,7 @@ extension SendCoordinator: SendRoutable {
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
         Task { @MainActor in
+            UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -205,27 +202,99 @@ extension SendCoordinator: SendRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
+    }
+}
+
+// MARK: - SendDestinationRoutable
+
+extension SendCoordinator: SendDestinationRoutable {
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        guard qrScanViewCoordinator == nil else {
+            AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
+            return
+        }
+
+        let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
+            self?.qrScanViewCoordinator = nil
+        }
+
+        let text = Localization.sendQrcodeScanInfo(networkName)
+        let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
+        qrScanViewCoordinator.start(with: options)
+
+        self.qrScanViewCoordinator = qrScanViewCoordinator
+    }
+}
+
+// MARK: - SwapRoutable
+
+extension SendCoordinator: SwapRoutable {
+    func openSwapTokenSelector(
+        swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
+        direction: SwapTokenSelectorViewModel.SwapDirection
+    ) {
+        let marketsTokenAdditionCoordinator = SwapMarketsTokenAdditionCoordinator(onTokenAdded: { [weak self] item in
+            guard let viewModel = self?.swapTokenSelectorViewModel else {
+                AppLogger.debug("SwapTokenSelectorViewModel not found")
+                return
+            }
+            viewModel.selectNewToken(item)
+        })
+
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
+
+        // Create external search view model if feature toggle is enabled
+        let marketsTokensViewModel: SwapMarketsTokensViewModel?
+        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+            marketsTokensViewModel = SwapMarketsTokensViewModel()
+        } else {
+            marketsTokensViewModel = nil
+        }
+
+        swapTokenSelectorViewModel = swapTokenSelectorViewModelBuilder.makeSwapTokenSelectorViewModel(
+            direction: direction,
+            router: self,
+            marketsTokensViewModel: marketsTokensViewModel,
+            marketsTokenAdditionRouter: marketsTokenAdditionCoordinator
+        )
+    }
+}
+
+// MARK: - SwapTokenSelectorRoutable
+
+extension SendCoordinator: SwapTokenSelectorRoutable {
+    func closeSwapTokenSelector() {
+        swapTokenSelectorViewModel = nil
+    }
 }
 
 // MARK: - OnrampRoutable
 
 extension SendCoordinator: OnrampRoutable {
-    func openOnrampCountryDetection(country: OnrampCountry, repository: OnrampRepository, dataRepository: OnrampDataRepository) {
+    func openOnrampCountryDetection(
+        country: OnrampCountry,
+        repository: OnrampRepository,
+        dataRepository: OnrampDataRepository,
+        onCountrySelected: @escaping () -> Void
+    ) {
         let coordinator = OnrampCountryDetectionCoordinator(dismissAction: { [weak self] option in
             switch option {
             case .none:
                 self?.onrampCountryDetectionCoordinator = nil
+                onCountrySelected()
             case .closeOnramp:
-                if #available(iOS 16, *) {
-                    self?.dismiss(with: nil)
-                } else {
-                    // On iOS 15 double dismiss doesn't work
-                    self?.onrampCountryDetectionCoordinator = nil
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        self?.dismiss(with: nil)
-                    }
-                }
+                self?.dismiss(with: nil)
             }
         })
 
@@ -241,10 +310,10 @@ extension SendCoordinator: OnrampRoutable {
         )
     }
 
-    func openOnrampSettings(repository: any OnrampRepository) {
+    func openOnrampSettings(repository: any OnrampRepository, settingsRoutable: OnrampSettingsRoutable) {
         onrampSettingsViewModel = OnrampSettingsViewModel(
             repository: repository,
-            coordinator: self
+            coordinator: settingsRoutable
         )
     }
 
@@ -276,18 +345,36 @@ extension SendCoordinator: OnrampRoutable {
     }
 }
 
-// MARK: - ExpressApproveRoutable
+// MARK: - ApproveRoutable
 
-extension SendCoordinator: ExpressApproveRoutable {
+extension SendCoordinator: ApproveRoutable {
     func didSendApproveTransaction() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func userDidCancel() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
-    func openLearnMore() {}
+    func openLearnMore() {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                TangemBlogUrlBuilder().url(post: .giveRevokePermission),
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension SendCoordinator: FeeSelectorRoutable {
+    func closeFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
 }
 
 // MARK: - OnrampCountrySelectorRoutable
@@ -295,14 +382,6 @@ extension SendCoordinator: ExpressApproveRoutable {
 extension SendCoordinator: OnrampCountrySelectorRoutable {
     func dismissCountrySelector() {
         onrampCountrySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampSettingsRoutable
-
-extension SendCoordinator: OnrampSettingsRoutable {
-    func openOnrampCountrySelector() {
-        rootViewModel?.openOnrampCountrySelectorView()
     }
 }
 

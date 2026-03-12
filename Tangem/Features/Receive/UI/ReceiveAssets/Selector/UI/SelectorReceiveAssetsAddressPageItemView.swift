@@ -28,6 +28,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
             FixedSpacer(height: Layout.Container.textQRCodeButtonVerticalSpacing)
 
             SelectorReceiveQRCodeButtonView(qrCodeAction: viewModel.qrCodeButtonDidTap)
+                .disabled(viewModel.isLoading)
 
             FixedSpacer(height: Layout.Container.qrCodeButtonActionsVerticalSpacing)
 
@@ -35,8 +36,13 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 copyAction: viewModel.copyAddressButtonDidTap,
                 shareAction: viewModel.shareButtonDidTap
             )
+            .disabled(viewModel.isLoading)
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: Layout.Container.verticalPadding)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: Layout.Container.verticalPadding,
+            horizontalPadding: Layout.Container.horizontalPadding
+        )
     }
 
     // MARK: - Private Implementation
@@ -47,13 +53,17 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            SUILabel(viewModel.address)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-                .frame(height: Layout.TokenContentView.addressHeight)
-                .padding(.horizontal, Layout.TokenContentView.addressHorizontalSpacing)
+            if viewModel.isLoading {
+                SkeletonView()
+                    .frame(width: 80, height: 14)
+                    .cornerRadiusContinuous(4)
+            } else {
+                Text(viewModel.address)
+                    .multilineTextAlignment(.center)
+                    .infinityFrame(axis: .horizontal, alignment: .center)
+                    .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -64,6 +74,9 @@ private extension SelectorReceiveAssetsAddressPageItemView {
         enum Container {
             /// 32
             static let verticalPadding: CGFloat = 32
+
+            /// 12
+            static let horizontalPadding: CGFloat = 12
 
             /// 0
             static let verticalSpacing: CGFloat = .zero
@@ -82,9 +95,7 @@ private extension SelectorReceiveAssetsAddressPageItemView {
             /// 4
             static let verticalSpacing: CGFloat = 4
             /// 24
-            static let addressHorizontalSpacing: CGFloat = 24
-            /// 36
-            static let addressHeight: CGFloat = 36
+            static let addressHorizontalPadding: CGFloat = 16
         }
 
         enum ActionsButtonView {

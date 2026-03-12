@@ -14,9 +14,12 @@ class CommonSendStepsManager {
     private let destinationStep: SendDestinationStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
-    private let feeSelector: FeeSelectorContentViewModel
+    private let feeSelectorBuilder: SendFeeSelectorBuilder
+    private let receiveTokensListBuilder: SendReceiveTokensListBuilder
+
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -31,18 +34,22 @@ class CommonSendStepsManager {
         destinationStep: SendDestinationStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
-        feeSelector: FeeSelectorContentViewModel,
+        feeSelectorBuilder: SendFeeSelectorBuilder,
+        receiveTokensListBuilder: SendReceiveTokensListBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
         router: SendRoutable
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
-        self.feeSelector = feeSelector
+        self.feeSelectorBuilder = feeSelectorBuilder
+        self.receiveTokensListBuilder = receiveTokensListBuilder
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.router = router
 
         stack = [amountStep]
@@ -111,7 +118,7 @@ extension CommonSendStepsManager: SendStepsManager {
         case .destination where isEditAction: .init(action: .continue)
         case .amount: .init(action: .next)
         case .destination: .init(action: .next)
-        case .summary: .init(action: .action)
+        case .summary: .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: .init(action: .close)
         default: .empty
         }
@@ -178,6 +185,14 @@ extension CommonSendStepsManager: SendStepsManager {
     }
 }
 
+// MARK: - SendAmountRoutable
+
+extension CommonSendStepsManager: SendAmountStepRoutable {
+    func openReceiveTokensList() {
+        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder)
+    }
+}
+
 // MARK: - SendSummaryStepsRoutable
 
 extension CommonSendStepsManager: SendSummaryStepsRoutable {
@@ -205,7 +220,8 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        router?.openFeeSelector(viewModel: feeSelector)
+        output?.stopSwapProvidersAutoUpdateTimer()
+        router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 
     func summaryStepRequestEditProviders() {

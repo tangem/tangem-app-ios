@@ -13,10 +13,10 @@ import FirebaseMessaging
 import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
+import TangemAccessibilityIdentifiers
+import TangemPay
 
 final class EnvironmentSetupViewModel: ObservableObject {
-    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
-
     // MARK: - ViewState
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
@@ -31,10 +31,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// FirebaseMessaging
     @Published private(set) var fcmToken: String = ""
 
-    // Promotion
-    @Published var currentPromoCode: String = ""
-    @Published var finishedPromotionNames: String = ""
-    @Published var awardedPromotionNames: String = ""
+    /// Application UID
+    @Published var applicationUid: String = ""
 
     // MARK: - Dependencies
 
@@ -77,15 +75,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
-            DefaultToggleRowViewModel(
-                title: "Visa API Mocks",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaAPIMocksEnabled },
-                    set: { $0.isVisaAPIMocksEnabled = $1 }
-                )
-            ),
         ]
 
         pickerViewModels = [
@@ -108,7 +97,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
@@ -138,6 +128,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: YieldModuleAPIType.prod.rawValue,
                     get: { $0.yieldModuleAPIType.rawValue },
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "Gasless Transactions API type",
+                options: GaslessTransactionsAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: GaslessTransactionsAPIType.prod.rawValue,
+                    get: { $0.gaslessTransactionsAPIType.rawValue },
+                    set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
                 )
             ),
         ]
@@ -172,13 +172,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
                 self?.coordinator?.openNFTBlockchainsPreferences()
             }),
+            DefaultRowViewModel(
+                title: "Addresses info",
+                accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addressesInfoButton,
+                action: { [weak self] in
+                    self?.coordinator?.openAddressesInfo()
+                }
+            ),
+            DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
+                self?.coordinator?.openDesignSystemDemo()
+            }),
         ]
-
-        updateCurrentPromoCode()
-
-        updateFinishedPromotionNames()
-
-        updateAwardedPromotionNames()
 
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
 
@@ -190,6 +194,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
             .store(in: &bag)
 
         fcmToken = Messaging.messaging().fcmToken ?? "none"
+
+        updateApplicationUid()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
@@ -198,30 +204,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
-    func resetCurrentPromoCode() {
-        promotionService.setPromoCode(nil)
-        updateCurrentPromoCode()
-    }
-
-    func resetFinishedPromotionNames() {
-        promotionService.resetFinishedPromotions()
-        updateFinishedPromotionNames()
-    }
-
-    func resetAward() {
-        // [REDACTED_TODO_COMMENT]
-//        runTask { [weak self] in
-//            guard let self else { return }
-//
-//            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
-//
-//            DispatchQueue.main.async {
-//                let feedbackGenerator = UINotificationFeedbackGenerator()
-//                feedbackGenerator.notificationOccurred(success ? .success : .error)
-//
-//                self.updateAwardedPromotionNames()
-//            }
-//        }
+    func resetApplicationUID() {
+        AppSettings.shared.applicationUid = ""
+        updateApplicationUid()
     }
 
     func showExitAlert() {
@@ -233,25 +218,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         self.alert = AlertBinder(alert: alert)
     }
 
-    private func updateCurrentPromoCode() {
-        currentPromoCode = promotionService.promoCode ?? "none"
-    }
-
-    private func updateFinishedPromotionNames() {
-        let finishedPromotionNames = promotionService.finishedPromotionNames()
-        if finishedPromotionNames.isEmpty {
-            self.finishedPromotionNames = "[none]"
-        } else {
-            self.finishedPromotionNames = promotionService.finishedPromotionNames().joined(separator: ", ")
-        }
-    }
-
-    private func updateAwardedPromotionNames() {
-        let awardedPromotionNames = promotionService.awardedPromotionNames()
-        if awardedPromotionNames.isEmpty {
-            self.awardedPromotionNames = "[none]"
-        } else {
-            self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
-        }
+    private func updateApplicationUid() {
+        applicationUid = AppSettings.shared.applicationUid
     }
 }

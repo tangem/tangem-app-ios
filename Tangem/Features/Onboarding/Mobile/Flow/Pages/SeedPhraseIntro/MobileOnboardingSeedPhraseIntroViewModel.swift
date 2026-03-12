@@ -11,27 +11,44 @@ import TangemAssets
 import TangemLocalization
 
 final class MobileOnboardingSeedPhraseIntroViewModel {
+    let navigationTitle = Localization.commonBackup
     let continueButtonTitle = Localization.commonContinue
 
     lazy var commonItem: CommonItem = makeCommonItem()
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
+    private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private weak var delegate: MobileOnboardingSeedPhraseIntroDelegate?
 
     private let wordsCount: Int = 12
 
-    init(delegate: MobileOnboardingSeedPhraseIntroDelegate) {
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseIntroDelegate
+    ) {
+        self.userWalletModel = userWalletModel
+        self.source = source
         self.delegate = delegate
     }
 }
 
 extension MobileOnboardingSeedPhraseIntroViewModel {
     func onFirstAppear() {
-        Analytics.log(.walletSettingsBackupScreenOpened, contextParams: .custom(.mobileWallet))
+        logScreenOpenedAnalytics()
     }
 
     func onContinueTap() {
         delegate?.seedPhraseIntroContinue()
+    }
+
+    func onCloseTap() {
+        delegate?.seedPhraseIntroClose()
     }
 }
 
@@ -58,6 +75,18 @@ private extension MobileOnboardingSeedPhraseIntroViewModel {
                 icon: Assets.cog24
             ),
         ]
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingSeedPhraseIntroViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsRecoveryPhraseScreenInfo,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
     }
 }
 

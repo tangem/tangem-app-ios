@@ -24,10 +24,17 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressPair(response: ExpressDTO.Swap.Pairs.Response) -> ExpressPair {
-        ExpressPair(
+        let providers = response.providers.map { provider in
+            let rates = provider.rateTypes
+                .compactMap { ExpressProviderRateType(rawValue: $0.rawValue) }
+
+            return ExpressPairProvider(id: provider.providerId, rates: rates)
+        }
+
+        return ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
             destination: mapToExpressCurrency(currency: response.to),
-            providers: response.providers.map { .init($0.providerId) }
+            providers: providers
         )
     }
 
@@ -44,6 +51,7 @@ struct ExpressAPIMapper {
             id: .init(provider.id),
             name: provider.name,
             type: provider.type ?? .unknown,
+            exchangeOnlyWithinSingleAddress: provider.exchangeOnlyWithinSingleAddress ?? false,
             imageURL: provider.imageSmall.flatMap(URL.init(string:)),
             termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
             privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:)),
@@ -67,7 +75,8 @@ struct ExpressAPIMapper {
         return ExpressQuote(
             fromAmount: fromAmount,
             expectAmount: toAmount,
-            allowanceContract: response.allowanceContract
+            allowanceContract: response.allowanceContract,
+            quoteId: response.quoteId
         )
     }
 
@@ -89,6 +98,11 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
+        // Validate payout extra id matches what we sent (case-sensitive for memos)
+        if request.toExtraId != txDetails.payoutExtraId {
+            throw ExpressAPIMapperError.payoutExtraIdNotEqual
+        }
+
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
@@ -104,7 +118,7 @@ struct ExpressAPIMapper {
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
-            .map { $0 / pow(10, item.source.feeCurrency.decimalCount) }
+            .map { $0 / pow(10, item.source.coinCurrency.decimalCount) }
 
         return ExpressTransactionData(
             requestId: txDetails.requestId,
@@ -136,7 +150,7 @@ struct ExpressAPIMapper {
         case .dex, .dexBridge:
             if let txValue, let decimalTxValue = Decimal(string: txValue) {
                 // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
-                return decimalTxValue / pow(10, item.source.feeCurrency.decimalCount)
+                return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
 
             return .zero
@@ -265,6 +279,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case mapToDecimalError(_ string: String)
     case requestIdNotEqual
     case payoutAddressNotEqual
+    case payoutExtraIdNotEqual
     case wrongProviderType
 
     var errorDescription: String? {
@@ -272,6 +287,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .mapToDecimalError(let value): "Wrong decimal value \(value)"
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
+        case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .wrongProviderType: "Provider type is not support"
         }
     }

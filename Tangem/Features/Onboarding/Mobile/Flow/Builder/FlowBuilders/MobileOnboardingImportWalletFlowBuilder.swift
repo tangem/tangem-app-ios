@@ -15,33 +15,32 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
 
     private var userWalletModel: UserWalletModel?
 
+    private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
 
-    init(coordinator: MobileOnboardingFlowRoutable) {
+    init(source: MobileOnboardingFlowSource, coordinator: MobileOnboardingFlowRoutable) {
+        self.source = source
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: true)
     }
 
     override func setupFlow() {
         let importWalletStep = MobileOnboardingImportWalletStep(delegate: self)
-            .configureNavBar(
-                title: Localization.walletImportTitle,
-                leadingAction: .back(handler: { [weak self] in
-                    self?.closeOnboarding()
-                })
-            )
         append(step: importWalletStep)
 
         let importCompletedStep = MobileOnboardingSuccessStep(
             type: .walletImported,
+            navigationTitle: Localization.walletImportTitle,
             onAppear: {},
             onComplete: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openNext)
         )
-        importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         append(step: importCompletedStep)
 
-        let accessCodeStep = MobileOnboardingAccessCodeStep(delegate: self)
-            .configureNavBar(title: Localization.accessCodeNavtitle)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(
+            mode: .create(canSkip: true),
+            source: source,
+            delegate: self
+        )
         append(step: accessCodeStep)
 
         let factory = PushNotificationsHelpersFactory()
@@ -53,19 +52,16 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
                 permissionManager: permissionManager,
                 delegate: self
             )
-            pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
             append(step: pushNotificationsStep)
         }
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
+            navigationTitle: Localization.commonDone,
             onAppear: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openMain)
         )
-        doneStep.configureNavBar(title: Localization.commonDone)
         append(step: doneStep)
-
-        setupProgress()
     }
 }
 
@@ -99,6 +95,10 @@ extension MobileOnboardingImportWalletFlowBuilder: MobileOnboardingSeedPhraseImp
         self.userWalletModel = userWalletModel
         next()
     }
+
+    func onSeedPhraseImportBack() {
+        closeOnboarding()
+    }
 }
 
 // MARK: - MobileOnboardingAccessCodeDelegate
@@ -111,6 +111,8 @@ extension MobileOnboardingImportWalletFlowBuilder: MobileOnboardingAccessCodeDel
     func didCompleteAccessCode() {
         next()
     }
+
+    func onAccessCodeClose() {}
 }
 
 // MARK: - PushNotificationsPermissionRequestDelegate

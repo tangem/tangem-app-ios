@@ -14,6 +14,8 @@ import TangemVisa
 import TangemFoundation
 import TangemNFT
 import struct TangemUIUtils.AlertBinder
+import TangemUI
+import TangemPay
 
 /// Model responsible for interacting with payment account and BFF
 /// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
@@ -195,7 +197,7 @@ final class VisaUserWalletModel {
         do {
             try await setupAuthorizationTokensHandler()
         } catch let modelError as ModelError {
-            if modelError == .missingValidRefreshToken {
+            if case .missingValidRefreshToken = modelError {
                 showRefreshTokenExpiredNotification()
                 return
             }
@@ -272,7 +274,7 @@ final class VisaUserWalletModel {
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())))
     }
 
     private func loadBalancesAndLimits() async {
@@ -350,7 +352,7 @@ extension VisaUserWalletModel {
             )
 
         if authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken
+            throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
         }
 
         if authorizationTokensHandler.accessTokenExpired {
@@ -434,19 +436,19 @@ extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaUserWalletModel: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
-        mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
+    var balance: LoadableBalanceView.State {
+        mapToLoadableBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
     }
 
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+    var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         stateSubject
             .combineLatest(balancesSubject)
             .withWeakCaptureOf(self)
-            .map { $0.mapToLoadableTokenBalanceViewState(state: $1.0, balances: $1.1) }
+            .map { $0.mapToLoadableBalanceViewState(state: $1.0, balances: $1.1) }
             .eraseToAnyPublisher()
     }
 
-    private func mapToLoadableTokenBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableTokenBalanceView.State {
+    private func mapToLoadableBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableBalanceView.State {
         switch state {
         case .notInitialized, .loading:
             return .loading()
@@ -480,14 +482,15 @@ extension VisaUserWalletModel {
         case missingPublicKey
         case failedToGenerateAddress
         case authorizationError
-        case missingValidRefreshToken
+        case missingValidRefreshToken(icon: MainButton.Icon?)
         case missingCardId
         case invalidConfig
         case invalidActivationState
 
         var notificationEvent: VisaNotificationEvent {
             switch self {
-            case .missingValidRefreshToken: return .missingValidRefreshToken
+            case .missingValidRefreshToken(let icon):
+                return .missingValidRefreshToken(icon: icon)
             default: return .error(self)
             }
         }
@@ -518,7 +521,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
     var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
@@ -604,5 +607,14 @@ extension VisaUserWalletModel: UserWalletSerializable {
 extension VisaUserWalletModel: AssociatedCardIdsProvider {
     var associatedCardIds: Set<String> {
         cardInfo.associatedCardIds
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension VisaUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }

@@ -11,15 +11,27 @@ import Foundation
 // MARK: - Convenience extensions
 
 extension StoredCryptoAccount {
-    init(config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token] = []) {
+    init(
+        config: CryptoAccountPersistentConfig,
+        tokenListAppearance: CryptoAccountPersistentConfig.TokenListAppearance,
+        tokens: [StoredCryptoAccount.Token] = []
+    ) {
         self.init(
             derivationIndex: config.derivationIndex,
             name: config.name,
             icon: .init(iconName: config.iconName, iconColor: config.iconColor),
             tokens: tokens,
-            grouping: .none, // [REDACTED_TODO_COMMENT]
-            sorting: .manual // [REDACTED_TODO_COMMENT]
+            grouping: tokenListAppearance.grouping,
+            sorting: tokenListAppearance.sorting
         )
+    }
+
+    @available(iOS, deprecated: 100000.0, message: "For troubleshooting only, will be removed after accounts migration is complete ([REDACTED_INFO])")
+    static func dummy(withDerivationIndex derivationIndex: Int) -> Self {
+        let icon = AccountModel.Icon(name: .cryptoAccountIcons[0], color: .cryptoAccountColors[0])
+        let config = CryptoAccountPersistentConfig(derivationIndex: derivationIndex, name: nil, icon: icon)
+
+        return StoredCryptoAccount(config: config, tokenListAppearance: .default)
     }
 
     func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
@@ -32,20 +44,21 @@ extension StoredCryptoAccount {
             sorting: sorting
         )
     }
+
+    func with(sorting: StoredCryptoAccount.Sorting, grouping: StoredCryptoAccount.Grouping) -> Self {
+        return StoredCryptoAccount(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon,
+            tokens: tokens,
+            grouping: grouping,
+            sorting: sorting
+        )
+    }
 }
 
 extension StoredCryptoAccount.Token {
     var isToken: Bool { contractAddress != nil }
-
-    // [REDACTED_TODO_COMMENT]
-    var coinId: String? {
-        switch blockchainNetwork {
-        case .known(let blockchainNetwork):
-            return contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        case .unknown:
-            return nil
-        }
-    }
 
     var walletModelId: WalletModelId? {
         guard let tokenItem = toTokenItem() else {

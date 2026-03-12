@@ -18,10 +18,12 @@ extension Analytics {
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
         case biometryFailed = "[Basic] Biometry Failed"
+        case basicButtonBuy = "[Basic] Button - Buy"
 
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
+        case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
         case introductionProcessButtonCreateNewWallet = "[Introduction Process] Button - Create New Wallet"
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
@@ -35,6 +37,7 @@ extension Analytics {
         case redirected = "[Shop] Redirected"
 
         case signInScreenOpened = "[Sign In] Sign In Screen Opened"
+        case signInButtonWallet = "[Sign In] Button - Wallet"
         case buttonBiometricSignIn = "[Sign In] Button - Biometric Sign In"
         case buttonCardSignIn = "[Sign In] Button - Card Sign In"
         case signInErrorBiometricUpdated = "[Sign In] Error - Biometric Updated"
@@ -43,6 +46,7 @@ extension Analytics {
 
         case onboardingStarted = "[Onboarding] Onboarding Started"
         case onboardingFinished = "[Onboarding] Onboarding Finished"
+        case onboardingCreateMobileScreenOpened = "[Onboarding / Create Wallet] Create Mobile Screen Opened"
         case createWalletScreenOpened = "[Onboarding / Create Wallet] Create Wallet Screen Opened"
         case buttonCreateWallet = "[Onboarding / Create Wallet] Button - Create Wallet"
         case buttonMobileWallet = "[Onboarding] Button - Mobile Wallet"
@@ -112,6 +116,10 @@ extension Analytics {
         case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
         case apyClicked = "[Main Screen] APY Clicked"
+        case mainButtonAccountShowTokens = "[Main Screen] Button - Account Show Tokens"
+        case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
+        case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
+        case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
 
         // MARK: - Send
 
@@ -125,6 +133,8 @@ extension Analytics {
         case sendMaxAmountTapped = "[Token / Send] Max Amount Taped"
         case sendSelectedCurrency = "[Token / Send] Selected Currency"
         case sendFeeScreenOpened = "[Token / Send] Fee Screen Opened"
+        case sendFeeSummaryScreenOpened = "[Token / Send] Fee Summary Screen Opened"
+        case sendFeeTokenScreenOpened = "[Token / Send] Fee Token Screen Opened"
         case sendFeeSelected = "[Token / Send] Fee Selected"
         case sendCustomFeeClicked = "[Token / Send] Custom Fee Clicked"
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
@@ -151,12 +161,14 @@ extension Analytics {
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
+        case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
         case withdrawScreenOpened = "[Token / Withdraw] Withdraw Screen Opened"
         case settingsButtonChat = "[Settings] Button - Chat"
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
+        case settingsColdWalletAdded = "[Settings] Cold Wallet Added"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
@@ -183,7 +195,44 @@ extension Analytics {
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
+        case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
+        case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
+        case walletSettingsButtonUpgradeCurrent = "[Settings / Wallet Settings] Button - Upgrade Current"
+        case walletSettingsButtonStartUpgrade = "[Settings / Wallet Settings] Button - Start Upgrade"
         case walletSettingsNoticeBackupFirst = "[Settings / Wallet Settings] Notice - Backup First"
+        case walletSettingsHardwareBackupScreenOpened = "[Settings / Wallet Settings] Hardware Backup Screen Opened"
+        case walletSettingsCreateWalletScreenOpened = "[Settings / Wallet Settings] Create Wallet Screen Opened"
+        case walletSettingsRecoveryPhraseScreenInfo = "[Settings / Wallet Settings] Recovery Phrase Screen Info"
+        case walletSettingsRecoveryPhraseScreen = "[Settings / Wallet Settings] Recovery Phrase Screen"
+        case walletSettingsRecoveryPhraseCheck = "[Settings / Wallet Settings] Recovery Phrase Check"
+        case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
+        case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
+        case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
+        case walletSettingsButtonAddAccount = "[Settings / Wallet Settings] Button - Add Account"
+        case walletSettingsButtonOpenExistingAccount = "[Settings / Wallet Settings] Button - Open Existing Account"
+        case walletSettingsButtonArchivedAccounts = "[Settings / Wallet Settings] Button - Archived Accounts"
+        case walletSettingsLongtapAccountsOrder = "[Settings / Wallet Settings] Longtap - Accounts Order"
+        case walletSettingsAccountCreated = "[Settings / Wallet Settings] Account Created"
+        case walletSettingsAccountRecovered = "[Settings / Wallet Settings] Account Recovered"
+        case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet Settings] Archived Accounts Screen Opened"
+        case walletSettingsButtonRecoverAccount = "[Settings / Wallet Settings] Button - Recover Account"
+        case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
+
+        // MARK: - Account Settings
+
+        case accountSettingsScreenOpened = "[Settings / Account] Account Settings Screen Opened"
+        case accountSettingsButtonManageTokens = "[Settings / Account] Button - Manage Tokens"
+        case accountSettingsButtonArchiveAccount = "[Settings / Account] Button - Archive Account"
+        case accountSettingsButtonArchiveAccountConfirmation = "[Settings / Account] Button - Archive Account Confirmation"
+        case accountSettingsButtonCancelAccountArchivation = "[Settings / Account] Button - Cancel Account Archivation"
+        case accountSettingsAccountArchived = "[Settings / Account] Account Archived"
+        case accountSettingsButtonEdit = "[Settings / Account] Button - Edit"
+        case accountSettingsEditScreenOpened = "[Settings / Account] Account Edit Screen Opened"
+        case accountSettingsButtonSave = "[Settings / Account] Button - Save"
+        case accountSettingsButtonAddNewAccount = "[Settings / Account] Button - Add New Account"
+        case accountSettingsAccountError = "[Settings / Account] Account Error"
+        case manageTokensCustomTokenAddedToAnotherAccount = "[Settings / Account] Button - Add Token To Another Account"
 
         // MARK: - Wallet Connect
 
@@ -195,13 +244,13 @@ extension Analytics {
         case walletConnectSessionInitiated = "[Wallet Connect] Session Initiated"
         case walletConnectSessionFailed = "[Wallet Connect] Session Failed"
 
-        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] DApp Connection Requested"
         case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
         case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
 
-        case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
-        case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
-        case walletConnectDAppDisconnected = "[Wallet Connect] dApp Disconnected"
+        case walletConnectDAppConnected = "[Wallet Connect] DApp Connected"
+        case walletConnectDAppConnectionFailed = "[Wallet Connect] DApp Connection Failed"
+        case walletConnectDAppDisconnected = "[Wallet Connect] DApp Disconnected"
 
         case walletConnectSignatureRequestReceived = "[Wallet Connect] Signature Request Received"
         case walletConnectSignatureRequestReceivedFailure = "[Wallet Connect] Signature Request Received with Failed"
@@ -216,6 +265,7 @@ extension Analytics {
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
+        case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
         // MARK: - Referral program
 
@@ -224,8 +274,9 @@ extension Analytics {
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
-        case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
+        case referralParticipateSuccessful = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
+        case referralListChooseAccount = "[Referral program / Account] List - Choose Account"
 
         // MARK: - Swap
 
@@ -251,6 +302,15 @@ extension Analytics {
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
+        case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+
+        case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
+        case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
+        case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
+        case swapFeeSelected = "[Swap] Fee Selected"
+
+        case swapTokenSelected = "[Swap] Token Selected"
+        case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
 
         // MARK: - Seed phrase
 
@@ -315,7 +375,7 @@ extension Analytics {
         case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
         case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
         case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
-        case mainButtonFinishNow = "[Main Screen] Button - Finish Now"
+        case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions
 
@@ -344,6 +404,7 @@ extension Analytics {
         case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
         case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
         case scanErrors = "[Error] Scan Errors"
+        case cardHealth = "[Error] Card Health Info"
 
         // MARK: - Promo
 
@@ -389,17 +450,44 @@ extension Analytics {
         case stakingButtonExplore = "[Staking] Button - Explore"
         case stakingNoticeUninitializedAddress = "[Staking] Notice - Uninitialized Address"
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
+        case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
 
         // MARK: - Markets
 
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
+        case marketsTokenListOpened = "[Markets] Token List Opened"
+        case marketsNewsListOpened = "[Markets] News List Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
-        case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
-        case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
-        case marketsStakingMoreInfo = "[Markets] Staking More Info"
+        case marketsMarketsLoadError = "[Markets] Markets Load Error"
+        case marketsNewsLoadError = "[Markets] News Load Error"
+        case marketsAllWidgetsLoadError = "[Markets] All Widgets Load Error"
+        case marketsNewsCarouselScrolled = "[Markets] News Carousel Scrolled"
+        case marketsNewsCarouselEndReached = "[Markets] News Carousel End Reached"
+        case marketsNewsCarouselAllNewsButton = "[Markets] News Carousel All News button"
+        case marketsNewsCarouselTrendingClicked = "[Markets] News Carousel Trending Clicked"
+        case marketsNewsListLoadError = "[Markets] News List Load Error"
+        case marketsNewsCategoriesSelected = "[Markets] News Categories Selected"
+        case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
+        case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
+        case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
+        case marketsEarnLoadError = "[Markets] Earn Load Error"
+        case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
+        case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+
+        // MARK: - Earn
+
+        case earnPageOpened = "[Earn] Page Opened"
+        case earnMostlyUsedCarouselScrolled = "[Earn] Mostly Used Carousel Scrolled"
+        case earnBestOpportunitiesFilterNetworkApplied = "[Earn] Best Opportunities Filter Network Applied"
+        case earnBestOpportunitiesFilterTypeApplied = "[Earn] Best Opportunities Filter Type Applied"
+        case earnOpportunitySelected = "[Earn] Opportunity selected"
+        case earnAddTokenScreenOpened = "[Earn] Add Token Screen Opened"
+        case earnTokenAdded = "[Earn] Token Added"
+        case earnPageLoadError = "[Earn] Page Load Error"
+        case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
 
         // MARK: - Markets / Chart
 
@@ -415,10 +503,20 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
         case marketsChartSecurityScoreProviderClicked = "[Markets / Chart] Security Score Provider Clicked"
+        case marketsChartPopupChooseAccount = "[Markets / Chart] - Choose Account Opened"
+        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add To Account"
+        case marketsChartPopupGetTokenButtonBuy = "[Markets / Chart] Popup Get token - Button Buy"
+        case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
+        case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
+        case marketsChartPopupGetTokenButtonLater = "[Markets / Chart] Popup Get token - Button Later"
+        case marketsChartAddTokenScreenOpened = "[Markets / Chart] Add Token Screen Opened"
+        case marketsChartButtonAddToken = "[Markets / Chart] Button - Add Token"
+        case marketsChartTokenAdded = "[Markets / Chart] Token Added"
 
         // MARK: - Manage Tokens
 
@@ -532,6 +630,48 @@ extension Analytics {
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
 
+        // Tangem Pay (Visa 2.0)
+
+        case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
+        case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
+        case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"
+        case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
+        case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
+        case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
+
+        case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
+        case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
+        case visaOnboardingVisaKYCPassedAndOrderCreated = "[Visa Onboarding] Visa KYC Passed And Order Created"
+
+        case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
+        case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
+        case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
+
+        case visaScreenFreezeCardClicked = "[Visa Screen] Button - Freeze Card"
+        case visaScreenFreezeCardConfirmShown = "[Visa Screen] Popup - Freeze Confirmation"
+        case visaScreenFreezeCardConfirmClicked = "[Visa Screen] Button - Freeze Confirmation On Popup"
+        case visaScreenUnfreezeCardClicked = "[Visa Screen] Button - Unfreeze Card"
+        case visaScreenUnfreezeCardConfirmShown = "[Visa Screen] Popup - Unfreeze Confirmation"
+        case visaScreenUnfreezeCardConfirmClicked = "[Visa Screen] Button - Unfreeze Confirmation On Popup"
+        case visaScreenPinCodeClicked = "[Visa Screen] Button - PIN Code"
+        case visaScreenChangePinScreenShown = "[Visa Screen] Screen - Change PIN"
+        case visaScreenChangePinSubmitClicked = "[Visa Screen] Button - Set PIN On Change PIN Screen"
+        case visaScreenChangePinSuccessShown = "[Visa Screen] Message - PIN Setup Success"
+        case visaScreenCurrentPinShown = "[Visa Screen] Popup - Current PIN"
+        case visaScreenChangePinOnCurrentPinClicked = "[Visa Screen] Button - Change PIN On Current PIN"
+        case visaScreenViewCardDetailsClicked = "[Visa Screen] Button - View Card Details"
+        case visaScreenCopyCardNumberClicked = "[Visa Screen] Button - Copy Card Number"
+        case visaScreenCopyCardExpiryClicked = "[Visa Screen] Button - Copy Card Expiry"
+        case visaScreenCopyCardCVVClicked = "[Visa Screen] Button - Copy CVV"
+        case visaScreenAddToWalletClicked = "[Visa Screen] Button - Add Card To Wallet"
+        case visaScreenWithdrawClicked = "[Visa Screen] Button - Visa Withdraw"
+        case visaScreenGoToSupportOnBetaBannerClicked = "[Visa Screen] Button - Go To Support On Beta Banner"
+        case visaScreenTransactionInListClicked = "[Visa Screen] Clicked On Transaction In List"
+        case visaScreenSupportOnTransactionPopupClicked = "[Visa Screen] Button - Support On Transaction Popup"
+        case visaScreenButtonVisaAddFunds = "[Visa Screen] Button - Visa Add Funds"
+        case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
+        case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"
@@ -566,7 +706,7 @@ extension Analytics {
         case earningButtonFeePolicy = "[Earning] Button - Fee Policy"
         case earningInProgressScreen = "[Earning] Earn In Progress Screen"
         case earningFundsEarned = "[Earning] Funds Earned"
-        case earningFundsWithdrawed = "[Earning] Funds Withdrawn"
+        case earningFundsWithdrawn = "[Earning] Funds Withdrawn"
         case earningEarnedFundsInfo = "[Earning] Earned Funds Info"
         case earningNoticeNotEnoughFee = "[Earning] Notice - Not Enough Fee"
         case earningNoticeApproveNeeded = "[Earning] Notice - Approve Needed"
@@ -574,5 +714,22 @@ extension Analytics {
         case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
         case earningErrors = "[Earning] Earn Errors"
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
+        case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
+        case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+
+        // MARK: - News
+
+        case newsArticleOpened = "[Markets] News Article Opened"
+        case newsRelatedClicked = "[Markets] Related News Clicked"
+        case newsArticleLoadError = "[Markets] News Article Load Error"
+        case newsLikeClicked = "[Markets] News Like Clicked"
+        case newsLinkMismatch = "[Markets] News Link Mismatch"
+        case newsShareButtonClicked = "[Markets] News Share Button Clicked"
+
+        // MARK: - News (CoinPage)
+
+        case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
+        case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
+        case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
     }
 }

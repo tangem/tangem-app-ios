@@ -27,15 +27,22 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
             XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Search field should exist")
             searchField.tap()
             searchField.typeText(countryName)
+            searchField.typeText(XCUIKeyboardKey.return.rawValue)
         }
         return self
     }
 
     func selectCountry(_ countryName: String) -> OnrampSettingsScreen {
         XCTContext.runActivity(named: "Select country '\(countryName)'") { _ in
-            let countryButton = app.buttons[OnrampAccessibilityIdentifiers.countryItem(code: countryName)]
-            XCTAssertTrue(countryButton.waitForExistence(timeout: .robustUIUpdate), "Country '\(countryName)' should exist in the list")
-            countryButton.waitAndTap()
+            let countryButton = app.buttons[OnrampAccessibilityIdentifiers.countryItem(code: countryName)].firstMatch
+            waitAndAssertTrue(countryButton, "Country '\(countryName)' should exist")
+            countryButton.tap()
+
+            // Wait for the residence selector sheet to dismiss
+            XCTAssertTrue(
+                searchField.waitForNonExistence(timeout: .robustUIUpdate),
+                "Residence screen should dismiss after selecting a country"
+            )
 
             return OnrampSettingsScreen(app)
         }

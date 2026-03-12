@@ -9,12 +9,11 @@
 import Foundation
 import TangemExpress
 
-struct SentExpressTransactionData {
+struct SentSwapTransactionData {
     let result: TransactionDispatcherResult
-    let source: any ExpressInteractorSourceWallet
-    let destination: any ExpressInteractorDestinationWallet
-    let fee: Decimal
-    let feeOption: FeeOption
+    let source: any SendSourceToken
+    let receive: any SendReceiveToken
+    let fee: BSDKFee
     let provider: ExpressProvider
     let date: Date
     let expressTransactionData: ExpressTransactionData

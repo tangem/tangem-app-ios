@@ -12,6 +12,7 @@ import TangemFoundation
 final class EthereumTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
+    private let aaveTokens: Set<String>?
 
     private var decimalValue: Decimal {
         blockchain.decimalValue
@@ -19,6 +20,7 @@ final class EthereumTransactionHistoryMapper {
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
+        aaveTokens = AAVETokenRepository.tokens(for: blockchain)
     }
 }
 
@@ -200,7 +202,7 @@ private extension EthereumTransactionHistoryMapper {
                     return nil
                 }
 
-                let decimalValue = pow(10, transfer.decimals)
+                let decimalValue = transfer.decimals.map { pow(10, $0) } ?? decimalValue
                 let transactionAmount = value / decimalValue
 
                 let source = TransactionRecord.Source(
@@ -227,6 +229,11 @@ private extension EthereumTransactionHistoryMapper {
         let methodId = ethereumSpecific?.parsedData?.methodId ?? methodIdFromRawData(ethereumSpecific?.data)
 
         guard let methodId = methodId else {
+            return .transfer
+        }
+
+        // ERC-20 transfer method id
+        if methodId == Constants.tokenTransferMethodId {
             return .transfer
         }
 
@@ -284,6 +291,8 @@ private extension EthereumTransactionHistoryMapper {
             let index = transactionIndicesCounter[hash, default: 0]
             transactionIndicesCounter[hash] = index + 1
 
+            let isFromYieldContract = aaveTokens?.contains(transactionInfo.source.address.lowercased()) ?? false
+
             return TransactionRecord(
                 hash: hash,
                 index: index,
@@ -294,7 +303,8 @@ private extension EthereumTransactionHistoryMapper {
                 isOutgoing: transactionInfo.isOutgoing,
                 type: transactionType(transaction),
                 date: Date(timeIntervalSince1970: TimeInterval(transaction.blockTime)),
-                tokenTransfers: tokenTransfers(transaction)
+                tokenTransfers: tokenTransfers(transaction),
+                isFromYieldContract: isFromYieldContract
             )
         }
     }
@@ -308,5 +318,11 @@ private extension EthereumTransactionHistoryMapper {
         let source: TransactionRecord.Source
         let destination: TransactionRecord.Destination
         let isOutgoing: Bool
+    }
+}
+
+private extension EthereumTransactionHistoryMapper {
+    enum Constants {
+        static let tokenTransferMethodId: String = "0xa9059cbb"
     }
 }

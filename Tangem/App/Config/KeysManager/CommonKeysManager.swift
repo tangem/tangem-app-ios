@@ -23,6 +23,10 @@ extension CommonKeysManager: KeysManager {
         keys.appsFlyer
     }
 
+    var customerIO: CustomerIOKeys {
+        keys.customerIO
+    }
+
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
@@ -54,12 +58,15 @@ extension CommonKeysManager: KeysManager {
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
+            quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
+            dwellirApiKey: keys.dwellirApiKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
             tangemAlephiumApiKey: keys.alephiumTangemApiKey,
             blinkApiKey: keys.blinkApiKey,
             tatumApiKey: keys.tatumApiKey,
             yieldModuleApiKey: keys.yieldModuleApiKey,
+            gaslessTxApiKey: keys.gaslessTxApiKey
         )
     }
 
@@ -130,6 +137,22 @@ extension CommonKeysManager: KeysManager {
     var p2pApiKeys: P2PAPIKeys {
         keys.p2pApiKey
     }
+
+    var bffStaticToken: String {
+        keys.bffStaticToken
+    }
+
+    var bffStaticTokenDev: String {
+        keys.bffStaticTokenDev
+    }
+
+    var gaslessTxApiKey: String {
+        keys.gaslessTxApiKey
+    }
+
+    var gaslessTxApiKeyDev: String {
+        keys.gaslessTxApiKeyDev
+    }
 }
 
 extension CommonKeysManager {
@@ -148,6 +171,7 @@ extension CommonKeysManager {
         let chiaFireAcademyApiKey: String
         let chiaTangemApiKey: String
         let appsFlyer: AppsFlyerConfig
+        let customerIO: CustomerIOKeys
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
@@ -157,6 +181,8 @@ extension CommonKeysManager {
         let bscQuiknodeSubdomain: String
         let quiknodePlasmaApiKey: String
         let quiknodePlasmaSubdomain: String
+        let quiknodeMonadApiKey: String
+        let quiknodeMonadSubdomain: String
         let etherscanApiKey: String
         let koinosProApiKey: String
         let tangemComAuthorization: String?
@@ -165,6 +191,7 @@ extension CommonKeysManager {
         let devExpress: ExpressKeys?
         let stakeKitApiKey: String
         let bittensorDwellirKey: String
+        let dwellirApiKey: String
         let bittensorOnfinalityKey: String
         let alephiumTangemApiKey: String
         let moralisApiKey: String
@@ -177,5 +204,9 @@ extension CommonKeysManager {
         let yieldModuleApiKey: String
         let yieldModuleApiKeyDev: String
         let p2pApiKey: P2PAPIKeys
+        let bffStaticToken: String
+        let bffStaticTokenDev: String
+        let gaslessTxApiKey: String
+        let gaslessTxApiKeyDev: String
     }
 }

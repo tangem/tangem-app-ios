@@ -18,7 +18,7 @@ struct ReceiveMainView: View {
 
     var body: some View {
         contentView
-            .animation(.contentFrameUpdate, value: viewModel.viewState)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder
@@ -44,12 +44,12 @@ struct ReceiveMainView: View {
                 header(from: viewState)
             }
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 

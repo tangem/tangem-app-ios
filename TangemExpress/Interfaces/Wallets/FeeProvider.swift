@@ -11,7 +11,21 @@ import Foundation
 public typealias ExpressFeeProvider = FeeProvider
 
 public protocol FeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants
+    func feeCurrency() -> ExpressWalletCurrency
+    func feeCurrencyBalance() throws -> Decimal
+
+    func estimatedFee(amount: Decimal) async throws -> BSDKFee
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
+    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee
+    func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
+}
+
+public extension FeeProvider {
+    func isFeeCurrency(source: ExpressWalletCurrency) -> Bool {
+        source == feeCurrency()
+    }
+
+    func feeCurrencyHasPositiveBalance() throws -> Bool {
+        try feeCurrencyBalance() > .zero
+    }
 }

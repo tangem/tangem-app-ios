@@ -15,8 +15,6 @@ protocol DetailsRoutable: AnyObject {
 
     func openOnboardingModal(with input: OnboardingInput)
 
-    func openAddWallet()
-
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openSupportChat(input: SupportChatInputModel)
@@ -25,6 +23,7 @@ protocol DetailsRoutable: AnyObject {
     func openShop()
     func openSocialNetwork(url: URL)
 
+    func openGetTangemPay()
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()

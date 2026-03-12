@@ -12,8 +12,15 @@ import Combine
 class MarketsListDataFilterProvider {
     // MARK: - Private Properties
 
-    private var _intervalTypeValue: CurrentValueSubject<MarketsPriceIntervalType, Never> = .init(.day)
-    private var _orderTypeValue: CurrentValueSubject<MarketsListOrderType, Never> = .init(.rating)
+    private var _intervalTypeValue: CurrentValueSubject<MarketsPriceIntervalType, Never>
+    private var _orderTypeValue: CurrentValueSubject<MarketsListOrderType, Never>
+
+    // MARK: - Initialization
+
+    init(initialOrderType: MarketsListOrderType? = nil) {
+        _intervalTypeValue = .init(.day)
+        _orderTypeValue = .init(initialOrderType ?? .rating)
+    }
 
     // MARK: - Public Properties
 
@@ -55,7 +62,7 @@ class MarketsListDataFilterProvider {
         Analytics.log(
             event: .marketsTokensSort,
             params: [
-                .type: _orderTypeValue.value.rawValue.capitalizingFirstLetter(),
+                .type: _orderTypeValue.value.analyticsValue.capitalizingFirstLetter(),
                 .period: _intervalTypeValue.value.rawValue,
             ]
         )

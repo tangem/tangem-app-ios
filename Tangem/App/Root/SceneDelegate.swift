@@ -68,7 +68,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         isSceneStarted = true
 
         PerformanceMonitorConfigurator.configureIfAvailable()
-        AppsFlyerConfigurator.handleApplicationDidBecomeActive()
+        AppsFlyerWrapper.shared.handleApplicationDidBecomeActive()
     }
 
     /// Additional view to fix no-refresh in bg issue for iOS prior to 17.
@@ -95,7 +95,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = MainWindow(windowScene: windowScene)
 
         sheetRegistry.registerWalletConnectFloatingSheets()
-        sheetRegistry.registerMarketsFloatingSheets()
+        sheetRegistry.registerAccountsAwareAddTokenFlowFloatingSheets()
+        sheetRegistry.registerTangemPayWalletSelectorSheets()
+        sheetRegistry.registerCloreMigrationFloatingSheets()
+        sheetRegistry.registerYieldModuleFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
@@ -125,6 +128,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// Hot handle deeplinks `https://tangem.com, https://app.tangem.com`
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handleActivities([userActivity])
+        AppsFlyerWrapper.shared.handleUserActivity(userActivity: userActivity)
     }
 
     /// Hot handle universal links  with `tangem://` scheme

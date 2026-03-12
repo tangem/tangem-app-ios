@@ -10,12 +10,13 @@ import Combine
 import SwiftUI
 import TangemAssets
 import struct TangemUI.TokenIconInfo
+import TangemUI
 
 final class ActionButtonsTokenSelectItemViewModel: ObservableObject {
     private let model: ActionButtonsTokenSelectorItem
 
-    @Published private(set) var fiatBalanceState: LoadableTokenBalanceView.State = .loading()
-    @Published private(set) var balanceState: LoadableTokenBalanceView.State = .loading()
+    @Published private(set) var fiatBalanceState: LoadableBalanceView.State = .loading()
+    @Published private(set) var balanceState: LoadableBalanceView.State = .loading()
 
     private var bag = Set<AnyCancellable>()
 
@@ -37,12 +38,12 @@ final class ActionButtonsTokenSelectItemViewModel: ObservableObject {
 
     private func bindBalance<P: Publisher>(
         publisher: P,
-        stateUpdate: @escaping (LoadableTokenBalanceView.State) -> Void
+        stateUpdate: @escaping (LoadableBalanceView.State) -> Void
     ) where P.Output == FormattedTokenBalanceType, P.Failure == Never {
         publisher
             .receive(on: DispatchQueue.main)
             .sink { balanceType in
-                stateUpdate(LoadableTokenBalanceViewStateBuilder().build(type: balanceType))
+                stateUpdate(LoadableBalanceViewStateBuilder().build(type: balanceType))
             }
             .store(in: &bag)
     }

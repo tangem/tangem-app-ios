@@ -9,18 +9,15 @@
 import TangemExpress
 
 struct CommonExpressBalanceProvider {
-    private let tokenItem: TokenItem
     private let availableBalanceProvider: TokenBalanceProvider
-    private let feeProvider: WalletModelFeeProvider
+    private let feeBalanceProvider: TokenBalanceProvider
 
     init(
-        tokenItem: TokenItem,
         availableBalanceProvider: TokenBalanceProvider,
-        feeProvider: WalletModelFeeProvider
+        feeBalanceProvider: TokenBalanceProvider
     ) {
-        self.tokenItem = tokenItem
         self.availableBalanceProvider = availableBalanceProvider
-        self.feeProvider = feeProvider
+        self.feeBalanceProvider = feeBalanceProvider
     }
 }
 
@@ -35,7 +32,11 @@ extension CommonExpressBalanceProvider: ExpressBalanceProvider {
         return balanceValue
     }
 
-    func getFeeCurrencyBalance() -> Decimal {
-        feeProvider.getFeeCurrencyBalance(amountType: tokenItem.amountType)
+    func getCoinBalance() throws -> Decimal {
+        guard let balanceValue = feeBalanceProvider.balanceType.value else {
+            throw ExpressBalanceProviderError.balanceNotFound
+        }
+
+        return balanceValue
     }
 }

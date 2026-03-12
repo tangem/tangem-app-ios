@@ -10,40 +10,44 @@ import Foundation
 import TangemLocalization
 
 class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private(set) weak var coordinator: MobileOnboardingFlowRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileOnboardingFlowRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        coordinator: MobileOnboardingFlowRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: false)
     }
 
     override func setupFlow() {
-        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(delegate: self)
-            .configureNavBar(
-                title: Localization.commonBackup,
-                leadingAction: .close(handler: { [weak self] in
-                    Analytics.log(.backupNoticeCanceled)
-
-                    self?.closeOnboarding()
-                })
-            )
+        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
+        )
         append(step: seedPhraseIntroStep)
 
-        let userWalletId = userWalletModel.userWalletId
-
-        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
-        seedPhraseRecoveryStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
+        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
         )
         append(step: seedPhraseRecoveryStep)
 
-        let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(userWalletId: userWalletId, delegate: self)
-        seedPhraseValidationStep.configureNavBar(
-            title: Localization.commonBackup,
-            leadingAction: navBarBackAction
+        let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
         )
         append(step: seedPhraseValidationStep)
 
@@ -51,20 +55,46 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
     }
 
     func completeStep() -> Step {
-        makeDoneStep()
+        if case .hardwareWallet(let action) = source, action == .upgrade {
+            makeContinueStep()
+        } else {
+            makeDoneStep()
+        }
     }
 }
 
 // MARK: - Private methods
 
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
-    func makeDoneStep() -> Step {
+    func makeContinueStep() -> Step {
         let step = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupFinish,
-            onAppear: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.openConfetti),
+            type: .seedPhaseBackupContinue,
+            navigationTitle: Localization.commonBackup,
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
         )
-        step.configureNavBar(title: Localization.commonBackup)
+        return step
+    }
+
+    func makeDoneStep() -> Step {
+        let successType: MobileOnboardingSuccessViewModel.SuccessType
+        if case .walletSettings(let action) = source, action == .accessCode {
+            successType = .seedPhaseBackupContinue
+        } else {
+            successType = .seedPhaseBackupFinish
+        }
+
+        let step = MobileOnboardingSuccessStep(
+            type: successType,
+            navigationTitle: Localization.commonBackup,
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+                self?.openConfetti()
+            },
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
+        )
         return step
     }
 }
@@ -95,6 +125,11 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
     func seedPhraseIntroContinue() {
         openNext()
     }
+
+    func seedPhraseIntroClose() {
+        logSeedPhraseIntroCloseAnalytics()
+        closeOnboarding()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseRecoveryDelegate
@@ -103,14 +138,46 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
     func seedPhraseRecoveryContinue() {
         openNext()
     }
+
+    func onSeedPhraseRecoveryBack() {
+        back()
+    }
 }
 
 // MARK: - MobileOnboardingSeedPhraseValidationDelegate
 
 extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhraseValidationDelegate {
     func didValidateSeedPhrase() {
-        Analytics.log(event: .backupFinished, params: [.cardsCount: String(0)])
+        logSeedPhraseValidatedAnalytics()
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
+    }
+
+    func onSeedPhraseValidationBack() {
+        back()
+    }
+}
+
+// MARK: - Analytics
+
+extension MobileOnboardingBackupSeedPhraseFlowBuilder {
+    func logSeedPhraseIntroCloseAnalytics() {
+        Analytics.log(.backupNoticeCanceled, contextParams: analyticsContextParams)
+    }
+
+    func logSeedPhraseValidatedAnalytics() {
+        Analytics.log(
+            event: .backupFinished,
+            params: [.cardsCount: String(0)],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logBackupCompletedScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsBackupCompleteScreen,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
     }
 }

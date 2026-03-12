@@ -33,52 +33,54 @@ struct AccountDerivationPathHelperTests {
     func testAccountNodeExtraction(_ testCase: TestCase) async throws {
         // Arrange
         let helper = AccountDerivationPathHelper(blockchain: testCase.blockchain)
-        let derivationPath = try? DerivationPath(rawPath: testCase.derivationPath)
+        let derivationPath = try DerivationPath(rawPath: testCase.derivationPath)
 
         // Act
-        let actual = helper.extractAccountDerivationNode(from: derivationPath)
+        let actual = try helper.extractAccountDerivationNode(from: derivationPath)
 
         // Assert
-        #expect(actual?.rawIndex == testCase.expected, "Failed for blockchain: \(testCase.blockchain), path: \(testCase.derivationPath)")
+        #expect(actual.rawIndex == testCase.expected, "Failed for blockchain: \(testCase.blockchain), path: \(testCase.derivationPath)")
     }
 
-    @Test("Extraction with empty derivation path returns nil")
-    func testExtractionOfEmptyDerivationPath() async throws {
+    @Test("Extraction with short derivation path throws insufficientNodes error")
+    func testExtractionOfShortDerivationPathThrows() async throws {
         // Arrange
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
-        let derivationPath = try? DerivationPath(rawPath: "")
+        let derivationPath = try DerivationPath(rawPath: "m/44'/0'") // Only 2 nodes, need at least 3
 
-        // Act
-        let actual = helper.extractAccountDerivationNode(from: derivationPath)
-
-        // Assert
-        #expect(actual == nil)
+        // Act & Assert
+        do {
+            _ = try helper.extractAccountDerivationNode(from: derivationPath)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .insufficientNodes:
+                break
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
     }
 
-    @Test("Extraction with invalid derivation path returns nil")
-    func testExtractionOfInvalidDerivationPath() async throws {
-        // Arrange
-        let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
-        let derivationPath = try? DerivationPath(rawPath: "invalid/path")
+    @Test("Extraction for unsupported blockchain throws accountsUnavailableForBlockchain error")
+    func testExtractionForUnsupportedBlockchainThrows() async throws {
+        // Arrange - Chia doesn't support accounts
+        let chiaMainnet = Blockchain.chia(testnet: false)
+        let helper = AccountDerivationPathHelper(blockchain: chiaMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/12381'/8444'/0'/0")
 
-        // Act
-        let actual = helper.extractAccountDerivationNode(from: derivationPath)
-
-        // Assert
-        #expect(actual == nil)
-    }
-
-    @Test("Extraction with absent derivation path returns nil")
-    func testExtractionOfAbsentDerivationPath() async throws {
-        // Arrange
-        let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
-        let derivationPath: DerivationPath? = nil
-
-        // Act
-        let actual = helper.extractAccountDerivationNode(from: derivationPath)
-
-        // Assert
-        #expect(actual == nil)
+        // Act & Assert
+        do {
+            _ = try helper.extractAccountDerivationNode(from: derivationPath)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .accountsUnavailableForBlockchain:
+                break
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
     }
 
     @Test("Extract account node from standard BIP44 path")
@@ -86,8 +88,8 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/0'/11'/0/0")
 
-        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
-        #expect(accountNode?.rawIndex == 11)
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == 11)
     }
 
     @Test("Extract account node from different account indices", arguments: [
@@ -99,17 +101,28 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let derivationPath = try DerivationPath(rawPath: pathString)
 
-        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
-        #expect(accountNode?.rawIndex == expectedIndex)
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == expectedIndex)
     }
 
-    @Test("Extract account node from EVM blockchain path")
-    func extractAccountNodeFromEVMPath() throws {
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Extract account node from standard EVM blockchain path")
+    func extractAccountNodeFromStandardEVMPath() throws {
         let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/60'/0'/0/10")
 
-        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
-        #expect(accountNode?.rawIndex == 10)
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == 10)
+    }
+
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Extract account node from non-standard EVM blockchain path")
+    func extractAccountNodeFromNonStandardEVMPath() throws {
+        let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/44'/9001'/11'/0/10")
+
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == 11)
     }
 
     @Test("Extract account node from Solana path")
@@ -117,8 +130,8 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: solanaMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/501'/10'")
 
-        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
-        #expect(accountNode?.rawIndex == 10)
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == 10)
     }
 
     @Test("Extract account node from Tron path")
@@ -126,8 +139,8 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: tronMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/195'/10'/0/0")
 
-        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
-        #expect(accountNode?.rawIndex == 10)
+        let accountNode = try helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode.rawIndex == 10)
     }
 
     // MARK: - Path Creation Tests
@@ -137,7 +150,7 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/0'/0'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 2)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 2)
         #expect(newPath.rawPath == "m/44'/0'/2'/0/0")
     }
 
@@ -146,18 +159,29 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/0'/0'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: accountIndex)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: accountIndex)
         let expectedPath = "m/44'/0'/\(accountIndex)'/0/0"
         #expect(newPath.rawPath == expectedPath)
     }
 
-    @Test("Create EVM blockchain derivation path with account index")
-    func createEVMDerivationPathWithAccountIndex() throws {
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Create standard EVM blockchain derivation path with account index")
+    func createStandardEVMDerivationPathWithAccountIndex() throws {
         let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/60'/0'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 3)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 3)
         #expect(newPath.rawPath == "m/44'/60'/0'/0/3")
+    }
+
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Create non-standard EVM blockchain derivation path with account index")
+    func createNonStandardEVMDerivationPathWithAccountIndex() throws {
+        let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
+        let originalPath = try DerivationPath(rawPath: "m/44'/9001'/0'/0/7")
+
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 5)
+        #expect(newPath.rawPath == "m/44'/9001'/5'/0/7")
     }
 
     @Test("Create Solana derivation path with account index")
@@ -165,7 +189,7 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: solanaMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/501'/0'")
 
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 4)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 4)
         #expect(newPath.rawPath == "m/44'/501'/4'")
     }
 
@@ -174,7 +198,7 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: tronMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/195'/0'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 44)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 44)
         #expect(newPath.rawPath == "m/44'/195'/44'/0/0")
     }
 
@@ -202,7 +226,7 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/0'/5'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: derivationPath, forAccountWithIndex: 0)
+        let newPath = try helper.makeDerivationPath(from: derivationPath, forAccountWithIndex: 0)
         #expect(newPath.rawPath == "m/44'/0'/0'/0/0")
     }
 
@@ -211,8 +235,45 @@ struct AccountDerivationPathHelperTests {
         let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/0'/0'/0/0")
 
-        let newPath = helper.makeDerivationPath(from: derivationPath, forAccountWithIndex: 999)
+        let newPath = try helper.makeDerivationPath(from: derivationPath, forAccountWithIndex: 999)
         #expect(newPath.rawPath == "m/44'/0'/999'/0/0")
+    }
+
+    @Test("Make derivation path throws for short path")
+    func makeDerivationPathThrowsForShortPath() throws {
+        let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/44'/0'") // Only 2 nodes
+
+        do {
+            _ = try helper.makeDerivationPath(from: derivationPath, forAccountWithIndex: 1)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .insufficientNodes:
+                break
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
+    }
+
+    @Test("EVM path with insufficient nodes for address index throws")
+    func evmPathWithInsufficientNodesThrows() throws {
+        let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
+        // Standard EVM path (44'/60') requires address_index at position 4, but this path has only 4 nodes (indices 0-3)
+        let derivationPath = try DerivationPath(rawPath: "m/44'/60'/0'/0")
+
+        do {
+            _ = try helper.extractAccountDerivationNode(from: derivationPath)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .insufficientNodes:
+                break
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
     }
 
     // MARK: - Different Blockchain Types Tests
@@ -223,15 +284,56 @@ struct AccountDerivationPathHelperTests {
         let originalPath = try DerivationPath(rawPath: "m/44'/0'/0'/0/0")
 
         // Create a new path and extract its account node
-        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 7)
-        let extractedNode = helper.extractAccountDerivationNode(from: newPath)
+        let newPath = try helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 7)
+        let extractedNode = try helper.extractAccountDerivationNode(from: newPath)
 
-        #expect(extractedNode?.rawIndex == 7)
+        #expect(extractedNode.rawIndex == 7)
         #expect(newPath.rawPath == "m/44'/0'/7'/0/0")
 
         // Create another path from the extracted path
-        let anotherPath = helper.makeDerivationPath(from: newPath, forAccountWithIndex: 15)
+        let anotherPath = try helper.makeDerivationPath(from: newPath, forAccountWithIndex: 15)
         #expect(anotherPath.rawPath == "m/44'/0'/15'/0/0")
+    }
+
+    // MARK: - Specific Error Type Tests
+
+    @Test("Extraction throws insufficientNodes with correct details")
+    func extractionThrowsInsufficientNodesWithCorrectDetails() throws {
+        let helper = AccountDerivationPathHelper(blockchain: bitcoinMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/44'/0'") // Only 2 nodes
+
+        do {
+            _ = try helper.extractAccountDerivationNode(from: derivationPath)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .insufficientNodes(let required, let actual, let blockchain):
+                #expect(required == 3)
+                #expect(actual == 2)
+                #expect(blockchain == "Bitcoin")
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
+    }
+
+    @Test("Extraction throws accountsUnavailableForBlockchain with correct details")
+    func extractionThrowsAccountsUnavailableWithCorrectDetails() throws {
+        let chiaMainnet = Blockchain.chia(testnet: false)
+        let helper = AccountDerivationPathHelper(blockchain: chiaMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/12381'/8444'/0'/0")
+
+        do {
+            _ = try helper.extractAccountDerivationNode(from: derivationPath)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            switch error {
+            case .accountsUnavailableForBlockchain(let blockchain):
+                #expect(blockchain == chiaMainnet.displayName)
+            default:
+                Issue.record("Unexpected error case: \(error)")
+            }
+        }
     }
 }
 

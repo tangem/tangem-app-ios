@@ -151,7 +151,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
         return walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
-                walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
+                walletModel.walletConnectAddress.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
 
@@ -399,7 +399,7 @@ private extension WCTransactionViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, fee in
-                if case .failedToLoad = fee?.value, let fee {
+                if case .failure = fee?.value, let fee {
                     viewModel.handleFeeLoadingError(fee)
                 }
             }
@@ -428,7 +428,10 @@ private extension WCTransactionViewModel {
                     backAction: { [weak self] in self?.returnToTransactionDetails() }
                 )
 
-                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState()
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(
+                    tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config),
+                    confirmTransactionPolicy: confirmTransactionPolicy
+                )
                 let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
                 presentationState = .multipleTransactionsAlert(viewModel)
@@ -466,12 +469,12 @@ private extension WCTransactionViewModel {
 
     private func handleFeeLoadingError(_ selectedFee: WCFee) {
         switch selectedFee.value {
-        case .failedToLoad:
+        case .failure:
             let networkFeeEvent = WCNotificationEvent.networkFeeUnreachable
             feeValidationInputs = notificationManager.updateFeeValidationNotifications([networkFeeEvent], buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
-        case .loading, .loaded:
+        case .loading, .success:
             let currentEvents = notificationManager.currentFeeValidationInputs(buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
@@ -554,14 +557,35 @@ private extension WCTransactionViewModel {
                 return isCoin || isTokenInOtherBlockchain
             }
 
+        let isAccountScopedTransaction = transactionData.account != nil
+
         guard
-            filteredWalletModels.count > 1,
-            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.defaultAddressString
+            let fallbackAddress = filteredWalletModels.first(where: { $0.isMainToken })?.walletConnectAddress
+            ?? filteredWalletModels.first?.walletConnectAddress
         else {
             return nil
         }
 
-        return WCTransactionAddressRowViewModel(address: mainAddress)
+        let availableNormalizedAddresses = Set(
+            filteredWalletModels.map { walletModel in
+                WCEthereumRequestedAddressExtractor.normalizeAddress(walletModel.walletConnectAddress)
+            }
+        )
+        let extractedAddress = WCEthereumRequestedAddressExtractor.extract(from: transactionData)
+        let addressToDisplay: String
+
+        if let extractedAddress,
+           availableNormalizedAddresses.contains(WCEthereumRequestedAddressExtractor.normalizeAddress(extractedAddress)) {
+            addressToDisplay = extractedAddress
+        } else {
+            addressToDisplay = fallbackAddress
+        }
+
+        guard isAccountScopedTransaction || filteredWalletModels.count > 1 else {
+            return nil
+        }
+
+        return WCTransactionAddressRowViewModel(address: addressToDisplay)
     }
 
     private func successSignTransaction(onComplete: (() -> Void)? = nil) {

@@ -16,6 +16,7 @@ public enum MainAccessibilityIdentifiers {
     public static let organizeTokensButton = "mainOrganizeTokensButton"
     public static let tokenTitle = "mainTokenTitle"
     public static let detailsButton = "mainDetailsButton"
+    public static let scanQrButton = "mainScanQrButton"
     public static let headerCardImage = "mainHeaderCardImage"
     public static let tokenItemEarnBadge = "tokenItemEarnBadge"
     public static let developerCardBanner = "mainDeveloperCardBanner"
@@ -23,9 +24,11 @@ public enum MainAccessibilityIdentifiers {
     public static let totalBalance = "mainTotalBalance"
     public static let refreshSpinner = "mainRefreshSpinner"
     public static let refreshStateRefreshing = "mainRefreshStateRefreshing"
+    public static let refreshStateWillStartRefreshing = "mainRefreshStateWillStartRefreshing"
     public static let refreshStateIdle = "mainRefreshStateIdle"
     public static let missingDerivationNotification = "mainMissingDerivationNotification"
     public static let searchThroughMarketField = "mainSearchThroughMarketField"
+    public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
 
     /// Token-specific identifiers

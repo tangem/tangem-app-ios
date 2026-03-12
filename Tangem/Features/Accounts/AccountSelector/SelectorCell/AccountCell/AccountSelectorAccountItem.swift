@@ -8,6 +8,7 @@
 
 import Combine
 import TangemLocalization
+import TangemUI
 
 struct AccountSelectorAccountItem: Identifiable {
     let id: AnyHashable
@@ -16,7 +17,7 @@ struct AccountSelectorAccountItem: Identifiable {
     let icon: AccountModel.Icon
     let domainModel: any CryptoAccountModel
     let userWalletModel: any UserWalletModel
-    let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
+    let formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
     let availability: AccountAvailability
 }
 
@@ -36,7 +37,7 @@ extension AccountSelectorAccountItem {
         id = account.id
         name = account.name
         self.userWalletModel = userWalletModel
-        tokensCount = Localization.commonTokensCount(account.walletModelsManager.walletModels.count)
+        tokensCount = Localization.commonTokensCount(account.userTokensManager.userTokens.count)
         icon = account.icon
         domainModel = account
         formattedBalanceTypePublisher = account.fiatTotalBalanceProvider.totalFiatBalancePublisher

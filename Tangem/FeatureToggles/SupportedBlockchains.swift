@@ -29,10 +29,8 @@ extension SupportedBlockchains {
     }
 
     /// Blockchains which don't include in supported blockchains by default
-    static var testableIDs: Set<String> {
-        // [REDACTED_TODO_COMMENT]
-        // Here version isn't important because we take only coinId
-        return Set(SupportedBlockchains(version: .v1).testableBlockchains().map { $0.networkId })
+    static func testableBlockchains(version: Version) -> Set<Blockchain> {
+        return Set(SupportedBlockchains(version: version).testableBlockchains())
     }
 }
 
@@ -70,10 +68,6 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
-            .scroll(testnet: false),
-            .linea(testnet: false),
-            .arbitrumNova,
-            .plasma(testnet: false),
         ]
     }
 
@@ -166,6 +160,11 @@ struct SupportedBlockchains {
             .pepecoin(testnet: false),
             .hyperliquidEVM(testnet: false),
             .quai(testnet: false),
+            .scroll(testnet: false),
+            .linea(testnet: false),
+            .arbitrumNova,
+            .plasma(testnet: false),
+            .monad(testnet: false),
         ]
     }
 
@@ -233,6 +232,7 @@ struct SupportedBlockchains {
             .quai(testnet: true),
             .scroll(testnet: true),
             .linea(testnet: true),
+            .monad(testnet: true),
             .plasma(testnet: true),
         ]
     }

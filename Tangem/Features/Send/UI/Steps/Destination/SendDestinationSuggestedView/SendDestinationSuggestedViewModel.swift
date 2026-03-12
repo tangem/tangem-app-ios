@@ -39,7 +39,12 @@ class SendDestinationSuggestedViewModel {
                 addressIconViewModel: AddressIconViewModel(address: wallet.address),
                 wallet: wallet
             ) { [weak self] in
-                self?.tapAction(SendDestinationSuggested(address: wallet.address, additionalField: nil, type: .otherWallet))
+                self?.tapAction(SendDestinationSuggested(
+                    address: wallet.address,
+                    additionalField: nil,
+                    type: .otherWallet,
+                    accountModelAnalyticsProvider: wallet.accountModelAnalyticsProvider
+                ))
             }
         }
 
@@ -49,7 +54,12 @@ class SendDestinationSuggestedViewModel {
                 addressIconViewModel: AddressIconViewModel(address: record.address),
                 record: record
             ) { [weak self] in
-                self?.tapAction(SendDestinationSuggested(address: record.address, additionalField: record.additionalField, type: .recentAddress))
+                self?.tapAction(SendDestinationSuggested(
+                    address: record.address,
+                    additionalField: record.additionalField,
+                    type: .recentAddress,
+                    accountModelAnalyticsProvider: nil
+                ))
             }
         }
     }
@@ -79,6 +89,7 @@ struct SendDestinationSuggested {
     let address: String
     let additionalField: String?
     let type: DestinationType
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     enum DestinationType {
         case otherWallet
@@ -92,16 +103,11 @@ struct SendDestinationSuggestedWallet {
     let name: String
     let address: String
     let account: Account?
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     struct Account {
         let icon: AccountIconView.ViewData
         let name: String
-    }
-
-    init(name: String, address: String, account: Account?) {
-        self.name = name
-        self.address = address
-        self.account = account
     }
 }
 

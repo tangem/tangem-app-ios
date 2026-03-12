@@ -21,14 +21,12 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
         userWalletConfig: UserWalletConfig
     )
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel, onBackupFinished: @escaping () -> Void)
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onBackupFinished: @escaping () -> Void)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
     @MainActor
-    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext)
-    @MainActor
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void)
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel)
 
     @MainActor
     func closeOnboarding()

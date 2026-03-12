@@ -39,6 +39,7 @@ struct NotificationView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.background)
+        .colorTheme(settings.event.colorTheme)
         .cornerRadiusContinuous(14)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(settings.event.accessibilityIdentifier)
@@ -208,6 +209,17 @@ extension NotificationView: Setupable {
     }
 }
 
+private extension View {
+    @ViewBuilder
+    func colorTheme(_ colorTheme: NotificationView.ColorTheme) -> some View {
+        switch colorTheme {
+        case .system: self
+        case .dark: colorScheme(.dark)
+        case .light: colorScheme(.light)
+        }
+    }
+}
+
 // MARK: - Previews
 
 struct NotificationView_Previews: PreviewProvider {
@@ -226,10 +238,10 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .withButtons([
                     .init(action: { _, _ in
-                    }, actionType: .generateAddresses, isWithLoader: false),
+                    }, actionType: .backupCard, isWithLoader: false),
                 ]),
                 severity: .warning,
-                settings: NotificationView.Settings(event: GeneralNotificationEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
+                settings: NotificationView.Settings(event: GeneralNotificationEvent.demoCard, dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),

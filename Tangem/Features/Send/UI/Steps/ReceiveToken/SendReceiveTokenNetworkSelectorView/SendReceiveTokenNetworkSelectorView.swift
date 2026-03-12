@@ -20,7 +20,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 BottomSheetHeaderView(
                     title: viewModel.state.isSuccess ? Localization.commonChooseNetwork : "",
                     trailing: {
-                        CircleButton.close(action: viewModel.dismiss)
+                        NavigationBarButton.close(action: viewModel.dismiss)
                     }
                 )
                 .padding(.vertical, 4)
@@ -30,6 +30,8 @@ struct SendReceiveTokenNetworkSelectorView: View {
             }
 
             overlayContent
+                .transition(.opacity)
+                .animation(.easeInOut, value: viewModel.state)
         }
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.primary
@@ -58,7 +60,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 }
                 .padding(.bottom, 16)
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 

@@ -12,14 +12,14 @@ import TangemExpress
 
 protocol AllowanceService: ExpressAllowanceProvider {
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState
-    func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult
+
+    func markApproveTransactionSent(spender: String) async
 }
 
 // MARK: - ExpressAllowanceProvider
 
 extension AllowanceService {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
-        let contractAddress = request.pair.source.currency.contractAddress
+    func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState {
         if contractAddress == ExpressConstants.coinContractAddress {
             return .enoughAllowance
         }

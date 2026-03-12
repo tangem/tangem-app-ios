@@ -11,43 +11,62 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 
+protocol SwapTokenSelectorOutput: AnyObject {
+    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem)
+    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem)
+}
+
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
-    let tokenSelectorViewModel: NewTokenSelectorViewModel
+    let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
-    private let expressPairsRepository: ExpressPairsRepository
-    private let expressInteractor: ExpressInteractor
-    private weak var coordinator: SwapTokenSelectorRoutable?
+    private weak var output: SwapTokenSelectorOutput?
+
+    private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
+    private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
 
     private var selectedTokenItem: TokenItem?
 
+    // MARK: - Computed
+
+    /// Returns true if user has searched during this session
+    var userHasSearchedDuringThisSession: Bool {
+        marketsTokensViewModel?.userHasSearchedDuringThisSession ?? false
+    }
+
     init(
         swapDirection: SwapDirection,
-        expressPairsRepository: ExpressPairsRepository,
-        expressInteractor: ExpressInteractor,
-        coordinator: SwapTokenSelectorRoutable
+        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        marketsTokensViewModel: SwapMarketsTokensViewModel?,
+        output: SwapTokenSelectorOutput?,
+        tokenSelectorCoordinator: SwapTokenSelectorRoutable,
+        marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
     ) {
         self.swapDirection = swapDirection
-        self.expressPairsRepository = expressPairsRepository
-        self.expressInteractor = expressInteractor
-        self.coordinator = coordinator
+        self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.marketsTokensViewModel = marketsTokensViewModel
+        self.output = output
+        self.tokenSelectorCoordinator = tokenSelectorCoordinator
+        self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
-        let walletsProvider = SwapNewTokenSelectorWalletsProvider(
-            selectedItem: .just(output: swapDirection.tokenItem),
-            availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
-                directionPublisher: .just(output: swapDirection)
-            )
-        )
-        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
+
+        marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        marketsTokensViewModel?.setup(selectionHandler: self)
     }
 
     func close() {
-        coordinator?.closeSwapTokenSelector()
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+
+    func onAppear() {
+        Analytics.log(.swapChooseTokenScreenOpened)
     }
 
     func onDisappear() {
@@ -66,31 +85,70 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
             )
         }
     }
+
+    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
+        selectToken(item)
+    }
 }
 
-// MARK: - NewTokenSelectorViewModelOutput
+// MARK: - AccountsAwareTokenSelectorViewModelOutput
 
-extension SwapTokenSelectorViewModel: NewTokenSelectorViewModelOutput {
-    func usedDidSelect(item: NewTokenSelectorItem) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel
+extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
+    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+        logPortfolioTokenSelected(item: item)
+        selectToken(item)
+    }
+}
+
+// MARK: - Private
+
+private extension SwapTokenSelectorViewModel {
+    func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
+        let analyticsLogger = SwapSelectTokenAnalyticsLogger(
+            source: .portfolio,
+            userHasSearchedDuringThisSession: false
         )
+        analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
+    }
 
+    func selectToken(_ item: AccountsAwareTokenSelectorItem) {
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: expressInteractorWallet)
+            output?.swapTokenSelectorDidRequestUpdate(destination: item)
         case .toDestination:
-            expressInteractor.update(sender: expressInteractorWallet)
+            output?.swapTokenSelectorDidRequestUpdate(sender: item)
         }
 
-        selectedTokenItem = item.walletModel.tokenItem
-        coordinator?.closeSwapTokenSelector()
+        selectedTokenItem = item.tokenItem
+        tokenSelectorCoordinator?.closeSwapTokenSelector()
+    }
+}
+
+// MARK: - ExpressExternalTokenSelectionHandler
+
+extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
+    func didSelectExternalToken(_ token: MarketsTokenModel) {
+        Task { @MainActor in
+            guard let networks = token.networks, !networks.isEmpty else {
+                AppLogger.debug("Selected tokens with no networks")
+                return
+            }
+
+            let inputData = ExpressAddTokenInputData(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                networks: networks,
+                userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
+            )
+
+            marketsTokenAdditionCoordinator?.requestAddToken(inputData: inputData)
+        }
     }
 }
 
 extension SwapTokenSelectorViewModel {
-    typealias SwapDirection = NewTokenSelectorItemSwapAvailabilityProviderFactory.SwapDirection
+    typealias SwapDirection = AccountsAwareTokenSelectorItemSwapAvailabilityProvider.SwapDirection
 }
 
 extension SwapTokenSelectorViewModel.SwapDirection {

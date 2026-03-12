@@ -12,7 +12,7 @@ import TangemFoundation
 
 class CommonTotalBalanceProviderAnalyticsLogger {
     private let userWalletId: UserWalletId
-    private let walletModelsManager: WalletModelsManager
+    private let calculateWalletModels: () -> [any WalletModel]
 
     private var totalBalanceStateSubscription: AnyCancellable?
 
@@ -21,7 +21,21 @@ class CommonTotalBalanceProviderAnalyticsLogger {
         walletModelsManager: WalletModelsManager
     ) {
         self.userWalletId = userWalletId
-        self.walletModelsManager = walletModelsManager
+
+        calculateWalletModels = { [weak walletModelsManager] in
+            walletModelsManager?.walletModels ?? []
+        }
+    }
+
+    init(
+        userWalletId: UserWalletId,
+        accountModelsManager: any AccountModelsManager
+    ) {
+        self.userWalletId = userWalletId
+
+        calculateWalletModels = { [accountModelsManager] in
+            AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
+        }
     }
 }
 
@@ -43,13 +57,13 @@ extension CommonTotalBalanceProviderAnalyticsLogger: TotalBalanceProviderAnalyti
 
 private extension CommonTotalBalanceProviderAnalyticsLogger {
     func totalBalanceStateDidChange(state: TotalBalanceState) {
-        let walletModels = walletModelsManager.walletModels
+        let walletModels = calculateWalletModels()
 
         trackTokenBalanceStateChanged(state: state, tokensCount: walletModels.count)
         trackTokenBalanceLoaded(walletModels: walletModels)
 
         if case .loaded(let loadedBalance) = state {
-            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId)
+            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId, contextParams: .userWallet(userWalletId))
         }
     }
 
@@ -72,6 +86,8 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                 .balance: balance.rawValue,
                 .tokensCount: tokensCount.description,
             ],
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId),
             limit: .userWalletSession(userWalletId: userWalletId)
         )
     }
@@ -96,6 +112,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                     .token: symbol,
                     .state: positiveBalance ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ],
+                contextParams: .userWallet(userWalletId),
                 limit: .userWalletSession(userWalletId: userWalletId, extraEventId: symbol)
             )
         }

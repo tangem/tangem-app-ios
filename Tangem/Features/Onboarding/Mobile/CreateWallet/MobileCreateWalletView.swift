@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileCreateWalletView: View {
     typealias ViewModel = MobileCreateWalletViewModel
@@ -20,7 +21,8 @@ struct MobileCreateWalletView: View {
             .padding(.horizontal, 16)
             .safeAreaInset(edge: .top) { navigationBar }
             .allowsHitTesting(!viewModel.isCreating)
-            .onAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
 
@@ -46,11 +48,12 @@ private extension MobileCreateWalletView {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
                 Assets.MobileWallet.mobileWalletWithoutFrame.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.secondary)
 
                 Text(viewModel.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
                     .padding(.top, 20)
 
                 VStack(spacing: 28) {
@@ -61,9 +64,11 @@ private extension MobileCreateWalletView {
                 .padding(.top, 32)
             }
             .padding(.top, 64)
+            .padding(.horizontal, 24)
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
+                .bottomPaddingIfZeroSafeArea()
         }
     }
 
@@ -75,6 +80,10 @@ private extension MobileCreateWalletView {
                     .frame(width: 42)
 
                 item.icon.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.primary1)
+                    .frame(width: 24, height: 24)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -87,7 +96,6 @@ private extension MobileCreateWalletView {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 32)
     }
 
     var actionButtons: some View {
@@ -97,6 +105,7 @@ private extension MobileCreateWalletView {
                 style: .secondary,
                 action: viewModel.onImportTap
             )
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletImportButton)
 
             MainButton(
                 title: viewModel.createButtonTitle,
@@ -104,6 +113,7 @@ private extension MobileCreateWalletView {
                 isLoading: viewModel.isCreating,
                 action: viewModel.onCreateTap
             )
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletCreateButton)
         }
     }
 }

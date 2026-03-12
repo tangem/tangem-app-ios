@@ -13,8 +13,10 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private let ethTokenName = "Ethereum"
     private let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
-    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() {
+    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() throws {
         setAllureId(4293)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
 
         prepareSendFlow()
 
@@ -22,7 +24,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setLowCustomFee()
@@ -45,8 +47,10 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationDisplayed_WhenCustomFeeIsHigh() {
+    func testNotificationDisplayed_WhenCustomFeeIsHigh() throws {
         setAllureId(4294)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
 
         prepareSendFlow()
 
@@ -54,7 +58,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setHighCustomFee()
@@ -63,37 +67,36 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testInsufficientEthereumFeeBannerNavigatesToEthereumToken() {
+    func testInsufficientSolanaFeeBannerNavigatesToSolanaToken() {
         setAllureId(3645)
 
-        let polTokenName = "POL (ex-MATIC)"
+        let usdcSolanaToken = "USDC"
+        let topUpTokenName = "Solana"
 
-        let ethNetworkScenario = ScenarioConfig(
-            name: "eth_network_balance",
-            initialState: "Empty"
-        )
+        let tokensScenario = ScenarioConfig(name: "user_tokens_api", initialState: "SolanaUSDC")
+        let solanaBalanceScenario = ScenarioConfig(name: "solana_balance", initialState: "Empty")
 
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            scenarios: [ethNetworkScenario]
+            scenarios: [tokensScenario, solanaBalanceScenario]
         )
 
-        let polTokenScreen = StoriesScreen(app)
+        let usdcSolanaScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .tapToken(polTokenName)
+            .tapToken(usdcSolanaToken)
             .waitForNotEnoughFeeForTransactionBanner()
 
-        polTokenScreen
+        usdcSolanaScreen
             .tapGoToFeeCurrencyButton()
-            .waitForTokenName(ethTokenName)
+            .waitForTokenName(topUpTokenName)
             .waitForActionButtons()
     }
 
     private func prepareSendFlow() {
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(ethTokenName)
             .tapSendButton()

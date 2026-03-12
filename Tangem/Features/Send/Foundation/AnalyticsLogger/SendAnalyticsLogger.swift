@@ -16,10 +16,12 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendReceiveTokensListAnalyticsLogger,
     SendDestinationAnalyticsLogger,
     SendFeeAnalyticsLogger,
-    FeeSelectorContentViewModelAnalytics,
+    FeeSelectorAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
-    SendFinishAnalyticsLogger {
+    SendFinishAnalyticsLogger,
+    SendApproveAnalyticsLogger,
+    SwapManagementModelAnalyticsLogger {
     func setup(sendDestinationInput: any SendDestinationInput)
     func setup(sendFeeInput: any SendFeeInput)
     func setup(sendSourceTokenInput: any SendSourceTokenInput)
@@ -31,11 +33,13 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
-    SendValidatorsAnalyticsLogger,
+    SendTargetsAnalyticsLogger,
     SendSummaryAnalyticsLogger,
-    SendFinishAnalyticsLogger {
-    func setup(stakingValidatorsInput: StakingValidatorsInput)
+    SendFinishAnalyticsLogger,
+    SendApproveAnalyticsLogger {
+    func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
+    func logNoticeNotEnoughFee()
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
@@ -55,20 +59,49 @@ protocol SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: FeeOption,
         signerType: String,
-        currentProviderHost: String
+        currentProviderHost: String,
+        tokenFee: TokenFee?
     )
 }
 
 extension SendManagementModelAnalyticsLogger {
-    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String, currentProviderHost: String) {
-        logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
+    func logTransactionSent(amount: SendAmount?, fee: FeeOption, signerType: String, currentProviderHost: String) {
+        logTransactionSent(
+            amount: amount,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
 
-    func logTransactionSent(fee: SendFee, signerType: String, currentProviderHost: String) {
-        logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
+    func logTransactionSent(fee: FeeOption, signerType: String, currentProviderHost: String) {
+        logTransactionSent(
+            amount: .none,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
+}
+
+// MARK: - SendApproveAnalyticsLogger
+
+protocol SendApproveAnalyticsLogger {
+    func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy)
+    func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String)
+}
+
+// MARK: - SendSwapAnalyticsLogger
+
+protocol SwapManagementModelAnalyticsLogger {
+    func logSwapButtonSwap()
+    func logSwapTransactionSent(result: TransactionDispatcherResult)
 }
 
 // MARK: - SendBaseView
@@ -90,6 +123,8 @@ protocol SendDestinationAnalyticsLogger {
 
     func logDestinationStepOpened()
     func logDestinationStepReopened()
+
+    func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?)
 }
 
 protocol SendAmountAnalyticsLogger {
@@ -109,15 +144,18 @@ protocol SendReceiveTokensListAnalyticsLogger {
 }
 
 protocol SendFeeAnalyticsLogger {
-    func logSendFeeSelected(_ feeOption: FeeOption)
+    func logFeeSelected(tokenFee: TokenFee)
+    func logFeeSelected(_ feeOption: FeeOption)
 
     func logSendNoticeTransactionDelaysArePossible()
     func logFeeStepOpened()
     func logFeeStepReopened()
+    func logFeeSummaryOpened()
+    func logFeeTokensOpened(availableTokenFees: [TokenFee])
 }
 
-protocol SendValidatorsAnalyticsLogger {
-    func logStakingValidatorChosen()
+protocol SendTargetsAnalyticsLogger {
+    func logStakingTargetChosen()
 }
 
 protocol SendOnrampOffersAnalyticsLogger: SendOnrampProvidersAnalyticsLogger,

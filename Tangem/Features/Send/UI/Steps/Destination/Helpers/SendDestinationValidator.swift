@@ -12,35 +12,35 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationValidator {
-    func validate(destination: String) throws
+    func validate(destination: String) throws(SendAddressServiceError)
     func canEmbedAdditionalField(into address: String) -> Bool
 }
 
 class CommonSendDestinationValidator {
     private let walletAddresses: [String]
     private let addressService: AddressService
-    private let supportsCompound: Bool
+    private let allowSameAddressTransaction: Bool
 
     init(
         walletAddresses: [String],
         addressService: AddressService,
-        supportsCompound: Bool
+        allowSameAddressTransaction: Bool
     ) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
-        self.supportsCompound = supportsCompound
+        self.allowSameAddressTransaction = allowSameAddressTransaction
     }
 }
 
 extension CommonSendDestinationValidator: SendDestinationValidator {
-    func validate(destination address: String) throws {
+    func validate(destination address: String) throws(SendAddressServiceError) {
         if address.isEmpty {
             throw SendAddressServiceError.emptyAddress
         }
 
         // e.g. XRP xAddress
         let resolvedAddress = addressService.resolveAddress(address)
-        if !supportsCompound, walletAddresses.contains(resolvedAddress) {
+        if !allowSameAddressTransaction, walletAddresses.contains(resolvedAddress) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 

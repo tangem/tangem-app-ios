@@ -22,6 +22,10 @@ class EthereumNetworkService: MultiNetworkProvider {
     private let decimals: Int
     private let abiEncoder: ABIEncoder
 
+    var networkProviderType: NetworkProviderType? {
+        providers[currentProviderIndex].networkProviderType
+    }
+
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
@@ -40,25 +44,12 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getInfo(
-        address: String,
-        tokens: [Token]
-    ) -> AnyPublisher<EthereumInfoResponse, Error> {
-        Publishers.Zip4(
+    func getInfo(address: String, tokens: [Token]) -> AnyPublisher<EthereumInfoResponse, Error> {
+        Publishers.Zip(
             getBalance(address),
-            getTokensBalance(address, tokens: tokens),
-            getTxCount(address),
-            getPendingTxCount(address)
+            getTokensBalance(address, tokens: tokens)
         )
-        .map { balance, tokenBalances, txCount, pendingTxCount in
-            return EthereumInfoResponse(
-                balance: balance,
-                tokenBalances: tokenBalances,
-                txCount: txCount,
-                pendingTxCount: pendingTxCount,
-                pendingTxs: []
-            )
-        }
+        .map { EthereumInfoResponse(balance: $0, tokenBalances: $1) }
         .eraseToAnyPublisher()
     }
 
@@ -186,6 +177,19 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
+    func getTransactionByHash(_ hash: String) -> AnyPublisher<PendingTransactionStatusInfo, Error> {
+        providerPublisher { provider in
+            provider.getTransactionByHash(hash)
+                .map { transaction -> PendingTransactionStatusInfo in
+                    PendingTransactionStatusInfo(
+                        provider: provider.networkProviderType,
+                        transaction: transaction
+                    )
+                }
+                .eraseToAnyPublisher()
+        }
+    }
+
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> {
         providerPublisher {
             $0.getPendingTxCount(for: address)
@@ -218,11 +222,11 @@ class EthereumNetworkService: MultiNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func read<Target: SmartContractTargetType>(target: Target) -> AnyPublisher<String, Error> {
-        let encodedData = abiEncoder.encode(method: target.methodName, parameters: target.parameters)
+    func read<Method: SmartContractTargetMethodType>(contractAddress: String, method: Method) -> AnyPublisher<String, Error> {
+        let encodedData = abiEncoder.encode(method: method.methodName, parameters: method.parameters)
 
         return providerPublisher {
-            $0.call(contractAddress: target.contactAddress, encodedData: encodedData)
+            $0.call(contractAddress: contractAddress, encodedData: encodedData)
         }
     }
 }
@@ -232,7 +236,7 @@ private extension EthereumNetworkService {
         address: String,
         token: Token
     ) -> AnyPublisher<(Token, Result<Decimal, Error>), Error> {
-        providerPublisher { provider -> AnyPublisher<Result<Decimal, Error>, Error> in
+        providerPublisher { provider -> AnyPublisher<Decimal, Error> in
             let method = TokenBalanceERC20TokenMethod(owner: address)
 
             return provider
@@ -245,10 +249,10 @@ private extension EthereumNetworkService {
 
                     return value
                 }
-                .mapToResult()
-                .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
+        .mapToResult()
+        .setFailureType(to: Error.self)
         .map { (token, $0) }
         .eraseToAnyPublisher()
     }

@@ -12,12 +12,13 @@ import TangemUI
 import TangemAccounts
 import SwiftUI
 import TangemLocalization
+import struct TangemFoundation.UserWalletId
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published private(set) var displayMode: AccountSelectorDisplayMode = .wallets
+    let displayMode: AccountSelectorDisplayMode
     @Published private(set) var lockedWalletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var walletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var accountsSections: [AccountSelectorMultipleAccountsItem] = []
@@ -27,8 +28,8 @@ final class AccountSelectorViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let userWalletModels: [any UserWalletModel]
-    private let cryptoAccountModelsFilter: (any CryptoAccountModel) -> Bool
-    private let availabilityProvider: (any CryptoAccountModel) -> AccountAvailability
+    private let cryptoAccountModelsFilter: (AccountSelectorItem) -> Bool
+    private let availabilityProvider: (AccountSelectorItem) -> AccountAvailability
     private let onSelect: (AccountSelectorCellModel) -> Void
     private var bag = Set<AnyCancellable>()
 
@@ -37,8 +38,8 @@ final class AccountSelectorViewModel: ObservableObject {
     init(
         selectedItem: (any BaseAccountModel)? = nil,
         userWalletModels: [any UserWalletModel],
-        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool = { _ in true },
-        availabilityProvider: @escaping (any CryptoAccountModel) -> AccountAvailability = { _ in .available },
+        cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
+        availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.selectedItem = selectedItem
@@ -66,8 +67,8 @@ final class AccountSelectorViewModel: ObservableObject {
     convenience init(
         selectedItem: (any BaseAccountModel)? = nil,
         userWalletModel: any UserWalletModel,
-        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool = { _ in true },
-        availabilityProvider: @escaping (any CryptoAccountModel) -> AccountAvailability = { _ in .available },
+        cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
+        availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.init(
@@ -86,12 +87,11 @@ final class AccountSelectorViewModel: ObservableObject {
         case .selectItem(let item):
             switch item {
             case .wallet(let model):
-                if case .active = model.wallet {
+                if case .active = model.wallet, model.accountAvailability == .available {
                     selectedItem = model.mainAccount
                     onSelect(.wallet(model))
                 }
             case .account(let model):
-                guard model.availability == .available else { return }
                 selectedItem = model.domainModel
                 onSelect(.account(model))
             }
@@ -101,7 +101,7 @@ final class AccountSelectorViewModel: ObservableObject {
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
         switch cell {
         case .wallet(let model):
-            if case .active = model.wallet {
+            if case .active = model.wallet, model.accountAvailability == .available {
                 return selectedItem?.id.toAnyHashable() == model.mainAccount.id.toAnyHashable()
             }
         case .account(let model):
@@ -112,25 +112,14 @@ final class AccountSelectorViewModel: ObservableObject {
         return false
     }
 
-    func makeAccountRowInput(for account: AccountSelectorAccountItem) -> AccountRowViewModel.Input {
-        AccountRowViewModel.Input(
-            iconData: AccountModelUtils.UI.iconViewData(
-                icon: account.icon,
-                accountName: account.name
-            ),
-            name: account.name,
-            subtitle: account.tokensCount,
-            balancePublisher: account.availability.isBalanceVisible ? account.formattedBalanceTypePublisher : nil,
-            availability: account.availability
-        )
-    }
-
     // MARK: - Private Methods
 
     private func bind() {
         userWalletModels
             .forEach { userWallet in
-                userWallet.accountModelsManager.accountModelsPublisher
+                userWallet
+                    .accountModelsManager
+                    .accountModelsPublisher
                     .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, accountModels in
@@ -181,12 +170,19 @@ final class AccountSelectorViewModel: ObservableObject {
     ) -> AccountSelectorWalletItem? {
         switch accountModel {
         case .standard(.single(let cryptoAccountModel)):
-            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+            let accountSelectorItem = AccountSelectorItem(
+                userWalletId: userWallet.userWalletId,
+                cryptoAccountModel: cryptoAccountModel
+            )
 
+            guard cryptoAccountModelsFilter(accountSelectorItem) else { return nil }
+
+            let accountAvailability = availabilityProvider(accountSelectorItem)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
 
         case .standard(.multiple(let cryptoAccountModels)):
@@ -194,13 +190,24 @@ final class AccountSelectorViewModel: ObservableObject {
                 preconditionFailure("Active wallet must have at least one crypto account")
             }
 
-            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+            let accountSelectorItem = AccountSelectorItem(
+                userWalletId: userWallet.userWalletId,
+                cryptoAccountModel: cryptoAccountModel
+            )
 
+            guard cryptoAccountModelsFilter(accountSelectorItem) else { return nil }
+
+            let accountAvailability = availabilityProvider(accountSelectorItem)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
+
+        case .tangemPay:
+            // Currently it's not possible to add tokens to TangemPay account
+            return nil
         }
     }
 
@@ -210,7 +217,12 @@ final class AccountSelectorViewModel: ObservableObject {
     ) -> AccountSelectorMultipleAccountsItem? {
         switch accountModel {
         case .standard(.single(let cryptoAccountModel)):
-            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+            let accountSelectorItem = AccountSelectorItem(
+                userWalletId: userWallet.userWalletId,
+                cryptoAccountModel: cryptoAccountModel
+            )
+
+            guard cryptoAccountModelsFilter(accountSelectorItem) else { return nil }
 
             return AccountSelectorMultipleAccountsItem(
                 userWallet: userWallet,
@@ -220,22 +232,46 @@ final class AccountSelectorViewModel: ObservableObject {
                         userWalletModel: userWallet,
                         availability: .available
                     ),
-                ]
+                ],
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
+                }
             )
-        case .standard(.multiple(let cryptoAccountModels)):
-            let filteredCryptoAccountModels = cryptoAccountModels.filter(cryptoAccountModelsFilter)
 
-            guard filteredCryptoAccountModels.isNotEmpty else { return nil }
+        case .standard(.multiple(let cryptoAccountModels)):
+            let filteredAccountSelectorItems = cryptoAccountModels.compactMap { cryptoAccountModel in
+                let accountSelectorItem = AccountSelectorItem(
+                    userWalletId: userWallet.userWalletId,
+                    cryptoAccountModel: cryptoAccountModel
+                )
+
+                return cryptoAccountModelsFilter(accountSelectorItem) ? accountSelectorItem : nil
+            }
+
+            guard filteredAccountSelectorItems.isNotEmpty else { return nil }
 
             return AccountSelectorMultipleAccountsItem(
                 userWallet: userWallet,
-                accounts: filteredCryptoAccountModels.map {
-                    AccountSelectorAccountItem(account: $0, userWalletModel: userWallet, availability: availabilityProvider($0))
+                accounts: filteredAccountSelectorItems.map { accountSelectorItem in
+                    AccountSelectorAccountItem(
+                        account: accountSelectorItem.cryptoAccountModel,
+                        userWalletModel: userWallet,
+                        availability: availabilityProvider(accountSelectorItem)
+                    )
+                },
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
                 }
             )
+
+        case .tangemPay:
+            // Currently it's not possible to add tokens to TangemPay account
+            return nil
         }
     }
 }
+
+// MARK: - Auxiliary types
 
 enum AccountAvailability: Equatable {
     case available
@@ -252,9 +288,16 @@ enum AccountAvailability: Equatable {
 }
 
 extension AccountSelectorViewModel {
+    struct AccountSelectorItem {
+        let userWalletId: UserWalletId
+        let cryptoAccountModel: any CryptoAccountModel
+    }
+
     enum ViewAction {
         case selectItem(AccountSelectorCellModel)
     }
 }
+
+// MARK: - FloatingSheetContentViewModel protocol conformance
 
 extension AccountSelectorViewModel: FloatingSheetContentViewModel {}

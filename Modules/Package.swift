@@ -11,7 +11,7 @@ let package = Package(
     name: modulesWrapperLibraryName,
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v15),
+        .iOS("16.4"),
         // [REDACTED_USERNAME]
         // We enforce a set the macOS minimum target version
         // so that the swift-syntax dependency can compile and link for macros
@@ -26,15 +26,18 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.2")),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.3.2")),
+        .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.3")),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.11.1")),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.7.0")),
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
-        .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.24.1")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.20")),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.6.0")),
+        .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.0.19"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
+        .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.41.1")),
+        .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -113,6 +116,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemLocalization",
                 "TangemFoundation",
+                "TangemUIUtilsObjC",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -120,14 +124,19 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemUIUtilsObjC"
+        ),
+        .tangemTarget(
             name: "TangemUI",
             dependencies: [
+                "CombineExt",
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
                 "TangemLocalization",
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
+                .product(name: "BlurSwiftUI", package: "BlurUIKit"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -155,7 +164,6 @@ var serviceModules: [PackageDescription.Target] {
                 "crypto/ed25519-donna/README.md",
                 "crypto/nist256p1.table",
                 "crypto/secp256k1.table",
-                "crypto/test.db",
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
@@ -212,6 +220,21 @@ var featureModules: [PackageDescription.Target] {
                 "TangemUIUtils",
                 "TangemUI",
                 "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemPay",
+            dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "IdensicMobileSDK", package: "idensicmobilesdk-ios"),
+                "CryptoSwift",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

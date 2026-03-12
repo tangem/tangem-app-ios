@@ -10,22 +10,25 @@ import Foundation
 import TangemLocalization
 
 class CommonSellStepsManager {
-    private let feeSelector: FeeSelectorContentViewModel
+    private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     private var stack: [SendStep]
     private weak var output: SendStepsManagerOutput?
     weak var router: SendRoutable?
 
     init(
-        feeSelector: FeeSelectorContentViewModel,
+        feeSelectorBuilder: SendFeeSelectorBuilder,
         summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep
+        finishStep: SendFinishStep,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
     ) {
-        self.feeSelector = feeSelector
+        self.feeSelectorBuilder = feeSelectorBuilder
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.confirmTransactionPolicy = confirmTransactionPolicy
 
         stack = [summaryStep]
     }
@@ -75,7 +78,7 @@ extension CommonSellStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .summary: return .init(action: .action)
+        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
         case .finish: return .init(action: .close)
         default: return .empty
         }
@@ -109,6 +112,6 @@ extension CommonSellStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        router?.openFeeSelector(viewModel: feeSelector)
+        router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 }

@@ -11,29 +11,17 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
-    let userWalletInfo: UserWalletInfo
+    let sourceToken: SendSourceToken
     let parameters: PredefinedOnrampParameters
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
 
-    let tokenHeaderProvider: SendGenericTokenHeaderProvider
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let tokenIconInfo: TokenIconInfo
-    let defaultAddressString: String
-
-    let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
-    let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
 
-    lazy var dependencies = makeOnrampDependencies(
-        preferredValues: parameters.preferredValues
-    )
+    lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: source)
-
+    lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
+    lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
 
     lazy var onrampModel = makeOnrampModel(
@@ -41,75 +29,32 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         onrampDataRepository: dependencies.dataRepository,
         onrampRepository: dependencies.repository,
         analyticsLogger: analyticsLogger,
+        autoupdatingTimer: autoupdatingTimer,
         predefinedValues: .init(amount: parameters.amount)
     )
 
-    lazy var dataBuilder = makeOnrampBaseDataBuilder(
-        onrampRepository: dependencies.repository,
-        onrampDataRepository: dependencies.dataRepository,
-        onrampRedirectingBuilder: OnrampRedirectingBuilder(
-            io: (input: onrampModel, output: onrampModel),
-            tokenItem: tokenItem,
-            onrampManager: dependencies.manager
-        )
-    )
-
     init(
-        userWalletInfo: UserWalletInfo,
+        sourceToken: SendSourceToken,
         parameters: PredefinedOnrampParameters,
-        source: SendCoordinator.Source,
-        walletModel: any WalletModel
+        coordinatorSource: SendCoordinator.Source,
     ) {
-        self.userWalletInfo = userWalletInfo
+        self.sourceToken = sourceToken
         self.parameters = parameters
-        self.source = source
+        self.coordinatorSource = coordinatorSource
 
-        tokenHeaderProvider = SendTokenHeaderProvider(
-            userWalletInfo: userWalletInfo,
-            account: walletModel.account,
-            flowActionType: .onramp
-        )
-        tokenItem = walletModel.tokenItem
-        feeTokenItem = walletModel.feeTokenItem
-        tokenIconInfo = TokenIconInfoBuilder().build(
-            from: walletModel.tokenItem,
-            isCustom: walletModel.isCustom
-        )
-        defaultAddressString = walletModel.defaultAddressString
-
-        walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
-        transactionDispatcherFactory = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
-        baseDataBuilderFactory = SendBaseDataBuilderFactory(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo
-        )
         pendingExpressTransactionsManagerBuilder = .init(
-            userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel
+            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+            tokenItem: sourceToken.tokenItem,
         )
 
-        let expressDependenciesInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            destination: .none
-        )
-
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            supportedProviderTypes: [.onramp],
-            operationType: .onramp
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 }
 
 // MARK: - SendGenericFlowFactory
 
 extension OnrampFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable) -> SendViewModel {
+    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let onramp = makeOnrampSummaryStep()
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: tokenItem,
@@ -126,7 +71,9 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             ),
             onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
                 input: onrampModel,
-                pendingTransactionsManager: makePendingExpressTransactionsManager()
+                pendingTransactionsManager: pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
+                    expressAPIProvider: expressDependenciesFactory.expressAPIProvider
+                )
             ),
             router: router
         )
@@ -139,6 +86,17 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         // If user already has saved country in the repository then the bottom sheet will not show
         // And we can show keyboard safely
         let shouldActivateKeyboard = dependencies.repository.preferenceCountry != nil
+
+        let dataBuilder = CommonOnrampBaseDataBuilder(
+            config: userWalletInfo.config,
+            onrampRepository: dependencies.repository,
+            onrampDataRepository: dependencies.dataRepository,
+            onrampRedirectingBuilder: OnrampRedirectingBuilder(
+                io: (input: onrampModel, output: onrampModel),
+                tokenItem: tokenItem,
+                onrampManager: dependencies.manager
+            )
+        )
 
         let stepsManager = CommonOnrampStepsManager(
             onrampStep: onramp,
@@ -158,6 +116,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
 
         onrampModel.alertPresenter = viewModel
 
+        coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
+
         return viewModel
     }
 }
@@ -172,9 +132,12 @@ extension OnrampFlowFactory: SendBaseBuildable {
     var baseDependencies: SendViewModelBuilder.Dependencies {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
-            dataBuilder: dataBuilder,
+            mailDataBuilder: EmptySendMailDataBuilder(),
+            approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
+            feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
+            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
         )
     }
 }

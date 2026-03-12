@@ -28,6 +28,7 @@ class CommonWalletModel {
 
     // MARK: - Balance providers
 
+    lazy var feeTokenItemBalanceProvider = makeFeeTokenItemBalanceProvider()
     lazy var availableBalanceProvider = makeAvailableBalanceProvider()
     lazy var stakingBalanceProvider = makeStakingBalanceProvider()
     lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
@@ -35,15 +36,6 @@ class CommonWalletModel {
     lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
     lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
-
-    /// Simple flag to check exactly BSDK balance
-    var balanceState: WalletModelBalanceState? {
-        switch wallet.amounts[tokenItem.amountType]?.value {
-        case .none: .none
-        case .zero: .zero
-        case .some: .positive
-        }
-    }
 
     private(set) weak var account: (any CryptoAccountModel)?
 
@@ -56,10 +48,6 @@ class CommonWalletModel {
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
 
-    private var updateTimer: AnyCancellable?
-    private var updateWalletModelSubscription: AnyCancellable?
-    private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
-
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
@@ -67,8 +55,6 @@ class CommonWalletModel {
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
     private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
-    private lazy var formatter = BalanceFormatter()
-
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -121,7 +107,37 @@ class CommonWalletModel {
         account = cryptoAccount
     }
 
+    func initializeLazyProperties() {
+        _ = feeTokenItemBalanceProvider
+        _ = availableBalanceProvider
+        _ = stakingBalanceProvider
+        _ = totalTokenBalanceProvider
+        _ = fiatAvailableBalanceProvider
+        _ = fiatStakingBalanceProvider
+        _ = fiatTotalTokenBalanceProvider
+
+        _ = _yieldModuleManager
+        _ = _rate
+    }
+
     private func bind() {
+        AppSettings.shared.$selectedCurrencyCode
+            // Ignore already the selected code
+            .dropFirst()
+            // Ignore if the selected code is equal
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                // Invoke immediate fiat update when currency changes (e.g. offline case)
+                self?._rate.send(.loading(cached: nil))
+            })
+            .withWeakCaptureOf(self)
+            // Reload existing quotes for a new currency code
+            .asyncMap { model, _ in
+                await model.loadQuotes()
+            }
+            .sink { _ in }
+            .store(in: &bag)
+
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
@@ -133,68 +149,66 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
+
+        if let _stakingManager {
+            _stakingManager.updateWalletBalancesPublisher
+                .dropFirst() // drop initial value
+                .withWeakCaptureOf(self)
+                .asyncMap { walletModel, _ in
+                    await walletModel.update(silent: false, features: .balances)
+                }
+                .sink { _ in }
+                .store(in: &bag)
+        }
     }
 
     // MARK: - State updates
 
-    private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
-        switch walletManagerState {
-        case .loaded:
-            if let demoBalance {
-                walletManager.wallet.add(coinValue: demoBalance)
-            }
-        case .failed, .loading, .initial:
-            break
-        }
-
-        updateState(mapState(walletManagerState))
-    }
-
-    private func mapState(_ walletManagerState: WalletManagerState) -> WalletModelState {
-        switch walletManagerState {
-        case .loaded:
-            if let balance = wallet.amounts[amountType]?.value {
-                return .loaded(balance)
-            }
-            return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
-        case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
-            return .noAccount(message: message, amountToCreate: amountToCreate)
-        case .failed(let error):
-            return .failed(error: error.toUniversalError().localizedDescription)
-        case .loading:
-            return .loading
+    @MainActor
+    private func walletManagerDidUpdate() {
+        switch walletManager.state {
         case .initial:
-            return .created
+            updateState(.created)
+        case .loading:
+            updateState(.loading)
+        case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
+            updateState(.noAccount(message: message, amountToCreate: amountToCreate))
+        case .failed(let error):
+            updateState(.failed(error: error.toUniversalError().localizedDescription))
+        case .loaded:
+            addDemoBalanceIfNeeded()
+
+            if let balance = wallet.amounts[amountType]?.value {
+                updateState(.loaded(balance))
+            } else {
+                updateState(.failed(error: WalletModelError.balanceNotFound.localizedDescription))
+            }
         }
     }
 
+    @MainActor
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in
-            _yieldModuleManager?.updateState(
-                walletModelState: state,
-                balance: wallet.amounts[amountType]
-            )
-            _state.value = state
+        _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
+        _state.value = state
+    }
+
+    private func addDemoBalanceIfNeeded() {
+        if let demoBalance {
+            walletManager.wallet.add(coinValue: demoBalance)
         }
     }
 
     // MARK: - Quotes
 
-    private func loadQuotes() -> AnyPublisher<Void, Never> {
+    private func loadQuotes() async {
         guard let currencyId = tokenItem.currencyId else {
             _rate.send(.custom)
-            return .just(output: ())
+            return
         }
 
-        return quotesRepository
-            .loadQuotes(currencyIds: [currencyId])
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { walletModel, dict in
-                walletModel.updateQuote(quote: dict[currencyId])
-            })
-            .mapToVoid()
-            .eraseToAnyPublisher()
+        let quotes = await quotesRepository.loadQuotes(currencyIds: [currencyId])
+        updateQuote(quote: quotes[currencyId])
     }
 
     private func updateQuote(quote: TokenQuote?) {
@@ -213,22 +227,13 @@ class CommonWalletModel {
     // MARK: - Timer
 
     private func startUpdatingTimer() {
-        walletManager.setNeedsUpdate()
-        AppLogger.info(self, "⏰ Starting updating timer")
-        updateTimer = Timer.TimerPublisher(
-            interval: 10.0,
-            tolerance: 0.1,
-            runLoop: .main,
-            mode: .common
-        )
-        .autoconnect()
-        .withWeakCaptureOf(self)
-        .flatMap { root, _ in
-            AppLogger.info(root, "⏰ Updating timer alarm ‼️. WalletModel will be updated")
-            return root.generalUpdate(silent: false)
-        }
-        .sink { [weak self] in
-            self?.updateTimer?.cancel()
+        Task { [weak self] in
+            AppLogger.info(self, "⏰ Starting updating timer")
+            try await Task.sleep(for: .seconds(10))
+
+            AppLogger.info(self, "⏰ Updating timer alarm ‼️. WalletModel will be updated")
+            self?.walletManager.setNeedsUpdate()
+            await self?.update(silent: false, features: .full)
         }
     }
 }
@@ -304,8 +309,6 @@ extension CommonWalletModel: WalletModel {
 
     var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
 
-    var defaultAddressString: String { wallet.defaultAddress.value }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
@@ -321,15 +324,16 @@ extension CommonWalletModel: WalletModel {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        Publishers.Merge3(
+        Publishers.Merge4(
             expressAvailabilityProvider.availabilityDidChangePublisher,
             stakingManagerStatePublisher.mapToVoid(),
-            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid(),
+            (yieldModuleManager?.statePublisher ?? Just(.none).eraseToAnyPublisher()).mapToVoid()
         )
         .eraseToAnyPublisher()
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         sendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -347,6 +351,10 @@ extension CommonWalletModel: WalletModel {
         walletManager as? StakeKitTransactionSender
     }
 
+    var p2pTransactionSender: P2PTransactionSender? {
+        walletManager as? P2PTransactionSender
+    }
+
     var accountInitializationService: (any BlockchainAccountInitializationService)? {
         walletManager as? BlockchainAccountInitializationService
     }
@@ -354,72 +362,49 @@ extension CommonWalletModel: WalletModel {
     var minimalBalanceProvider: (any MinimalBalanceProvider)? {
         walletManager as? MinimalBalanceProvider
     }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        walletManager as? EthereumGaslessDataProvider
+    }
 }
 
-// MARK: - Updater
+// MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    /// Fire-and-forget — subscriptions are managed internally:
-    /// `update()` in CommonWalletModel uses `updateWalletModelSubscription`,
-    /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        _transactionHistoryService?.clearHistory()
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+        let logger = AppLogger.tag("WalletModelUpdater")
 
-        return Publishers
-            .CombineLatest(
-                update(silent: silent),
-                updateTransactionsHistory()
-            )
-            .mapToVoid()
-            .eraseToAnyPublisher()
-    }
+        async let balancesUpdate: () = {
+            if features.contains(.balances) {
+                if !silent { await updateState(.loading) }
 
-    /// Do not use with flatMap.
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        // If updating already in process return updating Publisher
-        if let updatePublisher = updatePublisher {
-            return updatePublisher.eraseToAnyPublisher()
-        }
+                async let update: () = walletManager.update()
+                async let quotes: () = loadQuotes()
+                async let staking: ()? = _stakingManager?.updateState(loadActions: true)
 
-        if case .loading = state {
-            return _state
-                .drop(while: { $0 == .loading })
-                .prefix(1)
-                .eraseToAnyPublisher()
-        }
+                _ = await (update, quotes, staking)
+                logger.debug(self, "WalletModel was updated to state '\(walletManager.state)'")
 
-        // Keep this before the async call
-        let newUpdatePublisher = PassthroughSubject<WalletModelState, Never>()
-        updatePublisher = newUpdatePublisher
+                await _receiveAddressService.update(with: addresses)
+                logger.debug(self, "ReceiveAddressService was updated")
 
-        if !silent {
-            updateState(.loading)
-        }
-
-        updateWalletModelSubscription = walletManager
-            .updatePublisher()
-            .combineLatest(
-                loadQuotes(),
-                updateStakingManagerState()
-            )
-            .withWeakCaptureOf(self)
-            // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
-            .flatMap { walletModel, newState in
-                walletModel
-                    .updateReceiveAddressTypes()
-                    .map { newState }
+                await walletManagerDidUpdate()
+                logger.debug(self, "Update method finished with state '\(walletManager.state)'")
             }
-            .withWeakCaptureOf(self)
-            .sink { walletModel, newState in
-                let newState = walletModel.walletManager.state
-                walletModel.walletManagerDidUpdate(newState)
+        }()
 
-                walletModel.updatePublisher?.send(walletModel.mapState(newState))
-                walletModel.updatePublisher?.send(completion: .finished)
-                walletModel.updatePublisher = nil
+        async let transactionHistoryUpdate: () = {
+            if features.contains(.transactionHistory) {
+                _transactionHistoryService?.clearHistory()
+                logger.debug(self, "Transaction history was cleared")
+
+                await updateTransactionsHistory()
+                logger.debug(self, "Transaction history was updated")
             }
+        }()
 
-        return newUpdatePublisher.eraseToAnyPublisher()
+        // Keep parallel updating
+        _ = await (balancesUpdate, transactionHistoryUpdate)
     }
 
     func updateAfterSendingTransaction() {
@@ -428,31 +413,27 @@ extension CommonWalletModel: WalletModelUpdater {
         startUpdatingTimer()
     }
 
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
+    func updateTransactionsHistory() async {
         guard let _transactionHistoryService else {
             AppLogger.info(self, "TransactionsHistory not supported")
-            return .just(output: ())
+            return
         }
 
-        return _transactionHistoryService.update()
+        try? await _transactionHistoryService.update().async()
+    }
+}
+
+// MARK: - BSDKTokenBalanceProviderInput
+
+extension CommonWalletModel: BSDKTokenBalanceProviderInput {
+    func balance(for tokenItem: TokenItem) -> BSDKTokenBalance? {
+        wallet.amounts[tokenItem.amountType]?.value
     }
 
-    private func updateReceiveAddressTypes() -> AnyPublisher<Void, Never> {
-        Future.async { [weak self] in
-            let addresses = self?.addresses ?? []
-            await self?._receiveAddressService.update(with: addresses)
+    func balancePublisher(for tokenItem: TokenItem) -> AnyPublisher<BSDKTokenBalance?, Never> {
+        walletManager.walletPublisher.map { wallet in
+            wallet.amounts[tokenItem.amountType]?.value
         }
-        // Here we have to skip the error to let the PTR to complete
-        .replaceError(with: ())
-        .eraseToAnyPublisher()
-    }
-
-    private func updateStakingManagerState() -> AnyPublisher<Void, Never> {
-        Future.async { [weak self] in
-            await self?._stakingManager?.updateState(loadActions: true)
-        }
-        // Here we have to skip the error to let the PTR to complete
-        .replaceError(with: ())
         .eraseToAnyPublisher()
     }
 }
@@ -460,6 +441,10 @@ extension CommonWalletModel: WalletModelUpdater {
 // MARK: - Balance Provider
 
 extension CommonWalletModel: WalletModelBalancesProvider {
+    func makeFeeTokenItemBalanceProvider() -> TokenBalanceProvider {
+        BSDKTokenBalanceProvider(input: self, tokenItem: feeTokenItem)
+    }
+
     func makeAvailableBalanceProvider() -> TokenBalanceProvider {
         AvailableTokenBalanceProvider(
             input: self,
@@ -590,49 +575,22 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldModuleStateRepository: yieldModuleStateRepository,
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
-            scheduleWalletUpdate: { [weak self] in
-                self?.startUpdatingTimer()
+            updateWallet: { [weak self] in
+                await self?.update(silent: false, features: .full)
             }
         )
     }
 }
 
-// MARK: - WalletModelFeeProvider
+// MARK: - WalletModelFeesProvider
 
-extension CommonWalletModel: WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return .justWithError(output: demoFees)
-        }
-
-        return walletManager.estimatedFee(amount: amount)
+extension CommonWalletModel: WalletModelFeesProvider {
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
+        TokenFeeLoaderBuilder(tokenItem: tokenItem, dependenciesProvider: self, isDemo: isDemo)
     }
 
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return .justWithError(output: demoFees)
-        }
-
-        return walletManager.getFee(amount: amount, destination: destination)
-    }
-
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
-    }
-
-    func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
-        wallet.hasFeeCurrency(amountType: amountType)
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return demoFees
-        }
-
-        return try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
+    var customFeeProviderBuilder: CustomFeeProviderBuilder {
+        CustomFeeProviderBuilder(tokenItem: tokenItem, feeTokenItem: feeTokenItem, walletManager: walletManager)
     }
 }
 
@@ -640,6 +598,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
 
 extension CommonWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: BlockchainDataProvider {
+        walletManager
+    }
+
+    var transactionFeeProvider: TransactionFeeProvider {
         walletManager
     }
 
@@ -689,6 +651,14 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var assetRequirementsManager: AssetRequirementsManager? {
         walletManager as? AssetRequirementsManager
+    }
+
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
+        walletManager as? GaslessTransactionFeeProvider
+    }
+
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        walletManager as? PendingTransactionRecordAdding
     }
 }
 
@@ -749,9 +719,10 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             return .just(output: .notSupported)
         }
 
-        return Publishers.Merge(
+        return Publishers.Merge3(
             _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
-            _transactionHistoryService.statePublisher
+            _transactionHistoryService.statePublisher,
+            pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
         .map { [weak self] state -> WalletModelTransactionHistoryState in
             switch state {
@@ -778,6 +749,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         AppLogger.info(self, "has pending local transactions. Try to insert it to transaction history")
+        let formatter = BalanceFormatter()
         let mapper = PendingTransactionRecordMapper(formatter: formatter)
 
         pendingTransactions.forEach { pending in
@@ -916,12 +888,16 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
-    var receiveAddressTypes: [ReceiveAddressType] {
-        _receiveAddressService.addressTypes
-    }
-
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        _receiveAddressService.addressInfos
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
+        statePublisher
+            .withWeakCaptureOf(self)
+            .map { walletModel, _ in
+                // `_receiveAddressService` gets updated in the `update(silent:features:)` method call, which in turn
+                // also updates the `_state` property and triggers `statePublisher` to emit a new value
+                walletModel._receiveAddressService.addressTypes
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 

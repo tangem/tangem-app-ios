@@ -12,6 +12,7 @@ import TangemVisa
 import TangemFoundation
 import UIKit
 import TangemLocalization
+import TangemPay
 
 protocol TangemPayPinRoutable: AnyObject {
     func closeTangemPayPin()
@@ -47,11 +48,25 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onAppear() {
+        Analytics.log(.visaScreenChangePinScreenShown)
+    }
+
     func close() {
+        switch state {
+        case .created:
+            runTask { [tangemPayAccount] in
+                await tangemPayAccount.loadCustomerInfo()
+            }
+
+        case .enterPin:
+            break
+        }
         coordinator?.closeTangemPayPin()
     }
 
     func submit() {
+        Analytics.log(.visaScreenChangePinSubmitClicked)
         isLoading = true
 
         runTask(in: self) { [pin] viewModel in
@@ -60,7 +75,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
-                let response = try await viewModel.tangemPayAccount.customerInfoManagementService.setPin(
+                let response = try await viewModel.tangemPayAccount.customerService.setPin(
                     pin: encryptedPin,
                     sessionId: sessionId,
                     iv: iv
@@ -70,6 +85,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                     viewModel.isLoading = false
                     switch response.result {
                     case .success:
+                        Analytics.log(.visaScreenChangePinSuccessShown)
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage

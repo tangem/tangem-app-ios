@@ -33,6 +33,9 @@ final class WCSolanaSignAllTransactionsHandler {
 
             self.walletModel = walletModel
             hashesToSign = parameters.transactions
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
@@ -61,6 +64,9 @@ final class WCSolanaSignAllTransactionsHandler {
 
             self.walletModel = walletModel
             hashesToSign = parameters.transactions
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
@@ -72,7 +78,10 @@ final class WCSolanaSignAllTransactionsHandler {
     }
 
     private func prepareTransactionToSign(hash: String) throws -> Data {
-        let data = try Data(hash.base64Decoded())
+        guard let data = Data(base64Encoded: hash) else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Transaction must be base64 encoded")
+        }
+
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
         return signature
     }

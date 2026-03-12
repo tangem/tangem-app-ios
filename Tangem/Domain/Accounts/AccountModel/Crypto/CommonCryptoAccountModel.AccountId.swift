@@ -17,7 +17,7 @@ extension CommonCryptoAccountModel {
         var rawValue: Data {
             let bytes = userWalletId.value + derivationIndex.bytes4
 
-            return bytes.getSha256()
+            return bytes.getSHA256()
         }
 
         private let userWalletId: UserWalletId
@@ -45,8 +45,10 @@ extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierCo
     }
 }
 
+// MARK: - CustomStringConvertible protocol conformance
+
 extension CommonCryptoAccountModel.AccountId: CustomStringConvertible {
     var description: String {
-        "idx=\(derivationIndex)"
+        userWalletId.stringValue + "/\(derivationIndex)"
     }
 }

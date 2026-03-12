@@ -189,7 +189,7 @@ final class CommonVisaAuthorizationTokensHandler {
 
             VisaLogger.info("No need to refresh access token, awaits \(refreshDelay) seconds and then confinue setup process")
             // Wait until token will need to refresh and update it one time
-            try await Task.sleep(seconds: refreshDelay)
+            try await Task.sleep(for: .seconds(refreshDelay))
             try await refreshAccessToken(internalTokens: tokens)
         }
 
@@ -213,7 +213,7 @@ final class CommonVisaAuthorizationTokensHandler {
         }
     }
 
-    private func refreshAccessToken(internalTokens: InternalAuthorizationTokens, file: String = #file, line: Int = #line) async throws {
+    private func refreshAccessToken(internalTokens: InternalAuthorizationTokens, file: String = #fileID, line: Int = #line) async throws {
         let refreshJWTToken = internalTokens.jwtTokens.refreshToken
         VisaLogger.info("Refreshing access token from \(file):\(line)")
         if refreshJWTToken.expired {
@@ -240,7 +240,7 @@ final class CommonVisaAuthorizationTokensHandler {
         try await saveTokens(authTokens: newTokens)
     }
 
-    private func exchangeTokens(internalTokens: InternalAuthorizationTokens, file: String = #file, line: Int = #line) async throws {
+    private func exchangeTokens(internalTokens: InternalAuthorizationTokens, file: String = #fileID, line: Int = #line) async throws {
         let cardActivationTokens = internalTokens.bffTokens
         let refreshToken = cardActivationTokens.refreshToken
 

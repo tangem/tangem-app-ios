@@ -38,9 +38,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tosViewModel) {
                 DetailsTOSView(viewModel: $0)
             }
-            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
-                AddWalletSelectorCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
             }
@@ -61,6 +58,9 @@ struct DetailsCoordinatorView: CoordinatorView {
             .fullScreenCover(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
+            }
+            .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
+                TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
     }
 }

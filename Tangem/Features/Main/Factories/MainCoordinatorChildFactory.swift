@@ -17,7 +17,7 @@ protocol MainCoordinatorChildFactory {
 
     func makeSwapCoordinator(
         userWalletModel: UserWalletModel,
-        dismissAction: @escaping ExpressCoordinator.DismissAction,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator
 
     func makeReferralCoordinator(dismissAction: @escaping Action<Void>) -> ReferralCoordinator
@@ -28,4 +28,7 @@ protocol MainCoordinatorChildFactory {
     ) -> StakingDetailsCoordinator
 
     func makeMarketsTokenDetailsCoordinator() -> MarketsTokenDetailsCoordinator
+    func makeTangemPayOnboardingCoordinator(
+        dismissAction: @escaping Action<TangemPayOnboardingCoordinator.DismissOptions?>
+    ) -> TangemPayOnboardingCoordinator
 }

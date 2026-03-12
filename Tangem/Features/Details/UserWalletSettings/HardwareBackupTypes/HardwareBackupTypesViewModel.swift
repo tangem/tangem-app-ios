@@ -12,20 +12,24 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
+import TangemAssets
 
 final class HardwareBackupTypesViewModel: ObservableObject {
-    @Published var isBuyAvailable = false
     @Published var alert: AlertBinder?
 
     let navigationTitle = Localization.hwBackupHardwareTitle
 
+    lazy var infoItem: InfoItem = makeInfoItem()
     lazy var backupItems: [BackupItem] = makeBackupItems()
-    lazy var buyItem: BuyItem = makeBuyItem()
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+    }
+
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
     }
 
     private let userWalletModel: UserWalletModel
@@ -40,14 +44,35 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension HardwareBackupTypesViewModel {
-    func onAppear() {
-        scheduleBuyAvailability()
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
     }
 }
 
 // MARK: - Private methods
 
 private extension HardwareBackupTypesViewModel {
+    func makeInfoItem() -> InfoItem {
+        let action = InfoActionItem(
+            title: Localization.detailsBuyWallet,
+            handler: weakify(self, forFunction: HardwareBackupTypesViewModel.onInfoTap)
+        )
+
+        let chips: [InfoChipItem] = [
+            InfoChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
+            InfoChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            InfoChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureSeedphrase),
+        ]
+
+        return InfoItem(
+            title: Localization.commonTangemWallet,
+            description: Localization.hwBackupBannerDescription,
+            icon: Assets.Onboarding.tangemVerticalCardSet,
+            chips: chips,
+            action: action
+        )
+    }
+
     func makeBackupItems() -> [BackupItem] {
         let createWalletItem = BackupItem(
             title: Localization.hwBackupHardwareCreateTitle,
@@ -67,15 +92,19 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func onCreateWalletTap() {
+        logCreateNewWalletTapAnalytics()
+
         runTask(in: self) { viewModel in
             await viewModel.openCreateHardwareWallet()
         }
     }
 
     func onUpgradeWalletTap() {
+        logUpgradeCurrentWalletTapAnalytics()
+
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
-                await viewModel.openMobileBackupNeeded()
+                await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
             }
@@ -95,31 +124,15 @@ private extension HardwareBackupTypesViewModel {
         }
     }
 
-    func makeBuyItem() -> BuyItem {
-        BuyItem(
-            title: Localization.walletAddHardwarePurchase,
-            buttonTitle: Localization.walletImportBuyTitle,
-            buttonAction: weakify(self, forFunction: HardwareBackupTypesViewModel.onBuyTap)
-        )
-    }
-
-    func onBuyTap() {
+    func onInfoTap() {
         runTask(in: self) { viewModel in
             await viewModel.openBuyHardwareWallet()
         }
     }
 
-    func onBackupToUpgradeComplete() {
+    func onMobileBackupToUpgradeFinished() {
         runTask(in: self) { viewModel in
-            await viewModel.closeOnboarding()
             await viewModel.upgradeMobileWallet()
-        }
-    }
-
-    func scheduleBuyAvailability() {
-        guard !isBuyAvailable else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.isBuyAvailable = true
         }
     }
 }
@@ -165,21 +178,17 @@ private extension HardwareBackupTypesViewModel {
 @MainActor
 private extension HardwareBackupTypesViewModel {
     func openCreateHardwareWallet() {
-        coordinator?.openCreateHardwareWallet()
+        coordinator?.openCreateHardwareWallet(userWalletModel: userWalletModel)
     }
 
-    func openMobileBackupNeeded() {
-        coordinator?.openMobileBackupToUpgradeNeeded(
-            onBackupRequested: weakify(self, forFunction: HardwareBackupTypesViewModel.openBackupMobileWallet)
-        )
-    }
+    func openMobileBackupToUpgradeNeeded() {
+        logBackupToUpgradeNeededAnalytics()
 
-    func openBackupMobileWallet() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
+        coordinator?.openMobileBackupNeeded(
             userWalletModel: userWalletModel,
-            onContinue: weakify(self, forFunction: HardwareBackupTypesViewModel.onBackupToUpgradeComplete)
-        ))
-        coordinator?.openMobileOnboarding(input: input)
+            source: .hardwareWallet(action: .upgrade),
+            onBackupFinished: weakify(self, forFunction: HardwareBackupTypesViewModel.onMobileBackupToUpgradeFinished)
+        )
     }
 
     func openUpgradeToHardwareWallet(context: MobileWalletContext) {
@@ -187,12 +196,47 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup])
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Analytics
+
+private extension HardwareBackupTypesViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.walletSettingsHardwareBackupScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logCreateNewWalletTapAnalytics() {
+        Analytics.log(.walletSettingsButtonCreateNewWallet, contextParams: analyticsContextParams)
+    }
+
+    func logUpgradeCurrentWalletTapAnalytics() {
+        Analytics.log(.walletSettingsButtonUpgradeCurrent, contextParams: analyticsContextParams)
+    }
+
+    func logBackupToUpgradeNeededAnalytics() {
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: [
+                .source: .hardwareWallet,
+                .action: .upgrade,
+            ],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
@@ -207,9 +251,21 @@ extension HardwareBackupTypesViewModel {
         let action: () -> Void
     }
 
-    struct BuyItem {
+    struct InfoItem {
         let title: String
-        let buttonTitle: String
-        let buttonAction: () -> Void
+        let description: String
+        let icon: ImageType
+        let chips: [InfoChipItem]
+        let action: InfoActionItem
+    }
+
+    struct InfoChipItem: Hashable {
+        let icon: ImageType
+        let title: String
+    }
+
+    struct InfoActionItem {
+        let title: String
+        let handler: () -> Void
     }
 }

@@ -21,7 +21,7 @@ extension Locale {
             break
         }
 
-        guard let languageCode = languageCode, let regionCode = regionCode else { return nil }
+        guard let languageCode = language.languageCode?.identifier, let regionCode = region?.identifier else { return nil }
 
         /*
           Each currency can have a symbol ($, £, ¥),

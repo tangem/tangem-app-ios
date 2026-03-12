@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum ReceiveAddressType: Identifiable {
+enum ReceiveAddressType: Hashable, Identifiable {
     case address(ReceiveAddressInfo)
     case domain(_ addressName: String, ReceiveAddressInfo)
 

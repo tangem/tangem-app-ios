@@ -10,11 +10,11 @@ import Foundation
 import TangemFoundation
 import TangemAccounts
 import TangemUI
-import TangemLocalization
 import TangemUIUtils
+import TangemLocalization
 
 final class ArchivedAccountsViewModel: ObservableObject {
-    private typealias LoadingState = LoadingValue<[ArchivedCryptoAccountInfo]>
+    private typealias LoadingState = LoadingResult<[ArchivedCryptoAccountInfo], AccountModelsManagerError>
 
     // MARK: - State
 
@@ -47,29 +47,49 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - ViewData
 
-    func makeAccountRowData(for model: ArchivedCryptoAccountInfo) -> AccountRowViewModel.Input {
-        ArchivedAccountInfoToAccountRowDataMapper.map(model)
+    func makeAccountRowViewData(for model: ArchivedCryptoAccountInfo) -> ArchivedAccountRowView.ViewData {
+        let tokensString = Localization.commonTokensCount(model.tokensCount)
+        let networksString = Localization.commonNetworksCount(model.networksCount)
+        let subtitle = Localization.accountLabelTokensInfo(tokensString, networksString)
+
+        return ArchivedAccountRowView.ViewData(
+            iconData: AccountModelUtils.UI.iconViewData(icon: model.icon, accountName: model.name),
+            name: model.name,
+            subtitle: subtitle,
+            isRecovering: recoveringAccountId == model.id,
+            isRecoverDisabled: recoveringAccountId != nil,
+            onRecover: { [weak self] in
+                self?.recoverAccount(model)
+            }
+        )
     }
 
     @MainActor
     func fetchArchivedAccounts() async {
-        do {
+        do throws(AccountModelsManagerError) {
             viewState = .loading
             let archivedAccounts = try await accountModelsManager.archivedCryptoAccountInfos()
-            viewState = .loaded(archivedAccounts)
+            viewState = .success(archivedAccounts)
+            logScreenOpenedAnalytics(accountsCount: archivedAccounts.count)
         } catch {
-            viewState = .failedToLoad(error: error)
+            viewState = .failure(error)
         }
     }
 
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
+        let analyticsParams = accountInfo.analyticsParameters(with: SingleAccountAnalyticsBuilder())
+        Analytics.log(event: .walletSettingsButtonRecoverAccount, params: analyticsParams)
+
         recoverAccountTask?.cancel()
         recoveringAccountId = accountInfo.id
 
         recoverAccountTask = Task { [weak self] in
             do throws(AccountRecoveryError) {
-                try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo)
-                await self?.handleAccountRecoverySuccess()
+                guard let result = try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo) else {
+                    return
+                }
+
+                await self?.handleAccountRecoverySuccess(result: result)
             } catch {
                 await self?.handleAccountRecoveryFailure(accountInfo: accountInfo, error: error)
             }
@@ -78,10 +98,19 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - Private implementation
 
+    private func logScreenOpenedAnalytics(accountsCount: Int) {
+        Analytics.log(
+            event: .walletSettingsArchivedAccountsScreenOpened,
+            params: [.accountsCount: String(accountsCount)]
+        )
+    }
+
     @MainActor
-    private func handleAccountRecoverySuccess() {
+    private func handleAccountRecoverySuccess(result: AccountOperationResult) {
         recoveringAccountId = nil
-        coordinator?.close()
+        coordinator?.close(with: result)
+
+        Analytics.log(.walletSettingsAccountRecovered)
 
         Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
@@ -91,23 +120,29 @@ final class ArchivedAccountsViewModel: ObservableObject {
     private func handleAccountRecoveryFailure(accountInfo: ArchivedCryptoAccountInfo, error: AccountRecoveryError) {
         recoveringAccountId = nil
 
+        let title: String
         let message: String
-        let buttonTitle: String
+        let buttonText: String
 
         switch error {
-        case .tooManyActiveAccounts:
+        case .tooManyAccounts:
+            title = Localization.accountArchivedRecoverErrorTitle
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
-            buttonTitle = Localization.commonGotIt
-
+            buttonText = Localization.commonGotIt
+        case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
+            message = Localization.accountFormNameAlreadyExistErrorDescription
+            buttonText = Localization.commonGotIt
         case .unknownError:
-            message = Localization.commonSomethingWentWrong
-            buttonTitle = Localization.commonOk
+            title = Localization.commonSomethingWentWrong
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.accountArchivedRecoverErrorTitle,
+            title: title,
             message: message,
-            buttonText: buttonTitle
+            buttonText: buttonText
         )
 
         AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)

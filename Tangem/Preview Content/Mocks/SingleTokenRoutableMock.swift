@@ -19,7 +19,7 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openSend(walletModel: any WalletModel) {}
 
-    func openExchange(walletModel: any WalletModel) {}
+    func openSwap(walletModel: any WalletModel) {}
 
     func openStaking(walletModel: any WalletModel) {}
 
@@ -36,4 +36,6 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
     func openOnramp(walletModel: any WalletModel) {}
 
     func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {}
+
+    func openYieldModule(walletModel: any WalletModel) {}
 }

@@ -21,7 +21,6 @@ struct MobileRemoveWalletView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
             .background(Colors.Background.primary)
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 
@@ -65,10 +64,7 @@ private extension MobileRemoveWalletView {
     }
 
     var marks: some View {
-        VStack(spacing: 24) {
-            CheckableButton(title: viewModel.removeInfo, isChecked: $viewModel.isRemoveChecked)
-            CheckableButton(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
-        }
+        CheckableButton(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
     }
 
     func action(item: ViewModel.ActionItem) -> some View {
@@ -78,6 +74,7 @@ private extension MobileRemoveWalletView {
             isDisabled: !viewModel.isActionEnabled,
             action: item.action
         )
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 

@@ -14,7 +14,7 @@ import TangemExpress
 protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
     func openSend(walletModel: any WalletModel)
-    func openExchange(walletModel: any WalletModel)
+    func openSwap(walletModel: any WalletModel)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
@@ -27,6 +27,7 @@ protocol SingleTokenRoutable {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openYieldModule(walletModel: any WalletModel)
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
@@ -71,19 +72,17 @@ final class SingleTokenRouter: SingleTokenRoutable {
         }
     }
 
-    func openExchange(walletModel: any WalletModel) {
-        let input = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
+    func openSwap(walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+
+        let openSwapAction = { [weak self] in
+            self?.coordinator?.openSwap(input: input)
+        }
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem) { [weak self] in
-                self?.coordinator?.openExpress(input: input)
-            }
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSwapAction() })
         } else {
-            coordinator?.openExpress(input: input)
+            openSwapAction()
         }
     }
 
@@ -137,9 +136,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
             currentPrice: quoteData?.price,
             priceChangePercentage: MarketsTokenQuoteHelper().makePriceChangeIntervalsDictionary(from: quoteData) ?? [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
-            stakingOpportunities: nil
+            stakingOpportunities: nil,
+            networks: nil,
         )
 
         coordinator?.openMarketsTokenDetails(tokenModel: model)
@@ -157,6 +158,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
+
+    func openYieldModule(walletModel: any WalletModel) {}
 
     private func getTokenItemId(for tokenItem: TokenItem) -> TokenItemId? {
         guard tokenItem.isBlockchain, tokenItem.blockchain.isL2EthereumNetwork else {

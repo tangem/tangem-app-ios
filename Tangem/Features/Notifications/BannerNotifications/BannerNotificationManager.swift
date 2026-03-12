@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 import TangemExpress
 import TangemLocalization
+import BlockchainSdk
 
 class BannerNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
@@ -20,10 +21,10 @@ class BannerNotificationManager {
     private weak var delegate: NotificationTapDelegate?
 
     private let userWalletInfo: UserWalletInfo
+    private let userWalletModel: UserWalletModel?
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
-    private let predefinedOnrampParametersBuilder: PredefinedOnrampParametersBuilder
 
     private let activePromotions: CurrentValueSubject<[ActivePromotionInfo], Never> = .init([])
     private var promotionUpdateTasks: [PromotionProgramName: Task<Void, Error>] = [:]
@@ -32,13 +33,13 @@ class BannerNotificationManager {
 
     init(
         userWalletInfo: UserWalletInfo,
-        walletModelsPublisher: some Publisher<[any WalletModel], Never>,
+        userWalletModel: UserWalletModel? = nil,
         placement: BannerPromotionPlacement
     ) {
         self.userWalletInfo = userWalletInfo
+        self.userWalletModel = userWalletModel
         self.placement = placement
 
-        predefinedOnrampParametersBuilder = .init(userWalletId: userWalletInfo.id)
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
 
         bind(walletModelsPublisher: walletModelsPublisher)
@@ -48,7 +49,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotions(programNames: [.sepa, .visaWaitlist])
+            loadActivePromotions()
         case .tokenDetails:
             break
         }
@@ -63,7 +64,17 @@ class BannerNotificationManager {
                 manager.analyticsService.sendEventsIfNeeded(for: notifications)
             })
 
-        activePromotionSubscription = activePromotions
+        let promotionsPublisher = makePromotionsInputsPublisher()
+        let cloreMigrationPublisher = makeCloreMigrationInputsPublisher()
+
+        activePromotionSubscription = Publishers.CombineLatest(promotionsPublisher, cloreMigrationPublisher)
+            .map { $0 + $1 }
+            .receiveOnMain()
+            .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
+    }
+
+    private func makePromotionsInputsPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
+        activePromotions
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, activePromotions -> AnyPublisher<[NotificationViewInput], Never> in
                 guard !activePromotions.isEmpty else {
@@ -85,33 +96,57 @@ class BannerNotificationManager {
                     .receiveOnMain()
                     .eraseToAnyPublisher()
             }
-            .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
+            .eraseToAnyPublisher()
     }
 
-    private func loadActivePromotions(programNames: [PromotionProgramName]) {
-        // Cancel previous tasks
-        promotionUpdateTasks.values.forEach { $0.cancel() }
-        promotionUpdateTasks.removeAll()
+    private func makeCloreMigrationInputsPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
+        guard case .main = placement, let userWalletModel else {
+            return Just([]).eraseToAnyPublisher()
+        }
 
-        // Load each promotion independently
-        for programName in programNames {
-            let task = runTask(in: self) { manager in
-                guard let promotion = await manager.bannerPromotionService.activePromotion(
-                    promotion: programName,
-                    on: manager.placement
-                ) else {
-                    await runOnMain {
-                        manager.removePromotion(programName: programName)
-                    }
-                    return
+        return AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
+            .map { $0.filter { $0.tokenItem.blockchain == .clore } }
+            .map { walletModels -> AnyPublisher<[TokenBalanceType], Never> in
+                guard !walletModels.isEmpty else {
+                    return Just([TokenBalanceType]()).eraseToAnyPublisher()
                 }
 
-                try Task.checkCancellation()
-                await runOnMain {
-                    manager.addOrUpdatePromotion(promotion)
-                }
+                return walletModels
+                    .map { $0.totalTokenBalanceProvider.balanceTypePublisher }
+                    .combineLatest()
             }
-            promotionUpdateTasks[programName] = task
+            .switchToLatest()
+            .map { balances in
+                balances.compactMap { $0.value }.contains(where: { $0 > 0 })
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .map { manager, hasBalance in
+                hasBalance ? [manager.makeCloreMigrationNotification()] : []
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func makeCloreMigrationNotification() -> NotificationViewInput {
+        NotificationsFactory()
+            .buildNotificationInput(
+                for: TokenNotificationEvent.cloreMigration,
+                buttonAction: { [weak self] id, action in
+                    self?.delegate?.didTapNotification(with: id, action: action)
+                }
+            )
+    }
+
+    private func loadActivePromotions() {
+        runTask(in: self) { manager in
+            let activePromotions = await manager.bannerPromotionService.loadActivePromotionsFor(
+                walletId: manager.userWalletInfo.id.stringValue, on: manager.placement
+            )
+
+            await runOnMain {
+                activePromotions.forEach { manager.addOrUpdatePromotion($0) }
+            }
         }
     }
 
@@ -135,12 +170,10 @@ class BannerNotificationManager {
             self?.delegate?.didTapNotification(with: id, action: action)
 
             switch event.programName {
-            case .sepa:
+            case .yield:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.clicked.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
             }
         }
 
@@ -148,14 +181,9 @@ class BannerNotificationManager {
             self?.bannerPromotionService.hide(promotion: event.programName, on: placement)
             self?.dismissNotification(with: id)
 
-            switch event.programName {
-            case .sepa:
-                var params = event.analytics.analyticsParams
-                params[.action] = Analytics.ParameterValue.closed.rawValue
-                Analytics.log(event: .promotionBannerClicked, params: params)
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
-            }
+            var params = event.analytics.analyticsParams
+            params[.action] = Analytics.ParameterValue.closed.rawValue
+            Analytics.log(event: .promotionBannerClicked, params: params)
         }
 
         let input = NotificationsFactory()
@@ -170,55 +198,21 @@ class BannerNotificationManager {
     ) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
-        switch promotion.bannerPromotion {
-        case .sepa:
-            return sepaEvent(promotion: promotion, analytics: analytics, walletModelsPublisher: walletModelsPublisher)
-        case .visaWaitlist:
-            return visaWaitlistEvent(promotion: promotion, analytics: analytics)
-        }
+        return event(
+            promotion: promotion,
+            analytics: analytics
+        )
     }
 
-    private func sepaEvent(
+    private func event(
         promotion: ActivePromotionInfo,
-        analytics: BannerNotificationEventAnalyticsParamsBuilder,
-        walletModelsPublisher: some Publisher<[any WalletModel], Never>
+        analytics: BannerNotificationEventAnalyticsParamsBuilder
     ) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let preferencePublisher = onrampRepository.preferencePublisher.removeDuplicates()
-        let bitcoinWalletModel = walletModelsPublisher
-            // If user adds / deletes bitcoin in any account, we need to update the banner accordingly
-            .map { walletModels in
-                walletModels.first {
-                    $0.isMainToken && $0.tokenItem.blockchain == .bitcoin(testnet: false)
-                }
-            }
-
-        return Publishers
-            .CombineLatest(bitcoinWalletModel, preferencePublisher)
-            .asyncMap { [weak self] bitcoinWalletModel, preference in
-                guard let self, let bitcoinWalletModel else {
-                    return nil
-                }
-
-                guard let parameters = await predefinedOnrampParametersBuilder.prepare(bitcoinWalletModel: bitcoinWalletModel) else {
-                    return nil
-                }
-
-                return BannerNotificationEvent(
-                    programName: promotion.bannerPromotion,
-                    analytics: analytics,
-                    buttonAction: .init(.openBuyCrypto(walletModel: bitcoinWalletModel, parameters: parameters))
-                )
-            }
-            .eraseToAnyPublisher()
-    }
-
-    private func visaWaitlistEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let buttonAction: NotificationButtonAction?
-
-        if let link = promotion.link {
-            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
-        } else {
-            buttonAction = nil
+        let buttonAction: NotificationButtonAction? = promotion.link.map { link in
+            .init(.openLink(
+                promotionLink: link,
+                buttonTitle: promotion.bannerPromotion.buttonTitle
+            ))
         }
 
         let event = BannerNotificationEvent(

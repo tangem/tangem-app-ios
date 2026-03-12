@@ -17,6 +17,12 @@ struct MobileUnlockView: View {
 
     var body: some View {
         content
+            .onReceive(viewModel.$isAccessCodeAvailable) { isAccessCodeAvailable in
+                if !isAccessCodeAvailable {
+                    // [REDACTED_TODO_COMMENT]
+                    UIApplication.shared.endEditing()
+                }
+            }
             .onDisappear(perform: viewModel.onDisappear)
     }
 }
@@ -26,7 +32,7 @@ struct MobileUnlockView: View {
 private extension MobileUnlockView {
     var content: some View {
         VStack(spacing: 40) {
-            CloseButton(dismiss: viewModel.onCloseTap)
+            CloseTextButton(action: viewModel.onCloseTap)
                 .padding(.leading, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -35,6 +41,7 @@ private extension MobileUnlockView {
 
             OnboardingPinStackView(
                 maxDigits: viewModel.accessCodeLength,
+                handleKeyboard: false,
                 isDisabled: !viewModel.isAccessCodeAvailable,
                 pinText: $viewModel.accessCode
             )

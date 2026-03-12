@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li carte</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li cartes</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%@ token</string>
+        <string>%li token</string>
         <key>other</key>
-        <string>%@ tokens</string>
+        <string>%li tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%li réseau</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li réseaux</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -93,9 +93,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li jeton</string>
+        <string>%li token</string>
         <key>other</key>
-        <string>%li jetons</string>
+        <string>%li tokens</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
@@ -144,6 +144,38 @@
         <string>Basé sur %li évaluation</string>
         <key>other</key>
         <string>Basé sur %li évaluations</string>
+      </dict>
+    </dict>
+    <key>news_published_hours_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Il y a %lih</string>
+        <key>other</key>
+        <string>Il y a %lih</string>
+      </dict>
+    </dict>
+    <key>news_published_minutes_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Il y a %li minute</string>
+        <key>other</key>
+        <string>Il y a %li minutes</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -200,7 +232,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Vide</string>
         <key>other</key>
         <string>Écrivez ces %li mots dans l'ordre indiqué ci-dessous et conservez-les dans un endroit sûr et secret.</string>
       </dict>
@@ -216,7 +248,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Vide</string>
         <key>other</key>
         <string>%li mots</string>
       </dict>
@@ -232,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li provider</string>
+        <string>%li fournisseur</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%li fournisseurs</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -248,9 +280,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>jusqu'à %li jour</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>jusqu'à %li jours</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>

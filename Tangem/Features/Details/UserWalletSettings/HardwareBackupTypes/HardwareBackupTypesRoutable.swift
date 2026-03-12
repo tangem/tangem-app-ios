@@ -11,9 +11,9 @@ import TangemMobileWalletSdk
 
 @MainActor
 protocol HardwareBackupTypesRoutable: AnyObject {
-    func openCreateHardwareWallet()
+    func openCreateHardwareWallet(userWalletModel: UserWalletModel)
     func openMobileOnboarding(input: MobileOnboardingInput)
     func openUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext)
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void)
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onBackupFinished: @escaping () -> Void)
     func closeOnboarding()
 }

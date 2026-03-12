@@ -63,7 +63,7 @@ final class CommonYieldModuleFlowFactory {
             apy: apy,
             coordinator: coordinator,
             startFlowFactory: startFlowFactory,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -76,7 +76,7 @@ final class CommonYieldModuleFlowFactory {
             transactionFlowFactory: makeTransactionFlowFactory(coordinator: coordinator, interactor: interactor),
             yieldManagerInteractor: interactor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -87,7 +87,9 @@ final class CommonYieldModuleFlowFactory {
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
             coordinator: coordinator,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher)
         )
     }
 
@@ -98,7 +100,9 @@ final class CommonYieldModuleFlowFactory {
         YieldModuleTransactionFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem),
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher),
             coordinator: coordinator
         )
     }
@@ -132,7 +136,10 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
     }
 
     func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(apy: apy, onButtonTap: onButtonTap)
+        YieldAvailableNotificationViewModel(
+            apy: apy,
+            onButtonTap: onButtonTap
+        )
     }
 
     func makeYieldPromoCoordinator(

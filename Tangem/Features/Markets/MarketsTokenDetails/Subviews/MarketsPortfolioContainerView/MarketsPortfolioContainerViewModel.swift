@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 
 /// Legacy VM w/o accounts supports, use `MarketsAccountsAwarePortfolioContainerViewModel` instead when accounts are available.
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 final class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
@@ -99,27 +100,15 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
      - Checking the lists of available networks
      */
     private func supportedState(networks: [NetworkModel]) -> SupportedStateOption {
-        let multiCurrencyUserWalletModels = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
         guard !networks.isEmpty else {
             return .unsupported
         }
 
-        for model in multiCurrencyUserWalletModels {
-            let supportedBlockchains = model.config.supportedBlockchains
-
-            for network in networks {
-                if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    if network.contractAddress == nil {
-                        return .available
-                    }
-
-                    // searchable network is token
-                    if supportedBlockchain.canHandleTokens {
-                        return .available
-                    }
-                }
-            }
+        if NetworkSupportChecker.hasAnySupportedNetwork(
+            networks: networks,
+            userWalletModels: walletDataProvider.userWalletModels
+        ) {
+            return .available
         }
 
         return .unavailable
@@ -130,7 +119,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return true
         }
 
-        let availableNetworksIds = availableNetworks.reduce(into: Set<String>()) { $0.insert($1.networkId) }
         let l2BlockchainsIds = SupportedBlockchains.l2Blockchains.map { $0.coinId }
 
         for userWalletModel in walletDataProvider.userWalletModels {
@@ -138,7 +126,14 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 continue
             }
 
-            var networkIds = availableNetworksIds
+            let supportedBlockchains = userWalletModel.config.supportedBlockchains
+
+            let supportedNetworkIds = availableNetworks
+                .filter { NetworkSupportChecker.isNetworkSupported($0, in: supportedBlockchains) }
+                .map(\.networkId)
+                .toSet()
+
+            var networkIds = supportedNetworkIds
             // accounts_fixes_needed_none
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
@@ -273,12 +268,6 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             return
         }
 
-        let expressInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
-
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
 
         let analyticsParams: [Analytics.ParameterKey: String] = [
@@ -290,17 +279,30 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(input: sendInput)
+            coordinator.openOnramp(input: sendInput, parameters: .none)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(input: expressInput)
+            let swapableToken = CommonSendSwapableTokenFactory(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
+
+            Task { @MainActor in
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available

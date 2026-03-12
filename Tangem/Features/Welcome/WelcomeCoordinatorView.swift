@@ -13,11 +13,10 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 
     private var content: some View {
@@ -42,14 +41,10 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.createWalletSelectorCoordinator) {
                 CreateWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.promotionCoordinator) {
-                PromotionCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.searchTokensViewModel) {
                 WelcomeSearchTokensView(viewModel: $0)
             }

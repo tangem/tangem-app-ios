@@ -16,6 +16,6 @@ extension CardDTO {
     }
 
     var walletCurves: [EllipticCurve] {
-        wallets.map { $0.curve }
+        wallets.uniqueProperties(\.curve)
     }
 }

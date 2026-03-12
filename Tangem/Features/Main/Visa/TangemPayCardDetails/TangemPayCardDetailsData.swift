@@ -10,4 +10,5 @@ struct TangemPayCardDetailsData: Equatable {
     let number: String
     let expirationDate: String
     let cvc: String
+    let isPinSet: Bool
 }

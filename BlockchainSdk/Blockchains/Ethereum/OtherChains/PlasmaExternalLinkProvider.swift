@@ -28,7 +28,16 @@ struct PlasmaExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        return URL(string: "\(baseExplorerUrl)/address/\(address)")
+        var urlComponents = URLComponents(string: "\(baseExplorerUrl)/address/\(address)")!
+
+        if let contractAddress {
+            urlComponents.path.append("/tokentxns")
+
+            let contractAddressItem = URLQueryItem(name: "tokenaddress", value: contractAddress)
+            urlComponents.queryItems = [contractAddressItem]
+        }
+
+        return urlComponents.url
     }
 
     func url(transaction hash: String) -> URL? {

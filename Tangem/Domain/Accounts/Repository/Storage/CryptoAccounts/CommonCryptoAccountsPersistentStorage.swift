@@ -58,7 +58,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
     func appendNewOrUpdateExisting(_ accounts: [StoredCryptoAccount]) {
         workingQueue.async(flags: .barrier) {
             let currentItems = self.unsafeFetch()
-            let merger = StoredCryptoAccountsMerger(preserveTokens: false)
+            let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
             let (editedItems, isDirty) = merger.merge(oldAccounts: currentItems, newAccounts: accounts)
 
             if isDirty {
@@ -109,7 +109,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
                 return try unsafeFetchOptional() == nil
             } catch {
                 assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
-                return false
+                return true
             }
         }
     }

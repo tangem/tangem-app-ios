@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
@@ -22,7 +23,7 @@ struct EnvironmentSetupView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 16) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 }
@@ -41,9 +42,9 @@ struct EnvironmentSetupView: View {
 
                 demoCardIdControls
 
-                fcmControls
+                appUidControls
 
-                promotionProgramControls
+                fcmControls
             }
             .interContentPadding(8)
         }
@@ -74,6 +75,24 @@ struct EnvironmentSetupView: View {
         .padding(.horizontal)
     }
 
+    private var appUidControls: some View {
+        VStack(spacing: 10) {
+            Text("Reset application UID")
+                .font(.headline)
+
+            VStack(spacing: 15) {
+                HStack {
+                    Text("UID: \(viewModel.applicationUid)")
+                        .font(.footnote)
+                }
+
+                Button("Reset application UID", action: viewModel.resetApplicationUID)
+                    .foregroundColor(Color.red)
+            }
+        }
+        .padding(.horizontal)
+    }
+
     private var fcmControls: some View {
         VStack(spacing: 10) {
             Text("FCM token")
@@ -96,46 +115,6 @@ struct EnvironmentSetupView: View {
         .padding(.horizontal)
     }
 
-    private var promotionProgramControls: some View {
-        VStack(spacing: 10) {
-            Text("PROMOTION PROGRAM")
-                .font(.headline)
-
-            VStack(spacing: 15) {
-                HStack {
-                    Text("Current promo code: \(viewModel.currentPromoCode)")
-
-                    Button {
-                        viewModel.copyField(\.currentPromoCode)
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundColor(Color.blue)
-                    }
-                }
-
-                Button("Reset promo codes", action: viewModel.resetCurrentPromoCode)
-                    .foregroundColor(Color.red)
-            }
-
-            VStack(spacing: 15) {
-                Text("Finished program names: \(viewModel.finishedPromotionNames)")
-
-                Button("Reset finished programs", action: viewModel.resetFinishedPromotionNames)
-                    .foregroundColor(Color.red)
-            }
-
-            VStack(spacing: 15) {
-                Text("Awarded program names: \(viewModel.awardedPromotionNames)")
-
-                Text("Reset award for this card on the backend (tangem-dev only)")
-                    .multilineTextAlignment(.center)
-
-                Button("Reset award", action: viewModel.resetAward)
-                    .foregroundColor(Color.red)
-            }
-        }
-    }
-
     private var exitButton: some View {
         Button("Exit", action: viewModel.showExitAlert)
             .disableAnimations()
@@ -146,7 +125,7 @@ struct EnvironmentSetupView_Preview: PreviewProvider {
     static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EnvironmentSetupView(viewModel: viewModel)
         }
     }

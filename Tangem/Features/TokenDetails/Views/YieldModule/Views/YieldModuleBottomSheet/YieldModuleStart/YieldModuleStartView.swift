@@ -85,24 +85,42 @@ struct YieldModuleStartView: View {
         }
     }
 
-    private var mainButton: MainButton {
+    @ViewBuilder
+    private var mainButton: some View {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
-            .init(settings: .init(
+            MainButton(settings: .init(
                 title: Localization.commonGotIt,
                 style: .secondary,
                 action: ctaButtonAction
             ))
         case .startEarning:
-            .init(settings: .init(
-                title: Localization.yieldModuleStartEarning,
-                icon: .trailing(Assets.tangemIcon),
-                style: .primary,
-                isLoading: viewModel.isProcessingStartRequest,
-                isDisabled: !viewModel.isButtonEnabled,
-                action: ctaButtonAction,
-            ))
+            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                startEarningHoldButton
+            } else {
+                startEarningButton
+            }
         }
+    }
+
+    private var startEarningButton: some View {
+        MainButton(settings: .init(
+            title: Localization.yieldModuleStartEarning,
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
+            style: .primary,
+            isLoading: viewModel.isProcessingStartRequest,
+            isDisabled: !viewModel.isButtonEnabled,
+            action: ctaButtonAction,
+        ))
+    }
+
+    private var startEarningHoldButton: some View {
+        HoldToConfirmButton(
+            title: Localization.yieldModuleStartEarning,
+            isLoading: viewModel.isProcessingStartRequest,
+            isDisabled: !viewModel.isButtonEnabled,
+            action: ctaButtonAction
+        )
     }
 
     @ViewBuilder
@@ -116,7 +134,7 @@ struct YieldModuleStartView: View {
     }
 
     private var startEarningView: some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 8) {
             YieldFeeSection(
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
@@ -124,6 +142,10 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy,
                 notification: viewModel.networkFeeNotification
             )
+
+            if let params = viewModel.highNetworkFeesNotification {
+                YieldModuleBottomSheetNotificationBannerView(params: params)
+            }
         }
     }
 
@@ -178,9 +200,9 @@ private extension YieldModuleStartView {
     func makeHeader(viewState: YieldModuleStartViewModel.ViewState) -> some View {
         switch viewState {
         case .feePolicy:
-            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+            BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
+            BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
         }
     }
 }

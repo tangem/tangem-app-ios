@@ -151,16 +151,33 @@ struct WCTransactionView: View {
                 )
             )
 
-            MainButton(
-                settings: .init(
-                    title: viewModel.primariActionButtonTitle,
-                    icon: .trailing(Assets.tangemIcon),
-                    isLoading: viewModel.presentationState == .signing,
-                    isDisabled: viewModel.isActionButtonBlocked,
-                    action: { viewModel.handleViewAction(.sign) }
-                )
-            )
+            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                signHoldButton
+            } else {
+                signButton
+            }
         }
+    }
+
+    private var signButton: some View {
+        MainButton(
+            settings: .init(
+                title: viewModel.primariActionButtonTitle,
+                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
+                isLoading: viewModel.presentationState == .signing,
+                isDisabled: viewModel.isActionButtonBlocked,
+                action: { viewModel.handleViewAction(.sign) }
+            )
+        )
+    }
+
+    private var signHoldButton: some View {
+        HoldToConfirmButton(
+            title: viewModel.primariActionButtonTitle,
+            isLoading: viewModel.presentationState == .signing,
+            isDisabled: viewModel.isActionButtonBlocked,
+            action: { viewModel.handleViewAction(.sign) }
+        )
     }
 
     private func requestDetailsFooter(_ input: WCRequestDetailsInput) -> some View {
@@ -185,7 +202,7 @@ struct WCTransactionView: View {
         )
     }
 
-    private func feeSelectorFooter(_ viewModel: FeeSelectorContentViewModel) -> some View {
+    private func feeSelectorFooter(_ viewModel: WCFeeSelectorContentViewModel) -> some View {
         MainButton(title: Localization.commonDone, action: viewModel.done)
     }
 
@@ -198,7 +215,7 @@ struct WCTransactionView: View {
 
             makeAlertButton(
                 from: viewModel.state.secondaryButton,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.state.tangemIcon,
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
         }
@@ -211,10 +228,17 @@ struct WCTransactionView: View {
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
 
-            makeAlertButton(
-                from: viewModel.state.primaryButton,
-                action: { viewModel.handleViewAction(.primaryButtonTapped) }
-            )
+            if viewModel.state.needsHoldToConfirm {
+                makeAlertHoldButton(
+                    from: viewModel.state.primaryButton,
+                    action: { viewModel.handleViewAction(.primaryButtonTapped) }
+                )
+            } else {
+                makeAlertButton(
+                    from: viewModel.state.primaryButton,
+                    action: { viewModel.handleViewAction(.primaryButtonTapped) }
+                )
+            }
         }
     }
 
@@ -231,6 +255,18 @@ struct WCTransactionView: View {
                 isLoading: state.isLoading,
                 action: action
             )
+        )
+    }
+
+    private func makeAlertHoldButton(
+        from state: WCTransactionAlertState.ButtonSettings,
+        action: @escaping () -> Void
+    ) -> some View {
+        HoldToConfirmButton(
+            title: state.title,
+            isLoading: state.isLoading,
+            isDisabled: false,
+            action: action
         )
     }
 }
@@ -255,7 +291,7 @@ private extension WCTransactionView {
             }
             .padding(.horizontal, 16)
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     var dappInfoSection: some View {
@@ -313,24 +349,29 @@ private extension WCTransactionView {
         switch viewModel.transactionData.method {
         case .personalSign, .signTypedData, .signTypedDataV4:
             WCEthPersonalSignTransactionView(
-                walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible,
+                connectionTargetKind: viewModel.connectionTargetKind,
                 blockchain: viewModel.transactionData.blockchain,
                 addressRowViewModel: viewModel.addressRowViewModel
             )
-        case .addChain where viewModel.isWalletRowVisible:
-            WCTransactionWalletRow(walletName: viewModel.userWalletName)
-                .background(Colors.Background.action)
-                .cornerRadius(14, corners: .allCorners)
+        case .addChain:
+            addChainContextRow
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
-                walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible
+                connectionTargetKind: viewModel.connectionTargetKind
             )
         case .sendTransaction, .signTransaction:
             WCEthTransactionDetailsView(viewModel: viewModel)
         default:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var addChainContextRow: some View {
+        if let connectionTargetKind = viewModel.connectionTargetKind {
+            WCTransactionConnectionTargetRow(kind: connectionTargetKind)
+                .background(Colors.Background.action)
+                .cornerRadius(14, corners: .allCorners)
         }
     }
 }

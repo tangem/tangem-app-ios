@@ -21,7 +21,6 @@ final class MarketsListDataProvider {
 
     @Published var items: [MarketsTokenModel] = []
     @Published var lastEvent: Event = .idle
-    @Published private(set) var stakingApy: Decimal?
 
     // MARK: - Public Properties
 
@@ -61,6 +60,8 @@ final class MarketsListDataProvider {
     /// Total tokens value by pages
     private var totalTokensCount: Int?
 
+    private var loadNetworks: Bool?
+
     private var lastSearchText: String?
     private var lastFilter: Filter?
     private var taskCancellable: AnyCancellable?
@@ -68,6 +69,10 @@ final class MarketsListDataProvider {
 
     private var selectedCurrencyCode: String {
         AppSettings.shared.selectedCurrencyCode
+    }
+
+    init(loadNetworks: Bool? = nil) {
+        self.loadNetworks = loadNetworks
     }
 
     // MARK: - Implementation
@@ -180,7 +185,6 @@ private extension MarketsListDataProvider {
             }
 
             items.append(contentsOf: response.tokens)
-            stakingApy = response.summary?.maxApy
             lastEvent = .appendedItems(items: response.tokens, lastPage: currentOffset >= response.total)
         } catch {
             if error.isCancellationError {
@@ -226,7 +230,8 @@ private extension MarketsListDataProvider {
             limit: limitPerPage,
             interval: filter.interval,
             order: filter.order,
-            search: searchText
+            search: searchText,
+            showNetworks: loadNetworks
         )
 
         AppLogger.tag("Markets").info("Loading market list tokens with request \(requestModel.parameters.debugDescription)")
@@ -257,5 +262,15 @@ extension MarketsListDataProvider {
         static func == (lhs: MarketsListDataProvider.Filter, rhs: MarketsListDataProvider.Filter) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
+    }
+}
+
+extension MarketsListDataProvider.Event {
+    var isAppendedItems: Bool {
+        if case .appendedItems = self {
+            return true
+        }
+
+        return false
     }
 }

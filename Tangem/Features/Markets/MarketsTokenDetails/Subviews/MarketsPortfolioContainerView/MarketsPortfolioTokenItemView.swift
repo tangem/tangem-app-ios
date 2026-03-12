@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct MarketsPortfolioTokenItemView: View {
     @ObservedObject var viewModel: MarketsPortfolioTokenItemViewModel
@@ -17,13 +19,12 @@ struct MarketsPortfolioTokenItemView: View {
     @State private var textBlockSize: CGSize = .zero
 
     var body: some View {
-        CustomDisclosureGroup(isExpanded: isExpanded) {
-            viewModel.showContextActions()
-        } prompt: {
-            tokenView
-        } expandedView: {
-            quickActionsView
-        }
+        CustomDisclosureGroup(
+            isExpanded: isExpanded,
+            prompt: { tokenView },
+            expandedView: { quickActionsView },
+            actionOnClick: viewModel.showContextActions
+        )
     }
 
     private var tokenView: some View {
@@ -62,7 +63,7 @@ struct MarketsPortfolioTokenItemView: View {
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                             .hidden(true)
                     } else {
-                        LoadableTokenBalanceView(
+                        LoadableBalanceView(
                             state: viewModel.balanceFiat,
                             style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                             loader: .init(size: .init(width: 40, height: 12))
@@ -84,7 +85,7 @@ struct MarketsPortfolioTokenItemView: View {
                     Spacer(minLength: Constants.spacerLength)
 
                     if !viewModel.hasError {
-                        LoadableTokenBalanceView(
+                        LoadableBalanceView(
                             state: viewModel.balanceCrypto,
                             style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                             loader: .init(size: .init(width: 40, height: 12))
@@ -100,7 +101,9 @@ struct MarketsPortfolioTokenItemView: View {
                 }
             })
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 16)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPortfolioTokenItem(tokenName: viewModel.name))
     }
 
     @ViewBuilder
@@ -128,6 +131,7 @@ struct MarketsPortfolioTokenItemView: View {
                     } label: {
                         makeQuickActionItem(for: action, at: index)
                     }
+                    .accessibilityIdentifier(action.accessibilityIdentifier)
 
                     // Lower indentation
                     if index == (viewModel.contextActions.count - 1) {
@@ -140,7 +144,7 @@ struct MarketsPortfolioTokenItemView: View {
     }
 
     private func makeQuickActionItem(for actionType: TokenActionType, at index: Int) -> some View {
-        MarketsActionRowView(
+        GetTokenActionRowView(
             icon: portfolioTokenActionTypeImageType(for: actionType),
             title: actionType.title,
             subtitle: actionType.description,
@@ -166,16 +170,18 @@ struct MarketsPortfolioTokenItemView: View {
     private func portfolioTokenActionTypeImageType(for type: TokenActionType) -> ImageType {
         switch type {
         case .buy:
-            return Assets.Portfolio.buy12
+            return Assets.plusMini
         case .exchange:
-            return Assets.Portfolio.exchange12
+            return Assets.exchangeMini
         case .receive:
-            return Assets.Portfolio.receive12
+            return Assets.arrowDownMini
         case .stake:
-            return Assets.Portfolio.stake12
+            return Assets.stakingMini
+        case .yield:
+            return Assets.YieldModule.yieldSupplyAssets
         default:
             assertionFailure("Unhandled TokenActionType: \(type)")
-            return Assets.Portfolio.buy12
+            return Assets.plusMini
         }
     }
 }

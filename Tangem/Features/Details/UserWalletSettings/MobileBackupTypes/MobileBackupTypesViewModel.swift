@@ -21,27 +21,38 @@ final class MobileBackupTypesViewModel: ObservableObject {
 
     let navTitle = Localization.commonBackup
 
-    lazy var infoItem: InfoItem = makeInfoItem()
-
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletModel: UserWalletModel
+    private let mode: MobileBackupTypesMode
     private weak var coordinator: MobileBackupTypesRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileBackupTypesRoutable) {
+    init(userWalletModel: UserWalletModel, mode: MobileBackupTypesMode, coordinator: MobileBackupTypesRoutable) {
         self.userWalletModel = userWalletModel
+        self.mode = mode
         self.coordinator = coordinator
         setup()
         bind()
-        logStart()
+    }
+}
+
+// MARK: - Internal methods
+
+extension MobileBackupTypesViewModel {
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
     }
 }
 
@@ -49,7 +60,9 @@ final class MobileBackupTypesViewModel: ObservableObject {
 
 private extension MobileBackupTypesViewModel {
     func setup() {
-        sections = makeSections()
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.sections = viewModel.makeSections()
+        }
     }
 
     func bind() {
@@ -65,7 +78,7 @@ private extension MobileBackupTypesViewModel {
         switch result {
         case .configurationChanged:
             setup()
-        case .nameDidChange, .tangemPayOfferAccepted:
+        case .nameDidChange:
             break
         }
     }
@@ -75,27 +88,40 @@ private extension MobileBackupTypesViewModel {
 
 private extension MobileBackupTypesViewModel {
     func makeSections() -> [Section] {
-        let commonSection = Section(title: nil, items: makeCommonSectionItems())
-        let otherMethodsSection = Section(title: Localization.hwBackupSectionOtherTitle, items: makeOtherMethodsSectionItems())
+        switch mode {
+        case .activate: makeActivateSections()
+        case .backup: makeBackupSections()
+        }
+    }
+
+    func makeBackupSections() -> [Section] {
+        let commonSection = Section(
+            title: nil,
+            items: [makeActivationItem(), makeICloudItem()]
+        )
+        return [commonSection]
+    }
+
+    func makeActivateSections() -> [Section] {
+        let commonSection = Section(
+            title: nil,
+            items: [makeUpgradeItem()]
+        )
+        let otherMethodsSection = Section(
+            title: Localization.hwBackupSectionOtherTitle,
+            items: [makeActivationItem(), makeICloudItem()]
+        )
         return [commonSection, otherMethodsSection]
     }
 
-    func makeCommonSectionItems() -> [SectionItem] {
-        [makeHardwareItem()]
-    }
-
-    func makeOtherMethodsSectionItems() -> [SectionItem] {
-        [makeSeedPhraseItem(), makeICloudItem()]
-    }
-
-    func makeSeedPhraseItem() -> SectionItem {
+    func makeActivationItem() -> SectionItem {
         let badge: BadgeView.Item = if isBackupNeeded {
             .noBackup
         } else {
             .done
         }
 
-        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onSeedPhraseBackupTap)
+        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onActivationTap)
 
         return SectionItem(
             title: Localization.hwBackupSeedTitle,
@@ -106,12 +132,12 @@ private extension MobileBackupTypesViewModel {
         )
     }
 
-    func makeHardwareItem() -> SectionItem {
+    func makeUpgradeItem() -> SectionItem {
         let badge = BadgeView.Item(title: Localization.commonRecommended, style: .accent)
-        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onHardwareBackupTap)
+        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onUpgradeTap)
         return SectionItem(
-            title: Localization.hwBackupHardwareTitle,
-            description: Localization.hwBackupHardwareDescription,
+            title: Localization.hwBackupUpgradeTitle,
+            description: Localization.hwBackupUpgradeDescription,
             badge: badge,
             isEnabled: true,
             action: action
@@ -129,31 +155,12 @@ private extension MobileBackupTypesViewModel {
         )
     }
 
-    func makeInfoItem() -> InfoItem {
-        let action = InfoActionItem(
-            title: Localization.detailsBuyWallet,
-            handler: weakify(self, forFunction: MobileBackupTypesViewModel.onInfoTap)
-        )
+    func onActivationTap() {
+        logRecoveryPhraseTapAnalytics()
 
-        let chips: [InfoChipItem] = [
-            InfoChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
-            InfoChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
-            InfoChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureUse),
-        ]
-
-        return InfoItem(
-            title: Localization.commonTangemWallet,
-            description: Localization.hwBackupBannerDescription,
-            icon: Assets.Onboarding.tangemVerticalCardSet,
-            chips: chips,
-            action: action
-        )
-    }
-
-    func onSeedPhraseBackupTap() {
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
-                await viewModel.openSeedPhraseBackup()
+                await viewModel.openActivation()
             } else {
                 await viewModel.handleSeedPhraseReveal()
             }
@@ -174,15 +181,10 @@ private extension MobileBackupTypesViewModel {
         }
     }
 
-    func onHardwareBackupTap() {
+    func onUpgradeTap() {
+        logUpgradeTapAnalytics()
         runTask(in: self) { viewModel in
-            await viewModel.openHardwareBackup()
-        }
-    }
-
-    func onInfoTap() {
-        runTask(in: self) { viewModel in
-            await viewModel.openBuyHardwareWallet()
+            await viewModel.openUpgrade()
         }
     }
 }
@@ -216,12 +218,15 @@ private extension MobileBackupTypesViewModel {
 
 @MainActor
 private extension MobileBackupTypesViewModel {
-    func openHardwareBackup() {
-        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
+    func openUpgrade() {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
-    func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+    func openActivation() {
+        let input = MobileOnboardingInput(flow: .walletActivate(
+            userWalletModel: userWalletModel,
+            source: .backup(action: .backup)
+        ))
         coordinator?.openMobileOnboarding(input: input)
     }
 
@@ -231,16 +236,38 @@ private extension MobileBackupTypesViewModel {
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup])
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 }
 
 // MARK: - Analytics
 
 private extension MobileBackupTypesViewModel {
-    func logStart() {
-        Analytics.log(.backupStarted)
+    func logScreenOpenedAnalytics() {
+        let hasManualBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
+
+        Analytics.log(
+            .walletSettingsBackupScreenOpened,
+            params: [.backupManual: .affirmativeOrNegative(for: hasManualBackup)],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logUpgradeTapAnalytics() {
+        Analytics.log(.walletSettingsButtonHardwareUpdate, contextParams: analyticsContextParams)
+    }
+
+    func logRecoveryPhraseTapAnalytics() {
+        Analytics.log(.walletSettingsButtonRecoveryPhrase, contextParams: analyticsContextParams)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.backup.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
@@ -260,23 +287,5 @@ extension MobileBackupTypesViewModel {
         let badge: BadgeView.Item?
         let isEnabled: Bool
         let action: () -> Void
-    }
-
-    struct InfoItem {
-        let title: String
-        let description: String
-        let icon: ImageType
-        let chips: [InfoChipItem]
-        let action: InfoActionItem
-    }
-
-    struct InfoChipItem: Hashable {
-        let icon: ImageType
-        let title: String
-    }
-
-    struct InfoActionItem {
-        let title: String
-        let handler: () -> Void
     }
 }
