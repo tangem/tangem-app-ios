@@ -13,6 +13,7 @@ import TangemFoundation
 enum AccountModelUtils {
     static var maxAccountNameLength: Int { Constants.maxAccountNameLength }
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
+    static var mainAccountDerivationIndex: Int { Constants.mainAccountDerivationIndex }
 
     static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
         let iconColor = deriveMainAccountIconColor(from: userWalletId)

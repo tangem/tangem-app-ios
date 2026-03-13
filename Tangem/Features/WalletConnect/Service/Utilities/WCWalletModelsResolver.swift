@@ -11,31 +11,23 @@ enum WCWalletModelsResolver {
         account: (any CryptoAccountModel)?,
         userWalletModel: UserWalletModel
     ) throws(WalletConnectTransactionRequestProcessingError) -> [any WalletModel] {
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account else { throw .accountNotFound }
+        guard let account else { throw .accountNotFound }
 
-            return account.walletModelsManager.walletModels
-        } else {
-            return AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-        }
+        return account.walletModelsManager.walletModels
     }
 
     static func resolveWalletModels(
         for accountId: String,
         userWalletModel: UserWalletModel
     ) throws(WalletConnectTransactionRequestProcessingError) -> [any WalletModel] {
-        if FeatureProvider.isAvailable(.accounts) {
-            guard
-                let cryptoAccountModel = WCAccountFinder.findCryptoAccountModel(
-                    by: accountId, accountModelsManager: userWalletModel.accountModelsManager
-                )
-            else {
-                throw .accountNotFound
-            }
-
-            return cryptoAccountModel.walletModelsManager.walletModels
-        } else {
-            return AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        guard
+            let cryptoAccountModel = WCAccountFinder.findCryptoAccountModel(
+                by: accountId, accountModelsManager: userWalletModel.accountModelsManager
+            )
+        else {
+            throw .accountNotFound
         }
+
+        return cryptoAccountModel.walletModelsManager.walletModels
     }
 }

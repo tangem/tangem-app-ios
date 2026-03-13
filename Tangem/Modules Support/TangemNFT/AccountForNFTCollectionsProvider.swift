@@ -114,11 +114,12 @@ extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
         switch cryptoAccounts {
         case .none:
-            // Legacy mode w/o accounts support, wallets only
+            // Accounts not yet loaded, fall back to main account
+            let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
             let navigationContext = NFTNavigationInput(
                 userWalletModel: userWalletModel,
-                name: userWalletModel.name,
-                walletModelsManager: userWalletModel.walletModelsManager
+                name: mainAccount?.name ?? userWalletModel.name,
+                walletModelsManager: mainAccount?.walletModelsManager ?? LockedWalletModelsManager()
             )
             return .singleAccount(navigationContext)
 
@@ -137,10 +138,11 @@ extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
             }
 
             guard let addressMap = addressToAccountMap else {
+                let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
                 let navigationContext = NFTNavigationInput(
                     userWalletModel: userWalletModel,
-                    name: userWalletModel.name,
-                    walletModelsManager: userWalletModel.walletModelsManager
+                    name: mainAccount?.name ?? userWalletModel.name,
+                    walletModelsManager: mainAccount?.walletModelsManager ?? LockedWalletModelsManager()
                 )
                 return .singleAccount(navigationContext)
             }

@@ -21,12 +21,7 @@ struct SendSuggestedWalletsFactory {
         let shouldShowAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         let wallets = userWalletRepository.models.flatMap { userWalletModel in
-            let walletModels = if FeatureProvider.isAvailable(.accounts) {
-                AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            } else {
-                // accounts_fixes_needed_none
-                userWalletModel.walletModelsManager.walletModels
-            }
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
             let suggestedWalletModels = walletModels.filter { walletModel in
                 let blockchain = walletModel.tokenItem.blockchain
