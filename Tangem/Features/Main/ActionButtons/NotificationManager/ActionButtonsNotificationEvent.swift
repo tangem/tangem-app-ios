@@ -46,8 +46,8 @@ extension ActionButtonsNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .refreshRequired: .init(iconType: .image(Assets.attention.image))
-        case .noAvailablePairs, .sellRegionalRestriction: .init(iconType: .image(Assets.warningIcon.image))
+        case .refreshRequired: .init(iconType: .image(Assets.attention))
+        case .noAvailablePairs, .sellRegionalRestriction: .init(iconType: .image(Assets.warningIcon))
         }
     }
 

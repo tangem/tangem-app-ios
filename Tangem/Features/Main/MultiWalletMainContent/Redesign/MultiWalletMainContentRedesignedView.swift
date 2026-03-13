@@ -17,12 +17,25 @@ struct MultiWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        listContent
-            .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
-            .padding(.horizontal, .unit(.x3))
-            .onDidAppear(perform: viewModel.onDidAppear)
-            .onWillDisappear(perform: viewModel.onWillDisappear)
-            .bindAlert($viewModel.error)
+        VStack(spacing: .unit(.x4)) {
+            notificationBanners
+
+            listContent
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
+        .padding(.horizontal, .unit(.x3))
+        .onDidAppear(perform: viewModel.onDidAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
+        .bindAlert($viewModel.error)
+    }
+
+    // MARK: - Notification Banners
+
+    private var notificationBanners: some View {
+        NotificationBannerContainer(
+            items: viewModel.notificationBannerItems,
+            stackingType: .carousel
+        )
     }
 
     // MARK: - List Content
