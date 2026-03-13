@@ -29,7 +29,8 @@ final class CustomerIOWrapper {
             return
         }
 
-        let sdkConfig = SDKConfigBuilder(cdpApiKey: keysManager.customerIO.appApiKey)
+        let sdkConfig = SDKConfigBuilder(cdpApiKey: keysManager.customerIO.iosApiKey)
+            .region(.EU) // @alobankov, does not related to user region. This is the region of customer.io account registration.
             .autoTrackUIKitScreenViews(enabled: false)
             .autoTrackDeviceAttributes(false)
             .trackApplicationLifecycleEvents(false)
