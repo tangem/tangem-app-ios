@@ -232,11 +232,19 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        mainTokenWalletModel.customFeeProviderBuilder
+        CustomFeeProviderBuilder(
+            tokenItem: tokenItem,
+            feeTokenItem: mainTokenWalletModel.feeTokenItem,
+            walletManager: mainTokenWalletModel.customFeeProviderBuilder.walletManager
+        )
     }
 
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        mainTokenWalletModel.tokenFeeLoaderBuilder
+        TokenFeeLoaderBuilder(
+            tokenItem: tokenItem,
+            dependenciesProvider: self,
+            isDemo: mainTokenWalletModel.isDemo
+        )
     }
 
     var blockchainDataProvider: BlockchainDataProvider {
