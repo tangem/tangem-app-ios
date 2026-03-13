@@ -12,6 +12,8 @@ enum WCUserWalletModelFinder {
         userWalletModels: [any UserWalletModel]
     ) throws(WalletConnectTransactionRequestProcessingError) -> any UserWalletModel {
         switch connectedDApp {
+        case .v1(let dAppV1):
+            try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == dAppV1.userWalletID })
         case .v2(let dAppV2):
             try firstUserWallet(from: userWalletModels) { userWalletModel in
                 userWalletModel.userWalletId.stringValue == dAppV2.userWalletID
