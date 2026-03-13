@@ -46,9 +46,11 @@ struct EarnWidgetView: View {
                 loadingSkeletons
             case .success(let tokenViewModels):
                 if FeatureProvider.isAvailable(.redesign) {
-                    HStack(spacing: .unit(.x2)) {
-                        ForEach(tokenViewModels) { tokenViewModel in
-                            EarnTokenTileView(viewModel: tokenViewModel)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: .unit(.x2)) {
+                            ForEach(tokenViewModels) { tokenViewModel in
+                                EarnTokenTileView(viewModel: tokenViewModel)
+                            }
                         }
                     }
                 } else {
