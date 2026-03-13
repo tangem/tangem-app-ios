@@ -29,7 +29,7 @@ public struct TangemPayEnrollmentStateFetcher {
             if case .declined = customerInfo.kyc?.status {
                 return (.kycDeclined, customerId)
             }
-            return (.kycRequired, customerId)
+            return (.kycRequired(productInstanceExists: customerInfo.productInstance != nil), customerId)
         }
 
         if let productInstance = customerInfo.productInstance {
