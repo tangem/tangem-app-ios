@@ -47,10 +47,7 @@ struct TokenActionAvailabilityProvider {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
 
-        case .requiresTrustline:
-            return false
-
-        case .paidTransactionWithFee, .none:
+        case .paidTransactionWithFee, .requiresTrustline, .none:
             return true
         }
     }
