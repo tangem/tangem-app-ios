@@ -89,6 +89,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
             .map {
                 MainHeaderViewModel(
                     isUserWalletLocked: $0.walletModel.isUserWalletLocked,
+                    walletThumbnailType: $0.walletModel.config.walletThumbnailType,
                     supplementInfoProvider: $0.walletModel,
                     subtitleProvider: $0.headerSubtitleProvider,
                     balanceProvider: CommonMainHeaderBalanceProvider(
