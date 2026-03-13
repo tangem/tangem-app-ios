@@ -126,14 +126,16 @@ private struct MainViewNavigationModifier: ViewModifier {
     func body(content: Content) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
             content
-                .tangemNavigationHeader(
-                    secondaryTrailingAction: openQRScanAction,
-                    trailingAction: openDetailsAction,
-                    accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
-                        trailingButton: MainAccessibilityIdentifiers.detailsButton,
-                        trailingButtonLabel: Localization.voiceOverOpenCardDetails,
-                        secondaryTrailingButton: MainAccessibilityIdentifiers.scanQrButton,
-                        secondaryTrailingButtonLabel: Localization.voiceOverOpenNewWalletConnectSession
+                .tangemLogoNavigationToolbar(
+                    secondaryTrailingAction: TangemNavigationHeader.ActionInfo(
+                        action: openQRScanAction,
+                        accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
+                        accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession
+                    ),
+                    trailingAction: TangemNavigationHeader.ActionInfo(
+                        action: openDetailsAction,
+                        accessibilityIdentifier: MainAccessibilityIdentifiers.detailsButton,
+                        accessibilityLabel: Localization.voiceOverOpenCardDetails
                     )
                 )
         } else {
