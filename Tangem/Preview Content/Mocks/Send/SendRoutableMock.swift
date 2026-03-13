@@ -37,7 +37,7 @@ class SendRoutableMock: SendRoutable {
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {}
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
     func closeFeeSelector() {}
