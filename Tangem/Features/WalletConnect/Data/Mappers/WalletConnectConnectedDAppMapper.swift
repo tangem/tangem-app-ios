@@ -22,11 +22,10 @@ enum WalletConnectConnectedDAppMapper {
 
         switch connectedDAppDTO {
         case .v1(let dto):
-            return .v2(
-                WalletConnectConnectedDAppV2(
+            return .v1(
+                WalletConnectConnectedDAppV1(
                     session: session,
                     userWalletID: dto.userWalletID,
-                    accountId: "",
                     dAppData: dAppData,
                     verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
                     dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
@@ -35,25 +34,39 @@ enum WalletConnectConnectedDAppMapper {
             )
 
         case .v2(let dto):
-            return .v2(
-                WalletConnectConnectedDAppV2(
-                    session: session,
-                    userWalletID: dto.identifier.userWalletID,
-                    accountId: dto.identifier.accountID,
-                    dAppData: dAppData,
-                    verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
-                    dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
-                    connectionDate: dto.connectionDate
-                )
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: session,
+                userWalletID: dto.identifier.userWalletID,
+                dAppData: dAppData,
+                verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
+                dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
+                connectionDate: dto.connectionDate
             )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dto.identifier.accountID, wrapped: wrapped))
         }
     }
 
     static func mapFromDomain(_ connectedDApp: WalletConnectConnectedDApp) -> WalletConnectConnectedDAppPersistentDTO {
         switch connectedDApp {
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppPersistentDTOV1(
+                    sessionTopic: dApp.session.topic,
+                    namespaces: mapNamespaces(fromDomain: dApp.session.namespaces),
+                    userWalletID: dApp.userWalletID,
+                    dAppName: dApp.dAppData.name,
+                    dAppDomainURL: dApp.dAppData.domain,
+                    dAppIconURL: dApp.dAppData.icon,
+                    verificationStatus: mapVerificationStatus(fromDomain: dApp.verificationStatus),
+                    dAppBlockchains: dApp.dAppBlockchains.map(mapDAppBlockchain(fromDomain:)),
+                    expiryDate: dApp.session.expiryDate,
+                    connectionDate: dApp.connectionDate
+                )
+            )
+
         case .v2(let dApp):
             let identifier = WalletConnectConnectedDAppPersistentDTO.IdentifierV2(
-                userWalletID: dApp.userWalletID,
+                userWalletID: dApp.wrapped.userWalletID,
                 accountID: dApp.accountId
             )
             return .v2(

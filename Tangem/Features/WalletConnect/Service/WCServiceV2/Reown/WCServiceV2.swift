@@ -255,7 +255,7 @@ private extension WCServiceV2 {
 
         return accountCanHandleAddress(
             accountId: dAppV2.accountId,
-            userWalletId: dAppV2.userWalletID,
+            userWalletId: dAppV2.wrapped.userWalletID,
             requestedAddress: requestedAddress,
             request: request
         )
@@ -280,7 +280,7 @@ private extension WCServiceV2 {
 
         if accountCanHandleAddress(
             accountId: dAppV2.accountId,
-            userWalletId: dAppV2.userWalletID,
+            userWalletId: dAppV2.wrapped.userWalletID,
             requestedAddress: requestedAddress,
             request: request
         ) {
@@ -290,7 +290,7 @@ private extension WCServiceV2 {
         guard
             let resolvedAccountId = resolveAccountIdForAddress(
                 requestedAddress: requestedAddress,
-                userWalletId: dAppV2.userWalletID,
+                userWalletId: dAppV2.wrapped.userWalletID,
                 request: request
             ),
             resolvedAccountId != dAppV2.accountId
@@ -298,17 +298,7 @@ private extension WCServiceV2 {
             return dApp
         }
 
-        return .v2(
-            WalletConnectConnectedDAppV2(
-                session: dAppV2.session,
-                userWalletID: dAppV2.userWalletID,
-                accountId: resolvedAccountId,
-                dAppData: dAppV2.dAppData,
-                verificationStatus: dAppV2.verificationStatus,
-                dAppBlockchains: dAppV2.dAppBlockchains,
-                connectionDate: dAppV2.connectionDate
-            )
-        )
+        return .v2(WalletConnectConnectedDAppV2(accountId: resolvedAccountId, wrapped: dAppV2.wrapped))
     }
 
     private func accountCanHandleAddress(
@@ -464,7 +454,7 @@ private extension WCServiceV2 {
     }
 
     func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
-        guard hasWalletModels else {
+        guard FeatureProvider.isAvailable(.accounts), hasWalletModels else {
             return
         }
 

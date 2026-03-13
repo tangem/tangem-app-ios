@@ -55,12 +55,20 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         let reownAccountsToAdd: [ReownWalletKit.Account]
 
-        reownAccountsToAdd = WalletConnectAccountsMapper.map(
-            from: blockchainToAdd,
-            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-            preferredCAIPReference: nil,
-            accountId: accountId
-        )
+        if FeatureProvider.isAvailable(.accounts) {
+            reownAccountsToAdd = WalletConnectAccountsMapper.map(
+                from: blockchainToAdd,
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                preferredCAIPReference: nil,
+                accountId: accountId
+            )
+        } else {
+            reownAccountsToAdd = WalletConnectAccountsMapper.map(
+                from: blockchainToAdd,
+                walletConnectWalletModelProvider: walletModelProvider,
+                preferredCAIPReference: nil
+            )
+        }
 
         var reownNamespacesToUpdate = WalletConnectSessionNamespaceMapper.mapFromDomain(connectedDApp.session.namespaces)
         var reownNamespaceToUpdate = reownNamespacesToUpdate[WalletConnectSupportedNamespace.eip155.rawValue]
@@ -173,22 +181,36 @@ private extension WalletConnectConnectedDApp {
         updatedNamespaces: [String: WalletConnectSessionNamespace]
     ) -> WalletConnectConnectedDApp {
         switch self {
-        case .v2(let dApp):
-            return .v2(
-                WalletConnectConnectedDAppV2(
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppV1(
                     session: WalletConnectDAppSession(
                         topic: dApp.session.topic,
                         namespaces: updatedNamespaces,
                         expiryDate: dApp.session.expiryDate
                     ),
                     userWalletID: dApp.userWalletID,
-                    accountId: dApp.accountId,
                     dAppData: dApp.dAppData,
                     verificationStatus: dApp.verificationStatus,
                     dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
                     connectionDate: dApp.connectionDate
                 )
             )
+
+        case .v2(let dApp):
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(
+                    topic: dApp.session.topic,
+                    namespaces: updatedNamespaces,
+                    expiryDate: dApp.session.expiryDate
+                ),
+                userWalletID: dApp.wrapped.userWalletID,
+                dAppData: dApp.dAppData,
+                verificationStatus: dApp.verificationStatus,
+                dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+                connectionDate: dApp.connectionDate
+            )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
         }
     }
 }

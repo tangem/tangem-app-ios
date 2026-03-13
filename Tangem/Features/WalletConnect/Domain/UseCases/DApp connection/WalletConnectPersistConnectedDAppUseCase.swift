@@ -22,11 +22,10 @@ final class WalletConnectPersistConnectedDAppUseCase {
         dAppBlockchains: [WalletConnectDAppBlockchain],
         selectedUserWallet: some UserWalletModel
     ) async throws(WalletConnectDAppPersistenceError) {
-        let connectedDApp = WalletConnectConnectedDApp.v2(
-            WalletConnectConnectedDAppV2(
+        let connectedDApp = WalletConnectConnectedDApp.v1(
+            WalletConnectConnectedDAppV1(
                 session: dAppSession,
                 userWalletID: selectedUserWallet.userWalletId.stringValue,
-                accountId: "",
                 dAppData: connectionProposal.dAppData,
                 verificationStatus: connectionProposal.verificationStatus,
                 dAppBlockchains: dAppBlockchains,
@@ -44,15 +43,19 @@ final class WalletConnectPersistConnectedDAppUseCase {
         selectedUserWallet: some UserWalletModel,
         selectedAccount: any CryptoAccountModel
     ) async throws(WalletConnectDAppPersistenceError) {
+        let wrapped = WalletConnectConnectedDAppV1(
+            session: dAppSession,
+            userWalletID: selectedUserWallet.userWalletId.stringValue,
+            dAppData: connectionProposal.dAppData,
+            verificationStatus: connectionProposal.verificationStatus,
+            dAppBlockchains: dAppBlockchains,
+            connectionDate: Date.now
+        )
+
         let connectedDApp = WalletConnectConnectedDApp.v2(
             WalletConnectConnectedDAppV2(
-                session: dAppSession,
-                userWalletID: selectedUserWallet.userWalletId.stringValue,
                 accountId: selectedAccount.id.walletConnectIdentifierString,
-                dAppData: connectionProposal.dAppData,
-                verificationStatus: connectionProposal.verificationStatus,
-                dAppBlockchains: dAppBlockchains,
-                connectionDate: Date.now
+                wrapped: wrapped
             )
         )
 

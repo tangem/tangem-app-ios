@@ -63,21 +63,23 @@ final class WalletConnectAccountMigrationService {
 
     private func migrate(_ savedSession: WalletConnectConnectedDApp) async throws -> [WalletConnectConnectedDApp] {
         switch savedSession {
-        case .v2(let dApp):
-            try await migrate(dApp)
+        case .v1(let legacyDApp):
+            try await migrate(legacyDApp)
+        case .v2(let accountScopedDApp):
+            try await migrate(accountScopedDApp)
         }
     }
 
-    private func migrate(_ dApp: WalletConnectConnectedDAppV2) async throws -> [WalletConnectConnectedDApp] {
+    private func migrate(_ legacyDApp: WalletConnectConnectedDAppV1) async throws -> [WalletConnectConnectedDApp] {
         let sessionAddresses = Set(
-            dApp.session.namespaces.flatMap { $0.value.accounts }.map { normalizeAddress($0.address) }
+            legacyDApp.session.namespaces.flatMap { $0.value.accounts }.map { normalizeAddress($0.address) }
         )
 
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) else {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == legacyDApp.userWalletID }) else {
             throw Error.userWalletNotFound
         }
 
-        let migrationTargets = resolveMigrationTargets(from: dApp, userWalletModel: userWalletModel)
+        let migrationTargets = resolveMigrationTargets(from: legacyDApp, userWalletModel: userWalletModel)
         guard migrationTargets.isNotEmpty else {
             throw Error.accountNotFound
         }
@@ -91,29 +93,28 @@ final class WalletConnectAccountMigrationService {
         }
 
         let migratedDApps = selectedTargets.map { target in
-            let sanitizedDApp = sanitizeNamespaces(in: dApp, allowedNormalizedAddresses: target.allowedNormalizedAddresses)
+            let sanitizedDApp = sanitizeNamespaces(in: legacyDApp, allowedNormalizedAddresses: target.allowedNormalizedAddresses)
             return WalletConnectConnectedDApp.v2(
                 WalletConnectConnectedDAppV2(
-                    session: sanitizedDApp.session,
-                    userWalletID: sanitizedDApp.userWalletID,
                     accountId: target.accountId,
-                    dAppData: sanitizedDApp.dAppData,
-                    verificationStatus: sanitizedDApp.verificationStatus,
-                    dAppBlockchains: sanitizedDApp.dAppBlockchains,
-                    connectionDate: sanitizedDApp.connectionDate
+                    wrapped: sanitizedDApp
                 )
             )
         }
 
-        guard sessionAccountsArePreserved(original: dApp, migrated: migratedDApps) else {
+        guard sessionAccountsArePreserved(original: legacyDApp, migrated: migratedDApps) else {
             throw Error.accountNotFound
         }
 
         return migratedDApps
     }
 
+    private func migrate(_ accountScopedDApp: WalletConnectConnectedDAppV2) async throws -> [WalletConnectConnectedDApp] {
+        try await migrate(accountScopedDApp.wrapped)
+    }
+
     private func resolveMigrationTargets(
-        from dApp: WalletConnectConnectedDAppV2,
+        from dApp: WalletConnectConnectedDAppV1,
         userWalletModel: any UserWalletModel
     ) -> [MigrationTarget] {
         let sessionAddresses = Set(dApp.session.namespaces.flatMap { $0.value.accounts }.map { normalizeAddress($0.address) })
@@ -215,9 +216,9 @@ final class WalletConnectAccountMigrationService {
     }
 
     private func sanitizeNamespaces(
-        in dApp: WalletConnectConnectedDAppV2,
+        in dApp: WalletConnectConnectedDAppV1,
         allowedNormalizedAddresses: Set<String>
-    ) -> WalletConnectConnectedDAppV2 {
+    ) -> WalletConnectConnectedDAppV1 {
         guard allowedNormalizedAddresses.isNotEmpty else {
             return dApp
         }
@@ -241,10 +242,9 @@ final class WalletConnectAccountMigrationService {
             expiryDate: dApp.session.expiryDate
         )
 
-        return WalletConnectConnectedDAppV2(
+        return WalletConnectConnectedDAppV1(
             session: sanitizedSession,
             userWalletID: dApp.userWalletID,
-            accountId: dApp.accountId,
             dAppData: dApp.dAppData,
             verificationStatus: dApp.verificationStatus,
             dAppBlockchains: dApp.dAppBlockchains,
@@ -264,7 +264,7 @@ final class WalletConnectAccountMigrationService {
     }
 
     private func sessionAccountsArePreserved(
-        original: WalletConnectConnectedDAppV2,
+        original: WalletConnectConnectedDAppV1,
         migrated: [WalletConnectConnectedDApp]
     ) -> Bool {
         let originalAccounts = normalizedSessionAccounts(from: original)
@@ -278,7 +278,7 @@ final class WalletConnectAccountMigrationService {
         return originalAccounts == migratedAccounts
     }
 
-    private func normalizedSessionAccounts(from dApp: WalletConnectConnectedDAppV2) -> Set<String> {
+    private func normalizedSessionAccounts(from dApp: WalletConnectConnectedDAppV1) -> Set<String> {
         Set(
             dApp.session.namespaces
                 .flatMap(\.value.accounts)
@@ -300,8 +300,10 @@ final class WalletConnectAccountMigrationService {
     }
 
     private func containsLegacySessions(_ dApps: [WalletConnectConnectedDApp]) -> Bool {
-        // V1 sessions no longer exist in the domain model; all sessions are V2
-        false
+        dApps.contains {
+            if case .v1 = $0 { return true }
+            return false
+        }
     }
 
     private func setMigrationDone(_ isDone: Bool) async {
