@@ -21,7 +21,7 @@ public struct TangemCallout: View, Setupable {
     @ScaledInsets private var buttonPadding: EdgeInsets
 
     private var icon: Image?
-    private var color: CalloutColor = .green
+    private var colorPalette: ColorPalette = .green
 
     public init(
         text: String,
@@ -67,17 +67,17 @@ private extension TangemCallout {
             }
 
             Text(text)
-                .style(textFont, color: textColor(color: color))
+                .style(textFont, color: colorPalette.text)
 
             actionView(action)
         }
         .padding(padding)
-        .background(backgroundColor(color: color), in: shape)
+        .background(colorPalette.background, in: shape)
     }
 
     var arrowView: some View {
         ArrowShape()
-            .fill(backgroundColor(color: color))
+            .fill(colorPalette.background)
             .alignmentGuide(.leading) { arrowLeadingOffset(dimensions: $0) }
             .alignmentGuide(.top) { $0.height }
             .alignmentGuide(.bottom) { _ in .zero }
@@ -90,14 +90,14 @@ private extension TangemCallout {
             .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .foregroundStyle(iconColor(color: color))
+            .foregroundStyle(colorPalette.icon)
             .frame(size: iconSize)
     }
 
     func actionView(_ action: Action) -> some View {
         iconView(action.icon)
             .padding(buttonPadding)
-            .background(backgroundColor(color: color), in: shape)
+            .background(colorPalette.background, in: shape)
             .contentShape(shape)
             .onTapGesture(perform: action.closure)
     }
@@ -129,8 +129,8 @@ public extension TangemCallout {
         map { $0.icon = icon }
     }
 
-    func color(_ color: CalloutColor) -> Self {
-        map { $0.color = color }
+    func colorPalette(_ colorPalette: ColorPalette) -> Self {
+        map { $0.colorPalette = colorPalette }
     }
 }
 
