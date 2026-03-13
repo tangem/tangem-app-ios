@@ -34,9 +34,13 @@ enum SendReceiveTokensListNotification: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .sendWithSwapInfo:
-            return .init(iconType: .image(Assets.refreshWarningIcon.image.renderingMode(.template)), color: Colors.Icon.accent)
+            return .init(
+                iconType: .image(Assets.refreshWarningIcon),
+                renderingMode: .template,
+                color: Colors.Icon.accent
+            )
         case .irreversibleLossNotification:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 
