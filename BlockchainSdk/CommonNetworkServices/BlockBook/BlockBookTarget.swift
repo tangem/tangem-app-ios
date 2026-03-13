@@ -44,9 +44,9 @@ struct BlockBookTarget: TargetType {
 
     var method: Moya.Method {
         switch request {
-        case .address, .utxo, .getFees:
+        case .address, .utxo, .getFees, .txDetails:
             return .get
-        case .sendBlockBook, .rpc, .txDetails:
+        case .sendBlockBook, .rpc:
             return .post
         }
     }
