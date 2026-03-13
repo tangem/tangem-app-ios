@@ -47,6 +47,11 @@ struct GlowBorderModifier: ViewModifier {
                         .blur(radius: SizeUnit.x8.value)
 
                     shape
+                        .fill(gradient)
+                        .blur(radius: SizeUnit.x10.value)
+                        .opacity(glowOpacity * 0.15)
+
+                    shape
                         .strokeBorder(gradient, lineWidth: SizeUnit.x2.value)
                         .blur(radius: SizeUnit.x6.value)
                         .opacity(glowOpacity)
