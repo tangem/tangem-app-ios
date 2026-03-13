@@ -12,6 +12,40 @@ import TangemAssets
 import TangemAccounts
 import TangemUIUtils
 
+@available(iOS 17.0, *)
+@Observable
+final class _VM<InnerVM> where InnerVM: AnyObject {
+    weak var innerVM: InnerVM?
+
+    init(innerVM: InnerVM) {
+        self.innerVM = innerVM
+    }
+}
+
+@available(iOS 17.0, *)
+struct _View<InnerView, InnerVM>: View where InnerView: View, InnerVM: AnyObject {
+    let vm: _VM<InnerVM>
+    let constructor: (InnerVM) -> InnerView
+
+    var body: some View {
+        if let innerVM = vm.innerVM {
+            constructor(innerVM)
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+extension _View {
+    init(_ innerVM: InnerVM, @ViewBuilder constructor: @escaping (InnerVM) -> InnerView) {
+        self.init(
+            vm: .init(innerVM: innerVM),
+            constructor: constructor
+        )
+    }
+}
+
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
     let expandedView: ExpandedView
