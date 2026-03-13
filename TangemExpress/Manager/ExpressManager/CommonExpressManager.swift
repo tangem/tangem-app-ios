@@ -260,19 +260,24 @@ private extension CommonExpressManager {
     }
 
     func bestByRateProvider() -> ExpressAvailableProvider? {
+        let isFixedRate = _amountType?.rateType == .fixed
         var hasProviderWithQuote = false
 
         let bests = availableProviders.sorted(by: { lhsProvider, rhsProvider in
-            let lhsExpectAmount = lhsProvider.getState().quote?.expectAmount
-            let rhsExpectAmount = rhsProvider.getState().quote?.expectAmount
+            let lhsQuote = lhsProvider.getState().quote
+            let rhsQuote = rhsProvider.getState().quote
 
-            hasProviderWithQuote = lhsExpectAmount != nil || rhsExpectAmount != nil
+            hasProviderWithQuote = lhsQuote != nil || rhsQuote != nil
 
-            if let lhsExpectAmount, let rhsExpectAmount {
-                return lhsExpectAmount > rhsExpectAmount
+            if isFixedRate {
+                // Fixed mode: lowest fromAmount is best (cheapest cost for user)
+                guard let lhs = lhsQuote?.fromAmount, let rhs = rhsQuote?.fromAmount else { return false }
+                return lhs < rhs
+            } else {
+                // Float mode: highest expectAmount is best (most received)
+                guard let lhs = lhsQuote?.expectAmount, let rhs = rhsQuote?.expectAmount else { return false }
+                return lhs > rhs
             }
-
-            return false
         })
 
         if hasProviderWithQuote, let best = bests.first {
