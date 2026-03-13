@@ -86,13 +86,19 @@ struct MultiWalletMainContentRedesignedView: View {
     private var accountsList: some View {
         LazyVStack(spacing: .unit(.x2)) {
             ForEach(viewModel.accountSections) { accountSection in
-                ExpandableAccountItemView(viewModel: accountSection.model) {
-                    LazyVStack(spacing: 0) {
-                        tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
+                if #available(iOS 17.0, *) {
+                    _View(accountSection.model) { viewModel in
+                        ExpandableAccountItemView(viewModel: viewModel) {
+                            LazyVStack(spacing: 0) {
+                                tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
+                            }
+                        }
+                        .cornerRadius(.unit(.x5))
+                        .backgroundColor(Constants.tokenListBackgroundColor)
                     }
+                } else {
+                    EmptyView()
                 }
-                .cornerRadius(.unit(.x5))
-                .backgroundColor(Constants.tokenListBackgroundColor)
             }
         }
     }
