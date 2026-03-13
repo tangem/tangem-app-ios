@@ -44,18 +44,10 @@ actor WalletConnectDAppSessionsExtender {
             do {
                 let dAppsToExtend: [WalletConnectConnectedDApp]
 
-                if FeatureProvider.isAvailable(.accounts) {
-                    if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
-                        dAppsToExtend = migratedDApps
-                    } else {
-                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
-                    }
+                if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
+                    dAppsToExtend = migratedDApps
                 } else {
-                    if let migratedDApps = try await savedSessionMigrationService.migrateSavedSessions() {
-                        dAppsToExtend = migratedDApps
-                    } else {
-                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
-                    }
+                    dAppsToExtend = try await connectedDAppRepository.getAllDApps()
                 }
 
                 try await withCheckedThrowingContinuation { continuation in

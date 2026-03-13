@@ -454,7 +454,7 @@ private extension WCServiceV2 {
     }
 
     func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
-        guard FeatureProvider.isAvailable(.accounts), hasWalletModels else {
+        guard hasWalletModels else {
             return
         }
 

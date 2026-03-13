@@ -14,6 +14,8 @@ import TangemFoundation
 final class CommonCryptoAccountsRepository {
     private typealias StorageDidUpdatePublisher = AnyPublisher<[StoredCryptoAccount], Never>
 
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
+    private let tokenItemsRepository: TokenItemsRepository
     private let defaultAccountFactory: DefaultAccountFactory
     private let networkService: CryptoAccountsNetworkService & WalletsNetworkService
     fileprivate let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
@@ -50,6 +52,7 @@ final class CommonCryptoAccountsRepository {
     private var storageDidUpdateSubscription: AnyCancellable?
 
     init(
+        tokenItemsRepository: TokenItemsRepository,
         defaultAccountFactory: DefaultAccountFactory,
         networkService: CryptoAccountsNetworkService & WalletsNetworkService,
         auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage,
@@ -59,6 +62,7 @@ final class CommonCryptoAccountsRepository {
     ) {
         stateHolder = .init()
         storageDidUpdateSubject = .init()
+        self.tokenItemsRepository = tokenItemsRepository
         self.defaultAccountFactory = defaultAccountFactory
         self.networkService = networkService
         self.auxiliaryDataStorage = auxiliaryDataStorage
@@ -81,6 +85,19 @@ final class CommonCryptoAccountsRepository {
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
         auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+    }
+
+    private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
+        let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
+        let legacyStoredTokenList = tokenItemsRepository.getList()
+        let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokenList.entries)
+        let tokenListAppearance = LegacyStoredEntryConverter.convert(legacyStoredTokenListToAppearance: legacyStoredTokenList)
+        let newCryptoAccount = StoredCryptoAccount(
+            config: mainAccountPersistentConfig,
+            tokenListAppearance: tokenListAppearance,
+            tokens: tokens
+        )
+        initializeStorage(with: newCryptoAccount)
     }
 
     private func createWallet() async throws {
@@ -425,7 +442,11 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             return
         }
 
-        if !hasTokenSynchronization {
+        if tokenItemsRepository.containsFile {
+            // There is no need to call `loadAccountsFromServer` explicitly here, as this migration will create the main
+            // account, and its user tokens manager will trigger the initial synchronization with the remote server
+            migrateStorage(forUserWalletWithId: userWalletId)
+        } else if !hasTokenSynchronization {
             // Local-only storage initialization with a default account
             let defaultAccount = defaultAccountFactory.makeDefaultAccount(
                 defaultTokensOverride: nil,
