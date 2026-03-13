@@ -150,9 +150,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void) {
+    func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void) {
         Task { @MainActor in
             let viewModel = TangemPayFreezeSheetViewModel(
+                userWalletId: userWalletId,
                 coordinator: self,
                 freezeAction: freezeAction
             )
@@ -162,7 +163,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
-        userWalletId: String,
+        userWalletId: UserWalletId,
         customerId: String
     ) {
         let viewModel = TangemPayTransactionDetailsViewModel(

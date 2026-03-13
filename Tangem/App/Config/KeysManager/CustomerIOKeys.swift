@@ -9,5 +9,5 @@
 import Foundation
 
 struct CustomerIOKeys: Decodable {
-    let appApiKey: String
+    let iosApiKey: String
 }
