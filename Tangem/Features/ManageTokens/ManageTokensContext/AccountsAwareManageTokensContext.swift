@@ -36,7 +36,8 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
 
     func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination {
         guard let targetAccount = findAccountForToken(tokenItem) else {
-            return .noAccount
+            // When accounts are enabled, tokens without an account fall back to main account behavior
+            return .currentAccount(isMainAccount: true)
         }
 
         // Check if target account matches current account

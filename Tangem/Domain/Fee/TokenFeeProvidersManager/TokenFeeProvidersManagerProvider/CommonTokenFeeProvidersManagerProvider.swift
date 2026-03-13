@@ -92,11 +92,7 @@ private extension CommonTokenFeeProvidersManagerProvider {
             return []
         }
 
-        let currentAccountWalletModels = if FeatureProvider.isAvailable(.accounts) {
-            walletModel.account?.walletModelsManager.walletModels ?? []
-        } else {
-            AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
-        }
+        let currentAccountWalletModels = walletModel.account?.walletModelsManager.walletModels ?? []
 
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
         let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })

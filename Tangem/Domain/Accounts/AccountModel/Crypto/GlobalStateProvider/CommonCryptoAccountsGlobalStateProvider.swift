@@ -98,4 +98,3 @@ extension InjectedValues {
 private struct CryptoAccountsGlobalStateProviderKey: InjectionKey {
     static var currentValue: CryptoAccountsGlobalStateProvider = CommonCryptoAccountsGlobalStateProvider()
 }
-

@@ -209,19 +209,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
-            AccountWalletModelsAggregator
-                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel
-                .walletModelsManager
-                .walletModelsPublisher
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        }
+        let nftEntrypointViewModelPublisher = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+            .withLatestFrom(walletsWithNFTEnabledPublisher)
+            .merge(with: walletsWithNFTEnabledPublisher)
 
         nftEntrypointViewModelPublisher
             .withWeakCaptureOf(self)
@@ -589,11 +580,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        // accounts_fixes_needed_none
-        let allWalletModels = FeatureProvider.isAvailable(.accounts)
-            ? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            : userWalletModel.walletModelsManager.walletModels
-
+        let allWalletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         return allWalletModels.first(where: { $0.id.id == id.id })
     }
 }
@@ -905,7 +892,6 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }

@@ -46,7 +46,6 @@ final class WalletCreationContextBuilder {
     func build() -> some Encodable {
         return storage
     }
-
 }
 
 // MARK: - ExpressibleByDictionaryLiteral protocol conformance
