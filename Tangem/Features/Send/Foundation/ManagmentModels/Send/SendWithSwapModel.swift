@@ -312,6 +312,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.receiveRestrictionPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -325,8 +334,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 // MARK: - SendReceiveTokenAmountOutput
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
-    func receiveAmountDidChanged(amount: SendAmount?) {
-        swapModel.receiveAmountDidChanged(amount: amount)
+    func receiveAmountDidChange(amount: SendAmount?) {
+        swapModel.receiveAmountDidChange(amount: amount)
     }
 }
 
