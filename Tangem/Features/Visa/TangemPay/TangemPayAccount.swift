@@ -67,6 +67,7 @@ final class TangemPayAccount {
         customerInfoSubject.value.productInstance.cardId
     }
 
+    let userWalletId: UserWalletId
     private(set) weak var account: (any TangemPayAccountModel)?
 
     private let balancesService: any TangemPayBalancesService
@@ -76,6 +77,7 @@ final class TangemPayAccount {
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
 
     init(
+        userWalletId: UserWalletId,
         customerInfo: VisaCustomerInfoResponse,
         productInstance: VisaCustomerInfoResponse.ProductInstance,
         customerService: any CustomerInfoManagementService,
@@ -87,6 +89,7 @@ final class TangemPayAccount {
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         account: (any TangemPayAccountModel)?
     ) {
+        self.userWalletId = userWalletId
         customerInfoSubject = CurrentValueSubject((customerInfo, productInstance))
         self.customerService = customerService
         self.balancesService = balancesService
