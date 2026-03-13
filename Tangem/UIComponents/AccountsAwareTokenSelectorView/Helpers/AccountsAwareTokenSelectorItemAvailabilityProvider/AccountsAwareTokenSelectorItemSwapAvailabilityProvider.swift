@@ -77,6 +77,11 @@ private extension AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
             return .unavailable(reason: .unavailableForSwap)
         }
 
+        if let availableCurrencies,
+           !availableCurrencies.contains(walletModel.tokenItem.expressCurrency.asCurrency) {
+            return .unavailable(reason: .unavailableForSwap)
+        }
+
         return .available
     }
 }
