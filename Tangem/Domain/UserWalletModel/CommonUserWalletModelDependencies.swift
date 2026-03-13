@@ -124,6 +124,7 @@ private extension CommonUserWalletModelDependencies {
         config: UserWalletConfig,
         hasTokenSynchronization: Bool
     ) -> (repository: CommonCryptoAccountsRepository, mapper: CryptoAccountsNetworkMapper, provider: ArchivedCryptoAccountsProvider) {
+        let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
         let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(
             storageIdentifier: userWalletId.stringValue,
             hasTokenSynchronization: hasTokenSynchronization
@@ -147,6 +148,7 @@ private extension CommonUserWalletModelDependencies {
             persistentStorage: persistentStorage
         )
         let cryptoAccountsRepository = CommonCryptoAccountsRepository(
+            tokenItemsRepository: tokenItemsRepository,
             defaultAccountFactory: defaultAccountFactory,
             networkService: networkService,
             auxiliaryDataStorage: auxiliaryDataStorage,
