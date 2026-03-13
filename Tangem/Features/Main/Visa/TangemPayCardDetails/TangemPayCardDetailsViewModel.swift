@@ -25,10 +25,13 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
     private let repository: TangemPayCardDetailsRepository
+    private let userWalletId: UserWalletId
 
     init(
+        userWalletId: UserWalletId,
         repository: TangemPayCardDetailsRepository
     ) {
+        self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
 
@@ -41,17 +44,17 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func copyNumber() {
-        Analytics.log(.visaScreenCopyCardNumberClicked)
+        Analytics.log(.visaScreenCopyCardNumberClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
     }
 
     func copyExpirationDate() {
-        Analytics.log(.visaScreenCopyCardExpiryClicked)
+        Analytics.log(.visaScreenCopyCardExpiryClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.expirationDate, toastMessage: "Expiration date copied")
     }
 
     func copyCVC() {
-        Analytics.log(.visaScreenCopyCardCVVClicked)
+        Analytics.log(.visaScreenCopyCardCVVClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.cvc, toastMessage: "CVC copied")
     }
 
@@ -60,7 +63,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             cardDetailsExposureTask?.cancel()
             return
         }
-        Analytics.log(.visaScreenViewCardDetailsClicked)
+        Analytics.log(.visaScreenViewCardDetailsClicked, contextParams: .userWallet(userWalletId))
         toggleInteractive()
     }
 
