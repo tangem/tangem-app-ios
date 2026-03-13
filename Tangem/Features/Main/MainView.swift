@@ -66,8 +66,13 @@ struct MainView: View {
     }
 
     private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        let scale: CGFloat = max(0.5, redesignedHeaderHeightRatio ?? 1.0)
-        let opacity: CGFloat = redesignedHeaderHeightRatio ?? 1.0
+        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
+
+        // Scale: decreases linearly from 100% to 90% as height collapses from 100% to 50%
+        let scale: CGFloat = 0.2 * heightRatio + 0.8
+
+        // Opacity: decreases linearly from 1 to 0 value as height collapses from 100% to 50%
+        let opacity: CGFloat = max(0, 2 * heightRatio - 1)
 
         return pageBuilder.redesignedHeader(
             totalPages: viewModel.pages.count,
