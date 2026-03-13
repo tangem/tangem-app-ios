@@ -112,13 +112,6 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationBarTitleDisplayMode(.inline)
                 }
             }
-            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    OrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-            }
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }

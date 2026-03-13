@@ -47,10 +47,6 @@ final class WalletCreationContextBuilder {
         return storage
     }
 
-    @available(iOS, deprecated: 100000.0, message: "Will be removed in the future ([REDACTED_INFO])")
-    func buildRaw() -> [String: String] {
-        return storage.mapValues { $0.value as! String }
-    }
 }
 
 // MARK: - ExpressibleByDictionaryLiteral protocol conformance

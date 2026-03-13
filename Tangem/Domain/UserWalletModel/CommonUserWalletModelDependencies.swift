@@ -275,7 +275,6 @@ private extension CommonUserWalletModelDependencies {
         config: UserWalletConfig,
         hasTokenSynchronization: Bool
     ) -> (repository: CommonCryptoAccountsRepository, mapper: CryptoAccountsNetworkMapper, provider: ArchivedCryptoAccountsProvider) {
-        let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
         let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(
             storageIdentifier: userWalletId.stringValue,
             hasTokenSynchronization: hasTokenSynchronization
@@ -299,7 +298,6 @@ private extension CommonUserWalletModelDependencies {
             persistentStorage: persistentStorage
         )
         let cryptoAccountsRepository = CommonCryptoAccountsRepository(
-            tokenItemsRepository: tokenItemsRepository,
             defaultAccountFactory: defaultAccountFactory,
             networkService: networkService,
             auxiliaryDataStorage: auxiliaryDataStorage,
@@ -428,26 +426,6 @@ private extension CommonUserWalletModelDependencies {
         func configure(with dependencies: CommonUserWalletModelDependencies)
         /// Called 3rd.
         func configure(with model: UserWalletModel)
-    }
-
-    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    struct CommonInnerDependencies: InnerDependenciesConfigurable {
-        let userTokensManager: CommonUserTokensManager
-        let userTokenListManager: CommonUserTokenListManager
-
-        func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {
-            userTokenListManager.externalParametersProvider = externalParametersProvider
-        }
-
-        func configure(with dependencies: CommonUserWalletModelDependencies) {
-            userTokensManager.derivationManager = dependencies.derivationManager
-            userTokensManager.walletModelsManager = dependencies.walletModelsManager
-        }
-
-        func configure(with model: UserWalletModel) {
-            // The dependency graph is complete at this stage, so it's safe to trigger initial synchronization here
-            userTokensManager.sync {}
-        }
     }
 
     struct AccountsAwareInnerDependencies: InnerDependenciesConfigurable {

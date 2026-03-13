@@ -44,11 +44,7 @@ private extension CommonExpressDependenciesFactory {
     }
 
     func makeExpressDestinationService() -> ExpressDestinationService {
-        let shouldFilterForOneWallet = !FeatureProvider.isAvailable(.accounts)
-
-        return CommonExpressDestinationService(
-            userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
-        )
+        return CommonExpressDestinationService()
     }
 
     func makeExpressRepository() -> ExpressRepository {
