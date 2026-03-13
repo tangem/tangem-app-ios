@@ -248,7 +248,12 @@
 		0F48DC4C2E44EA1B0095D3C8 /* MobileOnboardingSeedPhraseImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F48DC4B2E44EA1B0095D3C8 /* MobileOnboardingSeedPhraseImportViewModel.swift */; };
 		0F48DC4E2E44EAE40095D3C8 /* MobileOnboardingSeedPhraseImportDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F48DC4D2E44EAE40095D3C8 /* MobileOnboardingSeedPhraseImportDelegate.swift */; };
 		0F48DC8C2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F48DC8B2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift */; };
+		0F5EBA8B2F641EDB00D6A558 /* MainNavigationBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5EBA8A2F641EDB00D6A558 /* MainNavigationBalanceView.swift */; };
+		0F5EBA8D2F641EE500D6A558 /* MainNavigationBalanceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5EBA8C2F641EE500D6A558 /* MainNavigationBalanceState.swift */; };
 		0F61D5D82EB2131400F371AE /* ResetToFactoryUtilBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F61D5D72EB2131400F371AE /* ResetToFactoryUtilBuilder.swift */; };
+		0F6C1DC52F62AF000015E1AE /* MainNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6C1DC42F62AF000015E1AE /* MainNavigationView.swift */; };
+		0F6C1DC72F62B0A00015E1AE /* MainNavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6C1DC62F62B0A00015E1AE /* MainNavigationViewModel.swift */; };
+		0F6C1DC92F62BB8C0015E1AE /* MainNavigationBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6C1DC82F62BB8C0015E1AE /* MainNavigationBalanceProvider.swift */; };
 		0F721C1C2EDDE3A600C1183B /* MobileCreateWalletSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C1B2EDDE3A600C1183B /* MobileCreateWalletSource.swift */; };
 		0F721C202EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C1F2EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift */; };
 		0F721C252EE1D5D800C1183B /* TangemShopUrlBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */; };
@@ -5233,7 +5238,12 @@
 		0F48DC4B2E44EA1B0095D3C8 /* MobileOnboardingSeedPhraseImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseImportViewModel.swift; sourceTree = "<group>"; };
 		0F48DC4D2E44EAE40095D3C8 /* MobileOnboardingSeedPhraseImportDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseImportDelegate.swift; sourceTree = "<group>"; };
 		0F48DC8B2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeCleaner.swift; sourceTree = "<group>"; };
+		0F5EBA8A2F641EDB00D6A558 /* MainNavigationBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationBalanceView.swift; sourceTree = "<group>"; };
+		0F5EBA8C2F641EE500D6A558 /* MainNavigationBalanceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationBalanceState.swift; sourceTree = "<group>"; };
 		0F61D5D72EB2131400F371AE /* ResetToFactoryUtilBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryUtilBuilder.swift; sourceTree = "<group>"; };
+		0F6C1DC42F62AF000015E1AE /* MainNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationView.swift; sourceTree = "<group>"; };
+		0F6C1DC62F62B0A00015E1AE /* MainNavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationViewModel.swift; sourceTree = "<group>"; };
+		0F6C1DC82F62BB8C0015E1AE /* MainNavigationBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationBalanceProvider.swift; sourceTree = "<group>"; };
 		0F721C1B2EDDE3A600C1183B /* MobileCreateWalletSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletSource.swift; sourceTree = "<group>"; };
 		0F721C1F2EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeValidator.swift; sourceTree = "<group>"; };
 		0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemShopUrlBuilder.swift; sourceTree = "<group>"; };
@@ -10429,6 +10439,15 @@
 			path = Mobile;
 			sourceTree = "<group>";
 		};
+		0F5EBA892F641EBD00D6A558 /* BalanceView */ = {
+			isa = PBXGroup;
+			children = (
+				0F5EBA8A2F641EDB00D6A558 /* MainNavigationBalanceView.swift */,
+				0F5EBA8C2F641EE500D6A558 /* MainNavigationBalanceState.swift */,
+			);
+			path = BalanceView;
+			sourceTree = "<group>";
+		};
 		0F61D5D62EB2130500F371AE /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -10436,6 +10455,17 @@
 				0F61D5D72EB2131400F371AE /* ResetToFactoryUtilBuilder.swift */,
 			);
 			path = Util;
+			sourceTree = "<group>";
+		};
+		0F6C1DC32F62AED90015E1AE /* MainNavigationView */ = {
+			isa = PBXGroup;
+			children = (
+				0F5EBA892F641EBD00D6A558 /* BalanceView */,
+				0F6C1DC42F62AF000015E1AE /* MainNavigationView.swift */,
+				0F6C1DC62F62B0A00015E1AE /* MainNavigationViewModel.swift */,
+				0F6C1DC82F62BB8C0015E1AE /* MainNavigationBalanceProvider.swift */,
+			);
+			path = MainNavigationView;
 			sourceTree = "<group>";
 		};
 		0F8414A52E96465C00D03FB6 /* Builder */ = {
@@ -14218,6 +14248,7 @@
 				DCBE4CEC2CC8C8D800855904 /* ActionButtons */,
 				2D3E1DC12C99CCE1006AF975 /* UIComponents */,
 				B6D274E92C38382D00FEFCDC /* PushNotificationsBottomSheet */,
+				0F6C1DC32F62AED90015E1AE /* MainNavigationView */,
 				B09310592A0BC03100F6043A /* MainHeaderView */,
 				B05919072F55AAA100000003 /* MainUserWalletHeader */,
 				B6E9A8C32A997AE5005CF137 /* MainFooterView */,
@@ -27839,6 +27870,7 @@
 				2DBFABCE2F17B8AD00761067 /* NewsSourcesSectionView.swift in Sources */,
 				2DBFABCF2F17B8AD00761067 /* NewsDateFormatter.swift in Sources */,
 				DC23012126A1B8AD00761067 /* NewsReadStatusSortable.swift in Sources */,
+				0F6C1DC92F62BB8C0015E1AE /* MainNavigationBalanceProvider.swift in Sources */,
 				2DBFABD02F17B8AD00761067 /* NewsDeeplinkCoordinator.swift in Sources */,
 				2DBFABD12F17B8AD00761067 /* NewsQuickRecapView.swift in Sources */,
 				2DBFABD22F17B8AD00761067 /* RelatedTokensSectionView.swift in Sources */,
@@ -28251,6 +28283,7 @@
 				DA76BF4F2CEF964300199317 /* OnrampPendingTransactionRepository.swift in Sources */,
 				B6470E432EE904B80022B342 /* AccountsAwareUserTokensPushNotificationsManager.swift in Sources */,
 				DAE4BB0E2CD796210020CE3F /* OnrampCurrencySelectorRoutable.swift in Sources */,
+				0F6C1DC72F62B0A00015E1AE /* MainNavigationViewModel.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				EFFA43682E02E8F9001E0E54 /* SendReceiveTokensListTokenView.swift in Sources */,
 				B6E301932EC5494E00D92416 /* LegacyMultiWalletMainContentViewSectionsProvider.swift in Sources */,
@@ -28412,6 +28445,7 @@
 				EFE54CDE2D0B118900D803EB /* ExpressProvider+LegalText.swift in Sources */,
 				EFF610F32E9E971800552747 /* TotalBalanceStatesCombiner.swift in Sources */,
 				B60263902EC7F79A001A4614 /* MultiWalletTokenItemsEmptyView.swift in Sources */,
+				0F6C1DC52F62AF000015E1AE /* MainNavigationView.swift in Sources */,
 				EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */,
 				EF0DD7952B026B3A0099527D /* ExpressDestinationService.swift in Sources */,
 				2D5B255F2DE46CAF00D8D809 /* TransactionNotificationsModalRoutable.swift in Sources */,
@@ -29413,6 +29447,7 @@
 				EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */,
 				DC9E1DF22E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift in Sources */,
 				EFE31A302F3DEE850013FFEC /* SwapFlowFactory.swift in Sources */,
+				0F5EBA8D2F641EE500D6A558 /* MainNavigationBalanceState.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				2D96E9602E55D25300B69F91 /* ReceiveAddressInfo.swift in Sources */,
 				2D96E9612E55D25300B69F91 /* ReceiveFlowUtils.swift in Sources */,
@@ -30043,6 +30078,7 @@
 				EFEE236A2BFE20860099917E /* StakingDetailsCoordinator.swift in Sources */,
 				0A04FCA52E03009800ABB6B0 /* ImageProviderFactory.swift in Sources */,
 				0F25E16F2E9E90AF00C67A34 /* HardwareBackupTypesCoordinator.swift in Sources */,
+				0F5EBA8B2F641EDB00D6A558 /* MainNavigationBalanceView.swift in Sources */,
 				EF0FBB742C53BE4A0095A6BD /* StakingTargetsCompactViewModel.swift in Sources */,
 				EFEE236B2BFE20860099917E /* StakingDetailsCoordinatorView.swift in Sources */,
 				DCFEFE4C2CF08270002DFE58 /* ActionButtonsSwapCoordinator.swift in Sources */,
