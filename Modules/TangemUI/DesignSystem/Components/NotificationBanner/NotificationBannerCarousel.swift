@@ -43,7 +43,7 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
                 containerWidth = $0
             }
             .clipped()
-            .gesture(swipeGesture)
+            .highPriorityGesture(swipeGesture)
             .onAnimationTargetProgress(
                 for: dragProgress,
                 targetValue: 0.98,
@@ -84,7 +84,6 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
 
     private func bannerView(for item: Item) -> some View {
         NotificationBanner(bannerType: item.bannerType)
-            .padding(.horizontal, SizeUnit.x4.value)
     }
 
     private var isSwipingForward: Bool {
