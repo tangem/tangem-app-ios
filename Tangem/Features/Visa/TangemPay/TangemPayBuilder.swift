@@ -103,6 +103,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
+            userWalletId: userWalletId,
             customerInfo: customerInfo,
             productInstance: productInstance,
             customerService: customerService,
