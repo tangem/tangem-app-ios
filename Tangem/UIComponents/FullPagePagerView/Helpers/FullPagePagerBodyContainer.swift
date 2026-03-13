@@ -37,6 +37,7 @@ struct FullPagePagerBodyContainer<Data, Content>: View
             }
         }
         .frame(width: pageWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
         .clipped()
     }
 }
