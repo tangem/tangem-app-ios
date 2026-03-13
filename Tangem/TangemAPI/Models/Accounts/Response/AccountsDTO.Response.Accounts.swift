@@ -8,13 +8,22 @@
 
 import Foundation
 
+extension AccountsDTO {
+    enum GroupType: String, Codable {
+        case none
+        case network
+    }
+
+    enum SortType: String, Codable {
+        case manual
+        case balance
+    }
+}
+
 extension AccountsDTO.Response {
     struct Accounts: Decodable {
-        // [REDACTED_TODO_COMMENT]
-        typealias GroupType = UserTokenList.GroupType
-
-        // [REDACTED_TODO_COMMENT]
-        typealias SortType = UserTokenList.SortType
+        typealias GroupType = AccountsDTO.GroupType
+        typealias SortType = AccountsDTO.SortType
 
         struct Wallet: Decodable {
             /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]

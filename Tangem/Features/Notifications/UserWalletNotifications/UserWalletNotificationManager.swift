@@ -360,14 +360,6 @@ final class UserWalletNotificationManager {
     }
 
     private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            // accounts_fixes_needed_none
-            return userWalletModel
-                .userTokensManager
-                .derivationManager?
-                .pendingDerivationsCount
-        }
-
         let crypto = userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher

@@ -275,20 +275,12 @@ extension WalletConnectViewModel {
         userWalletRepository: some UserWalletRepository,
         cryptoAccountsState: CryptoAccounts.State
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
-        let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
-            let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
-                guard case .v1(let legacy) = dApp else { return nil }
-                return (legacy.userWalletID, .init(domainModel: dApp))
-            }
-
-            return Dictionary(grouping: pairs, by: { $0.0 })
-                .mapValues { $0.map(\.1) }
-        }()
+        let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = [:]
 
         let accountIdToV2DApps: [DAppsV2Key: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
             let pairs = connectedDApps.compactMap { dApp -> (DAppsV2Key, WalletConnectViewState.ContentState.ConnectedDApp)? in
                 guard case .v2(let current) = dApp else { return nil }
-                let key = DAppsV2Key(userWalletID: current.wrapped.userWalletID, accountID: current.accountId)
+                let key = DAppsV2Key(userWalletID: current.userWalletID, accountID: current.accountId)
 
                 return (key, .init(domainModel: dApp))
             }

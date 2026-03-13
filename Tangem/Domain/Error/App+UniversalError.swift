@@ -19,7 +19,7 @@ import TangemFoundation
 // `006` - MultipleAddressTransactionHistoryService.ServiceError
 // `007` - (removed)
 // `008` - CommonTokenEnricher.Error
-// `009` - OrganizeTokensViewModel.Error
+// `009` - (removed)
 // `010` - WalletModelError
 // `011` - AccountsAwareUserTokensManager.Error
 // `012` - CloreMigrationSigningError
@@ -170,15 +170,6 @@ extension CommonTokenEnricher.Error: UniversalError {
             100008000
         case .unsupportedBlockchain:
             100008001
-        }
-    }
-}
-
-extension OrganizeTokensViewModel.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .sectionOffsetOutOfBound:
-            100009000
         }
     }
 }

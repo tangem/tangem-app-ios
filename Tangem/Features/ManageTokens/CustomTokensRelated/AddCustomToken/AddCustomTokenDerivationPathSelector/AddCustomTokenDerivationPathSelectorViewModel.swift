@@ -94,7 +94,7 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             let destination = context.accountDestination(for: tokenItem)
 
             switch destination {
-            case .currentAccount, .noAccount:
+            case .currentAccount:
                 setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
 
             case .differentAccount(let accountName, _):

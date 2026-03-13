@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 
+let cryptoAccountsGlobalStateProviderLogger = AccountsLogger.tag(#fileID)
+
 protocol CryptoAccountsGlobalStateProvider {
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable
     func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable

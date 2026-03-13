@@ -92,13 +92,7 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
-            derivationManager: nil
-        )
+        UserTokensPushNotificationsManagerStub()
     }
 
     var accountModelsManager: AccountModelsManager {

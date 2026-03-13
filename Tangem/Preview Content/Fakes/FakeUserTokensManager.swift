@@ -11,26 +11,14 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
-    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+    var userTokens: [TokenItem] { [] }
 
-    var userTokens: [TokenItem] {
-        let converter = StorageEntryConverter()
-        return converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
-    }
-
-    var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
-        let converter = StorageEntryConverter()
-        return userTokenListManager.userTokensListPublisher
-            .map { converter.convertToTokenItems($0.entries) }
-            .eraseToAnyPublisher()
-    }
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: []) }
 
     var derivationManager: DerivationManager?
-    var userTokenListManager: UserTokenListManager
 
-    init(derivationManager: FakeDerivationManager?, userTokenListManager: FakeUserTokenListManager) {
+    init(derivationManager: FakeDerivationManager?) {
         self.derivationManager = derivationManager
-        self.userTokenListManager = userTokenListManager
     }
 
     func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {}

@@ -86,13 +86,7 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: _userTokensManager,
-            derivationManager: nil
-        )
+        LockedUserTokensPushNotificationsManager()
     }
 
     var accountModelsManager: AccountModelsManager {
@@ -334,6 +328,12 @@ private extension LockedUserWalletModel {
         ) {
             completion(.failure("Locked wallet does not support keys deriving using '\(#function)'"))
         }
+    }
+
+    struct LockedUserTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> { .just(output: status) }
+        var status: UserWalletPushNotifyStatus { .disabled }
+        func handleUpdateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
     }
 
     final class DummyTangemPayAuthorizer: TangemPayAuthorizing {

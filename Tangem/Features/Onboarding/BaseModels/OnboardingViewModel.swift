@@ -482,7 +482,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             currentAccount: mainAccount
         )
     }
-
 }
 
 // MARK: - Analytics

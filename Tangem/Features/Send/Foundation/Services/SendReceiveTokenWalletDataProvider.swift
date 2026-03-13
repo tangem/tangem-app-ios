@@ -36,11 +36,7 @@ private extension SendReceiveTokenWalletDataProvider {
     func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
         userWalletRepository.models
             .flatMap { userWalletModel -> [any WalletModel] in
-                if FeatureProvider.isAvailable(.accounts) {
-                    return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-                } else {
-                    return userWalletModel.walletModelsManager.walletModels
-                }
+                AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             }
             .first { walletModel in
                 walletModel.tokenItem == tokenItem

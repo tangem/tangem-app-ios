@@ -46,7 +46,7 @@ struct CommonUserWalletModelDependencies {
         userTokensManager = LockedUserTokensManager()
         innerDependencies = DummyInnerDependencies()
 
-        walletModelsManager = WalletModelsManagerStub()
+        walletModelsManager = LockedWalletModelsManager()
         derivationManager = areHDWalletsSupported
             ? AccountsAwareDerivationManager(keysRepository: keysRepository)
             : nil
@@ -93,11 +93,12 @@ struct CommonUserWalletModelDependencies {
             analyticsLogger: totalBalanceAnalyticsLogger
         )
 
+        let nftAccountModelsManager = accountModelsManager
         nftManager = CommonNFTManager(
             userWalletId: userWalletId,
-            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: accountModelsManager),
+            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: nftAccountModelsManager),
             provideWalletModels: {
-                AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
+                AccountWalletModelsAggregator.walletModels(from: nftAccountModelsManager)
             },
             analytics: NFTAnalytics.Error(
                 logError: { errorCode, description in
