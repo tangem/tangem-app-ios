@@ -497,13 +497,13 @@ final class MainViewModel: ObservableObject {
         let page = pages[index]
 
         switch page {
-        case .singleWallet(_, _, let viewModel):
+        case .singleWallet(_, _, _, let viewModel):
             await viewModel?.onPullToRefresh()
-        case .multiWallet(_, _, let viewModel):
+        case .multiWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         case .lockedWallet:
             break
-        case .visaWallet(_, _, let viewModel):
+        case .visaWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
 
