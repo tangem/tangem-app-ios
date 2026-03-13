@@ -65,6 +65,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: model.isUserWalletLocked,
+            walletThumbnailType: model.config.walletThumbnailType,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
@@ -234,6 +235,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
+            walletThumbnailType: visaUserWalletModel.config.walletThumbnailType,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
