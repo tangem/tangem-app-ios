@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemFoundation
 import TangemLocalization
 
 protocol TangemPayFreezeSheetRoutable: AnyObject {
@@ -36,17 +37,20 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
         )
     }
 
+    let userWalletId: UserWalletId
     weak var coordinator: TangemPayFreezeSheetRoutable?
     let freezeAction: () -> Void
 
     init(
+        userWalletId: UserWalletId,
         coordinator: TangemPayFreezeSheetRoutable,
         freezeAction: @escaping () -> Void
     ) {
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
         self.freezeAction = freezeAction
 
-        Analytics.log(.visaScreenFreezeCardConfirmShown)
+        Analytics.log(.visaScreenFreezeCardConfirmShown, contextParams: .userWallet(userWalletId))
     }
 
     func dismiss() {
@@ -54,7 +58,7 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
     }
 
     func freeze() {
-        Analytics.log(.visaScreenFreezeCardConfirmClicked)
+        Analytics.log(.visaScreenFreezeCardConfirmClicked, contextParams: .userWallet(userWalletId))
         freezeAction()
         dismiss()
     }

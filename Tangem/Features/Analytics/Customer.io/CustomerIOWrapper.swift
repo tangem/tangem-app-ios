@@ -19,13 +19,18 @@ final class CustomerIOWrapper {
     private var fcmTokenUpdatedCancellable: AnyCancellable?
 
     func configure() {
+        guard FeatureProvider.isAvailable(.customerIO) else {
+            return
+        }
+
         // [REDACTED_USERNAME], this mimics current Firebase - dependent behavior of the app.
         // See ``CommonServicesManager.configureFirebase``.
         guard !AppEnvironment.current.isDebug else {
             return
         }
 
-        let sdkConfig = SDKConfigBuilder(cdpApiKey: keysManager.customerIO.appApiKey)
+        let sdkConfig = SDKConfigBuilder(cdpApiKey: keysManager.customerIO.iosApiKey)
+            .region(.EU) // @alobankov, does not related to user region. This is the region of customer.io account registration.
             .autoTrackUIKitScreenViews(enabled: false)
             .autoTrackDeviceAttributes(false)
             .trackApplicationLifecycleEvents(false)
