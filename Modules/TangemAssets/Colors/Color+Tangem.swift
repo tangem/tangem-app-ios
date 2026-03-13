@@ -192,6 +192,7 @@ public extension Color.Tangem.Markers {
     static let textRed: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
     static let textGreen: Color = .dynamic(light: Primitives.Green.eucalyptus, dark: Primitives.Green.emerald)
     static let textDisabled: Color = .dynamic(light: Primitives.Darks.dark1, dark: Primitives.Lights.light5)
+    static let iconGreen: Color = .dynamic(light: Primitives.Green.eucalyptus, dark: Primitives.Green.emerald)
     static let iconGray: Color = .dynamic(light: Primitives.Darks.dark1, dark: Primitives.Darks.dark2)
     static let iconBlue: Color = Primitives.Blue.azure
     static let iconRed: Color = Primitives.Red.amaranth
