@@ -350,6 +350,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     ? GetTangemPayBannerViewModel(
                         onBannerTap: { [weak viewModel] in
                             viewModel?.coordinator?.openGetTangemPay()
+                            Analytics.log(.visaOnboardingVisaPermanentBannerClicked)
                         }
                     )
                     : nil

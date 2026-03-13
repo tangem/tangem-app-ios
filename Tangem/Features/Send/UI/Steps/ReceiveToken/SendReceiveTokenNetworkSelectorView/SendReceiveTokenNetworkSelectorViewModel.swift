@@ -160,6 +160,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
+        guard SendReceiveTokenFilter.isSupported(receiveTokenBlockchain: tokenItem.blockchain) else {
+            state = .failure(Localization.expressSwapNotSupportedText)
+            return
+        }
+
         receiveTokenOutput?.userDidRequestSelect(receiveTokenItem: tokenItem) { [weak self] selected in
             self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)
