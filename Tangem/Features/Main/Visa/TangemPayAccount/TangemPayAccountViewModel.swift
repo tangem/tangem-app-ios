@@ -107,10 +107,10 @@ private extension TangemPayAccountViewModel {
                     .eraseToAnyPublisher()
                 }
             }
-            .handleEvents(receiveOutput: { state in
+            .handleEvents(receiveOutput: { [userWalletId] state in
                 switch state {
                 case .issuingYourCard:
-                    Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed)
+                    Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed, contextParams: .userWallet(userWalletId))
                 default:
                     break
                 }
