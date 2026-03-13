@@ -34,7 +34,11 @@ extension SwapDestinationTokenAvailabilitySorter: TokenAvailabilitySorter {
     func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         let availablePairs = await expressPairsRepository.getPairs(from: sourceTokenWalletModel.tokenItem.expressCurrency)
 
-        let result = walletModels.filter { $0.id != sourceTokenWalletModel.id }.reduce(
+        let sourceExpressCurrency = sourceTokenWalletModel.tokenItem.expressCurrency.asCurrency
+        let result = walletModels.filter {
+            $0.id != sourceTokenWalletModel.id
+                && $0.tokenItem.expressCurrency.asCurrency != sourceExpressCurrency
+        }.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
             let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)

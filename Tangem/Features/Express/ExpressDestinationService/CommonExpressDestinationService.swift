@@ -77,11 +77,12 @@ private extension CommonExpressDestinationService {
         let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
+            let isNotSameCurrency = wallet.tokenItem.expressCurrency.asCurrency != base.expressCurrency.asCurrency
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
             let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
 
-            return isNotSource && isAvailable && isNotCustom && hasPair
+            return isNotSource && isNotSameCurrency && isAvailable && isNotCustom && hasPair
         }
 
         ExpressLogger.info(self, "has searchableWalletModels: \(searchableWalletModels.map(\.walletModel.tokenItem.expressCurrency))")
@@ -97,13 +98,14 @@ private extension CommonExpressDestinationService {
         // in ExpressInteractor will catch genuinely unsupported pairs later.
         let notLoadedWalletModels: [CommonExpressDestinationService.UserWalletInfoWalletModelPair] = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
+            let isNotSameCurrency = wallet.tokenItem.expressCurrency.asCurrency != base.expressCurrency.asCurrency
             let swapState = expressAvailabilityProvider.swapState(for: wallet.tokenItem)
             let isNotAvailable = swapState != .available
             let isNotUnavailable = swapState != .unavailable
             let isNotCustom = !wallet.walletModel.isCustom
             let hasPair = availablePairs.isEmpty || availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
 
-            return isNotSource && isNotAvailable && isNotUnavailable && isNotCustom && hasPair
+            return isNotSource && isNotSameCurrency && isNotAvailable && isNotUnavailable && isNotCustom && hasPair
         }
 
         if let fallback = selectBestPair(from: notLoadedWalletModels, searchType: searchType) {
