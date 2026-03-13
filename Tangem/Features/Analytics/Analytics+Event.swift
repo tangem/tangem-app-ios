@@ -503,6 +503,7 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonShare = "[Markets / Chart] Button - Share"
         case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
@@ -642,6 +643,9 @@ extension Analytics {
         case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
         case visaOnboardingVisaKYCPassedAndOrderCreated = "[Visa Onboarding] Visa KYC Passed And Order Created"
+
+        case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
+        case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
