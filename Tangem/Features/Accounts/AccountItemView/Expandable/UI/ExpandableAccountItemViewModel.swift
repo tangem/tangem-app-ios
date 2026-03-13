@@ -11,6 +11,7 @@ import Combine
 import TangemAccounts
 import TangemLocalization
 import TangemUI
+import TangemFoundation
 
 final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - View State
@@ -59,6 +60,11 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         )
 
         isExpanded = stateStorage.isExpanded(accountModel)
+        print("❇️ init \(objectDescription(self, userInfo: ["name": name, "rawTokensCount": rawTokensCount])) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self, userInfo: ["name": name, "rawTokensCount": rawTokensCount])) 🔴")
     }
 
     func onViewAppear() {
@@ -149,5 +155,11 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     private func onStorageDidChange() {
         isExpanded = stateStorage.isExpanded(accountModel)
+    }
+}
+
+extension ExpandableAccountItemViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: ["name": name, "rawTokensCount": rawTokensCount])
     }
 }
