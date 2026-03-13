@@ -509,12 +509,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
-    // [REDACTED_TODO_COMMENT]
-    var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
-
-    // [REDACTED_TODO_COMMENT]
-    var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
-
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
@@ -614,7 +608,6 @@ extension VisaUserWalletModel: AssociatedCardIdsProvider {
 
 extension VisaUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

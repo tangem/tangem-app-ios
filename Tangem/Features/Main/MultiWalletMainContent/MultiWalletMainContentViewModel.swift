@@ -411,28 +411,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel
-                .accountModelsManager
-                .hasSyncedWithRemotePublisher
-                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
-                    // We disable loading state when the token list is synced with remote or there is at least one token
-                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
-                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
-                }
-                .filter { $0 }
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            userWalletModel
-                .userTokensManager // accounts_fixes_needed_none
-                .initializedPublisher
-                .filter { $0 }
-                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        }
+        let didSyncTokenListPublisher = userWalletModel
+            .accountModelsManager
+            .hasSyncedWithRemotePublisher
+            .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                // We disable loading state when the token list is synced with remote or there is at least one token
+                // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+            }
+            .filter { $0 }
+            .mapToVoid()
+            .eraseToAnyPublisher()
 
         didSyncTokenListPublisher
             .prefix(1)

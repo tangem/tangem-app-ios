@@ -16,13 +16,7 @@ struct CommonExpressDestinationService {
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
     @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
 
-    /// [REDACTED_TODO_COMMENT]
-    /// [REDACTED_INFO]
-    private let userWalletId: UserWalletId?
-
-    init(userWalletId: UserWalletId?) {
-        self.userWalletId = userWalletId
-    }
+    init() {}
 }
 
 // MARK: - ExpressDestinationService
@@ -52,27 +46,15 @@ private extension CommonExpressDestinationService {
         base: TokenItem,
         searchType: SearchType
     ) async -> UserWalletInfoWalletModelPair? {
-        let walletModels: [UserWalletInfoWalletModelPair] = {
-            if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-                return walletModels.map { walletModel in
-                    UserWalletInfoWalletModelPair(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        walletModel: walletModel
-                    )
-                }
+        let walletModels: [UserWalletInfoWalletModelPair] = userWalletRepository.models.flatMap { userWalletModel in
+            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            return walletModels.map { walletModel in
+                UserWalletInfoWalletModelPair(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModel: walletModel
+                )
             }
-
-            return userWalletRepository.models.flatMap { userWalletModel in
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-                return walletModels.map { walletModel in
-                    UserWalletInfoWalletModelPair(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        walletModel: walletModel
-                    )
-                }
-            }
-        }()
+        }
 
         let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
