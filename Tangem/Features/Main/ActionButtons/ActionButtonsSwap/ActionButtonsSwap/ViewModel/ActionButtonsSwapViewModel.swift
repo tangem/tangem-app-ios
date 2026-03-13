@@ -229,7 +229,7 @@ private extension ActionButtonsSwapViewModel {
         .init(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
             strings: SwapTokenSelectorStrings(tokenName: token.infoProvider.tokenItem.name),
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
+            expressTokensListAdapter: AccountWalletModelsExpressTokensListAdapter(accountModelsManager: userWalletModel.accountModelsManager),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
                 userWalletModelConfig: userWalletModel.config
