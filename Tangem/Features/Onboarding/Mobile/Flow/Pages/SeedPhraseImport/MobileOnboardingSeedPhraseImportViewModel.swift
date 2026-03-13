@@ -131,7 +131,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
 private extension MobileOnboardingSeedPhraseImportViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.onboardingSeedImportScreenOpened, contextParams: analyticsContextParams)
+        Analytics.log(.onboardingSeedImportScreenOpened, analyticsSystems: .all, contextParams: analyticsContextParams)
     }
 
     func logImportTapAnalytics() {
