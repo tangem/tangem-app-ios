@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -17,6 +18,8 @@ struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
 
+    @State private var redesignedHeaderHeightRatio: CGFloat?
+
     var body: some View {
         content
             .onAppear(perform: viewModel.onViewAppear)
@@ -25,7 +28,6 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard)
-            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     @ViewBuilder
@@ -44,19 +46,11 @@ struct MainView: View {
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
-            headerFactory: { page in
-                TangemElasticContainer(
-                    onAddScrollViewDelegate: viewModel.refreshScrollViewStateObject.addDelegate,
-                    onRemoveScrollViewDelegate: viewModel.refreshScrollViewStateObject.removeDelegate,
-                    content: { ratio in
-                        page.redesignedHeader(
-                            totalPages: viewModel.pages.count,
-                            currentIndex: viewModel.selectedCardIndex
-                        )
-                        .scaleEffect(ratio)
-                        .opacity(ratio)
-                    }
-                )
+            navigationFactory: {
+                makeRedesignedNavigation(pageBuilder: $0)
+            },
+            headerFactory: {
+                makeRedesignedHeader(pageBuilder: $0)
             },
             bodyFactory: { page in
                 page.body
@@ -67,6 +61,61 @@ struct MainView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             Color.clear.frame(height: overlayCollapsedHeight)
         }
+    }
+
+    private func makeRedesignedNavigation(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
+        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
+
+        // Opacity: increases linearly from 0 to 1 value as height collapses from 60% to 40%
+        let opacity: CGFloat = clamp(3 - 5 * heightRatio, min: 0, max: 1)
+
+        return MainViewRedesignedNavigationModifier(
+            leadingContent: {
+                TangemNavigationHeader.LeadingIcon()
+            },
+            principalContent: {
+                pageBuilder.navigation
+                    .opacity(opacity)
+                    .animation(.default, value: redesignedHeaderHeightRatio)
+            },
+            trailingContent: {
+                TangemNavigationHeader.TrailingButtons(
+                    secondaryAction: TangemNavigationHeader.ActionInfo(
+                        action: viewModel.openQRScan,
+                        accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
+                        accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession
+                    ),
+                    action: TangemNavigationHeader.ActionInfo(
+                        action: viewModel.openDetails,
+                        accessibilityIdentifier: MainAccessibilityIdentifiers.detailsButton,
+                        accessibilityLabel: Localization.voiceOverOpenCardDetails
+                    )
+                )
+            }
+        )
+    }
+
+    private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
+
+        // Scale: decreases linearly from 100% to 90% as height collapses from 100% to 50%
+        let scale: CGFloat = clamp(0.2 * heightRatio + 0.8, min: 0, max: 1)
+
+        // Opacity: decreases linearly from 1 to 0 value as height collapses from 100% to 50%
+        let opacity: CGFloat = clamp(2 * heightRatio - 1, min: 0, max: 1)
+
+        return TangemElasticContainer(
+            onAddScrollViewObserver: viewModel.refreshScrollViewStateObject.addObserver,
+            onRemoveScrollViewObserver: viewModel.refreshScrollViewStateObject.removeObserver,
+            content: pageBuilder.redesignedHeader(
+                totalPages: viewModel.pages.count,
+                currentIndex: viewModel.selectedCardIndex
+            )
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .animation(.default, value: redesignedHeaderHeightRatio)
+        )
+        .onPreferenceChange(TangemElasticContainerHeightRatio.self) { redesignedHeaderHeightRatio = $0 }
     }
 
     private var cardsInfoPagerContent: some View {
@@ -96,6 +145,7 @@ struct MainView: View {
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     private var renameButton: some View {
@@ -108,6 +158,23 @@ struct MainView: View {
     }
 }
 
+// MARK: - Redesigned Navigation Modifier
+
+private struct MainViewRedesignedNavigationModifier<L: View, P: View, T: View>: ViewModifier {
+    @ViewBuilder let leadingContent: () -> L
+    @ViewBuilder let principalContent: () -> P
+    @ViewBuilder let trailingContent: () -> T
+
+    func body(content: Content) -> some View {
+        content
+            .navigationToolbar(
+                leadingContent: leadingContent,
+                principalContent: principalContent,
+                trailingContent: trailingContent
+            )
+    }
+}
+
 // MARK: - Navigation Modifier
 
 private struct MainViewNavigationModifier: ViewModifier {
@@ -115,45 +182,31 @@ private struct MainViewNavigationModifier: ViewModifier {
     let openQRScanAction: () -> Void
 
     func body(content: Content) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            content
-                .tangemNavigationHeader(
-                    secondaryTrailingAction: openQRScanAction,
-                    trailingAction: openDetailsAction,
-                    accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
-                        trailingButton: MainAccessibilityIdentifiers.detailsButton,
-                        trailingButtonLabel: Localization.voiceOverOpenCardDetails,
-                        secondaryTrailingButton: MainAccessibilityIdentifiers.scanQrButton,
-                        secondaryTrailingButtonLabel: Localization.voiceOverOpenNewWalletConnectSession
-                    )
-                )
-        } else {
-            content
-                .tangemLogoNavigationToolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: openQRScanAction) {
-                            Assets.Glyphs.scanQrIcon.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
-                        .buttonStyle(.plain)
-                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
-                        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+        content
+            .tangemLogoNavigationToolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: openQRScanAction) {
+                        Assets.Glyphs.scanQrIcon.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
                     }
-
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: openDetailsAction) {
-                            NavbarDotsImage()
-                                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        }
-                        .buttonStyle(.plain)
-                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-                        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
-                    }
+                    .buttonStyle(.plain)
+                    .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
                 }
-        }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: openDetailsAction) {
+                        NavbarDotsImage()
+                            .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    }
+                    .buttonStyle(.plain)
+                    .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
+                }
+            }
     }
 }
 

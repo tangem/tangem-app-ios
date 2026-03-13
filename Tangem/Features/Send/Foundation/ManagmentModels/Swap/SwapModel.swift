@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemExpress
 import TangemMacro
 import TangemFoundation
+import TangemLocalization
 
 protocol SwapModelStateProvider: AnyObject {
     var statePublisher: AnyPublisher<SwapModel.ProvidersState, Never> { get }
@@ -162,14 +163,13 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: sourceAmount?.crypto.map { .from($0) }, by: .amountChange)
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(
+                amountType: sourceAmount?.crypto.map { .from($0) },
+                by: .amountChange
+            )
 
             if let self, let quote = result.selected?.getState().quote {
-                let crypto = quote.expectAmount
-                let fiat = receiveToken.value?.tokenItem.currencyId.flatMap {
-                    self.balanceConverter.convertToFiat(crypto, currencyId: $0)
-                }
-                _receiveAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
+                _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
             }
 
             return result
@@ -194,11 +194,7 @@ extension SwapModel {
             let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: receiveAmount?.crypto.map { .to($0) }, by: .amountChange)
 
             if let self, let quote = result.selected?.getState().quote {
-                let crypto = quote.fromAmount
-                let fiat = sourceToken.value?.tokenItem.currencyId.flatMap {
-                    self.balanceConverter.convertToFiat(crypto, currencyId: $0)
-                }
-                _sourceAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
+                _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
             }
 
             return result
@@ -241,11 +237,7 @@ extension SwapModel {
             // Populate _receiveAmount from the quote so the destination field
             // shows the calculated value when a TO token is selected after entering FROM amount
             if let quote = provider.selected?.getState().quote {
-                let crypto = quote.expectAmount
-                let fiat = destination.tokenItem.currencyId.flatMap {
-                    self.balanceConverter.convertToFiat(crypto, currencyId: $0)
-                }
-                _receiveAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
+                _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId))
             }
 
             return provider
@@ -392,9 +384,8 @@ extension SwapModel {
     }
 
     func map(provider: ExpressAvailableProvider, permissionRequired: ExpressProviderManagerState.PermissionRequired) async throws -> LoadedState {
-        let source = try sourceToken.get()
-        let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: source.tokenItem)
-        let fee = permissionRequired.data.fee
+        let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
+        let fee = permissionRequired.fee
 
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
@@ -402,12 +393,10 @@ extension SwapModel {
             return .restriction(restriction, quote: quote)
         }
 
-        let approveFee = ApproveInputFee(feeTokenItem: source.feeTokenItem, fee: fee)
         let permissionRequiredState = PermissionRequiredState(
             quote: quote,
             policy: permissionRequired.policy,
-            data: permissionRequired.data,
-            fee: approveFee
+            data: permissionRequired.data
         )
 
         return .permissionRequired(permissionRequiredState)
@@ -507,6 +496,11 @@ extension SwapModel {
         default:
             return nil
         }
+    }
+
+    func makeSendAmount(crypto: Decimal, currencyId: String?) -> SendAmount {
+        let fiat = currencyId.flatMap { balanceConverter.convertToFiat(crypto, currencyId: $0) }
+        return SendAmount(type: .typical(crypto: crypto, fiat: fiat))
     }
 
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> BSDKAmount {
@@ -744,16 +738,7 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
 
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _sourceAmount)
-            .map { state, amount in
-                if case .loading(.rates) = state {
-                    return .loading
-                }
-
-                switch amount {
-                case .none: return .failure(SendAmountError.noAmount)
-                case .some(let amount): return .success(amount)
-                }
-            }
+            .map(mapToAmountResult)
             .eraseToAnyPublisher()
     }
 
@@ -801,24 +786,14 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _receiveAmount)
-            .map { state, amount in
-                if case .loading(.rates) = state {
-                    return .loading
-                }
-
-                switch amount {
-                case .none: return .failure(SendAmountError.noAmount)
-                case .some(let amount): return .success(amount)
-                }
-            }
+            .map(mapToAmountResult)
             .eraseToAnyPublisher()
     }
 
     var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
         _providersState
             .map { state -> ReceiveAmountRestriction? in
-                guard case .loaded(_, _, let loadedState) = state,
-                      case .restriction(let restriction, _) = loadedState else {
+                guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
                 }
 
@@ -842,6 +817,17 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
+    }
+
+    private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
+        if case .loading(.rates) = state {
+            return .loading
+        }
+
+        switch amount {
+        case .none: return .failure(SendAmountError.noAmount)
+        case .some(let amount): return .success(amount)
+        }
     }
 
     private func mapToHighPriceImpactCalculatorResult(providersState: ProvidersState) -> HighPriceImpactCalculator.Result? {
@@ -1186,88 +1172,50 @@ extension SwapModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - SendApproveDataBuilderInput
+// MARK: - ApproveFlowDataProvider, ApproveOutput
 
-extension SwapModel: SendApproveDataBuilderInput {
-    var approveRequestedByExpressProvider: ExpressProvider? {
-        guard case .loaded(_, let selected, _) = _providersState.value else {
-            return nil
+extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
+    func approveFlowInput() throws -> ApproveFlowInput {
+        guard case .loaded(_, let selected, state: .permissionRequired(let state)) = _providersState.value else {
+            throw SendApproveViewModelInputDataBuilderError.notFound("PermissionRequired state")
         }
 
-        return selected?.provider
-    }
-
-    var approveViewModelInput: (any ApproveViewModelInput)? { self }
-
-    var approveRequestedWithSelectedPolicy: ApprovePolicy? {
-        guard case .loaded(_, _, state: .permissionRequired(let permissionRequired)) = _providersState.value else {
-            return nil
+        guard let selectedProvider = selected?.provider else {
+            throw SendApproveViewModelInputDataBuilderError.notFound("Selected provider")
         }
 
-        return permissionRequired.policy
-    }
-}
-
-// MARK: - ApproveViewModelInput
-
-extension SwapModel: ApproveViewModelInput {
-    func updateApprovePolicy(policy: ApprovePolicy) {
-        updateTask(loadingType: .fee) { manager in
-            try await manager.update(approvePolicy: policy)
-        }
-    }
-
-    func sendApproveTransaction() async throws {
-        guard case .loaded(let providers, let selected, state: .permissionRequired(let state)) = _providersState.value else {
-            throw SwapModel.SwapModelError.transactionDataNotFound
+        guard let tokenFeeProvidersManager else {
+            throw SendApproveViewModelInputDataBuilderError.notFound("TokenFeeProvidersManager")
         }
 
-        guard let allowanceService = sourceToken.value?.allowanceService else {
-            throw SwapModel.SwapModelError.allowanceServiceNotFound
-        }
+        let sourceToken = try _sourceToken.value.get()
 
-        analyticsLogger.logSwapButtonPermissionApprove(policy: state.policy)
-        let result = try await allowanceService.sendApproveTransaction(data: state.data)
-
-        ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        analyticsLogger.logApproveTransactionSent(
-            policy: state.policy,
-            signerType: result.signerType,
-            currentProviderHost: result.currentHost
+        return ApproveFlowInput(
+            approveAmount: state.quote.fromAmount,
+            selectedPolicy: state.policy,
+            approveData: state.data,
+            sourceToken: sourceToken,
+            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            localization: ApproveLocalization(
+                subtitle: Localization.givePermissionSwapSubtitle(
+                    selectedProvider.name,
+                    sourceToken.tokenItem.currencySymbol
+                ),
+                feeFooterText: Localization.swapGivePermissionFeeFooter
+            )
         )
+    }
+
+    func approveDidSendTransaction() {
+        guard case .loaded(let providers, let selected, state: .permissionRequired(let state)) = _providersState.value else {
+            return
+        }
 
         update(providersState: .loaded(
             providers: providers,
             selected: selected,
             state: .restriction(.hasPendingApproveTransaction, quote: state.quote)
         ))
-    }
-
-    var approveFeeValue: LoadingResult<ApproveInputFee, any Error> {
-        mapToApproveFeeLoadingValue(state: _providersState.value)
-    }
-
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> {
-        _providersState
-            .withWeakCaptureOf(self)
-            .compactMap { interactor, state in
-                interactor.mapToApproveFeeLoadingValue(state: state)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    private func mapToApproveFeeLoadingValue(state: ProvidersState) -> LoadingResult<ApproveInputFee, any Error> {
-        switch state {
-        case .loaded(_, _, state: .permissionRequired(let state)):
-            return .success(state.fee)
-        case .loading:
-            return .loading
-        case .failure(let error), .loaded(_, _, state: .requiredRefresh(let error, _)):
-            return .failure(error)
-        default:
-            // As default state
-            return .loading
-        }
     }
 }
 
@@ -1473,7 +1421,6 @@ extension SwapModel {
         let quote: Quote
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
-        let fee: ApproveInputFee
     }
 
     struct PreviewCEXState {
