@@ -18,17 +18,6 @@ struct ActionButtonsSwapCoordinatorView: View {
             switch coordinator.viewType {
             case .none:
                 EmptyView()
-            case .legacy(let viewModel):
-                NavigationStack {
-                    ActionButtonsSwapView(viewModel: viewModel)
-                        .navigationBarTitle(Text(Localization.actionButtonsSwapNavigationBarTitle), displayMode: .inline)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                CloseTextButton(action: coordinator.dismiss)
-                            }
-                        }
-                }
-                .transition(.opacity)
             case .new(let viewModel):
                 NavigationStack {
                     AccountsAwareActionButtonsSwapView(viewModel: viewModel)

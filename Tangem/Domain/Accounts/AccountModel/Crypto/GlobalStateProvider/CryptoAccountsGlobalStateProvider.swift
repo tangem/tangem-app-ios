@@ -16,4 +16,3 @@ protocol CryptoAccountsGlobalStateProvider {
     func globalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never>
     func globalCryptoAccountsState() -> CryptoAccounts.State
 }
-

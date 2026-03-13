@@ -28,61 +28,42 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 
     // MARK: - Private property
 
-    private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let tokenSorter: TokenAvailabilitySorter
-    private let userWalletModel: UserWalletModel
     private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     required init(
-        expressTokensListAdapter: some ExpressTokensListAdapter,
-        userWalletModel: some UserWalletModel,
         dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
-        tokenSorter: some TokenAvailabilitySorter,
         yieldModuleNotificationInteractor: YieldModuleNoticeInteractor,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
-        self.tokenSorter = tokenSorter
-        self.expressTokensListAdapter = expressTokensListAdapter
-        self.userWalletModel = userWalletModel
         self.yieldModuleNotificationInteractor = yieldModuleNotificationInteractor
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
-        switch options {
-        case .default:
-            viewType = .legacy(ActionButtonsSwapViewModel(
-                coordinator: self,
-                userWalletModel: userWalletModel,
-                sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
-            ))
-        case .new(let tokenSelectorViewModel):
-            // Create external search view model if feature toggle is enabled
-            let marketsTokensViewModel: SwapMarketsTokensViewModel?
-            if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-                marketsTokensViewModel = SwapMarketsTokensViewModel()
-            } else {
-                marketsTokensViewModel = nil
-            }
-
-            viewType = .new(
-                AccountsAwareActionButtonsSwapViewModel(
-                    tokenSelectorViewModel: tokenSelectorViewModel,
-                    marketsTokensViewModel: marketsTokensViewModel,
-                    coordinator: self
-                )
-            )
+        // Create external search view model if feature toggle is enabled
+        let marketsTokensViewModel: SwapMarketsTokensViewModel?
+        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+            marketsTokensViewModel = SwapMarketsTokensViewModel()
+        } else {
+            marketsTokensViewModel = nil
         }
+
+        viewType = .new(
+            AccountsAwareActionButtonsSwapViewModel(
+                tokenSelectorViewModel: options.tokenSelectorViewModel,
+                marketsTokensViewModel: marketsTokensViewModel,
+                coordinator: self
+            )
+        )
     }
 }
 
 // MARK: - Options
 
 extension ActionButtonsSwapCoordinator {
-    enum Options {
-        case `default`
-        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
+    struct Options {
+        let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     }
 }
 
@@ -128,23 +109,9 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
     }
 }
 
-// MARK: - Factory methods
-
-private extension ActionButtonsSwapCoordinator {
-    func makeTokenSelectorViewModel() -> ActionButtonsTokenSelectorViewModel {
-        TokenSelectorViewModel(
-            tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
-            strings: SwapTokenSelectorStrings(),
-            expressTokensListAdapter: expressTokensListAdapter,
-            tokenSorter: tokenSorter
-        )
-    }
-}
-
 extension ActionButtonsSwapCoordinator {
     @RawCaseName
     enum ViewType: Identifiable {
-        case legacy(ActionButtonsSwapViewModel)
         case new(AccountsAwareActionButtonsSwapViewModel)
         case swap(SendCoordinator)
     }

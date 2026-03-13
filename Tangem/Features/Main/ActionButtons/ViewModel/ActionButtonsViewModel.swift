@@ -45,16 +45,13 @@ final class ActionButtonsViewModel: ObservableObject {
 
     private var lastSellInitializeState: SellServiceState?
 
-    private let expressTokensListAdapter: ExpressTokensListAdapter
     private let userWalletModel: UserWalletModel
     private var latestWalletModelsCount = 0
 
     init(
         coordinator: some ActionButtonsRoutable,
-        expressTokensListAdapter: some ExpressTokensListAdapter,
         userWalletModel: some UserWalletModel
     ) {
-        self.expressTokensListAdapter = expressTokensListAdapter
         self.userWalletModel = userWalletModel
 
         sellActionButtonViewModel = SellActionButtonViewModel(

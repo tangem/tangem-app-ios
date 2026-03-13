@@ -11,7 +11,6 @@ import Foundation
 final class ActionButtonsSellCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    @Published private(set) var actionButtonsSellViewModel: ActionButtonsSellViewModel?
     @Published private(set) var accountsAwareActionButtonsSellViewModel: AccountsAwareActionButtonsSellViewModel?
 
     let dismissAction: Action<ActionButtonsSendToSellModel?>
@@ -19,46 +18,18 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
 
     private var safariHandle: SafariHandle?
 
-    private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let tokenSorter: TokenAvailabilitySorter
-    private let userWalletModel: UserWalletModel
-
     required init(
-        expressTokensListAdapter: some ExpressTokensListAdapter,
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>,
-        popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
-        userWalletModel: some UserWalletModel
+        popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
-        self.expressTokensListAdapter = expressTokensListAdapter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
-        self.userWalletModel = userWalletModel
-
-        tokenSorter = CommonSellTokenAvailabilitySorter(userWalletConfig: userWalletModel.config)
     }
 
     func start(with options: Options) {
-        switch options {
-        case .default:
-            actionButtonsSellViewModel = ActionButtonsSellViewModel(
-                tokenSelectorViewModel: makeTokenSelectorViewModel(),
-                coordinator: self,
-                userWalletModel: userWalletModel
-            )
-        case .new(let tokenSelectorViewModel):
-            accountsAwareActionButtonsSellViewModel = AccountsAwareActionButtonsSellViewModel(
-                tokenSelectorViewModel: tokenSelectorViewModel,
-                coordinator: self
-            )
-        }
-    }
-
-    private func makeTokenSelectorViewModel() -> ActionButtonsTokenSelectorViewModel {
-        TokenSelectorViewModel(
-            tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
-            strings: SellTokenSelectorStrings(),
-            expressTokensListAdapter: expressTokensListAdapter,
-            tokenSorter: tokenSorter
+        accountsAwareActionButtonsSellViewModel = AccountsAwareActionButtonsSellViewModel(
+            tokenSelectorViewModel: options.tokenSelectorViewModel,
+            coordinator: self
         )
     }
 }
@@ -66,9 +37,8 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension ActionButtonsSellCoordinator {
-    enum Options {
-        case `default`
-        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
+    struct Options {
+        let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     }
 }
 

@@ -24,10 +24,7 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator {
         ActionButtonsSwapCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-            userWalletModel: userWalletModel,
             dismissAction: dismissAction,
-            tokenSorter: SwapSourceTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config),
             yieldModuleNotificationInteractor: YieldModuleNoticeInteractor()
         )
     }
@@ -37,9 +34,7 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>
     ) -> ActionButtonsSellCoordinator {
         ActionButtonsSellCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-            dismissAction: dismissAction,
-            userWalletModel: userWalletModel
+            dismissAction: dismissAction
         )
     }
 
