@@ -242,8 +242,14 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
 
     private func resolveWalletScope(for connectedDApp: WalletConnectConnectedDApp) -> WalletScope {
         switch connectedDApp {
-        case .v2(let dAppV2):
-            return .account(accountId: dAppV2.accountId)
+        case .v1:
+            if FeatureProvider.isAvailable(.accounts) {
+                return .account(accountId: connectedDApp.accountId ?? "")
+            } else {
+                return .wallet
+            }
+        case .v2(let walletConnectConnectedDAppV2):
+            return .account(accountId: walletConnectConnectedDAppV2.accountId)
         }
     }
 

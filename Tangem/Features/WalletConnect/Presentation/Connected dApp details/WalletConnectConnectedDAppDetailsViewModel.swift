@@ -168,6 +168,13 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         var walletName = ""
 
         switch dApp {
+        case .v1(let dAppV1):
+            let userWalletID = dAppV1.userWalletID
+            if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID }) {
+                walletName = userWalletModel.name
+            } else {
+                logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
+            }
         case .v2(let dAppV2):
             outer: for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == dAppV2.userWalletID {
                 walletName = userWalletModel.name

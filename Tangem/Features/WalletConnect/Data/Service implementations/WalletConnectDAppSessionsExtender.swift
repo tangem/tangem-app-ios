@@ -44,10 +44,18 @@ actor WalletConnectDAppSessionsExtender {
             do {
                 let dAppsToExtend: [WalletConnectConnectedDApp]
 
-                if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
-                    dAppsToExtend = migratedDApps
+                if FeatureProvider.isAvailable(.accounts) {
+                    if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
+                        dAppsToExtend = migratedDApps
+                    } else {
+                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    }
                 } else {
-                    dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    if let migratedDApps = try await savedSessionMigrationService.migrateSavedSessions() {
+                        dAppsToExtend = migratedDApps
+                    } else {
+                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    }
                 }
 
                 try await withCheckedThrowingContinuation { continuation in
@@ -176,22 +184,36 @@ extension WalletConnectDAppSessionsExtender {
 private extension WalletConnectConnectedDApp {
     func with(updatedExpiryDate: Date) -> WalletConnectConnectedDApp {
         switch self {
-        case .v2(let dApp):
-            return .v2(
-                WalletConnectConnectedDAppV2(
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppV1(
                     session: WalletConnectDAppSession(
                         topic: dApp.session.topic,
                         namespaces: dApp.session.namespaces,
                         expiryDate: updatedExpiryDate
                     ),
                     userWalletID: dApp.userWalletID,
-                    accountId: dApp.accountId,
                     dAppData: dApp.dAppData,
                     verificationStatus: dApp.verificationStatus,
                     dAppBlockchains: dApp.dAppBlockchains,
                     connectionDate: dApp.connectionDate
                 )
             )
+
+        case .v2(let dApp):
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(
+                    topic: dApp.session.topic,
+                    namespaces: dApp.session.namespaces,
+                    expiryDate: updatedExpiryDate
+                ),
+                userWalletID: dApp.wrapped.userWalletID,
+                dAppData: dApp.dAppData,
+                verificationStatus: dApp.verificationStatus,
+                dAppBlockchains: dApp.dAppBlockchains,
+                connectionDate: dApp.connectionDate
+            )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
         }
     }
 }

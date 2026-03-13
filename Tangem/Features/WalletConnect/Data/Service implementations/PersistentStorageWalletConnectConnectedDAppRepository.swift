@@ -68,8 +68,12 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
 
         return inMemoryCache.compactMap { dApp in
             switch dApp {
-            case .v2(let model):
+            case .v1(let model):
                 if model.userWalletID == userWalletId {
+                    return dApp
+                }
+            case .v2(let model):
+                if model.wrapped.userWalletID == userWalletId {
                     return dApp
                 }
             }
@@ -132,7 +136,9 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
 
         for dApp in inMemoryCache {
             switch dApp {
-            case .v2(let model) where model.userWalletID == userWalletId:
+            case .v1(let model) where model.userWalletID == userWalletId:
+                removed.append(dApp)
+            case .v2(let model) where model.wrapped.userWalletID == userWalletId:
                 removed.append(dApp)
             default:
                 retained.append(dApp)
