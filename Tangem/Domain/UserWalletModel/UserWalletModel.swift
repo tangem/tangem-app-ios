@@ -46,7 +46,6 @@ protocol UserWalletModel:
     func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
-
 }
 
 enum UpdateRequest {

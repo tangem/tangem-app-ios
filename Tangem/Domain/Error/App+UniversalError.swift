@@ -17,7 +17,7 @@ import TangemFoundation
 // `004` - TransactionDispatcherResult.Error
 // `005` - AnyWalletManagerFactoryError
 // `006` - MultipleAddressTransactionHistoryService.ServiceError
-// `007` - CommonUserTokensManager.Error
+// `007` - (removed)
 // `008` - CommonTokenEnricher.Error
 // `009` - OrganizeTokensViewModel.Error
 // `010` - WalletModelError
@@ -140,19 +140,6 @@ extension MultipleAddressTransactionHistoryService.ServiceError: UniversalError 
         switch self {
         case .unknownProvider:
             100006000
-        }
-    }
-}
-
-extension CommonUserTokensManager.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .addressNotFound:
-            100007000
-        case .failedSupportedCurve:
-            100007001
-        case .failedSupportedLongHashesTokens:
-            100007002
         }
     }
 }

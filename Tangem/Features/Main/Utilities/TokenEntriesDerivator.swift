@@ -27,46 +27,37 @@ final class TokenEntriesDerivator {
     func derive() {
         onStart()
 
-        if FeatureProvider.isAvailable(.accounts) {
-            let group = DispatchGroup()
-            var subscription: AnyCancellable?
+        let group = DispatchGroup()
+        var subscription: AnyCancellable?
 
-            let accountModelsManager = userWalletModel.accountModelsManager
-            let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
+        let accountModelsManager = userWalletModel.accountModelsManager
+        let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
 
-            // One-time subscription to get the latest list of crypto accounts
-            subscription = accountModelsManager
-                .cryptoAccountModelsPublisher
-                .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
-                .prefix(1)
-                .sink { cryptoAccounts, tangemPayAccount in
-                    for account in cryptoAccounts {
-                        group.enter()
-                        account.userTokensManager.deriveIfNeeded { _ in
-                            group.leave()
-                        }
+        // One-time subscription to get the latest list of crypto accounts
+        subscription = accountModelsManager
+            .cryptoAccountModelsPublisher
+            .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
+            .prefix(1)
+            .sink { cryptoAccounts, tangemPayAccount in
+                for account in cryptoAccounts {
+                    group.enter()
+                    account.userTokensManager.deriveIfNeeded { _ in
+                        group.leave()
                     }
-
-                    if let tangemPayAccount {
-                        group.enter()
-                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
-                            group.leave()
-                        }
-                    }
-
-                    withExtendedLifetime(subscription) {}
                 }
 
-            group.notify(queue: .main) { [weak self] in
-                self?.onFinish()
-            }
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.onFinish()
+                if let tangemPayAccount {
+                    group.enter()
+                    tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
+                        group.leave()
+                    }
                 }
+
+                withExtendedLifetime(subscription) {}
             }
+
+        group.notify(queue: .main) { [weak self] in
+            self?.onFinish()
         }
     }
 }

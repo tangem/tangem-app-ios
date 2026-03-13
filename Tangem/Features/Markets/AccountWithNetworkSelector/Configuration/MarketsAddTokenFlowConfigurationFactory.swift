@@ -11,8 +11,15 @@ import BlockchainSdk
 import TangemLocalization
 
 enum MarketsAddTokenFlowConfigurationFactory {
+    struct InputData {
+        let coinId: String
+        let coinName: String
+        let coinSymbol: String
+        let networks: [NetworkModel]
+    }
+
     static func make(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        inputData: InputData,
         coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
         let analyticsLogger = MarketsAddTokenFlowAnalyticsLogger(coinSymbol: inputData.coinSymbol)
@@ -166,7 +173,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeAccountFilter(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
+        inputData: MarketsAddTokenFlowConfigurationFactory.InputData
     ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
         { context in
             let networkIds = inputData.networks.map(\.networkId)
@@ -198,7 +205,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeTokenItems(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        inputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         supportedBlockchains: Set<Blockchain>,
         cryptoAccount: any CryptoAccountModel
     ) -> [TokenItem] {

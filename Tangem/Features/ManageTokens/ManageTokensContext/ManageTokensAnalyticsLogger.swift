@@ -14,7 +14,6 @@ enum ManageTokensAnalyticsLogger {
         destination: TokenAccountDestination
     ) {
         guard
-            FeatureProvider.isAvailable(.accounts),
             !destination.isMainAccount
         else {
             return

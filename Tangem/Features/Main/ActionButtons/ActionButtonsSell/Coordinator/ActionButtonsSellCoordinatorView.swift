@@ -12,11 +12,7 @@ struct ActionButtonsSellCoordinatorView: View {
     @ObservedObject var coordinator: ActionButtonsSellCoordinator
 
     var body: some View {
-        if let actionButtonsSellViewModel = coordinator.actionButtonsSellViewModel {
-            NavigationStack {
-                ActionButtonsSellView(viewModel: actionButtonsSellViewModel)
-            }
-        } else if let viewModel = coordinator.accountsAwareActionButtonsSellViewModel {
+        if let viewModel = coordinator.accountsAwareActionButtonsSellViewModel {
             NavigationStack {
                 AccountsAwareActionButtonsSellView(viewModel: viewModel)
             }

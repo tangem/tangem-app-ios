@@ -713,11 +713,8 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
-            userWalletModels: userWalletModels
-        )
-
-        coordinator.start(with: .new(options: options))
+        let options = ActionButtonsBuyCoordinator.Options(userWalletModels: userWalletModels)
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -725,22 +722,6 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
 // MARK: - Action buttons sell routable
 
 extension MainCoordinator: ActionButtonsSellFlowRoutable {
-    func openSell(userWalletModel: some UserWalletModel) {
-        let coordinator = coordinatorFactory.makeSellCoordinator(
-            userWalletModel: userWalletModel,
-            dismissAction: { [weak self] model in
-                self?.actionButtonsSellCoordinator = nil
-                guard let model else { return }
-
-                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
-                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
-            }
-        )
-
-        coordinator.start(with: .default)
-        actionButtonsSellCoordinator = coordinator
-    }
-
     func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
         let coordinator = coordinatorFactory.makeSellCoordinator(
             userWalletModel: userWalletModel,
@@ -753,7 +734,7 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
             }
         )
 
-        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         actionButtonsSellCoordinator = coordinator
     }
 }
@@ -761,23 +742,6 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 // MARK: - ActionButtonsSwapFlowRoutable
 
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
-    func openSwap(userWalletModel: some UserWalletModel) {
-        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
-            self?.actionButtonsSwapCoordinator = nil
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .main,
-                presentCompletion: { [weak self] in
-                    coordinator.start(with: .default)
-                    self?.actionButtonsSwapCoordinator = coordinator
-                }
-            )
-        }
-    }
-
     func openSwap(
         userWalletModel: some UserWalletModel,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
@@ -791,7 +755,7 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
-                    coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
+                    coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
                     self?.actionButtonsSwapCoordinator = coordinator
                 }
             )

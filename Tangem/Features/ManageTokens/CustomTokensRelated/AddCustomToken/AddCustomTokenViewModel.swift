@@ -548,7 +548,7 @@ private protocol NotificationEventProviding {
     var notificationEvent: (any NotificationEvent)? { get }
 }
 
-extension CommonUserTokensManager.Error: DynamicValidationError {
+extension AccountsAwareUserTokensManager.Error: DynamicValidationError {
     var preventsFromAdding: Bool {
         true
     }

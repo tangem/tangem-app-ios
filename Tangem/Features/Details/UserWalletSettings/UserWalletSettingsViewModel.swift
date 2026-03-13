@@ -109,9 +109,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     func onAppear() {
         setupView()
-        if FeatureProvider.isAvailable(.accounts) {
-            loadWalletImage()
-        }
+        loadWalletImage()
     }
 
     func handleAccountOperationResult(_ result: AccountOperationResult) {
@@ -317,7 +315,7 @@ private extension UserWalletSettingsViewModel {
     func setupAccountsViewModel() {
         let accountModelsManager = userWalletModel.accountModelsManager
 
-        guard FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts else {
+        guard accountModelsManager.canAddCryptoAccounts else {
             return
         }
 
@@ -510,10 +508,7 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
-        // accounts_fixes_needed_none
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts)
-            ? .accounts(userWalletModel.accountModelsManager)
-            : .plainUserTokensManager(userWalletModel.userTokensManager)
+        let workMode: ReferralViewModel.WorkMode = .accounts(userWalletModel.accountModelsManager)
 
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
@@ -574,23 +569,15 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func setupDependencies() {
-            if FeatureProvider.isAvailable(.accounts) {
-                userWalletModel
-                    .accountModelsManager
-                    .accountModelsPublisher
-                    .receiveOnMain()
-                    .withWeakCaptureOf(self)
-                    .sink { viewModel, accountModels in
-                        viewModel.updateManagersForAccountMode(accountModels: accountModels)
-                    }
-                    .store(in: &bag)
-            } else {
-                // accounts_fixes_needed_none
-                updateManagers(
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    userTokensManager: userWalletModel.userTokensManager
-                )
-            }
+            userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountModels in
+                    viewModel.updateManagersForAccountMode(accountModels: accountModels)
+                }
+                .store(in: &bag)
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
@@ -638,9 +625,7 @@ private extension UserWalletSettingsViewModel {
     func logScreenOpenedAnalytics() {
         var params: [Analytics.ParameterKey: String] = [:]
 
-        if FeatureProvider.isAvailable(.accounts) {
-            params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
-        }
+        params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
 
         Analytics.log(
             event: .walletSettingsScreenOpened,
