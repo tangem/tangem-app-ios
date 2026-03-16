@@ -57,8 +57,15 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
         let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
+        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+            isUserWalletLocked: model.isUserWalletLocked,
+            totalBalanceProvider: model
+        )
+        let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
+
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: model.isUserWalletLocked,
+            walletThumbnailType: model.config.walletThumbnailType,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
@@ -79,6 +86,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         if model.isUserWalletLocked {
             return .lockedWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: model,
@@ -144,13 +152,19 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
             return .multiWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: viewModel
             )
         }
 
         guard let dependencies = makeSingleWalletDependencies(userWalletModel: model) else {
-            return .singleWallet(id: id, headerModel: headerModel, bodyModel: nil)
+            return .singleWallet(
+                id: id,
+                navigationModel: navigationModel,
+                headerModel: headerModel,
+                bodyModel: nil
+            )
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
@@ -168,6 +182,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
+        let accountModel: (any CryptoAccountModel)? = {
+            let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
+            guard cryptoAccounts.hasMultipleAccounts else { return nil }
+            return model.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
+        }()
+
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: dependencies.walletModel,
@@ -176,13 +196,16 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            delegate: singleWalletContentDelegate
+            delegate: singleWalletContentDelegate,
+            coordinator: coordinator,
+            accountModel: accountModel
         )
         userWalletNotificationManager.setupManager(with: viewModel)
         singleWalletNotificationManager.setupManager(with: viewModel)
 
         return .singleWallet(
             id: id,
+            navigationModel: navigationModel,
             headerModel: headerModel,
             bodyModel: viewModel
         )
@@ -211,8 +234,16 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let isUserWalletLocked = visaUserWalletModel.isUserWalletLocked
 
         let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
+
+        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+            isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
+            totalBalanceProvider: visaUserWalletModel
+        )
+        let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
+
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
+            walletThumbnailType: visaUserWalletModel.config.walletThumbnailType,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
@@ -227,6 +258,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         if isUserWalletLocked {
             return .lockedWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: visaUserWalletModel,
@@ -239,6 +271,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         return .visaWallet(
             id: visaUserWalletModel.userWalletId,
+            navigationModel: navigationModel,
             headerModel: headerModel,
             bodyModel: viewModel
         )
