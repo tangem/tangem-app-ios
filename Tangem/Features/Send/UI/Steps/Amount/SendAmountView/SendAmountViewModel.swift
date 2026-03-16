@@ -484,11 +484,7 @@ extension SendAmountViewModel {
                     if isFirstSelection {
                         activeField = .receive
                         pendingReverseRecalculation = true
-
-                        // Delay until the token-picker sheet finishes dismissing
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                            self?.pendingFocusField = .receive
-                        }
+                        pendingFocusField = .receive
                     } else if lastUpdateSource == .receive {
                         // Token changed while user was editing TO — trigger reverse
                         // calculation with the user's current field value once the

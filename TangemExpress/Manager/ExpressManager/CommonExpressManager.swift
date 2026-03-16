@@ -73,7 +73,7 @@ extension CommonExpressManager: ExpressManager {
         case .none: availableProviders.removeAll()
         }
 
-        return try await update(by: .pairChange)
+        return await bestProvider()
     }
 
     func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
