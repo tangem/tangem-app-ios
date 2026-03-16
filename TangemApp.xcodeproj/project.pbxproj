@@ -353,8 +353,6 @@
 		2D19A2A12F63033C002F4910 /* WalletAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2942F63033C002F4910 /* WalletAddressResolver.swift */; };
 		2D19A2A22F63033C002F4910 /* CardanoWalletPublicKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2962F63033C002F4910 /* CardanoWalletPublicKeyFactory.swift */; };
 		2D19A2A42F630353002F4910 /* InitialTokenSyncAddressResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2A32F630353002F4910 /* InitialTokenSyncAddressResolverTests.swift */; };
-		2D19A2A82F630373002F4910 /* InitialWalletTokenSyncAddressResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2A62F630373002F4910 /* InitialWalletTokenSyncAddressResolving.swift */; };
-		2D19A2A92F630373002F4910 /* InitialWalletTokenSyncAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2A52F630373002F4910 /* InitialWalletTokenSyncAddressResolver.swift */; };
 		2D19A2AB2F630381002F4910 /* MoralisSupportedBlockchains.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D19A2AA2F630381002F4910 /* MoralisSupportedBlockchains.swift */; };
 		2D1BB3772C07503B008392F7 /* MarketsListDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BB3762C07503B008392F7 /* MarketsListDataProvider.swift */; };
 		2D1BB3932C089816008392F7 /* MarketsItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1BB3922C089816008392F7 /* MarketsItemViewModel.swift */; };
@@ -558,6 +556,24 @@
 		2D6167202C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D61671F2C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift */; };
 		2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6167212C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift */; };
 		2D616FF72CD142BE00581EA6 /* CasperTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FF52CD142BE00581EA6 /* CasperTransactionTests.swift */; };
+		2D6493D22F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor+Injected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C82F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor+Injected.swift */; };
+		2D6493D32F681E6C0043F5B5 /* MoralisTokenBalanceNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C22F681E6C0043F5B5 /* MoralisTokenBalanceNormalizer.swift */; };
+		2D6493D42F681E6C0043F5B5 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C32F681E6C0043F5B5 /* RateLimitedMoralisTokenBalanceClient.swift */; };
+		2D6493D52F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C72F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor.swift */; };
+		2D6493D62F681E6C0043F5B5 /* MoralisTokenBalanceDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C02F681E6C0043F5B5 /* MoralisTokenBalanceDTO.swift */; };
+		2D6493D82F681E6C0043F5B5 /* CommonWalletTokenAutoSyncOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C52F681E6C0043F5B5 /* CommonWalletTokenAutoSyncOrchestrator.swift */; };
+		2D6493D92F681E6C0043F5B5 /* WalletTokenSyncStateActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C92F681E6C0043F5B5 /* WalletTokenSyncStateActor.swift */; };
+		2D6493DA2F681E6C0043F5B5 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493BF2F681E6C0043F5B5 /* MoralisTokenBalanceClient+InjectedValues.swift */; };
+		2D6493DB2F681E6C0043F5B5 /* MoralisTokenBalanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C12F681E6C0043F5B5 /* MoralisTokenBalanceError.swift */; };
+		2D6493DD2F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493CF2F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolver.swift */; };
+		2D6493DE2F681E6C0043F5B5 /* MoralisTokenBalanceAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493BD2F681E6C0043F5B5 /* MoralisTokenBalanceAPITarget.swift */; };
+		2D6493DF2F681E6C0043F5B5 /* CoinsCatalogMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493B72F681E6C0043F5B5 /* CoinsCatalogMapper.swift */; };
+		2D6493E02F681E6C0043F5B5 /* MoralisChainMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493B82F681E6C0043F5B5 /* MoralisChainMapper.swift */; };
+		2D6493E12F681E6C0043F5B5 /* MoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493BE2F681E6C0043F5B5 /* MoralisTokenBalanceClient.swift */; };
+		2D6493E22F681E6C0043F5B5 /* MoralisTokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493BA2F681E6C0043F5B5 /* MoralisTokenBalance.swift */; };
+		2D6493E42F681E6C0043F5B5 /* WalletTokenAutoSyncError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493C62F681E6C0043F5B5 /* WalletTokenAutoSyncError.swift */; };
+		2D6493E52F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493D02F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolving.swift */; };
+		2D6493E62F681E6C0043F5B5 /* MoralisRateLimitedRequestQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6493BC2F681E6C0043F5B5 /* MoralisRateLimitedRequestQueue.swift */; };
 		2D665C082CDCA3F000C9BA85 /* CasperTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C062CDCA3F000C9BA85 /* CasperTransactionBuilder.swift */; };
 		2D665C092CDCA3F000C9BA85 /* CasperTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C072CDCA3F000C9BA85 /* CasperTransactionParams.swift */; };
 		2D665C212CDCA3FC00C9BA85 /* CLValueToJson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0C2CDCA3FC00C9BA85 /* CLValueToJson.swift */; };
@@ -607,13 +623,6 @@
 		2D72D9992EF56142008868DE /* MarketsListErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9962EF56142008868DE /* MarketsListErrorView.swift */; };
 		2D7C45DB2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */; };
 		2D7D6CAF2E93A5EF009927FE /* BlinkAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7D6CAE2E93A5EF009927FE /* BlinkAPIResolver.swift */; };
-		2D80539F2F600D0800442A32 /* MoralisChainMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8053942F600D0800442A32 /* MoralisChainMapper.swift */; };
-		2D8053A02F600D0800442A32 /* MoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8053992F600D0800442A32 /* MoralisTokenBalanceClient.swift */; };
-		2D8053A12F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8053982F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift */; };
-		2D8053A22F600D0800442A32 /* MoralisTokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8053962F600D0800442A32 /* MoralisTokenBalance.swift */; };
-		2D8053A32F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D80539C2F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift */; };
-		2D8053A42F600D0800442A32 /* MoralisTokenBalanceDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D80539A2F600D0800442A32 /* MoralisTokenBalanceDTO.swift */; };
-		2D8053A52F600D0800442A32 /* MoralisTokenBalanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D80539B2F600D0800442A32 /* MoralisTokenBalanceError.swift */; };
 		2D8619BB2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8619BA2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift */; };
 		2D8B960B2ED739FD00AA79AF /* MarketTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8B960A2ED739FD00AA79AF /* MarketTokenItemView.swift */; };
 		2D8B960D2ED73A2400AA79AF /* MarketTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8B960C2ED73A2400AA79AF /* MarketTokenItemViewModel.swift */; };
@@ -657,9 +666,6 @@
 		2D96E9822E55D25300B69F91 /* ReceiveMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */; };
 		2D96E9832E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E92E2E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift */; };
 		2D96E9862E55D37500B69F91 /* ReceiveAddressTypeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */; };
-		2D97E58A2F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */; };
-		2D97E58B2F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */; };
-		2D97E58D2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */; };
 		2D9DCB3C2F31F59700C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */; };
 		2D9FAB932E13E118005AE305 /* EthereumAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */; };
 		2D9FAB942E13E118005AE305 /* EthereumAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */; };
@@ -1136,9 +1142,9 @@
 		970C27DA528E4E8FAA52C726 /* SendAmountInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A763F56E3CF3D7EFEA8D12 /* SendAmountInputView.swift */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
 		9E81273DB5C54CC1997D6D62 /* NewsModelMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C3AABE01A84C53B268B455 /* NewsModelMapperTests.swift */; };
-		A746D01B2F60782500F25E8C /* SolanaTransactionHistoryDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A746D01A2F60782500F25E8C /* SolanaTransactionHistoryDTO.swift */; };
 		A1B2C3D12F6D000100479F53 /* MultiWalletNotificationBannerMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D02F6D000100479F53 /* MultiWalletNotificationBannerMapper.swift */; };
 		A1B2C3D22F6D000200479F53 /* NotificationBannerItemsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32F6D000200479F53 /* NotificationBannerItemsProvider.swift */; };
+		A746D01B2F60782500F25E8C /* SolanaTransactionHistoryDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A746D01A2F60782500F25E8C /* SolanaTransactionHistoryDTO.swift */; };
 		A786FB0B2F1A509400DEA9A7 /* ScrollWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0A2F1A509400DEA9A7 /* ScrollWalletAssembly.swift */; };
 		A786FB0D2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FB0C2F1A513300DEA9A7 /* EthereumOptimisticRollupConstants.swift */; };
 		A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */; };
@@ -5340,8 +5346,8 @@
 		0FFA350A2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeDelegate.swift; sourceTree = "<group>"; };
 		0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		0FFA350C2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeViewModel.swift; sourceTree = "<group>"; };
-		1B2DDFB78A0435D48E7FC6C5 /* AmountInputFieldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputFieldModel.swift; sourceTree = "<group>"; };
 		127781B4E3E231A42C88B982 /* RedesignedAccountSkeletonCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedesignedAccountSkeletonCardView.swift; sourceTree = "<group>"; };
+		1B2DDFB78A0435D48E7FC6C5 /* AmountInputFieldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputFieldModel.swift; sourceTree = "<group>"; };
 		2D06399B2EF0271300BE0499 /* MarketsNoResultsStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNoResultsStateView.swift; sourceTree = "<group>"; };
 		2D06399C2EF0271300BE0499 /* MarketsSearchResultListOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSearchResultListOverlayView.swift; sourceTree = "<group>"; };
 		2D067EDC2EA243B900983972 /* WCTransactionSendLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSendLoadingView.swift; sourceTree = "<group>"; };
@@ -5356,8 +5362,6 @@
 		2D19A2992F63033C002F4910 /* QuaiWalletPublicKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiWalletPublicKeyFactory.swift; sourceTree = "<group>"; };
 		2D19A29A2F63033C002F4910 /* SimpleWalletPublicKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleWalletPublicKeyFactory.swift; sourceTree = "<group>"; };
 		2D19A2A32F630353002F4910 /* InitialTokenSyncAddressResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialTokenSyncAddressResolverTests.swift; sourceTree = "<group>"; };
-		2D19A2A52F630373002F4910 /* InitialWalletTokenSyncAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolver.swift; sourceTree = "<group>"; };
-		2D19A2A62F630373002F4910 /* InitialWalletTokenSyncAddressResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolving.swift; sourceTree = "<group>"; };
 		2D19A2AA2F630381002F4910 /* MoralisSupportedBlockchains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisSupportedBlockchains.swift; sourceTree = "<group>"; };
 		2D1BB3762C07503B008392F7 /* MarketsListDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsListDataProvider.swift; sourceTree = "<group>"; };
 		2D1BB3922C089816008392F7 /* MarketsItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MarketsItemViewModel.swift; path = Tangem/Features/Markets/TokenList/MarketsItemViewModel.swift; sourceTree = SOURCE_ROOT; };
@@ -5567,6 +5571,24 @@
 		2D616FE92CD1414000581EA6 /* CasperWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperWalletAssembly.swift; sourceTree = "<group>"; };
 		2D616FEA2CD1414000581EA6 /* CasperWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperWalletManager.swift; sourceTree = "<group>"; };
 		2D616FF52CD142BE00581EA6 /* CasperTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperTransactionTests.swift; sourceTree = "<group>"; };
+		2D6493B72F681E6C0043F5B5 /* CoinsCatalogMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsCatalogMapper.swift; sourceTree = "<group>"; };
+		2D6493B82F681E6C0043F5B5 /* MoralisChainMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisChainMapper.swift; sourceTree = "<group>"; };
+		2D6493BA2F681E6C0043F5B5 /* MoralisTokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalance.swift; sourceTree = "<group>"; };
+		2D6493BC2F681E6C0043F5B5 /* MoralisRateLimitedRequestQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisRateLimitedRequestQueue.swift; sourceTree = "<group>"; };
+		2D6493BD2F681E6C0043F5B5 /* MoralisTokenBalanceAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceAPITarget.swift; sourceTree = "<group>"; };
+		2D6493BE2F681E6C0043F5B5 /* MoralisTokenBalanceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceClient.swift; sourceTree = "<group>"; };
+		2D6493BF2F681E6C0043F5B5 /* MoralisTokenBalanceClient+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoralisTokenBalanceClient+InjectedValues.swift"; sourceTree = "<group>"; };
+		2D6493C02F681E6C0043F5B5 /* MoralisTokenBalanceDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceDTO.swift; sourceTree = "<group>"; };
+		2D6493C12F681E6C0043F5B5 /* MoralisTokenBalanceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceError.swift; sourceTree = "<group>"; };
+		2D6493C22F681E6C0043F5B5 /* MoralisTokenBalanceNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceNormalizer.swift; sourceTree = "<group>"; };
+		2D6493C32F681E6C0043F5B5 /* RateLimitedMoralisTokenBalanceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitedMoralisTokenBalanceClient.swift; sourceTree = "<group>"; };
+		2D6493C52F681E6C0043F5B5 /* CommonWalletTokenAutoSyncOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletTokenAutoSyncOrchestrator.swift; sourceTree = "<group>"; };
+		2D6493C62F681E6C0043F5B5 /* WalletTokenAutoSyncError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenAutoSyncError.swift; sourceTree = "<group>"; };
+		2D6493C72F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenAutoSyncInteractor.swift; sourceTree = "<group>"; };
+		2D6493C82F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor+Injected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletTokenAutoSyncInteractor+Injected.swift"; sourceTree = "<group>"; };
+		2D6493C92F681E6C0043F5B5 /* WalletTokenSyncStateActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenSyncStateActor.swift; sourceTree = "<group>"; };
+		2D6493CF2F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolver.swift; sourceTree = "<group>"; };
+		2D6493D02F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolving.swift; sourceTree = "<group>"; };
 		2D665C062CDCA3F000C9BA85 /* CasperTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperTransactionBuilder.swift; sourceTree = "<group>"; };
 		2D665C072CDCA3F000C9BA85 /* CasperTransactionParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperTransactionParams.swift; sourceTree = "<group>"; };
 		2D665C0A2CDCA3FC00C9BA85 /* CLType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLType.swift; sourceTree = "<group>"; };
@@ -5617,13 +5639,6 @@
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionPushActionURLHelper.swift; sourceTree = "<group>"; };
 		2D7D6CAE2E93A5EF009927FE /* BlinkAPIResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkAPIResolver.swift; sourceTree = "<group>"; };
-		2D8053942F600D0800442A32 /* MoralisChainMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisChainMapper.swift; sourceTree = "<group>"; };
-		2D8053962F600D0800442A32 /* MoralisTokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalance.swift; sourceTree = "<group>"; };
-		2D8053982F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceAPITarget.swift; sourceTree = "<group>"; };
-		2D8053992F600D0800442A32 /* MoralisTokenBalanceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceClient.swift; sourceTree = "<group>"; };
-		2D80539A2F600D0800442A32 /* MoralisTokenBalanceDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceDTO.swift; sourceTree = "<group>"; };
-		2D80539B2F600D0800442A32 /* MoralisTokenBalanceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceError.swift; sourceTree = "<group>"; };
-		2D80539C2F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisTokenBalanceNormalizer.swift; sourceTree = "<group>"; };
 		2D8619BA2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCEXTransactionDispatcher.swift; sourceTree = "<group>"; };
 		2D8B960A2ED739FD00AA79AF /* MarketTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketTokenItemView.swift; sourceTree = "<group>"; };
 		2D8B960C2ED73A2400AA79AF /* MarketTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketTokenItemViewModel.swift; sourceTree = "<group>"; };
@@ -5667,9 +5682,6 @@
 		2D96E95C2E55D25300B69F91 /* ReceiveMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainView.swift; sourceTree = "<group>"; };
 		2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainViewModel.swift; sourceTree = "<group>"; };
 		2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAddressTypeProvider.swift; sourceTree = "<group>"; };
-		2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisRateLimitedRequestQueue.swift; sourceTree = "<group>"; };
-		2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitedMoralisTokenBalanceClient.swift; sourceTree = "<group>"; };
-		2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoralisTokenBalanceClient+InjectedValues.swift"; sourceTree = "<group>"; };
 		2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainTokenDetailsCoordinatorFactory.swift; sourceTree = "<group>"; };
 		2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressResolver.swift; sourceTree = "<group>"; };
 		2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressUtils.swift; sourceTree = "<group>"; };
@@ -6138,12 +6150,6 @@
 		7DD5A229FC0394B8F3DEE125 /* TokenAdditionChecker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TokenAdditionChecker.swift; sourceTree = "<group>"; };
 		807DB31B7827509E2A4EFC59 /* MainQRScanViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Presentation/MainQRScanViewModel.swift; sourceTree = SOURCE_ROOT; };
 		8BC4F6321F76C4310F9B /* AccountModelResolvable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelResolvable.swift; sourceTree = "<group>"; };
-		8E9D5A23BE9548D0A6D2E44C /* NewsPagerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPagerViewModelTests.swift; sourceTree = "<group>"; };
-		9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationResult.swift; sourceTree = "<group>"; };
-		96E0E9613F304087B720FD94 /* NewsItemViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsItemViewModelTests.swift; sourceTree = "<group>"; };
-		9CFD0AA1206E42D7801075DE /* NewsPagerDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPagerDataSourceTests.swift; sourceTree = "<group>"; };
-		A1B2C3D02F6D000100479F53 /* MultiWalletNotificationBannerMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletNotificationBannerMapper.swift; sourceTree = "<group>"; };
-		A1B2C3D32F6D000200479F53 /* NotificationBannerItemsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationBannerItemsProvider.swift; sourceTree = "<group>"; };
 		8C4996F5237570D42480446C /* TangemPayAccountGlobalStateProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TangemPayAccountGlobalStateProvider.swift; sourceTree = "<group>"; };
 		8CA66DD7B68748907ED61434 /* MainQRScanCoordinatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/UI/MainQRScanCoordinatorView.swift; sourceTree = SOURCE_ROOT; };
 		8E9D5A23BE9548D0A6D2E44C /* NewsPagerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPagerViewModelTests.swift; sourceTree = "<group>"; };
@@ -6151,6 +6157,8 @@
 		96E0E9613F304087B720FD94 /* NewsItemViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsItemViewModelTests.swift; sourceTree = "<group>"; };
 		9BEF2706980A4DF25883001A /* AddTokenFlowScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTokenFlowScreen.swift; sourceTree = "<group>"; };
 		9CFD0AA1206E42D7801075DE /* NewsPagerDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPagerDataSourceTests.swift; sourceTree = "<group>"; };
+		A1B2C3D02F6D000100479F53 /* MultiWalletNotificationBannerMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletNotificationBannerMapper.swift; sourceTree = "<group>"; };
+		A1B2C3D32F6D000200479F53 /* NotificationBannerItemsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationBannerItemsProvider.swift; sourceTree = "<group>"; };
 		A359341F98DC4AB8ACAD09D4 /* InMemoryNewsReadStatusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryNewsReadStatusProviderTests.swift; sourceTree = "<group>"; };
 		A472ED6D9F2A4C4ED521C482 /* LoadingSingleWalletMainContentRedesignedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSingleWalletMainContentRedesignedView.swift; sourceTree = "<group>"; };
 		A48931E71F6D8030DC476397 /* WCTransactionNetworkRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionNetworkRowViewModel.swift; sourceTree = "<group>"; };
@@ -10868,15 +10876,6 @@
 			path = WalletPublicKeyFactories;
 			sourceTree = "<group>";
 		};
-		2D19A2A72F630373002F4910 /* Providers */ = {
-			isa = PBXGroup;
-			children = (
-				2D19A2A52F630373002F4910 /* InitialWalletTokenSyncAddressResolver.swift */,
-				2D19A2A62F630373002F4910 /* InitialWalletTokenSyncAddressResolving.swift */,
-			);
-			path = Providers;
-			sourceTree = "<group>";
-		};
 		2D1BB3752C07501C008392F7 /* Providers */ = {
 			isa = PBXGroup;
 			children = (
@@ -11496,6 +11495,59 @@
 			path = Casper;
 			sourceTree = "<group>";
 		};
+		2D6493B92F681E6C0043F5B5 /* Mapping */ = {
+			isa = PBXGroup;
+			children = (
+				2D6493B72F681E6C0043F5B5 /* CoinsCatalogMapper.swift */,
+				2D6493B82F681E6C0043F5B5 /* MoralisChainMapper.swift */,
+			);
+			path = Mapping;
+			sourceTree = "<group>";
+		};
+		2D6493BB2F681E6C0043F5B5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2D6493BA2F681E6C0043F5B5 /* MoralisTokenBalance.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2D6493C42F681E6C0043F5B5 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2D6493BC2F681E6C0043F5B5 /* MoralisRateLimitedRequestQueue.swift */,
+				2D6493BD2F681E6C0043F5B5 /* MoralisTokenBalanceAPITarget.swift */,
+				2D6493BE2F681E6C0043F5B5 /* MoralisTokenBalanceClient.swift */,
+				2D6493BF2F681E6C0043F5B5 /* MoralisTokenBalanceClient+InjectedValues.swift */,
+				2D6493C02F681E6C0043F5B5 /* MoralisTokenBalanceDTO.swift */,
+				2D6493C12F681E6C0043F5B5 /* MoralisTokenBalanceError.swift */,
+				2D6493C22F681E6C0043F5B5 /* MoralisTokenBalanceNormalizer.swift */,
+				2D6493C32F681E6C0043F5B5 /* RateLimitedMoralisTokenBalanceClient.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		2D6493CA2F681E6C0043F5B5 /* Orchestrator */ = {
+			isa = PBXGroup;
+			children = (
+				2D6493C52F681E6C0043F5B5 /* CommonWalletTokenAutoSyncOrchestrator.swift */,
+				2D6493C62F681E6C0043F5B5 /* WalletTokenAutoSyncError.swift */,
+				2D6493C72F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor.swift */,
+				2D6493C82F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor+Injected.swift */,
+				2D6493C92F681E6C0043F5B5 /* WalletTokenSyncStateActor.swift */,
+			);
+			path = Orchestrator;
+			sourceTree = "<group>";
+		};
+		2D6493D12F681E6C0043F5B5 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				2D6493CF2F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolver.swift */,
+				2D6493D02F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolving.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
 		2D665C0E2CDCA3FC00C9BA85 /* CL */ = {
 			isa = PBXGroup;
 			children = (
@@ -11673,44 +11725,14 @@
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
-		2D8053952F600D0800442A32 /* Mapping */ = {
-			isa = PBXGroup;
-			children = (
-				2D8053942F600D0800442A32 /* MoralisChainMapper.swift */,
-			);
-			path = Mapping;
-			sourceTree = "<group>";
-		};
-		2D8053972F600D0800442A32 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				2D8053962F600D0800442A32 /* MoralisTokenBalance.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		2D80539D2F600D0800442A32 /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				2D97E5882F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift */,
-				2D8053982F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift */,
-				2D8053992F600D0800442A32 /* MoralisTokenBalanceClient.swift */,
-				2D80539A2F600D0800442A32 /* MoralisTokenBalanceDTO.swift */,
-				2D80539B2F600D0800442A32 /* MoralisTokenBalanceError.swift */,
-				2D80539C2F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift */,
-				2D97E5892F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift */,
-				2D97E58E2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift */,
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
 		2D80539E2F600D0800442A32 /* InitialWalletTokenSync */ = {
 			isa = PBXGroup;
 			children = (
-				2D8053952F600D0800442A32 /* Mapping */,
-				2D8053972F600D0800442A32 /* Models */,
-				2D80539D2F600D0800442A32 /* Network */,
-				2D19A2A72F630373002F4910 /* Providers */,
+				2D6493B92F681E6C0043F5B5 /* Mapping */,
+				2D6493BB2F681E6C0043F5B5 /* Models */,
+				2D6493C42F681E6C0043F5B5 /* Network */,
+				2D6493CA2F681E6C0043F5B5 /* Orchestrator */,
+				2D6493D12F681E6C0043F5B5 /* Providers */,
 			);
 			path = InitialWalletTokenSync;
 			sourceTree = "<group>";
@@ -28317,13 +28339,6 @@
 				DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* WalletModelsTotalBalanceProvider.swift in Sources */,
 				B656FCE62C46F3E8002B5BF2 /* OverlayContentStateObserverViewModifier.swift in Sources */,
-				2D80539F2F600D0800442A32 /* MoralisChainMapper.swift in Sources */,
-				2D8053A02F600D0800442A32 /* MoralisTokenBalanceClient.swift in Sources */,
-				2D8053A12F600D0800442A32 /* MoralisTokenBalanceAPITarget.swift in Sources */,
-				2D8053A22F600D0800442A32 /* MoralisTokenBalance.swift in Sources */,
-				2D8053A32F600D0800442A32 /* MoralisTokenBalanceNormalizer.swift in Sources */,
-				2D8053A42F600D0800442A32 /* MoralisTokenBalanceDTO.swift in Sources */,
-				2D8053A52F600D0800442A32 /* MoralisTokenBalanceError.swift in Sources */,
 				EF79D9242E4633140001FBC9 /* NFTAssetCompactView.swift in Sources */,
 				B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */,
 				EF82F8052EAFA025006A46BB /* OnrampPaymentMethodIconView.swift in Sources */,
@@ -29830,6 +29845,24 @@
 				B0DC10D42927564000BBE854 /* CardMock.swift in Sources */,
 				DC3549D52E2DE4FF00641727 /* WCCustomEvmFeeService.swift in Sources */,
 				DC0DE2722B60392900E7247F /* SafariManager.swift in Sources */,
+				2D6493D22F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor+Injected.swift in Sources */,
+				2D6493D32F681E6C0043F5B5 /* MoralisTokenBalanceNormalizer.swift in Sources */,
+				2D6493D42F681E6C0043F5B5 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */,
+				2D6493D52F681E6C0043F5B5 /* WalletTokenAutoSyncInteractor.swift in Sources */,
+				2D6493D62F681E6C0043F5B5 /* MoralisTokenBalanceDTO.swift in Sources */,
+				2D6493D82F681E6C0043F5B5 /* CommonWalletTokenAutoSyncOrchestrator.swift in Sources */,
+				2D6493D92F681E6C0043F5B5 /* WalletTokenSyncStateActor.swift in Sources */,
+				2D6493DA2F681E6C0043F5B5 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */,
+				2D6493DB2F681E6C0043F5B5 /* MoralisTokenBalanceError.swift in Sources */,
+				2D6493DD2F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolver.swift in Sources */,
+				2D6493DE2F681E6C0043F5B5 /* MoralisTokenBalanceAPITarget.swift in Sources */,
+				2D6493DF2F681E6C0043F5B5 /* CoinsCatalogMapper.swift in Sources */,
+				2D6493E02F681E6C0043F5B5 /* MoralisChainMapper.swift in Sources */,
+				2D6493E12F681E6C0043F5B5 /* MoralisTokenBalanceClient.swift in Sources */,
+				2D6493E22F681E6C0043F5B5 /* MoralisTokenBalance.swift in Sources */,
+				2D6493E42F681E6C0043F5B5 /* WalletTokenAutoSyncError.swift in Sources */,
+				2D6493E52F681E6C0043F5B5 /* InitialWalletTokenSyncAddressResolving.swift in Sources */,
+				2D6493E62F681E6C0043F5B5 /* MoralisRateLimitedRequestQueue.swift in Sources */,
 				B6B1CCCA2C460BB9006C1B44 /* UIPanGestureRecognizer+.swift in Sources */,
 				EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
@@ -30104,9 +30137,6 @@
 				DC7AFA2B2E840856005AA071 /* AccountSelectorViewModel.swift in Sources */,
 				DC7AFA2C2E840856005AA071 /* AccountSelectorView.swift in Sources */,
 				C2DB41942DCA2A640028E6B0 /* WalletConnectErrorViewModel.swift in Sources */,
-				2D97E58A2F602B6000DBB611 /* MoralisRateLimitedRequestQueue.swift in Sources */,
-				2D97E58B2F602B6000DBB611 /* RateLimitedMoralisTokenBalanceClient.swift in Sources */,
-				2D97E58D2F602B6000DBB611 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				30DEC76A2E9FDF6C007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift in Sources */,
 				DAFD693D2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift in Sources */,
@@ -30695,8 +30725,6 @@
 				EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */,
 				EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */,
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
-				2D19A2A82F630373002F4910 /* InitialWalletTokenSyncAddressResolving.swift in Sources */,
-				2D19A2A92F630373002F4910 /* InitialWalletTokenSyncAddressResolver.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
 				0A85A1992E7076E600ED535D /* YieldTransactionProvider.swift in Sources */,

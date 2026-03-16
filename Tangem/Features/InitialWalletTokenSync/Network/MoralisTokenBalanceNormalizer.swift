@@ -9,8 +9,8 @@ import Foundation
 import TangemFoundation
 
 enum MoralisTokenBalanceNormalizer {
-    static func normalize(_ balances: [MoralisTokenBalanceDTO.TokenBalance]) throws -> [MoralisTokenBalance] {
-        try balances.map(normalize)
+    static func normalize(_ balances: [MoralisTokenBalanceDTO.TokenBalance]) -> [MoralisTokenBalance] {
+        balances.compactMap { try? normalize($0) }
     }
 }
 
