@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import Foundation
 import TangemExpress
@@ -129,6 +130,13 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
+        return fee
+    }
+
+    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee {
+        update(input: .approve(txData: txData, toContractAddress: toContractAddress))
+        await updateFees().value
+        let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
     }
 
