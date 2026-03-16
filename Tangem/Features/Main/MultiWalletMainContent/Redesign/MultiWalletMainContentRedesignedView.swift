@@ -17,28 +17,71 @@ struct MultiWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        listContent
-            .padding(.horizontal, .unit(.x3))
-            .onDidAppear(perform: viewModel.onDidAppear)
-            .onWillDisappear(perform: viewModel.onWillDisappear)
-            .bindAlert($viewModel.error)
+        VStack(spacing: .unit(.x4)) {
+            notificationBanners
+
+            listContent
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
+        .padding(.horizontal, .unit(.x3))
+        .onDidAppear(perform: viewModel.onDidAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
+        .bindAlert($viewModel.error)
+    }
+
+    // MARK: - Notification Banners
+
+    private var notificationBanners: some View {
+        NotificationBannerContainer(
+            items: viewModel.notificationBannerItems,
+            stackingType: .carousel
+        )
     }
 
     // MARK: - List Content
 
-    @ViewBuilder
     private var listContent: some View {
-        if viewModel.isLoadingTokenList {
-            TokenListLoadingPlaceholderView()
-                .cornerRadiusContinuous(Constants.cornerRadius)
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
-        } else if viewModel.plainSections.isEmpty, viewModel.accountSections.isEmpty {
-            emptyList
-        } else {
-            VStack(spacing: 0) {
-                accountsList
+        let isLoading = viewModel.isLoadingTokenList
+        let hasContent = !viewModel.plainSections.isEmpty || !viewModel.accountSections.isEmpty
 
-                plainTokensList
+        return ZStack(alignment: .top) {
+            // Skeleton placeholders layer
+            skeletonPlaceholders(isLoading: isLoading)
+                .allowsHitTesting(false)
+
+            // Real content layer
+            if hasContent {
+                VStack(spacing: 0) {
+                    accountsList
+
+                    plainTokensList
+                }
+                .opacity(isLoading ? 0 : 1)
+            } else if !isLoading {
+                emptyList
+            }
+        }
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+    }
+
+    // MARK: - Skeleton Placeholders
+
+    private func skeletonPlaceholders(isLoading: Bool) -> some View {
+        let accountCount = viewModel.accountSections.count
+
+        return VStack(spacing: .unit(.x2)) {
+            ForEach(0 ..< Constants.placeholderCount, id: \.self) { index in
+                let hasMatchingAccount = index < accountCount
+
+                if hasMatchingAccount {
+                    // Matched: stays in tree, just fades opacity — no slide
+                    RedesignedAccountSkeletonCardView()
+                        .opacity(isLoading ? 1 : 0)
+                } else if isLoading {
+                    // Unmatched: removed from tree when loading ends → slides down
+                    RedesignedAccountSkeletonCardView()
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
     }
@@ -49,7 +92,6 @@ struct MultiWalletMainContentRedesignedView: View {
         MultiWalletTokenItemsEmptyView()
             .padding(.top, 96)
             .cornerRadiusContinuous(Constants.cornerRadius)
-            .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
     }
 
     // MARK: - Accounts List
@@ -75,7 +117,6 @@ struct MultiWalletMainContentRedesignedView: View {
             tokenRowsContent(sections: viewModel.plainSections)
         }
         .roundedBackground(with: Constants.tokenListBackgroundColor, padding: 0, radius: Constants.cornerRadius)
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
     }
 
     // MARK: - Token Rows Content
@@ -151,6 +192,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
 private extension MultiWalletMainContentRedesignedView {
     enum Constants {
+        static let placeholderCount = 3
         static let cornerRadius: CGFloat = .unit(.x5)
         static let tokenListBackgroundColor = Color.Tangem.Surface.level1
     }
