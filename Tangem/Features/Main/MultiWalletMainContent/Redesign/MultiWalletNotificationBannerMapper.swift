@@ -232,6 +232,7 @@ private extension MultiWalletNotificationBannerMapper {
         return TangemButton.Model(
             content: mapButtonContent(actionType),
             styleType: mapButtonStyleType(actionType.style),
+            cornerStyle: .rounded,
             action: { button.action(notificationId, actionType) }
         )
     }
