@@ -18,6 +18,10 @@ enum MultiWalletNotificationEvent: Hashable {
 // MARK: - NotificationEvent
 
 extension MultiWalletNotificationEvent: NotificationEvent {
+    var bannerKind: NotificationBannerKind? {
+        .status
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .someNetworksUnreachable:
@@ -43,9 +47,9 @@ extension MultiWalletNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .someNetworksUnreachable:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .someTokenBalancesNotUpdated:
-            return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
+            return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
         }
     }
 
