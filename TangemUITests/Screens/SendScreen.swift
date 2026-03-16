@@ -44,6 +44,8 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var networkWarningLabel = staticText(.addressNetworkWarning)
     private lazy var resolvedAddressLabel = staticText(.addressResolvedAddress)
     private lazy var closeButton = button(.closeButton)
+    private lazy var convertToAnotherTokenButton = button(.convertToAnotherTokenButton)
+    private lazy var removeConvertButton = button(.removeConvertButton)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -1031,6 +1033,185 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    // MARK: - Token Search Methods
+
+    @discardableResult
+    func enterTokenSearch(_ query: String) -> Self {
+        XCTContext.runActivity(named: "Enter token search query: '\(query)'") { _ in
+            let searchBar = app.textFields[SendAccessibilityIdentifiers.receiveTokenSearchBar].firstMatch
+            waitAndAssertTrue(searchBar, "Token search bar should exist")
+            searchBar.waitAndTap()
+            searchBar.typeText(query)
+        }
+        return self
+    }
+
+    @discardableResult
+    func clearTokenSearch() -> Self {
+        XCTContext.runActivity(named: "Clear token search field") { _ in
+            let searchBar = app.textFields[SendAccessibilityIdentifiers.receiveTokenSearchBar].firstMatch
+            waitAndAssertTrue(searchBar, "Token search bar should exist")
+
+            let currentText = (searchBar.value as? String) ?? ""
+            for _ in 0 ..< currentText.count {
+                searchBar.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForReceiveToken(name: String) -> Self {
+        XCTContext.runActivity(named: "Wait for receive token '\(name)' to be visible") { _ in
+            let tokenItem = app.buttons[SendAccessibilityIdentifiers.receiveTokenListItem(name: name)].firstMatch
+            waitAndAssertTrue(tokenItem, "Receive token '\(name)' should be visible in the list")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapReceiveNetworkOption(name: String) -> Self {
+        XCTContext.runActivity(named: "Tap receive network option: \(name)") { _ in
+            let predicate = NSPredicate(format: "label CONTAINS %@", name)
+            let networkButton = app.buttons.matching(predicate).firstMatch
+            waitAndAssertTrue(networkButton, "Network option '\(name)' should exist")
+            networkButton.waitAndTap()
+        }
+        return self
+    }
+
+    // MARK: - Send via Swap (Convert) Methods
+
+    @discardableResult
+    func waitForConvertButton() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Convert to another token' button to be displayed") { _ in
+            waitAndAssertTrue(convertToAnotherTokenButton, "'Convert to another token' button should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForConvertButtonNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Convert to another token' button to not be displayed") { _ in
+            XCTAssertTrue(
+                convertToAnotherTokenButton.waitForNonExistence(timeout: .quick),
+                "'Convert to another token' button should not be displayed"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapConvertButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'Convert to another token' button") { _ in
+            convertToAnotherTokenButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapReceiveToken(name: String) -> Self {
+        XCTContext.runActivity(named: "Tap receive token: \(name)") { _ in
+            let tokenItem = app.buttons[SendAccessibilityIdentifiers.receiveTokenListItem(name: name)].firstMatch
+            tokenItem.waitAndTapWithScroll()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNetworkSelectorError(tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Wait for network selector error for unsupported token: \(tokenName)") { _ in
+            let expectedTitle = "\(tokenName) is not supported"
+            let titleElement = app.staticTexts[expectedTitle].firstMatch
+            waitAndAssertTrue(titleElement, "Error title '\(expectedTitle)' should be displayed")
+
+            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorErrorTitle].firstMatch
+            waitAndAssertTrue(gotItButton, "'Got it' button should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapNetworkSelectorGotItButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'Got it' button on network selector error") { _ in
+            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorErrorTitle].firstMatch
+            gotItButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapRemoveConvertButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'Remove Convert' button to cancel conversion") { _ in
+            removeConvertButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapReceiveTokenBlock() -> Self {
+        XCTContext.runActivity(named: "Tap receive token block to change token") { _ in
+            let identifier = SendAccessibilityIdentifiers.receiveTokenBlock
+            let buttonElement = app.buttons[identifier].firstMatch
+            if buttonElement.waitForExistence(timeout: 5) {
+                buttonElement.tap()
+            } else {
+                let anyElement = app.descendants(matching: .any)[identifier].firstMatch
+                waitAndAssertTrue(anyElement, "Receive token block should exist")
+                anyElement.tap()
+            }
+        }
+        return self
+    }
+
+    // MARK: - Change Token Alert Methods
+
+    @discardableResult
+    func waitForChangeTokenAlert() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Changing token' alert to be displayed") { _ in
+            let alert = app.alerts["Changing token"].firstMatch
+            waitAndAssertTrue(alert, "'Changing token' alert should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapChangeTokenAlertCancel() -> Self {
+        XCTContext.runActivity(named: "Tap 'Cancel' on 'Changing token' alert") { _ in
+            let alert = app.alerts["Changing token"].firstMatch
+            waitAndAssertTrue(alert, "'Changing token' alert should be displayed")
+            alert.buttons["Cancel"].tap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapChangeTokenAlertContinue() -> Self {
+        XCTContext.runActivity(named: "Tap 'Continue' on 'Changing token' alert") { _ in
+            let alert = app.alerts["Changing token"].firstMatch
+            waitAndAssertTrue(alert, "'Changing token' alert should be displayed")
+            alert.buttons["Continue"].tap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapChooseTokenCloseButton() -> Self {
+        XCTContext.runActivity(named: "Tap Close button on Choose Token sheet") { _ in
+            // Multiple close buttons exist; the Choose Token sheet's button is the topmost hittable one
+            let closeButtons = app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.closeButton)
+            for i in 0 ..< closeButtons.count {
+                let button = closeButtons.element(boundBy: i)
+                if button.isHittable {
+                    button.tap()
+                    return
+                }
+            }
+            XCTFail("No hittable Close button found on Choose Token sheet")
+        }
+        return self
+    }
+
     private func waitForPredicate(_ predicate: NSPredicate, on element: XCUIElement, _ message: String) {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
         let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
@@ -1073,6 +1254,9 @@ enum SendScreenElement: String, UIElement {
     case addressNetworkWarning
     case addressResolvedAddress
     case closeButton
+    case convertToAnotherTokenButton
+    case receiveTokenBlock
+    case removeConvertButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -1144,6 +1328,12 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.addressResolvedAddress
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
+        case .convertToAnotherTokenButton:
+            return SendAccessibilityIdentifiers.convertToAnotherTokenButton
+        case .receiveTokenBlock:
+            return SendAccessibilityIdentifiers.receiveTokenBlock
+        case .removeConvertButton:
+            return SendAccessibilityIdentifiers.removeConvertButton
         }
     }
 }
