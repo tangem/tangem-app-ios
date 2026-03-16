@@ -227,9 +227,7 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
-
-        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
+        updateTask(loadingType: .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 self?._isFixedRateSupportedByProvider.send(false)
@@ -238,9 +236,8 @@ extension SwapModel {
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            var result: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
 
-            // Check fixed rate availability for this pair
+            // Check fixed rate availability (fast — reads from in-memory cache)
             var isFixedRateSupported = false
             if isFixedRatesFeatureEnabled {
                 let fixedProviders = try await expressPairsRepository
@@ -249,24 +246,50 @@ extension SwapModel {
             }
             _isFixedRateSupportedByProvider.send(isFixedRateSupported)
 
-            // If fixed rate is NOT supported but ExpressManager was in .to() mode,
-            // switch to forward calculation so we get a float quote from source amount
-            if !isFixedRateSupported,
-               let currentAmountType = await expressManager.getAmountType(),
-               currentAmountType.rateType == .fixed,
-               let sourceAmount = _sourceAmount.value?.crypto {
-                result = try await expressManager.update(
-                    amountType: .from(sourceAmount), by: .pairChange
+            // For first selection (no TO amount yet), compute a local estimate and send it
+            // BEFORE the expensive provider setup so the UI updates immediately.
+            let hasReceiveAmount = _receiveAmount.value?.crypto != nil
+            if !hasReceiveAmount {
+                if let sourceAmount = _sourceAmount.value?.crypto,
+                   let sourceCurrencyId = source.tokenItem.currencyId,
+                   let destCurrencyId = destination.tokenItem.currencyId {
+                    if let estimatedTo = try? await balanceConverter.convertCryptoToCrypto(
+                        sourceId: sourceCurrencyId,
+                        sourceAmount: sourceAmount,
+                        targetId: destCurrencyId
+                    ) {
+                        _receiveAmount.send(makeSendAmount(crypto: estimatedTo, currencyId: destCurrencyId))
+                    }
+                }
+            }
+
+            let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+
+            if hasReceiveAmount, let receiveAmount = _receiveAmount.value?.crypto {
+                // Subsequent destination change: TO exists → keep TO, recalculate FROM via Express
+                var result: ExpressManagerUpdatingResult = try await expressManager.update(
+                    amountType: .to(receiveAmount), by: .pairChange
                 )
-            }
 
-            // Populate _receiveAmount from the quote so the destination field
-            // shows the calculated value when a TO token is selected after entering FROM amount
-            if let quote = result.selected?.getState().quote {
-                _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId))
-            }
+                // If fixed rate is NOT supported, fall back to forward calculation
+                if !isFixedRateSupported,
+                   let currentAmountType = await expressManager.getAmountType(),
+                   currentAmountType.rateType == .fixed,
+                   let sourceAmount = _sourceAmount.value?.crypto {
+                    result = try await expressManager.update(
+                        amountType: .from(sourceAmount), by: .pairChange
+                    )
+                }
 
-            return result
+                // Update FROM from Express quote
+                if let quote = result.selected?.getState().quote {
+                    _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId))
+                }
+
+                return result
+            } else {
+                return pairResult
+            }
         }
     }
 
