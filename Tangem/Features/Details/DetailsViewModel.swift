@@ -109,7 +109,7 @@ final class DetailsViewModel: ObservableObject {
 
 private extension DetailsViewModel {
     func selectSupport() {
-        Analytics.log(.requestSupport, params: [.source: .settings])
+        Analytics.log(.requestSupport, params: [.source: .settings], analyticsSystems: .all)
         var visaUserWalletModels = [UserWalletModel]()
         var tangemUserWalletModels = [UserWalletModel]()
         userWalletRepository.models.forEach {
