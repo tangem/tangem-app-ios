@@ -21,6 +21,7 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
     private let availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
 
     private let viewModelsMapper: AccountsAwareTokenSelectorViewModelsMapper
+    private var isLoadingLocked = false
 
     init(
         walletsProvider: any AccountsAwareTokenSelectorWalletsProvider,
@@ -54,6 +55,10 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
         viewModelsMapper.setupSelectedItemFilter(selectedItemPublisher: directionPublisher.map { $0?.tokenItem })
     }
 
+    func setLoading() {
+        contentVisibility = .loading
+    }
+
     func itemsCountToDisplay(configuration: SectionHeaderConfiguration, itemsCount: Int) -> Int? {
         guard configuration.showsItemsCount, !searchText.isEmpty, itemsCount > 0 else { return nil }
 
@@ -79,6 +84,7 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
 extension AccountsAwareTokenSelectorViewModel {
     @CaseFlagable
     enum ContentVisibility: Equatable {
+        case loading
         case visible(itemsCount: Int)
         case empty
     }
