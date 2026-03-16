@@ -93,9 +93,13 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     private var actionButtonsViewModel: ActionButtonsViewModel? {
         switch self {
+        case .singleWallet(_, _, _, let bodyModel):
+            return bodyModel?.actionButtonsViewModel
         case .multiWallet(_, _, _, let bodyModel):
             return bodyModel.actionButtonsViewModel
-        case .singleWallet, .lockedWallet, .visaWallet:
+        case .lockedWallet(_, _, _, let bodyModel):
+            return bodyModel.actionButtonsViewModel
+        case .visaWallet:
             return nil
         }
     }
@@ -134,6 +138,32 @@ enum MainUserWalletPageBuilder: Identifiable {
     var body: some View {
         switch self {
         case .singleWallet(let id, _, _, let bodyModel):
+            makeSingleWalletContent(id: id, bodyModel: bodyModel)
+
+        case .multiWallet(let id, _, _, let bodyModel):
+            makeMultiWalletContent(id: id, bodyModel: bodyModel)
+
+        case .lockedWallet(let id, _, _, let bodyModel):
+            makeLockedWalletContent(id: id, bodyModel: bodyModel)
+
+        case .visaWallet(let id, _, _, let bodyModel):
+            // Visa wallet redesign is not yet implemented
+            VisaWalletMainContentView(viewModel: bodyModel)
+                .id(id)
+        }
+    }
+
+    @ViewBuilder
+    private func makeSingleWalletContent(id: UserWalletId, bodyModel: SingleWalletMainContentViewModel?) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            if let bodyModel {
+                SingleWalletMainContentRedesignedView(viewModel: bodyModel)
+                    .id(id)
+            } else {
+                LoadingSingleWalletMainContentRedesignedView()
+                    .id(id)
+            }
+        } else {
             if let bodyModel {
                 SingleWalletMainContentView(viewModel: bodyModel)
                     .id(id)
@@ -141,19 +171,27 @@ enum MainUserWalletPageBuilder: Identifiable {
                 LoadingSingleWalletMainContentView()
                     .id(id)
             }
-        case .multiWallet(let id, _, _, let bodyModel):
-            if FeatureProvider.isAvailable(.redesign) {
-                MultiWalletMainContentRedesignedView(viewModel: bodyModel)
-                    .id(id)
-            } else {
-                MultiWalletMainContentView(viewModel: bodyModel)
-                    .id(id)
-            }
-        case .lockedWallet(let id, _, _, let bodyModel):
-            LockedWalletMainContentView(viewModel: bodyModel)
+        }
+    }
+
+    @ViewBuilder
+    private func makeMultiWalletContent(id: UserWalletId, bodyModel: MultiWalletMainContentViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            MultiWalletMainContentRedesignedView(viewModel: bodyModel)
                 .id(id)
-        case .visaWallet(let id, _, _, let bodyModel):
-            VisaWalletMainContentView(viewModel: bodyModel)
+        } else {
+            MultiWalletMainContentView(viewModel: bodyModel)
+                .id(id)
+        }
+    }
+
+    @ViewBuilder
+    private func makeLockedWalletContent(id: UserWalletId, bodyModel: LockedWalletMainContentViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            LockedWalletMainContentRedesignedView(viewModel: bodyModel)
+                .id(id)
+        } else {
+            LockedWalletMainContentView(viewModel: bodyModel)
                 .id(id)
         }
     }
