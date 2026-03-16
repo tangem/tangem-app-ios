@@ -18,6 +18,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
     @Published private(set) var balance: LoadableBalanceView.State
+    @Published private(set) var walletThumbnailType: ThumbnailWalletViewType?
     @Published var isLoadingSubtitle: Bool = true
 
     var subtitleContainsSensitiveInfo: Bool {
@@ -33,12 +34,14 @@ final class MainHeaderViewModel: ObservableObject {
 
     init(
         isUserWalletLocked: Bool,
+        walletThumbnailType: ThumbnailWalletViewType?,
         supplementInfoProvider: MainHeaderSupplementInfoProvider,
         subtitleProvider: MainHeaderSubtitleProvider,
         balanceProvider: MainHeaderBalanceProvider,
         updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
         self.isUserWalletLocked = isUserWalletLocked
+        self.walletThumbnailType = walletThumbnailType
         self.supplementInfoProvider = supplementInfoProvider
         subtitleProviderSubject = CurrentValueSubject(subtitleProvider)
         self.balanceProvider = balanceProvider
@@ -89,12 +92,15 @@ final class MainHeaderViewModel: ObservableObject {
                     let isMultiWalletPage = model.config.hasFeature(.multiCurrency) || containsDefaultToken
                     let providerFactory = model.config.makeMainHeaderProviderFactory()
                     let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
-                    return subtitleProvider
+                    return (subtitleProvider, model.config.walletThumbnailType)
                 } else {
                     return nil
                 }
             }
-            .subscribe(subtitleProviderSubject)
+            .sink { [weak self] subtitleProvider, walletThumbnailType in
+                self?.subtitleProviderSubject.send(subtitleProvider)
+                self?.walletThumbnailType = walletThumbnailType
+            }
             .store(in: &bag)
     }
 }

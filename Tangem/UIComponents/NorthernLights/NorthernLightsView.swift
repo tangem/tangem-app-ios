@@ -4,6 +4,8 @@ import MetalKit
 struct NorthernLightsView: UIViewRepresentable {
     let backgroundColor: Color
 
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeUIView(context: Context) -> MTKView {
         guard let device = MTLCreateSystemDefaultDevice(),
               let renderer = try? NorthernLightsRenderer(device: device) else {
@@ -14,13 +16,16 @@ struct NorthernLightsView: UIViewRepresentable {
         let mtkView = MTKView(frame: .zero, device: device)
         mtkView.colorPixelFormat = .bgra8Unorm
         mtkView.delegate = renderer
+        mtkView.contentScaleFactor = 0.5
+        mtkView.preferredFramesPerSecond = 30
+
         context.coordinator.renderer = renderer
 
         return mtkView
     }
 
     func updateUIView(_ mtkView: MTKView, context: Context) {
-        context.coordinator.renderer?.backgroundRGB = backgroundColor.toRGB() ?? .zero
+        context.coordinator.renderer?.backgroundRGB = UIColor(backgroundColor).resolvedRGB(in: mtkView.traitCollection)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -31,10 +36,11 @@ struct NorthernLightsView: UIViewRepresentable {
 }
 
 final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
+    var backgroundRGB: RGB = .zero
+
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
 
-    var backgroundRGB: RGB = .zero
     private var startTime = CACurrentMediaTime()
 
     init(device: MTLDevice) throws {
@@ -98,15 +104,16 @@ extension NorthernLightsRenderer {
     }
 }
 
-private extension Color {
-    func toRGB() -> RGB? {
+private extension UIColor {
+    func resolvedRGB(in traitCollection: UITraitCollection) -> RGB {
+        let resolved = resolvedColor(with: traitCollection)
         guard
-            let components = UIColor(self).cgColor.components,
+            let components = resolved.cgColor.components,
             let r = components[safe: 0],
             let g = components[safe: 1],
             let b = components[safe: 2]
         else {
-            return nil
+            return .zero
         }
 
         return RGB(Float(r), Float(g), Float(b))
