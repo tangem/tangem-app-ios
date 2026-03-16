@@ -32,7 +32,7 @@ enum ExpressProvidersListEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .fcaWarningList: .init(iconType: .image(Assets.redCircleWarning.image))
+        case .fcaWarningList: .init(iconType: .image(Assets.redCircleWarning))
         }
     }
 

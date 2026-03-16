@@ -47,6 +47,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
+    @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
+
     weak var delegate: MultiWalletMainContentDelegate?
 
     var footerViewModel: MainFooterViewModel?
@@ -75,6 +77,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
+    private let notificationBannerItemsProvider: NotificationBannerItemsProvider
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
@@ -123,6 +126,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         self.tokenItemPromoProvider = tokenItemPromoProvider
+
+        notificationBannerItemsProvider = NotificationBannerItemsProvider(
+            userWalletNotificationManager: userWalletNotificationManager,
+            tokensNotificationManager: tokensNotificationManager,
+            bannerNotificationManager: bannerNotificationManager,
+            tangemPayNotificationManager: tangemPayNotificationManager
+        )
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
@@ -302,6 +312,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
+        notificationBannerItemsProvider.$items
+            .assign(to: &$notificationBannerItems)
+
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher1: $notificationInputs,
@@ -350,6 +363,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     ? GetTangemPayBannerViewModel(
                         onBannerTap: { [weak viewModel] in
                             viewModel?.coordinator?.openGetTangemPay()
+                            Analytics.log(.visaOnboardingVisaPermanentBannerClicked)
                         }
                     )
                     : nil

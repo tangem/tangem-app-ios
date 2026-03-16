@@ -27,19 +27,16 @@ class CommonSwapSummaryInteractor {
     private weak var output: SwapSummaryOutput?
 
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
-    private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
 
     init(
         input: SwapSummaryInput,
         output: SwapSummaryOutput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
-        sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
     ) {
         self.input = input
         self.output = output
         self.swapDescriptionBuilder = swapDescriptionBuilder
-        self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
     }
 }
 
@@ -122,10 +119,8 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
 private extension CommonSwapSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
-        case .sendWithSwap(let amount, let fee, let provider):
-            return sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
-        case .swap(let provider):
-            return swapDescriptionBuilder.makeDescription(provider: provider)
+        case .swap(let amount, let fee, let provider):
+            return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
         default:
             return nil
         }
