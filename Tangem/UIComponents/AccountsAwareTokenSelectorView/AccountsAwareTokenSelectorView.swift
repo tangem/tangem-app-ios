@@ -13,9 +13,10 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 
-struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentView: View>: View {
+struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentView: View, HeaderContentView: View>: View {
     @ObservedObject var viewModel: AccountsAwareTokenSelectorViewModel
     private let emptyContentView: EmptyContentView
+    private let headerContent: HeaderContentView
     private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
@@ -24,20 +25,25 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
         @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder headerContent: () -> HeaderContentView,
         @ViewBuilder additionalContent: () -> AdditionalContentView
     ) {
         self.viewModel = viewModel
         self.emptyContentView = emptyContentView()
         self.additionalContent = additionalContent()
+        self.headerContent = headerContent()
     }
 
     var body: some View {
         switch searchType {
         case .native:
-            scrollView { scrollContent }
-                .searchable(text: $viewModel.searchText)
-                .keyboardType(.asciiCapable)
-                .autocorrectionDisabled()
+            scrollView {
+                scrollContent
+                    .searchable(text: $viewModel.searchText)
+                    .keyboardType(.asciiCapable)
+                    .autocorrectionDisabled()
+            }
+
         case .custom:
             scrollView {
                 CustomSearchBar(
@@ -48,6 +54,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 
                 scrollContent
             }
+
         case .none:
             scrollView { scrollContent }
         }
@@ -65,21 +72,43 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
         switch viewModel.contentVisibility {
         case .empty:
             emptyContentView
-                .transition(.move(edge: .top).combined(with: .opacity).animation(.easeInOut))
-        case .visible(let itemsCount):
-            if let sectionHeaderConfiguration {
-                sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
-            }
+                .transition(.move(edge: .top).combined(with: .opacity))
+        case .loading:
+            headerContent
 
-            LazyVStack(spacing: 8) {
-                ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
-            }
-            .transition(.opacity.animation(.easeInOut))
+            loadingView
+                .transition(.opacity)
+        case .visible(let itemsCount):
+            headerContent
+
+            tokenListContent(itemsCount: itemsCount)
+                .transition(.opacity)
+
+            additionalContent
+
+            FixedSpacer(height: 12)
+        }
+    }
+
+    private var loadingView: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+
+            Text(Localization.wcCommonLoading)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+        }
+        .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private func tokenListContent(itemsCount: Int) -> some View {
+        if let sectionHeaderConfiguration {
+            sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
         }
 
-        additionalContent
-
-        FixedSpacer(height: 12)
+        LazyVStack(spacing: 8) {
+            ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
+        }
     }
 
     private func sectionHeader(
@@ -125,13 +154,46 @@ extension AccountsAwareTokenSelectorView {
 
 // MARK: - Convenience init
 
-extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView {
+extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView, HeaderContentView == EmptyView {
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
         @ViewBuilder emptyContentView: () -> EmptyContentView
     ) {
-        self.viewModel = viewModel
-        self.emptyContentView = emptyContentView()
-        additionalContent = EmptyView()
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: { EmptyView() },
+            additionalContent: { EmptyView() }
+        )
+    }
+}
+
+extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView {
+    init(
+        viewModel: AccountsAwareTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder headerContent: () -> HeaderContentView
+    ) {
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: headerContent,
+            additionalContent: { EmptyView() }
+        )
+    }
+}
+
+extension AccountsAwareTokenSelectorView where HeaderContentView == EmptyView {
+    init(
+        viewModel: AccountsAwareTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder additionalContent: () -> AdditionalContentView
+    ) {
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: { EmptyView() },
+            additionalContent: additionalContent
+        )
     }
 }
