@@ -29,7 +29,7 @@ class InitialTokenSyncAddressResolverTests {
         defer { try? CommonMobileWalletSdk().delete(walletIDs: [userWalletId]) }
         let keys = info.keys
         let moralisBlockchains = SupportedBlockchains(version: .v2).blockchains()
-            .filter { MoralisSupportedBlockchains.networkIds.contains($0.networkId) }
+            .intersection(MoralisSupportedBlockchains.all)
         let result = InitialWalletTokenSyncAddressResolver()
             .resolve(keyInfos: keys, supportedBlockchains: moralisBlockchains)
 
