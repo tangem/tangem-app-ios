@@ -44,8 +44,12 @@ struct MainQRScanView: View {
                     set: { qrCode in
                         viewModel.onQRCodeScanned(qrCode)
                     }
-                )
+                ),
+                shouldDismissOnSuccess: false,
+                shouldDismissOnFailure: false,
+                onScanningFailure: viewModel.onScannerFailure
             )
+            .id(viewModel.scannerViewID)
             .transition(.opacity)
         } else {
             Color.black
