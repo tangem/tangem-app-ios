@@ -111,6 +111,10 @@ final class MainViewModel: ObservableObject {
         coordinator?.openDetails()
     }
 
+    func openQRScan() {
+        coordinator?.openQRScan()
+    }
+
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         guard !isLoggingOut else { return }
@@ -144,7 +148,6 @@ final class MainViewModel: ObservableObject {
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
         // being placed over the authorization screen.
-        // This is a workaround until [REDACTED_INFO] is implemented.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
@@ -494,13 +497,13 @@ final class MainViewModel: ObservableObject {
         let page = pages[index]
 
         switch page {
-        case .singleWallet(_, _, let viewModel):
+        case .singleWallet(_, _, _, let viewModel):
             await viewModel?.onPullToRefresh()
-        case .multiWallet(_, _, let viewModel):
+        case .multiWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         case .lockedWallet:
             break
-        case .visaWallet(_, _, let viewModel):
+        case .visaWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
 
@@ -602,7 +605,6 @@ private extension MainViewModel {
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 0.5
-        // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }
