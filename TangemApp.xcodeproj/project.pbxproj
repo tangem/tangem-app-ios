@@ -2788,7 +2788,21 @@
 		BA6BB3D52AF3989ADC07AF8A /* SafeNetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9FEFA6BFE19A9867B738C90 /* SafeNetworkMonitorTests.swift */; };
 		BCC113A7CCB3068FD04 /* AccountModelResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADCF1BD53A99863069 /* AccountModelResolving.swift */; };
 		BCE5BF0B3B5342B9A424C862 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3ABEE65C3C571B5975C9F2 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift */; };
-		BD512CDB11BF20953C4FED1B /* SwapSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F854F6C2554530B09BF4AA /* SwapSearchUITests.swift */; };
+		D09CE7DBBC9742818BAD51F7 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */; };
+			A1B2C3D4E5F6078901234503 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */; };
+			A1B2C3D4E5F6078901234504 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */; };
+			995FF691213F4EA0899884F5 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */; };
+			F2C101A16E00100200000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift */; };
+			F2C101A16E00100200000003 /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000003 /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift */; };
+			F2C101A16E00100200000004 /* Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000004 /* Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift */; };
+			F2C101A16E00100200000005 /* Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000005 /* Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift */; };
+			F2C101A16E00100200000006 /* Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000006 /* Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift */; };
+			F2C101A16E00100200000007 /* Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000007 /* Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift */; };
+			CE455F6CFE5A466F92C9D2E7 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */; };
+			F1A3B42C5D6E7F8091A2B3D6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A3B42C5D6E7F8091A2B3C6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift */; };
+			F1A3B42C5D6E7F8091A2B3D4 /* Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A3B42C5D6E7F8091A2B3C4 /* Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift */; };
+			F1A3B42C5D6E7F8091A2B3D5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A3B42C5D6E7F8091A2B3C5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift */; };
+			BD512CDB11BF20953C4FED1B /* SwapSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F854F6C2554530B09BF4AA /* SwapSearchUITests.swift */; };
 		C2075EFB2DE6231C009AD2F7 /* BlockaidSiteScanMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9213A2DD7AFF500ACE654 /* BlockaidSiteScanMapper.swift */; };
 		C2075EFC2DE62325009AD2F7 /* WalletConnectBlockchainMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFAA2DDBB60D00B1D97B /* WalletConnectBlockchainMapper.swift */; };
 		C2075EFE2DE62389009AD2F7 /* WalletConnectDAppDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E921292DD7A4E900ACE654 /* WalletConnectDAppDataService.swift */; };
@@ -3075,6 +3089,13 @@
 		DA1010292CDA5A6700EE0D05 /* OnrampCurrencySkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1010282CDA5A6700EE0D05 /* OnrampCurrencySkeletonView.swift */; };
 		DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */; };
 		DA19D8C82B39AE6C001C91C4 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */; };
+		F1B1A0016A0E4D7A9C000101 /* MainQRCodeContentParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000001 /* MainQRCodeContentParserTests.swift */; };
+		F1B1A0016A0E4D7A9C000102 /* AddressBlockchainResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000002 /* AddressBlockchainResolverTests.swift */; };
+		F1B1A0016A0E4D7A9C000103 /* MainQRScanRouteResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000003 /* MainQRScanRouteResolverTests.swift */; };
+		F1B1A0016A0E4D7A9C000104 /* MainQRScanViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000004 /* MainQRScanViewModelTests.swift */; };
+		F1B1A0016A0E4D7A9C000105 /* MainQRScanRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000005 /* MainQRScanRoutableMock.swift */; };
+		F1B1A0016A0E4D7A9C000106 /* QRMainSampleCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000006 /* QRMainSampleCase.swift */; };
+		F1B1A0016A0E4D7A9C000107 /* QRMainSampleKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1A0016A0E4D7A9C000007 /* QRMainSampleKind.swift */; };
 		DA19EF612B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19EF602B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift */; };
 		DA1CD4402CA4396F0055057F /* CurrencySelectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1CD43F2CA4396F0055057F /* CurrencySelectRoutable.swift */; };
 		DA1D3B712B56C7E900247393 /* QRScanViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */; };
@@ -3567,6 +3588,7 @@
 		DC77F2572CD6381D001B2929 /* CanxiumExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC77F2562CD63813001B2929 /* CanxiumExternalLinkProvider.swift */; };
 		DC7AC968292BD64D00580668 /* config_alpha.json in Resources */ = {isa = PBXBuildFile; fileRef = DC7AC967292BD64D00580668 /* config_alpha.json */; };
 		DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* TangemTests.swift */; };
+		D8A1B2C3D4E5F60789012346 /* Testing+QRMainTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A1B2C3D4E5F60789012345 /* Testing+QRMainTag.swift */; };
 		DC7AFA2B2E840856005AA071 /* AccountSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7AFA292E840856005AA071 /* AccountSelectorViewModel.swift */; };
 		DC7AFA2C2E840856005AA071 /* AccountSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7AFA282E840856005AA071 /* AccountSelectorView.swift */; };
 		DC7C45672CF8B35000747589 /* ActionButtonsNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7C45662CF8B35000747589 /* ActionButtonsNotificationEvent.swift */; };
@@ -5995,6 +6017,7 @@
 		5D3F77D324BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D3F77D824BF56DC00E8695B /* TangemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77DC24BF56DC00E8695B /* TangemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTests.swift; sourceTree = "<group>"; };
+		D8A1B2C3D4E5F60789012345 /* Testing+QRMainTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Testing+QRMainTag.swift"; sourceTree = "<group>"; };
 		5D3F77DE24BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -8005,6 +8028,13 @@
 		DA1010282CDA5A6700EE0D05 /* OnrampCurrencySkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCurrencySkeletonView.swift; sourceTree = "<group>"; };
 		DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParser.swift; sourceTree = "<group>"; };
 		DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000001 /* MainQRCodeContentParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRCodeContentParserTests.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000002 /* AddressBlockchainResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBlockchainResolverTests.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000003 /* MainQRScanRouteResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRScanRouteResolverTests.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000004 /* MainQRScanViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRScanViewModelTests.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000005 /* MainQRScanRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRScanRoutableMock.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000006 /* QRMainSampleCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRMainSampleCase.swift; sourceTree = "<group>"; };
+		F1B1A0016A0E4D7A9C000007 /* QRMainSampleKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRMainSampleKind.swift; sourceTree = "<group>"; };
 		DA19EF602B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemBlogUrlBuilder.swift; sourceTree = "<group>"; };
 		DA1CD43F2CA4396F0055057F /* CurrencySelectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectRoutable.swift; sourceTree = "<group>"; };
 		DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewCoordinator.swift; sourceTree = "<group>"; };
@@ -8023,7 +8053,21 @@
 		DA38809D2E38F0C5000B0242 /* CustomerWalletAuthorizationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerWalletAuthorizationTask.swift; sourceTree = "<group>"; };
 		DA38809F2E391E1F000B0242 /* VisaBuilder+FeatureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisaBuilder+FeatureStorage.swift"; sourceTree = "<group>"; };
 		DA3ABEE65C3C571B5975C9F2 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift; sourceTree = SOURCE_ROOT; };
-		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListItemViewModel.swift; sourceTree = "<group>"; };
+		E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift; sourceTree = SOURCE_ROOT; };
+			A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift; sourceTree = SOURCE_ROOT; };
+			A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift; sourceTree = SOURCE_ROOT; };
+			B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000003 /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000004 /* Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000005 /* Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000006 /* Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift; sourceTree = SOURCE_ROOT; };
+			F2C101A16E00100100000007 /* Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift; sourceTree = SOURCE_ROOT; };
+			575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift; sourceTree = SOURCE_ROOT; };
+			F1A3B42C5D6E7F8091A2B3C6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift; sourceTree = SOURCE_ROOT; };
+			F1A3B42C5D6E7F8091A2B3C4 /* Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift; sourceTree = SOURCE_ROOT; };
+			F1A3B42C5D6E7F8091A2B3C5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift; sourceTree = SOURCE_ROOT; };
+			DA4055202ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListItemView.swift; sourceTree = "<group>"; };
 		DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
 		DA4055232ABDD3A300353F8A /* AddCustomTokenNetworksListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListViewModel.swift; sourceTree = "<group>"; };
@@ -12999,6 +13043,7 @@
 				DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */,
 				DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */,
 				DC32C23F2C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift */,
+				D8A1B2C3D4E5F60789012345 /* Testing+QRMainTag.swift */,
 				5D3F77DC24BF56DC00E8695B /* TangemTests.swift */,
 				0AEBBB2D2E570E1400B0F6C6 /* test_addresses.json */,
 				B6C97AFD2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift */,
@@ -13333,9 +13378,39 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
-		7DFCBD29DFFDBADE3BDF5AB5 /* MainQRScan */ = {
-			isa = PBXGroup;
-			children = (
+			784E99BCAC6F44D4B657F441 /* Domain */ = {
+				isa = PBXGroup;
+				children = (
+					F1A3B42C5D6E7F8091A2B3E0 /* Models */,
+					575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */,
+					A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */,
+					E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */,
+					A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */,
+					B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */,
+					F2C101A16E00100100000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift */,
+					F2C101A16E00100100000003 /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift */,
+					F2C101A16E00100100000004 /* Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift */,
+					F2C101A16E00100100000005 /* Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift */,
+					F2C101A16E00100100000006 /* Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift */,
+					F2C101A16E00100100000007 /* Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift */,
+					F1A3B42C5D6E7F8091A2B3C6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift */,
+				);
+				path = Domain;
+				sourceTree = "<group>";
+			};
+			F1A3B42C5D6E7F8091A2B3E0 /* Models */ = {
+				isa = PBXGroup;
+				children = (
+					F1A3B42C5D6E7F8091A2B3C5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift */,
+					F1A3B42C5D6E7F8091A2B3C4 /* Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift */,
+				);
+				path = Models;
+				sourceTree = "<group>";
+			};
+			7DFCBD29DFFDBADE3BDF5AB5 /* MainQRScan */ = {
+				isa = PBXGroup;
+				children = (
+				784E99BCAC6F44D4B657F441 /* Domain */,
 				6106EFFEE3B9FF4B70F65157 /* Presentation */,
 				DAE5DD179A6EFE96CA06E86F /* UI */,
 			);
@@ -23024,11 +23099,26 @@
 			path = IncomingActions;
 			sourceTree = "<group>";
 		};
+		F1B1A0016A0E4D7A9C000010 /* MainQRScan */ = {
+			isa = PBXGroup;
+			children = (
+				F1B1A0016A0E4D7A9C000001 /* MainQRCodeContentParserTests.swift */,
+				F1B1A0016A0E4D7A9C000002 /* AddressBlockchainResolverTests.swift */,
+				F1B1A0016A0E4D7A9C000003 /* MainQRScanRouteResolverTests.swift */,
+				F1B1A0016A0E4D7A9C000004 /* MainQRScanViewModelTests.swift */,
+				F1B1A0016A0E4D7A9C000005 /* MainQRScanRoutableMock.swift */,
+				F1B1A0016A0E4D7A9C000006 /* QRMainSampleCase.swift */,
+				F1B1A0016A0E4D7A9C000007 /* QRMainSampleKind.swift */,
+			);
+			path = MainQRScan;
+			sourceTree = "<group>";
+		};
 		EAF6A6822DF9C44A0094B883 /* Features */ = {
 			isa = PBXGroup;
 			children = (
 				2DF123452F28A1B10NEWS0007 /* Markets */,
 				EAF6A6812DF9C44A0094B883 /* IncomingActions */,
+				F1B1A0016A0E4D7A9C000010 /* MainQRScan */,
 				C26836692F3E17CE005E54DB /* WalletConnect */,
 			);
 			path = Features;
@@ -30491,9 +30581,23 @@
 				0C5620EF2B1B0E720C8F638A /* Tangem/Features/MainQRScan/Presentation/MainQRScanViewModel.swift in Sources */,
 				5B7433E99EC85C5075152986 /* Tangem/Features/MainQRScan/Presentation/MainQRScanCoordinator.swift in Sources */,
 				BCE5BF0B3B5342B9A424C862 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift in Sources */,
-				B56D4B5D8D396C1A3239FA44 /* Tangem/Features/MainQRScan/UI/MainQRScanView.swift in Sources */,
-				356211E58DC2A4ECCDB34986 /* Tangem/Features/MainQRScan/UI/MainQRScanCoordinatorView.swift in Sources */,
-				C8E8460C22D14A73ADC685EC /* Tangem/Features/MainQRScan/UI/MainQRScanFlowCoordinatorView.swift in Sources */,
+				D09CE7DBBC9742818BAD51F7 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift in Sources */,
+					A1B2C3D4E5F6078901234503 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift in Sources */,
+					A1B2C3D4E5F6078901234504 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift in Sources */,
+					995FF691213F4EA0899884F5 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift in Sources */,
+					F2C101A16E00100200000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift in Sources */,
+					F2C101A16E00100200000003 /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainURIParser.swift in Sources */,
+					F2C101A16E00100200000004 /* Tangem/Features/MainQRScan/Domain/MainQRJSONPaymentParser.swift in Sources */,
+					F2C101A16E00100200000005 /* Tangem/Features/MainQRScan/Domain/MainQRDeepLinkPaymentParser.swift in Sources */,
+					F2C101A16E00100200000006 /* Tangem/Features/MainQRScan/Domain/MainQRParserSupport.swift in Sources */,
+					F2C101A16E00100200000007 /* Tangem/Features/MainQRScan/Domain/MainQRParserConstants.swift in Sources */,
+					CE455F6CFE5A466F92C9D2E7 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift in Sources */,
+					F1A3B42C5D6E7F8091A2B3D6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift in Sources */,
+					F1A3B42C5D6E7F8091A2B3D5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift in Sources */,
+					F1A3B42C5D6E7F8091A2B3D4 /* Tangem/Features/MainQRScan/Domain/Models/MainQRScanResult.swift in Sources */,
+					B56D4B5D8D396C1A3239FA44 /* Tangem/Features/MainQRScan/UI/MainQRScanView.swift in Sources */,
+					356211E58DC2A4ECCDB34986 /* Tangem/Features/MainQRScan/UI/MainQRScanCoordinatorView.swift in Sources */,
+					C8E8460C22D14A73ADC685EC /* Tangem/Features/MainQRScan/UI/MainQRScanFlowCoordinatorView.swift in Sources */,
 				F1E491212F50B5030048EED2 /* NorthernLightsViewModifier.swift in Sources */,
 				5DD46216DCDA7C307F540E6D /* TangemPayAccountGlobalStateProvider.swift in Sources */,
 				449C45D28019CF80BF42CB62 /* CommonTangemPayAccountGlobalStateProvider.swift in Sources */,
@@ -30538,6 +30642,13 @@
 				EAF6A6842DF9C44A0094B883 /* IncomingURLValidatorTests.swift in Sources */,
 				EAF6A6852DF9C44A0094B883 /* IncomingActionsTests.swift in Sources */,
 				DA19D8C82B39AE6C001C91C4 /* QRCodeParserTests.swift in Sources */,
+				F1B1A0016A0E4D7A9C000101 /* MainQRCodeContentParserTests.swift in Sources */,
+				F1B1A0016A0E4D7A9C000102 /* AddressBlockchainResolverTests.swift in Sources */,
+				F1B1A0016A0E4D7A9C000103 /* MainQRScanRouteResolverTests.swift in Sources */,
+				F1B1A0016A0E4D7A9C000104 /* MainQRScanViewModelTests.swift in Sources */,
+				F1B1A0016A0E4D7A9C000105 /* MainQRScanRoutableMock.swift in Sources */,
+				F1B1A0016A0E4D7A9C000106 /* QRMainSampleCase.swift in Sources */,
+				F1B1A0016A0E4D7A9C000107 /* QRMainSampleKind.swift in Sources */,
 				B60D51602ED6006A002EA20C /* AccountDerivationPathHelperTests.swift in Sources */,
 				DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */,
 				B0751ED92C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift in Sources */,
@@ -30549,6 +30660,7 @@
 				0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */,
 				EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */,
 				DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */,
+				D8A1B2C3D4E5F60789012346 /* Testing+QRMainTag.swift in Sources */,
 				DA64DACB2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift in Sources */,
 				EFE242A72F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift in Sources */,
 				2D2F277A2EBA4D6E00C63178 /* HostAnalyticsFormatterUtilTests.swift in Sources */,
