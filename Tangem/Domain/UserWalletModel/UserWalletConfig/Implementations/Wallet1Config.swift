@@ -12,6 +12,8 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct Wallet1Config {
     let card: CardDTO
@@ -165,6 +167,26 @@ extension Wallet1Config: UserWalletConfig {
             case 2: return Assets.Cards.walletDouble
             case 3: return Assets.Cards.walletTriple
             default: return Assets.Cards.walletSingle
+            }
+        }
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        typealias CC = Color.Tangem.CardCollection
+
+        switch card.batchId {
+        // Shiba
+        case "AF02", "AF03":
+            switch cardsCount {
+            case 2: return .twoCards(.init(card: CC.shiba, secondCard: CC.shiba))
+            case 3: return .threeCards(.init(card: CC.shiba, secondCard: CC.shiba, thirdCard: CC.shiba))
+            default: return .card(.init(card: CC.shiba))
+            }
+        default:
+            switch cardsCount {
+            case 2: return .tLetterTwoCards(.init(card: CC.wallet1, secondCard: CC.wallet1, tLetter: CC.tLogo))
+            case 3: return .tLetterThreeCards(.init(card: CC.wallet1, secondCard: CC.wallet1, thirdCard: CC.wallet1, tLetter: CC.tLogo))
+            default: return .tLetterCard(.init(card: CC.wallet1, tLetter: CC.tLogo))
             }
         }
     }
