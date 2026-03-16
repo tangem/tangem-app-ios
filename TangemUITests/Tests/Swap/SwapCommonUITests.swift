@@ -80,6 +80,17 @@ final class SwapCommonUITests: BaseTestCase {
             .goBackToMain()
     }
 
+    func testSwapButtonNotDisplayedOnSingleCurrencyCards() {
+        setAllureId(574)
+
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .xrpNote)
+            .validate(cardType: .xrpNote)
+            .waitForSwapButtonNotAvailable()
+    }
+
     func testSwapTokensSwitch() {
         setAllureId(5162)
 
