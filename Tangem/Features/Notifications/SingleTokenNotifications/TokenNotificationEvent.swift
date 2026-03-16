@@ -30,6 +30,15 @@ enum TokenNotificationEvent: Hashable {
 }
 
 extension TokenNotificationEvent: NotificationEvent {
+    var bannerKind: NotificationBannerKind? {
+        switch self {
+        case .noAccount:
+            return .warning
+        default:
+            return nil
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .networkUnreachable:
@@ -140,22 +149,22 @@ extension TokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkNotUpdated:
-            return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
+            return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
              .maticMigration,
              .cloreMigration:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):
-            return .init(iconType: .image(Tokens.hederaFill.image))
+            return .init(iconType: .image(Tokens.hederaFill))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
-            return .init(iconType: .image(trustlineInfo.icon.image))
+            return .init(iconType: .image(trustlineInfo.icon))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
         }

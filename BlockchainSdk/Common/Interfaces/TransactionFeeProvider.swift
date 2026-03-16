@@ -34,6 +34,7 @@ public protocol CompiledTransactionFeeProvider {
 }
 
 public protocol GaslessTransactionFeeProvider {
+    /// Estimates the gasless fee for a token transfer.
     func getGaslessFee(
         feeToken: Token,
         amount: Amount,
@@ -45,6 +46,26 @@ public protocol GaslessTransactionFeeProvider {
     func getEstimatedGaslessFee(
         feeToken: Token,
         amount: Amount,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee
+
+    /// Estimates the gasless fee for a transaction with pre-built calldata (approve, DEX swap, etc.).
+    func getGaslessTransactionFee(
+        feeToken: Token,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee
+
+    /// Estimates the gasless fee for a transaction using a pre-estimated gas limit.
+    func getEstimatedGaslessTransactionFee(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
