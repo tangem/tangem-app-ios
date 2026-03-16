@@ -197,6 +197,7 @@ struct TangemPayCardDetailsView: View {
             }
         }
         .padding(16)
+        .screenCaptureProtection()
     }
 
     private func showDetailsButton() -> some View {
@@ -231,8 +232,6 @@ struct TangemPayCardDetailsView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.constantWhite
                     )
-                    .screenCaptureProtection()
-                    .fixedSize()
 
                 Spacer()
 
