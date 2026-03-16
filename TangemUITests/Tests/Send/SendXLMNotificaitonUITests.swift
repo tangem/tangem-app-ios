@@ -14,7 +14,7 @@ final class SendXLMNotificationUITests: BaseTestCase {
     private let nonActivatedAddress = "GAGMMENFDWASIHSVO4BPVIT3ZH3YNUIM4EJ6MUDJW46OVPNOJSQIJ22K"
     private let activatedAddress = "GDKGS3UQFUNQY34P4SIAOKKGEA3NKHH6BSAXK4HIN3BZQQRBTITJLKL6"
 
-    func testNotificationDisplayed_WhenSendingLessThanReserveToNonActivatedAccount() {
+    func testNotificationDisplayed_WhenSendingLessThanReserveToNonActivatedAccount() throws {
         setAllureId(4287)
 
         prepareSendFlow()
@@ -35,7 +35,7 @@ final class SendXLMNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationNotDisplayed_WhenSendingAmountEqualToReserve() {
+    func testNotificationNotDisplayed_WhenSendingAmountEqualToReserve() throws {
         setAllureId(4286)
 
         prepareSendFlow()
@@ -56,7 +56,7 @@ final class SendXLMNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationNotDisplayed_WhenSendingAmountGreaterThanReserve() {
+    func testNotificationNotDisplayed_WhenSendingAmountGreaterThanReserve() throws {
         setAllureId(4288)
 
         prepareSendFlow()

@@ -18,7 +18,7 @@ public struct TangemDot: View {
     @ScaledMetric private var verticalPadding: CGFloat
 
     private var color: Color {
-        selected ? .Tangem.Graphic.Neutral.primaryInverted : .Tangem.Graphic.Neutral.tertiary
+        selected ? .Tangem.Graphic.Neutral.primary : .Tangem.Graphic.Neutral.tertiary
     }
 
     public init(selected: Bool = false, size: Size = .x2) {

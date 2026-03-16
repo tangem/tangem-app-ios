@@ -16,6 +16,7 @@ public protocol FeeProvider {
 
     func estimatedFee(amount: Decimal) async throws -> BSDKFee
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
+    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
 }
 
