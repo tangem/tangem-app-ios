@@ -47,6 +47,7 @@ extension MainQRScanCoordinator {
 
 extension MainQRScanCoordinator: MainQRScanRoutable {
     func didScanQRCode(_ code: String) {
+        MainQRScanLogger.debug(MainQRScanLoggerStrings.coordinatorReceivedScanResult)
         dismissAction(code)
     }
 
@@ -62,5 +63,14 @@ extension MainQRScanCoordinator: MainQRScanRoutable {
 
     func openSettings() {
         UIApplication.openSystemSettings()
+    }
+}
+
+// MARK: - Scanner lifecycle
+
+extension MainQRScanCoordinator {
+    @MainActor
+    func rearmScanner() {
+        rootViewModel?.rearmScanner()
     }
 }
