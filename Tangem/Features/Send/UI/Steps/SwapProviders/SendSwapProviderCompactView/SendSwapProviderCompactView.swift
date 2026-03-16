@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 
 struct SendSwapProviderCompactView: View {
@@ -63,6 +64,7 @@ struct SendSwapProviderCompactView: View {
                     Text(provider.provider.name)
                         .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                         .lineLimit(1)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderName)
                 }
 
                 if data.isBest {
