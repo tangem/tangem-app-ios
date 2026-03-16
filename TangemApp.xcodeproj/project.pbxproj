@@ -3849,6 +3849,15 @@
 		E915F3233AD3424323A9E7B8 /* HotCryptoAddTokenFlowConfigurationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76E7CAA72DE7A7712E3D0EE /* HotCryptoAddTokenFlowConfigurationFactory.swift */; };
 		E9BFA64A6DA630C407FC8B58 /* MarketsTokenItemsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21B6E7F559E283261A489FC /* MarketsTokenItemsProvider.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA098D0E2F644C2F005622CC /* ApproveCoordinatingMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D042F644C2F005622CC /* ApproveCoordinatingMock.swift */; };
+		EA098D0F2F644C2F005622CC /* TokenFeeProvidersManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D072F644C2F005622CC /* TokenFeeProvidersManagerMock.swift */; };
+		EA098D102F644C2F005622CC /* ApproveFlowViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D0B2F644C2F005622CC /* ApproveFlowViewModelTests.swift */; };
+		EA098D112F644C2F005622CC /* TransactionDispatcherMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D092F644C2F005622CC /* TransactionDispatcherMock.swift */; };
+		EA098D122F644C2F005622CC /* ApproveOutputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D052F644C2F005622CC /* ApproveOutputMock.swift */; };
+		EA098D132F644C2F005622CC /* ApproveInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D0C2F644C2F005622CC /* ApproveInteractorTests.swift */; };
+		EA098D142F644C2F005622CC /* SendApproveAnalyticsLoggerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D062F644C2F005622CC /* SendApproveAnalyticsLoggerMock.swift */; };
+		EA098D152F644C2F005622CC /* TokenFeeProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D082F644C2F005622CC /* TokenFeeProviderStub.swift */; };
+		EA098D162F644C2F005622CC /* AllowanceServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA098D032F644C2F005622CC /* AllowanceServiceMock.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA0AD9C22EF976B9005C4D7D /* PendingTransactionStatusInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AD9C12EF976B9005C4D7D /* PendingTransactionStatusInfo.swift */; };
 		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
@@ -8823,6 +8832,15 @@
 		E76E7CAA72DE7A7712E3D0EE /* HotCryptoAddTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotCryptoAddTokenFlowConfigurationFactory.swift; sourceTree = "<group>"; };
 		E8C093F822551E7D1E190012 /* MainQRScanCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Presentation/MainQRScanCoordinator.swift; sourceTree = SOURCE_ROOT; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA098D032F644C2F005622CC /* AllowanceServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllowanceServiceMock.swift; sourceTree = "<group>"; };
+		EA098D042F644C2F005622CC /* ApproveCoordinatingMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveCoordinatingMock.swift; sourceTree = "<group>"; };
+		EA098D052F644C2F005622CC /* ApproveOutputMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveOutputMock.swift; sourceTree = "<group>"; };
+		EA098D062F644C2F005622CC /* SendApproveAnalyticsLoggerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendApproveAnalyticsLoggerMock.swift; sourceTree = "<group>"; };
+		EA098D072F644C2F005622CC /* TokenFeeProvidersManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvidersManagerMock.swift; sourceTree = "<group>"; };
+		EA098D082F644C2F005622CC /* TokenFeeProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderStub.swift; sourceTree = "<group>"; };
+		EA098D092F644C2F005622CC /* TransactionDispatcherMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherMock.swift; sourceTree = "<group>"; };
+		EA098D0B2F644C2F005622CC /* ApproveFlowViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveFlowViewModelTests.swift; sourceTree = "<group>"; };
+		EA098D0C2F644C2F005622CC /* ApproveInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveInteractorTests.swift; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA0AD9C12EF976B9005C4D7D /* PendingTransactionStatusInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionStatusInfo.swift; sourceTree = "<group>"; };
 		EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAssetIdParser.swift; sourceTree = "<group>"; };
@@ -22948,6 +22966,30 @@
 			path = DesignSystemDemo;
 			sourceTree = "<group>";
 		};
+		EA098D0A2F644C2F005622CC /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				EA098D032F644C2F005622CC /* AllowanceServiceMock.swift */,
+				EA098D042F644C2F005622CC /* ApproveCoordinatingMock.swift */,
+				EA098D052F644C2F005622CC /* ApproveOutputMock.swift */,
+				EA098D062F644C2F005622CC /* SendApproveAnalyticsLoggerMock.swift */,
+				EA098D072F644C2F005622CC /* TokenFeeProvidersManagerMock.swift */,
+				EA098D082F644C2F005622CC /* TokenFeeProviderStub.swift */,
+				EA098D092F644C2F005622CC /* TransactionDispatcherMock.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		EA098D0D2F644C2F005622CC /* Approve */ = {
+			isa = PBXGroup;
+			children = (
+				EA098D0A2F644C2F005622CC /* Mocks */,
+				EA098D0B2F644C2F005622CC /* ApproveFlowViewModelTests.swift */,
+				EA098D0C2F644C2F005622CC /* ApproveInteractorTests.swift */,
+			);
+			path = Approve;
+			sourceTree = "<group>";
+		};
 		EA2FA5B72E827077006C14EF /* YieldNoticeView */ = {
 			isa = PBXGroup;
 			children = (
@@ -23298,6 +23340,7 @@
 		EAF6A6822DF9C44A0094B883 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				EA098D0D2F644C2F005622CC /* Approve */,
 				2DF24A1E2F605ED100E9D89A /* InitialWalletTokenSync */,
 				2DF123452F28A1B10NEWS0007 /* Markets */,
 				EAF6A6812DF9C44A0094B883 /* IncomingActions */,
@@ -30857,6 +30900,15 @@
 				DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */,
 				B0751ED92C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift in Sources */,
 				B03AC9932BD8DB26000CBC50 /* APIListTests.swift in Sources */,
+				EA098D0E2F644C2F005622CC /* ApproveCoordinatingMock.swift in Sources */,
+				EA098D0F2F644C2F005622CC /* TokenFeeProvidersManagerMock.swift in Sources */,
+				EA098D102F644C2F005622CC /* ApproveFlowViewModelTests.swift in Sources */,
+				EA098D112F644C2F005622CC /* TransactionDispatcherMock.swift in Sources */,
+				EA098D122F644C2F005622CC /* ApproveOutputMock.swift in Sources */,
+				EA098D132F644C2F005622CC /* ApproveInteractorTests.swift in Sources */,
+				EA098D142F644C2F005622CC /* SendApproveAnalyticsLoggerMock.swift in Sources */,
+				EA098D152F644C2F005622CC /* TokenFeeProviderStub.swift in Sources */,
+				EA098D162F644C2F005622CC /* AllowanceServiceMock.swift in Sources */,
 				DC19EB322C187192003DD903 /* CommonXPUBGeneratorTests.swift in Sources */,
 				B6C97AFE2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift in Sources */,
 				B6B488462EE3348D00F05344 /* AccountModelUtilsTests.swift in Sources */,
