@@ -50,7 +50,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         mainScreen
             .tapMainSwap()
-            .closeStoriesAndReturnToMain()
+            .closeStoriesIfNeededAndReturnToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
             .tapCloseButton()
             .assertSwapButtonHasNoBadge()
@@ -109,7 +109,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         // Step 3: Close stories → swap token selector opens
         storiesScreen
-            .closeStoriesAndReturnToMain()
+            .closeStoriesAndReturnToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
             .tapCloseButton()
 
@@ -346,7 +346,7 @@ final class SwapStoriesUITests: BaseTestCase {
         mainScreenAfterRestart
             .tapMainSwap()
             .assertStoriesDisplayed()
-            .closeStoriesAndReturnToMain()
+            .closeStoriesIfNeededAndReturnToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
             .tapCloseButton()
     }
