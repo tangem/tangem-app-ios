@@ -36,7 +36,13 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
         XCTContext.runActivity(named: "Select country '\(countryName)'") { _ in
             let countryButton = app.buttons[OnrampAccessibilityIdentifiers.countryItem(code: countryName)].firstMatch
             waitAndAssertTrue(countryButton, "Country '\(countryName)' should exist")
-            countryButton.tap()
+
+            // Use coordinate-based tap as a fallback to bypass the accessibility hit test.
+            if countryButton.isHittable {
+                countryButton.tap()
+            } else {
+                countryButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            }
 
             // Wait for the residence selector sheet to dismiss
             XCTAssertTrue(
