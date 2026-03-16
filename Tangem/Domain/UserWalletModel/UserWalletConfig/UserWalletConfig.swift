@@ -12,6 +12,7 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
 
 protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory, WalletCreationContextBuilderProvider {
     var emailConfig: EmailConfig? { get }
@@ -60,6 +61,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var productType: Analytics.ProductType { get }
 
     var cardHeaderImage: ImageType? { get }
+
+    var walletThumbnailType: ThumbnailWalletViewType? { get }
 
     var cardSessionFilter: SessionFilter { get }
 
