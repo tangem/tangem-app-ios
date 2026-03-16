@@ -43,6 +43,7 @@ public struct InfoChipsRowView: View {
     private let spacing: CGFloat
     private let alignment: HorizontalAlignment
     private let lineLimit: Int?
+    private let style: InfoChipView.Style
 
     /// Creates a chips row view.
     /// - Parameters:
@@ -54,12 +55,14 @@ public struct InfoChipsRowView: View {
         chips: [InfoChipItem],
         spacing: CGFloat = 4,
         alignment: HorizontalAlignment = .leading,
-        lineLimit: Int? = 1
+        lineLimit: Int? = 1,
+        style: InfoChipView.Style = .legacy
     ) {
         self.chips = chips
         self.spacing = spacing
         self.alignment = alignment
         self.lineLimit = lineLimit
+        self.style = style
     }
 
     public var body: some View {
@@ -70,15 +73,14 @@ public struct InfoChipsRowView: View {
             horizontalAlignment: alignment,
             lineLimit: lineLimit
         ) { chip in
-            InfoChipView(item: chip)
+            InfoChipView(item: chip, style: style)
         } limitViewGenerator: { count in
             Text("+\(count)")
-                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Colors.Control.unchecked)
-                .cornerRadiusContinuous(16)
-                .frame(height: 24)
+                .style(style.titleFont, color: style.titleColor)
+                .padding(.horizontal, style.horizontalPadding)
+                .padding(.vertical, style.verticalPadding)
+                .background(style.backgroundColor)
+                .cornerRadiusContinuous(style.cornerRadius)
         }
     }
 }
@@ -86,36 +88,38 @@ public struct InfoChipsRowView: View {
 /// Single chip appearance.
 public struct InfoChipView: View {
     public let item: InfoChipItem
+    private let style: Style
 
-    public init(item: InfoChipItem) {
+    public init(item: InfoChipItem, style: Style = .legacy) {
         self.item = item
+        self.style = style
     }
 
     public var body: some View {
-        HStack(spacing: Layout.contentSpacing) {
+        HStack(spacing: .unit(.x1)) {
             if let icon = item.leadingIcon {
                 makeIconImage(with: icon)
-                    .frame(size: Layout.iconSize)
+                    .frame(size: style.iconSize)
                     .fixedSize(horizontal: true, vertical: true)
             }
 
             Text(item.title)
-                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                .style(style.titleFont, color: style.titleColor)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: true)
 
             if let icon = item.trailingIcon {
                 makeIconImage(with: icon)
-                    .frame(size: Layout.iconSize)
+                    .frame(size: style.iconSize)
                     .fixedSize(horizontal: true, vertical: true)
             }
         }
-        .frame(height: Layout.contentHeight)
+        .frame(height: style.contentHeight)
         .defaultRoundedBackground(
-            with: Colors.Control.unchecked,
-            verticalPadding: Layout.verticalPadding,
-            horizontalPadding: Layout.horizontalPadding,
-            cornerRadius: Layout.cornerRadius
+            with: style.backgroundColor,
+            verticalPadding: style.verticalPadding,
+            horizontalPadding: style.horizontalPadding,
+            cornerRadius: style.cornerRadius
         )
     }
 
@@ -127,17 +131,56 @@ public struct InfoChipView: View {
                 .resizable()
                 .renderingMode(.template)
         case .url(let url):
-            IconView(url: url, size: Layout.iconSize, forceKingfisher: true)
+            IconView(url: url, size: style.iconSize, forceKingfisher: true)
         }
     }
+}
 
-    private enum Layout {
-        static let contentHeight: CGFloat = 16
-        static let contentSpacing: CGFloat = 4
-        static let horizontalPadding: CGFloat = 10
-        static let verticalPadding: CGFloat = 4
-        static let cornerRadius: CGFloat = 16
-        static let iconSize: CGSize = .init(bothDimensions: 16)
+// MARK: - InfoChipView.Style
+
+public extension InfoChipView {
+    enum Style {
+        case legacy
+        case redesign
+
+        var verticalPadding: CGFloat { .unit(.x1) }
+        var cornerRadius: CGFloat { .unit(.x4) }
+        var iconSize: CGSize { .init(bothDimensions: .unit(.x4)) }
+
+        var contentHeight: CGFloat {
+            switch self {
+            case .legacy: return .unit(.x4)
+            case .redesign: return .unit(.x6)
+            }
+        }
+
+        var horizontalPadding: CGFloat {
+            switch self {
+            case .legacy: return 10
+            case .redesign: return .unit(.x2)
+            }
+        }
+
+        var titleFont: Font {
+            switch self {
+            case .legacy: return Fonts.Bold.caption1
+            case .redesign: return .Tangem.Caption12.semibold
+            }
+        }
+
+        var titleColor: Color {
+            switch self {
+            case .legacy: return Colors.Text.secondary
+            case .redesign: return Color.Tangem.Markers.textGray
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .legacy: return Colors.Control.unchecked
+            case .redesign: return Color.Tangem.Markers.backgroundTintedGray
+            }
+        }
     }
 }
 
