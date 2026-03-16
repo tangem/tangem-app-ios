@@ -15,19 +15,19 @@ struct AccountsAwareActionButtonsSwapView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsSwapViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
-            header
-                .padding(.horizontal, 16)
-
-            notifications
-
+        ScrollViewReader { reader in
             selector
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: viewModel.scrollToTopTrigger) { _ in
+                    withAnimation {
+                        reader.scrollTo(AccountsAwareActionButtonsSwapViewModel.Constants.scrollToTopID, anchor: .top)
+                    }
+                }
+                .background(Colors.Background.tertiary.ignoresSafeArea())
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonSwap)
         .navigationBarTitleDisplayMode(.inline)
         .animation(.easeInOut, value: viewModel.destination == nil)
-        .animation(.easeInOut, value: viewModel.tokenSelectorState.id)
         .animation(.easeInOut, value: viewModel.notificationInput)
         .animation(.none, value: viewModel.source.id)
         .toolbar {
@@ -77,45 +77,24 @@ struct AccountsAwareActionButtonsSwapView: View {
             NotificationView(input: notification)
                 .setButtonsLoadingState(to: viewModel.notificationIsLoading)
                 .transition(.notificationTransition)
-                .padding(.horizontal, 16)
         }
     }
 
-    @ViewBuilder
     private var selector: some View {
-        switch viewModel.tokenSelectorState {
-        case .loading:
-            loadingView
-                .transition(.opacity)
-
-            Spacer()
-
-        case .selector:
-            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                SwapTokenSelectorEmptyContentView(
-                    marketsTokensViewModel: viewModel.marketsTokensViewModel,
-                    message: Localization.expressTokenListEmptySearch
-                )
+        AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+            SwapTokenSelectorEmptyContentView(
+                marketsTokensViewModel: viewModel.marketsTokensViewModel,
+                message: Localization.expressTokenListEmptySearch
+            )
+        } headerContent: {
+            header.id(AccountsAwareActionButtonsSwapViewModel.Constants.scrollToTopID)
+            notifications
+        } additionalContent: {
+            if viewModel.shouldShowMarketsSearch, let marketsViewModel = viewModel.marketsTokensViewModel {
+                SwapMarketsTokensView(viewModel: marketsViewModel)
             }
-            additionalContent: {
-                if viewModel.shouldShowMarketsSearch, let marketsViewModel = viewModel.marketsTokensViewModel {
-                    SwapMarketsTokensView(viewModel: marketsViewModel)
-                }
-            }
-            .searchType(.native)
-            .transition(.opacity)
         }
-    }
-
-    @ViewBuilder
-    private var loadingView: some View {
-        HStack(spacing: 8) {
-            ProgressView()
-
-            Text(Localization.wcCommonLoading)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-        }
-        .padding(.top, 12)
+        .searchType(.native)
     }
 }
 
