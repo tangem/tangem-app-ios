@@ -1117,7 +1117,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
                 return nil
             }
 
-            return .sendWithSwap(amount: amount, fee: fee, provider: provider.provider)
+            return .swap(amount: amount, fee: fee, provider: provider.provider)
         default:
             return .none
         }
