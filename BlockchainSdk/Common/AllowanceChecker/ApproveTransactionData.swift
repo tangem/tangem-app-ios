@@ -10,12 +10,10 @@ public struct ApproveTransactionData: Hashable {
     public let txData: Data
     public let spender: String
     public let toContractAddress: String
-    public let fee: Fee
 
-    public init(txData: Data, spender: String, toContractAddress: String, fee: Fee) {
+    public init(txData: Data, spender: String, toContractAddress: String) {
         self.txData = txData
         self.spender = spender
         self.toContractAddress = toContractAddress
-        self.fee = fee
     }
 }
