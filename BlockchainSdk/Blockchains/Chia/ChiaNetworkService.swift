@@ -77,7 +77,8 @@ class ChiaNetworkService: MultiNetworkProvider {
                     ]
 
                     let estimatedFeeValues = feeValues.map {
-                        let amountValue = Amount(with: self.blockchain, value: $0)
+                        let rounded = $0.rounded(scale: self.blockchain.decimalCount, roundingMode: .up)
+                        let amountValue = Amount(with: self.blockchain, value: rounded)
                         return Fee(amountValue)
                     }
 
