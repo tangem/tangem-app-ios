@@ -57,7 +57,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .expressAllTokensSearch: return .version("5.34")
         case .expressFixedRates: return .unspecified
         case .mainQRScan: return .unspecified
-        case .customerIO: return .unspecified
+        case .customerIO: return .version("5.35")
         case .mobileWalletTokenAutoSync: return .unspecified
         }
     }
