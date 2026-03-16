@@ -15,11 +15,6 @@ struct RootViewControllerFactory {
     @Injected(\.overlayContentContainerInitializer) private var overlayContentContainer: OverlayContentContainerInitializable
 
     func makeRootViewController(for rootView: some View, coordinator: AppCoordinator, window: UIWindow) -> UIViewController {
-        let rootView = rootView
-            .environment(\.mainWindowSize, window.screen.bounds.size)
-
-        let contentViewController = UIHostingController(rootView: rootView)
-
         let overlayCollapsedHeight: CGFloat
         let overlayCornerRadius: CGFloat
 
@@ -30,6 +25,12 @@ struct RootViewControllerFactory {
             overlayCollapsedHeight = Constants.notchlessDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
             overlayCornerRadius = Constants.notchlessDevicesOverlayCornerRadius
         }
+
+        let rootView = rootView
+            .environment(\.mainWindowSize, window.screen.bounds.size)
+            .environment(\.overlayCollapsedHeight, overlayCollapsedHeight)
+
+        let contentViewController = UIHostingController(rootView: rootView)
 
         let containerViewController = OverlayContentContainerViewController(
             contentViewController: contentViewController,
@@ -49,11 +50,11 @@ struct RootViewControllerFactory {
 extension RootViewControllerFactory {
     enum Constants {
         /// Based on Figma mockups.
-        fileprivate static let notchDevicesOverlayCollapsedHeight = 100.0
+        fileprivate static let notchDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 112.0 : 100.0
         /// Based on Figma mockups.
-        fileprivate static let notchlessDevicesOverlayCollapsedHeight = 86.0
+        fileprivate static let notchlessDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 98.0 : 86.0
         /// The height of `SwiftUI.TextField` used in the `CustomSearchBar` UI components differs from the mockups by this small margin.
-        fileprivate static let overlayCollapsedHeightAdjustment = 2.0
+        fileprivate static let overlayCollapsedHeightAdjustment = 4.0
         static let notchDevicesOverlayCornerRadius = 24.0
         static let notchlessDevicesOverlayCornerRadius = 16.0
     }
