@@ -11,6 +11,8 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 /// V3 Config
 struct LegacyConfig: CardContainer {
@@ -156,6 +158,21 @@ extension LegacyConfig: UserWalletConfig {
         }
 
         return nil
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        if walletData == nil {
+            switch card.batchId {
+            case "CB79":
+                return .card(.init(card: Color.Tangem.CardCollection.whiteWallet))
+            case "CB83":
+                return .card(.init(card: Color.Tangem.CardCollection.devkit))
+            default:
+                break
+            }
+        }
+
+        return .tLetterCard(.init(card: Color.Tangem.CardCollection.tangem, tLetter: Color.Tangem.CardCollection.tLogo))
     }
 
     var contextBuilder: WalletCreationContextBuilder {
