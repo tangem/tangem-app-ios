@@ -10,7 +10,7 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class SendPolkadotNotificationUITests: BaseTestCase {
-    private let coin = "Polkadot"
+    private let coin = "Polkadot Asset Hub"
     private let destinationAddress = "143TfgFYAFfM86LRzt4UcFNU3KosxCndBCVz2U5HCxpLidKZ"
 
     func testPolkadotDepositWarningNotification() {
