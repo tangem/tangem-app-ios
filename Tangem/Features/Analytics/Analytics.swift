@@ -21,8 +21,6 @@ class Analytics {
         target: .global(qos: .utility)
     )
 
-    private static let defaultAnalyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
-
     // MARK: - Others
 
     static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId, contextParams: Analytics.ContextParams = .default) {
@@ -74,7 +72,7 @@ class Analytics {
     static func log(
         _ event: Event,
         params: [ParameterKey: ParameterValue] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -90,7 +88,7 @@ class Analytics {
     static func log(
         event: Event,
         params: [ParameterKey: String],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -165,7 +163,7 @@ class Analytics {
     private static func logEventInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams,
         limit: Analytics.EventLimit = .unlimited
     ) {
