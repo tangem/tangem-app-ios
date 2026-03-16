@@ -125,9 +125,11 @@ extension SwapFlowFactory: SendBaseBuildable {
                 baseDataInput: swapModel,
                 sourceTokenInput: swapModel
             ),
-            approveViewModelInputDataBuilder: CommonSendApproveViewModelInputDataBuilder(
-                sourceTokenInput: swapModel,
-                approveDataInput: swapModel
+            approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
+                dataProvider: swapModel,
+                analyticsLogger: analyticsLogger,
+                output: swapModel,
+                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: expressDependenciesFactory.userWalletInfo)
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: swapModel
