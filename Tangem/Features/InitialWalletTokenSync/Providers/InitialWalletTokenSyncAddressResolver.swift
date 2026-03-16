@@ -15,9 +15,7 @@ struct InitialWalletTokenSyncAddressResolver: InitialWalletTokenSyncAddressResol
         keyInfos: [KeyInfo],
         supportedBlockchains: Set<Blockchain>
     ) -> [NetworkAddressPair] {
-        let filteredBlockchains = supportedBlockchains.filter {
-            MoralisSupportedBlockchains.networkIds.contains($0.networkId)
-        }
+        let filteredBlockchains = supportedBlockchains.intersection(MoralisSupportedBlockchains.all)
 
         var result: [NetworkAddressPair] = []
 
