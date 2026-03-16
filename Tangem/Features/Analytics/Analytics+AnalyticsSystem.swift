@@ -17,4 +17,5 @@ extension Analytics {
 
 extension Array where Element == Analytics.AnalyticsSystem {
     static let all = Element.allCases
+    static let defaultSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
 }
