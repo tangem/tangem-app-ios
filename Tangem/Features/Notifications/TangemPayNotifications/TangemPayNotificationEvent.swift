@@ -48,9 +48,9 @@ extension TangemPayNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .unavailable:
-            return .init(iconType: .image(Assets.warningIcon.image))
+            return .init(iconType: .image(Assets.warningIcon))
         case .tangemPayIsNowBeta:
-            return .init(iconType: .image(Assets.Visa.promo.image), size: .init(bothDimensions: 36))
+            return .init(iconType: .image(Assets.Visa.promo), size: .init(bothDimensions: 36))
         }
     }
 
