@@ -10,11 +10,11 @@ import Moya
 import BlockchainSdk
 import TangemNetworkUtils
 
-protocol MoralisTokenBalanceClient {
+protocol MoralisTokenBalanceClient: Sendable {
     func getTokenBalances(network: Blockchain, address: String) async throws -> [MoralisTokenBalance]
 }
 
-final class CommonMoralisTokenBalanceClient {
+final class CommonMoralisTokenBalanceClient: @unchecked Sendable {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let customProvider: TangemProvider<MoralisTokenBalanceAPITarget>?
@@ -64,13 +64,16 @@ extension CommonMoralisTokenBalanceClient: MoralisTokenBalanceClient {
                 .filterSuccessfulStatusCodes()
                 .map(MoralisTokenBalanceDTO.Response.self, using: decoder)
 
-            return try MoralisTokenBalanceNormalizer.normalize(dto.result)
+            return MoralisTokenBalanceNormalizer.normalize(dto.result)
         } catch let error as MoralisTokenBalanceError {
             throw error
         } catch let error as DecodingError {
             throw MoralisTokenBalanceError.decoding(error)
-        } catch let error as MoralisTokenBalanceNormalizer.NormalizationError {
-            throw MoralisTokenBalanceError.normalization(error)
+        } catch let error as MoyaError {
+            if case .statusCode(let response) = error, response.statusCode == 429 {
+                throw MoralisTokenBalanceError.rateLimited
+            }
+            throw MoralisTokenBalanceError.network(error)
         } catch {
             throw MoralisTokenBalanceError.network(error)
         }

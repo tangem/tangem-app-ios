@@ -83,7 +83,8 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func handleScannedCode(_ code: String) {
-        let context = flowHandler.makeContext()
+        let flowHandlerSnapshot = flowHandler
+        let context = flowHandlerSnapshot.makeContext()
 
         MainQRScanLogger.debug(MainQRScanLoggerStrings.flowCoordinatorStartedBackgroundResolve)
         scanResolutionQueue.async { [weak self] in
@@ -91,7 +92,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
                 return
             }
 
-            let action = flowHandler.resolve(scannedCode: code, context: context)
+            let action = flowHandlerSnapshot.resolve(scannedCode: code, context: context)
 
             Task { @MainActor [weak self] in
                 guard

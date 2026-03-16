@@ -239,11 +239,11 @@ public extension RefreshScrollViewStateObject {
 // MARK: - Observers
 
 public extension RefreshScrollViewStateObject {
-    func addDelegate(_ delegate: UIScrollViewDelegate) {
-        scrollViewDelegate.addObserver(delegate)
+    func addObserver(_ observer: RefreshScrollViewObserver) {
+        scrollViewDelegate.addObserver(observer)
     }
 
-    func removeDelegate(_ delegate: UIScrollViewDelegate) {
-        scrollViewDelegate.removeObserver(delegate)
+    func removeObserver(_ observer: RefreshScrollViewObserver) {
+        scrollViewDelegate.removeObserver(observer)
     }
 }
