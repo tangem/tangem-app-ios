@@ -102,13 +102,13 @@ extension SendNotificationEvent: NotificationEvent {
              .customFeeTooHigh,
              .customFeeTooLow,
              .feeWillBeSubtractFromSendingAmount:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .withdrawalNotificationEvent(let event):
             return event.icon
         case .validationErrorEvent(let event):
             return event.icon
         case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
 
