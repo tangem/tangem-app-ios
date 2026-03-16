@@ -191,7 +191,6 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
             swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
-            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
         )
     }
 }

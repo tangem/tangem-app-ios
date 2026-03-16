@@ -42,7 +42,6 @@ enum SwapSummaryStepBuilder {
         let autoupdatingTimer: AutoupdatingTimer
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
-        let sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder
     }
 
     typealias ReturnValue = SwapSummaryStep
@@ -59,7 +58,6 @@ enum SwapSummaryStepBuilder {
             output: io.output,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
             swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
-            sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
         )
 
         let viewModel = SwapSummaryViewModel(
