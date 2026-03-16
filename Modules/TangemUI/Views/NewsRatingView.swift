@@ -10,6 +10,50 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
+public struct NewsRatingViewRedesign: View {
+    private let rating: String
+    private let isHighlighted: Bool
+
+    public init(rating: String, isHighlighted: Bool) {
+        self.rating = rating
+        self.isHighlighted = isHighlighted
+    }
+
+    public var body: some View {
+        HStack(spacing: 3.0) {
+            starIcon
+            Text(rating)
+                .style(
+                    .Tangem.Caption12.semibold,
+                    color: isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
+                )
+        }
+    }
+
+    private var starIcon: some View {
+        ZStack {
+            Circle()
+                .fill(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
+                .frame(size: .init(bothDimensions: .unit(.x4)))
+
+            Assets.star.image
+                .resizable()
+                .frame(size: .init(bothDimensions: .unit(.x3)))
+                .blendMode(.destinationOut)
+        }
+        .compositingGroup()
+    }
+}
+
+#if DEBUG
+#Preview("New") {
+    VStack(spacing: 20) {
+        NewsRatingViewRedesign(rating: "8.6", isHighlighted: true)
+        NewsRatingViewRedesign(rating: "8.6", isHighlighted: false)
+    }
+}
+#endif
+
 public struct NewsRatingView: View {
     private let rating: String
     private let timeAgo: String
