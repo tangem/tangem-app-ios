@@ -59,6 +59,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func tapSendButton() -> SendScreen {
+        XCTContext.runActivity(named: "Tap Send action button on main screen") { _ in
+            waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
+            actionButtonsList.buttons["Send"].waitAndTap()
+        }
+        return SendScreen(app)
+    }
+
     // MARK: - Main action buttons
 
     @discardableResult
