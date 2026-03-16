@@ -182,6 +182,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
+        let accountModel: (any CryptoAccountModel)? = {
+            let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
+            guard cryptoAccounts.hasMultipleAccounts else { return nil }
+            return model.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
+        }()
+
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: dependencies.walletModel,
@@ -190,7 +196,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            delegate: singleWalletContentDelegate
+            delegate: singleWalletContentDelegate,
+            coordinator: coordinator,
+            accountModel: accountModel
         )
         userWalletNotificationManager.setupManager(with: viewModel)
         singleWalletNotificationManager.setupManager(with: viewModel)
