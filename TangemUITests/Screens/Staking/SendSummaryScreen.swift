@@ -106,6 +106,81 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
         return SendScreen(app)
     }
 
+    // MARK: - Swap Provider Methods
+
+    @discardableResult
+    func tapProviderBlock() -> SendSwapProviderSelectorScreen {
+        XCTContext.runActivity(named: "Tap provider block to open selector") { _ in
+            let providerBlock = app.buttons[SendAccessibilityIdentifiers.swapProviderBlock].firstMatch
+            waitAndAssertTrue(providerBlock, "Swap provider block should exist")
+            providerBlock.waitAndTap()
+        }
+        return SendSwapProviderSelectorScreen(app)
+    }
+
+    func getProviderName() -> String {
+        XCTContext.runActivity(named: "Get current provider name") { _ in
+            let providerName = app.staticTexts[SendAccessibilityIdentifiers.swapProviderName].firstMatch
+            waitAndAssertTrue(providerName, "Swap provider name element should exist")
+            return providerName.label.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+
+    @discardableResult
+    func assertProviderName(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert provider name is '\(expected)'") { _ in
+            let providerName = app.staticTexts[SendAccessibilityIdentifiers.swapProviderName].firstMatch
+            waitAndAssertTrue(providerName, "Swap provider name element should exist")
+
+            let predicate = NSPredicate(format: "label == %@", expected)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: providerName)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Provider name should be '\(expected)' but was '\(providerName.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertBestRateBadgeOnProvider() -> Self {
+        XCTContext.runActivity(named: "Assert 'Best rate' badge is present on summary provider") { _ in
+            let badge = app.otherElements[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            waitAndAssertTrue(badge, "'Best rate' badge should be present on summary provider")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertBestRateBadgeNotOnProvider() -> Self {
+        XCTContext.runActivity(named: "Assert 'Best rate' badge is NOT present on summary provider") { _ in
+            let badge = app.otherElements[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            XCTAssertTrue(
+                badge.waitForNonExistence(timeout: .quick),
+                "'Best rate' badge should not be present on summary provider"
+            )
+        }
+        return self
+    }
+
+    func getNetworkFeeValue() -> String {
+        XCTContext.runActivity(named: "Get network fee value") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+            return networkFeeAmount.label.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+
+    @discardableResult
+    func assertNetworkFeeChanged(from previousFee: String) -> Self {
+        XCTContext.runActivity(named: "Assert network fee changed from '\(previousFee)'") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+            let currentFee = networkFeeAmount.label.trimmingCharacters(in: .whitespacesAndNewlines)
+            XCTAssertNotEqual(currentFee, previousFee, "Network fee should have changed")
+        }
+        return self
+    }
+
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
