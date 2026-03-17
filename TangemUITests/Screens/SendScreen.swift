@@ -1125,7 +1125,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             let titleElement = app.staticTexts[expectedTitle].firstMatch
             waitAndAssertTrue(titleElement, "Error title '\(expectedTitle)' should be displayed")
 
-            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorErrorTitle].firstMatch
+            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorGotItButton].firstMatch
             waitAndAssertTrue(gotItButton, "'Got it' button should be displayed")
         }
         return self
@@ -1134,7 +1134,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func tapNetworkSelectorGotItButton() -> Self {
         XCTContext.runActivity(named: "Tap 'Got it' button on network selector error") { _ in
-            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorErrorTitle].firstMatch
+            let gotItButton = app.buttons[SendAccessibilityIdentifiers.networkSelectorGotItButton].firstMatch
             gotItButton.waitAndTap()
         }
         return self
