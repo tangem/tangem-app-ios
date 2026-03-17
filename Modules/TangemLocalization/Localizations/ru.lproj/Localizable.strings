@@ -192,6 +192,7 @@
 "common_activate" = "Активировать";
 "common_add_to_portfolio" = "Добавить в портфель";
 "common_add_token" = "Добавить токен";
+"common_add_tokens" = "Добавьте токены";
 "common_add" = "Добавить";
 "common_added" = "Добавлен";
 "common_address" = "Адрес";
@@ -350,6 +351,7 @@
 "common_to_wallet_name" = "На %@";
 "common_to" = "На";
 "common_today" = "Сегодня";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "Ошибка транзакции";
 "common_transaction_status" = "Статус транзакции";
 "common_transactions" = "Транзакции";
@@ -448,7 +450,6 @@
 "exchange_tokens_available_tokens_header" = "Мои токены";
 "exchange_tokens_empty_tokens" = "У вас нет добавленных токенов. Добавьте токены для обмена";
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
-"exсhange_token_description" = "Обменяйте любой актив в вашем портфеле на этот токен";
 "express_by_provider_placeholder" = "Предоставлено %@";
 "express_cex_status_button_title" = "Статус";
 "express_choose_provider" = "Выберите провайдера";
@@ -660,6 +661,7 @@
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
 "main_empty_tokens_list_message" = "Чтобы начать отслеживать свои криптоактивы и транзакции, добавьте токены";
 "main_manage_tokens" = "Управление токенами";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту или кольцо";
 "main_tokens" = "Токены";
@@ -670,14 +672,14 @@
 "manage_tokens_remove" = "Удалить";
 "manage_tokens_search_placeholder" = "Например Bitcoin";
 "manage_tokens_toast_portfolio_updated" = "Ваш портфель был обновлен";
-"manage_tokens_unavailable_description" = "Выбранный токен не доступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
+"manage_tokens_unavailable_description" = "Выбранный токен недоступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
 "manage_tokens_unavailable_vote" = "Голосовать";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
 "markets_about_coin_header" = "О монете";
 "markets_add_to_my_portfolio_description" = "Чтобы купить, обменять или получить данный токен, вам нужно добавить его к себе в портфель";
 "markets_add_to_my_portfolio_unavailable_description" = "Этот актив в настоящее время не поддерживается в кошельке";
-"markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Этот токен не доступен для данного кошелька";
+"markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Этот токен недоступен для данного кошелька";
 "markets_add_token" = "Добавить";
 "markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "Доступные сети";
@@ -685,6 +687,8 @@
 "markets_common_title" = "Рынок";
 "markets_earn_common_title" = "Зарабатывай с Tangem";
 "markets_generate_addresses_notification" = "Чтобы создать адреса для выбранных сетей, отсканируйте вашу карту или кольцо Tangem кошелька";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "Потяните вверх или коснитесь поисковой строки, чтобы добавить токен";
 "markets_insights_info_description_message" = "Данные раздела получены из следующих сетей: %@";
 "markets_loading_error_title" = "Невозможно загрузить данные";
@@ -767,9 +771,11 @@
 "markets_token_details_total_supply_description" = "Максимальное количество монет или токенов, которое может когда-либо существовать для выбранной криптовалюты";
 "markets_token_details_total_supply_full" = "Общее предложение";
 "markets_token_details_total_supply" = "Общ. предл.";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "Общая сумма криптовалюты, которая была продана за последние 24 часа, показывающая уровень активности и ликвидности на рынке.";
 "markets_token_details_trading_volume_full" = "Объем торгов (24ч)";
 "markets_token_details_trading_volume" = "Объем торгов (24ч)";
+"markets_token_details_valuation_value_in_total" = "%@ в сумме";
 "markets_token_details_volume" = "Объем";
 "markets_tooltip_message" = "Потяните вверх или коснитесь поисковой строки, чтобы добавить токены напрямую из рынка";
 "markets_tooltip_title" = "Добавить токены";
@@ -785,6 +791,7 @@
 "news_related_tokens" = "Связанные токены";
 "news_sources" = "Связанные новости";
 "news_stay_in_the_loop" = "Будьте в курсе";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "О NFT";
 "nft_asset" = "NFT";
 "nft_collections_empty_description" = "Здесь будут отображаться NFT, полученные на ваш кошелёк";
@@ -1343,7 +1350,7 @@
 "swapping_swap_action" = "Обменять";
 "swapping_to_title" = "Вы получите";
 "swapping_token_list_title" = "Выберите токен";
-"swapping_token_not_available" = "не доступен";
+"swapping_token_not_available" = "недоступен";
 "tangem_pay_beta_notification_subtitle" = "Будем рады вашей обратной связи";
 "tangem_pay_beta_notification_title" = "Tangem Pay в режиме beta";
 "tangem_pay_card_frozen" = "Карта заморожена";
@@ -1382,6 +1389,7 @@
 "tangempay_cancel_kyc" = "Скрыть KYC с главной";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Номер";
 "tangempay_card_details_change_pin_success_description" = "Карта готова к покупкам";
 "tangempay_card_details_change_pin_success_title" = "ПИН-код установлен";
