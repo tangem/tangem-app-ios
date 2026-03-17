@@ -32,6 +32,11 @@ public extension TangemCallout {
     struct Action {
         let icon: Image
         let closure: @MainActor () -> Void
+
+        public init(icon: Image, closure: @MainActor @escaping () -> Void) {
+            self.icon = icon
+            self.closure = closure
+        }
     }
 }
 
