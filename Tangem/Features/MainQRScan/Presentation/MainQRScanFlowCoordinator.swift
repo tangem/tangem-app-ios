@@ -17,8 +17,12 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    private let walletConnectURLParser = WalletConnectURLParser()
+    private let scanResolutionQueue = DispatchQueue(
+        label: "com.tangem.mainqrscan.resolve",
+        qos: .userInitiated
+    )
 
     // MARK: - State
 
@@ -27,6 +31,10 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var qrScanCoordinator: MainQRScanCoordinator?
+
+    // MARK: - Private
+
+    private lazy var flowHandler = MainQRScanFlowHandler(userWalletRepository: userWalletRepository)
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -47,14 +55,14 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     @MainActor
     private func openQRScanner() {
         let dismissAction: Action<String?> = { [weak self] scannedCode in
-            self?.qrScanCoordinator = nil
-
+            guard let self else { return }
             guard let scannedCode else {
-                self?.dismissAction(())
+                qrScanCoordinator = nil
+                self.dismissAction(())
                 return
             }
 
-            self?.handleScannedCode(scannedCode)
+            handleScannedCode(scannedCode)
         }
 
         let coordinator = MainQRScanCoordinator(
@@ -69,19 +77,41 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func handleScannedCode(_ code: String) {
-        let value = code.trimmingCharacters(in: .whitespacesAndNewlines)
+        let flowHandlerSnapshot = flowHandler
+        let context = flowHandlerSnapshot.makeContext()
 
-        guard !value.isEmpty else {
-            showUnrecognizedAlert()
-            return
+        Task {
+            let action: MainQRScanAction = await withCheckedContinuation { continuation in
+                scanResolutionQueue.async {
+                    let result = flowHandlerSnapshot.resolve(scannedCode: code, context: context)
+                    continuation.resume(returning: result)
+                }
+            }
+
+            guard qrScanCoordinator != nil else { return }
+
+            route(action)
         }
+    }
 
-        guard let uri = try? walletConnectURLParser.parse(uriString: value) else {
+    @MainActor
+    private func route(_ action: MainQRScanAction) {
+        switch action {
+        case .walletConnect(let uri):
+            handleWalletConnect(uri: uri)
+        case .paymentSingle(let request):
+            handlePaymentSingle(request: request)
+        case .paymentMultiple(let request):
+            handlePaymentMultiple(request: request)
+        case .addressSingle(let request):
+            handleAddressSingle(request: request)
+        case .addressMultiple(let request):
+            handleAddressMultiple(request: request)
+        case .showNoSupportedTokens:
+            showNoSupportedTokensAlert()
+        case .showUnrecognized:
             showUnrecognizedAlert()
-            return
         }
-
-        handleWalletConnect(uri: uri)
     }
 
     @MainActor
@@ -90,13 +120,38 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             forURI: uri,
             source: .qrCode
         ) else {
-            dismissAction(())
+            showUnrecognizedAlert()
             return
         }
 
         viewModel.loadDAppProposal()
+        qrScanCoordinator = nil
         floatingSheetPresenter.enqueue(sheet: viewModel)
         dismissAction(())
+    }
+
+    @MainActor
+    private func handlePaymentSingle(request: MainQRResolvedPaymentRequest) {
+        _ = request
+        showUnsupportedRecognizedRouteAlert()
+    }
+
+    @MainActor
+    private func handlePaymentMultiple(request: MainQRResolvedPaymentRequest) {
+        _ = request
+        showUnsupportedRecognizedRouteAlert()
+    }
+
+    @MainActor
+    private func handleAddressSingle(request: MainQRAddressRequest) {
+        _ = request
+        showUnsupportedRecognizedRouteAlert()
+    }
+
+    @MainActor
+    private func handleAddressMultiple(request: MainQRAddressRequest) {
+        _ = request
+        showUnsupportedRecognizedRouteAlert()
     }
 
     private func showUnrecognizedAlert() {
@@ -104,11 +159,41 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             alert: Alert(
                 title: Text("Unrecognized QR Code"),
                 message: Text("Sorry, this QR code could not be recognized."),
-                dismissButton: .default(Text("OK")) { [weak self] in
-                    self?.dismissAction(())
-                }
+                dismissButton: .default(Text("OK"), action: { [weak self] in
+                    self?.rearmScanner()
+                })
             )
         )
+    }
+
+    private func showNoSupportedTokensAlert() {
+        alert = AlertBinder(
+            alert: Alert(
+                title: Text("No supported tokens found"),
+                message: Text("This network isn't supported by any of your added tokens. Add a supported token to send crypto."),
+                dismissButton: .default(Text("OK"), action: { [weak self] in
+                    self?.rearmScanner()
+                })
+            )
+        )
+    }
+
+    private func showUnsupportedRecognizedRouteAlert() {
+        alert = AlertBinder(
+            alert: Alert(
+                title: Text("QR code type is not supported yet"),
+                message: Text("This QR code was recognized, but this operation is not supported yet."),
+                dismissButton: .default(Text("OK"), action: { [weak self] in
+                    self?.rearmScanner()
+                })
+            )
+        )
+    }
+
+    private func rearmScanner() {
+        Task { @MainActor [weak self] in
+            self?.qrScanCoordinator?.rearmScanner()
+        }
     }
 }
 
