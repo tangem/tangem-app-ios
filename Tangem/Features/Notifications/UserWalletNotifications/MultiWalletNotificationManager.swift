@@ -11,6 +11,9 @@ import Combine
 import TangemFoundation
 
 final class MultiWalletNotificationManager {
+    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+
+    private let userWalletId: UserWalletId
     private let analyticsService: NotificationsAnalyticsService
     private let totalBalanceProvider: TotalBalanceProvider
 
@@ -18,9 +21,11 @@ final class MultiWalletNotificationManager {
     private var bag: Set<AnyCancellable> = []
 
     init(userWalletId: UserWalletId, totalBalanceProvider: TotalBalanceProvider) {
+        self.userWalletId = userWalletId
         self.totalBalanceProvider = totalBalanceProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
+        bindTokenSyncProgress()
     }
 
     private func bind() {
@@ -42,6 +47,23 @@ final class MultiWalletNotificationManager {
             .store(in: &bag)
     }
 
+    private func bindTokenSyncProgress() {
+        Task { @MainActor [userWalletId, weak self] in
+            guard let self else { return }
+
+            await walletTokenSyncProgressProvider
+                .eventPublisher(for: userWalletId)
+                .removeDuplicates()
+                .filter { $0 == .completed }
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { manager, _ in
+                    manager.show(event: .initialWalletTokenSyncCompleted)
+                }
+                .store(in: &bag)
+        }
+    }
+
     private func setup(state: TotalBalanceState) {
         switch state {
         case .empty, .loading:
@@ -56,7 +78,14 @@ final class MultiWalletNotificationManager {
     }
 
     private func show(event: MultiWalletNotificationEvent?) {
-        let input = event.map { NotificationsFactory().buildNotificationInput(for: $0) }
+        let dismissAction: NotificationView.NotificationAction? = event?.isDismissable == true
+            ? weakify(self, forFunction: MultiWalletNotificationManager.dismissNotification)
+            : nil
+
+        let input = event.map {
+            NotificationsFactory().buildNotificationInput(for: $0, dismissAction: dismissAction)
+        }
+
         notificationInputsSubject.value = input.map { [$0] } ?? []
     }
 }
