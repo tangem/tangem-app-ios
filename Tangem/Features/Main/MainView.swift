@@ -7,27 +7,13 @@
 //
 
 import SwiftUI
-import TangemFoundation
 import TangemLocalization
 import TangemAssets
-import TangemUI
-import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
-
-    @State private var redesignedHeaderHeightRatio: CGFloat?
-
-    private var redesignedHeaderOpacity: CGFloat {
-        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
-
-        // Opacity: decreases linearly from 1 to 0 value as height collapses from 100% to 50%
-        let opacity: CGFloat = clamp(2 * heightRatio - 1, min: 0, max: 1)
-
-        return opacity
-    }
 
     var body: some View {
         content
@@ -43,7 +29,7 @@ struct MainView: View {
     private var content: some View {
         if FeatureProvider.isAvailable(.redesign) {
             fullPagePagerContent
-                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2, opacity: redesignedHeaderOpacity)
+                .modifier(RedesignedBackgroundModifier(headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher))
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -55,17 +41,12 @@ struct MainView: View {
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
-            navigationFactory: {
-                makeRedesignedNavigation(pageBuilder: $0)
-            },
-            headerFactory: {
-                makeRedesignedHeader(pageBuilder: $0)
-            },
-            bodyFactory: { page in
-                page.body
-            }
+            navigationFactory: makeRedesignedNavigation,
+            headerFactory: makeRedesignedHeader,
+            bodyFactory: makeRedesignedBody
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .onHeaderHeightRatioChange(viewModel.onHeaderHeightRatioChange)
         .onPageChange(viewModel.onPageChange(dueTo:))
         .safeAreaInset(edge: .bottom, spacing: 0) {
             Color.clear.frame(height: overlayCollapsedHeight)
@@ -73,55 +54,23 @@ struct MainView: View {
     }
 
     private func makeRedesignedNavigation(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
-        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
-
-        // Opacity: increases linearly from 0 to 1 value as height collapses from 60% to 40%
-        let opacity: CGFloat = clamp(3 - 5 * heightRatio, min: 0, max: 1)
-
-        return MainViewRedesignedNavigationModifier(
-            leadingContent: {
-                TangemNavigationHeader.LeadingIcon()
-            },
-            principalContent: {
-                pageBuilder.navigation
-                    .opacity(opacity)
-                    .animation(.default, value: redesignedHeaderHeightRatio)
-            },
-            trailingContent: {
-                TangemNavigationHeader.TrailingButtons(
-                    secondaryAction: TangemNavigationHeader.ActionInfo(
-                        action: viewModel.openQRScan,
-                        accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
-                        accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession
-                    ),
-                    action: TangemNavigationHeader.ActionInfo(
-                        action: viewModel.openDetails,
-                        accessibilityIdentifier: MainAccessibilityIdentifiers.detailsButton,
-                        accessibilityLabel: Localization.voiceOverOpenCardDetails
-                    )
-                )
-            }
+        RedesignedNavigationModifier(
+            openDetailsAction: viewModel.openDetails,
+            openQRScanAction: viewModel.openQRScan,
+            headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher,
+            pageBuilder: pageBuilder
         )
     }
 
     private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
-
-        // Scale: decreases linearly from 100% to 90% as height collapses from 100% to 50%
-        let scale: CGFloat = clamp(0.2 * heightRatio + 0.8, min: 0, max: 1)
-
-        return TangemElasticContainer(
-            onAddScrollViewObserver: viewModel.refreshScrollViewStateObject.addObserver,
-            onRemoveScrollViewObserver: viewModel.refreshScrollViewStateObject.removeObserver,
-            content: pageBuilder.redesignedHeader(
-                totalPages: viewModel.pages.count,
-                currentIndex: viewModel.selectedCardIndex
-            )
-            .scaleEffect(scale)
-            .opacity(redesignedHeaderOpacity)
-            .animation(.default, value: redesignedHeaderHeightRatio)
+        pageBuilder.redesignedHeader(
+            totalPages: viewModel.pages.count,
+            currentIndex: viewModel.selectedCardIndex
         )
-        .onPreferenceChange(TangemElasticContainerHeightRatio.self) { redesignedHeaderHeightRatio = $0 }
+    }
+
+    private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        pageBuilder.body
     }
 
     private var cardsInfoPagerContent: some View {
@@ -161,23 +110,6 @@ struct MainView: View {
                 Image(systemName: "pencil")
             }
         }
-    }
-}
-
-// MARK: - Redesigned Navigation Modifier
-
-private struct MainViewRedesignedNavigationModifier<L: View, P: View, T: View>: ViewModifier {
-    @ViewBuilder let leadingContent: () -> L
-    @ViewBuilder let principalContent: () -> P
-    @ViewBuilder let trailingContent: () -> T
-
-    func body(content: Content) -> some View {
-        content
-            .navigationToolbar(
-                leadingContent: leadingContent,
-                principalContent: principalContent,
-                trailingContent: trailingContent
-            )
     }
 }
 
