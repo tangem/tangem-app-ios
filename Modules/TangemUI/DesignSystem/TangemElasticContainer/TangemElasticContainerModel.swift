@@ -6,42 +6,31 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
-import UIKit
 import TangemFoundation
 
 @MainActor
-final class TangemElasticContainerModel: NSObject, ObservableObject {
+public final class TangemElasticContainerModel: ObservableObject {
     /// The current height ratio of the container (0 = collapsed, 1 = expanded)
-    @Published private(set) var heightRatio: CGFloat?
+    public let heightRatioPublisher: AnyPublisher<CGFloat, Never>
 
     private let stateSubject = CurrentValueSubject<State, Never>(.expanded)
     private let scrollStateSubject = PassthroughSubject<ScrollState, Never>()
+    private let heightRatioSubject = PassthroughSubject<CGFloat, Never>()
 
     private let collapseThreshold: Double = 0.3
     private let expandThreshold: Double = 0.3
 
     private var initialHeight: CGFloat?
-    private var initialScrollOffset: CGFloat?
 
-    private let onRemoveScrollViewObserver: (RefreshScrollViewObserver) -> Void
-
-    private weak var scrollView: UIScrollView?
+    private let scrollViewInteractor: RefreshScrollViewInteractor
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        onAddScrollViewObserver: (RefreshScrollViewObserver) -> Void,
-        onRemoveScrollViewObserver: @escaping (RefreshScrollViewObserver) -> Void
-    ) {
-        self.onRemoveScrollViewObserver = onRemoveScrollViewObserver
-        super.init()
-
+    public init(scrollViewInteractor: RefreshScrollViewInteractor) {
+        self.scrollViewInteractor = scrollViewInteractor
+        heightRatioPublisher = heightRatioSubject.eraseToAnyPublisher()
         bind()
-        onAddScrollViewObserver(self)
-    }
-
-    deinit {
-        onRemoveScrollViewObserver(self)
     }
 }
 
@@ -49,9 +38,7 @@ final class TangemElasticContainerModel: NSObject, ObservableObject {
 
 extension TangemElasticContainerModel {
     func onGeometry(frame: CGRect) {
-        if initialHeight == nil {
-            initialHeight = frame.height
-        }
+        initialHeight = frame.height
     }
 }
 
@@ -59,6 +46,27 @@ extension TangemElasticContainerModel {
 
 private extension TangemElasticContainerModel {
     func bind() {
+        scrollViewInteractor.eventPublisher
+            .receiveOnMain()
+            .compactMap { event in
+                switch event {
+                case .didScroll(let offset):
+                    return .scrolling(offset: offset.y)
+                case .didEndDragging(let willDecelerate):
+                    if willDecelerate {
+                        return nil
+                    } else {
+                        return .idle
+                    }
+                case .didEndDecelerating:
+                    return .idle
+                default:
+                    return nil
+                }
+            }
+            .subscribe(scrollStateSubject)
+            .store(in: &bag)
+
         scrollStateSubject
             .receiveOnMain()
             .scan(stateSubject.value) { [weak self] state, scrollState in
@@ -75,6 +83,7 @@ private extension TangemElasticContainerModel {
             .store(in: &bag)
 
         stateSubject
+            .receiveOnMain()
             .map { state in
                 switch state {
                 case .collapsed:
@@ -87,12 +96,17 @@ private extension TangemElasticContainerModel {
                     return item.heightRatio
                 }
             }
-            .assign(to: &$heightRatio)
+            .removeDuplicates()
+            .subscribe(heightRatioSubject)
+            .store(in: &bag)
     }
 
     // Scroll: scrolling state
     func reduce(state: State, scrollOffset: CGFloat) -> State {
-        guard let initialHeight, let initialScrollOffset else {
+        guard
+            let initialHeight,
+            let initialScrollOffset = scrollViewInteractor.initialScrollOffset?.y
+        else {
             return state
         }
 
@@ -141,15 +155,22 @@ private extension TangemElasticContainerModel {
     }
 
     func scroll(to targetState: State) {
+        guard
+            let initialHeight,
+            let initialScrollOffset = scrollViewInteractor.initialScrollOffset?.y
+        else {
+            return
+        }
+
         switch targetState {
         case .expanded:
             // Scroll back to the initial position
-            let offset = CGPoint(x: 0, y: initialScrollOffset ?? .zero)
-            scrollView?.setContentOffset(offset, animated: true)
+            let offset = CGPoint(x: 0, y: initialScrollOffset)
+            scrollViewInteractor.setContentOffset(offset, animated: true)
         case .collapsed:
             // Scroll down by the container's height to hide it
-            let offset = CGPoint(x: 0, y: (initialHeight ?? .zero) + (initialScrollOffset ?? .zero))
-            scrollView?.setContentOffset(offset, animated: true)
+            let offset = CGPoint(x: 0, y: initialHeight + initialScrollOffset)
+            scrollViewInteractor.setContentOffset(offset, animated: true)
         case .collapsing, .expanding:
             break
         }
@@ -157,29 +178,6 @@ private extension TangemElasticContainerModel {
 
     func clamped(heightRatio: CGFloat) -> CGFloat {
         clamp(heightRatio, min: 0, max: 1)
-    }
-}
-
-// MARK: - RefreshScrollViewObserver
-
-extension TangemElasticContainerModel: RefreshScrollViewObserver {
-    func scrollViewDidSet(_ scrollView: UIScrollView?) {
-        self.scrollView = scrollView
-        initialScrollOffset = scrollView?.contentOffset.y
-    }
-
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offset = scrollView.contentOffset.y
-        scrollStateSubject.send(.scrolling(offset: offset))
-    }
-
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        guard !decelerate else { return }
-        scrollStateSubject.send(.idle)
-    }
-
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        scrollStateSubject.send(.idle)
     }
 }
 
