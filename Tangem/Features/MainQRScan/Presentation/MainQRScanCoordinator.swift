@@ -64,3 +64,12 @@ extension MainQRScanCoordinator: MainQRScanRoutable {
         UIApplication.openSystemSettings()
     }
 }
+
+// MARK: - Scanner lifecycle
+
+extension MainQRScanCoordinator {
+    @MainActor
+    func rearmScanner() {
+        rootViewModel?.rearmScanner()
+    }
+}
