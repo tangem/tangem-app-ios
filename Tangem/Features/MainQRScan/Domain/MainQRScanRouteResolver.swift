@@ -47,10 +47,6 @@ struct MainQRScanRouteResolver {
         availableBlockchains: [Blockchain],
         availableTokenItems: [TokenItem]
     ) -> MainQRScanAction {
-        if availableBlockchains.isEmpty {
-            MainQRScanLogger.warning(MainQRScanLoggerStrings.paymentQRParsedWithoutAvailableBlockchains)
-        }
-
         let matchingTokenItems: [TokenItem]
         if let tokenContractAddress = request.tokenContractAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
            !tokenContractAddress.isEmpty {
@@ -109,7 +105,6 @@ struct MainQRScanRouteResolver {
             )
 
             if !globallyCompatibleBlockchains.isEmpty {
-                MainQRScanLogger.warning(MainQRScanLoggerStrings.addressQRGloballyValidWithoutAvailableBlockchains)
                 return .showNoSupportedTokens
             }
         }
