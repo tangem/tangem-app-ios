@@ -44,6 +44,7 @@ struct FullPagePagerView<Data, Navigation, Header, Body>: View
     // MARK: - Configuration
 
     private var isScrollDisabled: Bool = false
+    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     // MARK: - Initialization
@@ -73,7 +74,11 @@ struct FullPagePagerView<Data, Navigation, Header, Body>: View
         ) {
             makePageContent(viewportHeight: viewportHeight)
         }
-        .modifier(navigationFactory(data[selectedIndex]))
+        .modifier(NavigationModifier(
+            data: data,
+            selectedIndex: selectedIndex,
+            navigationFactory: navigationFactory
+        ))
         .readGeometry(\.size.height) { viewportHeight = $0 }
     }
 }
@@ -89,6 +94,8 @@ private extension FullPagePagerView {
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
+                refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -99,10 +106,37 @@ private extension FullPagePagerView {
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
+                refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
             )
+        }
+    }
+}
+
+// MARK: - Modifiers
+
+private extension FullPagePagerView {
+    struct NavigationModifier: ViewModifier
+        where Data: RandomAccessCollection,
+        Data.Element: Identifiable,
+        Data.Index == Int,
+        Navigation: ViewModifier {
+        typealias NavigationFactory = (Data.Element) -> Navigation
+
+        let data: Data
+        let selectedIndex: Int
+        let navigationFactory: NavigationFactory
+
+        func body(content: Content) -> some View {
+            if let element = data[safe: selectedIndex] {
+                content
+                    .modifier(navigationFactory(element))
+            } else {
+                content
+            }
         }
     }
 }
@@ -112,6 +146,10 @@ private extension FullPagePagerView {
 extension FullPagePagerView: Setupable {
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
         map { $0.isScrollDisabled = disabled }
+    }
+
+    func onHeaderHeightRatioChange(_ callback: @escaping (CGFloat) -> Void) -> Self {
+        map { $0.onHeaderHeightRatioChange = callback }
     }
 
     func onPageChange(_ callback: @escaping (CardsInfoPageChangeReason) -> Void) -> Self {
