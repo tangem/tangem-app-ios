@@ -277,6 +277,22 @@
         <string>%li ウォレット</string>
       </dict>
     </dict>
+    <key>send_network_selection_hidden_tokens</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li token isn't compatible with this address</string>
+        <key>other</key>
+        <string>%li tokens aren't compatible with this address</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
