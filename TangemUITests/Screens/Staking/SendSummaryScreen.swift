@@ -12,11 +12,18 @@ import TangemAccessibilityIdentifiers
 final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var title = staticText(.title)
     private lazy var finishButton = button(.finishButton)
+    // HoldToConfirmButton (hot wallet) is not a native Button, XCUITest sees it as otherElement
+    private lazy var holdFinishButton = otherElement(.finishButton)
     private lazy var amountValue = staticText(.amountValue)
     private lazy var validatorBlock = staticText(.validatorBlock)
     private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
     private lazy var networkFeeAmount = staticText(.networkFeeAmount)
     private lazy var amountBlock = button(.amountBlock)
+
+    /// Returns the active finish/send button regardless of type (regular Button or HoldToConfirmButton)
+    private var activeFinishButton: XCUIElement {
+        finishButton.exists ? finishButton : holdFinishButton
+    }
 
     @discardableResult
     func waitForAmountValue(_ expectedAmount: String) -> Self {
@@ -38,7 +45,11 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     func waitForDisplay(checkValidatorBlock: Bool = true) -> Self {
         XCTContext.runActivity(named: "Wait for display: Send Summary Screen") { _ in
             waitAndAssertTrue(title, "Title should exists")
-            XCTAssertTrue(finishButton.exists, "Finish flow button should exists")
+
+            // Check for either regular Button or HoldToConfirmButton (hot wallet)
+            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
+            XCTAssertTrue(buttonFound, "Finish flow button should exists")
+
             XCTAssertTrue(networkFeeBlock.exists, "Network fee block should be displayed")
 
             if checkValidatorBlock {
@@ -46,6 +57,20 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             }
             return self
         }
+    }
+
+    @discardableResult
+    func tapSendButton() -> SendFinishScreen {
+        XCTContext.runActivity(named: "Tap Send button on Summary screen") { _ in
+            if finishButton.exists {
+                finishButton.waitAndTap()
+            } else {
+                // HoldToConfirmButton requires a long press (1.5s hold duration)
+                waitAndAssertTrue(holdFinishButton, "Hold-to-confirm button should exist")
+                holdFinishButton.press(forDuration: 2.0)
+            }
+        }
+        return SendFinishScreen(app)
     }
 
     // MARK: - Amount Validation Methods
@@ -146,7 +171,8 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func assertBestRateBadgeOnProvider() -> Self {
         XCTContext.runActivity(named: "Assert 'Best rate' badge is present on summary provider") { _ in
-            let badge = app.otherElements[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            // Badge can be Image (animated icon on summary) or Other (text badge in selector)
+            let badge = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
             waitAndAssertTrue(badge, "'Best rate' badge should be present on summary provider")
         }
         return self
@@ -155,7 +181,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func assertBestRateBadgeNotOnProvider() -> Self {
         XCTContext.runActivity(named: "Assert 'Best rate' badge is NOT present on summary provider") { _ in
-            let badge = app.otherElements[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            let badge = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
             XCTAssertTrue(
                 badge.waitForNonExistence(timeout: .quick),
                 "'Best rate' badge should not be present on summary provider"
