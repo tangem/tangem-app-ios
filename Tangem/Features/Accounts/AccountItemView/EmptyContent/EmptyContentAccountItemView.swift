@@ -18,7 +18,7 @@ struct EmptyContentAccountItemView: View {
         VStack(spacing: 20.0) {
             MultiWalletTokenItemsEmptyView()
 
-            CapsuleButton(title: Localization.mainManageTokens, action: onManageTokensTap)
+            CapsuleButton(title: Localization.commonAddTokens, action: onManageTokensTap)
                 .style(.secondary)
                 .size(.medium)
         }
