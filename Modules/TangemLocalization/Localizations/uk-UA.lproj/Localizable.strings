@@ -291,6 +291,7 @@
 "common_next" = "Далі";
 "common_nft" = "NFT";
 "common_no_address" = "Немає адреси";
+"common_no_results" = "No results";
 "common_no" = "Ні";
 "common_not_added" = "Не додано";
 "common_not_available" = "Недоступно";
@@ -360,6 +361,7 @@
 "common_understand_continue" = "Я розумію, продовжити";
 "common_understand" = "Я зрозумів";
 "common_unknown_error" = "Виникла помилка. Будь ласка, спробуйте ще раз.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Недоступно";
 "common_unstake" = "Скасувати стейкінг";
 "common_utxo_validate_withdrawal_message_warning" = "Через обмеження %1$@ в одну транзакцію може поміститися тільки %2$li UTXO. Це означає, що ви можете відправити тільки %3$@ або менше. Вам потрібно зменшити суму.";
@@ -646,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Щоб скинути налаштування до заводських, прикладіть картку або кільце як показано вище, і не прибирайте її до завершення операції";
 "initial_message_reset_backup_card_header" = "Прикладіть картку #%@ для скидання";
 "initial_message_sign_body" = "Щоб підписати транзакцію, прикладіть картку або кільце як показано вище, і не прибирайте її до кінця операції";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
 "jailbreak_warning_title" = "Виявлено джейлбрейк";
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
@@ -661,7 +666,7 @@
 "mail_error_no_accounts_title" = "Немає налаштованих поштових акаунтів";
 "main_empty_tokens_list_message" = "Щоб почати відстежувати свої криптоактиви та транзакції, додайте токени";
 "main_manage_tokens" = "Керування токенами";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Для доступу до всіх мереж необхідно відсканувати картку";
 "main_scan_card_warning_view_title" = "Відскануйте картку або кільце";
 "main_tokens" = "Токени";
@@ -744,6 +749,10 @@
 "markets_token_details_holders_description" = "Зміна кількості власників токенів протягом певного періоду часу";
 "markets_token_details_holders_full" = "Тримачі";
 "markets_token_details_holders" = "Тримачі";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Інсайти";
 "markets_token_details_links" = "Посилання";
 "markets_token_details_liquidity_description" = "Зміна того, скільки ліквідності доступно для токена протягом зазначеного періоду часу";
@@ -1116,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Ліміт транзакції";
 "send_optional_field" = "Опціонально";
 "send_qrcode_scan_info" = "Будь ласка, сумістіть свій QR-код з квадратом, щоб відсканувати його. Переконайтеся, що ви скануєте адресу в мережі %@.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Останні";
 "send_recipient_address_error" = "Недійсна адреса";
 "send_recipient_address_footer" = "Переконайтеся, що адреса отримувача знаходиться **в мережі %@**, щоб уникнути втрати ваших коштів.";

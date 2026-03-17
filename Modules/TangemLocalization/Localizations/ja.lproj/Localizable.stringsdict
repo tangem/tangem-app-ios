@@ -287,10 +287,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li token isn't compatible with this address</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%liトークンは、このアドレスには対応していません。</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
