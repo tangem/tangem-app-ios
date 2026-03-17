@@ -134,6 +134,15 @@ public extension TangemCallout {
     }
 }
 
+// MARK: - Alignment
+
+public extension TangemCallout {
+    func arrowAligned(to alignment: HorizontalAlignment) -> some View {
+        let arrowTipOffset = arrowSize.width * 2
+        return alignmentGuide(alignment) { _ in arrowTipOffset }
+    }
+}
+
 // MARK: - Arrow shape
 
 private struct ArrowShape: Shape {
