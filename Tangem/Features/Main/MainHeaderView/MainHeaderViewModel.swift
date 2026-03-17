@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
 final class MainHeaderViewModel: ObservableObject {
     let isUserWalletLocked: Bool
@@ -20,36 +21,45 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var walletThumbnailType: ThumbnailWalletViewType?
     @Published var isLoadingSubtitle: Bool = true
+    @Published private(set) var tokenSyncProgress: Int?
 
     var subtitleContainsSensitiveInfo: Bool {
         subtitleProviderSubject.value.containsSensitiveInfo
     }
 
+    private let userWalletId: UserWalletId
+
     private weak var supplementInfoProvider: MainHeaderSupplementInfoProvider?
     private let subtitleProviderSubject: CurrentValueSubject<MainHeaderSubtitleProvider, Never>
     private let balanceProvider: MainHeaderBalanceProvider
+    private let walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
     private let updatePublisher: AnyPublisher<UpdateResult, Never>
 
     private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
         isUserWalletLocked: Bool,
         walletThumbnailType: ThumbnailWalletViewType?,
         supplementInfoProvider: MainHeaderSupplementInfoProvider,
         subtitleProvider: MainHeaderSubtitleProvider,
         balanceProvider: MainHeaderBalanceProvider,
+        walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider,
         updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
+        self.userWalletId = userWalletId
         self.isUserWalletLocked = isUserWalletLocked
         self.walletThumbnailType = walletThumbnailType
         self.supplementInfoProvider = supplementInfoProvider
         subtitleProviderSubject = CurrentValueSubject(subtitleProvider)
         self.balanceProvider = balanceProvider
+        self.walletTokenSyncProgressProvider = walletTokenSyncProgressProvider
         self.updatePublisher = updatePublisher
         userWalletName = supplementInfoProvider.name
         balance = balanceProvider.balance
 
         bind()
+        bindWalletTokenSyncProvider()
     }
 
     private func bind() {
@@ -102,5 +112,18 @@ final class MainHeaderViewModel: ObservableObject {
                 self?.walletThumbnailType = walletThumbnailType
             }
             .store(in: &bag)
+    }
+
+    private func bindWalletTokenSyncProvider() {
+        Task { @MainActor in
+            if let walletTokenSyncProgressPublisher = await walletTokenSyncProgressProvider.progressPublisher(for: userWalletId) {
+                walletTokenSyncProgressPublisher
+                    .map { percent in (1 ..< 100).contains(percent) ? percent : nil }
+                    .removeDuplicates()
+                    .receiveOnMain()
+                    .assign(to: \.tokenSyncProgress, on: self, ownership: .weak)
+                    .store(in: &bag)
+            }
+        }
     }
 }

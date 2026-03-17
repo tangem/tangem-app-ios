@@ -36,6 +36,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         ActionButtonsRoutable &
         NFTEntrypointRoutable
 
+    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+
     weak var coordinator: MainContentRoutable?
 
     func createPage(
@@ -64,11 +66,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
 
         let headerModel = MainHeaderViewModel(
+            userWalletId: model.userWalletId,
             isUserWalletLocked: model.isUserWalletLocked,
             walletThumbnailType: model.config.walletThumbnailType,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
+            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
             updatePublisher: model.updatePublisher
         )
 
@@ -242,11 +246,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
 
         let headerModel = MainHeaderViewModel(
+            userWalletId: visaUserWalletModel.userWalletId,
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             walletThumbnailType: visaUserWalletModel.config.walletThumbnailType,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
+            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
             updatePublisher: visaUserWalletModel.updatePublisher
         )
 
