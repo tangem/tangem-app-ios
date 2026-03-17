@@ -291,6 +291,7 @@
 "common_next" = "Suivant";
 "common_nft" = "NFT";
 "common_no_address" = "Aucune adresse";
+"common_no_results" = "No results";
 "common_no" = "Non";
 "common_not_added" = "Non ajouté";
 "common_not_available" = "Indisponible";
@@ -360,6 +361,7 @@
 "common_understand_continue" = "Je comprends, continuer.";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Inaccessible";
 "common_unstake" = "Unstakez";
 "common_utxo_validate_withdrawal_message_warning" = "En raison d'une limitations sur les %1$@, seuls les %2$li UTXO peuvent s'intégrer dans une seule transaction. Ce qui signifie vous ne pouvez envoyer que %3$@ ou moins. Réduisez le montant.";
@@ -646,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Pour réinitialiser aux paramètres d'usine, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
 "initial_message_reset_backup_card_header" = "Appuyez sur la carte n°%@ du portefeuille";
 "initial_message_sign_body" = "Pour signer, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
 "jailbreak_warning_title" = "Jailbreak détecté";
 "key_invalidated_warning_description" = "Vous avez mis à jour vos données biométriques, scannez votre carte ou bague pour entrer";
@@ -661,7 +666,7 @@
 "mail_error_no_accounts_title" = "Aucun compte Mail";
 "main_empty_tokens_list_message" = "Pour commencer à suivre vos actifs et transactions crypto, ajoutez des jetons";
 "main_manage_tokens" = "Gérer les jetons";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Pour accéder à tous les réseaux, vous devez scanner la carte";
 "main_scan_card_warning_view_title" = "Scannez votre carte";
 "main_tokens" = "Jetons";
@@ -744,6 +749,10 @@
 "markets_token_details_holders_description" = "L'évolution du nombre de détenteurs de jetons au cours d'une période donnée";
 "markets_token_details_holders_full" = "Détenteurs";
 "markets_token_details_holders" = "Détenteurs";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Idées";
 "markets_token_details_links" = "Liens";
 "markets_token_details_liquidity_description" = "Le changement dans la quantité de liquidité disponible pour le jeton pendant la période spécifiée";
@@ -1116,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Limitation des transactions";
 "send_optional_field" = "Facultatif";
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
@@ -1317,7 +1331,7 @@
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
