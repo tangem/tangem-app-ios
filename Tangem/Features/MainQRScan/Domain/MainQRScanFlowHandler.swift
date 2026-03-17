@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-struct MainQRScanFlowHandler {
+struct MainQRScanFlowHandler: @unchecked Sendable {
     struct Context {
         let availableTokenItems: [TokenItem]
     }
@@ -50,10 +50,6 @@ struct MainQRScanFlowHandler {
             for walletModel in walletModels {
                 tokenItems.append(walletModel.tokenItem)
             }
-        }
-
-        if tokenItems.isEmpty {
-            MainQRScanLogger.warning(MainQRScanLoggerStrings.noWalletTokenItemsCollected)
         }
 
         return tokenItems
