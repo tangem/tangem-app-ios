@@ -36,7 +36,7 @@ final class SendWithSwapModel {
     private let initialSourceToken: SendSourceToken
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
-    private var bag: Set<AnyCancellable> = []
+    private var receiveTokenUpdatingTask: Task<Void, Error>?
 
     init(
         transferModel: TransferModel,
@@ -128,6 +128,16 @@ private extension SendWithSwapModel {
         }
     }
 
+    func updateReceiveTokenIfNeededWithDebounce() {
+        receiveTokenUpdatingTask?.cancel()
+        receiveTokenUpdatingTask = Task { @MainActor [weak self] in
+            // Use small debounce to avoid recreating providers.
+            try await Task.sleep(for: .seconds(1))
+            try Task.checkCancellation()
+            self?.updateReceiveTokenIfNeeded()
+        }
+    }
+
     func updateReceiveTokenIfNeeded() {
         guard let receiveTokenItem = swapModel.receiveToken.value else {
             return
@@ -180,12 +190,12 @@ extension SendWithSwapModel: SendDestinationInput {
 extension SendWithSwapModel: SendDestinationOutput {
     func destinationDidChanged(_ address: SendDestination?) {
         transferModel.destinationDidChanged(address)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 
     func destinationAdditionalParametersDidChanged(_ type: SendDestinationAdditionalField) {
         transferModel.destinationAdditionalParametersDidChanged(type)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 }
 
