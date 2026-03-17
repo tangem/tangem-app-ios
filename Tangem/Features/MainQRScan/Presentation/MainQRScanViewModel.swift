@@ -37,11 +37,9 @@ final class MainQRScanViewModel: ObservableObject {
 
     func onQRCodeScanned(_ code: String) {
         guard !didProduceResult else {
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.ignoredScanResultWaitingForRearm)
             return
         }
 
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.qrScannedFromCamera)
         didProduceResult = true
         coordinator?.didScanQRCode(code)
     }
@@ -53,7 +51,6 @@ final class MainQRScanViewModel: ObservableObject {
         }
 
         guard !didProduceResult else { return }
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.qrPayloadPastedFromClipboard)
         didProduceResult = true
         coordinator?.didScanQRCode(string)
     }
@@ -61,7 +58,6 @@ final class MainQRScanViewModel: ObservableObject {
     func rearmScanner() {
         didProduceResult = false
         scannerViewID = UUID()
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.scannerRearmed)
     }
 
     func onScannerFailure() {
@@ -104,7 +100,6 @@ final class MainQRScanViewModel: ObservableObject {
             let image,
             let code = scanQRCode(from: image)
         else {
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.noPayloadExtractedFromImage)
             return
         }
 

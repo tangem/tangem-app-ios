@@ -26,24 +26,18 @@ struct MainQRScanRouteResolver {
         availableBlockchains: [Blockchain],
         availableTokenItems: [TokenItem] = []
     ) -> MainQRScanAction {
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.routeResolverStarted(availableBlockchains: availableBlockchains.count))
-
         switch parser.parse(scannedCode) {
         case .walletConnect(let uri):
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.routeResolverMatchedWalletConnect)
             return .walletConnect(uri)
         case .paymentURI(let request):
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.routeResolverMatchedPaymentURI)
             return actionForPayment(
                 request: request,
                 availableBlockchains: availableBlockchains,
                 availableTokenItems: availableTokenItems
             )
         case .plainAddress(let address):
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.routeResolverMatchedPlainAddress)
             return actionForAddress(address: address, availableBlockchains: availableBlockchains)
         case .unrecognized:
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.routeResolverMatchedUnrecognizedPayload)
             return .showUnrecognized
         }
     }
@@ -67,10 +61,6 @@ struct MainQRScanRouteResolver {
             }
             let tokenMatchCount = matchedContractTokenItems.count
 
-            MainQRScanLogger.debug(
-                MainQRScanLoggerStrings.paymentRouteResolutionByTokenContract(tokenMatches: tokenMatchCount)
-            )
-
             guard tokenMatchCount > 0 else {
                 return .showNoSupportedTokens
             }
@@ -90,7 +80,6 @@ struct MainQRScanRouteResolver {
         }
 
         let matchCount = matchingTokenItems.count
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.paymentRouteResolutionFinished(matches: matchCount))
 
         guard matchCount > 0 else {
             return .showNoSupportedTokens
@@ -138,13 +127,6 @@ struct MainQRScanRouteResolver {
             destinationAddress: address,
             matchingBlockchains: uniqueMatchingBlockchains,
             matchCount: matchCount
-        )
-
-        MainQRScanLogger.debug(
-            MainQRScanLoggerStrings.addressRouteResolutionFinished(
-                compatibleBlockchains: compatibleBlockchains.count,
-                matches: matchCount
-            )
         )
 
         switch matchCount {
