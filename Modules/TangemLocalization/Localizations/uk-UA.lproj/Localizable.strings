@@ -192,6 +192,7 @@
 "common_activate" = "Активувати";
 "common_add_to_portfolio" = "Додати у портфель";
 "common_add_token" = "Додати токен";
+"common_add_tokens" = "Додайте токени";
 "common_add" = "Додати";
 "common_added" = "Додано";
 "common_address" = "Адреса";
@@ -350,6 +351,7 @@
 "common_to_wallet_name" = "На %@";
 "common_to" = "До";
 "common_today" = "Сьогодні";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "Помилка транзакції";
 "common_transaction_status" = "Статус транзакції";
 "common_transactions" = "Транзакції";
@@ -448,7 +450,6 @@
 "exchange_tokens_available_tokens_header" = "Мої токени";
 "exchange_tokens_empty_tokens" = "У вас немає доданих токенів. Додайте токени для обміну";
 "exchange_tokens_unavailable_tokens_header" = "Недоступний для обміну з %@";
-"exсhange_token_description" = "Обміняйте будь-який актив у своєму портфелі на цей токен";
 "express_by_provider_placeholder" = "Послугу надає %@";
 "express_cex_status_button_title" = "Статус";
 "express_choose_provider" = "Виберіть провайдера";
@@ -660,6 +661,7 @@
 "mail_error_no_accounts_title" = "Немає налаштованих поштових акаунтів";
 "main_empty_tokens_list_message" = "Щоб почати відстежувати свої криптоактиви та транзакції, додайте токени";
 "main_manage_tokens" = "Керування токенами";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Для доступу до всіх мереж необхідно відсканувати картку";
 "main_scan_card_warning_view_title" = "Відскануйте картку або кільце";
 "main_tokens" = "Токени";
@@ -685,6 +687,8 @@
 "markets_common_title" = "Маркет";
 "markets_earn_common_title" = "Заробляйте з Tangem";
 "markets_generate_addresses_notification" = "Щоб згенерувати адреси для обраних мереж, відскануйте вашу картку або кільце Tangem гаманця";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "Щоб додати токени, потягніть вгору або торкніться панелі пошуку";
 "markets_insights_info_description_message" = "Дані цього розділу отримані з наступних мереж: %@";
 "markets_loading_error_title" = "Не вдалося завантажити дані...";
@@ -767,9 +771,11 @@
 "markets_token_details_total_supply_description" = "Максимальна кількість монет або токенів, яка може коли-небудь існувати для певної криптовалюти";
 "markets_token_details_total_supply_full" = "Загальна пропозиція";
 "markets_token_details_total_supply" = "Загальна проп.";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "Загальна сума криптовалюти, якою торгували протягом останніх 24 годин, що вказує на рівень активності та ліквідності на ринку";
 "markets_token_details_trading_volume_full" = "Обсяг торгів (24г)";
 "markets_token_details_trading_volume" = "Обсяг торгів (24г)";
+"markets_token_details_valuation_value_in_total" = "%@ in total";
 "markets_token_details_volume" = "Обсяг";
 "markets_tooltip_message" = "Потягніть вгору або торкніться панелі пошуку, щоб додати токени безпосередньо з маркету";
 "markets_tooltip_title" = "Додати токени";
@@ -785,6 +791,7 @@
 "news_related_tokens" = "Пов'язані токени";
 "news_sources" = "Схожі новини";
 "news_stay_in_the_loop" = "Залишайтеся в курсі подій";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "Про NFT";
 "nft_asset" = "NFT";
 "nft_collections_empty_description" = "Тут відображатимуться NFT, отримані на ваш гаманець";
@@ -1382,6 +1389,7 @@
 "tangempay_cancel_kyc" = "Приховати KYC з головного екрана";
 "tangempay_card_details_add_funds_subtitle" = "Варіанти поповнення";
 "tangempay_card_details_add_funds" = "Поповнити рахунок";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Номер картки";
 "tangempay_card_details_change_pin_success_description" = "Картка готова до оплат.";
 "tangempay_card_details_change_pin_success_title" = "PIN-код створено";
