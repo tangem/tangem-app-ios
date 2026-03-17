@@ -25,9 +25,11 @@ class StellarNetworkProvider: HostProvider {
         Blockchain.stellar(curve: .ed25519_slip0010, testnet: isTestnet)
     }
 
-    init(isTestnet: Bool, stellarSdk: StellarSDK) {
+    init(isTestnet: Bool, horizonUrl: String) {
         self.isTestnet = isTestnet
-        self.stellarSdk = stellarSdk
+
+        StellarSDK.networkingUtil = StellarSDKNetworkingUtilImpl()
+        stellarSdk = .init(withHorizonUrl: horizonUrl)
     }
 
     func checkTargetAccount(address: String, token: Token?) -> AnyPublisher<StellarTargetAccountResponse, Error> {
@@ -187,4 +189,22 @@ struct StellarAssetResponse: Hashable {
 struct StellarTargetAccountResponse {
     let accountCreated: Bool
     let trustlineCreated: Bool
+}
+
+// MARK: - StellarSDKNetworkingUtilImpl
+
+private class StellarSDKNetworkingUtilImpl: StellarSDKNetworkingUtil {
+    private let session: URLSession
+
+    init() {
+        session = TangemTrustEvaluatorUtil.makeSession(configuration: .ephemeralConfiguration)
+    }
+
+    func evaluate(challenge: URLAuthenticationChallenge) -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        return TangemTrustEvaluatorUtil.evaluate(challenge: challenge)
+    }
+
+    public func makeSession() -> URLSession {
+        return session
+    }
 }
