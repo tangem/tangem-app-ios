@@ -191,6 +191,10 @@ extension CommonSendStepsManager: SendAmountStepRoutable {
     func openReceiveTokensList(onDismiss: (() -> Void)?) {
         router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder, onDismiss: onDismiss)
     }
+
+    func openRateInfoSheet(rateType: RateInfoSheetViewModel.RateType, onDismiss: @escaping () -> Void) {
+        router?.openRateInfoSheet(rateType: rateType, onDismiss: onDismiss)
+    }
 }
 
 // MARK: - SendSummaryStepsRoutable
