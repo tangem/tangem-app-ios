@@ -13,13 +13,19 @@ import TangemAssets
 enum MultiWalletNotificationEvent: Hashable {
     case someTokenBalancesNotUpdated
     case someNetworksUnreachable(currencySymbols: [String])
+    case initialWalletTokenSyncCompleted
 }
 
 // MARK: - NotificationEvent
 
 extension MultiWalletNotificationEvent: NotificationEvent {
     var bannerKind: NotificationBannerKind? {
-        .status
+        switch self {
+        case .initialWalletTokenSyncCompleted:
+            return .informational
+        case .someTokenBalancesNotUpdated, .someNetworksUnreachable:
+            return .status
+        }
     }
 
     var title: NotificationView.Title? {
@@ -28,6 +34,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return .string(Localization.warningSomeNetworksUnreachableTitle)
         case .someTokenBalancesNotUpdated:
             return .none
+        case .initialWalletTokenSyncCompleted:
+            return .string(Localization.initialWalletSyncBannerTitle)
         }
     }
 
@@ -37,6 +45,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return Localization.warningSomeNetworksUnreachableMessage
         case .someTokenBalancesNotUpdated:
             return Localization.warningSomeTokenBalancesNotUpdated
+        case .initialWalletTokenSyncCompleted:
+            return Localization.initialWalletSyncBannerDescription
         }
     }
 
@@ -50,12 +60,28 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.attention))
         case .someTokenBalancesNotUpdated:
             return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
+        case .initialWalletTokenSyncCompleted:
+            return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 
-    var severity: NotificationView.Severity { .warning }
+    var severity: NotificationView.Severity {
+        switch self {
+        case .initialWalletTokenSyncCompleted:
+            return .info
+        case .someTokenBalancesNotUpdated, .someNetworksUnreachable:
+            return .warning
+        }
+    }
 
-    var isDismissable: Bool { false }
+    var isDismissable: Bool {
+        switch self {
+        case .initialWalletTokenSyncCompleted:
+            return true
+        case .someTokenBalancesNotUpdated, .someNetworksUnreachable:
+            return false
+        }
+    }
 
     var buttonAction: NotificationButtonAction? { .none }
 
@@ -63,6 +89,7 @@ extension MultiWalletNotificationEvent: NotificationEvent {
         switch self {
         case .someTokenBalancesNotUpdated: return nil // [REDACTED_TODO_COMMENT]
         case .someNetworksUnreachable: return .mainNoticeNetworksUnreachable
+        case .initialWalletTokenSyncCompleted: return nil
         }
     }
 
@@ -72,6 +99,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return [:] // [REDACTED_TODO_COMMENT]
         case .someNetworksUnreachable(let networks):
             return [.tokens: networks.joined(separator: ", ")]
+        case .initialWalletTokenSyncCompleted:
+            return [:]
         }
     }
 

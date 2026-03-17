@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Shared Queue
 
 private let sharedMoralisQueue = MoralisRateLimitedRequestQueue()
-private let sharedSyncStateActor = WalletTokenSyncStateActor()
+private let sharedSyncStateActor = WalletTokenAutoSyncStateActor()
 
 // MARK: - InjectionKey
 
@@ -22,7 +22,8 @@ private struct WalletTokenAutoSyncInteractorKey: InjectionKey {
             queue: sharedMoralisQueue
         ),
         tangemApiService: InjectedValues[\.tangemApiService],
-        syncStateActor: sharedSyncStateActor
+        syncStateActor: sharedSyncStateActor,
+        progressService: InjectedValues[\.walletTokenSyncProgressService]
     )
 }
 
