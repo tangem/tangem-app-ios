@@ -254,7 +254,7 @@ private extension WalletNetworkServiceFactory {
             .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
                 StellarNetworkProvider(
                     isTestnet: blockchain.isTestnet,
-                    stellarSdk: .init(withHorizonUrl: nodeInfo.link)
+                    horizonUrl: nodeInfo.link
                 )
             }
 
