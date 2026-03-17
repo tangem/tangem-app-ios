@@ -238,6 +238,7 @@ extension MainCoordinator: MainRoutable {
 
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.mainQRScanFlowCoordinator = nil
+            self?.mainBottomSheetUIManager.show()
         }
 
         let coordinator = MainQRScanFlowCoordinator(
