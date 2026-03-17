@@ -18,8 +18,8 @@ private struct UIEnvironmentKey: InjectionKey {
     static var currentValue = UIEnvironment()
 }
 
-extension InjectedValues {
-    private var environment: UIEnvironment {
+private extension InjectedValues {
+    var environment: UIEnvironment {
         get { Self[UIEnvironmentKey.self] }
         set { Self[UIEnvironmentKey.self] = newValue }
     }
@@ -60,10 +60,6 @@ extension InjectedValues {
 // MARK: - Floating sheet
 
 extension InjectedValues {
-    var floatingSheetViewModel: FloatingSheetViewModel {
-        environment.floatingSheetViewModel
-    }
-
     var floatingSheetPresenter: any FloatingSheetPresenter {
         environment.floatingSheetViewModel
     }
@@ -72,19 +68,40 @@ extension InjectedValues {
         environment.floatingSheetViewModel
     }
 
-    var alertPresenterViewModel: AlertPresenterViewModel {
-        environment.alertPresenter
-    }
-
     var alertPresenter: any AlertPresenter {
         environment.alertPresenter
-    }
-
-    var overlayShareActivitiesViewModel: ShareActivitiesViewModel {
-        environment.shareActivitiesPresenter
     }
 
     var overlayShareActivitiesPresenter: any ShareActivitiesPresenter {
         environment.shareActivitiesPresenter
     }
+}
+
+// MARK: - AppOverlaysManager support
+
+/// Provides separated namespace for `AppOverlaysManager` dependencies to avoid possible exposure.
+struct AppOverlaysDependencies {
+    fileprivate let injectedValues: InjectedValues
+
+    fileprivate init(_ injectedValues: InjectedValues) {
+        self.injectedValues = injectedValues
+    }
+
+    var floatingSheetViewModel: FloatingSheetViewModel {
+        injectedValues.environment.floatingSheetViewModel
+    }
+
+    var overlayShareActivitiesViewModel: ShareActivitiesViewModel {
+        injectedValues.environment.shareActivitiesPresenter
+    }
+
+    var alertPresenterViewModel: AlertPresenterViewModel {
+        injectedValues.environment.alertPresenter
+    }
+}
+
+extension InjectedValues {
+    /// - Warning: Implementation details for `AppOverlaysManager`, do not use this property.
+    @available(iOS, deprecated: 100000.0, message: "Implementation details for `AppOverlaysManager`, do not use this property.")
+    var appOverlaysDependencies: AppOverlaysDependencies { .init(self) }
 }

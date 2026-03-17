@@ -21,6 +21,8 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
 
             sheets
         }
+        .onAppear(perform: coordinator.onViewAppear)
+        .onDisappear(perform: coordinator.onViewDisappear)
     }
 
     private var links: some View {
@@ -49,11 +51,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
-            .onChange(of: coordinator.noActiveCreateOrArchiveAccountFlows) { hasNoFlows in
-                if hasNoFlows {
-                    coordinator.rootViewModel?.showAccountsPendingAlertIfNeeded()
-                }
-            }
     }
 
     private var sheets: some View {
@@ -61,9 +58,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
-                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                    .onPreferenceChange(ModalSheetPreferenceKey.self) { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
-                    })
+                    }
             }
             .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
                 TransactionNotificationsModalView(viewModel: $0)
@@ -74,12 +71,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
                 MobileRemoveWalletNotificationView(viewModel: $0)
             }
-            .sheet(
-                item: $coordinator.accountFormViewModel,
-                onDismiss: {
-                    coordinator.handleAccountFormDismissed()
-                }
-            ) { viewModel in
+            .sheet(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
