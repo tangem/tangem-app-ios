@@ -38,7 +38,7 @@ final class SwapModel {
     var externalAmountUpdater: SendAmountExternalUpdater!
 
     var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
-        _providerRateTypes.removeDuplicates().eraseToAnyPublisher()
+        _providerRateTypes.eraseToAnyPublisher()
     }
 
     weak var router: SwapModelRoutable?
@@ -328,8 +328,8 @@ extension SwapModel {
                     let rateType = await input.expressManager.getAmountType()?.rateType
                     let filteredProviders = updatingResult.providers.filteredByRateType(rateType)
 
-                    if input.isFixedRatesFeatureEnabled {
-                        input._providerRateTypes.send(updatingResult.selected?.supportedRateTypes ?? [])
+                    if input.isFixedRatesFeatureEnabled, let selected = updatingResult.selected {
+                        input._providerRateTypes.send(selected.supportedRateTypes)
                     }
 
                     input.update(providersState: .loaded(
