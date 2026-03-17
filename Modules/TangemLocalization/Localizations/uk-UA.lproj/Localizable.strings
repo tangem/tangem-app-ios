@@ -1125,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Ліміт транзакції";
 "send_optional_field" = "Опціонально";
 "send_qrcode_scan_info" = "Будь ласка, сумістіть свій QR-код з квадратом, щоб відсканувати його. Переконайтеся, що ви скануєте адресу в мережі %@.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Останні";
 "send_recipient_address_error" = "Недійсна адреса";
 "send_recipient_address_footer" = "Переконайтеся, що адреса отримувача знаходиться **в мережі %@**, щоб уникнути втрати ваших коштів.";
