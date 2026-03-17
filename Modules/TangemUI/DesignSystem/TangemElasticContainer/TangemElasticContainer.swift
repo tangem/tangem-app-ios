@@ -16,19 +16,14 @@ import Combine
 /// `UIScrollView` and transforms it into a normalized expansion `ratio` (0...1),
 /// allowing content to react smoothly to scroll-driven expansion and collapse.
 public struct TangemElasticContainer<Content: View>: View {
-    @StateObject private var viewModel: TangemElasticContainerModel
-
+    @ObservedObject private var viewModel: TangemElasticContainerModel
     private let content: Content
 
     public init(
-        onAddScrollViewObserver: @escaping (RefreshScrollViewObserver) -> Void,
-        onRemoveScrollViewObserver: @escaping (RefreshScrollViewObserver) -> Void,
+        viewModel: TangemElasticContainerModel,
         content: Content
     ) {
-        _viewModel = StateObject(wrappedValue: TangemElasticContainerModel(
-            onAddScrollViewObserver: onAddScrollViewObserver,
-            onRemoveScrollViewObserver: onRemoveScrollViewObserver
-        ))
+        self.viewModel = viewModel
         self.content = content
     }
 
@@ -37,6 +32,5 @@ public struct TangemElasticContainer<Content: View>: View {
             .readGeometry { geometryInfo in
                 viewModel.onGeometry(frame: geometryInfo.frame)
             }
-            .preference(key: TangemElasticContainerHeightRatio.self, value: viewModel.heightRatio)
     }
 }
