@@ -145,7 +145,7 @@ extension TransferNFTFlowFactory: SendDestinationStepBuildable {
                 sourceToken: transferableToken,
                 receivedToken: .none,
                 analyticsLogger: analyticsLogger,
-                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
+                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider(sourceToken: transferableToken)
             )
         )
     }
