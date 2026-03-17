@@ -15,6 +15,7 @@ import TangemFoundation
 
 class UserWalletDataStorage {
     private let fileManager: FileManager = .default
+    private let dataWritingOptions: Data.WritingOptions = [.atomic, .completeFileProtection]
     private let encoder = JSONEncoder.tangemSdkEncoder
     private let decoder = JSONDecoder.tangemSdkDecoder
     private let secureStorage = SecureStorage()
@@ -80,11 +81,11 @@ class UserWalletDataStorage {
         }
 
         do {
-            try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
+            try createUserWalletDirectoryIfNeeded()
 
             let publicData = try encoder.encode(userWallets)
             let publicDataEncrypted = try encrypt(publicData, with: publicDataEncryptionKey())
-            try publicDataEncrypted.write(to: userWalletListPath(), options: [.atomic, .completeFileProtection])
+            try publicDataEncrypted.write(to: userWalletListPath(), options: dataWritingOptions)
             try excludeFromBackup(url: userWalletListPath())
 
             AppLogger.info("User wallets were saved successfully")
@@ -127,10 +128,12 @@ class UserWalletDataStorage {
         }
 
         do {
+            try createUserWalletDirectoryIfNeeded()
+
             let serialized = try sensitiveInfo.serialize(encoder: encoder)
             let sensitiveDataEncrypted = try encrypt(serialized, with: encryptionKey)
             let sensitiveDataPath = userWalletPath(for: userWalletId)
-            try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: [.atomic, .completeFileProtection])
+            try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: dataWritingOptions)
             try excludeFromBackup(url: sensitiveDataPath)
         } catch {
             AppLogger.error("Failed to save user wallet private data", error: error)
@@ -157,6 +160,12 @@ class UserWalletDataStorage {
 
     private func userWalletPath(for userWalletId: UserWalletId) -> URL {
         return userWalletDirectoryUrl.appendingPathComponent("user_wallet_\(userWalletId.stringValue.lowercased()).bin")
+    }
+
+    private func createUserWalletDirectoryIfNeeded() throws {
+        // `FileManager.createDirectory` can be safely called multiple times even if the directory already exists
+        // It calls `_mkpath_np()` which creates the full path hierarchy and returns 0 if the directory already exists.
+        try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
     }
 
     private func excludeFromBackup(url originalUrl: URL) throws {
