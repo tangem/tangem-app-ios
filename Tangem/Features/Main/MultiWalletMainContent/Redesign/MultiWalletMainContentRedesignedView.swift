@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemUIUtils
 import TangemFoundation
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct MultiWalletMainContentRedesignedView: View {
@@ -21,6 +22,10 @@ struct MultiWalletMainContentRedesignedView: View {
             notificationBanners
 
             listContent
+
+            if viewModel.isOrganizeTokensVisible {
+                organizeButton
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
         .padding(.horizontal, .unit(.x3))
@@ -62,6 +67,21 @@ struct MultiWalletMainContentRedesignedView: View {
             }
         }
         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+    }
+
+    private var organizeButton: some View {
+        TangemButton(
+            content: .combined(
+                text: AttributedString(Localization.organizeTokensTitle),
+                icon: Assets.OrganizeTokens.filterIcon,
+                iconPosition: .left
+            ),
+            action: viewModel.onOpenOrganizeTokensButtonTap
+        )
+        .setCornerStyle(.rounded)
+        .setStyleType(.secondary)
+        .setSize(.x9)
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
 
     // MARK: - Skeleton Placeholders
