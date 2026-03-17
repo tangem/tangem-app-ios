@@ -192,6 +192,7 @@
 "common_activate" = "Activar";
 "common_add_to_portfolio" = "Añadir al portafolio";
 "common_add_token" = "Agregar token";
+"common_add_tokens" = "Añada tokens";
 "common_add" = "Agregar";
 "common_added" = "Agregado";
 "common_address" = "Dirección";
@@ -290,6 +291,7 @@
 "common_next" = "Siguiente";
 "common_nft" = "NFT";
 "common_no_address" = "Ninguna dirección";
+"common_no_results" = "No results";
 "common_no" = "No";
 "common_not_added" = "No agregadas";
 "common_not_available" = "No disponible";
@@ -350,6 +352,7 @@
 "common_to_wallet_name" = "A %@";
 "common_to" = "A";
 "common_today" = "Hoy";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "Transacción fallida";
 "common_transaction_status" = "Estado de la transacción";
 "common_transactions" = "Transacciones";
@@ -358,6 +361,7 @@
 "common_understand_continue" = "Entiendo, continuar";
 "common_understand" = "Entiendo";
 "common_unknown_error" = "Hubo un error. Por favor inténtelo de nuevo.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Inaccesible";
 "common_unstake" = "Termine el staking";
 "common_utxo_validate_withdrawal_message_warning" = "Debido a limitaciones sobre %1$@, solo %2$li UTXO pueden caber en una sola transacción. Esto significa que solo puedes enviar %3$@ o menos. Debe reducir la cantidad.";
@@ -448,7 +452,6 @@
 "exchange_tokens_available_tokens_header" = "Mis tokens";
 "exchange_tokens_empty_tokens" = "Aún no ha añadido ningún token. Agregue tokens a través de Mercados para hacer intercambios";
 "exchange_tokens_unavailable_tokens_header" = "No se puede intercambiar por %@";
-"exсhange_token_description" = "Convierta una de sus activos de su portafolio por este token";
 "express_by_provider_placeholder" = "Proporcionado por %@";
 "express_cex_status_button_title" = "Estado";
 "express_choose_provider" = "Elegir proveedor";
@@ -645,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Para restablecer a los ajustes de fábrica, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_reset_backup_card_header" = "Toque la tarjeta no. %@ de la billetera";
 "initial_message_sign_body" = "Para firmar, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
 "jailbreak_warning_title" = "Jailbreak detectado";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
@@ -660,6 +666,7 @@
 "mail_error_no_accounts_title" = "No hay cuentas de correo";
 "main_empty_tokens_list_message" = "Para hacer un seguimiento de sus criptomonedas y transacciones, agregue tokens";
 "main_manage_tokens" = "Gestionar tokens";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Para acceder a todas las redes necesita escanear la tarjeta";
 "main_scan_card_warning_view_title" = "Escanee su tarjeta o anillo";
 "main_tokens" = "Tokens";
@@ -685,6 +692,8 @@
 "markets_common_title" = "Mercado";
 "markets_earn_common_title" = "Gane con Tangem";
 "markets_generate_addresses_notification" = "Para generar direcciones para las redes seleccionadas, debe escanear su tarjeta Tangem";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "Para agregar tokens, abra esta página o pulse sobre la barra de búsqueda";
 "markets_insights_info_description_message" = "Los datos de este apartado proceden de las siguientes redes: %@";
 "markets_loading_error_title" = "No se pueden cargar los datos…";
@@ -740,6 +749,10 @@
 "markets_token_details_holders_description" = "El cambio en el número de poseedores de tokens dentro de un período de tiempo específico";
 "markets_token_details_holders_full" = "Titulares";
 "markets_token_details_holders" = "Titulares";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Ideas";
 "markets_token_details_links" = "Enlaces";
 "markets_token_details_liquidity_description" = "El cambio en la cantidad de liquidez disponible para el token durante el período de tiempo especificado";
@@ -767,9 +780,11 @@
 "markets_token_details_total_supply_description" = "La cantidad máxima de monedas o tokens que pueden existir para una criptomoneda en particular";
 "markets_token_details_total_supply_full" = "Suministro total";
 "markets_token_details_total_supply" = "Suministro total";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "La cantidad total de una criptomoneda que se ha negociado en las últimas 24 horas, lo que indica el nivel de actividad y liquidez en el mercado.";
 "markets_token_details_trading_volume_full" = "Volumen de operaciones (24 horas)";
 "markets_token_details_trading_volume" = "Volumen de operaciones (24 horas)";
+"markets_token_details_valuation_value_in_total" = "%@ in total";
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Tire hacia arriba o toque la barra de búsqueda para agregar tokens directamente desde el mercado";
 "markets_tooltip_title" = "Agregar tokens";
@@ -785,6 +800,7 @@
 "news_related_tokens" = "Tokens relacionados";
 "news_sources" = "Noticias relacionadas";
 "news_stay_in_the_loop" = "Manténgase informado";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "Acerca de NFT";
 "nft_asset" = "Activo NFT";
 "nft_collections_empty_description" = "Los NFTs enviados a la dirección de su billetera aparecerán aquí.";
@@ -1382,6 +1398,7 @@
 "tangempay_cancel_kyc" = "Ocultar verificación de la pantalla";
 "tangempay_card_details_add_funds_subtitle" = "Opciones de recarga";
 "tangempay_card_details_add_funds" = "Agregar fondos";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Número de tarjeta";
 "tangempay_card_details_change_pin_success_description" = "La tarjeta está completamente lista para pagos.";
 "tangempay_card_details_change_pin_success_title" = "Código PIN creado";
