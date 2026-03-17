@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import TangemAssets
+import TangemExpress
 import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -59,11 +61,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    @Published private(set) var isFixedRateSupportedByProvider: Bool = false
+    @Published private(set) var providerRateTypes: Set<ExpressProviderRateType> = []
+
+    var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($lastUpdateSource, $isFixedRateSupportedByProvider)
-            .map { source, isSupported in !isSupported || source == .send }
+        Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
+            .map { source, rateTypes in !rateTypes.contains(.fixed) || source == .send }
             .eraseToAnyPublisher()
     }
 
@@ -92,7 +96,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
-    private let isFixedRateSupportedByProviderPublisher: AnyPublisher<Bool, Never>?
+    private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
     /// Guards against stale CombineLatest emissions after removal.
@@ -115,7 +119,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        isFixedRateSupportedByProviderPublisher: AnyPublisher<Bool, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -126,7 +130,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
-        self.isFixedRateSupportedByProviderPublisher = isFixedRateSupportedByProviderPublisher
+        self.providerRateTypesPublisher = providerRateTypesPublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -238,6 +242,34 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         case .receive: return useDestinationFiatCalculation
         }
     }
+
+    // MARK: - Rate Badges
+
+    var sourceRateBadge: RateBadgeConfig? {
+        guard isFixedRateSupportedByProvider else { return nil }
+        let isFixed = !providerRateTypes.contains(.float)
+        return RateBadgeConfig(
+            title: isFixed ? Localization.sendRateIsFixed : Localization.expressFloatingRate,
+            icon: isFixed ? Assets.Send.lockMini : Assets.Send.floatingMini,
+            action: { [weak self] in self?.openRateInfo(type: isFixed ? .fixed : .floating) }
+        )
+    }
+
+    var destinationRateBadge: RateBadgeConfig? {
+        guard isFixedRateSupportedByProvider else { return nil }
+        return RateBadgeConfig(
+            title: Localization.sendRateIsFixed,
+            icon: Assets.Send.lockMini,
+            action: { [weak self] in self?.openRateInfo(type: .fixed) }
+        )
+    }
+
+    private func openRateInfo(type: RateInfoSheetViewModel.RateType) {
+        router?.openRateInfoSheet(rateType: type, onDismiss: { [weak self] in
+            guard let self else { return }
+            pendingFocusField = activeField
+        })
+    }
 }
 
 // MARK: - Private
@@ -319,21 +351,22 @@ private extension SendAmountViewModel {
             }
             .store(in: &bag)
 
-        isFixedRateSupportedByProviderPublisher?
+        providerRateTypesPublisher?
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, isSupported in
-                viewModel.handleFixedRateSupportChange(isSupported)
+            .sink { viewModel, rateTypes in
+                viewModel.handleProviderRateTypesChange(rateTypes)
             }
             .store(in: &bag)
     }
 
-    func handleFixedRateSupportChange(_ isSupported: Bool) {
-        guard isFixedRateSupportedByProvider != isSupported else { return }
-        isFixedRateSupportedByProvider = isSupported
+    func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
+        guard providerRateTypes != rateTypes else { return }
+        let wasFixedSupported = isFixedRateSupportedByProvider
+        providerRateTypes = rateTypes
 
-        if !isSupported {
+        if wasFixedSupported, !isFixedRateSupportedByProvider {
             // Transitioning from supported → unsupported: tear down editable TO
             pendingReverseRecalculation = false
             isInputFieldSwitchingLocked = false
@@ -627,6 +660,13 @@ extension SendAmountViewModel {
         var isAmountEditable: Bool {
             if case .selectedEditableAmount = self { return true }
             return false
+        }
+
+        var hasDestinationToken: Bool {
+            switch self {
+            case .selected, .selectedEditableAmount: true
+            case .selectButton: false
+            }
         }
     }
 }

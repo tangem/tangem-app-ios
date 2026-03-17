@@ -39,23 +39,25 @@ struct SendAmountView: View {
 
     private var sourceSection: some View {
         let isAmountEditable = viewModel.destinationTokenViewType?.isAmountEditable ?? false
+        let hasDestination = viewModel.destinationTokenViewType?.hasDestinationToken ?? false
 
         return SendAmountInputSectionView(
             isExpanded: isAmountEditable ? viewModel.activeField == .send : true,
             isLocked: isAmountEditable ? viewModel.isInputFieldSwitchingLocked : true,
             expandedTokenData: viewModel.sourceAmountTokenViewData,
             compactTokenData: isAmountEditable ? viewModel.compactSourceTokenViewData : nil,
+            expandedContentVerticalPadding: viewModel.sourceRateBadge != nil ? 45 : 51,
             onTapCompact: { viewModel.userDidTapCompactField(.send) }
         ) {
             sourceHeaderWithInput
         }
         .overlay(alignment: .bottom) {
-            if isAmountEditable {
+            if hasDestination {
                 convertButton
                     .offset(y: convertButtonSize.height / 2 + Constants.scrollViewSpacing / 2)
             }
         }
-        .zIndex(isAmountEditable ? 1 : 0)
+        .zIndex(1)
     }
 
     private var sourceHeaderWithInput: some View {
@@ -98,16 +100,11 @@ struct SendAmountView: View {
             }
 
         case .selected(let receivedTokenViewModel):
-            ZStack(alignment: .top) {
-                GroupedSection(receivedTokenViewModel) {
-                    SendAmountTokenView(data: $0)
-                }
-                .backgroundColor(Colors.Background.action)
-                .innerContentPadding(0)
-
-                convertButton
-                    .offset(y: -(convertButtonSize.height + Constants.scrollViewSpacing) / 2)
+            GroupedSection(receivedTokenViewModel) {
+                SendAmountTokenView(data: $0)
             }
+            .backgroundColor(Colors.Background.action)
+            .innerContentPadding(0)
 
         case .selectedEditableAmount(let expandedDestinationData, _):
             SendAmountInputSectionView(
@@ -115,6 +112,7 @@ struct SendAmountView: View {
                 isLocked: viewModel.isInputFieldSwitchingLocked,
                 expandedTokenData: expandedDestinationData,
                 compactTokenData: viewModel.compactDestinationTokenViewData,
+                expandedContentVerticalPadding: viewModel.destinationRateBadge != nil ? 45 : 51,
                 onTapCompact: { viewModel.userDidTapCompactField(.receive) }
             ) {
                 destinationHeaderWithInput
@@ -135,6 +133,7 @@ struct SendAmountView: View {
                     focusedField: $focusedField,
                     cryptoFocusValue: .destinationCrypto,
                     fiatFocusValue: .destinationFiat,
+                    rateBadge: viewModel.destinationRateBadge,
                     onWillToggle: {
                         if focusedField != nil {
                             focusedField = viewModel.useDestinationFiatCalculation ? .destinationCrypto : .destinationFiat
@@ -155,6 +154,7 @@ struct SendAmountView: View {
             cryptoFocusValue: .sourceCrypto,
             fiatFocusValue: .sourceFiat,
             accessibilityConfiguration: .source,
+            rateBadge: viewModel.sourceRateBadge,
             onWillToggle: {
                 focusedField = viewModel.useFiatCalculation ? .sourceCrypto : .sourceFiat
             }

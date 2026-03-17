@@ -1109,6 +1109,11 @@
 "send_notification_transaction_limit_title" = "Limitation des transactions";
 "send_optional_field" = "Facultatif";
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
+"send_rate_is_fixed" = "Rate is fixed";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";

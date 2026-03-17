@@ -198,7 +198,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            isFixedRateSupportedByProviderPublisher: swapModel.isFixedRateSupportedByProviderPublisher
+            providerRateTypesPublisher: swapModel.providerRateTypesPublisher
         )
     }
 }
