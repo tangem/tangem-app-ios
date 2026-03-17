@@ -1100,6 +1100,16 @@ public extension Blockchain {
             return ["bnb:"]
         case .dogecoin:
             return ["doge:", "dogecoin:"]
+        case .solana:
+            return ["solana:"]
+        case .tron:
+            return ["tron:"]
+        case .ton:
+            return ["ton://transfer/", "ton:"]
+        case .bitcoinCash:
+            return ["bitcoincash:"]
+        case .dash:
+            return ["dash:"]
         default:
             return []
         }
