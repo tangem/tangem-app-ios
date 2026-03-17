@@ -52,6 +52,7 @@ public struct BottomSheetErrorContentView: View {
                 icon.icon.image
                     .resizable()
                     .frame(width: 32, height: 32)
+                    .foregroundColor(icon.tint)
                     .padding(12)
                     .background(Circle().fill(icon.overlay.opacity(0.1)))
 
@@ -90,10 +91,12 @@ public extension BottomSheetErrorContentView {
 
         public let icon: ImageType
         public let overlay: Color
+        public var tint: Color?
 
-        public init(icon: ImageType, overlay: Color) {
+        public init(icon: ImageType, overlay: Color, tint: Color? = nil) {
             self.icon = icon
             self.overlay = overlay
+            self.tint = tint
         }
     }
 }
