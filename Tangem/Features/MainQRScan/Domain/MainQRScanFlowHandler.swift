@@ -28,15 +28,12 @@ struct MainQRScanFlowHandler {
 
     func resolve(scannedCode: String, context: Context) -> MainQRScanAction {
         let availableBlockchains = context.availableTokenItems.map(\.blockchain)
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.flowHandlerStarted(availableBlockchains: availableBlockchains.count))
 
-        let action = routeResolver.resolve(
+        return routeResolver.resolve(
             scannedCode: scannedCode,
             availableBlockchains: availableBlockchains,
             availableTokenItems: context.availableTokenItems
         )
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.flowHandlerResolvedAction(action.debugName))
-        return action
     }
 
     func resolve(scannedCode: String) -> MainQRScanAction {
@@ -47,11 +44,8 @@ struct MainQRScanFlowHandler {
         var tokenItems: [TokenItem] = []
         let userWalletModels = userWalletRepository.models
 
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.collectingWalletTokenItems(userWalletModels: userWalletModels.count))
-
         for userWalletModel in userWalletModels {
             let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.collectedWalletModels(walletModels: walletModels.count))
 
             for walletModel in walletModels {
                 tokenItems.append(walletModel.tokenItem)

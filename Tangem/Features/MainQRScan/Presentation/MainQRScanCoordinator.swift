@@ -47,7 +47,6 @@ extension MainQRScanCoordinator {
 
 extension MainQRScanCoordinator: MainQRScanRoutable {
     func didScanQRCode(_ code: String) {
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.coordinatorReceivedScanResult)
         dismissAction(code)
     }
 
