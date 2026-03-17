@@ -114,8 +114,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         // MARK: - Token
 
         interactor.tokenItemPublisher
+            // Exclude unnecessary updating
+            .removeDuplicates()
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
             .sink { $0.updateView(tokenItem: $1) }
             .store(in: &bag)
 
