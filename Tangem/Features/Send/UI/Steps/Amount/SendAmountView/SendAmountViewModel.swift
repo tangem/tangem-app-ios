@@ -167,6 +167,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         currentDestinationToken = nil
         compactSourceSubtitle = nil
         compactDestinationSubtitle = nil
+        providerRateTypes = []
         interactor.userDidRequestClearReceiveToken()
 
         // Short delay for the source field to appear in the hierarchy
@@ -352,7 +353,6 @@ private extension SendAmountViewModel {
             .store(in: &bag)
 
         providerRateTypesPublisher?
-            .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, rateTypes in
