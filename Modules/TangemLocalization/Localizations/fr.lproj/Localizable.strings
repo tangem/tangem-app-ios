@@ -192,6 +192,7 @@
 "common_activate" = "Activer";
 "common_add_to_portfolio" = "Ajouter au portfolio";
 "common_add_token" = "Ajouter un jeton";
+"common_add_tokens" = "Ajouter des jetons";
 "common_add" = "Ajouter";
 "common_added" = "Ajouté";
 "common_address" = "Adresse";
@@ -350,6 +351,7 @@
 "common_to_wallet_name" = "À %@";
 "common_to" = "À";
 "common_today" = "Aujourd'hui";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "La transaction a échoué";
 "common_transaction_status" = "Statut de la transaction";
 "common_transactions" = "Transactions";
@@ -448,7 +450,6 @@
 "exchange_tokens_available_tokens_header" = "Mes jetons";
 "exchange_tokens_empty_tokens" = "Vous n'avez pas encore ajouté de jetons. Ajoutez des jetons via Market pour effectuer une échange";
 "exchange_tokens_unavailable_tokens_header" = "Ne peut pas être échangé contre %@";
-"exсhange_token_description" = "Convertissez une de vos devises en une autre";
 "express_by_provider_placeholder" = "Fourni par %@";
 "express_cex_status_button_title" = "Statut";
 "express_choose_provider" = "Choisir un fournisseur";
@@ -660,6 +661,7 @@
 "mail_error_no_accounts_title" = "Aucun compte Mail";
 "main_empty_tokens_list_message" = "Pour commencer à suivre vos actifs et transactions crypto, ajoutez des jetons";
 "main_manage_tokens" = "Gérer les jetons";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Pour accéder à tous les réseaux, vous devez scanner la carte";
 "main_scan_card_warning_view_title" = "Scannez votre carte";
 "main_tokens" = "Jetons";
@@ -685,6 +687,8 @@
 "markets_common_title" = "Marché";
 "markets_earn_common_title" = "Gagnez avec Tangem";
 "markets_generate_addresses_notification" = "Pour générer des adresses pour les réseaux sélectionnés, vous devez scanner votre carte Tangem";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "Pour ajouter des jetons, faites-le apparaître ou appuyez sur la barre de recherche";
 "markets_insights_info_description_message" = "Les données de cette section proviennent des réseaux suivants : %@";
 "markets_loading_error_title" = "Impossible de charger les données…";
@@ -767,9 +771,11 @@
 "markets_token_details_total_supply_description" = "Le nombre maximal de pièces ou de jetons pouvant exister pour une crypto-monnaie particulière";
 "markets_token_details_total_supply_full" = "Approvisionnement total";
 "markets_token_details_total_supply" = "Approvisionnement total";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "Le montant total d'une crypto-monnaie qui a été échangé au cours des dernières 24 heures, indiquant le niveau d'activité et de liquidité du marché";
 "markets_token_details_trading_volume_full" = "Volume des échanges (24h)";
 "markets_token_details_trading_volume" = "Volume des échanges (24h)";
+"markets_token_details_valuation_value_in_total" = "%@ in total";
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Tirez vers le haut ou appuyez sur la barre de recherche pour ajouter des jetons directement depuis le marché";
 "markets_tooltip_title" = "Ajouter des jetons";
@@ -785,6 +791,7 @@
 "news_related_tokens" = "Tokens associés";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Restez informé";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "À propos des NFT";
 "nft_asset" = "Actif NFT";
 "nft_collections_empty_description" = "Les NFT envoyés à l'adresse de votre portefeuille s'afficheront ici.";
@@ -1382,6 +1389,7 @@
 "tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
 "tangempay_card_details_add_funds_subtitle" = "Options de recharge";
 "tangempay_card_details_add_funds" = "Ajouter des fonds";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Numéro de carte";
 "tangempay_card_details_change_pin_success_description" = "La carte est totalement prête pour les paiements.";
 "tangempay_card_details_change_pin_success_title" = "Code PIN créé";
