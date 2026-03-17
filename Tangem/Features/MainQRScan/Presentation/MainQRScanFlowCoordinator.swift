@@ -57,13 +57,11 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         let dismissAction: Action<String?> = { [weak self] scannedCode in
             guard let self else { return }
             guard let scannedCode else {
-                MainQRScanLogger.debug(MainQRScanLoggerStrings.qrScannerClosedByUser)
                 qrScanCoordinator = nil
                 self.dismissAction(())
                 return
             }
 
-            MainQRScanLogger.debug(MainQRScanLoggerStrings.flowCoordinatorReceivedScanResult)
             handleScannedCode(scannedCode)
         }
 
@@ -82,24 +80,17 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         let flowHandlerSnapshot = flowHandler
         let context = flowHandlerSnapshot.makeContext()
 
-        scanResolutionQueue.async { [weak self] in
-            guard let self else {
-                return
-            }
-
-            let action = flowHandlerSnapshot.resolve(scannedCode: code, context: context)
-
-            Task { @MainActor [weak self] in
-                guard
-                    let self,
-                    qrScanCoordinator != nil
-                else {
-                    return
+        Task {
+            let action: MainQRScanAction = await withCheckedContinuation { continuation in
+                scanResolutionQueue.async {
+                    let result = flowHandlerSnapshot.resolve(scannedCode: code, context: context)
+                    continuation.resume(returning: result)
                 }
-
-                MainQRScanLogger.debug(MainQRScanLoggerStrings.flowCoordinatorResolvedAction(action.debugName))
-                route(action)
             }
+
+            guard qrScanCoordinator != nil else { return }
+
+            route(action)
         }
     }
 

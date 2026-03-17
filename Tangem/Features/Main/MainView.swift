@@ -20,6 +20,15 @@ struct MainView: View {
 
     @State private var redesignedHeaderHeightRatio: CGFloat?
 
+    private var redesignedHeaderOpacity: CGFloat {
+        let heightRatio = redesignedHeaderHeightRatio ?? 1.0
+
+        // Opacity: decreases linearly from 1 to 0 value as height collapses from 100% to 50%
+        let opacity: CGFloat = clamp(2 * heightRatio - 1, min: 0, max: 1)
+
+        return opacity
+    }
+
     var body: some View {
         content
             .onAppear(perform: viewModel.onViewAppear)
@@ -34,7 +43,7 @@ struct MainView: View {
     private var content: some View {
         if FeatureProvider.isAvailable(.redesign) {
             fullPagePagerContent
-                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2)
+                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2, opacity: redesignedHeaderOpacity)
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -80,11 +89,11 @@ struct MainView: View {
             },
             trailingContent: {
                 TangemNavigationHeader.TrailingButtons(
-                    secondaryAction: FeatureProvider.isAvailable(.mainQRScan) ? TangemNavigationHeader.ActionInfo(
+                    secondaryAction: TangemNavigationHeader.ActionInfo(
                         action: viewModel.openQRScan,
                         accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
                         accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession
-                    ) : nil,
+                    ),
                     action: TangemNavigationHeader.ActionInfo(
                         action: viewModel.openDetails,
                         accessibilityIdentifier: MainAccessibilityIdentifiers.detailsButton,
@@ -101,9 +110,6 @@ struct MainView: View {
         // Scale: decreases linearly from 100% to 90% as height collapses from 100% to 50%
         let scale: CGFloat = clamp(0.2 * heightRatio + 0.8, min: 0, max: 1)
 
-        // Opacity: decreases linearly from 1 to 0 value as height collapses from 100% to 50%
-        let opacity: CGFloat = clamp(2 * heightRatio - 1, min: 0, max: 1)
-
         return TangemElasticContainer(
             onAddScrollViewObserver: viewModel.refreshScrollViewStateObject.addObserver,
             onRemoveScrollViewObserver: viewModel.refreshScrollViewStateObject.removeObserver,
@@ -112,7 +118,7 @@ struct MainView: View {
                 currentIndex: viewModel.selectedCardIndex
             )
             .scaleEffect(scale)
-            .opacity(opacity)
+            .opacity(redesignedHeaderOpacity)
             .animation(.default, value: redesignedHeaderHeightRatio)
         )
         .onPreferenceChange(TangemElasticContainerHeightRatio.self) { redesignedHeaderHeightRatio = $0 }
@@ -145,12 +151,7 @@ struct MainView: View {
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
-        .modifier(
-            MainViewNavigationModifier(
-                openDetailsAction: viewModel.openDetails,
-                openQRScanAction: viewModel.openQRScan
-            )
-        )
+        .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     private var renameButton: some View {
@@ -189,18 +190,16 @@ private struct MainViewNavigationModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .tangemLogoNavigationToolbar {
-                if FeatureProvider.isAvailable(.mainQRScan) {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: openQRScanAction) {
-                            Assets.Glyphs.scanQrIcon.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
-                        .buttonStyle(.plain)
-                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
-                        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: openQRScanAction) {
+                        Assets.Glyphs.scanQrIcon.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
                     }
+                    .buttonStyle(.plain)
+                    .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
