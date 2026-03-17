@@ -291,6 +291,7 @@
 "common_next" = "Weiter";
 "common_nft" = "NFT";
 "common_no_address" = "Keine Adresse";
+"common_no_results" = "No results";
 "common_no" = "Nein";
 "common_not_added" = "Nicht hinzugefügt";
 "common_not_available" = "Nicht verfügbar";
@@ -360,6 +361,7 @@
 "common_understand_continue" = "Ich verstehe, fahre bitte fort.";
 "common_understand" = "Ich verstehe";
 "common_unknown_error" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Nicht erreichbar";
 "common_unstake" = "Staking beenden";
 "common_utxo_validate_withdrawal_message_warning" = "Aufgrund der Beschränkungen von %1$@ können nur %2$li UTXOs in eine einzige Transaktion passen. Das bedeutet, dass du nur %3$@ oder weniger senden kannst. Du musst den Betrag reduzieren.";
@@ -646,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Um die Karte oder Ring auf die Werkseinstellungen zurückzusetzen, halte die Karte oder Ring wie oben gezeigt an und entferne sie erst am Ende des Vorgangs.";
 "initial_message_reset_backup_card_header" = "Halte deine Karte oder Ring Nr. %@ des Sets an dein Smartphone";
 "initial_message_sign_body" = "Zum Signieren, halte die Karte oder Ring wie oben gezeigt an und entfernen sie erst am Ende des Vorgangs.";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
 "jailbreak_warning_title" = "Jailbreak erkannt";
 "key_invalidated_warning_description" = "Du hast deine biometrischen Daten aktualisiert, scanne deine Karte oder Ring, um einzutreten";
@@ -661,7 +666,7 @@
 "mail_error_no_accounts_title" = "Keine Mail-Konten";
 "main_empty_tokens_list_message" = "Um mit der Verfolgung deiner Krypto-Assets und -Transaktionen zu beginnen, füge einen Token hinzu";
 "main_manage_tokens" = "Token verwalten";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Um auf alle Netzwerke zugreifen zu können, musst du die Karte oder Ring scannen";
 "main_scan_card_warning_view_title" = "Scanne deine Karte oder Ring";
 "main_tokens" = "Token";
@@ -744,6 +749,10 @@
 "markets_token_details_holders_description" = "Die Änderung der Anzahl der Token-Inhaber innerhalb eines bestimmten Zeitraums";
 "markets_token_details_holders_full" = "Inhaber/ Halter";
 "markets_token_details_holders" = "Inhaber/ Halter";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Einblicke";
 "markets_token_details_links" = "Links";
 "markets_token_details_liquidity_description" = "Die Änderung der Liquidität, die dem Token während des angegebenen Zeitraums zur Verfügung steht";
@@ -1116,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Begrenzung der Transaktionen";
 "send_optional_field" = "Optional";
 "send_qrcode_scan_info" = "Bitte richte den QR-Code auf das Quadrat aus, um ihn zu scannen. Stell sicher, dass du die Netzwerkadresse %@ scannen.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Jüngste";
 "send_recipient_address_error" = "Keine gültige Adresse";
 "send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im **%@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
@@ -1317,7 +1331,7 @@
 "swap_approve_description" = "Durch die Genehmigung erlaubst Du dem Smart Contract, Deine Token in zukünftigen Transaktionen zu verwenden.";
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
-"swap_search_suggestion_hint" = "Suchen Sie etwas anderes? Versuchen Sie es mit der Suche oder erkunden Sie eine andere Kryptowährung!";
+"swap_search_suggestion_hint" = "Suchen Sie etwas anderes?\n Versuchen Sie es mit der Suche oder erkunden Sie eine andere Kryptowährung!";
 "swap_search_tooltip_description" = "Suchen Sie nach einem beliebigen Token, auch wenn es noch nicht in Ihrer Liste ist.";
 "swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
