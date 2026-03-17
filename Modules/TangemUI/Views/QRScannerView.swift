@@ -12,9 +12,20 @@ import SwiftUI
 public struct QRScannerView: UIViewRepresentable {
     @Binding private var code: String
     @Environment(\.dismiss) private var dismissAction
+    private let shouldDismissOnSuccess: Bool
+    private let shouldDismissOnFailure: Bool
+    private let onScanningFailure: (() -> Void)?
 
-    public init(code: Binding<String>) {
+    public init(
+        code: Binding<String>,
+        shouldDismissOnSuccess: Bool = true,
+        shouldDismissOnFailure: Bool = true,
+        onScanningFailure: (() -> Void)? = nil
+    ) {
         _code = code
+        self.shouldDismissOnSuccess = shouldDismissOnSuccess
+        self.shouldDismissOnFailure = shouldDismissOnFailure
+        self.onScanningFailure = onScanningFailure
     }
 
     public func makeUIView(context: Context) -> QRScannerUIView {
@@ -24,7 +35,13 @@ public struct QRScannerView: UIViewRepresentable {
     public func updateUIView(_ uiView: QRScannerUIView, context: Context) {}
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(code: $code, dismissAction: dismissAction)
+        Coordinator(
+            code: $code,
+            dismissAction: dismissAction,
+            shouldDismissOnSuccess: shouldDismissOnSuccess,
+            shouldDismissOnFailure: shouldDismissOnFailure,
+            onScanningFailure: onScanningFailure
+        )
     }
 }
 
@@ -32,14 +49,28 @@ public extension QRScannerView {
     final class Coordinator: NSObject, QRScannerUIView.Delegate {
         @Binding private var code: String
         private let dismissAction: DismissAction
+        private let shouldDismissOnSuccess: Bool
+        private let shouldDismissOnFailure: Bool
+        private let onScanningFailure: (() -> Void)?
 
-        init(code: Binding<String>, dismissAction: DismissAction) {
+        init(
+            code: Binding<String>,
+            dismissAction: DismissAction,
+            shouldDismissOnSuccess: Bool,
+            shouldDismissOnFailure: Bool,
+            onScanningFailure: (() -> Void)?
+        ) {
             _code = code
             self.dismissAction = dismissAction
+            self.shouldDismissOnSuccess = shouldDismissOnSuccess
+            self.shouldDismissOnFailure = shouldDismissOnFailure
+            self.onScanningFailure = onScanningFailure
         }
 
         func qrScanningDidFail() {
             DispatchQueue.main.async {
+                self.onScanningFailure?()
+                guard self.shouldDismissOnFailure else { return }
                 self.dismissAction()
             }
         }
@@ -48,6 +79,7 @@ public extension QRScannerView {
             code = qrCode
 
             DispatchQueue.main.async {
+                guard self.shouldDismissOnSuccess else { return }
                 self.dismissAction()
             }
         }
