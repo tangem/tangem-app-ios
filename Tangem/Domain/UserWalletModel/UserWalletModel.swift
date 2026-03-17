@@ -58,6 +58,7 @@ protocol UserWalletModel:
 
 enum UpdateRequest {
     case backupCompleted(card: Card, associatedCardIds: Set<String>)
+    case updateSensitiveInfo(sensitiveInfo: StoredUserWallet.SensitiveInfo)
     case newName(_ name: String)
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
