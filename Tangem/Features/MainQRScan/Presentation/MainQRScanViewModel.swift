@@ -16,6 +16,7 @@ import TangemUIUtils
 final class MainQRScanViewModel: ObservableObject {
     @Published private(set) var hasCameraAccess = false
     @Published private(set) var isFlashActive = false
+    @Published private(set) var scannerViewID = UUID()
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let hintText: String
@@ -35,7 +36,10 @@ final class MainQRScanViewModel: ObservableObject {
     }
 
     func onQRCodeScanned(_ code: String) {
-        guard !didProduceResult else { return }
+        guard !didProduceResult else {
+            return
+        }
+
         didProduceResult = true
         coordinator?.didScanQRCode(code)
     }
@@ -49,6 +53,16 @@ final class MainQRScanViewModel: ObservableObject {
         guard !didProduceResult else { return }
         didProduceResult = true
         coordinator?.didScanQRCode(string)
+    }
+
+    func rearmScanner() {
+        didProduceResult = false
+        scannerViewID = UUID()
+    }
+
+    func onScannerFailure() {
+        MainQRScanLogger.warning(MainQRScanLoggerStrings.scannerSessionFailed)
+        presentAccessDeniedAlert()
     }
 
     func onCloseTapped() {
@@ -73,7 +87,7 @@ final class MainQRScanViewModel: ObservableObject {
             camera.torchMode = camera.isTorchActive ? .off : .on
             camera.unlockForConfiguration()
         } catch {
-            AppLogger.error("Failed to toggle the flash", error: error)
+            MainQRScanLogger.error(MainQRScanLoggerStrings.failedToToggleFlash, error: error)
         }
     }
 
