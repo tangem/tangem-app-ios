@@ -1,5 +1,5 @@
 //
-//  WalletTokenSyncStateActor.swift
+//  WalletTokenAutoSyncStateActor.swift
 //  Tangem
 //
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 import Foundation
 import TangemFoundation
 
-actor WalletTokenSyncStateActor {
+actor WalletTokenAutoSyncStateActor {
     private var syncInProgress: Set<String> = []
 
     func tryRegister(userWalletId: UserWalletId) throws {
