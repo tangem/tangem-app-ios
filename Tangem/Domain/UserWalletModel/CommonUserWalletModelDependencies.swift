@@ -27,10 +27,7 @@ struct CommonUserWalletModelDependencies {
     private var innerDependencies: InnerDependenciesConfigurable
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
-        guard
-            let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
-            let keysRepositoryEncryptionKey = UserWalletEncryptionKey(config: config)
-        else {
+        guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
@@ -39,11 +36,8 @@ struct CommonUserWalletModelDependencies {
         let hasTokenSynchronization = config.hasFeature(.multiCurrency)
         let hasAccounts = FeatureProvider.isAvailable(.accounts)
 
-        keysRepository = CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: keysRepositoryEncryptionKey,
-            keys: keys
-        )
+        let keysRepository = CommonKeysRepository(keys: keys)
+        self.keysRepository = keysRepository
 
         let (userTokensManager, legacyInnerDependencies) = Self.makeUserTokensManager(
             userWalletId: userWalletId,
@@ -315,7 +309,7 @@ private extension CommonUserWalletModelDependencies {
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         walletManagerFactory: AnyWalletManagerFactory,
-        keysRepository: KeysRepository,
+        keysRepository: CommonKeysRepository,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
@@ -354,7 +348,8 @@ private extension CommonUserWalletModelDependencies {
         // If accounts are enabled, we have to use a special set of dependencies, overriding the existing `innerDependencies`
         let accountsAwareInnerDependencies = AccountsAwareInnerDependencies(
             cryptoAccountsRepository: cryptoAccountsRepository,
-            cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper
+            cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper,
+            keysRepository: keysRepository
         )
 
         return (accountModelsManager, accountsAwareInnerDependencies)
@@ -453,6 +448,7 @@ private extension CommonUserWalletModelDependencies {
     struct AccountsAwareInnerDependencies: InnerDependenciesConfigurable {
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper
+        let keysRepository: CommonKeysRepository
 
         func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {
             cryptoAccountsNetworkMapper.externalParametersProvider = externalParametersProvider
@@ -466,6 +462,7 @@ private extension CommonUserWalletModelDependencies {
 
         func configure(with model: UserWalletModel) {
             cryptoAccountsRepository.configure(with: model)
+            keysRepository.configure(with: model)
         }
     }
 
