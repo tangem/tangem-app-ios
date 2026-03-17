@@ -291,6 +291,7 @@
 "common_next" = "Next";
 "common_nft" = "NFT";
 "common_no_address" = "No address";
+"common_no_results" = "No results";
 "common_no" = "否";
 "common_not_added" = "Not Added";
 "common_not_available" = "Not available";
@@ -360,6 +361,7 @@
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "我了解";
 "common_unknown_error" = "There was an error. Please try again.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "無法觸達";
 "common_unstake" = "Unstake";
 "common_utxo_validate_withdrawal_message_warning" = "由於 %1$@ 的限制，只有%2$li UTXO 可以放入單次交易中。這意味著您只能發送%3$@或更少數量。您需要減少數量。";
@@ -441,7 +443,7 @@
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
 "earn_no_results" = "No results";
-"earn_title" = "Earn";
+"earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "您好，支援團隊，我遇到了一個錯誤，代碼為：%@";
 "email_subject_wc_error" = "WalletConnect 錯誤";
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
@@ -646,6 +648,9 @@
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
 "initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
@@ -661,7 +666,7 @@
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "管理代幣";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
@@ -685,7 +690,7 @@
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
-"markets_earn_common_title" = "Earn with Tangem";
+"markets_earn_common_title" = "Staking & Yield mode";
 "markets_generate_addresses_notification" = "To generate addresses for selected networks, you must scan your Tangem Wallet card or ring";
 "markets_hint_part_one" = "Swipe up to explore the market";
 "markets_hint_part_two" = "Find new hidden gems";
@@ -744,6 +749,10 @@
 "markets_token_details_holders_description" = "The change in the number of token holders within a specific timeframe";
 "markets_token_details_holders_full" = "Holders";
 "markets_token_details_holders" = "Holders";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Insights";
 "markets_token_details_links" = "Links";
 "markets_token_details_liquidity_description" = "The change in how much liquidity is available for the token during the specified timeframe";
@@ -1116,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Transaction limitation";
 "send_optional_field" = "Optional";
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
@@ -1317,8 +1331,8 @@
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
