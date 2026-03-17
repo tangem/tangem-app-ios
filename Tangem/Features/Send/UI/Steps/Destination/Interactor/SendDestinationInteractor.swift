@@ -71,10 +71,16 @@ class CommonSendDestinationInteractor {
     }
 
     private func bind() {
-        receiveTokenInput?.receiveTokenPublisher
+        // Fallback publisher is used to trigger dependencies update once on initialization if `receiveTokenInput` is nil
+        let receiveTokenPublisher = receiveTokenInput?
+            .receiveTokenPublisher
+            .eraseToOptional()
+            .eraseToAnyPublisher() ?? .just(output: nil)
+
+        receiveTokenPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { $0.updateDependencies(receivedToken: $1.value) }
+            .sink { $0.updateDependencies(receivedToken: $1?.value) }
             .store(in: &bag)
     }
 
