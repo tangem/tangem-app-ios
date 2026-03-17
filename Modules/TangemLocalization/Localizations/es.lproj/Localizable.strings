@@ -291,6 +291,7 @@
 "common_next" = "Siguiente";
 "common_nft" = "NFT";
 "common_no_address" = "Ninguna dirección";
+"common_no_results" = "No results";
 "common_no" = "No";
 "common_not_added" = "No agregadas";
 "common_not_available" = "No disponible";
@@ -360,6 +361,7 @@
 "common_understand_continue" = "Entiendo, continuar";
 "common_understand" = "Entiendo";
 "common_unknown_error" = "Hubo un error. Por favor inténtelo de nuevo.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Inaccesible";
 "common_unstake" = "Termine el staking";
 "common_utxo_validate_withdrawal_message_warning" = "Debido a limitaciones sobre %1$@, solo %2$li UTXO pueden caber en una sola transacción. Esto significa que solo puedes enviar %3$@ o menos. Debe reducir la cantidad.";
@@ -646,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Para restablecer a los ajustes de fábrica, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_reset_backup_card_header" = "Toque la tarjeta no. %@ de la billetera";
 "initial_message_sign_body" = "Para firmar, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
 "jailbreak_warning_title" = "Jailbreak detectado";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
@@ -661,7 +666,7 @@
 "mail_error_no_accounts_title" = "No hay cuentas de correo";
 "main_empty_tokens_list_message" = "Para hacer un seguimiento de sus criptomonedas y transacciones, agregue tokens";
 "main_manage_tokens" = "Gestionar tokens";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Para acceder a todas las redes necesita escanear la tarjeta";
 "main_scan_card_warning_view_title" = "Escanee su tarjeta o anillo";
 "main_tokens" = "Tokens";
@@ -744,6 +749,10 @@
 "markets_token_details_holders_description" = "El cambio en el número de poseedores de tokens dentro de un período de tiempo específico";
 "markets_token_details_holders_full" = "Titulares";
 "markets_token_details_holders" = "Titulares";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Ideas";
 "markets_token_details_links" = "Enlaces";
 "markets_token_details_liquidity_description" = "El cambio en la cantidad de liquidez disponible para el token durante el período de tiempo especificado";
@@ -1116,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Limitación de transacciones";
 "send_optional_field" = "Opcional";
 "send_qrcode_scan_info" = "Por favor, alinee su código QR con el cuadrado para escanearlo. Asegúrese de escanear la dirección de la red %@.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Reciente";
 "send_recipient_address_error" = "No es una dirección válida";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en **la red %@** para evitar perder sus tokens";
