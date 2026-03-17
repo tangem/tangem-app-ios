@@ -193,6 +193,36 @@ extension CommonUserWalletModel: UserWalletModel {
             userWalletRepository.savePublicData()
             _updatePublisher.send(.nameDidChange(name: name))
 
+        case .updateSensitiveInfo(let sensitiveInfo):
+            let keyInfosKeyedByPublicKey = sensitiveInfo
+                .asWalletKeys
+                .asKeyInfo
+                .keyedFirst(by: \.publicKey)
+
+            switch walletInfo {
+            case .cardWallet(let existingInfo):
+                var mutableCardInfo = existingInfo
+                for wallet in mutableCardInfo.card.wallets {
+                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = derivedKeys
+                    }
+                }
+
+                // Prevents saving the wallet until the onboarding is completed
+                let shouldSave = userWalletRepository.models[userWalletId] != nil
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
+
+            case .mobileWallet(let existingInfo):
+                var mutableMobileWalletInfo = existingInfo
+                for wallet in mutableMobileWalletInfo.keys {
+                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
+                        mutableMobileWalletInfo.keys[wallet.publicKey]?.derivedKeys = derivedKeys
+                    }
+                }
+
+                updateConfiguration(walletInfo: .mobileWallet(mutableMobileWalletInfo))
+            }
+
         case .backupCompleted(let card, let associatedCardIds):
             var mutableCardInfo = CardInfo(
                 card: CardDTO(card: card),
@@ -208,7 +238,7 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                // prevent save until onboarding completed
+                // Prevents saving the wallet until the onboarding is completed
                 let shouldSave = userWalletRepository.models[userWalletId] != nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
@@ -221,7 +251,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 }
 
                 _walletImageProvider = nil
-                updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
                 syncRemoteAfterUpgrade()
