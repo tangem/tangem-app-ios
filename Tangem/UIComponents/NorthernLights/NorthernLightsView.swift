@@ -26,6 +26,7 @@ struct NorthernLightsView: UIViewRepresentable {
 
     func updateUIView(_ mtkView: MTKView, context: Context) {
         context.coordinator.renderer?.backgroundRGB = UIColor(backgroundColor).resolvedRGB(in: mtkView.traitCollection)
+        context.coordinator.renderer?.updateColors(isDarkMode: mtkView.traitCollection.userInterfaceStyle == .dark)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -37,6 +38,11 @@ struct NorthernLightsView: UIViewRepresentable {
 
 final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
     var backgroundRGB: RGB = .zero
+
+    private var color1: KeyframeTrack = NorthernLightsColors.track1Dark
+    private var color2: KeyframeTrack = NorthernLightsColors.track2Dark
+    private var color3: KeyframeTrack = NorthernLightsColors.track3Dark
+    private var color4: KeyframeTrack = NorthernLightsColors.track4Dark
 
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
@@ -76,10 +82,10 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
         var uniforms = Uniforms(
             uTime: elapsed,
             uResolution: SIMD2(Float(view.bounds.width), Float(view.bounds.height)),
-            uColor0: NorthernLightsColors.track1.evaluate(at: elapsed),
-            uColor1: NorthernLightsColors.track2.evaluate(at: elapsed),
-            uColor2: NorthernLightsColors.track3.evaluate(at: elapsed),
-            uColor3: NorthernLightsColors.track4.evaluate(at: elapsed),
+            uColor0: color1.evaluate(at: elapsed),
+            uColor1: color2.evaluate(at: elapsed),
+            uColor2: color3.evaluate(at: elapsed),
+            uColor3: color4.evaluate(at: elapsed),
             uColor4: backgroundRGB
         )
 
@@ -95,6 +101,13 @@ final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
 
         commandBuffer.present(drawable)
         commandBuffer.commit()
+    }
+
+    func updateColors(isDarkMode: Bool) {
+        color1 = isDarkMode ? NorthernLightsColors.track1Dark : NorthernLightsColors.track1Light
+        color2 = isDarkMode ? NorthernLightsColors.track2Dark : NorthernLightsColors.track2Light
+        color3 = isDarkMode ? NorthernLightsColors.track3Dark : NorthernLightsColors.track3Light
+        color4 = isDarkMode ? NorthernLightsColors.track4Dark : NorthernLightsColors.track4Light
     }
 }
 
