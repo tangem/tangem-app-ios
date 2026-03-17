@@ -15,14 +15,30 @@ import TangemAccounts
 final class SendReceiveTokenWalletDataProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    init() {}
+    private let sourceToken: SendSourceToken
+
+    init(sourceToken: SendSourceToken) {
+        self.sourceToken = sourceToken
+    }
 }
 
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
     func walletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
-        guard let walletModel = findWalletModel(for: tokenItem) else {
+        let targetTokenItem: TokenItem
+
+        switch sourceToken.tokenItem.token?.metadata.kind {
+        case .nonFungible:
+            // Non-fungible tokens always use wallet data of the main token of the network (i.e. `feeTokenItem`)
+            // because there are no real wallet models for non-fungible tokens (`NFTSendWalletModelProxy` proxy is used instead)
+            targetTokenItem = sourceToken.feeTokenItem
+        case .fungible,
+             .none:
+            targetTokenItem = tokenItem
+        }
+
+        guard let walletModel = findWalletModel(for: targetTokenItem) else {
             return nil
         }
 
