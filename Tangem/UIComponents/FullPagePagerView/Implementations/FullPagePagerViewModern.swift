@@ -34,11 +34,13 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     @State private var scrolledID: Data.Element.ID?
     @State private var scrollOffset: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
+    @State private var elasticContainerModel: TangemElasticContainerModel
 
     // MARK: - Configuration
 
     private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
+    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     private let coordinateSpaceName = "pagerScrollView"
@@ -50,6 +52,8 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         selectedIndex: Binding<Int>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
+        refreshScrollViewInteractor: RefreshScrollViewInteractor,
+        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
@@ -58,6 +62,8 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
+        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -71,7 +77,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
 
     var body: some View {
         VStack(spacing: 0) {
-            headerScrollView(pageWidth: pageWidth)
+            headerContainer(pageWidth: pageWidth)
 
             bodyOffsetView(pageWidth: pageWidth)
                 .frame(minHeight: viewportHeight)
@@ -80,6 +86,18 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         .onChange(of: selectedIndex) { _, newIndex in
             updateScrolledID(from: newIndex)
         }
+        .onReceive(elasticContainerModel.heightRatioPublisher) {
+            onHeaderHeightRatioChange?($0)
+        }
+    }
+
+    // MARK: - Header container
+
+    private func headerContainer(pageWidth: CGFloat) -> some View {
+        FullPagePagerHeaderContainer(
+            elasticContainerModel: elasticContainerModel,
+            content: headerScrollView(pageWidth: pageWidth)
+        )
     }
 
     // MARK: - Header ScrollView
