@@ -80,6 +80,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 secondaryButton: .init(
                     title: Localization.commonGotIt,
                     style: .secondary,
+                    accessibilityIdentifier: SendAccessibilityIdentifiers.networkSelectorGotItButton,
                     action: viewModel.dismiss
                 )
             )
