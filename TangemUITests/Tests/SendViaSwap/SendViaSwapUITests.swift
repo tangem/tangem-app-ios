@@ -10,6 +10,77 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class SendViaSwapUITests: BaseTestCase {
+    func testFullSuccessfulSendViaSwapFlow() {
+        setAllureId(3967)
+
+        let bitcoinBalanceScenario = ScenarioConfig(
+            name: "bitcoin_utxo",
+            initialState: "Balance"
+        )
+
+        let assetsScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "BitcoinExchangeEnabled"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [bitcoinBalanceScenario, assetsScenario]
+        )
+
+        // Import hot wallet via seed phrase
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .skipStories()
+            .startWithMobileWallet()
+            .tapImportButton()
+            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .tapImportButton()
+            .tapContinue()
+            .skipAccessCode()
+            .tapFinish()
+
+        // Navigate to Bitcoin token and open Send screen
+        let sendScreen = mainScreen
+            .tapToken(Constants.bitcoinTokenName)
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+
+        // Search for Ethereum token and select it with network
+        sendScreen
+            .enterTokenSearch("Ethereum")
+            .waitForReceiveToken(name: Constants.ethereumTokenName)
+            .tapReceiveToken(name: Constants.ethereumTokenName)
+            .tapReceiveNetworkOption(name: "Ethereum")
+
+        // Fill amount and destination, proceed to Summary
+        let summaryScreen = sendScreen
+            .enterAmount(Constants.sendAmount)
+            .tapNextButton()
+            .enterDestination(Constants.ethereumAddress)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+            .assertBestRateBadgeOnProvider()
+
+        // Tap Send and verify Finish screen
+        let finishScreen = summaryScreen
+            .tapSendButton()
+            .waitForDisplay()
+
+        // Tap Explore, verify browser opens, then dismiss
+        finishScreen
+            .tapExploreButton()
+            .waitForBrowserOpened()
+            .dismissBrowser()
+
+        // Close finish screen and verify pending express transaction on Token screen
+        finishScreen
+            .tapCloseButton()
+            .waitForPendingExpressTransaction()
+    }
+
     func testSendViaSwapFlowWithTokenSearchAndDataChanges() {
         setAllureId(3968)
 
@@ -216,6 +287,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
 private extension SendViaSwapUITests {
     enum Constants {
+        static let hotWalletSeedPhrase = "diagram thunder merit soup muscle amused refuse usual ring couch popular wash"
         static let bitcoinTokenName = "Bitcoin"
         static let solanaTokenName = "Solana"
         static let stellarTokenName = "Stellar"
