@@ -13,26 +13,23 @@ final class CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor
     private let addressResolver: WalletAddressResolver
     private let tokenBalanceClient: MoralisTokenBalanceClient
     private let tangemApiService: TangemApiService
-    private let syncStateActor: WalletTokenSyncStateActor
+    private let syncStateActor: WalletTokenAutoSyncStateActor
+    private let progressService: WalletTokenAutoSyncProgressService
 
     private let coinMapper = CoinsCatalogMapper()
-
-//    [REDACTED_TODO_COMMENT]
-//    private let progressService: WalletTokenSyncProgressService
 
     init(
         addressResolver: WalletAddressResolver,
         tokenBalanceClient: MoralisTokenBalanceClient,
         tangemApiService: TangemApiService,
-        syncStateActor: WalletTokenSyncStateActor,
+        syncStateActor: WalletTokenAutoSyncStateActor,
+        progressService: WalletTokenAutoSyncProgressService
     ) {
         self.addressResolver = addressResolver
         self.tokenBalanceClient = tokenBalanceClient
         self.tangemApiService = tangemApiService
         self.syncStateActor = syncStateActor
-
-//        [REDACTED_TODO_COMMENT]
-//        self.progressService = progressService
+        self.progressService = progressService
     }
 
     func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
@@ -59,19 +56,18 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
     func performSync(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
         let userWalletId = userWalletModel.userWalletId
 
-//        [REDACTED_TODO_COMMENT]
-//        await progressService.add(userWalletId: userWalletId)
+        await progressService.add(userWalletId: userWalletId)
 
         var allTokens: [TokenItem] = []
 
-//        [REDACTED_TODO_COMMENT]
-//        let totalNetworks = MoralisSupportedBlockchains.all.count
+        let totalNetworks = MoralisSupportedBlockchains.all.count
 
-        for (_, blockchain) in MoralisSupportedBlockchains.all.enumerated() {
+        for (index, blockchain) in MoralisSupportedBlockchains.all.enumerated() {
             if Task.isCancelled { break }
 
             do {
                 let pair = try addressResolver.resolveAddress(for: blockchain, keyInfos: keyInfos)
+
                 let balances = try await tokenBalanceClient.getTokenBalances(
                     network: pair.blockchainNetwork.blockchain,
                     address: pair.address
@@ -94,18 +90,16 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
                 AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchain.displayName): \(error)")
             }
 
-//            [REDACTED_TODO_COMMENT]
-//            let percent = Int((Double(index + 1) / Double(totalNetworks)) * 100)
-//            await progressService.reportProgress(userWalletId: userWalletId, percent: min(percent, 100))
+            let percent = Int((Double(index + 1) / Double(totalNetworks)) * 100)
+            await progressService.reportProgress(userWalletId: userWalletId, percent: min(percent, 99))
         }
 
         if !allTokens.isEmpty {
             persistDiscoveredTokens(userWalletId: userWalletId, tokens: allTokens)
         }
 
-//        [REDACTED_TODO_COMMENT]
-//        await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
-//        await progressService.remove(userWalletId: userWalletId)
+        await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
+        await progressService.remove(userWalletId: userWalletId)
     }
 
     func fetchContractAddressToCoinIdMap(
