@@ -13,13 +13,6 @@ struct AddressBlockchainResolver {
     /// Validates a plain address against provided blockchains and returns every matching one.
     /// For EVM chains, validation is executed once and reused for all EVM-compatible networks.
     func resolve(address: String, blockchains: [Blockchain]) -> Set<Blockchain> {
-        MainQRScanLogger.debug(
-            MainQRScanLoggerStrings.addressResolverStarted(
-                addressLength: address.count,
-                blockchains: blockchains.count
-            )
-        )
-
         var matchingBlockchains = Set<Blockchain>()
         var validationCache: [String: Bool] = [:]
 
@@ -39,8 +32,6 @@ struct AddressBlockchainResolver {
                 matchingBlockchains.insert(blockchain)
             }
         }
-
-        MainQRScanLogger.debug(MainQRScanLoggerStrings.addressResolverFinished(matchedCount: matchingBlockchains.count))
 
         return matchingBlockchains
     }
