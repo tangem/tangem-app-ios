@@ -13,8 +13,6 @@ import TangemNetworkUtils
 
 struct StellarWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        StellarSDK.networkingUtil = StellarSDKNetworkingUtilImpl()
-
         let blockchain = input.wallet.blockchain
         let apiList = APIList(dictionaryLiteral: (blockchain.networkId, input.networkInput.apiInfo))
 
@@ -30,21 +28,5 @@ struct StellarWalletAssembly: WalletManagerAssembly {
             $0.txBuilder = StellarTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, isTestnet: blockchain.isTestnet)
             $0.networkService = networkService
         }
-    }
-}
-
-private class StellarSDKNetworkingUtilImpl: StellarSDKNetworkingUtil {
-    private let session: URLSession
-
-    init() {
-        session = TangemTrustEvaluatorUtil.makeSession(configuration: .ephemeralConfiguration)
-    }
-
-    func evaluate(challenge: URLAuthenticationChallenge) -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        return TangemTrustEvaluatorUtil.evaluate(challenge: challenge)
-    }
-
-    public func makeSession() -> URLSession {
-        return session
     }
 }
