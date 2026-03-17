@@ -7,15 +7,16 @@
 //
 
 import Combine
-import SwiftUI
 import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
+import TangemAssets
+import struct SwiftUI.Image
+import struct SwiftUI.Text
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
-import TangemAssets
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -56,9 +57,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
-    /// See `UserWalletSettingsCoordinatorView` for the trigger.
-    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -99,10 +97,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
         bind()
     }
 
-    deinit {
-        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
-    }
-
     func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
@@ -112,49 +106,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
         if FeatureProvider.isAvailable(.accounts) {
             loadWalletImage()
         }
-    }
-
-    func handleAccountOperationResult(_ result: AccountOperationResult) {
-        switch result {
-        case .none:
-            return
-
-        case .redistributionHappened(let pairs):
-            // Find first actual redistribution between accounts and extract source account name
-            // Skip external sources (legacy tokens from server) - they're initial placements, not redistributions
-            // .lazy is used to avoid unnecessary iterations
-            // Source - https://stackoverflow.com/a/77408784
-            // `.first { _ in true }` is a workaround for a long-standing Swift bug with lazy + compactMap
-            // See: https://github.com/swiftlang/swift/issues/48324
-            let namesPair = pairs.lazy.compactMap { pair -> ((fromName: String, toName: String))? in
-                guard
-                    case .account(let accountName) = pair.source,
-                    let toName = pair.toAccountName
-                else {
-                    return nil
-                }
-
-                // If fromName is nil, this means Main account has the default name
-                return (accountName ?? Localization.accountMainAccountTitle, toName)
-            }.first { _ in true }
-
-            guard let namesPair else {
-                return
-            }
-
-            accountsPendingAlert = AlertBuilder.makeAlert(
-                title: Localization.accountsMigrationAlertTitle,
-                message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
-                primaryButton: .default(Text(Localization.commonGotIt))
-            )
-        }
-    }
-
-    func showAccountsPendingAlertIfNeeded() {
-        guard let pendingAlert = accountsPendingAlert else { return }
-
-        alert = pendingAlert
-        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -170,10 +121,17 @@ final class UserWalletSettingsViewModel: ObservableObject {
     func onTapNameField() {
         guard AppSettings.shared.saveUserWallets else { return }
 
+        // No weak self capture in closures here because shared presenter is used
         if let alert = AlertBuilder.makeWalletRenamingAlert(
             userWalletModel: userWalletModel,
             userWalletRepository: userWalletRepository,
-            updateName: { self.name = $0 }
+            updateName: { newName in
+                self.name = newName
+                self.coordinator?.onAlertDismiss()
+            },
+            onCancel: {
+                self.coordinator?.onAlertDismiss()
+            }
         ) {
             AppPresenter.shared.show(alert)
         }
@@ -184,7 +142,19 @@ final class UserWalletSettingsViewModel: ObservableObject {
             title: Localization.accountAddLimitDialogTitle,
             message: Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts),
             buttonText: Localization.commonGotIt
-        )
+        ) { [weak self] in
+            self?.coordinator?.onAlertDismiss()
+        }
+    }
+
+    func handleAccountsRedistribution(sourceAccountName: String, targetAccountName: String) {
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.accountsMigrationAlertTitle,
+            message: Localization.accountsMigrationAlertMessage(sourceAccountName, targetAccountName),
+            buttonText: Localization.commonGotIt
+        ) { [weak self] in
+            self?.coordinator?.onAlertDismiss()
+        }
     }
 
     func mobileUpgradeTap() {
@@ -421,7 +391,9 @@ private extension UserWalletSettingsViewModel {
     }
 
     func showErrorAlert(error: Error) {
-        alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+        alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
+            self?.coordinator?.onAlertDismiss()
+        }
     }
 
     func makeManageTokensRowViewModel() -> DefaultRowViewModel {
@@ -437,14 +409,20 @@ private extension UserWalletSettingsViewModel {
             primaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertNegativeButton),
                 action: { [weak self] in
-                    self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
+                    guard let self else { return }
+
+                    pushNotificationsViewModel?.isPushNotifyEnabled = false
+                    coordinator?.onAlertDismiss()
                 }
             ),
             secondaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertPositiveButton),
                 action: { [weak self] in
-                    self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
-                    self?.coordinator?.openAppSettings()
+                    guard let self else { return }
+
+                    pushNotificationsViewModel?.isPushNotifyEnabled = false
+                    coordinator?.openAppSettings()
+                    coordinator?.onAlertDismiss()
                 }
             )
         )
@@ -506,7 +484,9 @@ private extension UserWalletSettingsViewModel {
 
     func openReferral() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .referralProgram) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) { [weak self] in
+                self?.coordinator?.onAlertDismiss()
+            }
             return
         }
 
