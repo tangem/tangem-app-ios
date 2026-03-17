@@ -31,6 +31,13 @@ struct TokenActionAvailabilityProvider {
         )
     }
 
+    private var isTrustlineRequirement: Bool {
+        if case .requiresTrustline = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
+            return true
+        }
+        return false
+    }
+
     /// Check if we have an address to interact with
     private func hasAddressToInteract() -> Bool {
         let addresses = walletModel.addresses
@@ -212,7 +219,7 @@ extension TokenActionAvailabilityProvider {
             return .yieldModuleApproveNeeded
         }
 
-        if case .assetRequirement = receiveAvailability {
+        if case .assetRequirement = receiveAvailability, !isTrustlineRequirement {
             return .missingAssetRequirement
         }
 
