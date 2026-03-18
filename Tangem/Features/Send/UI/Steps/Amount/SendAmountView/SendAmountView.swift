@@ -98,10 +98,12 @@ struct SendAmountView: View {
                 .padding(.vertical, 13)
                 .infinityFrame()
             }
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.convertToAnotherTokenButton)
 
         case .selected(let receivedTokenViewModel):
             GroupedSection(receivedTokenViewModel) {
                 SendAmountTokenView(data: $0)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.receiveTokenBlock)
             }
             .backgroundColor(Colors.Background.action)
             .innerContentPadding(0)
@@ -163,6 +165,7 @@ struct SendAmountView: View {
 
     private var convertButton: some View {
         CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.removeConvertButton)
             .readGeometry(\.frame.size, bindTo: $convertButtonSize)
     }
 

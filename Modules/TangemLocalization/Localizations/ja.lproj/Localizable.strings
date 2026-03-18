@@ -192,6 +192,7 @@
 "common_activate" = "有効化";
 "common_add_to_portfolio" = "ポートフォリオに追加";
 "common_add_token" = "トークンを追加";
+"common_add_tokens" = "トークンの追加";
 "common_add" = "追加";
 "common_added" = "追加済み";
 "common_address" = "アドレス";
@@ -290,6 +291,7 @@
 "common_next" = "次";
 "common_nft" = "NFT";
 "common_no_address" = "アドレスがありません";
+"common_no_results" = "該当する結果はありません";
 "common_no" = "いいえ";
 "common_not_added" = "未追加";
 "common_not_available" = "利用できません";
@@ -350,6 +352,7 @@
 "common_to_wallet_name" = "%@へ";
 "common_to" = "宛先";
 "common_today" = "今日";
+"common_token_send" = "送信するトークン";
 "common_transaction_failed" = "取引が失敗しました";
 "common_transaction_status" = "取引状況";
 "common_transactions" = "取引";
@@ -358,6 +361,7 @@
 "common_understand_continue" = "理解して続行";
 "common_understand" = "わかりました";
 "common_unknown_error" = "エラーが発生しました。もう一度お試しください。";
+"common_unlock" = "ロック解除";
 "common_unreachable" = "アクセスできません";
 "common_unstake" = "ステーキング解除";
 "common_utxo_validate_withdrawal_message_warning" = "%1$@の制限により、1つのトランザクションに収まるUTXOは%2$li個のみです。つまり、 %3$@以下しか送信できません。量を減らす必要があります。";
@@ -448,7 +452,6 @@
 "exchange_tokens_available_tokens_header" = "マイトークン";
 "exchange_tokens_empty_tokens" = "まだトークンを追加していません。マーケットからトークンを追加して交換してください。";
 "exchange_tokens_unavailable_tokens_header" = "%@との交換はできません";
-"exсhange_token_description" = "ポートフォリオ内のアセットをこのトークンと交換する";
 "express_by_provider_placeholder" = "提供元 %@";
 "express_cex_status_button_title" = "ステータス";
 "express_choose_provider" = "プロバイダーを選択";
@@ -645,6 +648,9 @@
 "initial_message_purge_wallet_body" = "工場出荷時の設定にリセットするには、上記のようにカードまたはリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_message_reset_backup_card_header" = "ウォレットの%@番目のカードをタップします";
 "initial_message_sign_body" = "署名するには、上記のようにカードまはたリングをタップし、操作が終了するまで取り外さないでください。";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
 "jailbreak_warning_title" = "ジェイルブレイクが検出されました";
 "key_invalidated_warning_description" = "生体認証を更新しました。カードまたはリングをスキャンして入ってください。";
@@ -660,6 +666,7 @@
 "mail_error_no_accounts_title" = "メールアカウントなし";
 "main_empty_tokens_list_message" = "暗号資産および取引の追跡を開始するには、トークンを追加してください";
 "main_manage_tokens" = "トークンの管理";
+"main_qr_scan_hint" = "QRコードをスキャンして送金するか、アプリに接続します。";
 "main_scan_card_warning_view_subtitle" = "すべてのネットワークにアクセスするには、カードをスキャンする必要があります。";
 "main_scan_card_warning_view_title" = "カードまたはリングをスキャンする";
 "main_tokens" = "トークン";
@@ -685,6 +692,8 @@
 "markets_common_title" = "マーケット";
 "markets_earn_common_title" = "Tangemで稼ぐ";
 "markets_generate_addresses_notification" = "選択したネットワークのアドレスを生成するには、Tangemウォレットカードまたはリングをスキャンする必要があります。";
+"markets_hint_part_one" = "上にスワイプしてマーケットをチェック";
+"markets_hint_part_two" = "新たな有望銘柄を見つける";
 "markets_hint" = "トークンを追加するには、これをスワイプするか、検索バーをタップしてください。";
 "markets_insights_info_description_message" = "このセクションのデータは、次のネットワークから取得されています: %@";
 "markets_loading_error_title" = "データを読み込めません…";
@@ -740,6 +749,10 @@
 "markets_token_details_holders_description" = "特定の期間内のトークンホルダー数の変化";
 "markets_token_details_holders_full" = "ホルダー";
 "markets_token_details_holders" = "ホルダー";
+"markets_token_details_insight_day_timeline" = "日";
+"markets_token_details_insight_month_timeline" = "月";
+"markets_token_details_insight_week_timeline" = "週";
+"markets_token_details_insight_year_timeline" = "年";
 "markets_token_details_insights" = "インサイト";
 "markets_token_details_links" = "リンク";
 "markets_token_details_liquidity_description" = "指定された期間中のトークンに利用可能な流動性の変化";
@@ -767,9 +780,11 @@
 "markets_token_details_total_supply_description" = "特定の暗号資産に存在しうるコインまたはトークンの最大数";
 "markets_token_details_total_supply_full" = "総供給量";
 "markets_token_details_total_supply" = "総供給量";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "過去24時間以内に取引された暗号資産の合計額。市場の活発さと流動性を示します。";
 "markets_token_details_trading_volume_full" = "取引量（24時間）";
 "markets_token_details_trading_volume" = "取引量（24時間）";
+"markets_token_details_valuation_value_in_total" = "合計 %@";
 "markets_token_details_volume" = "取引量";
 "markets_tooltip_message" = "これをドラッグするか、検索窓をタップして、マーケットから直接トークンを追加します";
 "markets_tooltip_title" = "トークンを追加";
@@ -785,6 +800,7 @@
 "news_related_tokens" = "関連トークン";
 "news_sources" = "関連ニュース";
 "news_stay_in_the_loop" = "最新情報を入手";
+"news_trending_score" = "トレンドスコア";
 "nft_about_title" = "NFTについて";
 "nft_asset" = "NFTアセット";
 "nft_collections_empty_description" = "ウォレットに送信されたNFTがここに表示されます。";
@@ -1109,11 +1125,11 @@
 "send_notification_transaction_limit_title" = "取引制限";
 "send_optional_field" = "オプション";
 "send_qrcode_scan_info" = "QRコードを正方形に合わせてスキャンしてください。%@ ネットワークアドレスをスキャンしてください。";
-"send_rate_is_fixed" = "Rate is fixed";
-"send_rate_fixed_info_title" = "Fixed rate";
-"send_rate_floating_info_title" = "Floating rate";
 "send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
 "send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "最近の取引";
 "send_recipient_address_error" = "有効なアドレスではありません";
 "send_recipient_address_footer" = "トークンの損失を避けるために、受信ウォレットアドレスが**%@ネットワーク**上にあることを確認してください";
@@ -1387,6 +1403,7 @@
 "tangempay_cancel_kyc" = "メイン画面からKYCを非表示にする";
 "tangempay_card_details_add_funds_subtitle" = "入金オプション";
 "tangempay_card_details_add_funds" = "資金を追加";
+"tangempay_card_details_add_to_wallet_button_text" = "Googleウォレットに追加";
 "tangempay_card_details_card_number" = "カード番号";
 "tangempay_card_details_change_pin_success_description" = "カードは支払いの準備が整いました。";
 "tangempay_card_details_change_pin_success_title" = "PINコードを作成しました";
@@ -1738,8 +1755,8 @@
 "warning_express_refresh_required_title" = "サービスは一時的に利用できません";
 "warning_express_too_maximum_amount_title" = "スワップするトークンの量は %@ を超えないでください";
 "warning_express_too_minimal_amount_title" = "スワップ金額は %@ 以上である必要があります";
-"warning_express_unsupported_pair_description" = "Swapping isn't available for this pair. Please select a different token and try again.";
-"warning_express_unsupported_pair_title" = "Unsupported swap pair";
+"warning_express_unsupported_pair_description" = "このペアではスワップを利用できません。別のトークンを選択して、もう一度お試しください。";
+"warning_express_unsupported_pair_title" = "スワップ非対応のペアです";
 "warning_express_wrong_amount_description" = "スワップの金額を変更してください";
 "warning_failed_to_verify_card_message" = "このカードは、サンプル品または偽造品である可能性があります";
 "warning_failed_to_verify_card_title" = "真正性チェックに失敗しました";

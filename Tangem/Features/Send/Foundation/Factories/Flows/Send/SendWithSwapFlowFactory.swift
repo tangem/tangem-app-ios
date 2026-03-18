@@ -227,7 +227,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
                 sourceToken: sourceToken,
                 receivedToken: sendWithSwapModel.receiveToken.value,
                 analyticsLogger: analyticsLogger,
-                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
+                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider(sourceToken: sourceToken)
             )
         )
     }

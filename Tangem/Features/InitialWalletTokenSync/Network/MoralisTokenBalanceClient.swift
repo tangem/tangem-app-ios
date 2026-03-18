@@ -64,13 +64,11 @@ extension CommonMoralisTokenBalanceClient: MoralisTokenBalanceClient {
                 .filterSuccessfulStatusCodes()
                 .map(MoralisTokenBalanceDTO.Response.self, using: decoder)
 
-            return try MoralisTokenBalanceNormalizer.normalize(dto.result)
+            return MoralisTokenBalanceNormalizer.normalize(dto.result)
         } catch let error as MoralisTokenBalanceError {
             throw error
         } catch let error as DecodingError {
             throw MoralisTokenBalanceError.decoding(error)
-        } catch let error as MoralisTokenBalanceNormalizer.NormalizationError {
-            throw MoralisTokenBalanceError.normalization(error)
         } catch let error as MoyaError {
             if case .statusCode(let response) = error, response.statusCode == 429 {
                 throw MoralisTokenBalanceError.rateLimited
