@@ -36,7 +36,7 @@ final class SendWithSwapModel {
     private let initialSourceToken: SendSourceToken
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
-    private var bag: Set<AnyCancellable> = []
+    private var receiveTokenUpdatingTask: Task<Void, Error>?
 
     init(
         transferModel: TransferModel,
@@ -128,6 +128,16 @@ private extension SendWithSwapModel {
         }
     }
 
+    func updateReceiveTokenIfNeededWithDebounce() {
+        receiveTokenUpdatingTask?.cancel()
+        receiveTokenUpdatingTask = Task { @MainActor [weak self] in
+            // Use small debounce to avoid recreating providers.
+            try await Task.sleep(for: .seconds(1))
+            try Task.checkCancellation()
+            self?.updateReceiveTokenIfNeeded()
+        }
+    }
+
     func updateReceiveTokenIfNeeded() {
         guard let receiveTokenItem = swapModel.receiveToken.value else {
             return
@@ -180,12 +190,12 @@ extension SendWithSwapModel: SendDestinationInput {
 extension SendWithSwapModel: SendDestinationOutput {
     func destinationDidChanged(_ address: SendDestination?) {
         transferModel.destinationDidChanged(address)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 
     func destinationAdditionalParametersDidChanged(_ type: SendDestinationAdditionalField) {
         transferModel.destinationAdditionalParametersDidChanged(type)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 }
 
@@ -312,6 +322,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.receiveRestrictionPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -325,8 +344,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 // MARK: - SendReceiveTokenAmountOutput
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
-    func receiveAmountDidChanged(amount: SendAmount?) {
-        swapModel.receiveAmountDidChanged(amount: amount)
+    func receiveAmountDidChange(amount: SendAmount?) {
+        swapModel.receiveAmountDidChange(amount: amount)
     }
 }
 

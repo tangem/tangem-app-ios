@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 
+// MARK: - Legacy style
+
 public extension View {
     private var tangemLogo: some View {
         Assets.newTangemLogo.image
@@ -89,5 +91,65 @@ public extension View {
 
             trailingItems()
         }
+    }
+}
+
+// MARK: - Redesigned style
+
+public extension View {
+    /// Adds a redesigned navigation toolbar with Tangem icon and trailing dots button.
+    /// On iOS 26+, uses native `.toolbar` with liquid glass support (enables `scrollEdgeEffect`).
+    /// On iOS < 26, falls back to `safeAreaInset` with `VariableBlur`.
+    @ViewBuilder
+    func tangemLogoNavigationToolbar(
+        secondaryTrailingAction: TangemNavigationHeader.ActionInfo? = nil,
+        trailingAction: TangemNavigationHeader.ActionInfo
+    ) -> some View {
+        if #available(iOS 26.0, *) {
+            redesignedLiquidGlassToolbar(
+                secondaryTrailingAction: secondaryTrailingAction,
+                trailingAction: trailingAction
+            )
+        } else {
+            redesignedFallbackToolbar(
+                secondaryTrailingAction: secondaryTrailingAction,
+                trailingAction: trailingAction
+            )
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private func redesignedLiquidGlassToolbar(
+        secondaryTrailingAction: TangemNavigationHeader.ActionInfo?,
+        trailingAction: TangemNavigationHeader.ActionInfo
+    ) -> some View {
+        toolbar {
+            ToolbarItem(placement: .principal) {
+                TangemNavigationHeader.LeadingIcon()
+            }
+            .sharedBackgroundVisibility(.hidden)
+
+            ToolbarItem(placement: .topBarTrailing) {
+                TangemNavigationHeader.TrailingButtons(
+                    secondaryAction: secondaryTrailingAction,
+                    action: trailingAction
+                )
+            }
+            .sharedBackgroundVisibility(.hidden)
+        }
+        .toolbarRole(.editor)
+    }
+
+    private func redesignedFallbackToolbar(
+        secondaryTrailingAction: TangemNavigationHeader.ActionInfo?,
+        trailingAction: TangemNavigationHeader.ActionInfo
+    ) -> some View {
+        toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top) {
+                TangemNavigationHeader(
+                    secondaryTrailingAction: secondaryTrailingAction,
+                    trailingAction: trailingAction
+                )
+            }
     }
 }

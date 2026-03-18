@@ -88,7 +88,9 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         models = infoProviders
             .map {
                 MainHeaderViewModel(
+                    userWalletId: $0.walletModel.userWalletId,
                     isUserWalletLocked: $0.walletModel.isUserWalletLocked,
+                    walletThumbnailType: $0.walletModel.config.walletThumbnailType,
                     supplementInfoProvider: $0.walletModel,
                     subtitleProvider: $0.headerSubtitleProvider,
                     balanceProvider: CommonMainHeaderBalanceProvider(
@@ -96,6 +98,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         userWalletStateInfoProvider: $0.walletModel,
                         mainBalanceFormatter: CommonMainHeaderBalanceFormatter()
                     ),
+                    walletTokenSyncProgressProvider: FakeWalletTokenAutoSyncProgressProvider(),
                     updatePublisher: $0.updatePublisher
                 )
             }

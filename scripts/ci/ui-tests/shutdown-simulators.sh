@@ -1,7 +1,7 @@
 #!/bin/bash
 # Cleanup simulators after test run
 # Keeps exactly one simulator matching the model and runtime from .ios-sim-runtime
-# Deletes all other simulators to free disk space
+# Deletes extra simulators for the current runtime, preserves simulators for other runtimes
 # Required env: SIMULATOR_UDIDS (space-separated list of UDIDs to shutdown first)
 
 set -e
@@ -42,22 +42,6 @@ done
 
 if [ -z "$KEEP_UDID" ]; then
   echo "⚠️ No simulators found for $SIM_DEVICE (iOS $RUNTIME), nothing to keep"
-fi
-
-# Phase 3: Delete all remaining simulators (different models/runtimes)
-# Only proceed if we have a simulator to keep; otherwise we'd delete everything on the runner
-if [ -n "$KEEP_UDID" ]; then
-  ALL_UDIDS=$(xcrun simctl list devices | grep -oE '[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}' || true)
-
-  for UDID in $ALL_UDIDS; do
-    if [ "$UDID" != "$KEEP_UDID" ]; then
-      echo "Deleting: $UDID"
-      xcrun simctl shutdown "$UDID" 2>/dev/null || true
-      xcrun simctl delete "$UDID" 2>/dev/null || true
-    fi
-  done
-else
-  echo "WARNING: No matching simulator found to keep, skipping cleanup of other simulators to avoid deleting all devices on this runner"
 fi
 
 # Clean up unavailable simulators (stale runtimes)
