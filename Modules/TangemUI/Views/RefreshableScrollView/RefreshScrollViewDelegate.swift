@@ -10,6 +10,7 @@ import UIKit
 import TangemFoundation
 
 final class RefreshScrollViewDelegate: NSObject {
+    private let interactor: CommonRefreshScrollViewInteractor
     private let willEndDraggingAt: (CGPoint) -> TargetContentOffset?
 
     private weak var scrollView: UIScrollView?
@@ -18,25 +19,24 @@ final class RefreshScrollViewDelegate: NSObject {
     /// Because it's still true while scroll view is decelerating
     private(set) var dragging: Dragging?
 
-    private var observers: [AnyHashable: WeakObserver] = [:]
-
-    init(willEndDraggingAt: @escaping (CGPoint) -> TargetContentOffset?) {
+    init(
+        interactor: CommonRefreshScrollViewInteractor,
+        willEndDraggingAt: @escaping (CGPoint) -> TargetContentOffset?
+    ) {
+        self.interactor = interactor
         self.willEndDraggingAt = willEndDraggingAt
     }
 
-    @MainActor
-    func set(scrollView: UIScrollView?) {
+    func set(scrollView: UIScrollView) {
         // Do not double the set
         guard self.scrollView == nil else {
             return
         }
 
         self.scrollView = scrollView
+        scrollView.delegate = self
 
-        scrollView?.delegate = self
-        observersPerform { observer in
-            observer.scrollViewDidSet(scrollView)
-        }
+        interactor.set(scrollView: scrollView)
     }
 
     func scrollToTop() {
@@ -48,16 +48,6 @@ final class RefreshScrollViewDelegate: NSObject {
         let topInset = topInset(scrollView: scrollView)
         let top = CGPoint(x: scrollView.safeAreaInsets.left, y: -topInset)
         scrollView.setContentOffset(top, animated: true)
-    }
-
-    func addObserver(_ observer: RefreshScrollViewObserver) {
-        let key = ObjectIdentifier(observer)
-        observers[key] = WeakObserver(observer)
-    }
-
-    func removeObserver(_ observer: RefreshScrollViewObserver) {
-        let key = ObjectIdentifier(observer)
-        observers.removeValue(forKey: key)
     }
 }
 
@@ -98,14 +88,6 @@ private extension RefreshScrollViewDelegate {
             scrollView.contentInset.top
         }
     }
-
-    func observersPerform(_ closure: (RefreshScrollViewObserver) -> Void) {
-        observers.values.forEach { weakObserver in
-            if let observer = weakObserver.value {
-                closure(observer)
-            }
-        }
-    }
 }
 
 // MARK: - Models
@@ -124,15 +106,15 @@ extension RefreshScrollViewDelegate {
 
 extension RefreshScrollViewDelegate: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidScroll?(scrollView) }
+        interactor.send(event: .didScroll(offset: scrollView.contentOffset))
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidZoom?(scrollView) }
+        interactor.send(event: .didZoom)
     }
 
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewWillBeginDragging?(scrollView) }
+        interactor.send(event: .willBeginDragging)
         willBeginDragging(scrollView)
     }
 
@@ -141,55 +123,39 @@ extension RefreshScrollViewDelegate: UIScrollViewDelegate {
         withVelocity velocity: CGPoint,
         targetContentOffset: UnsafeMutablePointer<CGPoint>
     ) {
-        observersPerform {
-            $0.scrollViewWillEndDragging?(
-                scrollView,
-                withVelocity: velocity,
-                targetContentOffset: targetContentOffset
-            )
-        }
+        interactor.send(event: .willEndDragging(velocity: velocity))
         willEndDragging(scrollView, targetContentOffset: targetContentOffset)
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        observersPerform { $0.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate) }
+        interactor.send(event: .didEndDragging(willDecelerate: decelerate))
     }
 
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewWillBeginDecelerating?(scrollView) }
+        interactor.send(event: .willBeginDecelerating)
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidEndDecelerating?(scrollView) }
+        interactor.send(event: .didEndDecelerating)
     }
 
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidEndScrollingAnimation?(scrollView) }
+        interactor.send(event: .didEndScrollingAnimation)
     }
 
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        observersPerform { $0.scrollViewWillBeginZooming?(scrollView, with: view) }
+        interactor.send(event: .willBeginZooming)
     }
 
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        observersPerform { $0.scrollViewDidEndZooming?(scrollView, with: view, atScale: scale) }
+        interactor.send(event: .didEndZooming(scale: scale))
     }
 
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidScrollToTop?(scrollView) }
+        interactor.send(event: .didScrollToTop)
     }
 
     func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) {
-        observersPerform { $0.scrollViewDidChangeAdjustedContentInset?(scrollView) }
-    }
-}
-
-// MARK: - WeakObserver
-
-private final class WeakObserver {
-    weak var value: RefreshScrollViewObserver?
-
-    init(_ value: RefreshScrollViewObserver) {
-        self.value = value
+        interactor.send(event: .didChangeAdjustedContentInset)
     }
 }
