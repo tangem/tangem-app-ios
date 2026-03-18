@@ -233,7 +233,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
         var params = walletCreationType.params
         params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-        logAnalytics(event: .walletCreatedSuccessfully, params: params)
+        logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
@@ -384,12 +384,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    func logAnalytics(_ event: Analytics.Event, params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]) {
-        Analytics.log(event, params: params, contextParams: getContextParams())
+    func logAnalytics(
+        _ event: Analytics.Event,
+        params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:],
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems
+    ) {
+        Analytics.log(event, params: params, analyticsSystems: analyticsSystems, contextParams: getContextParams())
     }
 
-    func logAnalytics(event: Analytics.Event, params: [Analytics.ParameterKey: String] = [:]) {
-        Analytics.log(event: event, params: params, contextParams: getContextParams())
+    func logAnalytics(
+        event: Analytics.Event,
+        params: [Analytics.ParameterKey: String] = [:],
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems
+    ) {
+        Analytics.log(event: event, params: params, analyticsSystems: analyticsSystems, contextParams: getContextParams())
     }
 
     func getContextParams() -> Analytics.ContextParams {
@@ -442,7 +450,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     case .seedPhraseUserValidation:
                         logAnalytics(.onboardingSeedCheckingScreenOpened)
                     case .seedPhraseImport:
-                        logAnalytics(.onboardingSeedImportScreenOpened)
+                        logAnalytics(.onboardingSeedImportScreenOpened, analyticsSystems: .all)
                     default:
                         break
                     }
