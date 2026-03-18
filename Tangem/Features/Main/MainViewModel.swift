@@ -29,6 +29,7 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
+    let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
     private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
@@ -47,6 +48,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    private let headerHeightRatioSubject = PassthroughSubject<CGFloat, Never>()
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
@@ -70,6 +72,7 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        headerHeightRatioPublisher = headerHeightRatioSubject.eraseToAnyPublisher()
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -162,6 +165,10 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    func onHeaderHeightRatioChange(_ ratio: CGFloat) {
+        headerHeightRatioSubject.send(ratio)
+    }
+
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
         guard reason == .byGesture else { return }
 
@@ -178,7 +185,11 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.buttonEditWalletTapped)
 
         if let selectedModel = userWalletRepository.selectedModel,
-           let alert = AlertBuilder.makeWalletRenamingAlert(userWalletModel: selectedModel, userWalletRepository: userWalletRepository) {
+           let alert = AlertBuilder.makeWalletRenamingAlert(
+               userWalletModel: selectedModel,
+               userWalletRepository: userWalletRepository,
+               updateName: nil
+           ) {
             AppPresenter.shared.show(alert)
         }
     }
@@ -497,13 +508,13 @@ final class MainViewModel: ObservableObject {
         let page = pages[index]
 
         switch page {
-        case .singleWallet(_, _, let viewModel):
+        case .singleWallet(_, _, _, let viewModel):
             await viewModel?.onPullToRefresh()
-        case .multiWallet(_, _, let viewModel):
+        case .multiWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         case .lockedWallet:
             break
-        case .visaWallet(_, _, let viewModel):
+        case .visaWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
 

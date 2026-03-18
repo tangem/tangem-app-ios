@@ -89,6 +89,7 @@ final class TangemPayMainViewModel: ObservableObject {
         .makePendingExpressTransactionsManager()
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
+            userWalletId: userWalletInfo.id,
             repository: cardDetailsRepository
         )
 
@@ -108,7 +109,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        Analytics.log(.visaScreenButtonVisaAddFunds)
+        Analytics.log(.visaScreenButtonVisaAddFunds, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
@@ -129,7 +130,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onPin() {
-        Analytics.log(.visaScreenPinCodeClicked)
+        Analytics.log(.visaScreenPinCodeClicked, contextParams: .userWallet(userWalletInfo.id))
         guard tangemPayAccount.card?.isPinSet == true else {
             setPin()
             return
@@ -149,7 +150,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func withdraw() {
-        Analytics.log(.visaScreenWithdrawClicked)
+        Analytics.log(.visaScreenWithdrawClicked, contextParams: .userWallet(userWalletInfo.id))
         guard let swapableToken = makeSendSwapableToken() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
             return
@@ -174,7 +175,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenVisaMainScreenOpened)
+        Analytics.log(.visaScreenVisaMainScreenOpened, contextParams: .userWallet(userWalletInfo.id))
 
         runTask { [tangemPayAccount] in
             await tangemPayAccount.loadBalance()
@@ -188,9 +189,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        Analytics.log(.visaScreenAddToWalletClicked)
+        Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openAddToApplePayGuide(
-            viewModel: .init(repository: cardDetailsRepository)
+            viewModel: .init(
+                userWalletId: userWalletInfo.id,
+                repository: cardDetailsRepository
+            )
         )
     }
 
@@ -199,14 +203,14 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func showFreezePopup() {
-        Analytics.log(.visaScreenFreezeCardClicked)
-        coordinator?.openTangemPayFreezeSheet { [weak self] in
+        Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
             self?.freeze()
         }
     }
 
     func unfreeze() {
-        Analytics.log(.visaScreenUnfreezeCardClicked)
+        Analytics.log(.visaScreenUnfreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
         freezingState = .unfreezingInProgress
         tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
 
@@ -229,12 +233,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func termsAndLimits() {
-        Analytics.log(.visaScreenTermsAndLimitsClicked)
+        Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTermsAndLimits()
     }
 
     func contactSupport() {
-        Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked)
+        Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked, contextParams: .userWallet(userWalletInfo.id))
         let dataCollector = TangemPaySupportDataCollector(
             source: .permanentBanner,
             userWalletId: userWalletInfo.id.stringValue,
@@ -289,17 +293,18 @@ final class TangemPayMainViewModel: ObservableObject {
             params: [
                 .status: transaction.record.analyticsStatus,
                 .type: transaction.transactionType.rawValue,
-            ]
+            ],
+            contextParams: .userWallet(userWalletInfo.id)
         )
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId
         )
     }
 
     func onToolbarClicked() {
-        Analytics.log(.visaScreenCardSettingsClicked)
+        Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
     }
 }
 
