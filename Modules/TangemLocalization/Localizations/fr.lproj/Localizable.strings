@@ -192,6 +192,7 @@
 "common_activate" = "Activer";
 "common_add_to_portfolio" = "Ajouter au portfolio";
 "common_add_token" = "Ajouter un jeton";
+"common_add_tokens" = "Ajouter des jetons";
 "common_add" = "Ajouter";
 "common_added" = "Ajouté";
 "common_address" = "Adresse";
@@ -290,6 +291,7 @@
 "common_next" = "Suivant";
 "common_nft" = "NFT";
 "common_no_address" = "Aucune adresse";
+"common_no_results" = "No results";
 "common_no" = "Non";
 "common_not_added" = "Non ajouté";
 "common_not_available" = "Indisponible";
@@ -350,6 +352,7 @@
 "common_to_wallet_name" = "À %@";
 "common_to" = "À";
 "common_today" = "Aujourd'hui";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "La transaction a échoué";
 "common_transaction_status" = "Statut de la transaction";
 "common_transactions" = "Transactions";
@@ -358,6 +361,7 @@
 "common_understand_continue" = "Je comprends, continuer.";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Inaccessible";
 "common_unstake" = "Unstakez";
 "common_utxo_validate_withdrawal_message_warning" = "En raison d'une limitations sur les %1$@, seuls les %2$li UTXO peuvent s'intégrer dans une seule transaction. Ce qui signifie vous ne pouvez envoyer que %3$@ ou moins. Réduisez le montant.";
@@ -448,7 +452,6 @@
 "exchange_tokens_available_tokens_header" = "Mes jetons";
 "exchange_tokens_empty_tokens" = "Vous n'avez pas encore ajouté de jetons. Ajoutez des jetons via Market pour effectuer une échange";
 "exchange_tokens_unavailable_tokens_header" = "Ne peut pas être échangé contre %@";
-"exсhange_token_description" = "Convertissez une de vos devises en une autre";
 "express_by_provider_placeholder" = "Fourni par %@";
 "express_cex_status_button_title" = "Statut";
 "express_choose_provider" = "Choisir un fournisseur";
@@ -645,6 +648,9 @@
 "initial_message_purge_wallet_body" = "Pour réinitialiser aux paramètres d'usine, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
 "initial_message_reset_backup_card_header" = "Appuyez sur la carte n°%@ du portefeuille";
 "initial_message_sign_body" = "Pour signer, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
 "jailbreak_warning_title" = "Jailbreak détecté";
 "key_invalidated_warning_description" = "Vous avez mis à jour vos données biométriques, scannez votre carte ou bague pour entrer";
@@ -660,6 +666,7 @@
 "mail_error_no_accounts_title" = "Aucun compte Mail";
 "main_empty_tokens_list_message" = "Pour commencer à suivre vos actifs et transactions crypto, ajoutez des jetons";
 "main_manage_tokens" = "Gérer les jetons";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "Pour accéder à tous les réseaux, vous devez scanner la carte";
 "main_scan_card_warning_view_title" = "Scannez votre carte";
 "main_tokens" = "Jetons";
@@ -685,6 +692,8 @@
 "markets_common_title" = "Marché";
 "markets_earn_common_title" = "Gagnez avec Tangem";
 "markets_generate_addresses_notification" = "Pour générer des adresses pour les réseaux sélectionnés, vous devez scanner votre carte Tangem";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "Pour ajouter des jetons, faites-le apparaître ou appuyez sur la barre de recherche";
 "markets_insights_info_description_message" = "Les données de cette section proviennent des réseaux suivants : %@";
 "markets_loading_error_title" = "Impossible de charger les données…";
@@ -740,6 +749,10 @@
 "markets_token_details_holders_description" = "L'évolution du nombre de détenteurs de jetons au cours d'une période donnée";
 "markets_token_details_holders_full" = "Détenteurs";
 "markets_token_details_holders" = "Détenteurs";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Idées";
 "markets_token_details_links" = "Liens";
 "markets_token_details_liquidity_description" = "Le changement dans la quantité de liquidité disponible pour le jeton pendant la période spécifiée";
@@ -767,9 +780,11 @@
 "markets_token_details_total_supply_description" = "Le nombre maximal de pièces ou de jetons pouvant exister pour une crypto-monnaie particulière";
 "markets_token_details_total_supply_full" = "Approvisionnement total";
 "markets_token_details_total_supply" = "Approvisionnement total";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "Le montant total d'une crypto-monnaie qui a été échangé au cours des dernières 24 heures, indiquant le niveau d'activité et de liquidité du marché";
 "markets_token_details_trading_volume_full" = "Volume des échanges (24h)";
 "markets_token_details_trading_volume" = "Volume des échanges (24h)";
+"markets_token_details_valuation_value_in_total" = "%@ in total";
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Tirez vers le haut ou appuyez sur la barre de recherche pour ajouter des jetons directement depuis le marché";
 "markets_tooltip_title" = "Ajouter des jetons";
@@ -785,6 +800,7 @@
 "news_related_tokens" = "Tokens associés";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Restez informé";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "À propos des NFT";
 "nft_asset" = "Actif NFT";
 "nft_collections_empty_description" = "Les NFT envoyés à l'adresse de votre portefeuille s'afficheront ici.";
@@ -1109,11 +1125,11 @@
 "send_notification_transaction_limit_title" = "Limitation des transactions";
 "send_optional_field" = "Facultatif";
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
-"send_rate_is_fixed" = "Rate is fixed";
-"send_rate_fixed_info_title" = "Fixed rate";
-"send_rate_floating_info_title" = "Floating rate";
 "send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
 "send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
@@ -1315,7 +1331,7 @@
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
@@ -1387,6 +1403,7 @@
 "tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
 "tangempay_card_details_add_funds_subtitle" = "Options de recharge";
 "tangempay_card_details_add_funds" = "Ajouter des fonds";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Numéro de carte";
 "tangempay_card_details_change_pin_success_description" = "La carte est totalement prête pour les paiements.";
 "tangempay_card_details_change_pin_success_title" = "Code PIN créé";

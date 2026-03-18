@@ -27,6 +27,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     )
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.walletTokenAutoSyncInteractor) private var autoSyncInteractor: WalletTokenAutoSyncInteractor
 
     private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -117,6 +118,13 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
 
+                if FeatureProvider.isAvailable(.mobileWalletTokenAutoSync) {
+                    try? await viewModel.autoSyncInteractor.startIfPossible(
+                        userWalletModel: userWalletModel,
+                        keyInfos: walletInfo.keys
+                    )
+                }
+
                 await runOnMain {
                     viewModel.isCreating = false
                     viewModel.logOnboardingFinishedAnalytics()
@@ -137,7 +145,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
 private extension MobileOnboardingSeedPhraseImportViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.onboardingSeedImportScreenOpened, contextParams: analyticsContextParams)
+        Analytics.log(.onboardingSeedImportScreenOpened, analyticsSystems: .all, contextParams: analyticsContextParams)
     }
 
     func logImportTapAnalytics() {

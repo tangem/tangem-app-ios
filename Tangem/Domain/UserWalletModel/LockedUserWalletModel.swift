@@ -104,11 +104,7 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 
     var keysRepository: KeysRepository {
-        CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: .init(userWalletIdSeed: Data()),
-            keys: .cardWallet(keys: [])
-        )
+        CommonKeysRepository(keys: .cardWallet(keys: []))
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -160,15 +156,12 @@ final class LockedUserWalletModel: UserWalletModel {
             config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
             userWalletRepository.savePublicData()
             updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
-        case .newName:
-            break
-        case .accessCodeDidSet:
-            break
-        case .accessCodeDidSkip:
-            break
-        case .iCloudBackupCompleted:
-            break
-        case .mnemonicBackupCompleted:
+        case .updateSensitiveInfo,
+             .newName,
+             .accessCodeDidSet,
+             .accessCodeDidSkip,
+             .iCloudBackupCompleted,
+             .mnemonicBackupCompleted:
             break
         }
     }
