@@ -169,7 +169,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openManageTokensAfterWalletSuccessImport:
             super.didTapNotification(with: id, action: action)
         }
     }

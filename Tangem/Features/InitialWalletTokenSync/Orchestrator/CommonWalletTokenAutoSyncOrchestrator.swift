@@ -221,7 +221,9 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         }
 
         let newTokens = discoveredTokens.filter { token in
-            !mainAccount.userTokensManager.contains(token, derivationInsensitive: false)
+            // [REDACTED_TODO_COMMENT]
+            token.blockchain == .polygon(testnet: false)
+                && !mainAccount.userTokensManager.contains(token, derivationInsensitive: false)
         }
 
         guard newTokens.isNotEmpty else {
