@@ -9,4 +9,5 @@ import Foundation
 
 enum WalletTokenAutoSyncError: Error {
     case syncAlreadyInProgress
+    case userTokenListNotReady
 }
