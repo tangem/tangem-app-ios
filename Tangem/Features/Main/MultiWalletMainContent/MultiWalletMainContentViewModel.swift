@@ -660,6 +660,14 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openCloreMigration(walletModel: walletModel)
     }
 
+    private func openManageTokens() {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return
+        }
+
+        coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
+    }
+
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
@@ -810,6 +818,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openCloreMigration:
             openCloreMigration()
+        case .openManageTokensAfterWalletSuccessImport:
+            openManageTokens()
         default:
             break
         }
