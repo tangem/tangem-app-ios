@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
+import enum BlockchainSdk.EthereumFeeParametersConstants
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -155,6 +156,15 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
             updateState(state: .unavailable(.notSupported))
+        } catch TokenFeeLoaderError.gaslessExecutionReverted(let gaslessMinAmount) {
+            // Convert gaslessMinAmount from smallest token units to decimal value to match the balance scale
+            let threshold = gaslessMinAmount / feeTokenItem.decimalValue
+
+            if let balance = feeTokenItemBalanceProvider.balanceType.value, balance < threshold {
+                updateState(state: .unavailable(.notEnoughFeeBalance))
+            } else {
+                updateState(state: .error(TokenFeeLoaderError.executionReverted))
+            }
         } catch is CancellationError {
             updateState(state: .idle)
         } catch {
@@ -178,6 +188,10 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
+
+        case .approve(let txData, let toContractAddress):
+            let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
+            return try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
         }
     }
 }
@@ -194,12 +208,16 @@ private extension CommonTokenFeeProvider {
 
         feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
             .balanceTypePublisher
-            .map { $0.loaded ?? 0 }
+            .map { $0.value ?? 0 }
             .map { allowsZeroFeePaid ? $0 >= 0 : $0 > 0 }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { feeProvider, hasFeeCurrency in
-                if !hasFeeCurrency {
+                if hasFeeCurrency {
+                    if case .unavailable(.noTokenBalance) = feeProvider.stateSubject.value {
+                        feeProvider.updateState(state: .idle)
+                    }
+                } else {
                     feeProvider.updateState(state: .unavailable(.noTokenBalance))
                 }
             }
@@ -221,6 +239,12 @@ private extension CommonTokenFeeProvider {
             break
         case .dex:
             // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            updateState(state: .unavailable(.notSupported))
+        case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
+            // ERC-20 approve — available for Ethereum loaders (includes gasless)
+            break
+        case .approve:
+            // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
             updateState(state: .unavailable(.notSupported))
         }
     }
