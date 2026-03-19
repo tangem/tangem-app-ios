@@ -23,3 +23,19 @@ public protocol EthereumNetworkProvider {
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error>
 }
+
+// MARK: - Public helpers
+
+public extension Error {
+    /// Whether this error represents an EVM `execution reverted` response (JSON-RPC error code 3).
+    var isEVMExecutionReverted: Bool {
+        guard let multiError = self as? MultiNetworkProviderError,
+              let apiError = multiError.networkError as? JSONRPC.APIError,
+              apiError.code == 3
+        else {
+            return false
+        }
+
+        return true
+    }
+}
