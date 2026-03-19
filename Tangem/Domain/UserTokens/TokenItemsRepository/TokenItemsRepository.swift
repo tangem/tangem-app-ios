@@ -9,7 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Token
 
-// [REDACTED_TODO_COMMENT]
+@available(iOS, deprecated: 100000.0, message: "Legacy storage, all entries should be migrated, will be removed in the future ([REDACTED_INFO])")
 protocol TokenItemsRepository {
     var containsFile: Bool { get }
 

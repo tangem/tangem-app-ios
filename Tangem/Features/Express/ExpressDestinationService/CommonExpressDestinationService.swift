@@ -15,8 +15,6 @@ struct CommonExpressDestinationService {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
     @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
-
-    init() {}
 }
 
 // MARK: - ExpressDestinationService

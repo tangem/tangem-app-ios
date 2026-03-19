@@ -555,12 +555,12 @@ private extension UserWalletSettingsViewModel {
                 .receiveOnMain()
                 .withWeakCaptureOf(self)
                 .sink { viewModel, accountModels in
-                    viewModel.updateManagersForAccountMode(accountModels: accountModels)
+                    viewModel.updateManagers(accountModels: accountModels)
                 }
                 .store(in: &bag)
         }
 
-        private func updateManagersForAccountMode(accountModels: [AccountModel]) {
+        private func updateManagers(accountModels: [AccountModel]) {
             let canAddCryptoAccounts = userWalletModel.accountModelsManager.canAddCryptoAccounts
 
             switch accountModels.firstStandard() {
@@ -603,13 +603,11 @@ private extension UserWalletSettingsViewModel {
 
 private extension UserWalletSettingsViewModel {
     func logScreenOpenedAnalytics() {
-        var params: [Analytics.ParameterKey: String] = [:]
-
-        params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
-
         Analytics.log(
             event: .walletSettingsScreenOpened,
-            params: params,
+            params: [
+                .accountsCount: String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount),
+            ],
             contextParams: analyticsContextParams
         )
     }
