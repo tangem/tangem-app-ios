@@ -76,7 +76,9 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
-            delegate: nil
+            delegate: nil,
+            coordinator: nil,
+            accountModel: nil
         )
     }()
 
