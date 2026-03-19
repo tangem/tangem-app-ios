@@ -13,6 +13,8 @@ import TangemAssets
 import TangemMobileWalletSdk
 import TangemFoundation
 import TangemLocalization
+import TangemUI
+import SwiftUI
 
 struct MobileUserWalletConfig {
     let mobileWalletInfo: MobileWalletInfo
@@ -98,6 +100,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         return nil
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .tLetterCard(.init(card: Color.Tangem.CardCollection.tangem, tLetter: Color.Tangem.CardCollection.tLogo))
     }
 
     var cardSessionFilter: SessionFilter { .cardId("") }

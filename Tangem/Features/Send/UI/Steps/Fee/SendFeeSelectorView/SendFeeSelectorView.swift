@@ -30,7 +30,8 @@ struct SendFeeSelectorView: View {
     private var content: some View {
         FeeSelectorBottomSheetContainerView(
             state: viewModel.state.hashValue,
-            button: button,
+            showsButton: button != nil,
+            button: { button },
             headerContent: { header },
             descriptionContent: { description },
             mainContent: { FeeSelectorView(viewModel: viewModel.feeSelectorViewModel) }
@@ -86,10 +87,4 @@ struct SendFeeSelectorView: View {
             NavigationBarButton.close(action: viewModel.userDidTapDismissButton)
         }
     }
-}
-
-// MARK: - Animation
-
-private extension Animation {
-    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
