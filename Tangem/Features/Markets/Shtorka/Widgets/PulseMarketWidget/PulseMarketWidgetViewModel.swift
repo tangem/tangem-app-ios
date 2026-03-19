@@ -27,7 +27,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
         let allowed = MarketsListOrderType.allCases.filter {
             switch $0 {
-            case .rating, .staking, .yield:
+            case .rating:
                 return false
             default:
                 return true
