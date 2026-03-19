@@ -169,7 +169,7 @@ extension ValidationErrorEvent {
              .minimumRestrictAmount,
              .destinationMemoRequired,
              .noTrustlineAtDestination:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
 

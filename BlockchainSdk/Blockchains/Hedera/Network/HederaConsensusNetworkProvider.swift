@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Hedera
+import TangemFoundation
 
 /// Provider for Hedera Consensus Nodes (GRPC) https://docs.hedera.com/hedera/networks/mainnet/mainnet-nodes
 final class HederaConsensusNetworkProvider {
@@ -32,7 +33,7 @@ final class HederaConsensusNetworkProvider {
             }
         }
         .withWeakCaptureOf(self)
-        .asyncMap { networkProvider, accountId in
+        .asyncTryMap { networkProvider, accountId in
             return try await AccountBalanceQuery()
                 .accountId(accountId)
                 .execute(networkProvider.client, networkProvider.timeout)
@@ -56,7 +57,7 @@ final class HederaConsensusNetworkProvider {
     func send(transaction: HederaTransactionBuilder.CompiledTransaction) -> some Publisher<String, Error> {
         return Just(transaction)
             .setFailureType(to: Error.self)
-            .asyncMap { try await $0.sendAndGetHash() }
+            .asyncTryMap { try await $0.sendAndGetHash() }
             .receive(on: callbackQueue)
     }
 
@@ -68,7 +69,7 @@ final class HederaConsensusNetworkProvider {
             }
         }
         .withWeakCaptureOf(self)
-        .asyncMap { networkProvider, transactionId in
+        .asyncTryMap { networkProvider, transactionId in
             let transactionReceipt = try await TransactionReceiptQuery()
                 .transactionId(transactionId)
                 .execute(networkProvider.client, networkProvider.timeout)
