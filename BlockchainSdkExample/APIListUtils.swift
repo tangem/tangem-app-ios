@@ -40,6 +40,7 @@ struct ConfigUtils {
             return BlockchainSdkKeysConfig(
                 blockchairApiKeys: keys.blockchairApiKeys,
                 blockcypherTokens: keys.blockcypherTokens,
+                alchemyApiKey: keys.alchemyApiKey,
                 infuraProjectId: keys.infuraProjectId,
                 nowNodesApiKey: keys.nowNodesApiKey,
                 getBlockCredentials: .init(credentials: credentials),
@@ -68,6 +69,7 @@ struct ConfigUtils {
             return .init(
                 blockchairApiKeys: [],
                 blockcypherTokens: [],
+                alchemyApiKey: "",
                 infuraProjectId: "",
                 nowNodesApiKey: "",
                 getBlockCredentials: .init(credentials: []),
@@ -198,6 +200,7 @@ enum APIProvider: String {
 struct Keys: Decodable {
     let blockchairApiKeys: [String]
     let blockcypherTokens: [String]
+    let alchemyApiKey: String
     let infuraProjectId: String
     let nowNodesApiKey: String
     let getBlockAccessTokens: [String: [String: String]]
