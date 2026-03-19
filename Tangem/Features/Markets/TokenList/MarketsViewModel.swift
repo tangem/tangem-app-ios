@@ -23,7 +23,6 @@ final class MarketsViewModel: MarketsBaseViewModel {
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListLoadingState: MarketsView.ListLoadingState = .idle
-    @Published private(set) var yieldModeNotificationVisible = false
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -57,9 +56,6 @@ final class MarketsViewModel: MarketsBaseViewModel {
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let imageCache = KingfisherManager.shared.cache
 
-    private lazy var marketsNotificationsManager = MarketsNotificationsManager(
-        tokenLoadingStateProvider: $tokenListLoadingState.eraseToAnyPublisher()
-    )
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
 
     private var marketCapFormatter: MarketCapFormatter
@@ -99,7 +95,6 @@ final class MarketsViewModel: MarketsBaseViewModel {
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
-        yieldModeNotificationBind(filterProvider.filterPublisher)
 
         bindToCurrencyCodeUpdate()
         dataProviderBind()
@@ -163,16 +158,6 @@ final class MarketsViewModel: MarketsBaseViewModel {
         tokenListLoadingState = .loading
         resetShowItemsBelowCapFlag()
         fetch(with: currentSearchValue, by: filterProvider.currentFilterValue)
-    }
-
-    func openYieldModeFiter() {
-        Analytics.log(.marketsYieldModeMoreInfo)
-        filterProvider.didSelectMarketOrder(.yield)
-    }
-
-    func closeYieldModeNotification() {
-        Analytics.log(.marketsYieldModePromoClosed)
-        AppSettings.shared.showMarketsYieldModeNotification = false
     }
 }
 
@@ -270,17 +255,6 @@ private extension MarketsViewModel {
             .sink { items in
                 let (viewModel, (hotAreaRange, interval)) = items
                 viewModel.requestMiniCharts(forRange: hotAreaRange, interval: interval)
-            }
-            .store(in: &bag)
-    }
-
-    private func yieldModeNotificationBind(_ filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
-        marketsNotificationsManager.yieldNotificationVisible(from: filterPublisher)
-            .sink { [weak self] visible in
-                if visible {
-                    Analytics.log(.marketsNoticeYieldModePromo)
-                }
-                self?.yieldModeNotificationVisible = visible
             }
             .store(in: &bag)
     }
