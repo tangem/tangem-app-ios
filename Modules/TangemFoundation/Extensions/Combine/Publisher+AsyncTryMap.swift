@@ -1,5 +1,5 @@
 //
-//  Publisher+AsyncMap.swift
+//  Publisher+AsyncTryMap.swift
 //  TangemFoundation
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,10 @@ import Foundation
 import Combine
 
 public extension Publishers {
-    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher {
+    struct AsyncTryMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Swift.Error {
         public typealias Output = Output
         public typealias Failure = Upstream.Failure
-        public typealias Transform = (_ input: Upstream.Output) async -> Output
+        public typealias Transform = (_ input: Upstream.Output) async throws -> Output
 
         private let upstream: Upstream
         private let priority: TaskPriority?
@@ -37,12 +37,18 @@ public extension Publishers {
 
                         guard !Task.isCancelled else { return }
 
-                        let output = await transform(value)
+                        do {
+                            let output = try await transform(value)
 
-                        guard !Task.isCancelled else { return }
+                            guard !Task.isCancelled else { return }
 
-                        subject.send(output)
-                        subject.send(completion: .finished)
+                            subject.send(output)
+                            subject.send(completion: .finished)
+                        } catch {
+                            guard !Task.isCancelled else { return }
+
+                            subject.send(completion: .failure(error))
+                        }
                     }
 
                     return subject.handleEvents(receiveCancel: task.cancel)
@@ -53,10 +59,10 @@ public extension Publishers {
 }
 
 public extension Publisher {
-    func asyncMap<T>(
+    func asyncTryMap<T>(
         priority: TaskPriority? = nil,
-        _ transform: @escaping @Sendable (_ input: Self.Output) async -> T
-    ) -> Publishers.AsyncMap<Self, T> {
-        return Publishers.AsyncMap(upstream: self, priority: priority, transform: transform)
+        _ transform: @escaping @Sendable (_ input: Self.Output) async throws -> T
+    ) -> Publishers.AsyncTryMap<Self, T> where Self.Failure == Swift.Error {
+        return Publishers.AsyncTryMap(upstream: self, priority: priority, transform: transform)
     }
 }
