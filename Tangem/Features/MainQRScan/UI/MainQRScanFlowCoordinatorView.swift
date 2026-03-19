@@ -14,12 +14,26 @@ struct MainQRScanFlowCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let qrScanCoordinator = coordinator.qrScanCoordinator {
-                MainQRScanCoordinatorView(coordinator: qrScanCoordinator)
-            }
-
+            content
             NavHolder()
                 .alert(item: $coordinator.alert) { $0.alert }
+        }
+        .animation(SendTransitions.animation, value: coordinator.viewState)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch coordinator.viewState {
+        case .scanner:
+            if let qrScanCoordinator = coordinator.qrScanCoordinator {
+                MainQRScanCoordinatorView(coordinator: qrScanCoordinator)
+                    .transition(SendTransitions.transition)
+            }
+        case .send:
+            if let sendCoordinator = coordinator.sendCoordinator {
+                SendCoordinatorView(coordinator: sendCoordinator)
+                    .transition(SendTransitions.transition)
+            }
         }
     }
 }
