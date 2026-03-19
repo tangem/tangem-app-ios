@@ -41,6 +41,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_INFO]
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published private(set) var virtualAccountViewModel: VirtualAccountViewModel?
+
     @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -364,6 +368,29 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
+
+        userWalletModel.accountModelsManager
+            .virtualAccountModelPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, accountModel -> AnyPublisher<VirtualAccountViewModel?, Never> in
+                if let accountModel {
+                    accountModel.statePublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, state in
+                            VirtualAccountViewModel(
+                                virtualAccountLocalState: state,
+                                userWalletId: viewModel.userWalletModel.userWalletId,
+                                cachedStateStorage: AppSettings.shared,
+                                router: viewModel
+                            )
+                        }
+                        .eraseToAnyPublisher()
+                } else {
+                    Just(nil).eraseToAnyPublisher()
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$virtualAccountViewModel)
 
         tangemPayAvailabilityRepository
             .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: userWalletModel.userWalletId.stringValue)
@@ -751,6 +778,30 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
         )
+    }
+}
+
+// MARK: - VirtualAccountAccountRoutable
+
+extension MultiWalletMainContentViewModel: VirtualAccountAccountRoutable {
+    func openVirtualAccountProvisioningPopup() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openVirtualAccountFailedToProvisionPopup() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openVirtualAccountKYCInProgressPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openVirtualAccountKYCDeclinedPopup(paymentAccountKYCInteractor: PaymentAccountKYCInteractor) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openVirtualAccountMainView(activeState: VirtualAccountActiveState) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 

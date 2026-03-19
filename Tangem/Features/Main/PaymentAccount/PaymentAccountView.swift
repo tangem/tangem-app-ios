@@ -1,5 +1,5 @@
 //
-//  TangemPayAccountView.swift
+//  PaymentAccountView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,9 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-import TangemLocalization
-import TangemVisa
-import TangemPay
 
-struct TangemPayAccountView: View {
-    @ObservedObject var viewModel: TangemPayAccountViewModel
+struct PaymentAccountView<ViewModel: PaymentAccountViewModel>: View {
+    @ObservedObject var viewModel: ViewModel
 
     var body: some View {
         Button(action: viewModel.userDidTapView) {
@@ -54,16 +51,16 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var defaultLeadingContent: some View {
         HStack(alignment: .center, spacing: 12) {
-            Assets.Visa.accountAvatar.image
+            viewModel.avatarImage
                 .resizable()
                 .frame(width: 36, height: 36)
                 .aspectRatio(contentMode: .fit)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.tangempayPaymentAccount)
+                Text(viewModel.title)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                Text(viewModel.state.subtitle)
+                Text(viewModel.subtitle)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
         }
@@ -72,10 +69,10 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .rootedDevice, .kycDeclined:
+        case .kycInProgress, .pendingActivation, .syncNeeded, .rootedDevice, .kycDeclined:
             EmptyView()
 
-        case .failedToIssueCard:
+        case .activationFailed:
             Assets.redCircleWarning20Outline.image
 
         case .unavailable(let cached):
@@ -93,7 +90,7 @@ struct TangemPayAccountView: View {
     }
 
     @ViewBuilder
-    private func cachedTrailingContent(_ trailing: TangemPayAccountViewModel.CachedDisplayData.Trailing?) -> some View {
+    private func cachedTrailingContent(_ trailing: PaymentAccountViewState.CachedDisplayData.Trailing?) -> some View {
         switch trailing {
         case .warningIcon:
             Assets.redCircleWarning20Outline.image
@@ -112,7 +109,7 @@ struct TangemPayAccountView: View {
                 loader: .init(size: CGSize(width: 40, height: 17))
             )
 
-            SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
+            SensitiveText(viewModel.currencySymbol)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }
@@ -128,11 +125,9 @@ struct TangemPayAccountView: View {
     }
 }
 
-// MARK: - TangemPayAccountView+Constants
-
-private extension TangemPayAccountView {
+private extension PaymentAccountView {
     enum Constants {
-        static let defaultSkeletonHeight: CGFloat = 12
-        static let defaultSkeletonRadius: CGFloat = 3
+        static var defaultSkeletonHeight: CGFloat { 12 }
+        static var defaultSkeletonRadius: CGFloat { 3 }
     }
 }
