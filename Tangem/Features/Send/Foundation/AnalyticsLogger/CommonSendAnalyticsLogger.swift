@@ -34,7 +34,7 @@ class CommonSendAnalyticsLogger {
     }
 
     private var sourceFlow: Analytics.ParameterValue {
-        switch sendReceiveTokenInput?.receiveToken {
+        switch sendReceiveTokenInput?.receiveToken.value {
         case .none: .send
         case .some: .sendAndSwap
         }
@@ -456,8 +456,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     func logFinishStepOpened() {
-        switch sendReceiveTokenInput?.receiveToken {
-        // Old send, simple send
+        switch sendReceiveTokenInput?.receiveToken.value {
         case .none:
             logSendFinishScreenOpened(destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false)
         case .some:

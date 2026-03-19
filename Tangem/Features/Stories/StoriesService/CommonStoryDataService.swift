@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import struct Foundation.URL
 import TangemStories
 
@@ -43,22 +44,11 @@ final class CommonStoryDataService: StoryDataService {
     }
 
     private func fetchStoryImages(using imageURLs: [URL]) async throws -> [TangemStory.Image] {
-        try await withThrowingTaskGroup(of: (Int, TangemStory.Image?).self) { [weak self] taskGroup in
-            var storyImages = [TangemStory.Image?](repeating: nil, count: imageURLs.count)
-
-            for (index, imageURL) in imageURLs.enumerated() {
-                taskGroup.addTask {
-                    (index, try await self?.fetchSingleImage(from: imageURL))
-                }
+        try await TaskGroup
+            .tryExecuteKeepingOrder(items: imageURLs) { [weak self] imageURL in
+                try await self?.fetchSingleImage(from: imageURL)
             }
-
-            for try await (index, storyImage) in taskGroup {
-                storyImages[index] = storyImage
-            }
-
-            return storyImages
-        }
-        .compactMap { $0 }
+            .compactMap(\.self)
     }
 
     private func fetchSingleImage(from imageURL: URL) async throws -> TangemStory.Image {
