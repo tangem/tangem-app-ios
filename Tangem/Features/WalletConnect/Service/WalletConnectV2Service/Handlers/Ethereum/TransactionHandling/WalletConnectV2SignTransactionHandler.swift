@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WalletConnectV2SignTransactionHandler {
     private var wcTransaction: WalletConnectEthTransaction
