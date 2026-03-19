@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
@@ -43,6 +44,7 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
                 )
         )
         .animation(.easeOut(duration: duration), value: isOpen)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderBestRateBadge)
         .onAppear(perform: animate)
         .onDisappear {
             animateTask?.cancel()
