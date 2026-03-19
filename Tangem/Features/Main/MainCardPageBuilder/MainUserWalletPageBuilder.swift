@@ -225,6 +225,23 @@ enum MainUserWalletPageBuilder: Identifiable {
             EmptyMainFooterView()
         }
     }
+
+    @ViewBuilder
+    func makeRedesignedBottomOverlay(_ overlayParams: FullPagePagerBottomOverlayParams) -> some View {
+        if let viewModel = bottomSheetFooterViewModel {
+            MainBottomSheetFooterView(viewModel: viewModel)
+                .overlay {
+                    MainBottomSheetRedesignedHintView(
+                        offset: -overlayParams.contentHeight,
+                        isActive: overlayParams.isActive
+                    )
+                }
+        } else if let viewModel = footerViewModel {
+            MainFooterView(viewModel: viewModel, didScrollToBottom: overlayParams.didScrollToBottom)
+        } else {
+            EmptyMainFooterView()
+        }
+    }
 }
 
 // MARK: - MainViewPage protocol conformance
