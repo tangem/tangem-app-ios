@@ -11,6 +11,7 @@ import UIKit
 import Combine
 import TangemAssets
 import TangemNetworkUtils
+import TangemFoundation
 
 struct TwinImageProvider {
     private let imageCache = CardImageProviderCache()
