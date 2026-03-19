@@ -291,7 +291,14 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
-        let tokenItem = withBlockchainNetwork(tokenItem)
+        // Some token items don't have `derivationPath` and need enrichment to match stored tokens for this particular account.
+        // For example, token items originating from API responses (e.g. `TokenItemMapper`) have `derivationPath: nil`.
+        //
+        // Some token items already have `derivationPath` property set and must be used as-is to avoid matching the wrong account.
+        // For example, token items from `WalletModel` already have the correct derivation path.
+        let tokenItem = tokenItem.blockchainNetwork.derivationPath == nil
+            ? withBlockchainNetwork(tokenItem)
+            : tokenItem
 
         return userTokens.contains { existingTokenItem in
             return derivationInsensitive
