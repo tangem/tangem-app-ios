@@ -127,6 +127,12 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
             )
+        case .solana:
+            return SolanaTransactionHistoryProvider(
+                configuration: .alchemy(apiKey: keysConfig.alchemyApiKey),
+                networkConfiguration: input.tangemProviderConfig,
+                mapper: SolanaTransactionHistoryMapper(blockchain: input.blockchain)
+            )
         default:
             return nil
         }

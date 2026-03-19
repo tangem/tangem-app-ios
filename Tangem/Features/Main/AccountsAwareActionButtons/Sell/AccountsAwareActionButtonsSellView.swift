@@ -15,14 +15,12 @@ struct AccountsAwareActionButtonsSellView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsSellViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
+        AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+            AccountsAwareTokenSelectorEmptyContentView(message: Localization.actionButtonsSellEmptySearchMessage)
+        } headerContent: {
             notifications
-
-            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                AccountsAwareTokenSelectorEmptyContentView(message: Localization.actionButtonsSellEmptySearchMessage)
-            }
-            .searchType(.native)
         }
+        .searchType(.native)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonSell)
         .navigationBarTitleDisplayMode(.inline)
@@ -38,7 +36,6 @@ struct AccountsAwareActionButtonsSellView: View {
         if let notification = viewModel.notificationInput {
             NotificationView(input: notification)
                 .transition(.notificationTransition)
-                .padding(.horizontal, 16)
         }
     }
 }
