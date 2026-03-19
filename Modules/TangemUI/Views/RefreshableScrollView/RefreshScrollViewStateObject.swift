@@ -26,6 +26,10 @@ public class RefreshScrollViewStateObject: ObservableObject {
         stateSubject.eraseToAnyPublisher()
     }
 
+    public var scrollViewInteractor: RefreshScrollViewInteractor {
+        _scrollViewInteractor
+    }
+
     var draggingStartFromTop: Bool {
         guard let dragging = scrollViewDelegate.dragging else {
             return false
@@ -37,10 +41,13 @@ public class RefreshScrollViewStateObject: ObservableObject {
     }
 
     lazy var scrollViewDelegate = RefreshScrollViewDelegate(
+        interactor: _scrollViewInteractor,
         willEndDraggingAt: { [weak self] targetOffset in
             self?.targetContentOffset(draggingWillEndAt: targetOffset)
         }
     )
+
+    private let _scrollViewInteractor = CommonRefreshScrollViewInteractor()
 
     private let settings: Settings
     private var refreshable: () async -> Void
@@ -233,17 +240,5 @@ public extension RefreshScrollViewStateObject {
         }
 
         public var threshold: CGFloat { refreshAreaHeight * thresholdMultiplier }
-    }
-}
-
-// MARK: - Observers
-
-public extension RefreshScrollViewStateObject {
-    func addDelegate(_ delegate: UIScrollViewDelegate) {
-        scrollViewDelegate.addObserver(delegate)
-    }
-
-    func removeDelegate(_ delegate: UIScrollViewDelegate) {
-        scrollViewDelegate.removeObserver(delegate)
     }
 }

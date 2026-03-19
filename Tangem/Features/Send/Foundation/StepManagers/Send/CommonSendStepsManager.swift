@@ -188,8 +188,8 @@ extension CommonSendStepsManager: SendStepsManager {
 // MARK: - SendAmountRoutable
 
 extension CommonSendStepsManager: SendAmountStepRoutable {
-    func openReceiveTokensList() {
-        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder)
+    func openReceiveTokensList(onDismiss: (() -> Void)?) {
+        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder, onDismiss: onDismiss)
     }
 }
 
