@@ -10,22 +10,11 @@ import Combine
 import Foundation
 import TangemFoundation
 
-class CommonTotalBalanceProviderAnalyticsLogger {
+final class CommonTotalBalanceProviderAnalyticsLogger {
     private let userWalletId: UserWalletId
     private let calculateWalletModels: () -> [any WalletModel]
 
     private var totalBalanceStateSubscription: AnyCancellable?
-
-    init(
-        userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager
-    ) {
-        self.userWalletId = userWalletId
-
-        calculateWalletModels = { [weak walletModelsManager] in
-            walletModelsManager?.walletModels ?? []
-        }
-    }
 
     init(
         userWalletId: UserWalletId,
