@@ -100,7 +100,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokenElement(named: label).waitAndTap()
+            tokenElement(named: label).waitAndTapWithScroll()
             return TokenScreen(app)
         }
     }
@@ -276,6 +276,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+
+            // Wait for balance to load — context menu captures content at presentation time
+            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
+            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
