@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 import struct Hedera.AccountId
 
 final class HederaWalletManager: BaseManager {

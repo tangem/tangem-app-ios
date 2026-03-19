@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import BigInt
+import TangemFoundation
 
 struct GaslessTransactionBuilder {
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
