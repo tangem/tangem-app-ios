@@ -14,11 +14,11 @@ struct CommonStakingAnalyticsLogger: StakingAnalyticsLogger {
         let event: Analytics.Event
         var parameters: [Analytics.ParameterKey: String] = [.token: currencySymbol]
         switch error {
-        case let apiError as StakeKitAPIError:
-            parameters[.errorCode] = apiError.code
-            parameters[.errorMessage] = apiError.message
-            event = .stakingErrors
         case let httpError as StakeKitHTTPError:
+            if case .badStatusCode(_, let apiError, _) = httpError {
+                parameters[.errorCode] = apiError?.code
+                parameters[.errorMessage] = apiError?.message
+            }
             parameters[.errorDescription] = httpError.errorDescription
             event = .stakingErrors
         case let error as LocalizedError where error is StakingManagerError || error is StakeKitMapperError:
