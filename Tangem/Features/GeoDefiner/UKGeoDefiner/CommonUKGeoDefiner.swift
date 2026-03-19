@@ -22,7 +22,7 @@ class CommonUKGeoDefiner: UKGeoDefiner {
         }
 
         // add timeout to avoid app launch delay
-        try? await runTask(withTimeout: 3) { [geoDefiner] in
+        try? await Task.run(withTimeout: .seconds(3.0)) { [geoDefiner] in
             _ = try? await geoDefiner.fetchGeoIpRegionCode()
         }
     }
