@@ -65,11 +65,13 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
             .map { CommonTangemIconProvider(config: $0.userWalletInfo.config).getMainButtonIcon() }
+            .receiveOnMain()
             .assign(to: &$mainButtonIcon)
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
             .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
 
