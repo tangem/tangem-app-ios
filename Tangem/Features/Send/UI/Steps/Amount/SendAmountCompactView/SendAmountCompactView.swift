@@ -37,6 +37,7 @@ struct SendAmountCompactView: View {
                 Button(action: viewModel.userDidTapReceiveTokenAmount) {
                     SendAmountCompactTokenView(viewModel: receiveTokenViewModel)
                 }
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.receiveTokenBlock)
                 .overlay(alignment: .top) {
                     SendAmountCompactViewSeparator(style: viewModel.amountsSeparator)
                         .readGeometry(\.frame.size, bindTo: $separatorSize)
@@ -55,6 +56,7 @@ struct SendAmountCompactView: View {
                         shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
                     )
                 }
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderBlock)
                 .disabled(!sendSwapProviderCompactViewData.isTappable)
                 .allowsHitTesting(tappable)
             }
