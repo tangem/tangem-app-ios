@@ -34,11 +34,11 @@ final class AlgorandWalletManager: BaseManager {
                     return []
                 }
 
-                let transactions = await TaskGroup.executeKeepingOrder(items: wallet.pendingTransactions) { tx in
-                    try? await self.networkService.getPendingTransaction(transactionHash: tx.hash).async()
-                }
-
-                return transactions.compactMap { $0 }
+                return await TaskGroup
+                    .executeKeepingOrder(items: wallet.pendingTransactions) { tx in
+                        try? await self.networkService.getPendingTransaction(transactionHash: tx.hash).async()
+                    }
+                    .compactMap(\.self)
             }()
 
             // Fetch account info
