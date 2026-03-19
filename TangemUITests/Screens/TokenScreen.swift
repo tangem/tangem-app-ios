@@ -45,6 +45,9 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var availableBalance = staticText(.availableBalance)
     private lazy var stakingBalance = staticText(.stakingBalance)
 
+    /// Pending express transaction
+    private lazy var pendingExpressTransaction = button(.pendingExpressTransaction)
+
     func hideToken(name: String) -> MainScreen {
         moreButton.waitAndTap()
         hideTokenButton.waitAndTap()
@@ -145,6 +148,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Validate 'Top up your wallet' banner not exists") { _ in
             topUpBanner.waitForState(state: .doesntExist)
             XCTAssertFalse(topUpBanner.exists, "Top up wallet banner should not be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForPendingExpressTransaction() -> Self {
+        XCTContext.runActivity(named: "Wait for pending express transaction to appear") { _ in
+            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
             return self
         }
     }
@@ -289,6 +300,7 @@ enum TokenScreenElement: String, UIElement {
     case swapButton
     case buyButton
     case sellButton
+    case pendingExpressTransaction
 
     var accessibilityIdentifier: String {
         switch self {
@@ -332,6 +344,8 @@ enum TokenScreenElement: String, UIElement {
             return ActionButtonsAccessibilityIdentifiers.buyButton
         case .sellButton:
             return ActionButtonsAccessibilityIdentifiers.sellButton
+        case .pendingExpressTransaction:
+            return TokenAccessibilityIdentifiers.pendingExpressTransaction
         }
     }
 }

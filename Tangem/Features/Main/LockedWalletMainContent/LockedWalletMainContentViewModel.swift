@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import class TangemSdk.BiometricsUtil
@@ -22,9 +23,8 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     lazy var lockedNotificationInput: NotificationViewInput = {
-        let factory = NotificationsFactory()
         let event: GeneralNotificationEvent = .walletLocked
-        return .init(
+        return NotificationViewInput(
             style: .tappable(hasChevron: true) { [weak self] _ in
                 self?.onLockedWalletNotificationTap()
             },
@@ -32,6 +32,8 @@ final class LockedWalletMainContentViewModel: ObservableObject {
             settings: .init(event: event, dismissAction: nil)
         )
     }()
+
+    lazy var notificationBannerItems: [NotificationBannerItem] = MultiWalletNotificationBannerMapper().mapItems([lockedNotificationInput])
 
     lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionAvailabilityProvider.buildActionsForLockedSingleWallet()
         .map {

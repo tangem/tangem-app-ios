@@ -131,7 +131,7 @@ final class SendConfirmationUITests: BaseTestCase {
     func testNetworkFeeUnreachableAndRefresh_ForPolkadot() {
         setAllureId(554)
 
-        let tokenName = "Polkadot"
+        let tokenName = "Polkadot Asset Hub"
         let tokenAmount = "0.1"
         let destinationAddress = "143TfgFYAFfM86LRzt4UcFNU3KosxCndBCVz2U5HCxpLidKZ"
         let currentFeeAmount = "$0.05"
