@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemNFT
 import TangemUI
 import TangemAssets
 import TangemUIUtils
@@ -22,6 +23,10 @@ struct MultiWalletMainContentRedesignedView: View {
             notificationBanners
 
             listContent
+
+            if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
+                TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
+            }
 
             if viewModel.isOrganizeTokensVisible {
                 organizeButton
