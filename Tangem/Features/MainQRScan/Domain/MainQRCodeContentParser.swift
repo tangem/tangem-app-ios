@@ -23,8 +23,8 @@ struct MainQRCodeContentParser {
             return .walletConnect(walletConnectURI)
         }
 
-        if let parsedPayment = paymentRequestParser.parse(value) {
-            return .paymentURI(parsedPayment.request)
+        if let paymentRequest = paymentRequestParser.parse(value) {
+            return .paymentURI(paymentRequest)
         }
 
         if MainQRParserSupport.hasPrefix(value, in: MainQRParserConstants.httpSchemes) {
