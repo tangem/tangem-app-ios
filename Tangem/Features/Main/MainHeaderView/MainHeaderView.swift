@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
@@ -21,6 +22,8 @@ struct MainHeaderView: View {
 
     @ScaledMetric private var subtitleStubWidthScaled = Size.subtitleStub.width
     @ScaledMetric private var subtitleStubHeightScaled = Size.subtitleStub.height
+
+    @State private var requestIconIsRotating = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -45,11 +48,7 @@ struct MainHeaderView: View {
 
             Spacer(minLength: 10)
 
-            HStack {
-                subtitleText
-
-                Spacer()
-            }
+            subtitleView
         }
         .lineLimit(1)
         .padding(.vertical, 12)
@@ -74,6 +73,9 @@ struct MainHeaderView: View {
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(Size.cornerRadius)
         .previewContentShape(cornerRadius: Size.cornerRadius)
+        .onAppear {
+            requestIconIsRotating = true
+        }
     }
 
     private var subtitleText: some View {
@@ -101,6 +103,36 @@ struct MainHeaderView: View {
                 size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
                 radius: 3
             )
+        }
+    }
+
+    @ViewBuilder
+    private var subtitleView: some View {
+        if let progress = viewModel.tokenSyncProgress {
+            tokenSyncView(progress: progress)
+        } else {
+            HStack {
+                subtitleText
+
+                Spacer()
+            }
+        }
+    }
+
+    private func tokenSyncView(progress: Int) -> some View {
+        HStack(spacing: 4) {
+            Text(Localization.initialWalletSyncRestoreProgress(progress))
+                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+
+            Assets.Glyphs.load.image
+                .resizable()
+                .frame(width: 8, height: 8)
+                .foregroundStyle(Colors.Icon.accent)
+                .frame(width: 12, height: 12)
+                .rotationEffect(.degrees(requestIconIsRotating ? 360 : 0))
+                .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: requestIconIsRotating)
+
+            Spacer()
         }
     }
 }
