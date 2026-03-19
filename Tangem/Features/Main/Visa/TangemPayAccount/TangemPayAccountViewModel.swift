@@ -7,11 +7,13 @@
 //
 
 import Combine
+import SwiftUI
 import TangemFoundation
 import TangemVisa
 import TangemLocalization
 import TangemPay
 import TangemUI
+import TangemAssets
 
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
@@ -22,14 +24,12 @@ protocol TangemPayAccountRoutable: AnyObject {
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
-    @Published private(set) var state: ViewState = .skeleton
+    @Published private(set) var state: PaymentAccountViewState = .skeleton
 
     private let tangemPayLocalState: TangemPayLocalState
     private let userWalletId: UserWalletId
     private let cachedStateStorage: TangemPayCachedStateStorage
     private weak var router: TangemPayAccountRoutable?
-
-    private let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 
     init(
         tangemPayLocalState: TangemPayLocalState,
@@ -63,13 +63,52 @@ final class TangemPayAccountViewModel: ObservableObject {
     }
 }
 
+// MARK: - PaymentAccountViewModel
+
+extension TangemPayAccountViewModel: PaymentAccountViewModel {
+    var avatarImage: Image {
+        Assets.Visa.accountAvatar.image
+    }
+
+    var title: String {
+        Localization.tangempayPaymentAccount
+    }
+
+    var currencySymbol: String {
+        TangemPayUtilities.usdcTokenItem.currencySymbol
+    }
+
+    var subtitle: String {
+        switch state {
+        case .kycInProgress:
+            Localization.tangempayKycInProgress
+        case .pendingActivation:
+            Localization.tangempayIssuingYourCard
+        case .activationFailed:
+            Localization.tangempayFailedToIssueCard
+        case .normal(let subtitle, _):
+            subtitle.map { "*" + $0 } ?? "-"
+        case .syncNeeded:
+            Localization.tangempaySyncNeeded
+        case .unavailable(let cached):
+            cached?.subtitle ?? "—"
+        case .skeleton:
+            "—"
+        case .rootedDevice:
+            Localization.tangempayAccountUnableToUseRooted
+        case .kycDeclined:
+            Localization.tangempayKycHasFailed
+        }
+    }
+}
+
 // MARK: - Private
 
 private extension TangemPayAccountViewModel {
     func bind() {
         Just(tangemPayLocalState)
             .withWeakCaptureOf(self)
-            .flatMapLatest { viewModel, state -> AnyPublisher<ViewState, Never> in
+            .flatMapLatest { viewModel, state -> AnyPublisher<PaymentAccountViewState, Never> in
                 guard !RTCUtil().checkStatus().hasIssues else {
                     return .just(output: .rootedDevice)
                 }
@@ -86,9 +125,9 @@ private extension TangemPayAccountViewModel {
                 case .kycDeclined:
                     .just(output: .kycDeclined)
                 case .issuingCard:
-                    .just(output: .issuingYourCard)
+                    .just(output: .pendingActivation)
                 case .failedToIssueCard:
-                    .just(output: .failedToIssueCard)
+                    .just(output: .activationFailed)
                 case .tangemPayAccount(let tangemPayAccount):
                     Publishers.CombineLatest(
                         tangemPayAccount.cardPublisher,
@@ -99,9 +138,8 @@ private extension TangemPayAccountViewModel {
                         case .none:
                             return .skeleton
                         case .some(let card):
-                            let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
                             let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
-                            return .normal(card: cardInfo, balance: balance)
+                            return .normal(subtitle: card.cardNumberEnd, balance: balance)
                         }
                     }
                     .eraseToAnyPublisher()
@@ -109,7 +147,7 @@ private extension TangemPayAccountViewModel {
             }
             .handleEvents(receiveOutput: { [userWalletId] state in
                 switch state {
-                case .issuingYourCard:
+                case .pendingActivation:
                     Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed, contextParams: .userWallet(userWalletId))
                 default:
                     break
@@ -119,34 +157,34 @@ private extension TangemPayAccountViewModel {
             .assign(to: &$state)
     }
 
-    func makeCachedDisplayData() -> CachedDisplayData? {
+    func makeCachedDisplayData() -> PaymentAccountViewState.CachedDisplayData? {
         switch cachedStateStorage.cachedLocalState(customerWalletId: userWalletId.stringValue) {
         case .kycRequired:
-            CachedDisplayData(
+            PaymentAccountViewState.CachedDisplayData(
                 subtitle: Localization.tangempayKycInProgress,
                 trailing: .empty
             )
 
         case .kycDeclined:
-            CachedDisplayData(
+            PaymentAccountViewState.CachedDisplayData(
                 subtitle: Localization.tangempayKycHasFailed,
                 trailing: .empty
             )
 
         case .issuingCard:
-            CachedDisplayData(
+            PaymentAccountViewState.CachedDisplayData(
                 subtitle: Localization.tangempayIssuingYourCard,
                 trailing: .empty
             )
 
         case .failedToIssueCard:
-            CachedDisplayData(
+            PaymentAccountViewState.CachedDisplayData(
                 subtitle: Localization.tangempayFailedToIssueCard,
                 trailing: .warningIcon
             )
 
         case .tangemPayAccount(let cardNumberEnd):
-            CachedDisplayData(
+            PaymentAccountViewState.CachedDisplayData(
                 subtitle: cardNumberEnd.map { "*" + $0 },
                 trailing: .balance(cachedBalanceState())
             )
@@ -169,73 +207,5 @@ private extension TangemPayAccountViewModel {
             currencyCode: TangemPayUtilities.fiatItem.currencyCode
         )
         return .loaded(text: .string(formatted))
-    }
-}
-
-extension TangemPayAccountViewModel {
-    enum ViewState {
-        case skeleton
-        case kycInProgress
-        case kycDeclined
-        case issuingYourCard
-        case failedToIssueCard
-        case normal(card: CardInfo, balance: LoadableBalanceView.State)
-        case syncNeeded
-        case unavailable(cached: CachedDisplayData? = nil)
-        case rootedDevice
-
-        var subtitle: String {
-            switch self {
-            case .kycInProgress:
-                Localization.tangempayKycInProgress
-            case .issuingYourCard:
-                Localization.tangempayIssuingYourCard
-            case .failedToIssueCard:
-                Localization.tangempayFailedToIssueCard
-            case .normal(let card, _):
-                "*" + card.cardNumberEnd
-            case .syncNeeded:
-                Localization.tangempaySyncNeeded
-            case .unavailable(let cached):
-                cached?.subtitle ?? "—"
-            case .skeleton:
-                "—"
-            case .rootedDevice:
-                Localization.tangempayAccountUnableToUseRooted
-            case .kycDeclined:
-                Localization.tangempayKycHasFailed
-            }
-        }
-
-        var isFullyVisible: Bool {
-            switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined:
-                true
-            case .syncNeeded, .unavailable, .rootedDevice:
-                false
-            }
-        }
-
-        var isSkeleton: Bool {
-            if case .skeleton = self {
-                return true
-            }
-            return false
-        }
-    }
-
-    struct CachedDisplayData {
-        let subtitle: String?
-        let trailing: Trailing
-
-        enum Trailing {
-            case empty
-            case warningIcon
-            case balance(LoadableBalanceView.State)
-        }
-    }
-
-    struct CardInfo {
-        let cardNumberEnd: String
     }
 }

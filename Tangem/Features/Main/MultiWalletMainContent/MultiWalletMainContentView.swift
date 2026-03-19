@@ -54,7 +54,11 @@ struct MultiWalletMainContentView: View {
 
             VStack(spacing: 8.0) {
                 if let viewModel = viewModel.tangemPayAccountViewModel {
-                    TangemPayAccountView(viewModel: viewModel)
+                    PaymentAccountView(viewModel: viewModel)
+                }
+
+                if let viewModel = viewModel.virtualAccountViewModel {
+                    PaymentAccountView(viewModel: viewModel)
                 }
 
                 listContent
