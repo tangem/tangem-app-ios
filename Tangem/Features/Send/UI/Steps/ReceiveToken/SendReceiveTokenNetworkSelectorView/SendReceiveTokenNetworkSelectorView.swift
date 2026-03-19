@@ -84,6 +84,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                     action: viewModel.dismiss
                 )
             )
+            .accessibilityElement(children: .contain)
             .accessibilityIdentifier(SendAccessibilityIdentifiers.networkSelectorErrorTitle)
         }
     }
