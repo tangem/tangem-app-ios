@@ -41,26 +41,27 @@ struct MainQRDeepLinkPaymentParser {
                 in: queryItems,
                 names: MainQRParserConstants.chainQueryKeys
             ),
-            let blockchain = MainQRParserSupport.resolveBlockchain(fromChainName: chain)
+            let blockchain = MainQRBlockchainResolver.resolveBlockchain(fromChainName: chain)
         else {
             return nil
         }
 
         let address = rawAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !address.isEmpty, MainQRParserSupport.isValidDestinationAddress(address, for: blockchain) else {
+        guard !address.isEmpty, MainQRBlockchainResolver.isValidDestinationAddress(address, for: blockchain) else {
             return nil
         }
 
         let amountString = MainQRParserSupport.firstQueryValue(in: queryItems, names: MainQRParserConstants.rawAmountQueryKeys)
-        let amount = amountString.flatMap(MainQRParserSupport.parseDecimal)
+        let amount = amountString.flatMap(MainQRDecimalParser.parseDecimal)
         let memo = MainQRParserSupport.firstQueryValue(in: queryItems, names: MainQRParserConstants.memoQueryKeys)
+        let tokenSymbol = MainQRParserSupport.firstQueryValue(in: queryItems, names: MainQRParserConstants.tokenSymbolQueryKeys)
 
         return MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: address,
             amount: amount,
-            rawAmount: amountString,
             memo: memo,
+            tokenSymbol: tokenSymbol,
             tokenContractAddress: MainQRParserSupport.firstQueryValue(
                 in: queryItems,
                 names: MainQRParserConstants.tokenContractQueryKeys

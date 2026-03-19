@@ -12,13 +12,16 @@ import BlockchainSdk
 struct MainQRScanRouteResolver {
     private let parser: MainQRCodeContentParser
     private let addressResolver: AddressBlockchainResolver
+    private let tokenItemMatcher: MainQRTokenItemMatcher
 
     init(
         parser: MainQRCodeContentParser = MainQRCodeContentParser(),
-        addressResolver: AddressBlockchainResolver = AddressBlockchainResolver()
+        addressResolver: AddressBlockchainResolver = AddressBlockchainResolver(),
+        tokenItemMatcher: MainQRTokenItemMatcher = MainQRTokenItemMatcher()
     ) {
         self.parser = parser
         self.addressResolver = addressResolver
+        self.tokenItemMatcher = tokenItemMatcher
     }
 
     func resolve(
@@ -47,33 +50,11 @@ struct MainQRScanRouteResolver {
         availableBlockchains: [Blockchain],
         availableTokenItems: [TokenItem]
     ) -> MainQRScanAction {
-        let matchingTokenItems: [TokenItem]
-        if let tokenContractAddress = request.tokenContractAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !tokenContractAddress.isEmpty {
-            let normalizedContractAddress = tokenContractAddress.lowercased()
-            let matchedContractTokenItems = availableTokenItems.filter {
-                $0.blockchain == request.blockchain
-                    && $0.contractAddress?.lowercased() == normalizedContractAddress
-            }
-            let tokenMatchCount = matchedContractTokenItems.count
-
-            guard tokenMatchCount > 0 else {
-                return .showNoSupportedTokens
-            }
-
-            matchingTokenItems = matchedContractTokenItems
-        } else {
-            let sameBlockchainItems = availableTokenItems.filter { $0.blockchain == request.blockchain }
-            if sameBlockchainItems.isEmpty {
-                let fallbackMatches = availableBlockchains
-                    .filter { $0 == request.blockchain }
-                    .map { TokenItem.blockchain(BlockchainNetwork($0, derivationPath: nil)) }
-                matchingTokenItems = fallbackMatches
-            } else {
-                let coinItems = sameBlockchainItems.filter(\.isBlockchain)
-                matchingTokenItems = coinItems.isEmpty ? sameBlockchainItems : coinItems
-            }
-        }
+        let matchingTokenItems = tokenItemMatcher.matchTokenItems(
+            for: request,
+            availableTokenItems: availableTokenItems,
+            availableBlockchains: availableBlockchains
+        )
 
         let matchCount = matchingTokenItems.count
 
@@ -105,6 +86,7 @@ struct MainQRScanRouteResolver {
             )
 
             if !globallyCompatibleBlockchains.isEmpty {
+                MainQRScanLogger.warning(MainQRScanLoggerStrings.addressQRGloballyValidWithoutAvailableBlockchains)
                 return .showNoSupportedTokens
             }
         }
