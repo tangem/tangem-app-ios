@@ -208,20 +208,15 @@ private extension View {
 }
 
 private struct NavigationControllerDelegateViewModifier: ViewModifier {
-    @State private var responderChainIntrospectionTrigger = UUID()
-
     @StateObject private var multicastDelegate = UINavigationControllerMulticastDelegate(
         customDelegate: MainCoordinatorNavigationAssertion()
     )
 
     func body(content: Content) -> some View {
         content
-            .onAppear {
-                responderChainIntrospectionTrigger = UUID()
-            }
             .introspectResponderChain(
                 introspectedType: UINavigationController.self,
-                updateOnChangeOf: responderChainIntrospectionTrigger
+                introspectionTriggers: [.willAppear],
             ) { [weak multicastDelegate] navigationController in
                 navigationController.set(multicastDelegate: multicastDelegate)
             }
