@@ -443,7 +443,7 @@
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
 "earn_no_results" = "No results";
-"earn_title" = "Earn";
+"earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "Ciao team di supporto, ho riscontrato un errore con il codice: %@";
 "email_subject_wc_error" = "Errore WalletConnect";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
@@ -690,7 +690,7 @@
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
-"markets_earn_common_title" = "Earn with Tangem";
+"markets_earn_common_title" = "Staking & Yield mode";
 "markets_generate_addresses_notification" = "To generate addresses for selected networks, you must scan your Tangem Wallet card or ring";
 "markets_hint_part_one" = "Swipe up to explore the market";
 "markets_hint_part_two" = "Find new hidden gems";
@@ -1125,6 +1125,11 @@
 "send_notification_transaction_limit_title" = "Transaction limitation";
 "send_optional_field" = "Optional";
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
