@@ -34,12 +34,12 @@ struct MainQRJSONPaymentParser {
                 in: payload,
                 keys: MainQRParserConstants.jsonChainKeys
             ),
-            let blockchain = MainQRParserSupport.resolveBlockchain(fromChainName: chainValue)
+            let blockchain = MainQRBlockchainResolver.resolveBlockchain(fromChainName: chainValue)
         else {
             return nil
         }
 
-        guard MainQRParserSupport.isValidDestinationAddress(address, for: blockchain) else {
+        guard MainQRBlockchainResolver.isValidDestinationAddress(address, for: blockchain) else {
             return nil
         }
 
@@ -47,18 +47,22 @@ struct MainQRJSONPaymentParser {
             in: payload,
             keys: MainQRParserConstants.jsonAmountKeys
         )
-        let amount = amountString.flatMap(MainQRParserSupport.parseDecimal)
+        let amount = amountString.flatMap(MainQRDecimalParser.parseDecimal)
         let memo = MainQRParserSupport.firstPayloadString(
             in: payload,
             keys: MainQRParserConstants.jsonMemoKeys
+        )
+        let tokenSymbol = MainQRParserSupport.firstPayloadString(
+            in: payload,
+            keys: MainQRParserConstants.jsonTokenSymbolKeys
         )
 
         return MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: address,
             amount: amount,
-            rawAmount: amountString,
             memo: memo,
+            tokenSymbol: tokenSymbol,
             tokenContractAddress: nil
         )
     }
