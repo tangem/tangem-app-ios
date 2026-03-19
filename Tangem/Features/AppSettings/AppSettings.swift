@@ -147,9 +147,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
 
-    @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
-    var showMarketsYieldModeNotification = true
-
     @AppStorageCompat(StorageType.referralRefcode)
     var referralRefcode: String? = nil
 
