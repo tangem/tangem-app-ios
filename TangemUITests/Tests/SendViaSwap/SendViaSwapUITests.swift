@@ -26,6 +26,7 @@ final class SendViaSwapUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            clearStorage: true,
             scenarios: [bitcoinBalanceScenario, assetsScenario]
         )
 
@@ -43,6 +44,7 @@ final class SendViaSwapUITests: BaseTestCase {
         // Navigate to Bitcoin token and open Send screen
         let sendScreen = mainScreen
             .tapToken(Constants.bitcoinTokenName)
+            .waitForActionButtons()
             .tapSendButton()
             .waitForDisplay()
             .waitForConvertButton()
@@ -97,6 +99,7 @@ final class SendViaSwapUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            clearStorage: true,
             scenarios: [bitcoinBalanceScenario, assetsScenario]
         )
 
@@ -173,6 +176,7 @@ final class SendViaSwapUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            clearStorage: true,
             scenarios: [bitcoinBalanceScenario, assetsScenario]
         )
 
@@ -225,27 +229,136 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForAmountValue(Constants.sendAmount)
             .tapNextButton()
             .waitForDestinationValue(Constants.solanaAddress)
+    }
 
-        // Proceed to Summary again
+    func testSendSameTokenInDifferentNetwork() {
+        setAllureId(4017)
+
+        let userTokensScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "USDT"
+        )
+
+        let ethCallScenario = ScenarioConfig(
+            name: "eth_call_api",
+            initialState: "Started"
+        )
+
+        let ethNetworkBalanceScenario = ScenarioConfig(
+            name: "eth_network_balance",
+            initialState: "Started"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [userTokensScenario, ethCallScenario, ethNetworkBalanceScenario]
+        )
+
+        // Import hot wallet via seed phrase
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .skipStories()
+            .startWithMobileWallet()
+            .tapImportButton()
+            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .tapImportButton()
+            .tapContinue()
+            .skipAccessCode()
+            .tapFinish()
+
+        // Navigate to Tether token and open Send screen
+        let sendScreen = mainScreen
+            .tapToken(Constants.tetherTokenName)
+            .waitForActionButtons()
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+
+        // Select Tether on Polygon network (same token, different network)
         sendScreen
+            .tapReceiveToken(name: Constants.tetherTokenName)
+            .tapReceiveNetworkOption(name: "Polygon")
+
+        // Fill amount and destination, proceed to Summary
+        let summaryScreen = sendScreen
+            .enterAmount(Constants.sendAmount)
+            .tapNextButton()
+            .enterDestination(Constants.polygonAddress)
             .tapNextButtonToSummary()
             .waitForDisplay(checkValidatorBlock: false)
 
-        // Change receive token to Ethereum again and confirm — data should reset
+        // Tap Send and verify Finish screen
+        let finishScreen = summaryScreen
+            .tapSendButton()
+            .waitForDisplay()
+
+        // Close finish screen and verify pending express transaction on Token screen
+        finishScreen
+            .tapCloseButton()
+            .waitForPendingExpressTransaction()
+    }
+
+    func testSendViaSwapXRPToEthereum() {
+        setAllureId(4545)
+
+        let xrpScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "XRP"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [xrpScenario]
+        )
+
+        // Import hot wallet via seed phrase
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .skipStories()
+            .startWithMobileWallet()
+            .tapImportButton()
+            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .tapImportButton()
+            .tapContinue()
+            .skipAccessCode()
+            .tapFinish()
+
+        // Navigate to XRP Ledger token and open Send screen
+        let sendScreen = mainScreen
+            .tapToken(Constants.xrpTokenName)
+            .waitForActionButtons()
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+
+        // Select Ethereum as receive token
         sendScreen
-            .tapReceiveTokenBlock()
-            .tapReceiveTokenBlock()
+            .tapConvertButton()
+            .enterTokenSearch("Ethereum")
+            .waitForReceiveToken(name: Constants.ethereumTokenName)
             .tapReceiveToken(name: Constants.ethereumTokenName)
             .tapReceiveNetworkOption(name: "Ethereum")
-            .waitForChangeTokenAlert()
-            .tapChangeTokenAlertContinue()
 
-        // Verify screen reset: re-enter amount, destination field should be empty
-        sendScreen
-            .waitForDisplay()
+        // Fill amount and destination, proceed to Summary
+        let summaryScreen = sendScreen
             .enterAmount(Constants.sendAmount)
             .tapNextButton()
-            .validateDestinationIsEmpty()
+            .enterDestination(Constants.ethereumAddress)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+
+        // Tap Send and verify Finish screen
+        let finishScreen = summaryScreen
+            .tapSendButton()
+            .waitForDisplay()
+
+        // Close finish screen and verify pending express transaction on Token screen
+        finishScreen
+            .tapCloseButton()
+            .waitForPendingExpressTransaction()
     }
 
     func testSendConvertToUnsupportedTokenShowsError() {
@@ -264,6 +377,7 @@ final class SendViaSwapUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            clearStorage: true,
             scenarios: [bitcoinBalanceScenario, assetsScenario]
         )
 
@@ -289,10 +403,13 @@ private extension SendViaSwapUITests {
     enum Constants {
         static let hotWalletSeedPhrase = "diagram thunder merit soup muscle amused refuse usual ring couch popular wash"
         static let bitcoinTokenName = "Bitcoin"
+        static let xrpTokenName = "XRP Ledger"
         static let solanaTokenName = "Solana"
         static let stellarTokenName = "Stellar"
+        static let tetherTokenName = "Tether"
         static let ethereumTokenName = "Ethereum"
         static let ethereumAddress = "0x24298f15b837E5851925E18439490859e0c1F1ee"
+        static let polygonAddress = "0x742d35cc6634c0532925a3b844bc9e7595f2bd18"
         static let solanaAddress = "5fcy9woa8Di1QHcce65CsV3XKrxdB2pD4HJx5xx82ipM"
         static let sendAmount = "0.001"
         static let updatedAmount = "0.002"
