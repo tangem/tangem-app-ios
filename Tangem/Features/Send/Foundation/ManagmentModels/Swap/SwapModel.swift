@@ -83,7 +83,9 @@ final class SwapModel {
         _receiveAmount = .init(.none)
 
         if shouldStartInitialLoading {
-            Task { await initialLoading() }
+            Task.detached { [weak self] in
+                await self?.initialLoading()
+            }
         }
 
         setupAutoupdatingTimerSubscription()
@@ -184,14 +186,12 @@ extension SwapModel {
 
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
-
         _sourceToken.send(.success(wallet))
         swappingPairDidChange()
     }
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
-
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -221,8 +221,7 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        _providersState.send(.loading(loadingType))
-        updateTask = runTask(in: self, code: { input in
+        updateTask = runTask(in: self, code: { @MainActor input in
             do {
                 let result = try await block(input.expressManager)
 
