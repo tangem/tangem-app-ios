@@ -10,7 +10,7 @@ public extension Sequence {
     /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
     /// - [REDACTED_TODO_COMMENT]
     /// for example of batching implementation).
-    func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
+    func asyncMap<T>(_ transform: @escaping @Sendable (Element) async throws -> T) async rethrows -> [T] {
         // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
         // (since `Sequence` can have vastly different implementations under the hood)
         let elements = Array(self)
@@ -24,7 +24,7 @@ public extension Sequence {
     /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
     /// - [REDACTED_TODO_COMMENT]
     /// for example of batching implementation).
-    func asyncCompactMap<T>(_ transform: @escaping (Element) async throws -> T?) async rethrows -> [T] {
+    func asyncCompactMap<T>(_ transform: @escaping @Sendable (Element) async throws -> T?) async rethrows -> [T] {
         // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
         // (since `Sequence` can have vastly different implementations under the hood)
         let elements = Array(self)
@@ -44,7 +44,7 @@ public extension Sequence {
     /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
     /// - [REDACTED_TODO_COMMENT]
     /// for example of batching implementation).
-    func asyncFlatMap<T: Sequence>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T.Element] {
+    func asyncFlatMap<T: Sequence>(_ transform: @escaping @Sendable (Element) async throws -> T) async rethrows -> [T.Element] {
         // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
         // (since `Sequence` can have vastly different implementations under the hood)
         let elements = Array(self)
@@ -59,7 +59,7 @@ public extension Sequence {
     /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
     /// - [REDACTED_TODO_COMMENT]
     /// for example of batching implementation).
-    func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
+    func asyncFilter(_ isIncluded: @escaping @Sendable (Element) async throws -> Bool) async rethrows -> [Element] {
         // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
         // (since `Sequence` can have vastly different implementations under the hood)
         let elements = Array(self)
@@ -81,7 +81,7 @@ public extension Sequence {
     /// for example of batching implementation).
     func asyncSorted<T>(
         sort areInIncreasingOrder: (T, T) throws -> Bool,
-        by value: @escaping (Element) async throws -> T
+        by value: @escaping @Sendable (Element) async throws -> T
     ) async rethrows -> [Element] {
         typealias IntermediateElement = (element: Element, value: T)
 
