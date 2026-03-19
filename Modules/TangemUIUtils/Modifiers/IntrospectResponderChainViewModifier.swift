@@ -14,19 +14,24 @@ public extension View {
     @ViewBuilder
     func introspectResponderChain<IntrospectedType>(
         introspectedType: IntrospectedType.Type,
+        introspectionTriggers: [IntrospectionTrigger],
         includeSubviews: Bool = false,
-        updateOnChangeOf: AnyHashable? = nil,
         action: @escaping (_ introspectedInstance: IntrospectedType) -> Void
     ) -> some View {
         modifier(
             IntrospectResponderChainViewModifier(
                 introspectedType: introspectedType,
+                introspectionTriggers: introspectionTriggers,
                 includeSubviews: includeSubviews,
-                updateOnChangeOf: updateOnChangeOf,
                 action: action
             )
         )
     }
+}
+
+public enum IntrospectionTrigger {
+    case willAppear
+    case didAppear
 }
 
 // MARK: - Private implementation
@@ -35,19 +40,21 @@ private struct IntrospectResponderChainViewModifier<IntrospectedType>: ViewModif
     typealias Action = (_ introspectedInstance: IntrospectedType) -> Void
 
     let introspectedType: IntrospectedType.Type
+    let introspectionTriggers: [IntrospectionTrigger]
     let includeSubviews: Bool
-    let updateOnChangeOf: AnyHashable?
     let action: Action
 
     func body(content: Content) -> some View {
-        content.overlay {
-            IntrospectView(introspectedType: introspectedType, includeSubviews: includeSubviews, action: action)
-                .frame(size: .zero)
-                .allowsHitTesting(false)
-                .accessibility(hidden: true)
-                .ifLet(updateOnChangeOf) { view, id in
-                    view.id(id)
-                }
+        content.background {
+            IntrospectView(
+                introspectedType: introspectedType,
+                introspectionTriggers: introspectionTriggers,
+                includeSubviews: includeSubviews,
+                action: action
+            )
+            .frame(size: .zero)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
         }
     }
 }
@@ -55,18 +62,25 @@ private struct IntrospectResponderChainViewModifier<IntrospectedType>: ViewModif
 // MARK: - Auxiliary types
 
 private extension IntrospectResponderChainViewModifier {
-    struct IntrospectView: UIViewRepresentable {
-        typealias UIViewType = UIView
+    struct IntrospectView: UIViewControllerRepresentable {
+        typealias ViewController = IntrospectViewController
 
         let introspectedType: IntrospectedType.Type
+        let introspectionTriggers: [IntrospectionTrigger]
         let includeSubviews: Bool
         let action: Action
 
-        func makeUIView(context: Context) -> UIViewType {
-            return UIView()
+        func makeUIViewController(context: Context) -> ViewController {
+            ViewController { trigger, view in
+                if introspectionTriggers.contains(trigger) {
+                    searchIn(uiView: view)
+                }
+            }
         }
 
-        func updateUIView(_ uiView: UIViewType, context: Context) {
+        func updateUIViewController(_ viewController: ViewController, context: Context) {}
+
+        private func searchIn(uiView: UIView) {
             var nextResponder = uiView.next
             while let responder = nextResponder {
                 if let introspectedInstance = responder as? IntrospectedType {
@@ -79,6 +93,7 @@ private extension IntrospectResponderChainViewModifier {
                 if includeSubviews, let view = responder as? UIView {
                     if let introspectedInstance = searchInSubviews(view) {
                         action(introspectedInstance)
+                        break
                     }
                 }
 
@@ -102,6 +117,32 @@ private extension IntrospectResponderChainViewModifier {
             }
 
             return nil
+        }
+    }
+
+    class IntrospectViewController: UIViewController {
+        typealias Handler = (IntrospectionTrigger, UIView) -> Void
+
+        private var handler: Handler?
+
+        init(handler: @escaping Handler) {
+            super.init(nibName: nil, bundle: nil)
+            self.handler = handler
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            handler?(.willAppear, view)
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            handler?(.didAppear, view)
         }
     }
 }

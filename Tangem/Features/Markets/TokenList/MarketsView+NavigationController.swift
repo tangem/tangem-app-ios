@@ -30,19 +30,11 @@ private struct MarketsNavigationConfiguratorViewModifier: ViewModifier {
         customDelegate: MarketsViewNavigationControllerConfigurator()
     )
 
-    @State private var responderChainIntrospectionTrigger = UUID()
-
     func body(content: Content) -> some View {
         content
-            .onWillAppear {
-                responderChainIntrospectionTrigger = UUID()
-            }
-            .onAppear {
-                responderChainIntrospectionTrigger = UUID()
-            }
             .introspectResponderChain(
                 introspectedType: UINavigationController.self,
-                updateOnChangeOf: responderChainIntrospectionTrigger,
+                introspectionTriggers: [.didAppear],
                 action: { [weak navigationControllerDelegate, isSimplified] navigationController in
                     navigationController.setNavigationBarAlwaysHidden()
 
