@@ -16,15 +16,13 @@ import TangemPay
 // [REDACTED_TODO_COMMENT]
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
-    let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
-    let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
-    private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
-    private var innerDependencies: InnerDependenciesConfigurable
+    private let derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
+    private let innerDependencies: InnerDependenciesConfigurable
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
         guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
@@ -38,10 +36,6 @@ struct CommonUserWalletModelDependencies {
         let keysRepository = CommonKeysRepository(keys: keys)
         self.keysRepository = keysRepository
 
-        userTokensManager = LockedUserTokensManager()
-        innerDependencies = DummyInnerDependencies()
-
-        walletModelsManager = LockedWalletModelsManager()
         derivationManager = areHDWalletsSupported
             ? AccountsAwareDerivationManager(keysRepository: keysRepository)
             : nil
@@ -58,7 +52,7 @@ struct CommonUserWalletModelDependencies {
             config: config,
             hasTokenSynchronization: hasTokenSynchronization
         )
-        (accountModelsManager, innerDependencies) = Self.makeAccountModelsManager(
+        let (accountModelsManager, innerDependencies) = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
             walletManagerFactory: walletManagerFactory,
@@ -71,6 +65,8 @@ struct CommonUserWalletModelDependencies {
             areHDWalletsSupported: areHDWalletsSupported,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability
         )
+        self.accountModelsManager = accountModelsManager
+        self.innerDependencies = innerDependencies
         let userTokensPushNotificationsManager = AccountsAwareUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
@@ -88,12 +84,11 @@ struct CommonUserWalletModelDependencies {
             analyticsLogger: totalBalanceAnalyticsLogger
         )
 
-        let nftAccountModelsManager = accountModelsManager
         nftManager = CommonNFTManager(
             userWalletId: userWalletId,
-            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: nftAccountModelsManager),
+            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: accountModelsManager),
             provideWalletModels: {
-                AccountWalletModelsAggregator.walletModels(from: nftAccountModelsManager)
+                AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
             },
             analytics: NFTAnalytics.Error(
                 logError: { errorCode, description in
@@ -195,7 +190,6 @@ private extension CommonUserWalletModelDependencies {
             areHDWalletsSupported: areHDWalletsSupported
         )
 
-        // If accounts are enabled, we have to use a special set of dependencies, overriding the existing `innerDependencies`
         let accountsAwareInnerDependencies = AccountsAwareInnerDependencies(
             cryptoAccountsRepository: cryptoAccountsRepository,
             cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper,
@@ -237,11 +231,5 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountsRepository.configure(with: model)
             keysRepository.configure(with: model)
         }
-    }
-
-    struct DummyInnerDependencies: InnerDependenciesConfigurable {
-        func configure(with dependencies: CommonUserWalletModelDependencies) {}
-        func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {}
-        func configure(with model: UserWalletModel) {}
     }
 }
