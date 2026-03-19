@@ -443,7 +443,7 @@
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
 "earn_no_results" = "No results";
-"earn_title" = "Earn";
+"earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "您好，支援團隊，我遇到了一個錯誤，代碼為：%@";
 "email_subject_wc_error" = "WalletConnect 錯誤";
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
@@ -690,7 +690,7 @@
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
-"markets_earn_common_title" = "Earn with Tangem";
+"markets_earn_common_title" = "Staking & Yield mode";
 "markets_generate_addresses_notification" = "To generate addresses for selected networks, you must scan your Tangem Wallet card or ring";
 "markets_hint_part_one" = "Swipe up to explore the market";
 "markets_hint_part_two" = "Find new hidden gems";
@@ -960,7 +960,7 @@
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
 "onramp_no_available_providers" = "No available providers for this currency";
-"onramp_offer_type_fastet" = "Quickest Processing";
+"onramp_offer_type_fastet" = "Quickest processing";
 "onramp_pay_with" = "Pay with";
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Settings";
 "qr_scanner_camera_denied_text" = "You have not given access to your camera";
 "qr_scanner_camera_denied_title" = "Camera access denied";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "No memo required";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
 "receive_bottom_sheet_warning_message_description" = "Sending any other currency will result in its irreversible loss.";
@@ -1125,6 +1129,11 @@
 "send_notification_transaction_limit_title" = "Transaction limitation";
 "send_optional_field" = "Optional";
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
@@ -1162,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "Recipient gets %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";

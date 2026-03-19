@@ -441,9 +441,9 @@
 "earn_filter_by" = "Фильтровать по";
 "earn_filter_my_networks" = "Мои сети";
 "earn_filter_networks" = "Сети";
-"earn_mostly_used" = "Часто используемые";
+"earn_mostly_used" = "Популярные";
 "earn_no_results" = "Нет результата";
-"earn_title" = "Earn";
+"earn_title" = "Доступные активы";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
 "email_subject_wc_error" = "Ошибка WalletConnect";
 "error_wrong_wallet_tapped" = "Вы использовали карту или кольцо от другого кошелька. Приложите карту или кольцо, связанную с этим кошельком.";
@@ -690,7 +690,7 @@
 "markets_available networks" = "Доступные сети";
 "markets_common_my_portfolio" = "Мой портфель";
 "markets_common_title" = "Рынок";
-"markets_earn_common_title" = "Зарабатывай с Tangem";
+"markets_earn_common_title" = "Доход с Tangem";
 "markets_generate_addresses_notification" = "Чтобы создать адреса для выбранных сетей, отсканируйте вашу карту или кольцо Tangem кошелька";
 "markets_hint_part_one" = "Swipe up to explore the market";
 "markets_hint_part_two" = "Find new hidden gems";
@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Настройки";
 "qr_scanner_camera_denied_text" = "Вы не предоставили доступ к вашей камере";
 "qr_scanner_camera_denied_title" = "Доступ к камере запрещен";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ в %2$@ сети";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
@@ -1125,6 +1129,11 @@
 "send_notification_transaction_limit_title" = "Лимит транзакции";
 "send_optional_field" = "Опционально";
 "send_qrcode_scan_info" = "Пожалуйста, совместите свой QR-код с квадратом, чтобы отсканировать его. Убедитесь, что вы сканируете адрес в сети %@.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Последние";
 "send_recipient_address_error" = "Неверный адрес";
 "send_recipient_address_footer" = "Убедитесь, что адрес получателя находится **в сети %@**, чтобы избежать потери отправляемых средств";
@@ -1162,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "К получению %@";
 "send_with_swap_remove_convert_alert_message" = "Вы уверены, что хотите отменить конвертацию? Ваши предыдущие данные будут удалены.";
 "send_with_swap_remove_convert_alert_title" = "Убрать конвертацию";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Отправка с обменом";
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
