@@ -15,6 +15,7 @@ enum TokenFeeProviderInputData: Hashable {
 
     case cex(amount: Decimal)
     case dex(_ type: TokenFeeProviderInputDataDEXType)
+    case approve(txData: Data, toContractAddress: String)
 }
 
 enum TokenFeeProviderInputDataDEXType: Hashable {

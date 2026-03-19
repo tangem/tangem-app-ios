@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 
 class CommonTokenEnricher: TokenEnricher {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService

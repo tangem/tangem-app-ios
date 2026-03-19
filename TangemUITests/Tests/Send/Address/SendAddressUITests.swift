@@ -145,17 +145,17 @@ final class SendAddressUITests: BaseTestCase {
     func testAddressScreen_RecentBlockNotDisplayedWhenTransactionHistoryNotSupported() {
         setAllureId(4597)
 
-        let tokenName = "Polkadot"
+        let tokenName = "Polkadot Asset Hub"
         let sendAmount = "1"
 
         let polkadotScenario = ScenarioConfig(
             name: "user_tokens_api",
-            initialState: tokenName
+            initialState: "Polkadot"
         )
 
         let polkadotQuotesScenario = ScenarioConfig(
             name: "quotes_api",
-            initialState: tokenName
+            initialState: "Polkadot"
         )
 
         launchApp(

@@ -34,4 +34,9 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
     func openAppSettings()
 
     func dismiss()
+
+    /// Unfortunately, we can't just observe `rootViewModel.alert` to process pending navigation steps when alert is dismissed,
+    /// because it becomes `nil` earlier than actual alert dismissal happens. Therefore this method should be called on
+    /// every alert dismissal in the root view model.
+    func onAlertDismiss()
 }
