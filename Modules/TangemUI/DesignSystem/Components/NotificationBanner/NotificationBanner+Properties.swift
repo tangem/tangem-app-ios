@@ -12,11 +12,11 @@ import TangemAssets
 public extension NotificationBanner {
     enum BannerType: Equatable, Sendable {
         case status(Content)
-        case critical(Content, Buttons)
-        case warning(Content, Buttons)
-        case promo(TextOnly, Buttons, CloseAction, Effect)
-        case survey(TextOnly, Buttons, CloseAction)
-        case informational(TextOnly, Buttons, CloseAction)
+        case critical(Content, BannerAction)
+        case warning(Content, BannerAction)
+        case promo(TextOnly, BannerAction, CloseAction, Effect)
+        case survey(TextOnly, BannerAction, CloseAction)
+        case informational(TextOnly, BannerAction, CloseAction)
 
         var content: Content {
             switch self {
@@ -25,11 +25,11 @@ public extension NotificationBanner {
             }
         }
 
-        var buttons: Buttons {
+        var bannerAction: BannerAction {
             switch self {
-            case .status: .none
-            case .critical(_, let b), .warning(_, let b),
-                 .promo(_, let b, _, _), .survey(_, let b, _), .informational(_, let b, _): b
+            case .status: .buttons(.none)
+            case .critical(_, let a), .warning(_, let a),
+                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _): a
             }
         }
 
@@ -73,11 +73,14 @@ public extension NotificationBanner {
             }
         }
 
-        public var iconSize: CGFloat {
+        public var iconSize: CGSize {
             switch self {
             case .text: return .zero
             case .textWithIcon(let textWithIcon):
-                return textWithIcon.icon.size.value
+                return CGSize(
+                    width: textWithIcon.icon.width.value,
+                    height: textWithIcon.icon.height.value
+                )
             }
         }
     }
@@ -111,22 +114,28 @@ public extension NotificationBanner {
 
         public let imageType: ImageType
         public let alignment: Alignment
-        public let size: SizeUnit
+        public let renderingMode: Image.TemplateRenderingMode?
+        public let width: SizeUnit
+        public let height: SizeUnit
 
         public init(
             imageType: ImageType,
             alignment: Alignment = .top,
-            size: SizeUnit = .x7
+            width: SizeUnit = .x7,
+            height: SizeUnit = .x7,
+            renderingMode: Image.TemplateRenderingMode? = nil
         ) {
             self.imageType = imageType
+            self.renderingMode = renderingMode
             self.alignment = alignment
-            self.size = size
+            self.width = width
+            self.height = height
         }
     }
 }
 
 extension NotificationBanner.Icon.Alignment {
-    var verticalAlignment: SwiftUI.Alignment {
+    var verticalAlignment: SwiftUI.VerticalAlignment {
         switch self {
         case .top: .top
         case .center: .center
@@ -142,7 +151,12 @@ public extension NotificationBanner {
         case two(left: TangemButton.Model, right: TangemButton.Model)
     }
 
-    struct CloseAction: Equatable, Sendable {
+    enum BannerAction: Equatable, Sendable {
+        case buttons(Buttons)
+        case tappable(Action)
+    }
+
+    struct Action: Equatable, Sendable {
         let action: @Sendable () -> Void
 
         public init(_ action: @escaping @Sendable () -> Void) {
@@ -153,6 +167,8 @@ public extension NotificationBanner {
 
         public static func == (lhs: Self, rhs: Self) -> Bool { true }
     }
+
+    typealias CloseAction = Action
 }
 
 public extension NotificationBanner {

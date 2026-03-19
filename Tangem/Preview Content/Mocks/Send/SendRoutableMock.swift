@@ -20,7 +20,7 @@ class SendRoutableMock: SendRoutable {
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
-    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {}
+    func openApproveView(flowFactory: ApproveFlowFactory) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountryDetection(
         country: OnrampCountry,
@@ -37,7 +37,7 @@ class SendRoutableMock: SendRoutable {
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {}
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
     func closeFeeSelector() {}
