@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -29,6 +30,7 @@ struct AccountSelectorWalletCellButtonView: View {
         }
         .buttonStyle(.plain)
         .disabled(viewModel.isDisabled)
+        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.accountSelectorCell(name: viewModel.walletModel.name))
     }
 
     private var content: some View {

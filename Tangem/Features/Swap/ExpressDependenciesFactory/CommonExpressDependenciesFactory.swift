@@ -19,7 +19,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     @Injected(\.expressPendingTransactionsRepository)
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository
 
-    private let userWalletInfo: UserWalletInfo
+    let userWalletInfo: UserWalletInfo
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressManager = makeExpressManager()
