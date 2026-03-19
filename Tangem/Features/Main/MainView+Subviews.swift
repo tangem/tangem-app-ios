@@ -86,10 +86,60 @@ extension MainView {
                     backgroundColor: .Tangem.Surface.level2,
                     opacity: opacity
                 )
+                .animation(.default, value: opacity)
                 .onReceive(headerHeightRatioPublisher) { ratio in
                     // Decreases linearly from 1 to 0 value as height collapses from 100% to 50%
                     opacity = clamp(2 * ratio - 1, min: 0, max: 1)
                 }
+        }
+    }
+
+    // MARK: - RedesignedBottomOverlay
+
+    struct RedesignedBottomOverlay: View {
+        @State private var height: CGFloat?
+        @State private var distance: CGFloat?
+
+        @StateObject private var tracker: RefreshScrollViewBottomTracker
+
+        private var params: FullPagePagerBottomOverlayParams {
+            let contentHeight: CGFloat
+            let didScrollToBottom: Bool
+            let isActive: Bool
+
+            if let distance, let height {
+                contentHeight = height
+                didScrollToBottom = distance >= 0
+                isActive = distance >= height
+            } else {
+                contentHeight = .zero
+                didScrollToBottom = false
+                isActive = false
+            }
+
+            return FullPagePagerBottomOverlayParams(
+                didScrollToBottom: didScrollToBottom,
+                contentHeight: contentHeight,
+                isActive: isActive
+            )
+        }
+
+        private let pageBuilder: MainUserWalletPageBuilder
+
+        init(
+            refreshScrollViewInteractor: RefreshScrollViewInteractor,
+            pageBuilder: MainUserWalletPageBuilder
+        ) {
+            self.pageBuilder = pageBuilder
+            _tracker = StateObject(wrappedValue: RefreshScrollViewBottomTracker(
+                scrollInteractor: refreshScrollViewInteractor
+            ))
+        }
+
+        var body: some View {
+            pageBuilder.makeRedesignedBottomOverlay(params)
+                .readGeometry(\.size.height) { height = $0 }
+                .onReceive(tracker.distancePublisher) { distance = $0 }
         }
     }
 }
