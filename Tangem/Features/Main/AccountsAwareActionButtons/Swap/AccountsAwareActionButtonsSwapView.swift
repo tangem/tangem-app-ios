@@ -15,25 +15,18 @@ struct AccountsAwareActionButtonsSwapView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsSwapViewModel
 
     var body: some View {
-        ScrollViewReader { reader in
-            selector
-                .scrollDismissesKeyboard(.interactively)
-                .onChange(of: viewModel.scrollToTopTrigger) { _ in
-                    withAnimation {
-                        reader.scrollTo(AccountsAwareActionButtonsSwapViewModel.Constants.scrollToTopID, anchor: .top)
-                    }
-                }
-                .background(Colors.Background.tertiary.ignoresSafeArea())
-        }
-        .navigationTitle(Localization.commonSwap)
-        .navigationBarTitleDisplayMode(.inline)
-        .animation(.easeInOut, value: viewModel.destination == nil)
-        .animation(.easeInOut, value: viewModel.notificationInput)
-        .animation(.none, value: viewModel.source.id)
-        .toolbar {
-            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
-        }
-        .onAppear(perform: viewModel.onAppear)
+        selector
+            .scrollDismissesKeyboard(.interactively)
+            .background(Colors.Background.tertiary.ignoresSafeArea())
+            .navigationTitle(Localization.commonSwap)
+            .navigationBarTitleDisplayMode(.inline)
+            .animation(.easeInOut, value: viewModel.destination == nil)
+            .animation(.easeInOut, value: viewModel.notificationInput)
+            .animation(.none, value: viewModel.source.id)
+            .toolbar {
+                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
+            }
+            .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
@@ -87,7 +80,7 @@ struct AccountsAwareActionButtonsSwapView: View {
                 message: Localization.expressTokenListEmptySearch
             )
         } headerContent: {
-            header.id(AccountsAwareActionButtonsSwapViewModel.Constants.scrollToTopID)
+            header
             notifications
         } additionalContent: {
             if viewModel.shouldShowMarketsSearch, let marketsViewModel = viewModel.marketsTokensViewModel {
