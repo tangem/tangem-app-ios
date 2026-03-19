@@ -690,7 +690,7 @@
 "markets_available networks" = "Доступные сети";
 "markets_common_my_portfolio" = "Мой портфель";
 "markets_common_title" = "Рынок";
-"markets_earn_common_title" = "Возможности";
+"markets_earn_common_title" = "Доход с Tangem";
 "markets_generate_addresses_notification" = "Чтобы создать адреса для выбранных сетей, отсканируйте вашу карту или кольцо Tangem кошелька";
 "markets_hint_part_one" = "Swipe up to explore the market";
 "markets_hint_part_two" = "Find new hidden gems";
@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Настройки";
 "qr_scanner_camera_denied_text" = "Вы не предоставили доступ к вашей камере";
 "qr_scanner_camera_denied_title" = "Доступ к камере запрещен";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ в %2$@ сети";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "К получению %@";
 "send_with_swap_remove_convert_alert_message" = "Вы уверены, что хотите отменить конвертацию? Ваши предыдущие данные будут удалены.";
 "send_with_swap_remove_convert_alert_title" = "Убрать конвертацию";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Отправка с обменом";
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
@@ -1357,6 +1362,7 @@
 "swapping_from_title" = "Вы отправляете";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_high_price_impact_title" = "Высокое влияние на цену";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
