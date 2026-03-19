@@ -12,15 +12,15 @@ public struct AllowanceChecker {
     private let blockchain: Blockchain
     private let amountType: Amount.AmountType
     private let walletAddress: String
-    private let ethereumNetworkProvider: EthereumNetworkProvider?
-    private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+    private let ethereumNetworkProvider: EthereumNetworkProvider
+    private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
 
     public init(
         blockchain: Blockchain,
         amountType: Amount.AmountType,
         walletAddress: String,
-        ethereumNetworkProvider: EthereumNetworkProvider?,
-        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+        ethereumNetworkProvider: EthereumNetworkProvider,
+        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
     ) {
         self.blockchain = blockchain
         self.amountType = amountType
@@ -47,10 +47,6 @@ public struct AllowanceChecker {
     }
 
     public func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
-        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
-            throw AllowanceCheckerError.ethereumNetworkProviderNotFound
-        }
-
         let allowance = try await ethereumNetworkProvider
             .getAllowance(owner: owner, spender: spender, contractAddress: contract)
             .async()
@@ -58,15 +54,12 @@ public struct AllowanceChecker {
         return allowance
     }
 
-    public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        guard let ethereumTransactionDataBuilder = ethereumTransactionDataBuilder else {
-            throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
-        }
+    public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> ApproveTransactionData {
+        let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
+        return .init(txData: data, spender: spender, toContractAddress: contract)
+    }
 
-        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
-            throw AllowanceCheckerError.ethereumNetworkProviderNotFound
-        }
-
+    private func buildApproveCalldata(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> (data: Data, contract: String) {
         guard let contract = amountType.token?.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
@@ -77,18 +70,7 @@ public struct AllowanceChecker {
         }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
-        let amount = Amount(with: blockchain, type: .coin, value: 0)
-
-        let fee = try await ethereumNetworkProvider
-            .getFee(destination: contract, value: amount.encodedForSend, data: data)
-            .async()
-
-        // Use fastest
-        guard let fee = fee[safe: 2] else {
-            throw AllowanceCheckerError.approveFeeNotFound
-        }
-
-        return .init(txData: data, spender: spender, toContractAddress: contract, fee: fee)
+        return (data, contract)
     }
 
     private func decimalValue() throws -> Decimal {
@@ -102,17 +84,11 @@ public struct AllowanceChecker {
 
 public enum AllowanceCheckerError: String, Hashable, LocalizedError {
     case contractAddressNotFound
-    case ethereumNetworkProviderNotFound
-    case ethereumTransactionDataBuilderNotFound
-    case approveFeeNotFound
     case wrongAmountType
 
     public var errorDescription: String? {
         switch self {
         case .contractAddressNotFound: "Contract address not found."
-        case .ethereumNetworkProviderNotFound: "Ethereum network provider not found."
-        case .ethereumTransactionDataBuilderNotFound: "Ethereum transaction data builder not found."
-        case .approveFeeNotFound: "Approve fee not found."
         case .wrongAmountType: "Wrong amount type."
         }
     }
