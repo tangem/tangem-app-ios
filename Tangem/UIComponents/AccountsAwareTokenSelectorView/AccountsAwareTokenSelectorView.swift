@@ -39,10 +39,10 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
         case .native:
             scrollView {
                 scrollContent
-                    .searchable(text: $viewModel.searchText)
-                    .keyboardType(.asciiCapable)
-                    .autocorrectionDisabled()
             }
+            .searchable(text: $viewModel.searchText)
+            .keyboardType(.asciiCapable)
+            .autocorrectionDisabled()
 
         case .custom:
             scrollView {
@@ -61,32 +61,36 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            content()
-                .animation(.easeInOut, value: viewModel.contentVisibility)
+        ScrollViewReader { reader in
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                Color.clear.frame(height: 0).id(Constants.scrollToTopAnchorID)
+                content().animation(.contentFrameUpdate, value: viewModel.contentVisibility)
+            }
+            .onChange(of: viewModel.scrollToTopTrigger) { _ in
+                withAnimation {
+                    reader.scrollTo(Constants.scrollToTopAnchorID, anchor: .top)
+                }
+            }
         }
     }
 
     @ViewBuilder
     private var scrollContent: some View {
+        if !viewModel.contentVisibility.isEmpty {
+            headerContent
+        }
+
         switch viewModel.contentVisibility {
         case .empty:
-            emptyContentView
-                .transition(.move(edge: .top).combined(with: .opacity))
+            emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
         case .loading:
-            headerContent
-
-            loadingView
-                .transition(.opacity)
+            loadingView.transition(.content)
         case .visible(let itemsCount):
-            headerContent
+            tokenListContent(itemsCount: itemsCount).transition(.content)
+        }
 
-            tokenListContent(itemsCount: itemsCount)
-                .transition(.opacity)
-
+        if !viewModel.contentVisibility.isLoading {
             additionalContent
-
-            FixedSpacer(height: 12)
         }
     }
 
@@ -106,9 +110,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
             sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
         }
 
-        LazyVStack(spacing: 8) {
-            ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
-        }
+        ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
     }
 
     private func sectionHeader(
@@ -149,6 +151,10 @@ extension AccountsAwareTokenSelectorView {
     enum SearchType {
         case native
         case custom
+    }
+
+    private enum Constants {
+        static var scrollToTopAnchorID: String { "AccountsAwareTokenSelectorView.scrollToTopAnchor" }
     }
 }
 
@@ -196,4 +202,17 @@ extension AccountsAwareTokenSelectorView where HeaderContentView == EmptyView {
             additionalContent: additionalContent
         )
     }
+}
+
+// MARK: - Animations and Transitions
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.1))
+    )
+}
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
