@@ -6,10 +6,14 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
+@testable import TangemFoundation
 
 @Suite("Tests for extensions from the TaskGroup+.swift file")
 struct TaskGroupExtensionsTests {
+    // MARK: - executeKeepingOrder
+
     @Test(
         "Test `TaskGroup.executeKeepingOrder` helper method",
         arguments: [

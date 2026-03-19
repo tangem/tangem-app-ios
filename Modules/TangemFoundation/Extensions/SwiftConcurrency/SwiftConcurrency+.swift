@@ -84,54 +84,6 @@ public func runTask<T: AnyObject>(
     return isDetached ? Task.detached(priority: priority, operation: operation) : Task(priority: priority, operation: operation)
 }
 
-@discardableResult
-public func runTask<T>(
-    withTimeout timeout: TimeInterval,
-    code: @escaping () async -> T,
-    onTimeout: @escaping () -> Void = {}
-) -> Task<T, Error> {
-    Task.detached {
-        do {
-            return try await runTask(withTimeout: timeout, code: code)
-        } catch let taskError as RunTaskError {
-            switch taskError {
-            case .timeout:
-                onTimeout()
-            }
-
-            throw taskError
-        } catch {
-            throw error
-        }
-    }
-}
-
-public func runTask<T>(
-    withTimeout timeout: TimeInterval,
-    code: @escaping () async throws -> T
-) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        group.addTask {
-            try await code()
-        }
-
-        group.addTask {
-            try await Task.sleepCancellable(forSeconds: timeout)
-
-            try Task.checkCancellation()
-            throw RunTaskError.timeout
-        }
-
-        // We can safely force-unwrap, because `group.next()` can return nil only when tasks weren't added to the group
-        // Group will receive the first finished result, even if group schedules waiting for the next result after the first
-        // task or all tasks execution finished.
-        let result: T = try await group.next()!
-        group.cancelAll()
-
-        return result
-    }
-}
-
 public func runTask<T>(
     withMinimumTime time: TimeInterval,
     code: @escaping () async throws -> T
@@ -203,42 +155,7 @@ public extension Task {
 
 public extension Actor {
     /// Based on https://medium.com/@noahlittle199/swifts-isolated-keyword-a-small-trick-to-simplify-code-in-actors-570ff692f8e2
-    func performIsolated<T>(_ closure: (isolated Self) throws -> T) rethrows -> T {
+    func performIsolated<T>(_ closure: @Sendable (isolated Self) throws -> T) rethrows -> T where T: Sendable {
         return try closure(self)
-    }
-}
-
-// MARK: - Auxiliary types
-
-public enum RunTaskError: Error {
-    case timeout
-}
-
-// MARK: - Private implementation
-
-private extension Task where Success == Never, Failure == Never {
-    static var defaultCancellationCheckInterval: TimeInterval { 0.1 }
-
-    /// Like `Task.sleep` but with cancellation support.
-    ///
-    /// - Parameter seconds: Sleep this number of seconds. The actual time the sleep ends can be later.
-    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
-    static func sleepCancellable(forSeconds seconds: TimeInterval, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
-        try await sleepCancellable(until: Date().addingTimeInterval(seconds), cancellationCheckInterval: cancellationCheckInterval)
-    }
-
-    /// Like `Task.sleep` but with cancellation support.
-    ///
-    /// - Parameter deadline: Sleep at least until this time. The actual time the sleep ends can be later.
-    /// - Parameter cancellationCheckInterval: The interval in seconds between cancellation checks.
-    static func sleepCancellable(until deadline: Date, cancellationCheckInterval: TimeInterval = defaultCancellationCheckInterval) async throws {
-        let cancellationCheckIntervalUint64 = UInt64(cancellationCheckInterval) * NSEC_PER_SEC
-        while Date() < deadline {
-            if Task.isCancelled {
-                break
-            }
-            // Sleep for a while between cancellation checks.
-            try await Task.sleep(nanoseconds: cancellationCheckIntervalUint64)
-        }
     }
 }
