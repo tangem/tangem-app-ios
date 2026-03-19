@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
+import enum BlockchainSdk.EthereumFeeParametersConstants
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -155,6 +156,15 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
             updateState(state: .unavailable(.notSupported))
+        } catch TokenFeeLoaderError.gaslessExecutionReverted(let gaslessMinAmount) {
+            // Convert gaslessMinAmount from smallest token units to decimal value to match the balance scale
+            let threshold = gaslessMinAmount / feeTokenItem.decimalValue
+
+            if let balance = feeTokenItemBalanceProvider.balanceType.value, balance < threshold {
+                updateState(state: .unavailable(.notEnoughFeeBalance))
+            } else {
+                updateState(state: .error(TokenFeeLoaderError.executionReverted))
+            }
         } catch is CancellationError {
             updateState(state: .idle)
         } catch {
