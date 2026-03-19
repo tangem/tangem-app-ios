@@ -16,7 +16,6 @@ public struct RefreshScrollView<Content: View>: View {
     private let showsIndicators: Bool
     private let content: Content
 
-    @State private var introspectResponderChainID = UUID()
     private let coordinateSpaceName = UUID()
 
     public init(
@@ -43,15 +42,12 @@ public struct RefreshScrollView<Content: View>: View {
         }
         .introspectResponderChain(
             introspectedType: UIScrollView.self,
+            introspectionTriggers: [.didAppear],
             includeSubviews: true,
-            updateOnChangeOf: introspectResponderChainID,
             action: { scrollView in
                 stateObject.scrollViewDelegate.set(scrollView: scrollView)
             }
         )
-        .onAppear {
-            introspectResponderChainID = .init()
-        }
     }
 
     @available(iOS 18.0, *)
