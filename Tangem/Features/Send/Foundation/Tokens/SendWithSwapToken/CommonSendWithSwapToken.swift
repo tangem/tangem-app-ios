@@ -22,6 +22,7 @@ struct CommonSendWithSwapToken: SendWithSwapToken {
     // MARK: - SendSwapableToken proxy properties
 
     var isExemptFee: Bool { swapableToken.isExemptFee }
+    var swapAvailabilityProvider: any SwapAvailabilityProvider { swapableToken.swapAvailabilityProvider }
     var sendingRestrictionsProvider: any SendingRestrictionsProvider { swapableToken.sendingRestrictionsProvider }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { swapableToken.receivingRestrictionsProvider }
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { swapableToken.tokenFeeProvidersManagerProvider }
