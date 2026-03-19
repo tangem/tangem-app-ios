@@ -150,7 +150,9 @@ final class AccountsAwareUserTokensManager {
            let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath),
            !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
            !blockchain.curve.supportsDerivation {
-            throw Error.derivationNotSupported(tokenName: tokenItem.name)
+            let error = Error.derivationNotSupported(tokenName: tokenItem.name)
+            AccountsLogger.error("Failed to validate derivation:", error: error)
+            throw error
         }
 
         // Token items with custom derivations can be added to the main account as is
@@ -162,18 +164,22 @@ final class AccountsAwareUserTokensManager {
             let derivationPath,
             let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath)
         else {
-            throw Error.derivationPathNotFound(tokenName: tokenItem.name)
+            let error = Error.derivationPathNotFound(tokenName: tokenItem.name)
+            AccountsLogger.error("Failed to validate derivation:", error: error)
+            throw error
         }
 
         let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
         let actualDerivationIndex = accountDerivationNode.rawIndex
 
         if actualDerivationIndex != expectedDerivationIndex {
-            throw Error.accountDerivationNodeMismatch(
+            let error = Error.accountDerivationNodeMismatch(
                 expected: expectedDerivationIndex,
                 actual: actualDerivationIndex,
                 tokenName: tokenItem.name
             )
+            AccountsLogger.error("Failed to validate derivation:", error: error)
+            throw error
         }
     }
 
@@ -329,7 +335,9 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
-            throw Error.addressNotFound
+            let error = Error.addressNotFound(tokenName: tokenItem.name)
+            AccountsLogger.error("Failed to find address after adding token:", error: error)
+            throw error
         }
 
         return walletModel.defaultAddressString
@@ -527,12 +535,10 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { input in
-                // [REDACTED_TODO_COMMENT]
-                /*
-                 let (userTokensManager, (editedList, existingList)) = input
-                 let logger = UserTokensReorderingLogger(walletModels: userTokensManager.walletModelsManager.walletModels)
-                 logger.logReorder(existingList: existingList, editedList: editedList, source: source)
-                  */
+                let (userTokensManager, (updateRequest, existingAccount)) = input
+                let walletModels = userTokensManager.walletModelsManager?.walletModels ?? []
+                let logger = UserTokensReorderingLogger(walletModels: walletModels)
+                logger.logReorder(existingAccount: existingAccount, editedTokens: updateRequest, source: source)
             })
             .receive(on: DispatchQueue.main)
             .map { input in
@@ -555,7 +561,7 @@ extension AccountsAwareUserTokensManager {
     }
 
     enum Error: LocalizedError {
-        case addressNotFound
+        case addressNotFound(tokenName: String)
         case derivationNotSupported(tokenName: String)
         case derivationPathNotFound(tokenName: String)
         case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
@@ -572,7 +578,7 @@ extension AccountsAwareUserTokensManager {
                  .derivationNotSupported,
                  .derivationPathNotFound,
                  .accountDerivationNodeMismatch:
-                // [REDACTED_TODO_COMMENT]
+                // Internal programmer/data integrity errors, no localization needed
                 return Localization.genericErrorCode(errorCode)
             }
         }
