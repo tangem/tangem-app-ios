@@ -59,9 +59,12 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         case .onramp: .cex
         }
 
+        let swapAvailabilityProvider = TangemPaySwapAvailabilityProvider()
+
         return CommonSendSwapableToken(
             sourceToken: sourceToken,
             isExemptFee: true,
+            swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
