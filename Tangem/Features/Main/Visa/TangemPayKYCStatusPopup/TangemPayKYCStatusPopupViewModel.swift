@@ -15,8 +15,8 @@ import let TangemVisa.VisaLogger
 import TangemPay
 
 final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
-    @Injected(\.alertPresenterViewModel)
-    private var alertPresenterViewModel: AlertPresenterViewModel
+    @Injected(\.alertPresenter)
+    private var alertPresenter: AlertPresenter
 
     let tangemPayKYCInteractor: TangemPayKYCInteractor
     weak var coordinator: TangemPayKYCStatusRoutable?
@@ -73,7 +73,7 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     }
 
     private func showAlert() {
-        alertPresenterViewModel.alert = AlertBuilder.makeAlert(
+        let alert = AlertBuilder.makeAlert(
             title: Localization.tangempayKycConfirmCancellationAlertTitle,
             message: Localization.tangempayKycConfirmCancellationDescription,
             primaryButton: .cancel(Text(Localization.commonNotNow)),
@@ -84,6 +84,8 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
                 }
             )
         )
+
+        alertPresenter.present(alert: alert)
     }
 
     private func cancelKYC() {
