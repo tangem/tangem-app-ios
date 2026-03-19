@@ -25,7 +25,7 @@ struct ExpressPendingTransactionsFactory {
         )
 
         let expressAPIProviderResolver = ExpressAPIProviderResolver(
-            defaultUserId: userWalletInfo.id.stringValue,
+            defaultUserWalletId: userWalletInfo.id.stringValue,
             providerFactory: makeExpressAPIProvider(userId:)
         )
 
