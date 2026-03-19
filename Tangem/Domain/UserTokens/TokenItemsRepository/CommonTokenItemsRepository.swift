@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import struct BlockchainSdk.Token
 
+@available(iOS, deprecated: 100000.0, message: "Legacy storage, all entries should be migrated, will be removed in the future ([REDACTED_INFO])")
 final class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
