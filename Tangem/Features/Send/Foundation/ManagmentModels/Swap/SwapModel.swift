@@ -328,8 +328,11 @@ extension SwapModel {
                     let rateType = await input.expressManager.getAmountType()?.rateType
                     let filteredProviders = updatingResult.providers.filteredByRateType(rateType)
 
-                    if input.isFixedRatesFeatureEnabled, let selected = updatingResult.selected {
-                        input._providerRateTypes.send(selected.supportedRateTypes)
+                    if input.isFixedRatesFeatureEnabled {
+                        // Use selected provider's rate types, or preserve current value
+                        // when no provider is selected (e.g. amount cleared)
+                        let rateTypes = updatingResult.selected?.supportedRateTypes ?? input._providerRateTypes.value
+                        input._providerRateTypes.send(rateTypes)
                     }
 
                     input.update(providersState: .loaded(
@@ -874,9 +877,13 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .eraseToAnyPublisher()
     }
 
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+    var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .map { state -> ReceiveAmountRestriction? in
+            .map { state -> ExchangeAmountRestriction? in
+                if case .failure = state {
+                    return .exchangeDataLoadingFailed
+                }
+
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
                 }
