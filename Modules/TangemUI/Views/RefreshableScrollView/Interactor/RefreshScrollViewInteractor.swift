@@ -11,16 +11,21 @@ import Combine
 import UIKit
 
 public protocol RefreshScrollViewInteractor {
-    var eventPublisher: AnyPublisher<RefreshScrollViewEvent, Never> { get }
     var initialScrollOffset: CGPoint? { get }
+    var frameSize: CGSize? { get }
+    var contentSize: CGSize? { get }
+    var eventPublisher: AnyPublisher<RefreshScrollViewEvent, Never> { get }
+
     func setContentOffset(_ offset: CGPoint, animated: Bool)
 }
 
 // MARK: - CommonRefreshScrollViewInteractor
 
 public final class CommonRefreshScrollViewInteractor: RefreshScrollViewInteractor {
-    public let eventPublisher: AnyPublisher<RefreshScrollViewEvent, Never>
     public var initialScrollOffset: CGPoint? { _initialScrollOffset }
+    public var frameSize: CGSize? { scrollView?.frame.size }
+    public var contentSize: CGSize? { scrollView?.contentSize }
+    public let eventPublisher: AnyPublisher<RefreshScrollViewEvent, Never>
 
     private let eventSubject = PassthroughSubject<RefreshScrollViewEvent, Never>()
 
