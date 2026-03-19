@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 import TangemAccessibilityIdentifiers
 
 protocol NotificationEvent: Identifiable {
@@ -24,6 +25,8 @@ protocol NotificationEvent: Identifiable {
     var analyticsParams: [Analytics.ParameterKey: String] { get }
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool { get }
+
+    var bannerKind: NotificationBannerKind? { get }
 }
 
 extension NotificationEvent where Self: Hashable {
@@ -93,6 +96,8 @@ extension NotificationEvent {
         }
         return nil
     }
+
+    var bannerKind: NotificationBannerKind? { nil }
 
     var colorTheme: NotificationView.ColorTheme {
         .system
