@@ -11,6 +11,12 @@ import Combine
 final class CommonAccountsAwareTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
+
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
+    @Injected(\.tangemPayAccountGlobalStateProvider)
+    private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
 }
 
 // MARK: - AccountsAwareTokenSelectorWalletsProvider
@@ -83,35 +89,36 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         userWalletInfo: UserWalletInfo,
         isUserWalletLocked: Bool
     ) -> AccountsAwareTokenSelectorWallet.AccountType {
-        let firstStandard = accountModels.firstStandard()
-        if firstStandard == nil {
-            assert(isUserWalletLocked, "Non-locked wallet should contain at least one crypto account (main)")
-            return .multiple([])
+        let items: [AccountsAwareTokenSelectorAccount] = accountModels.flatMap { accountModel -> [AccountsAwareTokenSelectorAccount] in
+            switch accountModel {
+            case .standard(.single(let account)):
+                [mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)]
+
+            case .standard(.multiple(let accounts)):
+                accounts.map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
+
+            case .tangemPay(let tangemPayAccountModel):
+                [
+                    mapToAccountsAwareTokenSelectorAccount(
+                        userWalletInfo: userWalletInfo,
+                        tangemPayAccountModel: tangemPayAccountModel
+                    ),
+                ]
+            }
         }
 
-        let items: [AccountsAwareTokenSelectorAccount] = accountModels
-            .flatMap { accountModel -> [AccountsAwareTokenSelectorAccount] in
-                switch accountModel {
-                case .standard(.single(let account)):
-                    [mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)]
-
-                case .standard(.multiple(let accounts)):
-                    accounts.map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
-
-                case .tangemPay(let tangemPayAccountModel):
-                    [
-                        mapToAccountsAwareTokenSelectorAccount(
-                            userWalletInfo: userWalletInfo,
-                            tangemPayAccountModel: tangemPayAccountModel
-                        ),
-                    ]
-                }
+        switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
+        case .single where tangemPayAccountGlobalStateProvider.hasTangemPayAccount:
+            return .multiple(items)
+        case .single:
+            if let item = items.singleElement {
+                return .single(item)
             }
 
-        if items.count == 1, let first = items.first {
-            return .single(first)
+            AppLogger.error(error: "Wrong `globalCryptoAccountsState == .single`. But `accountModelsManager.accountModels` has multiple accounts")
+            return .multiple(items)
+        case .multiple:
+            return .multiple(items)
         }
-
-        return .multiple(items)
     }
 }
