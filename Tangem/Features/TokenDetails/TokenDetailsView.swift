@@ -170,7 +170,7 @@ private extension TokenDetailsView {
     )
     let apiProviderFactory = ExpressAPIProviderFactory()
     let expressAPIProviderResolver = ExpressAPIProviderResolver(
-        defaultUserId: userWalletModel.userWalletId.stringValue,
+        defaultUserWalletId: userWalletModel.userWalletId.stringValue,
         providerFactory: { userId in
             apiProviderFactory.makeExpressAPIProvider(userId: userId, refcode: nil)
         }
