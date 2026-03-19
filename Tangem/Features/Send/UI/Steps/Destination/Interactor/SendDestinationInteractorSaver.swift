@@ -11,6 +11,7 @@ import Foundation
 protocol SendDestinationInteractorSaver {
     func update(address: SendDestination?)
     func update(additionalField: SendDestinationAdditionalField)
+    func syncViewFromInput()
 
     func captureValue()
     func cancelChanges()
@@ -35,6 +36,16 @@ class CommonSendDestinationInteractorSaver: SendDestinationInteractorSaver {
 
     func update(additionalField: SendDestinationAdditionalField) {
         output?.destinationAdditionalParametersDidChanged(additionalField)
+    }
+
+    func syncViewFromInput() {
+        if let destination = input?.destination {
+            updater?.externalUpdate(address: destination)
+        }
+
+        if let additionalField = input?.destinationAdditionalField {
+            updater?.externalUpdate(additionalField: additionalField)
+        }
     }
 
     func captureValue() {
