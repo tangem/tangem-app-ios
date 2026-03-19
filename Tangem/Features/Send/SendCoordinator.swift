@@ -104,6 +104,7 @@ extension SendCoordinator {
         case actionButtons
         case nft
         case onboarding
+        case qrScan
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -114,6 +115,7 @@ extension SendCoordinator {
             case .actionButtons: .main
             case .nft: .nft
             case .onboarding: .onboarding
+            case .qrScan: .qr
             }
         }
     }
