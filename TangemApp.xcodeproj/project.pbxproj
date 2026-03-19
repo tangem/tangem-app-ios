@@ -173,6 +173,7 @@
 		0AE600F22D7F069300F39047 /* BlockchainAccountInitializationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE600F12D7F069300F39047 /* BlockchainAccountInitializationService.swift */; };
 		0AE600F42D800A8D00F39047 /* TONStakingAccountInitializationStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE600F32D800A8D00F39047 /* TONStakingAccountInitializationStateProvider.swift */; };
 		0AE600F62D81A95600F39047 /* RestakingAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE600F52D81A95600F39047 /* RestakingAmountValidator.swift */; };
+		0AE854182F6C42BC00ECF269 /* ExpressAPIProviderResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE854172F6C42BC00ECF269 /* ExpressAPIProviderResolver.swift */; };
 		0AEBBB2E2E570E1400B0F6C6 /* test_addresses.json in Resources */ = {isa = PBXBuildFile; fileRef = 0AEBBB2D2E570E1400B0F6C6 /* test_addresses.json */; };
 		0AED02FA2EDDA581001D067E /* StakingManagerStateRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02F92EDDA581001D067E /* StakingManagerStateRepository.swift */; };
 		0AED02FC2EDDA765001D067E /* CachedStakingManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02FB2EDDA765001D067E /* CachedStakingManagerState.swift */; };
@@ -5241,6 +5242,7 @@
 		0AE600F12D7F069300F39047 /* BlockchainAccountInitializationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountInitializationService.swift; sourceTree = "<group>"; };
 		0AE600F32D800A8D00F39047 /* TONStakingAccountInitializationStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakingAccountInitializationStateProvider.swift; sourceTree = "<group>"; };
 		0AE600F52D81A95600F39047 /* RestakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingAmountValidator.swift; sourceTree = "<group>"; };
+		0AE854172F6C42BC00ECF269 /* ExpressAPIProviderResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProviderResolver.swift; sourceTree = "<group>"; };
 		0AEBBB2D2E570E1400B0F6C6 /* test_addresses.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = test_addresses.json; sourceTree = "<group>"; };
 		0AED02F92EDDA581001D067E /* StakingManagerStateRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManagerStateRepository.swift; sourceTree = "<group>"; };
 		0AED02FB2EDDA765001D067E /* CachedStakingManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedStakingManagerState.swift; sourceTree = "<group>"; };
@@ -20148,6 +20150,7 @@
 				B0AF2DEE2B1D8FF9001A8696 /* PendingExpressTransactionsManager.swift */,
 				DA76BF452CEF91B600199317 /* PendingTransactionsManager.swift */,
 				DA76BF412CEF5BBE00199317 /* PollingService.swift */,
+				0AE854172F6C42BC00ECF269 /* ExpressAPIProviderResolver.swift */,
 			);
 			path = PendingTransactionsManager;
 			sourceTree = "<group>";
@@ -29969,6 +29972,7 @@
 				EFF09E8B2DE7201D008E4FE0 /* SendReceiveToken.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				DC742C2F2BC85E5E00BECF09 /* CardInitializer.swift in Sources */,
+				0AE854182F6C42BC00ECF269 /* ExpressAPIProviderResolver.swift in Sources */,
 				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
 				0FE942862ED992310080CA53 /* Analytics+BuyWalletSource.swift in Sources */,

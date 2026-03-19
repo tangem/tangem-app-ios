@@ -9,6 +9,8 @@
 import TangemExpress
 
 struct ExpressPendingTransactionsFactory {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let userWalletInfo: UserWalletInfo
     let tokenItem: TokenItem
     let walletModelUpdater: (any WalletModelUpdater)?
@@ -22,28 +24,40 @@ struct ExpressPendingTransactionsFactory {
             tokenEnricher: tokenEnricher
         )
 
-        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletInfo.id,
-            refcode: userWalletInfo.refcode
+        let expressAPIProviderResolver = ExpressAPIProviderResolver(
+            defaultUserId: userWalletInfo.id.stringValue,
+            providerFactory: makeExpressAPIProvider(userId:)
         )
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
             walletModelUpdater: walletModelUpdater,
-            expressAPIProvider: expressAPIProvider,
+            expressAPIProviderResolver: expressAPIProviderResolver,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider
+            expressAPIProvider: expressAPIProviderResolver.provider(for: nil)
         )
 
         return CompoundPendingTransactionsManager(
             first: pendingExpressTransactionsManager,
             second: pendingOnrampTransactionsManager
         )
+    }
+
+    private func makeExpressAPIProvider(userId: String) -> ExpressAPIProvider {
+        let refcode: Refcode? = if userId == userWalletInfo.id.stringValue {
+            userWalletInfo.refcode
+        } else {
+            userWalletRepository.models
+                .first(where: { $0.userWalletId.stringValue == userId })?
+                .refcodeProvider?.getRefcode()
+        }
+
+        return ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userId, refcode: refcode)
     }
 }
