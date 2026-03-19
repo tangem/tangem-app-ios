@@ -18,7 +18,7 @@ struct EarnMostlyUsedView: View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: Layout.cardSpacing) {
                 ForEach(Array(viewModels.enumerated()), id: \.element.id) { index, viewModel in
-                    EarnMostlyUsedTileView(viewModel: viewModel)
+                    EarnTokenTileView(viewModel: viewModel)
                         .onAppear {
                             if index == fourthItemAppearIndex {
                                 onFourthItemAppeared?()
@@ -41,7 +41,7 @@ extension EarnMostlyUsedView {
 
 private extension EarnMostlyUsedView {
     enum Layout {
-        static let height: CGFloat = 106.0
+        static let height: CGFloat = FeatureProvider.isAvailable(.redesign) ? 130.0 : 106.0
         static let cardSpacing: CGFloat = 8.0
         static let horizontalPadding: CGFloat = 16.0
     }
