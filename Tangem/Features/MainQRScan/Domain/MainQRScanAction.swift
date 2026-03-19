@@ -10,10 +10,8 @@ import Foundation
 
 enum MainQRScanAction: Equatable {
     case walletConnect(WalletConnectRequestURI)
-    case paymentSingle(MainQRResolvedPaymentRequest)
-    case paymentMultiple(MainQRResolvedPaymentRequest)
-    case addressSingle(MainQRAddressRequest)
-    case addressMultiple(MainQRAddressRequest)
-    case showNoSupportedTokens
+    case payment(MainQRResolvedPaymentRequest)
+    case address(MainQRAddressRequest)
+    case showNoSupportedTokens(MainQRNoSupportedTokensContext? = nil)
     case showUnrecognized
 }
