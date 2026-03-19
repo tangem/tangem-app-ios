@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -67,9 +68,11 @@ struct SendFinishView: View {
             VStack(spacing: 4) {
                 Text(viewModel.headerTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.finishHeader)
 
                 Text(transactionTime)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.finishTransactionTime)
             }
             .lineLimit(1)
         }
@@ -89,12 +92,14 @@ struct SendFinishView: View {
                 style: .secondary,
                 action: { viewModel.explore(url: url) }
             )
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.finishExploreButton)
             MainButton(
                 title: Localization.commonShare,
                 icon: .leading(Assets.share),
                 style: .secondary,
                 action: { viewModel.share(url: url) }
             )
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.finishShareButton)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
