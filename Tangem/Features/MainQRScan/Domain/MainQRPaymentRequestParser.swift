@@ -7,28 +7,17 @@
 //
 
 struct MainQRPaymentRequestParser {
-    enum Source {
-        case blockchainURI
-        case json
-        case deepLink
-    }
-
-    struct ParsedResult {
-        let request: MainQRPaymentRequest
-        let source: Source
-    }
-
     private let blockchainURIParser = MainQRBlockchainURIParser()
     private let jsonParser = MainQRJSONPaymentParser()
     private let deepLinkParser = MainQRDeepLinkPaymentParser()
 
-    func parse(_ value: String) -> ParsedResult? {
+    func parse(_ value: String) -> MainQRPaymentRequest? {
         if let request = blockchainURIParser.parse(value) {
-            return ParsedResult(request: request, source: .blockchainURI)
+            return request
         }
 
         if let request = jsonParser.parse(value) {
-            return ParsedResult(request: request, source: .json)
+            return request
         }
 
         if let request = deepLinkParser.parse(
@@ -36,7 +25,7 @@ struct MainQRPaymentRequestParser {
             blockchainURIParser: blockchainURIParser,
             jsonParser: jsonParser
         ) {
-            return ParsedResult(request: request, source: .deepLink)
+            return request
         }
 
         return nil
