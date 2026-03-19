@@ -49,6 +49,15 @@ extension SendSummaryStep: SendStep {
         interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }
 
+    /// Called when summary is the initial step (e.g. QR scan with predefined amount).
+    /// `willAppear(previous:)` is not invoked for the initial step,
+    /// so fee loading must be triggered here explicitly.
+    func initialAppear() {
+        analyticsLogger.logSummaryStepOpened()
+        sendFeeProvider.updateFees()
+        autoupdatingTimer?.resumeTimer()
+    }
+
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
         sendFeeProvider.updateFees()
