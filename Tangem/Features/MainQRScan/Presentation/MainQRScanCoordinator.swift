@@ -72,4 +72,9 @@ extension MainQRScanCoordinator {
     func rearmScanner() {
         rootViewModel?.rearmScanner()
     }
+
+    @MainActor
+    func turnOffFlashIfNeeded() {
+        rootViewModel?.turnOffFlashIfNeeded()
+    }
 }
