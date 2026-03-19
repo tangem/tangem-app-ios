@@ -55,12 +55,14 @@ extension SendDestinationStep: SendStep {
     }
 
     func initialAppear() {
+        interactorSaver.syncViewFromInput()
         analyticsLogger.logDestinationStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
         step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
 
+        interactorSaver.syncViewFromInput()
         interactorSaver.captureValue()
         viewModel.setIgnoreDestinationAddressClearButton(false)
     }
