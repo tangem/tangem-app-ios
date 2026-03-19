@@ -121,6 +121,9 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     ) -> FeeSelectorRowViewModel {
         let subtitleState: LoadableTextView.State = {
             switch (state, feeCoverage) {
+            case (.unavailable(.notEnoughFeeBalance), _):
+                return .loaded(text: Localization.gaslessNotEnoughFundsToCoverTokenFee)
+
             case (.idle, _), (.unavailable, _), (.error, _):
                 return .noData
 
@@ -141,9 +144,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
                 )
 
                 return .loaded(text: formattedFeeComponents.formatted)
-
-            default:
-                return .noData
             }
         }()
 
@@ -151,8 +151,11 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
         var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
             switch (state, feeCoverage) {
+            case (.unavailable(.notEnoughFeeBalance), _):
+                return .unavailable(isSubtitleHighlighted: true)
+
             case (.idle, _), (.unavailable, _), (.error, _), (_, .undefined):
-                return .unavailable
+                return .unavailable(isSubtitleHighlighted: false)
 
             case (.loading, _), (.available, .covered):
                 return .available(isSubtitleHighlighted: false)
@@ -161,7 +164,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
                 return .available(isSubtitleHighlighted: true)
 
             case (.available(_), .uncovered):
-                return .unavailable
+                return .unavailable(isSubtitleHighlighted: false)
             }
         }
 
