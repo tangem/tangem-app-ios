@@ -666,7 +666,11 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
 
 extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     var isReceiveTokenSelectionAvailable: Bool {
-        true
+        guard let sourceToken = _sourceToken.value.value else {
+            return false
+        }
+
+        return sourceToken.swapAvailabilityProvider.isSwapAvailable
     }
 
     var receiveToken: LoadingResult<any SendReceiveToken, any Error> {
