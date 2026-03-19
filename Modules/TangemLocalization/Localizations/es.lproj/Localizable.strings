@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Ajustes";
 "qr_scanner_camera_denied_text" = "No ha dado acceso a su cámara";
 "qr_scanner_camera_denied_title" = "Acceso a la cámara denegado";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "No se requiere nota";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ en la red %2$@";
 "receive_bottom_sheet_warning_message_description" = "El envío de cualquier otra moneda supondrá una pérdida irreversible.";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "El destinatario recibe %@";
 "send_with_swap_remove_convert_alert_message" = "¿Seguro que desea cancelar la conversión? Se borrarán sus datos anteriores.";
 "send_with_swap_remove_convert_alert_title" = "Eliminar conversión";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Enviar con swap";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
@@ -1357,6 +1362,7 @@
 "swapping_from_title" = "Usted intercambia";
 "swapping_high_price_impact_description" = "Hacer un intercambio de esta cantidad del token seleccionado causará un impacto significativo en el precio y reducirá su resultado.";
 "swapping_high_price_impact_title" = "Alto impacto en los precios";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Fondos insuficientes";
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
