@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Налаштування";
 "qr_scanner_camera_denied_text" = "Ви не надали доступ до своєї камери";
 "qr_scanner_camera_denied_title" = "Доступ до камери заборонено";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "До отримання %@";
 "send_with_swap_remove_convert_alert_message" = "Ви впевнені, що хочете скасувати конвертацію? Ваші попередні дані будуть видалені.";
 "send_with_swap_remove_convert_alert_title" = "Прибрати конвертацію";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Надіслати з обміном";
 "sent_transaction_sent_title" = "Трансакцію надіслано";
 "settings_card_settings_footer" = "Підготуйтеся до сканування кільця або картки, яку ви хочете налаштувати.";
