@@ -40,7 +40,6 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
                 NotificationBanner(
                     bannerType: item.bannerType
                 )
-                .padding(.horizontal, SizeUnit.x4.value)
             }
 
             if !stackableItems.isEmpty {
