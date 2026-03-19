@@ -17,6 +17,9 @@ class FeeCompactViewModel: ObservableObject, Identifiable {
     @Published var selectedFeeComponents: LoadableTextView.State
     @Published var canEditFee: Bool
 
+    let showsLeadingIcon: Bool
+    let showsRoundedBackground: Bool
+
     var infoButtonString: AttributedString {
         let readMore = Localization.commonReadMore
         var attributed = AttributedString(Localization.commonFeeSelectorFooter(readMore))
@@ -37,11 +40,15 @@ class FeeCompactViewModel: ObservableObject, Identifiable {
         selectedFeeTokenCurrencySymbol: String? = nil,
         selectedFeeComponents: LoadableTextView.State = .initialized,
         canEditFee: Bool = false,
+        showsLeadingIcon: Bool = true,
+        showsRoundedBackground: Bool = true,
         feeFormatter: FeeFormatter = CommonFeeFormatter()
     ) {
         self.selectedFeeTokenCurrencySymbol = selectedFeeTokenCurrencySymbol
         self.selectedFeeComponents = selectedFeeComponents
         self.canEditFee = canEditFee
+        self.showsLeadingIcon = showsLeadingIcon
+        self.showsRoundedBackground = showsRoundedBackground
         self.feeFormatter = feeFormatter
     }
 
