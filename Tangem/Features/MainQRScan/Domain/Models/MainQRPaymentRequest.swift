@@ -13,8 +13,8 @@ struct MainQRPaymentRequest: Equatable {
     let blockchain: Blockchain
     let destinationAddress: String
     let amount: Decimal?
-    let rawAmount: String?
     let memo: String?
+    let tokenSymbol: String?
     let tokenContractAddress: String?
 }
 
