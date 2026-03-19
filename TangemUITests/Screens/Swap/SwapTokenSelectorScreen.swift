@@ -30,7 +30,7 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
         XCTContext.runActivity(named: "Select token '\(tokenName)' from token selector") { _ in
             waitAndAssertTrue(searchField, "Token selector search field should be visible")
 
-            let tokenCell = app.staticTexts[tokenName].firstMatch
+            let tokenCell = tokenItemButton(name: tokenName)
             waitAndAssertTrue(tokenCell, "Token '\(tokenName)' should be visible in token selector list")
             tokenCell.waitAndTap()
             return SwapScreen(app)
@@ -77,7 +77,7 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     @discardableResult
     func waitForTokenDisplayed(_ name: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(name)' is displayed in token selector") { _ in
-            let tokenElement = app.staticTexts[name].firstMatch
+            let tokenElement = tokenItemButton(name: name)
             waitAndAssertTrue(tokenElement, "Token '\(name)' should be displayed in token selector list")
         }
         return self
@@ -86,13 +86,9 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     @discardableResult
     func waitForTokenAvailable(_ name: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(name)' is displayed and available for swap") { _ in
-            let tokenElement = app.staticTexts[name].firstMatch
+            let tokenElement = tokenItemButton(name: name)
             waitAndAssertTrue(tokenElement, "Token '\(name)' should be displayed in token selector list")
-
-            let tokenCell = app.cells.containing(.staticText, identifier: name).firstMatch
-            if tokenCell.exists {
-                XCTAssertTrue(tokenCell.isEnabled, "Token '\(name)' should be enabled (available for swap)")
-            }
+            XCTAssertTrue(tokenElement.isEnabled, "Token '\(name)' should be enabled (available for swap)")
         }
         return self
     }
@@ -100,7 +96,7 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     @discardableResult
     func waitForTokenNotDisplayed(_ name: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(name)' is NOT displayed in token selector") { _ in
-            let tokenElement = app.staticTexts[name].firstMatch
+            let tokenElement = tokenItemButton(name: name)
             XCTAssertTrue(tokenElement.waitForNonExistence(timeout: .quick), "Token '\(name)' should NOT be displayed in token selector list")
         }
         return self
@@ -109,15 +105,74 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     @discardableResult
     func waitForTokenUnavailable(_ name: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(name)' is displayed but unavailable") { _ in
-            let tokenElement = app.staticTexts[name].firstMatch
+            let tokenElement = tokenItemButton(name: name)
             waitAndAssertTrue(tokenElement, "Token '\(name)' should be displayed in token selector list")
-
-            let tokenButton = app.cells.containing(.staticText, identifier: name).firstMatch
-            if tokenButton.exists {
-                XCTAssertFalse(tokenButton.isEnabled, "Token '\(name)' should be displayed but not enabled (unavailable)")
-            }
+            XCTAssertFalse(tokenElement.isEnabled, "Token '\(name)' should be displayed but not enabled (unavailable)")
         }
         return self
+    }
+
+    /// Selects a FROM token and stays on the token selector (transitions to TO token selection)
+    @discardableResult
+    func selectFromToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select FROM token '\(tokenName)' from token selector") { _ in
+            waitAndAssertTrue(searchField, "Token selector search field should be visible")
+
+            let tokenCell = tokenItemButton(name: tokenName)
+            waitAndAssertTrue(tokenCell, "Token '\(tokenName)' should be visible in token selector list")
+            tokenCell.waitAndTap()
+        }
+        return self
+    }
+
+    // MARK: - Market Tokens
+
+    @discardableResult
+    func selectMarketToken(_ name: String) -> AddTokenFlowScreen {
+        XCTContext.runActivity(named: "Select market token '\(name)' from search results") { _ in
+            let marketTokenCell = marketTokenItemButton(name: name)
+            marketTokenCell.waitAndTap()
+            return AddTokenFlowScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForMarketTokenDisplayed(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Verify market token '\(name)' is displayed in search results") { _ in
+            let marketTokenCell = marketTokenItemButton(name: name)
+            waitAndAssertTrue(marketTokenCell, "Market token '\(name)' should be displayed in search results")
+        }
+        return self
+    }
+
+    // MARK: - Error State
+
+    @discardableResult
+    func waitForTrendingNowError() -> Self {
+        XCTContext.runActivity(named: "Verify Trending Now section shows error state") { _ in
+            let retryButton = app.buttons[CommonUIAccessibilityIdentifiers.retryButton].firstMatch
+            waitAndAssertTrue(retryButton, "Trending Now error state should be displayed with retry button")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRetryButtonDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Try again' button is displayed") { _ in
+            let retryButton = app.buttons[CommonUIAccessibilityIdentifiers.retryButton].firstMatch
+            waitAndAssertTrue(retryButton, "'Try again' button should be displayed")
+        }
+        return self
+    }
+
+    // MARK: - Private
+
+    private func tokenItemButton(name: String) -> XCUIElement {
+        app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: name)].firstMatch
+    }
+
+    private func marketTokenItemButton(name: String) -> XCUIElement {
+        app.buttons[MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: name)].firstMatch
     }
 }
 
