@@ -11,6 +11,7 @@ import TangemExpress
 protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
     var isExemptFee: Bool { get }
 
+    var swapAvailabilityProvider: any SwapAvailabilityProvider { get }
     var sendingRestrictionsProvider: any SendingRestrictionsProvider { get }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
