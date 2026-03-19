@@ -26,7 +26,7 @@ final class MainQRScanViewModel: ObservableObject {
 
     init(coordinator: MainQRScanRoutable) {
         self.coordinator = coordinator
-        hintText = "Scan QR code to send funds or connect to an app"
+        hintText = Localization.mainQrScanHint
     }
 
     // MARK: - Actions
@@ -62,6 +62,7 @@ final class MainQRScanViewModel: ObservableObject {
 
     func onScannerFailure() {
         MainQRScanLogger.warning(MainQRScanLoggerStrings.scannerSessionFailed)
+        turnOffFlashIfNeeded()
         presentAccessDeniedAlert()
     }
 
@@ -70,25 +71,15 @@ final class MainQRScanViewModel: ObservableObject {
     }
 
     func toggleFlash() {
-        guard
-            let camera = AVCaptureDevice.default(for: .video),
-            camera.hasTorch
-        else {
+        setFlashState(isActive: !isFlashActive)
+    }
+
+    func turnOffFlashIfNeeded() {
+        guard isFlashActive else {
             return
         }
 
-        do {
-            try camera.lockForConfiguration()
-
-            withAnimation(nil) {
-                isFlashActive = !camera.isTorchActive
-            }
-
-            camera.torchMode = camera.isTorchActive ? .off : .on
-            camera.unlockForConfiguration()
-        } catch {
-            MainQRScanLogger.error(MainQRScanLoggerStrings.failedToToggleFlash, error: error)
-        }
+        setFlashState(isActive: false)
     }
 
     func openGallery() {
@@ -165,6 +156,29 @@ final class MainQRScanViewModel: ObservableObject {
             .compactMap { $0 as? CIQRCodeFeature }
             .first?
             .messageString
+    }
+
+    private func setFlashState(isActive: Bool) {
+        guard
+            let camera = AVCaptureDevice.default(for: .video),
+            camera.hasTorch
+        else {
+            withAnimation(nil) {
+                isFlashActive = false
+            }
+
+            return
+        }
+
+        do {
+            try camera.lockForConfiguration()
+            camera.torchMode = isActive ? .on : .off
+            camera.unlockForConfiguration()
+
+            withAnimation(nil) {
+                isFlashActive = camera.isTorchActive
+            }
+        } catch {}
     }
 }
 

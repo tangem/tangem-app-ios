@@ -45,6 +45,11 @@ enum MainQRParserConstants {
 
     static let tokenContractQueryKeys = [
         QueryKey.contract,
+    ]
+
+    static let tokenSymbolQueryKeys = [
+        QueryKey.symbol,
+        QueryKey.ticker,
         QueryKey.token,
     ]
 
@@ -79,6 +84,11 @@ enum MainQRParserConstants {
         PayloadKey.tag,
     ]
 
+    static let jsonTokenSymbolKeys = [
+        PayloadKey.symbol,
+        PayloadKey.ticker,
+    ]
+
     enum QueryKey {
         static let uri = "uri"
         static let chainId = "chainid"
@@ -99,6 +109,8 @@ enum MainQRParserConstants {
         static let destinationTag = "destinationtag"
         static let contract = "contract"
         static let token = "token"
+        static let symbol = "symbol"
+        static let ticker = "ticker"
     }
 
     enum PayloadKey {
@@ -109,5 +121,7 @@ enum MainQRParserConstants {
         static let value = "value"
         static let memo = "memo"
         static let tag = "tag"
+        static let symbol = "symbol"
+        static let ticker = "ticker"
     }
 }
