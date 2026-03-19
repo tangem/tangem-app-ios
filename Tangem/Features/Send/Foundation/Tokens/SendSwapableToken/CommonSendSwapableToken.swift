@@ -12,7 +12,7 @@ import TangemExpress
 struct CommonSendSwapableToken: SendSwapableToken {
     let sourceToken: SendSourceToken
     let isExemptFee: Bool
-
+    let swapAvailabilityProvider: any SwapAvailabilityProvider
     let sendingRestrictionsProvider: any SendingRestrictionsProvider
     let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
