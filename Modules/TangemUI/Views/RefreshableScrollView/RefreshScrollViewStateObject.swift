@@ -50,7 +50,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
     private let _scrollViewInteractor = CommonRefreshScrollViewInteractor()
 
     private let settings: Settings
-    private var refreshable: () async -> Void
+    private let refreshable: () async -> Void
 
     private var state: RefreshState = .idle {
         didSet {
@@ -76,16 +76,20 @@ private extension RefreshScrollViewStateObject {
         FeedbackGenerator.heavy()
         state = .willStartRefreshing
 
-        // Clouser which start refresh
-        let refreshing: () -> Void = { [weak self] in
+        // Closure that starts refresh
+        let work: () -> Void = { [weak self] in
             switch self?.settings.refreshTaskTimeout {
             case .some(let timeout):
-                runTask(
-                    withTimeout: timeout,
-                    code: { await self?.refreshing() },
-                    onTimeout: {
+                Task.run(
+                    withTimeout: .seconds(timeout),
+                    // Capturing `refreshing` directly here since the `self` is mutable and therefore non-sendable
+                    code: { [refreshing = self?.refreshing] in
+                        await refreshing?()
+                    },
+                    // Capturing `stopRefreshing` directly here since the `self` is mutable and therefore non-sendable
+                    onTimeout: { [stopRefreshing = self?.stopRefreshing] in
                         ConsoleLog.error(error: Error.timeout)
-                        Task { @MainActor in self?.stopRefreshing() }
+                        Task { await stopRefreshing?() }
                     }
                 )
 
@@ -94,7 +98,7 @@ private extension RefreshScrollViewStateObject {
             }
         }
 
-        state = .refreshing(refreshing)
+        state = .refreshing(work)
     }
 
     func refreshing() async {
