@@ -2824,7 +2824,8 @@
 		BA6BB3D52AF3989ADC07AF8A /* SafeNetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9FEFA6BFE19A9867B738C90 /* SafeNetworkMonitorTests.swift */; };
 		BCC113A7CCB3068FD04 /* AccountModelResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADCF1BD53A99863069 /* AccountModelResolving.swift */; };
 		BCE5BF0B3B5342B9A424C862 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3ABEE65C3C571B5975C9F2 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift */; };
-		D09CE7DBBC9742818BAD51F7 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */; };
+		F2C101A16E0010020000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift */; };
+		F2C101A16E0010020000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift */; };
 		A1B2C3D4E5F6078901234503 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */; };
 		A1B2C3D4E5F6078901234504 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */; };
 		995FF691213F4EA0899884F5 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */; };
@@ -8132,7 +8133,8 @@
 		DA38809D2E38F0C5000B0242 /* CustomerWalletAuthorizationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerWalletAuthorizationTask.swift; sourceTree = "<group>"; };
 		DA38809F2E391E1F000B0242 /* VisaBuilder+FeatureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisaBuilder+FeatureStorage.swift"; sourceTree = "<group>"; };
 		DA3ABEE65C3C571B5975C9F2 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift; sourceTree = SOURCE_ROOT; };
-		E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift; sourceTree = SOURCE_ROOT; };
+		F2C101A16E0010010000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift; sourceTree = SOURCE_ROOT; };
+		F2C101A16E0010010000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift; sourceTree = SOURCE_ROOT; };
 		A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift; sourceTree = SOURCE_ROOT; };
 		A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift; sourceTree = SOURCE_ROOT; };
 		B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift; sourceTree = SOURCE_ROOT; };
@@ -13592,7 +13594,8 @@
 					F1A3B42C5D6E7F8091A2B3E0 /* Models */,
 					575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */,
 					A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */,
-					E81F2FB37BA94D049E5E7346 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift */,
+					F2C101A16E0010010000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift */,
+					F2C101A16E0010010000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift */,
 					A1B2C3D4E5F6078901234502 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift */,
 					B080FB0B59EA49048D41C590 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift */,
 					F2C101A16E00100100000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift */,
@@ -30873,7 +30876,8 @@
 				0C5620EF2B1B0E720C8F638A /* Tangem/Features/MainQRScan/Presentation/MainQRScanViewModel.swift in Sources */,
 				5B7433E99EC85C5075152986 /* Tangem/Features/MainQRScan/Presentation/MainQRScanCoordinator.swift in Sources */,
 				BCE5BF0B3B5342B9A424C862 /* Tangem/Features/MainQRScan/Presentation/MainQRScanFlowCoordinator.swift in Sources */,
-				D09CE7DBBC9742818BAD51F7 /* Tangem/Features/MainQRScan/Domain/MainQRScanFlowHandler.swift in Sources */,
+				F2C101A16E0010020000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift in Sources */,
+				F2C101A16E0010020000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift in Sources */,
 				A1B2C3D4E5F6078901234503 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift in Sources */,
 				A1B2C3D4E5F6078901234504 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift in Sources */,
 				995FF691213F4EA0899884F5 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift in Sources */,
