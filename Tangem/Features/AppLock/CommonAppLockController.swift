@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SwiftUI
+import class TangemSdk.BiometricsUtil
 
 class CommonAppLockController {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -42,6 +43,10 @@ extension CommonAppLockController: AppLockController {
     func unlockApp() async -> UnlockResult {
         guard startupProcessor.shouldOpenAuthScreen else {
             return .openWelcome
+        }
+
+        guard BiometricsUtil.isAvailable, await AppSettings.shared.useBiometricAuthentication else {
+            return .openAuth
         }
 
         guard let context = try? await UserWalletBiometricsUnlocker().unlock(),
