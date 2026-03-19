@@ -46,7 +46,7 @@ final class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var expressApproveViewModel: ExpressApproveViewModel? {
+    @Published var expressApproveViewModel: ApproveViewModel? {
         willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
     }
 
@@ -153,8 +153,12 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {
-        expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
+    func openApproveView(flowFactory: ApproveFlowFactory) {
+        let viewModel = flowFactory.make(router: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {
@@ -174,11 +178,12 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
             dismissAction: { [weak self] in
                 self?.sendReceiveTokenCoordinator = nil
+                onDismiss?()
             }, popToRootAction: popToRootAction
         )
 
@@ -341,19 +346,27 @@ extension SendCoordinator: OnrampRoutable {
     }
 }
 
-// MARK: - ExpressApproveRoutable
+// MARK: - ApproveRoutable
 
-extension SendCoordinator: ExpressApproveRoutable {
+extension SendCoordinator: ApproveRoutable {
     func didSendApproveTransaction() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func userDidCancel() {
-        expressApproveViewModel = nil
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func openLearnMore() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                TangemBlogUrlBuilder().url(post: .giveRevokePermission),
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
     }
 }
 
