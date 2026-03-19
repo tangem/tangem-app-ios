@@ -38,11 +38,11 @@ extension ApproveTransactionDispatcher: TransactionDispatcher {
     }
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .approve(let data) = transaction else {
+        guard case .approve(let data, let fee) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let transaction = try await buildTransaction(data: data)
+        let transaction = try await buildTransaction(data: data, fee: fee)
         let result = try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
         return result
     }
@@ -51,11 +51,11 @@ extension ApproveTransactionDispatcher: TransactionDispatcher {
 // MARK: - Private
 
 private extension ApproveTransactionDispatcher {
-    func buildTransaction(data: ApproveTransactionData) async throws -> BSDKTransaction {
+    func buildTransaction(data: ApproveTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
         let amount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0)
         let transaction = try await transactionCreator.createTransaction(
             amount: amount,
-            fee: data.fee,
+            fee: fee,
             destinationAddress: data.toContractAddress,
             contractAddress: data.toContractAddress,
             params: EthereumTransactionParams(data: data.txData)

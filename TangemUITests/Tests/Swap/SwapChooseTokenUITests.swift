@@ -34,11 +34,11 @@ final class SwapChooseTokenUITests: BaseTestCase {
 
         tokenSelector
             .waitForTokenAvailable("Ethereum")
-            .waitForTokenAvailable("POL (ex-MATIC)")
+            .waitForTokenAvailable("Bitcoin")
+            .waitForTokenNotDisplayed("POL (ex-MATIC)")
 
         tokenSelector
-            .waitForTokenUnavailable("Bitcoin")
-            .waitForTokenUnavailable("Jesus Coin")
+            .waitForTokenAvailable("Jesus Coin")
             .waitForTokenUnavailable("Salam")
     }
 

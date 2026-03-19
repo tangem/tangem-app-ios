@@ -43,7 +43,10 @@ extension PromotionProgramName {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .yield:
-            .init(iconType: .image(Assets.YieldModule.yieldModuleLogo.image), size: .init(bothDimensions: 36))
+            .init(
+                iconType: .image(Assets.YieldModule.yieldModuleLogo),
+                size: .init(bothDimensions: 36)
+            )
         }
     }
 
