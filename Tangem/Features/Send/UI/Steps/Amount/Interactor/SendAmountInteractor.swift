@@ -230,7 +230,7 @@ class CommonSendAmountInteractor {
         }
 
         return Publishers.CombineLatest3(
-            receiveTokenAmountInput.receiveRestrictionPublisher,
+            receiveTokenAmountInput.exchangeRestrictionPublisher,
             sourceTokenInput.sourceTokenPublisher,
             _sourceType
         )
@@ -248,7 +248,7 @@ class CommonSendAmountInteractor {
         }
 
         return Publishers.CombineLatest3(
-            receiveTokenAmountInput.receiveRestrictionPublisher,
+            receiveTokenAmountInput.exchangeRestrictionPublisher,
             receiveTokenInput.receiveTokenPublisher,
             _receiveType
         )
@@ -261,11 +261,13 @@ class CommonSendAmountInteractor {
     }
 
     private func mapRestrictionToInfoText(
-        _ restriction: ReceiveAmountRestriction,
+        _ restriction: ExchangeAmountRestriction,
         tokenItem: TokenItem,
         calculationType: SendAmountCalculationType
     ) -> SendAmountViewModel.BottomInfoTextType {
         switch restriction {
+        case .exchangeDataLoadingFailed:
+            return .error(Localization.commonSomethingWentWrong)
         case .tooSmallAmount(let amount):
             // Round UP so the displayed minimum is always sufficient after conversion
             let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .up)
