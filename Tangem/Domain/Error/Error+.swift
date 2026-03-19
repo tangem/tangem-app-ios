@@ -43,7 +43,7 @@ extension Error {
 
             return false
         case let universalError as UniversalErrorWrapper:
-            return universalError.underlyingError is CancellationError
+            return universalError.underlyingError.isCancellationError
         default:
             return false
         }

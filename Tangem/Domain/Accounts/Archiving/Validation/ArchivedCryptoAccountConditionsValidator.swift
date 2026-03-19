@@ -30,12 +30,7 @@ struct ArchivedCryptoAccountConditionsValidator {
 
             let cryptoAccountModel = try await accountModelPublisher.async()
 
-            // [REDACTED_TODO_COMMENT]
-            return cryptoAccountModel
-                .walletModelsManager
-                .walletModels
-                .flatMap(\.addresses)
-                .contains { $0.value.caseInsensitiveEquals(to: referralAddress) }
+            return ReferralAccountFinder.find(forAddress: referralAddress, accounts: [cryptoAccountModel]) != nil
         }
     }
 
