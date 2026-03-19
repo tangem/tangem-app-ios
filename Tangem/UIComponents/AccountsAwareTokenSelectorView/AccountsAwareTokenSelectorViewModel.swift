@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 import TangemAccounts
 import TangemFoundation
 import TangemMacro
@@ -16,12 +17,13 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
 
     @Published private(set) var wallets: [AccountsAwareTokenSelectorWalletItemViewModel]
     @Published private(set) var contentVisibility: ContentVisibility = .visible(itemsCount: 0)
+    @Published private(set) var scrollToTopTrigger: UUID?
 
     private let walletsProvider: any AccountsAwareTokenSelectorWalletsProvider
     private let availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
 
     private let viewModelsMapper: AccountsAwareTokenSelectorViewModelsMapper
-    private var isLoadingLocked = false
+    private var bag: Set<AnyCancellable> = []
 
     init(
         walletsProvider: any AccountsAwareTokenSelectorWalletsProvider,
@@ -55,6 +57,10 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
         viewModelsMapper.setupSelectedItemFilter(selectedItemPublisher: directionPublisher.map { $0?.tokenItem })
     }
 
+    func triggerScrollToTop() {
+        scrollToTopTrigger = UUID()
+    }
+
     func setLoading() {
         contentVisibility = .loading
     }
@@ -66,6 +72,15 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
     }
 
     private func bind() {
+        // Scroll to top when search text transitions between empty and non-empty (both directions)
+        $searchText
+            .pairwise()
+            .filter { previous, current in previous.isEmpty != current.isEmpty }
+            .sink { [weak self] _ in
+                self?.triggerScrollToTop()
+            }
+            .store(in: &bag)
+
         // Collect items count from all wallets and compute visibility
         wallets
             .map { $0.$viewType.flatMapLatest { $0.itemsCount } }
