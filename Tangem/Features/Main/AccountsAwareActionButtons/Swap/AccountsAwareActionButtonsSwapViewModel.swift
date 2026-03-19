@@ -26,7 +26,6 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     @Published private(set) var notificationInput: NotificationViewInput?
     @Published private(set) var notificationIsLoading: Bool = false
     @Published private(set) var destination: TokenItemType?
-    @Published private(set) var scrollToTopTrigger: UUID?
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
@@ -114,7 +113,7 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
             destinationSelectionTask?.cancel()
             destinationSelectionTask = Task { [weak self] in
                 await MainActor.run { [weak self] in
-                    self?.scrollToTopTrigger = UUID()
+                    self?.tokenSelectorViewModel.triggerScrollToTop()
                     self?.updateDestinationToken(item: item)
                 }
 
@@ -200,7 +199,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         await MainActor.run {
             source = .token(item, viewModel: viewModel)
             destination = .placeholder(text: Localization.actionButtonsYouWantToReceive)
-            scrollToTopTrigger = UUID()
+            tokenSelectorViewModel.triggerScrollToTop()
 
             if let walletModel = item.kind.walletModel {
                 coordinator?.showYieldNotificationIfNeeded(for: walletModel, completion: nil)
@@ -231,6 +230,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             }.value
 
             // We set the `filterTokenItem` after pairs is loading
+            try await Task.sleep(for: .seconds(Constants.scrollAnimationDelay))
             filterTokenItem.send(sourceItem.tokenItem)
         } catch let error as ExpressAPIError {
             await MainActor.run {
@@ -314,6 +314,5 @@ extension AccountsAwareActionButtonsSwapViewModel {
     enum Constants {
         static let floatingSheetDismissDelay: TimeInterval = 0.2
         static let scrollAnimationDelay: TimeInterval = 0.3
-        static let scrollToTopID = "AccountsAwareActionButtonsSwapView.scrollToTop"
     }
 }
