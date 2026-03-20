@@ -9,4 +9,10 @@
 struct MainUserWalletHeaderModel {
     let headerViewModel: MainHeaderViewModel
     let actionButtonsViewModel: ActionButtonsViewModel?
+    let paginationState: PaginationState?
+
+    struct PaginationState {
+        let totalPages: Int
+        let currentIndex: Int
+    }
 }

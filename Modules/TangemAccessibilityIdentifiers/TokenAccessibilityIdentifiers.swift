@@ -29,6 +29,9 @@ public enum TokenAccessibilityIdentifiers {
     public static let availableBalance = "tokenAvailableBalance"
     public static let stakingBalance = "tokenStakingBalance"
 
+    /// Pending express transaction
+    public static let pendingExpressTransaction = "tokenPendingExpressTransaction"
+
     /// Network selector elements
     public static let mainNetworkSwitch = "tokenMainNetworkSwitch"
     public static let continueButton = "tokenContinueButton"
