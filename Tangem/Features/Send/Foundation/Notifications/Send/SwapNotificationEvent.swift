@@ -83,7 +83,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .refunded(tokenItem: let tokenItem):
             return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName))
         case .notEnoughBalanceForSwapping:
-            return .string("Insufficient balance")
+            return .string(Localization.swappingInsufficientFunds)
         case .longTimeAverageDuration:
             return .string(Localization.expressExchangeNotificationLongTransactionTimeTitle)
         }
@@ -127,7 +127,7 @@ extension SwapNotificationEvent: NotificationEvent {
             let readMore = "[\(Localization.commonReadMore)](\(url.absoluteString))"
             return Localization.expressExchangeNotificationRefundText(tokenItem.currencySymbol, readMore)
         case .notEnoughBalanceForSwapping:
-            return "The amount including network fee exceeds your available balance. Please reduce the amount or add funds."
+            return Localization.swappingInsufficientFundsDescription
         case .longTimeAverageDuration:
             return Localization.expressExchangeNotificationLongTransactionTimeText
         }

@@ -97,6 +97,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
+
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
     /// Guards against stale CombineLatest emissions after removal.

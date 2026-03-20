@@ -13,6 +13,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     var tokenItem: TokenItem { transferableToken.tokenItem }
 
     let sourceToken: SendWithSwapToken
+    private let predefinedSendParameters: PredefinedSendParameters?
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
@@ -25,8 +26,14 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         sendNotificationManager: sendNotificationManager,
         swapNotificationManager: swapNotificationManager
     )
+    private lazy var predefinedTransferValues = mapToPredefinedValues(parameters: predefinedSendParameters)
+    private lazy var predefinedInitialStep = mapToInitialStep(parameters: predefinedSendParameters)
 
-    lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
+    lazy var transferModel = makeTransferModel(
+        analyticsLogger: analyticsLogger,
+        predefinedValues: predefinedTransferValues
+    )
+    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
 
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
@@ -40,13 +47,67 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         transferModel: transferModel,
         swapModel: swapModel,
         analyticsLogger: analyticsLogger,
-        predefinedValues: .init(),
+        predefinedValues: predefinedTransferValues,
         autoupdatingTimer: autoupdatingTimer
     )
 
-    init(sourceToken: SendWithSwapToken) {
+    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil) {
         self.sourceToken = sourceToken
+        self.predefinedSendParameters = predefinedSendParameters
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+    }
+
+    private func mapToPredefinedValues(parameters: PredefinedSendParameters?) -> TransferModel.PredefinedValues {
+        guard let parameters else {
+            return .init()
+        }
+
+        let destination = SendDestination(value: .plain(parameters.destination), source: .qrCode)
+
+        let amount = parameters.amount.map { amount in
+            let fiatValue = tokenItem.currencyId.flatMap { currencyId in
+                BalanceConverter().convertToFiat(amount, currencyId: currencyId)
+            }
+
+            return SendAmount(type: .typical(crypto: amount, fiat: fiatValue))
+        }
+
+        let additionalField: SendDestinationAdditionalField = {
+            guard let type = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain) else {
+                return .notSupported
+            }
+
+            guard let tag = parameters.tag?.nilIfEmpty else {
+                return .empty(type: type)
+            }
+
+            do {
+                let params = try makeTransactionParametersBuilder().transactionParameters(value: tag)
+                return .filled(type: type, value: tag, params: params)
+            } catch {
+                assertionFailure("Failed to build transaction parameters for predefined tag: \(error)")
+                return .empty(type: type)
+            }
+        }()
+
+        return TransferModel.PredefinedValues(
+            destination: destination,
+            tag: additionalField,
+            amount: amount
+        )
+    }
+
+    private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
+        guard let parameters else {
+            return .amount
+        }
+
+        switch parameters.initialStep {
+        case .amount:
+            return .amount
+        case .summary:
+            return .summary
+        }
     }
 }
 
@@ -124,6 +185,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
+            initialStep: predefinedInitialStep,
             router: router
         )
 

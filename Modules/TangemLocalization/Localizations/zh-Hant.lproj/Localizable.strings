@@ -960,7 +960,7 @@
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
 "onramp_no_available_providers" = "No available providers for this currency";
-"onramp_offer_type_fastet" = "Quickest Processing";
+"onramp_offer_type_fastet" = "Quickest processing";
 "onramp_pay_with" = "Pay with";
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Settings";
 "qr_scanner_camera_denied_text" = "You have not given access to your camera";
 "qr_scanner_camera_denied_title" = "Camera access denied";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "No memo required";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
 "receive_bottom_sheet_warning_message_description" = "Sending any other currency will result in its irreversible loss.";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "Recipient gets %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
@@ -1358,6 +1363,7 @@
 "swapping_high_price_impact_description" = "在此代幣交換的數量將對價格產生重大影響，並降低您收到的數量";
 "swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "餘額不足";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "賦予權限";
 "swapping_permit_and_swap" = "許可和交換";
 "swapping_swap_action_in_progress" = "Swapping...";

@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "設定";
 "qr_scanner_camera_denied_text" = "カメラへのアクセスを許可していません。";
 "qr_scanner_camera_denied_title" = "カメラへのアクセスが拒否されました";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "メモ不要";
 "receive_bottom_sheet_warning_message_compact" = "%2$@ネットワーク上の%1$@";
 "receive_bottom_sheet_warning_message_description" = "他の暗号資産を送信すると、取り返しのつかない損失が発生します。";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "受信者は%@を取得します";
 "send_with_swap_remove_convert_alert_message" = "変換をキャンセルしてもよろしいですか？以前のデータは消去されます。";
 "send_with_swap_remove_convert_alert_title" = "変換を削除";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "スワップして送信";
 "sent_transaction_sent_title" = "取引が送信されました";
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";
@@ -1358,6 +1363,7 @@
 "swapping_high_price_impact_description" = "選択したトークンをこの量を交換すると、価格に大きな影響が生じ、結果が減少します。";
 "swapping_high_price_impact_title" = "価格への影響が甚大です";
 "swapping_insufficient_funds" = "残高不足";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_swap_action_in_progress" = "スワップ中…";
