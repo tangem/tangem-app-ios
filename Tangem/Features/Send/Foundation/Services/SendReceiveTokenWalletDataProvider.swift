@@ -43,7 +43,11 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
 
         return .init(
             walletAddresses: sourceWalletModel.addresses.map(\.value),
-            suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId),
+            suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
+                targetNetworkId: tokenItem.blockchain.networkId,
+                ignoredAddresses: sourceWalletModel.addresses.map(\.value).toSet(),
+                referenceTokenItem: nil
+            ),
             destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
         )
     }
