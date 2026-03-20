@@ -86,6 +86,12 @@ enum SendAmountError: LocalizedError {
     case noAmount
 }
 
+enum ReceiveAmountRestriction: Equatable {
+    case tooSmallAmount(Decimal)
+    case tooBigAmount(Decimal)
+    case balanceExceeded
+}
+
 enum SendAmountCalculationType {
     case crypto
     case fiat

@@ -27,10 +27,10 @@ struct MobileWalletFeatureProvider {
         let targetVersionString = "iOS \(targetMajor).\(targetMinor)"
         let title = Localization.mobileWalletRequiresMinOsWarningTitle(targetVersionString)
         let message = Localization.mobileWalletRequiresMinOsWarningBody(targetVersionString)
-        return AlertBuilder.makeAlert(
+        return AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: title,
             message: message,
-            primaryButton: .default(Text(Localization.commonGotIt))
+            buttonText: Localization.commonGotIt
         )
     }
 }

@@ -25,7 +25,6 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var balance: LoadableBalanceView.State?
 
-    private let isApproximateAmount: Bool
     private let tokenItem: TokenItem
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
@@ -42,8 +41,7 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
             title: .text(Localization.sendWithSwapRecipientAmountTitle),
             tokenIconInfo: tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
-            fiatItem: receiveToken.fiatItem,
-            isApproximateAmount: true
+            fiatItem: receiveToken.fiatItem
         )
     }
 
@@ -55,8 +53,7 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
             title: .header(sourceToken.header.asSendTokenHeader(actionType: actionType)),
             tokenIconInfo: tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem,
-            isApproximateAmount: false
+            fiatItem: sourceToken.fiatItem
         )
     }
 
@@ -64,25 +61,32 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         title: Title,
         tokenIconInfo: TokenIconInfo,
         tokenItem: TokenItem,
-        fiatItem: FiatItem,
-        isApproximateAmount: Bool
+        fiatItem: FiatItem
     ) {
         self.title = title
         self.tokenIconInfo = tokenIconInfo
         self.tokenItem = tokenItem
         self.fiatItem = fiatItem
-        self.isApproximateAmount = isApproximateAmount
 
         sendAmountFormatter = .init(tokenItem: tokenItem, fiatItem: fiatItem)
         loadableTokenBalanceViewStateBuilder = .init()
     }
 
-    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
+    func bind(
+        amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>,
+        isApproximateAmount: Bool,
+        isApproximateAmountPublisher: AnyPublisher<Bool, Never>? = nil
+    ) {
+        let approxPublisher: AnyPublisher<Bool, Never> = isApproximateAmountPublisher?
+            .removeDuplicates()
+            .eraseToAnyPublisher() ?? Just(isApproximateAmount).eraseToAnyPublisher()
+
         amountPublisherSubscription = amountPublisher
+            .combineLatest(approxPublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, amount in
-                viewModel.updateAmount(from: amount)
+            .sink { viewModel, pair in
+                viewModel.updateAmount(from: pair.0, isApproximate: pair.1)
             }
     }
 
@@ -109,7 +113,7 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         .assign(to: &$highPriceImpactWarning)
     }
 
-    private func updateAmount(from amount: LoadingResult<SendAmount, Error>) {
+    private func updateAmount(from amount: LoadingResult<SendAmount, Error>, isApproximate: Bool) {
         switch amount {
         case .loading, .failure:
             // Do nothing. Just leave a current amount on UI
@@ -117,13 +121,13 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
         case .success(let amount):
             switch amount.type {
-            case .typical where isApproximateAmount:
+            case .typical where isApproximate:
                 amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
             case .typical:
                 amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
-            case .alternative where isApproximateAmount:
+            case .alternative where isApproximate:
                 amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             case .alternative:
