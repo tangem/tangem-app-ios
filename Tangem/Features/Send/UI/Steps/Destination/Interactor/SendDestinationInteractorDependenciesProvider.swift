@@ -67,7 +67,10 @@ private extension SendDestinationInteractorDependenciesProvider {
     }
 
     func walletData(for tokenItem: TokenItem) -> SendingWalletData {
-        guard let walletData = receiveTokenWalletDataProvider.walletData(for: tokenItem) else {
+        guard let walletData = receiveTokenWalletDataProvider.walletData(
+            for: tokenItem,
+            inUserWalletWithInfo: sourceToken.userWalletInfo
+        ) else {
             return .empty
         }
 
@@ -120,6 +123,9 @@ extension SendDestinationInteractorDependenciesProvider {
 
     /// Protocol for providing wallet data for receive tokens in swap flows
     protocol ReceiveTokenWalletDataProvider {
-        func walletData(for tokenItem: TokenItem) -> SendingWalletData?
+        func walletData(
+            for tokenItem: TokenItem,
+            inUserWalletWithInfo userWalletInfo: UserWalletInfo
+        ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
     }
 }

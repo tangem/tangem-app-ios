@@ -25,7 +25,10 @@ final class SendReceiveTokenWalletDataProvider {
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func walletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+    func walletData(
+        for tokenItem: TokenItem,
+        inUserWalletWithInfo userWalletInfo: UserWalletInfo
+    ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
         let targetTokenItem: TokenItem
 
         switch sourceToken.tokenItem.token?.metadata.kind {
@@ -38,7 +41,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
             targetTokenItem = tokenItem
         }
 
-        guard let walletModel = findWalletModel(for: targetTokenItem) else {
+        guard let walletModel = findWalletModel(for: targetTokenItem, inUserWalletWithInfo: userWalletInfo) else {
             return nil
         }
 
@@ -49,8 +52,10 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
 // MARK: - Private
 
 private extension SendReceiveTokenWalletDataProvider {
-    func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
-        userWalletRepository.models
+    func findWalletModel(for tokenItem: TokenItem, inUserWalletWithInfo userWalletInfo: UserWalletInfo) -> (any WalletModel)? {
+        userWalletRepository
+            .models
+            .filter { $0.userWalletId == userWalletInfo.id }
             .flatMap { userWalletModel -> [any WalletModel] in
                 if FeatureProvider.isAvailable(.accounts) {
                     return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
