@@ -36,16 +36,30 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
         return makeSendWalletData(from: sourceWalletModel)
     }
 
+    /// Implementation details:
+    ///
+    /// In a swap, the source and receive tokens may be on different networks,
+    /// and the receive token's destination wallet could be in any user wallet.
+    /// Therefore:
+    /// - `walletAddresses` comes from the **source** token's wallet model,
+    ///   so the validator can detect "sending to yourself" against the source wallet
+    /// - `suggestedWallets` aggregates wallets across **all** user wallets and accounts
+    ///   for the receive token's network, giving the user the full choice of destinations
+    /// - `destinationTransactionHistoryProvider` is an empty stub because we cannot
+    ///   determine which user wallet the receive token belongs to.
+    ///   The receive token may not even belong to any of the user's wallets
     func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
         guard let sourceWalletModel = findSourceWalletModel() else {
             return nil
         }
 
+        let walletAddresses = sourceWalletModel.addresses.map(\.value)
+
         return .init(
-            walletAddresses: sourceWalletModel.addresses.map(\.value),
+            walletAddresses: walletAddresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
                 targetNetworkId: tokenItem.blockchain.networkId,
-                ignoredAddresses: sourceWalletModel.addresses.map(\.value).toSet(),
+                ignoredAddresses: walletAddresses.toSet(),
                 referenceTokenItem: nil
             ),
             destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
