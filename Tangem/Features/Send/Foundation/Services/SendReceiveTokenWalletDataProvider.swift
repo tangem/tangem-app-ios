@@ -57,7 +57,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
                 targetNetworkId: tokenItem.blockchain.networkId,
                 ignoredAddresses: walletAddresses.toSet(),
-                referenceTokenItem: sourceWalletModel.tokenItem
+                referenceTokenItem: tokenItem
             ),
             destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
         )
