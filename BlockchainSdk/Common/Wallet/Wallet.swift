@@ -28,7 +28,7 @@ public struct Wallet {
     public var publicKey: Wallet.PublicKey { defaultAddress.publicKey }
 
     /// Default address string
-    public var address: String { addressesProvider.defaultAddressString }
+    public var address: String { defaultAddress.value }
 
     public var isEmpty: Bool {
         return amounts.filter { $0.key != .reserve && !$0.value.isZero }.isEmpty

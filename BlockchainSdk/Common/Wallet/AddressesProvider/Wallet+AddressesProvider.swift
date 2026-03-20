@@ -15,9 +15,3 @@ public extension Wallet {
         mutating func update(address: Address)
     }
 }
-
-public extension Wallet.AddressesProvider {
-    var changeAddress: Address { defaultAddress }
-
-    var defaultAddressString: String { defaultAddress.value }
-}
