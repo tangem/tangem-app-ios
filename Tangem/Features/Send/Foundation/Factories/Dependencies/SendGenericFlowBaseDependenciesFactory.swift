@@ -42,7 +42,9 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
-        CommonSwapTransactionSummaryDescriptionBuilder()
+        CommonSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
@@ -51,8 +53,7 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
         CommonSendWithSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapTransactionSummaryDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            swapTransactionSummaryDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
         )
     }
 
