@@ -673,14 +673,14 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransaction in
                 walletManager.networkService.send(transaction: rawTransaction)
-                    .mapAndEraseSendTxError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction, currentHost: walletManager.currentHost)
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
                 walletManager.pendingTransactionsManager.addTransactions([transaction], hashes: [hash])
                 return TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }
@@ -706,7 +706,7 @@ extension EthereumWalletManager: MultipleTransactionsSender {
 
                 return results
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }
