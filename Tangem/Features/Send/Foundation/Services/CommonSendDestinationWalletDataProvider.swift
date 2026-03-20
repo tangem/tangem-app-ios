@@ -1,5 +1,5 @@
 //
-//  SendReceiveTokenWalletDataProvider.swift
+//  CommonSendDestinationWalletDataProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAccounts
 /// Provides wallet data for receive tokens in swap flows.
 /// This class is responsible for finding the appropriate wallet model
 /// for a given receive token and creating the corresponding wallet data.
-final class SendReceiveTokenWalletDataProvider {
+final class CommonSendDestinationWalletDataProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let sourceToken: SendSourceToken
@@ -22,9 +22,9 @@ final class SendReceiveTokenWalletDataProvider {
     }
 }
 
-// MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
+// MARK: - SendDestinationInteractorDependenciesProvider.SendDestinationWalletDataProvider
 
-extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
+extension CommonSendDestinationWalletDataProvider: SendDestinationInteractorDependenciesProvider.SendDestinationWalletDataProvider {
     func sendWalletData() -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
         guard let sourceWalletModel = findSourceWalletModel() else {
             return nil
@@ -66,7 +66,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
 
 // MARK: - Private
 
-private extension SendReceiveTokenWalletDataProvider {
+private extension CommonSendDestinationWalletDataProvider {
     func findSourceWalletModel() -> (any WalletModel)? {
         let targetTokenItem: TokenItem
 
