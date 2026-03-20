@@ -42,8 +42,8 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) {
                 containerWidth = $0
             }
-            .clipped()
-            .gesture(swipeGesture)
+            .clipShape(RoundedRectangle(cornerRadius: SizeUnit.x6.value))
+            .highPriorityGesture(swipeGesture)
             .onAnimationTargetProgress(
                 for: dragProgress,
                 targetValue: 0.98,
@@ -62,7 +62,8 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
             if items.count > 1 {
                 TangemPagination(
                     totalPages: items.count,
-                    currentIndex: safeCurrentIndex
+                    currentIndex: safeCurrentIndex,
+                    hasBackground: true
                 )
             }
         }
@@ -83,7 +84,6 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
 
     private func bannerView(for item: Item) -> some View {
         NotificationBanner(bannerType: item.bannerType)
-            .padding(.horizontal, SizeUnit.x4.value)
     }
 
     private var isSwipingForward: Bool {

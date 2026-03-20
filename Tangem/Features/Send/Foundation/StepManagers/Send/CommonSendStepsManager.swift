@@ -20,6 +20,7 @@ class CommonSendStepsManager {
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let confirmTransactionPolicy: ConfirmTransactionPolicy
+    private let selectedInitialStep: InitialStep
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -39,6 +40,7 @@ class CommonSendStepsManager {
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
         confirmTransactionPolicy: ConfirmTransactionPolicy,
+        initialStep: InitialStep = .amount,
         router: SendRoutable
     ) {
         self.amountStep = amountStep
@@ -50,14 +52,29 @@ class CommonSendStepsManager {
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
         self.confirmTransactionPolicy = confirmTransactionPolicy
+        selectedInitialStep = initialStep
         self.router = router
 
-        stack = [amountStep]
+        switch initialStep {
+        case .amount:
+            stack = [amountStep]
+        case .summary:
+            stack = [amountStep, destinationStep, summaryStep]
+        }
     }
 
     private func currentStep() -> SendStep {
         let last = stack.last
         return last ?? initialStep
+    }
+
+    private func step(for type: InitialStep) -> SendStep {
+        switch type {
+        case .amount:
+            return amountStep
+        case .summary:
+            return summaryStep
+        }
     }
 
     private func getNextStep() -> (SendStep)? {
@@ -93,7 +110,7 @@ class CommonSendStepsManager {
 extension CommonSendStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { true }
     var initialFlowActionType: SendFlowActionType { .send }
-    var initialStep: any SendStep { amountStep }
+    var initialStep: any SendStep { step(for: selectedInitialStep) }
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
@@ -188,8 +205,8 @@ extension CommonSendStepsManager: SendStepsManager {
 // MARK: - SendAmountRoutable
 
 extension CommonSendStepsManager: SendAmountStepRoutable {
-    func openReceiveTokensList() {
-        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder)
+    func openReceiveTokensList(onDismiss: (() -> Void)?) {
+        router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder, onDismiss: onDismiss)
     }
 }
 
@@ -243,5 +260,12 @@ extension CommonSendStepsManager: SendDestinationStepRoutable {
         } else {
             performNext()
         }
+    }
+}
+
+extension CommonSendStepsManager {
+    enum InitialStep {
+        case amount
+        case summary
     }
 }
