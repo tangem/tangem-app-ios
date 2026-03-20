@@ -274,6 +274,7 @@
 "common_hold_to" = "%@まで長押し";
 "common_hour" = "時間";
 "common_import" = "インポート";
+"common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "進行中";
 "common_later" = "後で";
 "common_learn_and_earn" = "学ぶ＆稼ぐ";

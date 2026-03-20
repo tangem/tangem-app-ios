@@ -274,6 +274,7 @@
 "common_hold_to" = "Утримуйте, щоб %@";
 "common_hour" = "година";
 "common_import" = "Імпортувати";
+"common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "В процесі";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
