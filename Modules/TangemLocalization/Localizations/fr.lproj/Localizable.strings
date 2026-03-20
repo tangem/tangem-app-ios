@@ -1002,6 +1002,10 @@
 "qr_scanner_camera_denied_settings_button" = "Paramètres";
 "qr_scanner_camera_denied_text" = "Vous n'avez pas donné accès à votre caméra";
 "qr_scanner_camera_denied_title" = "Accès à la caméra refusé";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "Aucun mémo requis";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ sur le réseau %2$@";
 "receive_bottom_sheet_warning_message_description" = "L’envoi de toute autre devise entraînera sa perte irréversible.";
@@ -1167,6 +1171,7 @@
 "send_with_swap_recipient_get_amount" = "Le destinataire reçoit %@";
 "send_with_swap_remove_convert_alert_message" = "Êtes-vous sûr de vouloir annuler la conversion ? Vos données précédentes seront effacées.";
 "send_with_swap_remove_convert_alert_title" = "Supprimer la conversion";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Envoyer avec swap";
 "sent_transaction_sent_title" = "Transaction envoyée";
 "settings_card_settings_footer" = "Scannez la carte/ bague que vous souhaitez configurer.";
@@ -1358,6 +1363,7 @@
 "swapping_high_price_impact_description" = "Échanger ce montant de jetons sélectionnés aura un impact significatif sur les prix et réduira votre résultat.";
 "swapping_high_price_impact_title" = "Impact élevé sur les prix";
 "swapping_insufficient_funds" = "Fonds insuffisants";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
 "swapping_swap_action_in_progress" = "Échange...";

@@ -87,7 +87,9 @@ final class SwapModel {
         _receiveAmount = .init(.none)
 
         if shouldStartInitialLoading {
-            Task { await initialLoading() }
+            Task.detached { [weak self] in
+                await self?.initialLoading()
+            }
         }
 
         setupAutoupdatingTimerSubscription()
@@ -110,19 +112,9 @@ extension SwapModel {
 
                 switch amountType {
                 case .from:
-                    let crypto = quote.expectAmount
-                    let fiat = receiveToken.value?.tokenItem.currencyId.flatMap {
-                        self.balanceConverter.convertToFiat(crypto, currencyId: $0)
-                    }
-                    _receiveAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
-
+                    _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
                 case .to:
-                    let crypto = quote.fromAmount
-                    let fiat = sourceToken.value?.tokenItem.currencyId.flatMap {
-                        self.balanceConverter.convertToFiat(crypto, currencyId: $0)
-                    }
-                    _sourceAmount.send(SendAmount(type: .typical(crypto: crypto, fiat: fiat)))
-
+                    _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
                 case .none:
                     break
                 }
@@ -213,14 +205,12 @@ extension SwapModel {
 
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
-
         _sourceToken.send(.success(wallet))
         swappingPairDidChange()
     }
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
-
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -314,8 +304,7 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        _providersState.send(.loading(loadingType))
-        updateTask = runTask(in: self, code: { input in
+        updateTask = runTask(in: self, code: { @MainActor input in
             do {
                 let result = try await block(input.expressManager)
 
@@ -838,7 +827,11 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
 
 extension SwapModel: SendReceiveTokenInput, SendReceiveTokenOutput {
     var isReceiveTokenSelectionAvailable: Bool {
-        true
+        guard let sourceToken = _sourceToken.value.value else {
+            return false
+        }
+
+        return sourceToken.swapAvailabilityProvider.isSwapAvailable
     }
 
     var receiveToken: LoadingResult<any SendReceiveToken, any Error> {

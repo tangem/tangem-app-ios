@@ -45,7 +45,7 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
     ) {
         self.isReceiveAmountApproximatePublisher = isReceiveAmountApproximatePublisher
         sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
-        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
+        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher, isApproximateAmount: false)
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
         )
@@ -122,6 +122,7 @@ private extension SendAmountCompactViewModel {
             let viewModel = SendAmountCompactTokenViewModel(receiveToken: receiveToken)
             viewModel.bind(
                 amountPublisher: receiveTokenAmountInput.receiveAmountPublisher,
+                isApproximateAmount: true,
                 isApproximateAmountPublisher: isReceiveAmountApproximatePublisher
             )
             viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
