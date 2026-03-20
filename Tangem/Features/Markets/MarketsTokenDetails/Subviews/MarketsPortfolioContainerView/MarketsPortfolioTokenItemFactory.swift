@@ -76,29 +76,16 @@ struct MarketsPortfolioTokenItemFactory {
 
     private func makeTokenItemViewModel(
         from tokenItemType: TokenItemType,
-        with userWalletInfo: UserWalletInfo,
-        namingStyle: NamingStyle
+        with userWalletInfo: UserWalletInfo
     ) -> MarketsPortfolioTokenItemViewModel {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
 
-        let name, description: String
-
-        switch namingStyle {
-        case .tokenItemName:
-            name = tokenItem.name
-            description = tokenItem.networkName
-
-        case .userWalletName:
-            name = userWalletInfo.userWalletName
-            description = tokenItem.name
-        }
-
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
-            name: name,
-            description: description,
+            name: tokenItem.name,
+            description: tokenItem.networkName,
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
@@ -112,16 +99,5 @@ extension MarketsPortfolioTokenItemFactory {
     struct UserWalletInfo {
         let userWalletName: String
         let userWalletId: UserWalletId
-    }
-
-    enum NamingStyle {
-        case userWalletName
-        case tokenItemName
-
-        private var timeToRemove: Bool {
-            // Run into compilation error here? This means .accounts toggle is removed
-            // NamingStyle enum should be removed in favor of `.tokenItemName` case
-            true
-        }
     }
 }
