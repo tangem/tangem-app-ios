@@ -138,7 +138,7 @@ extension NotificationView {
     }
 
     enum LeadingIconType {
-        case image(Image)
+        case image(ImageType)
         case icon(TokenIconInfo)
         case progressView
         case placeholder
@@ -147,6 +147,7 @@ extension NotificationView {
 
     struct MessageIcon {
         let iconType: LeadingIconType
+        var renderingMode: Image.TemplateRenderingMode?
         var color: Color?
         var size: CGSize = .init(bothDimensions: 20)
         var yieldModuleIconSize: CGSize = .init(bothDimensions: 12)
