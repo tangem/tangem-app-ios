@@ -50,7 +50,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .expressFixedRates: return .unspecified
-        case .mainQRScan: return .unspecified
+        case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
         case .mobileWalletTokenAutoSync: return .unspecified
         }
