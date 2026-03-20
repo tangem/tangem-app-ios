@@ -61,6 +61,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     let isFixedRateMode: Bool
 
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
+        $lastUpdateSource.map { [isFixedRateMode] source in
+            !isFixedRateMode || source == .send
+        }.eraseToAnyPublisher()
+    }
+
     var compactSourceTokenViewData: SendAmountTokenViewData? {
         sourceAmountTokenViewData.map {
             SendAmountTokenViewData(
@@ -86,7 +92,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
-    private var lastUpdateSource: ActiveAmountField?
+
+    @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
     /// Guards against stale CombineLatest emissions after removal.
     /// Set in `removeReceivedToken`, cleared in `case .none:` of `updateReceivedToken`.

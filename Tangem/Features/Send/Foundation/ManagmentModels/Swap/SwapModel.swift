@@ -100,8 +100,23 @@ final class SwapModel {
 
 extension SwapModel {
     func autoupdatingRates() {
-        updateTask(loadingType: .autoupdate) {
-            try await $0.update(by: .autoUpdate)
+        updateTask(loadingType: .autoupdate) { [weak self] manager in
+            let result: ExpressManagerUpdatingResult = try await manager.update(by: .autoUpdate)
+
+            if let self, let quote = result.selected?.getState().quote {
+                let amountType = await manager.getAmountType()
+
+                switch amountType {
+                case .from:
+                    _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
+                case .to:
+                    _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
+                case .none:
+                    break
+                }
+            }
+
+            return result
         }
     }
 
@@ -1042,11 +1057,14 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        _providersState
-            .filter { !$0.isLoading }
-            .withWeakCaptureOf(self)
-            .map { $0.mapToSummaryTransactionData(providersState: $1) }
-            .eraseToAnyPublisher()
+        Publishers.CombineLatest3(
+            _providersState.filter { !$0.isLoading },
+            sourceAmountPublisher.map { $0.value?.crypto },
+            selectedFeePublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { $0.mapToSummaryTransactionData(providersState: $1.0, amount: $1.1, fee: $1.2) }
+        .eraseToAnyPublisher()
     }
 
     func userDidRequestSwap() {
@@ -1081,14 +1099,18 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         }
     }
 
-    private func mapToSummaryTransactionData(providersState: ProvidersState) -> SendSummaryTransactionData? {
+    private func mapToSummaryTransactionData(
+        providersState: ProvidersState,
+        amount: Decimal?,
+        fee: TokenFee
+    ) -> SendSummaryTransactionData? {
         switch providersState {
         case .loaded(_, let selected, _):
             guard let provider = selected else {
                 return nil
             }
 
-            return .swap(provider: provider.provider)
+            return .swap(amount: amount, fee: fee, provider: provider.provider)
         default:
             return .none
         }

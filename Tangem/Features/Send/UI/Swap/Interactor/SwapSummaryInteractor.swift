@@ -118,11 +118,11 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
 
 private extension CommonSwapSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
-        guard case .swap(let provider) = data else {
+        switch data {
+        case .swap(let amount, let fee, let provider):
+            return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+        default:
             return nil
         }
-
-        let description = swapDescriptionBuilder.makeDescription(provider: provider)
-        return description
     }
 }
