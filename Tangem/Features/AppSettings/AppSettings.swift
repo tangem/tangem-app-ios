@@ -159,6 +159,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
+    @AppStorageCompat(StorageType.xpubIsActive)
+    var xpubIsActive: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

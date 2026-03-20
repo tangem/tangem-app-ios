@@ -62,4 +62,5 @@ enum StorageType: String {
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
+    case xpubIsActive = "xpub_is_active"
 }
