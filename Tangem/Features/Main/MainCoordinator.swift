@@ -297,13 +297,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openGetTangemPay() {
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
             self?.tangemPayOnboardingCoordinator = nil
         }
 
         let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(source: .other))
+        coordinator.start(with: .init(source: .other, availableSelection: availableSelection))
         tangemPayOnboardingCoordinator = coordinator
     }
 
