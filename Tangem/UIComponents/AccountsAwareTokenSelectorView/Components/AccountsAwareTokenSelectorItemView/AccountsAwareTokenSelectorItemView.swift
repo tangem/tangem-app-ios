@@ -81,6 +81,8 @@ struct AccountsAwareTokenSelectorItemView: View {
                 Text(Localization.tokensListUnavailableToSwapSourceHeader)
             case .unavailableForSell:
                 Text(Localization.tokensListUnavailableToSellHeader)
+            case .unavailableForSend:
+                Text(viewModel.symbol)
             }
         }
         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
