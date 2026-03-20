@@ -257,13 +257,7 @@ extension SendCoordinator: SwapRoutable {
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
-        // Create external search view model if feature toggle is enabled
-        let marketsTokensViewModel: SwapMarketsTokensViewModel?
-        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-            marketsTokensViewModel = SwapMarketsTokensViewModel()
-        } else {
-            marketsTokensViewModel = nil
-        }
+        let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
         swapTokenSelectorViewModel = swapTokenSelectorViewModelBuilder.makeSwapTokenSelectorViewModel(
             direction: direction,
