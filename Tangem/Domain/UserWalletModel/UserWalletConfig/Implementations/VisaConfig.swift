@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
@@ -80,6 +82,10 @@ extension VisaConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         Assets.Cards.visa
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .card(.init(card: Color.Tangem.CardCollection.visa))
     }
 
     var hasDefaultToken: Bool {
