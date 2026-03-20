@@ -190,8 +190,8 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
-    func openGetTangemPay() {
-        coordinator?.openGetTangemPay()
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
+        coordinator?.openGetTangemPay(availableSelection: availableSelection)
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
     }
 
@@ -277,12 +277,13 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
 
-        tangemPayAvailabilityRepository.isGetTangemPayFeatureAvailable
+        tangemPayAvailabilityRepository
+            .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, isAvailable in
+            .sink { viewModel, availableSelection in
                 viewModel.setupGetSectionViewModels(
-                    shouldShowGetTangemPay: isAvailable
+                    availableSelection: availableSelection
                 )
             }
             .store(in: &bag)
@@ -356,7 +357,7 @@ private extension DetailsViewModel {
         return AddListItemButton.ViewData(text: title, state: state)
     }
 
-    func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
+    func setupGetSectionViewModels(availableSelection: TangemPayWalletSelectionType? = nil) {
         var models = [
             DefaultRowViewModel(
                 title: Localization.detailsBuyWallet,
@@ -364,11 +365,13 @@ private extension DetailsViewModel {
             ),
         ]
 
-        if shouldShowGetTangemPay {
+        if let availableSelection {
             models.append(
                 DefaultRowViewModel(
                     title: Localization.tangempayGetTangemPay,
-                    action: weakify(self, forFunction: DetailsViewModel.openGetTangemPay)
+                    action: { [weak self] in
+                        self?.openGetTangemPay(availableSelection: availableSelection)
+                    }
                 )
             )
         }

@@ -52,7 +52,7 @@ enum StorageType: String {
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"
     case tangemPayShouldShowGetBanner = "tangem_pay_should_show_get_banner"
-    case tangemPayIsEligibilityAvailable = "tangem_pay_is_eligibility_available"
+    case tangemPayEligibleDistributionChannels = "tangem_pay_eligible_distribution_channels"
     case tangemPayCachedLocalState = "tangem_pay_cached_local_state"
     case jailbreakWarningWasShown = "jailbreak_warning_was_shown"
     case referralRefcode = "referral_refcode"
