@@ -72,5 +72,6 @@ extension AccountsAwareTokenSelectorItemViewModel {
         case unavailableForSwap
         case unavailableForOnramp
         case unavailableForSell
+        case unavailableForSend
     }
 }
