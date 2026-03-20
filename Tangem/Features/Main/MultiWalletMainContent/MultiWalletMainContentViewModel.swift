@@ -354,19 +354,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$tangemPayAccountViewModel)
 
         tangemPayAvailabilityRepository
-            .shouldShowGetTangemPayBanner(
-                for: userWalletModel.userWalletId.stringValue
-            )
+            .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: userWalletModel.userWalletId.stringValue)
             .withWeakCaptureOf(self)
-            .map { viewModel, shouldShow in
-                shouldShow
-                    ? GetTangemPayBannerViewModel(
+            .map { viewModel, availableSelection in
+                if let availableSelection {
+                    GetTangemPayBannerViewModel(
                         onBannerTap: { [weak viewModel] in
-                            viewModel?.coordinator?.openGetTangemPay()
+                            viewModel?.coordinator?.openGetTangemPay(availableSelection: availableSelection)
                             Analytics.log(.visaOnboardingVisaPermanentBannerClicked)
                         }
                     )
-                    : nil
+                } else {
+                    nil
+                }
             }
             .receiveOnMain()
             .assign(to: &$tangemPayBannerViewModel)
