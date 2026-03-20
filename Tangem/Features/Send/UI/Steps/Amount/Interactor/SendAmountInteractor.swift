@@ -277,7 +277,7 @@ class CommonSendAmountInteractor {
             let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .down)
             return .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
         case .balanceExceeded:
-            return .error(Localization.sendNotificationExceedBalanceTitle)
+            return .error(Localization.commonInsufficientBalance)
         }
     }
 

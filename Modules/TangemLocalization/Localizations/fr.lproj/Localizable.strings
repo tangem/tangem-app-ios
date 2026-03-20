@@ -274,6 +274,7 @@
 "common_hold_to" = "Maintenir contre %@";
 "common_hour" = "heure";
 "common_import" = "Importez";
+"common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "En cours";
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
