@@ -28,7 +28,7 @@ struct SendSuggestedWalletsFactory {
     func makeSuggestedWallets(
         targetNetworkId: String,
         ignoredAddresses: Set<String>,
-        referenceTokenItem: TokenItem?
+        referenceTokenItem: TokenItem
     ) -> [SendDestinationSuggestedWallet] {
         let shouldShowAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
@@ -62,8 +62,7 @@ struct SendSuggestedWalletsFactory {
                 )
             }
 
-            if let referenceTokenItem,
-               let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
+            if let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
                referenceTokenItem.token == tangemPayAccount.paymentTokenItem.token,
                referenceTokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
                let depositAddress = tangemPayAccount.depositAddress {
