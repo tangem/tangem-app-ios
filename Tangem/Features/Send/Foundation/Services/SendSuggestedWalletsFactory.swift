@@ -23,6 +23,8 @@ struct SendSuggestedWalletsFactory {
         )
     }
 
+    /// - Parameter referenceTokenItem: When non-nil, used to match TangemPay deposit accounts
+    ///   so that a Visa deposit address is included in the suggested wallets.
     func makeSuggestedWallets(
         targetNetworkId: String,
         ignoredAddresses: Set<String>,

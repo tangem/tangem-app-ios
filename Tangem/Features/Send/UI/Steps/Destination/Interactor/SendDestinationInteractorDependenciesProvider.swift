@@ -71,14 +71,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     }
 
     func sendWalletData() -> SendingWalletData {
-        guard let walletData = receiveTokenWalletDataProvider.sendWalletData(
-            for: sourceToken.tokenItem,
-            inUserWalletWithInfo: sourceToken.userWalletInfo
-        ) else {
-            return .empty
-        }
-
-        return walletData
+        receiveTokenWalletDataProvider.sendWalletData() ?? .empty
     }
 
     func makeValidator() -> SendDestinationValidator {
@@ -126,10 +119,7 @@ extension SendDestinationInteractorDependenciesProvider {
     }
 
     protocol ReceiveTokenWalletDataProvider {
-        func sendWalletData(
-            for tokenItem: TokenItem,
-            inUserWalletWithInfo userWalletInfo: UserWalletInfo
-        ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
+        func sendWalletData() -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
 
         func swapWalletData(
             for tokenItem: TokenItem

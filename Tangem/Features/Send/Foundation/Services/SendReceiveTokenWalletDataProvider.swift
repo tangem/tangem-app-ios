@@ -25,10 +25,7 @@ final class SendReceiveTokenWalletDataProvider {
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func sendWalletData(
-        for tokenItem: TokenItem,
-        inUserWalletWithInfo userWalletInfo: UserWalletInfo
-    ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+    func sendWalletData() -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
         guard let sourceWalletModel = findSourceWalletModel() else {
             return nil
         }
@@ -60,7 +57,7 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
                 targetNetworkId: tokenItem.blockchain.networkId,
                 ignoredAddresses: walletAddresses.toSet(),
-                referenceTokenItem: nil
+                referenceTokenItem: sourceWalletModel.tokenItem
             ),
             destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
         )
