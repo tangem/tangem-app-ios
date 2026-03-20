@@ -23,18 +23,6 @@ struct SendSuggestedWalletsFactory {
         )
     }
 
-    func makeSuggestedWallets(forNetworkId networkId: String) -> [SendDestinationSuggestedWallet] {
-        makeSuggestedWallets(
-            targetNetworkId: networkId,
-            ignoredAddresses: [],
-            referenceTokenItem: nil
-        )
-    }
-}
-
-// MARK: - Private
-
-private extension SendSuggestedWalletsFactory {
     func makeSuggestedWallets(
         targetNetworkId: String,
         ignoredAddresses: Set<String>,
