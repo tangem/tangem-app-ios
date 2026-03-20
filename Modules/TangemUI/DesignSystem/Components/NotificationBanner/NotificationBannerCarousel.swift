@@ -42,7 +42,7 @@ public struct NotificationBannerCarousel<Item: NotificationBannerContainerItem>:
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) {
                 containerWidth = $0
             }
-            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: SizeUnit.x6.value))
             .highPriorityGesture(swipeGesture)
             .onAnimationTargetProgress(
                 for: dragProgress,

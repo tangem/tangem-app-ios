@@ -68,9 +68,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
 
-        let index = selectedIndex.wrappedValue
-        let initialID = data.indices.contains(index) ? data[index].id : data.first?.id
-        _scrolledID = State(initialValue: initialID)
+        _scrolledID = State(initialValue: nil)
     }
 
     // MARK: - Body
@@ -85,6 +83,15 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         .readGeometry(\.size.width) { pageWidth = $0 }
         .onChange(of: selectedIndex) { _, newIndex in
             updateScrolledID(from: newIndex)
+            let targetOffset = CGFloat(newIndex) * pageWidth
+            if abs(scrollOffset - targetOffset) > 1 {
+                scrollOffset = targetOffset
+            }
+        }
+        .onChange(of: pageWidth) { oldWidth, newWidth in
+            guard oldWidth == 0, newWidth > 0, scrolledID == nil else { return }
+            updateScrolledID(from: selectedIndex)
+            scrollOffset = CGFloat(selectedIndex) * newWidth
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
             onHeaderHeightRatioChange?($0)
