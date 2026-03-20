@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -22,6 +23,7 @@ struct PendingExpressTransactionView: View {
         } label: {
             content
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.pendingExpressTransaction)
     }
 
     private var content: some View {

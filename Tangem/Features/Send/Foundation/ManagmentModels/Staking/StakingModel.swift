@@ -11,6 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 protocol StakingModelStateProvider {
@@ -109,12 +110,11 @@ private extension StakingModel {
             switch allowanceState {
             case .permissionRequired(let approveData):
                 stopTimer()
-
-                if let validateError = validate(amount: amount, fee: approveData.fee.amount.value) {
-                    return validateError
-                }
-
-                return .readyToApprove(approveData: approveData)
+                // Warm up approve fees in parallel with the staking fee calculation
+                sendSourceToken.tokenFeeProvidersManager.update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
+                sendSourceToken.tokenFeeProvidersManager.updateFees()
+                let stakingFee = try await estimateFee(amount: amount, target: target)
+                return .readyToApprove(approveData: approveData, stakingFee: stakingFee)
 
             case .approveTransactionInProgress:
                 return try await .approveTransactionInProgress(
@@ -176,8 +176,8 @@ private extension StakingModel {
         switch state {
         case .none, .loading:
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
-        case .readyToApprove(let approveData):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(approveData.fee))
+        case .readyToApprove(_, let stakingFee):
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: stakingFee)))
         case .readyToStake(let readyToStake):
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: readyToStake.fee)))
         case .approveTransactionInProgress(let fee),
@@ -189,19 +189,6 @@ private extension StakingModel {
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(transactionFee))
         case .blockchainAccountInitializationInProgress:
             return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(StakingModelError.accountIsNotInitialized))
-        }
-    }
-
-    func mapToApproveFee(_ state: State?) -> LoadingResult<ApproveInputFee, Error> {
-        switch state {
-        case .none, .loading:
-            return .loading
-        case .networkError(let error):
-            return .failure(error)
-        case .readyToApprove(let approveData):
-            return .success(ApproveInputFee(feeTokenItem: feeTokenItem, fee: approveData.fee))
-        default:
-            return .loading
         }
     }
 
@@ -561,42 +548,6 @@ extension StakingModel: NotificationTapDelegate {
     }
 }
 
-// MARK: - ApproveViewModelInput
-
-extension StakingModel: ApproveViewModelInput {
-    var approveFeeValue: LoadingResult<ApproveInputFee, Error> {
-        mapToApproveFee(_state.value)
-    }
-
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, Error>, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { $0.mapToApproveFee($1) }
-            .eraseToAnyPublisher()
-    }
-
-    func updateApprovePolicy(policy: ApprovePolicy) {
-        _approvePolicy.send(policy)
-        updateState()
-    }
-
-    func sendApproveTransaction() async throws {
-        guard case .readyToApprove(let approveData) = _state.value else {
-            throw StakingModelError.approveDataNotFound
-        }
-
-        guard let allowanceService else {
-            throw StakingModelError.allowanceServiceNotFound
-        }
-
-        _ = try await allowanceService.sendApproveTransaction(data: approveData)
-        updateState()
-
-        // Setup timer for autoupdate
-        restartTimer()
-    }
-}
-
 // MARK: - StakingBaseDataBuilderInput
 
 extension StakingModel: StakingBaseDataBuilderInput {
@@ -608,12 +559,37 @@ extension StakingModel: StakingBaseDataBuilderInput {
     var target: StakingTargetInfo? { _selectedTarget.value.value }
 }
 
-// MARK: - SendApproveDataBuilderInput
+// MARK: - ApproveFlowDataProvider, ApproveOutput
 
-extension StakingModel: SendApproveDataBuilderInput {
-    var approveViewModelInput: (any ApproveViewModelInput)? { self }
+extension StakingModel: ApproveFlowDataProvider, ApproveOutput {
+    func approveFlowInput() throws -> ApproveFlowInput {
+        guard case .readyToApprove(let approveData, _) = _state.value else {
+            throw SendApproveViewModelInputDataBuilderError.notFound("ReadyToApprove state")
+        }
 
-    var approveRequestedWithSelectedPolicy: ApprovePolicy? { _approvePolicy.value }
+        let selectedPolicy = _approvePolicy.value
+
+        guard let approveAmount = _amount.value?.crypto else {
+            throw SendApproveViewModelInputDataBuilderError.notFound("Approve amount")
+        }
+
+        return ApproveFlowInput(
+            approveAmount: approveAmount,
+            selectedPolicy: selectedPolicy,
+            approveData: approveData,
+            sourceToken: sendSourceToken,
+            tokenFeeProvidersManager: sendSourceToken.tokenFeeProvidersManager,
+            localization: ApproveLocalization(
+                subtitle: Localization.givePermissionStakingSubtitle(tokenItem.currencySymbol),
+                feeFooterText: Localization.stakingGivePermissionFeeFooter
+            )
+        )
+    }
+
+    func approveDidSendTransaction() {
+        updateState()
+        restartTimer()
+    }
 }
 
 extension StakingModel {
@@ -621,7 +597,7 @@ extension StakingModel {
         case loading
         case blockchainAccountInitializationRequired(initializationFee: Fee, transactionFee: Fee)
         case blockchainAccountInitializationInProgress
-        case readyToApprove(approveData: ApproveTransactionData)
+        case readyToApprove(approveData: ApproveTransactionData, stakingFee: Decimal)
         case approveTransactionInProgress(stakingFee: Decimal)
         case readyToStake(ReadyToStake)
         case validationError(error: ValidationError, fee: Decimal)
@@ -629,7 +605,7 @@ extension StakingModel {
 
         var fee: Decimal? {
             switch self {
-            case .readyToApprove(let requiredApprove): requiredApprove.fee.amount.value
+            case .readyToApprove(_, let stakingFee): stakingFee
             case .approveTransactionInProgress(let fee): fee
             case .readyToStake(let model): model.fee
             case .loading, .validationError, .networkError,
