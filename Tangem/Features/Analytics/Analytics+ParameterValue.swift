@@ -101,6 +101,9 @@ extension Analytics {
         case oneTransactionApprove = "Current Transaction"
         case unlimitedApprove = "Unlimited"
 
+        case paymentUri = "Payment URI"
+        case plainAddress = "Plain Address"
+
         // destination address entered
         case destinationAddressSourceQrCode = "QRCode"
         case destinationAddressSourcePasteButton = "PasteButton"
