@@ -168,7 +168,7 @@ private extension CommonSwapNotificationManager {
             return [.hasPendingApproveTransaction]
 
         case .restriction(.notEnoughBalanceForSwapping, _):
-            return []
+            return [.notEnoughBalanceForSwapping]
 
         case .restriction(.validationError(let validationError), _):
             if let event = mapValidationError(source: source, validationError: validationError) {
