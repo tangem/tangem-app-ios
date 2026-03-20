@@ -162,6 +162,13 @@ extension Analytics {
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
+        case sendNoticeNoAvailableTokens = "[Token / Send] Notice - No Available Tokens"
+        case sendChooseTokenScreenOpened = "[Token / Send] Choose Token Screen Opened"
+        case sendTokenSelected = "[Token / Send] Token Selected"
+
+        // MARK: - QR Scan
+
+        case mainScreenNoticeUnrecognizedQR = "[Main Screen] Notice - Unrecognized QR"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
