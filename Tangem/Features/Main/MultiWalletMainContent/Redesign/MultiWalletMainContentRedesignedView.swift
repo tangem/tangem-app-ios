@@ -23,6 +23,7 @@ struct MultiWalletMainContentRedesignedView: View {
             notificationBanners
 
             listContent
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
@@ -50,28 +51,26 @@ struct MultiWalletMainContentRedesignedView: View {
 
     // MARK: - List Content
 
+    @ViewBuilder
     private var listContent: some View {
         let isLoading = viewModel.isLoadingTokenList
         let hasContent = !viewModel.plainSections.isEmpty || !viewModel.accountSections.isEmpty
 
-        return ZStack(alignment: .top) {
-            // Skeleton placeholders layer
-            skeletonPlaceholders(isLoading: isLoading)
+        if isLoading {
+            skeletonPlaceholders
                 .allowsHitTesting(false)
+                .transition(.opacity)
+        } else if hasContent {
+            VStack(spacing: 0) {
+                accountsList
 
-            // Real content layer
-            if hasContent {
-                VStack(spacing: 0) {
-                    accountsList
-
-                    plainTokensList
-                }
-                .opacity(isLoading ? 0 : 1)
-            } else if !isLoading {
-                emptyList
+                plainTokensList
             }
+            .transition(.opacity)
+        } else {
+            emptyList
+                .transition(.opacity)
         }
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
     }
 
     private var organizeButton: some View {
@@ -91,22 +90,10 @@ struct MultiWalletMainContentRedesignedView: View {
 
     // MARK: - Skeleton Placeholders
 
-    private func skeletonPlaceholders(isLoading: Bool) -> some View {
-        let accountCount = viewModel.accountSections.count
-
-        return VStack(spacing: .unit(.x2)) {
-            ForEach(0 ..< MultiWalletMainContentConstants.placeholderCount, id: \.self) { index in
-                let hasMatchingAccount = index < accountCount
-
-                if hasMatchingAccount {
-                    // Matched: stays in tree, just fades opacity — no slide
-                    RedesignedAccountSkeletonCardView()
-                        .opacity(isLoading ? 1 : 0)
-                } else if isLoading {
-                    // Unmatched: removed from tree when loading ends → slides down
-                    RedesignedAccountSkeletonCardView()
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+    private var skeletonPlaceholders: some View {
+        VStack(spacing: .unit(.x2)) {
+            ForEach(0 ..< MultiWalletMainContentConstants.placeholderCount, id: \.self) { _ in
+                RedesignedAccountSkeletonCardView()
             }
         }
     }
