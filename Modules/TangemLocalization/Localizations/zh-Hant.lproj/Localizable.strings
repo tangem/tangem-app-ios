@@ -275,6 +275,7 @@
 "common_hour" = "hour";
 "common_import" = "導入";
 "common_in_progress" = "進行中";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_learn_more" = "Learn more";
@@ -441,7 +442,7 @@
 "earn_filter_by" = "Filter by";
 "earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
-"earn_mostly_used" = "Mostly used";
+"earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
 "earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "您好，支援團隊，我遇到了一個錯誤，代碼為：%@";
@@ -704,6 +705,7 @@
 "markets_search_result_title" = "Result";
 "markets_search_see_tokens_under_100k" = "See tokens under 100k USD market cap";
 "markets_search_show_tokens" = "Show tokens";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "No result";
 "markets_select_network" = "Select network";
 "markets_select_wallet" = "Select wallet";
@@ -1364,7 +1366,6 @@
 "swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "餘額不足";
-"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "賦予權限";
 "swapping_permit_and_swap" = "許可和交換";
 "swapping_swap_action_in_progress" = "Swapping...";
