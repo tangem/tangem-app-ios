@@ -60,7 +60,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     var currentWalletData: SendingWalletData {
         switch receivedToken {
         case .none:
-            return walletData(for: sourceToken.tokenItem)
+            return sendWalletData()
         case .some(let receiveToken):
             return swapWalletData(for: receiveToken)
         }
@@ -78,7 +78,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     /// - `destinationTransactionHistoryProvider` is an empty stub because we cannot
     ///   determine which user wallet the receive token belongs to at this point
     func swapWalletData(for receiveToken: SendReceiveToken) -> SendingWalletData {
-        let sourceWalletData = walletData(for: sourceToken.tokenItem)
+        let sourceWalletData = sendWalletData()
         let receiveSwapData = receiveTokenWalletDataProvider.swapWalletData(for: receiveToken.tokenItem)
 
         return SendingWalletData(
@@ -88,9 +88,9 @@ private extension SendDestinationInteractorDependenciesProvider {
         )
     }
 
-    func walletData(for tokenItem: TokenItem) -> SendingWalletData {
+    func sendWalletData() -> SendingWalletData {
         guard let walletData = receiveTokenWalletDataProvider.sendWalletData(
-            for: tokenItem,
+            for: sourceToken.tokenItem,
             inUserWalletWithInfo: sourceToken.userWalletInfo
         ) else {
             return .empty
