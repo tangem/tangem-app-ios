@@ -63,6 +63,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
+    @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
     // MARK: - Child view models
 
@@ -221,6 +222,22 @@ extension MainCoordinator: MainRoutable {
         let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .default)
         detailsCoordinator = coordinator
+    }
+
+    func openQRScan() {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainQRScanFlowCoordinator = nil
+            self?.mainBottomSheetUIManager.show()
+        }
+
+        let coordinator = MainQRScanFlowCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        mainQRScanFlowCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
