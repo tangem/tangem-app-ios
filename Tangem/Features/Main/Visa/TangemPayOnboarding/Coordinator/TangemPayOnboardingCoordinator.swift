@@ -36,6 +36,7 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
     func start(with options: Options) {
         rootViewModel = .init(
             source: options.source,
+            availableSelection: options.availableSelection,
             coordinator: self,
             closeOfferScreen: { [weak self] in
                 self?.dismiss(with: ())
@@ -76,6 +77,7 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
 extension TangemPayOnboardingCoordinator {
     struct Options {
         let source: TangemPayOnboardingSource
+        let availableSelection: TangemPayWalletSelectionType
     }
 
     typealias DismissOptions = Void
