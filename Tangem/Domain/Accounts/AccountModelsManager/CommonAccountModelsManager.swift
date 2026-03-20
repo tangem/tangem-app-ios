@@ -77,7 +77,6 @@ actor CommonAccountModelsManager {
     }
 
     private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
-        // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
         var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
 

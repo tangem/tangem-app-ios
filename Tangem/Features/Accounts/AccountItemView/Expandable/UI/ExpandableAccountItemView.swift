@@ -10,12 +10,19 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccounts
+import TangemUIUtils
 
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
     let expandedView: ExpandedView
 
-    init(viewModel: ExpandableAccountItemViewModel, @ViewBuilder expandedView: () -> ExpandedView) {
+    private var cornerRadius: CGFloat = 14
+    private var backgroundColor: Color = Colors.Background.primary
+
+    init(
+        viewModel: ExpandableAccountItemViewModel,
+        @ViewBuilder expandedView: () -> ExpandedView
+    ) {
         self.viewModel = viewModel
         self.expandedView = expandedView()
     }
@@ -29,6 +36,8 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
 
         ExpandableItemView(
             isExpanded: viewModel.isExpanded,
+            backgroundColor: backgroundColor,
+            cornerRadius: cornerRadius,
             backgroundGeometryEffect: effects.background,
             expandedViewTransition: viewModel.isEmptyContent ? nil : Constants.expandedContentTransition,
             collapsedView: {
@@ -67,6 +76,18 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             onExpandedChange: viewModel.onExpandedChange
         )
         .onAppear(perform: viewModel.onViewAppear)
+    }
+}
+
+// MARK: - Setupable
+
+extension ExpandableAccountItemView: Setupable {
+    func cornerRadius(_ cornerRadius: CGFloat) -> Self {
+        map { $0.cornerRadius = cornerRadius }
+    }
+
+    func backgroundColor(_ backgroundColor: Color) -> Self {
+        map { $0.backgroundColor = backgroundColor }
     }
 }
 

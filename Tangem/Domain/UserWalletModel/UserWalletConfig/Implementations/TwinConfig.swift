@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct TwinConfig: CardContainer {
     let card: CardDTO
@@ -100,6 +102,15 @@ extension TwinConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         Assets.Cards.twins
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .twoCards(
+            .init(
+                card: Color.Tangem.CardCollection.twins,
+                secondCard: Color.Tangem.CardCollection.twins
+            )
+        )
     }
 
     var cardSessionFilter: SessionFilter {
