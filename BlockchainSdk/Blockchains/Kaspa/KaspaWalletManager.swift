@@ -347,7 +347,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 .feeEstimate()
                 .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
-                .tryAsyncMap { manager, feeEstimate in
+                .asyncTryMap { manager, feeEstimate in
                     let transactionData = try await manager.txBuilder.buildForMassCalculationKRC20(
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
@@ -372,7 +372,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 .feeEstimate()
                 .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
-                .tryAsyncMap { manager, feeEstimate in
+                .asyncTryMap { manager, feeEstimate in
                     let transactionData = try await manager.txBuilder.buildForMassCalculation(
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
