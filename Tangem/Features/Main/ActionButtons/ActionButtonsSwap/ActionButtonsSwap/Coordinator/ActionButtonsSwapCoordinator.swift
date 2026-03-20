@@ -58,13 +58,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
                 sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
             ))
         case .new(let tokenSelectorViewModel):
-            // Create external search view model if feature toggle is enabled
-            let marketsTokensViewModel: SwapMarketsTokensViewModel?
-            if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-                marketsTokensViewModel = SwapMarketsTokensViewModel()
-            } else {
-                marketsTokensViewModel = nil
-            }
+            let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
             viewType = .new(
                 AccountsAwareActionButtonsSwapViewModel(
