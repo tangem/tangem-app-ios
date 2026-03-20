@@ -17,32 +17,40 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var tokenHeader: SendTokenHeader?
-    @Published var possibleToConvertToFiat: Bool = true
 
-    @Published var cryptoIconURL: URL?
     @Published var fiatIconURL: URL?
 
-    @Published var cryptoTextFieldViewModel: DecimalNumberTextFieldViewModel
-    @Published var cryptoTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
-    @Published var fiatTextFieldViewModel: DecimalNumberTextFieldViewModel
-    @Published var fiatTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
-    @Published var alternativeAmount: String
+    let sourceAmountField: AmountInputFieldModel
+    @Published var destinationAmountField: AmountInputFieldModel?
 
-    @Published var bottomInfoText: BottomInfoTextType?
-    @Published var amountType: SendAmountCalculationType = .crypto
+    @Published var sourceAmountTokenViewData: SendAmountTokenViewData?
 
-    @Published var sendAmountTokenViewData: SendAmountTokenViewData?
-    @Published var receivedTokenViewType: ReceivedTokenViewType?
+    @Published var destinationTokenViewType: DestinationTokenViewType?
+    @Published var activeField: ActiveAmountField = .send
+    @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
+    @Published var compactDestinationSubtitle: SendAmountTokenViewData.SubtitleType?
+    @Published private(set) var isInputFieldSwitchingLocked: Bool = false
+
+    /// Gates the `.animation(_, value: activeField)` modifier.
+    /// Temporarily set to `false` on first destination entry to prevent animation.
+    var animateActiveFieldChange = true
+
+    /// Gates the `.animation(_, value: isAmountEditable)` modifier.
+    /// Set to `true` in `removeReceivedToken` so the removal animates. Entry never animates.
+    var animateDestinationRemoval = false
+
+    /// The single mechanism for driving `@FocusState` from the ViewModel.
+    /// The view observes this via `.onChange` and transfers focus accordingly.
+    @Published var pendingFocusField: ActiveAmountField?
 
     var useFiatCalculation: Bool {
-        get { amountType == .fiat }
-        set { amountType = newValue ? .fiat : .crypto }
+        get { sourceAmountField.amountType == .fiat }
+        set { sourceAmountField.amountType = newValue ? .fiat : .crypto }
     }
 
-    var alternativeAmountAccessibilityIdentifier: String {
-        useFiatCalculation
-            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
-            : SendAccessibilityIdentifiers.alternativeFiatAmount
+    var useDestinationFiatCalculation: Bool {
+        get { destinationAmountField?.amountType == .fiat }
+        set { destinationAmountField?.amountType = newValue ? .fiat : .crypto }
     }
 
     // MARK: - Router
@@ -51,39 +59,78 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
+    let isFixedRateMode: Bool
+
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
+        $lastUpdateSource.map { [isFixedRateMode] source in
+            !isFixedRateMode || source == .send
+        }.eraseToAnyPublisher()
+    }
+
+    var compactSourceTokenViewData: SendAmountTokenViewData? {
+        sourceAmountTokenViewData.map {
+            SendAmountTokenViewData(
+                tokenIconInfo: $0.tokenIconInfo,
+                title: $0.title,
+                subtitle: compactSourceSubtitle ?? $0.subtitle,
+                detailsType: .none
+            )
+        }
+    }
+
+    var compactDestinationTokenViewData: SendAmountTokenViewData? {
+        guard case .selectedEditableAmount(_, let baseCompactData) = destinationTokenViewType else { return nil }
+        return SendAmountTokenViewData(
+            tokenIconInfo: baseCompactData.tokenIconInfo,
+            title: baseCompactData.title,
+            subtitle: compactDestinationSubtitle ?? baseCompactData.subtitle,
+            detailsType: baseCompactData.detailsType,
+            action: baseCompactData.action
+        )
+    }
+
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
-    private var sendAmountFormatter: SendAmountFormatter
+
+    @Published private var lastUpdateSource: ActiveAmountField?
+    private var currentDestinationToken: SendReceiveToken?
+    /// Guards against stale CombineLatest emissions after removal.
+    /// Set in `removeReceivedToken`, cleared in `case .none:` of `updateReceivedToken`.
+    private var isDestinationTokenClearing = false
+    /// When true, the next `.success` on the receive amount publisher triggers a reverse
+    /// calculation so FROM is recalculated at the fixed rate. Set on destination token change.
+    private var pendingReverseRecalculation = false
     private var balanceFormatter: BalanceFormatter = .init()
-    private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+    private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
 
+    private var sourceCurrencySymbol: String = ""
     private var bag: Set<AnyCancellable> = []
+    private var sourceFieldBag: AnyCancellable?
+    private var destinationFieldBag: AnyCancellable?
 
     init(
         sourceToken: SendSourceToken,
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
-        analyticsLogger: SendAmountAnalyticsLogger
+        analyticsLogger: SendAmountAnalyticsLogger,
+        isFixedRateMode: Bool = false
     ) {
-        cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
-        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
-
-        fiatTextFieldViewModel = .init(maximumFractionDigits: sourceToken.fiatItem.fractionDigits)
-        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceToken.fiatItem.currencyCode)
-
-        sendAmountFormatter = .init(
+        sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
             fiatItem: sourceToken.fiatItem,
-            balanceFormatter: balanceFormatter
+            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
         )
-
-        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
+        self.isFixedRateMode = isFixedRateMode
+        sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
+
+        sourceFieldBag = sourceAmountField.objectWillChange
+            .sink { [weak self] in self?.objectWillChange.send() }
 
         bind()
     }
@@ -95,17 +142,101 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.heavy()
-        updateAmountsUI(amount: amount)
+        sourceAmountField.updateAmountsUI(amount: amount)
     }
 
     func userDidTapReceivedTokenSelection() {
         analyticsLogger.logTapConvertToAnotherToken()
 
-        router?.openReceiveTokensList()
+        openReceiveTokensList()
     }
 
     func removeReceivedToken() {
+        isDestinationTokenClearing = true
+        animateActiveFieldChange = true
+        animateDestinationRemoval = true
+        destinationAmountField = nil
+        destinationFieldBag = nil
+        lastUpdateSource = nil
+        activeField = .send
+        destinationTokenViewType = .selectButton
+        currentDestinationToken = nil
+        compactSourceSubtitle = nil
+        compactDestinationSubtitle = nil
         interactor.userDidRequestClearReceiveToken()
+
+        // Short delay for the source field to appear in the hierarchy
+        // after removing the destination field.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            self?.pendingFocusField = .send
+        }
+    }
+
+    private func openReceiveTokensList() {
+        router?.openReceiveTokensList(onDismiss: { [weak self] in
+            guard let self, currentDestinationToken == nil else { return }
+
+            // Token picker was dismissed without selection — refocus FROM field
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                self?.pendingFocusField = .send
+            }
+        })
+    }
+
+    func userDidTapCompactField(_ tappedField: ActiveAmountField) {
+        guard !isInputFieldSwitchingLocked else { return }
+
+        animateActiveFieldChange = true
+
+        if isFixedRateMode, activeField == tappedField.opposite {
+            let field = amountField(for: tappedField)
+
+            // Read the value matching the field's current calculation type (crypto or fiat)
+            // so the interactor interprets it correctly
+            let currentValue: Decimal? = switch field.amountType {
+            case .crypto: field.cryptoTextFieldViewModel.value
+            case .fiat: field.fiatTextFieldViewModel.value
+            }
+
+            guard let currentValue else {
+                // No value in the tapped field — just switch without recalculation
+                activeField = tappedField
+                pendingFocusField = tappedField
+                return
+            }
+
+            isInputFieldSwitchingLocked = true
+            activeField = tappedField
+            pendingFocusField = tappedField
+            lastUpdateSource = tappedField
+
+            // Trigger rate recalculation for the tapped field
+            switch tappedField {
+            case .send:
+                let amount = try? interactor.update(sourceAmount: currentValue)
+                sourceAmountField.updateAmountsUI(amount: amount)
+            case .receive:
+                let amount = interactor.update(receiveAmount: currentValue)
+                destinationAmountField?.updateAmountsUI(amount: amount)
+            }
+        } else {
+            activeField = tappedField
+            pendingFocusField = tappedField
+        }
+    }
+
+    func amountField(for field: ActiveAmountField) -> AmountInputFieldModel {
+        switch field {
+        case .send: return sourceAmountField
+        case .receive: return destinationAmountField ?? sourceAmountField
+        }
+    }
+
+    func isFiatMode(for field: ActiveAmountField) -> Bool {
+        switch field {
+        case .send: return useFiatCalculation
+        case .receive: return useDestinationFiatCalculation
+        }
     }
 }
 
@@ -113,7 +244,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
 private extension SendAmountViewModel {
     func bind() {
-        $amountType
+        sourceAmountField.onValueChanged = { [weak self] value in
+            self?.textFieldValueDidChanged(amount: value)
+        }
+
+        sourceAmountField.$amountType
             .dropFirst()
             .removeDuplicates()
             .withWeakCaptureOf(self)
@@ -123,29 +258,44 @@ private extension SendAmountViewModel {
             }
             .store(in: &bag)
 
-        Publishers.Merge(
-            cryptoTextFieldViewModel.valuePublisher,
-            fiatTextFieldViewModel.valuePublisher
-        )
-        .withWeakCaptureOf(self)
-        .receive(on: DispatchQueue.main)
-        .sink { viewModel, value in
-            viewModel.textFieldValueDidChanged(amount: value)
-        }
-        .store(in: &bag)
-
         interactor
-            .infoTextPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.bottomInfoText, on: self, ownership: .weak)
+            .sourceFieldInfoPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, infoText in
+                viewModel.sourceAmountField.bottomInfoText = infoText
+            }
             .store(in: &bag)
 
         interactor
             .sourceTokenPublisher
             .compactMap { $0.value }
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .sink { $0.updateSourceToken(sourceToken: $1) }
+            .store(in: &bag)
+
+        interactor
+            .sourceAmountPublisher
+            .compactMap(\.value)
+            .removeDuplicates { $0.crypto == $1.crypto }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, amount in
+                guard viewModel.lastUpdateSource != .send else { return }
+                viewModel.sourceAmountField.updateAmountsUI(amount: amount)
+                viewModel.interactor.validateExternalSourceAmount(amount)
+            }
+            .store(in: &bag)
+
+        interactor
+            .sourceAmountPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                guard viewModel.isFixedRateMode else { return }
+                viewModel.updateCompactSourceSubtitle(sourceAmount: result)
+            }
             .store(in: &bag)
 
         Publishers.CombineLatest(
@@ -153,40 +303,46 @@ private extension SendAmountViewModel {
             interactor.receivedTokenAmountPublisher,
         )
         .withWeakCaptureOf(self)
-        .receive(on: DispatchQueue.main)
+        .receiveOnMain()
         .sink { viewModel, args in
             let (token, amount) = args
-            viewModel.updateReceivedToken(receiveToken: token.value, amount: amount)
+            viewModel.updateDestinationToken(destinationToken: token.value, amount: amount)
         }
         .store(in: &bag)
+
+        interactor
+            .receiveFieldInfoPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, infoText in
+                viewModel.destinationAmountField?.bottomInfoText = infoText
+            }
+            .store(in: &bag)
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
-        let amount = try? interactor.update(amount: amount)
-        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
+        lastUpdateSource = .send
+        let amount = try? interactor.update(sourceAmount: amount)
+        sourceAmountField.updateAlternativeUI(amount: amount)
 
-        // Update another text field value
-        switch amount?.type {
-        case .typical(_, let fiat):
-            fiatTextFieldViewModel.update(value: fiat)
-        case .alternative(_, let crypto):
-            cryptoTextFieldViewModel.update(value: crypto)
-        case .none:
-            cryptoTextFieldViewModel.update(value: nil)
-            fiatTextFieldViewModel.update(value: nil)
+        if amount == nil {
+            destinationAmountField?.updateAmountsUI(amount: nil)
+        }
+    }
+
+    func destinationTextFieldValueDidChange(amount: Decimal?) {
+        lastUpdateSource = .receive
+        let amount = interactor.update(receiveAmount: amount)
+        destinationAmountField?.updateAlternativeUI(amount: amount)
+
+        if amount == nil {
+            sourceAmountField.updateAlternativeUI(amount: nil)
         }
     }
 
     func update(amountType: SendAmountCalculationType) {
-        let amount = try? interactor.update(type: amountType)
-        updateAmountsUI(amount: amount)
-    }
-
-    func updateAmountsUI(amount: SendAmount?) {
-        cryptoTextFieldViewModel.update(value: amount?.crypto)
-        fiatTextFieldViewModel.update(value: amount?.fiat)
-
-        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
+        let amount = try? interactor.update(sourceType: amountType)
+        sourceAmountField.updateAmountsUI(amount: amount)
     }
 }
 
@@ -195,7 +351,7 @@ private extension SendAmountViewModel {
 extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
         tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
-        possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
+        sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
         if sourceToken.fiatAvailableBalanceProvider.balanceType.value != nil {
@@ -203,7 +359,7 @@ extension SendAmountViewModel {
         }
 
         let tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
-        sendAmountTokenViewData = .init(
+        sourceAmountTokenViewData = .init(
             tokenIconInfo: tokenIconInfo,
             title: sourceToken.tokenItem.name,
             subtitle: .balance(state: .loaded(text: .string(balanceFormatted))),
@@ -212,39 +368,188 @@ extension SendAmountViewModel {
             }
         )
 
-        cryptoIconURL = tokenIconInfo.imageURL
+        sourceAmountField.cryptoIconURL = tokenIconInfo.imageURL
         fiatIconURL = sourceToken.fiatItem.iconURL
 
-        cryptoTextFieldViewModel.update(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
-        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
-
-        fiatTextFieldViewModel.update(maximumFractionDigits: sourceToken.fiatItem.fractionDigits)
-        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceToken.fiatItem.currencyCode)
-
-        sendAmountFormatter = .init(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem, balanceFormatter: balanceFormatter)
+        sourceAmountField.reconfigure(
+            tokenItem: sourceToken.tokenItem,
+            fiatItem: sourceToken.fiatItem,
+            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
+        )
     }
 
-    func updateReceivedToken(receiveToken: SendReceiveToken?, amount: LoadingResult<SendAmount, Error>) {
+    func updateDestinationToken(destinationToken: SendReceiveToken?, amount: LoadingResult<SendAmount, Error>) {
         guard interactor.isReceiveTokenSelectionAvailable else {
-            receivedTokenViewType = .none
+            destinationTokenViewType = .none
             return
         }
 
-        switch receiveToken {
+        switch destinationToken {
         case .none:
-            receivedTokenViewType = .selectButton
-        case .some(let receiveToken):
-            let tokenIconInfo = tokenIconInfoBuilder.build(from: receiveToken.tokenItem, isCustom: receiveToken.isCustom)
-            receivedTokenViewType = .selected(SendAmountTokenViewData(
-                tokenIconInfo: tokenIconInfo,
-                title: receiveToken.tokenItem.name,
-                subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
-                // The `individualAction` should be use when the fixed rate will available
-                detailsType: .select(individualAction: nil),
-                action: { [weak self] in
-                    self?.router?.openReceiveTokensList()
+            isDestinationTokenClearing = false
+            pendingReverseRecalculation = false
+            animateDestinationRemoval = false
+            destinationTokenViewType = .selectButton
+            currentDestinationToken = nil
+            compactDestinationSubtitle = nil
+        case .some(let destinationToken):
+            guard !isDestinationTokenClearing else { return }
+            let destinationTokenIconInfo = tokenIconInfoBuilder.build(from: destinationToken.tokenItem, isCustom: destinationToken.isCustom)
+
+            if isFixedRateMode {
+                let isFirstSelection = currentDestinationToken == nil
+                let tokenDidChange = currentDestinationToken?.tokenItem.id != destinationToken.tokenItem.id
+                currentDestinationToken = destinationToken
+
+                let field = destinationAmountField ?? createDestinationAmountField(for: destinationToken, tokenIconInfo: destinationTokenIconInfo)
+
+                // Only rebuild the destination section when the token itself changes,
+                // NOT on every amount update. This prevents view re-creation that
+                // clears @FocusState during the focus-claim window.
+                if tokenDidChange {
+                    if !isFirstSelection {
+                        field.reconfigure(
+                            tokenItem: destinationToken.tokenItem,
+                            fiatItem: destinationToken.fiatItem,
+                            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+                        )
+                        field.cryptoIconURL = destinationTokenIconInfo.imageURL
+                    }
+                    let expandedDestinationData = SendAmountTokenViewData(
+                        tokenIconInfo: destinationTokenIconInfo,
+                        title: destinationToken.tokenItem.name,
+                        subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+                        detailsType: .select(individualAction: nil),
+                        action: { [weak self] in
+                            self?.openReceiveTokensList()
+                        }
+                    )
+
+                    let compactDestinationData = SendAmountTokenViewData(
+                        tokenIconInfo: destinationTokenIconInfo,
+                        title: destinationToken.tokenItem.name,
+                        subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount),
+                        detailsType: .none,
+                        action: { [weak self] in
+                            FeedbackGenerator.heavy()
+                            self?.userDidTapCompactField(.receive)
+                        }
+                    )
+
+                    if isFirstSelection {
+                        // Suppress expand/collapse animation on first entry.
+                        // Re-enabled in userDidTapCompactField on first switch.
+                        animateActiveFieldChange = false
+                    }
+
+                    destinationTokenViewType = .selectedEditableAmount(
+                        expandedDestinationData: expandedDestinationData,
+                        compactDestinationData: compactDestinationData
+                    )
+
+                    if isFirstSelection {
+                        activeField = .receive
+                        pendingReverseRecalculation = true
+
+                        // Delay until the token-picker sheet finishes dismissing
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                            self?.pendingFocusField = .receive
+                        }
+                    } else if lastUpdateSource == .receive {
+                        // Token changed while user was editing TO — trigger reverse
+                        // calculation with the user's current field value once the
+                        // pair-change quote completes
+                        pendingReverseRecalculation = true
+                    }
                 }
-            ))
+
+                // Always update the compact subtitle separately (drives compactDestinationTokenViewData)
+                compactDestinationSubtitle = mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount)
+
+                // Update destination fields from external amount
+                if case .success(let sendAmount) = amount {
+                    if pendingReverseRecalculation {
+                        pendingReverseRecalculation = false
+                        lastUpdateSource = .receive
+
+                        // If the field is empty (first selection), populate from the forward quote
+                        if field.cryptoTextFieldViewModel.value == nil {
+                            field.updateAmountsUI(amount: sendAmount)
+                        }
+
+                        let receiveValue = field.cryptoTextFieldViewModel.value
+                        _ = interactor.update(receiveAmount: receiveValue)
+                    } else if lastUpdateSource == .receive {
+                        // When the user edited the destination (To) field, only update fiat/alternative
+                        // to avoid overwriting the crypto value the user typed
+                        field.updateFromExternalAmount(sendAmount, tokenItem: destinationToken.tokenItem)
+                    } else {
+                        // When the user edited the source (From) field or on initial load,
+                        // fully update the destination field including the crypto value from the quote
+                        field.updateAmountsUI(amount: sendAmount)
+                    }
+                }
+
+                // Unlock when destination recalculation finishes (Source→Destination switch)
+                if !amount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .send {
+                    isInputFieldSwitchingLocked = false
+                }
+            } else {
+                let tokenViewData = SendAmountTokenViewData(
+                    tokenIconInfo: destinationTokenIconInfo,
+                    title: destinationToken.tokenItem.name,
+                    subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount),
+                    detailsType: .select(individualAction: nil),
+                    action: { [weak self] in
+                        self?.openReceiveTokensList()
+                    }
+                )
+                destinationTokenViewType = .selected(tokenViewData)
+            }
+        }
+    }
+
+    private func createDestinationAmountField(for destinationToken: SendReceiveToken, tokenIconInfo: TokenIconInfo) -> AmountInputFieldModel {
+        let field = AmountInputFieldModel(
+            tokenItem: destinationToken.tokenItem,
+            fiatItem: destinationToken.fiatItem,
+            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+        )
+        field.cryptoIconURL = tokenIconInfo.imageURL
+
+        field.onValueChanged = { [weak self] value in
+            self?.destinationTextFieldValueDidChange(amount: value)
+        }
+
+        destinationFieldBag = field.$amountType
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] type in
+                self?.interactor.update(receiveType: type)
+            }
+
+        destinationAmountField = field
+        return field
+    }
+
+    func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
+        switch sourceAmount {
+        case .loading:
+            compactSourceSubtitle = .balance(state: .loading())
+        case .success(let amount):
+            if let crypto = amount.crypto {
+                let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
+                compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+            } else {
+                compactSourceSubtitle = nil
+            }
+        case .failure:
+            compactSourceSubtitle = nil
+        }
+
+        // Unlock when source recalculation finishes (Receive→Source switch)
+        if !sourceAmount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .receive {
+            isInputFieldSwitchingLocked = false
         }
     }
 
@@ -255,11 +560,11 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+            return .balance(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
         case .failure:
-            return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
+            return .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
-            return .receive(state: .loading)
+            return .balance(state: .loading())
         }
     }
 }
@@ -268,7 +573,7 @@ extension SendAmountViewModel {
 
 extension SendAmountViewModel: SendAmountExternalUpdatableViewModel {
     func externalUpdate(amount: SendAmount?) {
-        updateAmountsUI(amount: amount)
+        sourceAmountField.updateAmountsUI(amount: amount)
         textFieldValueDidChanged(amount: amount?.main)
     }
 }
@@ -281,8 +586,17 @@ extension SendAmountViewModel {
         case error(String)
     }
 
-    enum ReceivedTokenViewType {
+    enum DestinationTokenViewType {
         case selectButton
         case selected(SendAmountTokenViewData)
+        case selectedEditableAmount(
+            expandedDestinationData: SendAmountTokenViewData,
+            compactDestinationData: SendAmountTokenViewData
+        )
+
+        var isAmountEditable: Bool {
+            if case .selectedEditableAmount = self { return true }
+            return false
+        }
     }
 }

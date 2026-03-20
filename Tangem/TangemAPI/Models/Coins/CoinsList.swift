@@ -17,6 +17,8 @@ extension CoinsList {
     struct Request: Encodable {
         let supportedBlockchains: Set<Blockchain>
         let contractAddress: String?
+        /// Multiple contract addresses for batch lookup (comma-separated in request)
+        let contractAddresses: [String]?
         let searchText: String?
         let exchangeable: Bool?
         let limit: Int?
@@ -28,6 +30,7 @@ extension CoinsList {
         enum CodingKeys: CodingKey {
             case networkIds
             case contractAddress
+            case contractAddresses
             case searchText
             case exchangeable
             case limit
@@ -43,6 +46,9 @@ extension CoinsList {
                 try container.encodeIfPresent(networkIds, forKey: .networkIds)
             }
             try container.encodeIfPresent(contractAddress, forKey: .contractAddress)
+            if let contractAddresses, !contractAddresses.isEmpty {
+                try container.encode(contractAddresses.joined(separator: ","), forKey: .contractAddresses)
+            }
             try container.encodeIfPresent(searchText, forKey: .searchText)
             try container.encodeIfPresent(exchangeable, forKey: .exchangeable)
             try container.encodeIfPresent(limit, forKey: .limit)
@@ -57,6 +63,7 @@ extension CoinsList {
         init(
             supportedBlockchains: Set<Blockchain>,
             contractAddress: String? = nil,
+            contractAddresses: [String]? = nil,
             searchText: String? = nil,
             exchangeable: Bool? = nil,
             limit: Int? = nil,
@@ -66,6 +73,7 @@ extension CoinsList {
         ) {
             self.supportedBlockchains = supportedBlockchains
             self.contractAddress = contractAddress
+            self.contractAddresses = contractAddresses
             self.searchText = searchText == "" ? nil : searchText
             self.exchangeable = exchangeable
             self.limit = limit
