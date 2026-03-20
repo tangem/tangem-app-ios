@@ -25,17 +25,7 @@ final class SendReceiveTokenWalletDataProvider {
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId)
-
-        return .init(
-            walletAddresses: [],
-            suggestedWallets: suggestedWallets,
-            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
-        )
-    }
-
-    func walletData(
+    func sendWalletData(
         for tokenItem: TokenItem,
         inUserWalletWithInfo userWalletInfo: UserWalletInfo
     ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
@@ -55,7 +45,17 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
             return nil
         }
 
-        return makeWalletData(from: walletModel)
+        return makeSendWalletData(from: walletModel)
+    }
+
+    func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
+        let suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId)
+
+        return .init(
+            walletAddresses: [],
+            suggestedWallets: suggestedWallets,
+            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
+        )
     }
 }
 
@@ -78,7 +78,7 @@ private extension SendReceiveTokenWalletDataProvider {
             }
     }
 
-    func makeWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
+    func makeSendWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
         let walletAddresses = walletModel.addresses.map(\.value)
 
         return .init(

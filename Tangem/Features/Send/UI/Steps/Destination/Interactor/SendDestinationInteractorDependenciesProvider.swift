@@ -89,7 +89,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     }
 
     func walletData(for tokenItem: TokenItem) -> SendingWalletData {
-        guard let walletData = receiveTokenWalletDataProvider.walletData(
+        guard let walletData = receiveTokenWalletDataProvider.sendWalletData(
             for: tokenItem,
             inUserWalletWithInfo: sourceToken.userWalletInfo
         ) else {
@@ -143,9 +143,8 @@ extension SendDestinationInteractorDependenciesProvider {
         let destinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider
     }
 
-    /// Protocol for providing wallet data for receive tokens in swap flows
     protocol ReceiveTokenWalletDataProvider {
-        func walletData(
+        func sendWalletData(
             for tokenItem: TokenItem,
             inUserWalletWithInfo userWalletInfo: UserWalletInfo
         ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
