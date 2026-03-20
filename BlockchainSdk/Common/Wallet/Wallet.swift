@@ -13,6 +13,7 @@ public struct Wallet {
     // MARK: - Properties
 
     public let blockchain: Blockchain
+    public let publicKey: Wallet.PublicKey
     private(set) var addressesProvider: AddressesProvider
 
     public private(set) var amounts: [Amount.AmountType: Amount] = [:]
@@ -23,9 +24,6 @@ public struct Wallet {
     public var addresses: [Address] { addressesProvider.addresses }
     public var defaultAddress: Address { addressesProvider.defaultAddress }
     public var changeAddress: Address { addressesProvider.changeAddress }
-
-    /// `publicKey` from default address
-    public var publicKey: Wallet.PublicKey { defaultAddress.publicKey }
 
     /// Default address string
     public var address: String { defaultAddress.value }
@@ -42,8 +40,9 @@ public struct Wallet {
     /// willSet/didSet/CurrentValueSubject with the value of this `Wallet` to update.
     private var hasAssetRequirements: Bool = false
 
-    public init(blockchain: Blockchain, addressesProvider: AddressesProvider) {
+    public init(blockchain: Blockchain, publicKey: Wallet.PublicKey, addressesProvider: AddressesProvider) {
         self.blockchain = blockchain
+        self.publicKey = publicKey
         self.addressesProvider = addressesProvider
     }
 
