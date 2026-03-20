@@ -324,6 +324,10 @@ extension VisaWalletModel: WalletModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 
+    var receiveAddressTypes: [ReceiveAddressType] {
+        []
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         // [REDACTED_TODO_COMMENT]
         .just(output: [])
