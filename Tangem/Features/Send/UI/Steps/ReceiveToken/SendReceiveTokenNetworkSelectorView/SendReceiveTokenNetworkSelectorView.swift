@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendReceiveTokenNetworkSelectorView: View {
     @ObservedObject var viewModel: SendReceiveTokenNetworkSelectorViewModel
@@ -79,9 +80,12 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 secondaryButton: .init(
                     title: Localization.commonGotIt,
                     style: .secondary,
+                    accessibilityIdentifier: SendAccessibilityIdentifiers.networkSelectorGotItButton,
                     action: viewModel.dismiss
                 )
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.networkSelectorErrorTitle)
         }
     }
 }

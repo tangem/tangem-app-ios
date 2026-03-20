@@ -43,6 +43,28 @@ extension GeneralNotificationEvent: NotificationEvent {
         Localization.commonWarning
     }
 
+    var bannerKind: NotificationBannerKind? {
+        switch self {
+        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard:
+            return .status
+
+        case .backupErrors, .seedSupport, .seedSupport2, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
+            return .critical
+
+        case .missingDerivation, .walletLocked:
+            return .warning
+
+        case .rateApp:
+            return .survey
+
+        case .pushNotificationsPermissionRequest:
+            return .informational
+
+        default:
+            return nil
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .rateApp:
@@ -176,7 +198,7 @@ extension GeneralNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
              .oldDeviceOldCard,
@@ -185,20 +207,20 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .rateApp:
-            return .init(iconType: .image(Assets.star.image))
+            return .init(iconType: .image(Assets.star))
         case .walletLocked:
-            return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+            return .init(iconType: .image(Assets.lock), color: Colors.Icon.primary1)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
-            return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
+            return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner.image), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
-            return .init(iconType: .image(Assets.pushNotifyBannerIcon.image), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         }
     }
 

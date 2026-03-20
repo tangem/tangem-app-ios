@@ -48,6 +48,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    @discardableResult
+    func waitForSwapButtonNotAvailable() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button is not available on single-currency card") { _ in
+            waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
+            let buttonTexts = actionButtonsList.buttons.allElementsBoundByIndex.map { $0.label }
+            XCTAssertFalse(buttonTexts.contains("Swap"), "Swap button should not be available on single-currency cards")
+            XCTAssertFalse(buttonTexts.contains("Exchange"), "Exchange button should not be available on single-currency cards")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapSendButton() -> SendScreen {
+        XCTContext.runActivity(named: "Tap Send action button on main screen") { _ in
+            waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
+            actionButtonsList.buttons["Send"].waitAndTap()
+        }
+        return SendScreen(app)
+    }
+
     // MARK: - Main action buttons
 
     @discardableResult
@@ -80,7 +100,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokenElement(named: label).waitAndTap()
+            tokenElement(named: label).waitAndTapWithScroll()
             return TokenScreen(app)
         }
     }
@@ -256,7 +276,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
-            token.press(forDuration: 1.0)
+
+            // Wait for balance to load — context menu captures content at presentation time
+            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
+            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
+
+            // Retry long press if context menu doesn't appear (can be flaky on CI)
+            let contextMenuIndicator = app.buttons["Buy"].firstMatch
+            let maxAttempts = 3
+            for attempt in 1 ... maxAttempts {
+                token.press(forDuration: 1.5)
+                if contextMenuIndicator.waitForExistence(timeout: .quick) {
+                    break
+                }
+
+                // Dismiss any opened context menu before retrying
+                if attempt < maxAttempts {
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+                    _ = token.waitForExistence(timeout: .quick)
+                }
+            }
+
             return ContextMenuScreen(app)
         }
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemSdk
 
 struct CommonWalletConnectSigner: WalletConnectSigner {

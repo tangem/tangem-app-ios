@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct Start2CoinConfig: CardContainer {
     let card: CardDTO
@@ -83,6 +85,10 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         Assets.Cards.s2c
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .card(.init(card: Color.Tangem.CardCollection.starts2com))
     }
 
     var contextBuilder: WalletCreationContextBuilder {

@@ -10,13 +10,16 @@ import BlockchainSdk
 
 struct AllowanceServiceFactory {
     let walletModel: any WalletModel
-    let transactionDispatcherProvider: any TransactionDispatcherProvider
 
     func makeAllowanceService() -> (any AllowanceService)? {
         let tokenItem = walletModel.tokenItem
         let allowanceIsSupported = tokenItem.blockchain.isEvm && tokenItem.isToken
 
-        guard allowanceIsSupported else {
+        guard allowanceIsSupported,
+              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+              let ethereumTransactionDataBuilder = walletModel.ethereumTransactionDataBuilder,
+              walletModel.ethereumGaslessTransactionFeeProvider != nil
+        else {
             return nil
         }
 
@@ -24,13 +27,10 @@ struct AllowanceServiceFactory {
             blockchain: tokenItem.blockchain,
             amountType: tokenItem.amountType,
             walletAddress: walletModel.defaultAddressString,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
         )
 
-        return CommonAllowanceService(
-            allowanceChecker: allowanceChecker,
-            approveTransactionDispatcher: transactionDispatcherProvider.makeApproveTransactionDispatcher()
-        )
+        return CommonAllowanceService(allowanceChecker: allowanceChecker)
     }
 }

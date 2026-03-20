@@ -12,71 +12,117 @@ import TangemUIUtils
 import BlurSwiftUI
 
 public struct TangemNavigationHeader: View {
-    private let trailingAction: () -> Void
-    private let accessibilityIdentifiers: AccessibilityIdentifiers
+    private let secondaryTrailingAction: ActionInfo?
+    private let trailingAction: ActionInfo
 
     public init(
-        trailingAction: @escaping () -> Void,
-        accessibilityIdentifiers: AccessibilityIdentifiers
+        secondaryTrailingAction: ActionInfo? = nil,
+        trailingAction: ActionInfo
     ) {
+        self.secondaryTrailingAction = secondaryTrailingAction
         self.trailingAction = trailingAction
-        self.accessibilityIdentifiers = accessibilityIdentifiers
     }
 
     public var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             leadingIcon
 
             Spacer()
 
             trailingMenuButton
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 12)
+        .padding(.horizontal, .unit(.x4))
+        .padding(.top, .unit(.x2))
+        .padding(.bottom, .unit(.x3))
         .background(alignment: .top) {
-            // iOS 26+ uses native scrollEdgeEffect for blur
-            if #available(iOS 26.0, *) {
-                EmptyView()
-            } else {
-                VariableBlur(direction: .down)
-                    .dimmingAlpha(.constant(alpha: 0.5))
-                    .dimmingOvershoot(nil)
-                    .ignoresSafeArea()
-            }
+            VariableBlur(direction: .down)
+                .dimmingAlpha(.constant(alpha: 0.5))
+                .dimmingOvershoot(nil)
+                .ignoresSafeArea()
         }
     }
 
     private var leadingIcon: some View {
-        Assets.tangemIcon.image
-            .resizable()
-            .frame(size: CGSize(bothDimensions: SizeUnit.x8.value))
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+        LeadingIcon()
     }
 
     private var trailingMenuButton: some View {
-        TangemButton(content: .icon(Assets.horizontalDots), action: trailingAction)
-            .setCornerStyle(.rounded)
-            .setStyleType(.secondary)
-            .setSize(.x10)
-            .accessibility(label: Text(accessibilityIdentifiers.trailingButtonLabel))
-            .accessibilityIdentifier(accessibilityIdentifiers.trailingButton)
+        TrailingButtons(
+            secondaryAction: secondaryTrailingAction,
+            action: trailingAction
+        )
     }
 }
 
-// MARK: - AccessibilityIdentifiers
+// MARK: - ActionInfo
 
 public extension TangemNavigationHeader {
-    struct AccessibilityIdentifiers {
-        public let trailingButton: String
-        public let trailingButtonLabel: String
+    struct ActionInfo {
+        public let action: () -> Void
+        public let accessibilityIdentifier: String
+        public let accessibilityLabel: String
 
         public init(
-            trailingButton: String,
-            trailingButtonLabel: String
+            action: @escaping () -> Void,
+            accessibilityIdentifier: String,
+            accessibilityLabel: String
         ) {
-            self.trailingButton = trailingButton
-            self.trailingButtonLabel = trailingButtonLabel
+            self.action = action
+            self.accessibilityIdentifier = accessibilityIdentifier
+            self.accessibilityLabel = accessibilityLabel
+        }
+    }
+}
+
+// MARK: - LeadingIcon
+
+public extension TangemNavigationHeader {
+    struct LeadingIcon: View {
+        @ScaledSize private var iconSize = CGSize(bothDimensions: .unit(.x8))
+
+        public init() {}
+
+        public var body: some View {
+            Assets.tangemIcon.image
+                .resizable()
+                .frame(size: iconSize)
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+        }
+    }
+}
+
+// MARK: - TrailingButtons
+
+public extension TangemNavigationHeader {
+    struct TrailingButtons: View {
+        private let secondaryAction: ActionInfo?
+        private let action: ActionInfo
+
+        public init(
+            secondaryAction: ActionInfo? = nil,
+            action: ActionInfo
+        ) {
+            self.secondaryAction = secondaryAction
+            self.action = action
+        }
+
+        public var body: some View {
+            HStack(spacing: .unit(.x2)) {
+                if let secondaryAction {
+                    makeButton(imageType: Assets.Glyphs.scanQrIcon, actionInfo: secondaryAction)
+                }
+
+                makeButton(imageType: Assets.horizontalDots, actionInfo: action)
+            }
+        }
+
+        private func makeButton(imageType: ImageType, actionInfo: ActionInfo) -> some View {
+            TangemButton(content: .icon(imageType), action: actionInfo.action)
+                .setCornerStyle(.rounded)
+                .setStyleType(.secondary)
+                .setSize(.x10)
+                .accessibility(label: Text(actionInfo.accessibilityLabel))
+                .accessibilityIdentifier(actionInfo.accessibilityIdentifier)
         }
     }
 }
@@ -87,8 +133,11 @@ public extension TangemNavigationHeader {
 #Preview {
     VStack {
         TangemNavigationHeader(
-            trailingAction: {},
-            accessibilityIdentifiers: .init(trailingButton: "preview", trailingButtonLabel: "Preview")
+            trailingAction: TangemNavigationHeader.ActionInfo(
+                action: {},
+                accessibilityIdentifier: "preview",
+                accessibilityLabel: "Preview"
+            )
         )
         Spacer()
     }
