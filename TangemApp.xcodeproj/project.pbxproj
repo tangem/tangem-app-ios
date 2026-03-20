@@ -4764,6 +4764,9 @@
 		EFDE59A42F0FCC1B0078136C /* CommonEthereumTokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDE599C2F0FCC1B0078136C /* CommonEthereumTokenFeeLoader.swift */; };
 		EFDE59A52F0FCC1B0078136C /* TokenFeeLoaderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDE59A12F0FCC1B0078136C /* TokenFeeLoaderBuilder.swift */; };
 		EFDE59A62F0FCC1B0078136C /* CommonTokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDE599E2F0FCC1B0078136C /* CommonTokenFeeLoader.swift */; };
+		EFDFC0282F6C5C460086AD25 /* TangemPaySwapAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDFC0262F6C5C460086AD25 /* TangemPaySwapAvailabilityProvider.swift */; };
+		EFDFC0292F6C5C460086AD25 /* SwapAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDFC0252F6C5C460086AD25 /* SwapAvailabilityProvider.swift */; };
+		EFDFC02A2F6C5C460086AD25 /* CommonSwapAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDFC0242F6C5C460086AD25 /* CommonSwapAvailabilityProvider.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE242852F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */; };
@@ -9805,6 +9808,9 @@
 		EFDE599E2F0FCC1B0078136C /* CommonTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeLoader.swift; sourceTree = "<group>"; };
 		EFDE599F2F0FCC1B0078136C /* DemoTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTokenFeeLoader.swift; sourceTree = "<group>"; };
 		EFDE59A12F0FCC1B0078136C /* TokenFeeLoaderBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeLoaderBuilder.swift; sourceTree = "<group>"; };
+		EFDFC0242F6C5C460086AD25 /* CommonSwapAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwapAvailabilityProvider.swift; sourceTree = "<group>"; };
+		EFDFC0252F6C5C460086AD25 /* SwapAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAvailabilityProvider.swift; sourceTree = "<group>"; };
+		EFDFC0262F6C5C460086AD25 /* TangemPaySwapAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPaySwapAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EFE242842F0BE580003F3CD5 /* FeeSelectorSuggestedFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorSuggestedFeeProvider.swift; sourceTree = "<group>"; };
 		EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderMock.swift; sourceTree = "<group>"; };
 		EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRCodeService.swift; sourceTree = "<group>"; };
@@ -24740,6 +24746,16 @@
 			path = SendTokenHeaderBuilder;
 			sourceTree = "<group>";
 		};
+		EFDFC0272F6C5C460086AD25 /* SwapAvailabilityProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFDFC0252F6C5C460086AD25 /* SwapAvailabilityProvider.swift */,
+				EFDFC0242F6C5C460086AD25 /* CommonSwapAvailabilityProvider.swift */,
+				EFDFC0262F6C5C460086AD25 /* TangemPaySwapAvailabilityProvider.swift */,
+			);
+			path = SwapAvailabilityProvider;
+			sourceTree = "<group>";
+		};
 		EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */ = {
 			isa = PBXGroup;
 			children = (
@@ -26458,6 +26474,7 @@
 				B62F48212DD41EA4008A0AE5 /* TransactionSummaryDescriptionBuilder */,
 				EFB6FF172E4F20990036731A /* SendSummaryTitleProvider */,
 				EF5B751F2EBEB5B30045CF03 /* SendTokenHeaderBuilder */,
+				EFDFC0272F6C5C460086AD25 /* SwapAvailabilityProvider */,
 				EFF6CC082F55D45E0096CFA1 /* SendingRestrictionsProvider */,
 				EFF6CC032F55D43B0096CFA1 /* ReceivingRestrictionsProvider */,
 				EF665E3B2CBD231300F79B87 /* Services */,
@@ -28372,6 +28389,9 @@
 				EFDE59A42F0FCC1B0078136C /* CommonEthereumTokenFeeLoader.swift in Sources */,
 				EFDE59A52F0FCC1B0078136C /* TokenFeeLoaderBuilder.swift in Sources */,
 				EFDE59A62F0FCC1B0078136C /* CommonTokenFeeLoader.swift in Sources */,
+				EFDFC0282F6C5C460086AD25 /* TangemPaySwapAvailabilityProvider.swift in Sources */,
+				EFDFC0292F6C5C460086AD25 /* SwapAvailabilityProvider.swift in Sources */,
+				EFDFC02A2F6C5C460086AD25 /* CommonSwapAvailabilityProvider.swift in Sources */,
 				DCEC71F52B8683FB00B3847E /* CardValidator.swift in Sources */,
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				DA7EAE852ED06CAF0022C2AB /* TangemPayAuthorizationTokensRepositoryKey.swift in Sources */,
