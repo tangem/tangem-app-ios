@@ -1364,6 +1364,7 @@
 "swapping_high_price_impact_title" = "Hoher Einfluss auf den Preis";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Unzureichende Mittel";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Erlaubnis erteilen";
 "swapping_permit_and_swap" = "Genehmigen und tauschen";
 "swapping_swap_action_in_progress" = "Tauschen...";
