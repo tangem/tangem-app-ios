@@ -56,6 +56,20 @@ final class CommonWCHandlersService {
             connectedDApp: connectedDApp
         )
     }
+
+    private func getAccount(
+        forConnectedDApp connectedDApp: WalletConnectConnectedDApp,
+        in userWalletModel: UserWalletModel
+    ) -> (any CryptoAccountModel)? {
+        guard let accountId = connectedDApp.accountId else {
+            return nil
+        }
+
+        return  WCAccountFinder.findCryptoAccountModel(
+            by: accountId,
+            accountModelsManager: userWalletModel.accountModelsManager
+        )
+    }
 }
 
 // MARK: - WCHandlersService
@@ -75,9 +89,7 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
         }
 
-        let userWalletModel: any UserWalletModel
-
-        userWalletModel = try WCUserWalletModelFinder.findUserWalletModel(
+        let userWalletModel = try WCUserWalletModelFinder.findUserWalletModel(
             connectedDApp: connectedDApp,
             userWalletModels: userWalletRepository.models
         )
@@ -87,21 +99,12 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
-        let account: (any CryptoAccountModel)? = if let accountId = connectedDApp.accountId {
-            WCAccountFinder.findCryptoAccountModel(
-                by: accountId,
-                accountModelsManager: userWalletModel.accountModelsManager
-            )
-        } else {
-            nil
-        }
-
         return WCValidatedRequest(
             request: request,
             dAppData: connectedDApp.dAppData,
             targetBlockchain: targetBlockchain,
             userWalletModel: userWalletModel,
-            account: account
+            account: getAccount(forConnectedDApp: connectedDApp, in: userWalletModel)
         )
     }
 

@@ -476,10 +476,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
-        return makeAccountsAwareContext(for: userWalletModel)
-    }
-
-    private func makeAccountsAwareContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
         guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
             return nil
         }

@@ -384,11 +384,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let accountForNFTCollectionsProvider = AccountForNFTCollectionsProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
-        let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
-            name: mainAccount?.name ?? userWalletModel.name,
-            walletModelsManager: mainAccount?.walletModelsManager ?? LockedWalletModelsManager()
+            name: userWalletModel.name,
+            walletModelsManager: LockedWalletModelsManager() // [REDACTED_TODO_COMMENT]
         )
 
         return NFTEntrypointViewModel(
@@ -594,8 +593,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        let allWalletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-        return allWalletModels.first(where: { $0.id.id == id.id })
+        AccountWalletModelsAggregator
+            .walletModels(from: userWalletModel.accountModelsManager)
+            .first(where: { $0.id.id == id.id })
     }
 }
 
