@@ -1364,6 +1364,7 @@
 "swapping_high_price_impact_title" = "価格への影響が甚大です";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "残高不足";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_swap_action_in_progress" = "スワップ中…";
