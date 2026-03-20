@@ -93,7 +93,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 private extension CommonSendSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
-        case .none, .swap:
+        case .none:
             return nil
         case .staking(let amount, let schedule):
             let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
@@ -101,7 +101,7 @@ private extension CommonSendSummaryInteractor {
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
             return description
-        case .sendWithSwap(let amount, let fee, let provider):
+        case .swap(let amount, let fee, let provider):
             let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
             return description
         }
