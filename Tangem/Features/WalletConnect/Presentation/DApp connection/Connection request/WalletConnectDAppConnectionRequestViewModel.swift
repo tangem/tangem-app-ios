@@ -445,7 +445,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func handleWalletRowTapped() {
         guard state.walletSection?.selectionIsAvailable == true else { return }
-        // Wallet selector is no longer supported (removed as part of [REDACTED_INFO])
+        coordinator?.openWalletSelector()
     }
 
     private func handleAccountRowTapped() {
@@ -523,21 +523,26 @@ extension WalletConnectDAppConnectionRequestViewModel {
         let walletSection: WalletConnectDAppConnectionRequestViewState.WalletSection?
         let connectionTargetSection: WalletConnectDAppConnectionRequestViewState.ConnectionTargetSection?
 
-        if let selectedAccount, hasMultipleAccounts {
-            connectionTargetSection = .init(
-                selectionIsAvailable: true,
-                targetName: selectedAccount.name,
-                target: .account(.init(icon: selectedAccount.icon)),
-                state: .content
-            )
+        if let selectedAccount {
+            if hasMultipleAccounts {
+                connectionTargetSection = .init(
+                    selectionIsAvailable: true,
+                    targetName: selectedAccount.name,
+                    target: .account(.init(icon: selectedAccount.icon)),
+                    state: .content
+                )
+            } else {
+                connectionTargetSection = .init(
+                    selectionIsAvailable: state.connectionTargetSection?.selectionIsAvailable == true,
+                    targetName: selectedUserWallet.name, target: .wallet(),
+                    state: .content
+                )
+            }
+            walletSection = nil
         } else {
-            connectionTargetSection = .init(
-                selectionIsAvailable: state.connectionTargetSection?.selectionIsAvailable == true,
-                targetName: selectedUserWallet.name, target: .wallet(),
-                state: .content
-            )
+            walletSection = .init(selectedUserWalletName: selectedUserWallet.name, selectionIsAvailable: state.walletSection?.selectionIsAvailable == true)
+            connectionTargetSection = nil
         }
-        walletSection = nil
 
         state = .content(
             proposal: dAppProposal,
