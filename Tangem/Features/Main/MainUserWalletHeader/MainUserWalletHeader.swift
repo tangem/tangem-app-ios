@@ -21,10 +21,21 @@ struct MainUserWalletHeader: View {
     }
 
     @ScaledSize private var loaderSize: CGSize = .init(width: 222, height: 36)
+    @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
         VStack(spacing: SizeUnit.x4.value) {
             balance
+
+            walletNameWithThumbnail
+
+            if let paginationState = model.paginationState {
+                TangemPagination(
+                    totalPages: paginationState.totalPages,
+                    currentIndex: paginationState.currentIndex
+                )
+                .pagerStationary()
+            }
 
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
@@ -33,6 +44,19 @@ struct MainUserWalletHeader: View {
             }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var walletNameWithThumbnail: some View {
+        HStack(spacing: SizeUnit.x1.value) {
+            Text(headerViewModel.userWalletName)
+                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+
+            if let walletThumbnailType = headerViewModel.walletThumbnailType {
+                MiniatureWalletView(type: walletThumbnailType)
+                    .frame(width: thumbnailSize, height: thumbnailSize)
+            }
+        }
     }
 
     private var balance: some View {
@@ -47,6 +71,9 @@ struct MainUserWalletHeader: View {
                 cornerRadiusStyle: .capsule
             )
         )
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .frame(height: loaderSize.height)
     }
 }
 
@@ -61,7 +88,8 @@ struct MainUserWalletHeader: View {
         ForEach(provider.models.indices, id: \.self) { index in
             MainUserWalletHeader(model: MainUserWalletHeaderModel(
                 headerViewModel: provider.models[index],
-                actionButtonsViewModel: nil
+                actionButtonsViewModel: nil,
+                paginationState: nil
             ))
             .onTapGesture {
                 let infoProvider = provider.infoProviders[index]

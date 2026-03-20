@@ -123,7 +123,7 @@ class FakeWalletManager: WalletManager {
 
     private func updateWalletModels() {
         Task {
-            await TaskGroup.execute(items: walletModels) { walletModel in
+            await TaskGroup.executeKeepingOrder(items: walletModels) { walletModel in
                 await walletModel.update(silent: true, features: .balances)
             }
         }
