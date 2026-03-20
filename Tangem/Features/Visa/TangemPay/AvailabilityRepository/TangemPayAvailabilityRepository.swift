@@ -8,8 +8,9 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 
-enum TangemPayWalletSelectionType {
+enum TangemPayWalletSelectionType: Equatable {
     case single(_ id: String)
     case multiple(_ ids: [String])
 
@@ -42,13 +43,13 @@ enum TangemPayOfferAvailability {
 
 protocol TangemPayAvailabilityRepository {
     var tangemPayOfferAvailability: TangemPayOfferAvailability { get }
-    var isGetTangemPayFeatureAvailable: AnyPublisher<Bool, Never> { get }
+    var tangemPayDetailsEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> { get }
 
-    func shouldShowGetTangemPayBanner(
+    func tangemPayBannerEntrypointEligibleWalletSelectionPublisher(
         for customerWalletId: String
-    ) -> AnyPublisher<Bool, Never>
+    ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()
-    func requestEligibility() async -> Bool
+    func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel]
 }
 
 private struct TangemPayAvailabilityRepositoryKey: InjectionKey {
