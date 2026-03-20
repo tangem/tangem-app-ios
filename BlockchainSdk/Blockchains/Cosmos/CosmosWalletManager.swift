@@ -47,7 +47,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .withWeakCaptureOf(self)
         .flatMap { manager, hash in
             signer
-                .sign(hash: hash, walletPublicKey: self.wallet.publicKey)
+                .sign(hash: hash, walletPublicKey: manager.wallet.publicKey)
                 .tryMap { signature -> Data in
                     let signature = try Secp256k1Signature(with: signature)
                     return try signature.unmarshal(with: manager.wallet.publicKey.blockchainKey, hash: hash).data
@@ -61,7 +61,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .flatMap { manager, transaction in
             manager.networkService
                 .send(transaction: transaction)
-                .mapAndEraseSendTxError(tx: transaction.hex())
+                .mapAndEraseSendTxError(tx: transaction.hex(), currentHost: manager.currentHost)
         }
         .handleEvents(receiveOutput: { [weak self] hash in
             let mapper = PendingTransactionRecordMapper()
@@ -72,7 +72,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .map { manager, hash in
             TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
