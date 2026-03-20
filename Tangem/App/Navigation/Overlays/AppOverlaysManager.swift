@@ -17,11 +17,12 @@ import TangemUI
 final class AppOverlaysManager {
     private let sheetRegistry: FloatingSheetRegistry
 
-    @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
-    @Injected(\.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
-    @Injected(\.overlayShareActivitiesViewModel) private var shareActivitiesViewModel: ShareActivitiesViewModel
+
+    @Injected(\.appOverlaysDependencies.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
+    @Injected(\.appOverlaysDependencies.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
+    @Injected(\.appOverlaysDependencies.overlayShareActivitiesViewModel) private var shareActivitiesViewModel: ShareActivitiesViewModel
 
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
