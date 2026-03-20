@@ -29,11 +29,11 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
         for tokenItem: TokenItem,
         inUserWalletWithInfo userWalletInfo: UserWalletInfo
     ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
-        guard let walletModel = findSourceWalletModel() else {
+        guard let sourceWalletModel = findSourceWalletModel() else {
             return nil
         }
 
-        return makeSendWalletData(from: walletModel)
+        return makeSendWalletData(from: sourceWalletModel)
     }
 
     func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
