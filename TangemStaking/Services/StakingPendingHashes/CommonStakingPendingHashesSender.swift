@@ -27,20 +27,29 @@ class CommonStakingPendingHashesSender: StakingPendingHashesSender {
     }
 
     func sendHashesIfNeeded() {
-        Task { [weak self] in
-            guard let self else {
-                return
-            }
-
+        Task { [repository, provider] in
             let pendingHashes = repository.fetchHashes()
-            guard !pendingHashes.isEmpty else {
-                return
-            }
+            guard !pendingHashes.isEmpty else { return }
 
             for pendingHash in pendingHashes {
-                try await provider.submitHash(hash: pendingHash.hash, transactionId: pendingHash.transactionId)
-                repository.removeHash(pendingHash)
+                do {
+                    try await provider.submitHash(hash: pendingHash.hash, transactionId: pendingHash.transactionId)
+                    repository.removeHash(pendingHash)
+                } catch {
+                    if error.isNotFoundHTTPError {
+                        repository.removeHash(pendingHash)
+                    }
+                }
             }
         }
+    }
+}
+
+private extension Error {
+    var isNotFoundHTTPError: Bool {
+        if case .badStatusCode(let code, _, _) = self as? StakeKitHTTPError {
+            return code == 404
+        }
+        return false
     }
 }
