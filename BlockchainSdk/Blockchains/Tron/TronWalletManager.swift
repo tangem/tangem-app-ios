@@ -49,7 +49,7 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapAndEraseSendTxError(tx: data.hex())
+                .mapAndEraseSendTxError(tx: data.hex(), currentHost: manager.currentHost)
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
@@ -63,7 +63,7 @@ class TronWalletManager: BaseManager, WalletManager {
             manager.wallet.addPendingTransaction(record)
             return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
