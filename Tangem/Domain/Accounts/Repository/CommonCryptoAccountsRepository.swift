@@ -23,13 +23,6 @@ final class CommonCryptoAccountsRepository {
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
     private let stateHolder: StateHolder
-
-    /// Implicitly unwrapped to resolve circular dependency
-    fileprivate var loadAccountsFromServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
-
-    /// Implicitly unwrapped to resolve circular dependency
-    fileprivate var updateTokensOnServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
-
     private weak var userWalletInfoProvider: UserWalletInfoProvider?
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
@@ -42,6 +35,15 @@ final class CommonCryptoAccountsRepository {
         .removeDuplicates()
         .share(replay: 1)
         .eraseToAnyPublisher()
+
+    fileprivate lazy var loadAccountsFromServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
+        self?.loadAccountsFromServer(completion)
+    }
+
+    fileprivate lazy var updateTokensOnServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
+        // No account properties were changed here therefore only tokens need to be updated on the server
+        self?.updateAccountsOnServer(updateOptions: .tokens, completion: completion)
+    }
 
     private let hasTokenSynchronization: Bool
 
@@ -67,16 +69,8 @@ final class CommonCryptoAccountsRepository {
         self.persistentStorage = persistentStorage
         self.storageController = storageController
         self.hasTokenSynchronization = hasTokenSynchronization
-
-        loadAccountsFromServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
-            self?.loadAccountsFromServer(completion)
-        }
-
-        updateTokensOnServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
-            // No account properties were changed here therefore only tokens need to be updated on the server
-            self?.updateAccountsOnServer(updateOptions: .tokens, completion: completion)
-        }
-
+        _ = loadAccountsFromServerDebouncer // Eager initialization of this lazy property to ensure that there are no race conditions
+        _ = updateTokensOnServerDebouncer // Eager initialization of this lazy property to ensure that there are no race conditions
         storageController.bind(to: storageDidUpdateSubject)
     }
 

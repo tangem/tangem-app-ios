@@ -56,6 +56,34 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     }
 
     @discardableResult
+    func waitForSwapFeeOptions(cryptoSymbol: String, fiatSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate swap fee options (Market + Fast only)") { _ in
+            waitForFeeOption(
+                marketOption,
+                optionName: "Market",
+                cryptoSymbol: cryptoSymbol,
+                fiatSymbol: fiatSymbol
+            )
+            waitForFeeOption(
+                fastOption,
+                optionName: "Fast",
+                cryptoSymbol: cryptoSymbol,
+                fiatSymbol: fiatSymbol
+            )
+
+            XCTAssertFalse(
+                slowOption.waitForExistence(timeout: .quick),
+                "Slow fee option should NOT exist for swap transactions"
+            )
+            XCTAssertFalse(
+                customOption.waitForExistence(timeout: .quick),
+                "Custom fee option should NOT exist for swap transactions"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func selectSlow() -> Self {
         XCTContext.runActivity(named: "Select Slow fee option") { _ in
             slowOption.waitAndTap()
@@ -64,11 +92,11 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     }
 
     @discardableResult
-    func selectFast() -> Self {
+    func selectFast() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Select Fast fee option") { _ in
             fastOption.waitAndTap()
         }
-        return self
+        return SendSummaryScreen(app)
     }
 
     @discardableResult
@@ -132,15 +160,6 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
             doneButton.waitAndTapWithScroll()
         }
         return SendScreen(app)
-    }
-
-    @discardableResult
-    func tapFeeSelectorDoneToSummary() -> SendSummaryScreen {
-        XCTContext.runActivity(named: "Tap Done button on Fee Selector and return to Summary") { _ in
-            let doneButton = app.buttons[FeeAccessibilityIdentifiers.feeSelectorDoneButton]
-            doneButton.waitAndTapWithScroll()
-        }
-        return SendSummaryScreen(app)
     }
 
     // MARK: - Bitcoin Custom Fee Methods

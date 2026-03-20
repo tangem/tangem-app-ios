@@ -26,7 +26,6 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     @Published private(set) var notificationInput: NotificationViewInput?
     @Published private(set) var notificationIsLoading: Bool = false
     @Published private(set) var destination: TokenItemType?
-    @Published private(set) var tokenSelectorState: TokenSelectorState = .selector
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
@@ -52,6 +51,7 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     private weak var coordinator: ActionButtonsSwapRoutable?
 
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
+    private var destinationSelectionTask: Task<Void, Never>?
 
     init(
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
@@ -110,7 +110,23 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
             Task { await updateSourceToken(item: item) }
         case .token(let sourceItem, _):
             logPortfolioTokenSelected(item: item)
-            openSwap(source: sourceItem, receive: item)
+            destinationSelectionTask?.cancel()
+            destinationSelectionTask = Task { [weak self] in
+                await MainActor.run { [weak self] in
+                    self?.tokenSelectorViewModel.triggerScrollToTop()
+                    self?.updateDestinationToken(item: item)
+                }
+
+                do {
+                    try await Task.sleep(for: .seconds(Constants.scrollAnimationDelay))
+                } catch {
+                    return
+                }
+
+                await MainActor.run { [weak self] in
+                    self?.openSwap(source: sourceItem, receive: item)
+                }
+            }
         }
     }
 }
@@ -183,20 +199,21 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         await MainActor.run {
             source = .token(item, viewModel: viewModel)
             destination = .placeholder(text: Localization.actionButtonsYouWantToReceive)
+            tokenSelectorViewModel.triggerScrollToTop()
 
             if let walletModel = item.kind.walletModel {
                 coordinator?.showYieldNotificationIfNeeded(for: walletModel, completion: nil)
             }
         }
 
+        try? await Task.sleep(for: .seconds(Constants.scrollAnimationDelay))
+
         await updatePairs(sourceItem: item)
     }
 
-    func updateDestinationToken(item: AccountsAwareTokenSelectorItem) async {
+    func updateDestinationToken(item: AccountsAwareTokenSelectorItem) {
         let viewModel = itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) {}
-        await MainActor.run {
-            destination = .token(item, viewModel: viewModel)
-        }
+        destination = .token(item, viewModel: viewModel)
     }
 
     func updatePairs(sourceItem: AccountsAwareTokenSelectorItem) async {
@@ -204,7 +221,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
 
         do {
             _ = try await runWithDelayedLoading {
-                self.tokenSelectorState = .loading
+                self.tokenSelectorViewModel.setLoading()
             } operation: {
                 try await self.expressPairsRepository.updatePairs(
                     for: sourceItem.tokenItem.expressCurrency,
@@ -213,11 +230,8 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             }.value
 
             // We set the `filterTokenItem` after pairs is loading
+            try await Task.sleep(for: .seconds(Constants.scrollAnimationDelay))
             filterTokenItem.send(sourceItem.tokenItem)
-
-            await MainActor.run {
-                tokenSelectorState = .selector
-            }
         } catch let error as ExpressAPIError {
             await MainActor.run {
                 show(notification: .refreshRequired(
@@ -297,21 +311,8 @@ extension AccountsAwareActionButtonsSwapViewModel {
         }
     }
 
-    enum TokenSelectorState: Identifiable {
-        case loading
-        case selector
-
-        var id: String {
-            switch self {
-            case .loading: "loading"
-            case .selector: "selector"
-            }
-        }
-    }
-}
-
-extension AccountsAwareActionButtonsSwapViewModel {
     enum Constants {
         static let floatingSheetDismissDelay: TimeInterval = 0.2
+        static let scrollAnimationDelay: TimeInterval = 0.3
     }
 }

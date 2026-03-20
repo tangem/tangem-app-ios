@@ -15,9 +15,6 @@ import TangemAssets
 import TangemPay
 
 final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
-    @Injected(\.alertPresenterViewModel)
-    private var alertPresenterViewModel: AlertPresenterViewModel
-
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 

@@ -322,6 +322,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.receiveRestrictionPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -335,8 +344,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 // MARK: - SendReceiveTokenAmountOutput
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
-    func receiveAmountDidChanged(amount: SendAmount?) {
-        swapModel.receiveAmountDidChanged(amount: amount)
+    func receiveAmountDidChange(amount: SendAmount?) {
+        swapModel.receiveAmountDidChange(amount: amount)
     }
 }
 
@@ -451,20 +460,7 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap -> AnyPublisher<SendSummaryTransactionData?, Never> in
                 if isSwap {
-                    return Publishers
-                        .CombineLatest(
-                            model.transferModel.summaryTransactionDataPublisher,
-                            model.swapModel.summaryTransactionDataPublisher
-                        )
-                        .map { transferData, swapData -> SendSummaryTransactionData? in
-                            guard case .send(let amount, let fee) = transferData,
-                                  case .swap(let provider) = swapData else {
-                                return nil
-                            }
-
-                            return .sendWithSwap(amount: amount, fee: fee, provider: provider)
-                        }
-                        .eraseToAnyPublisher()
+                    return model.swapModel.summaryTransactionDataPublisher
                 } else {
                     return model.transferModel.summaryTransactionDataPublisher
                 }
@@ -601,19 +597,20 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - SendApproveDataBuilderInput
+// MARK: - ApproveFlowDataProvider, ApproveOutput
 
-extension SendWithSwapModel: SendApproveDataBuilderInput {
-    var approveRequestedByExpressProvider: ExpressProvider? {
-        isSwapMode ? swapModel.approveRequestedByExpressProvider : nil
+extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
+    func approveFlowInput() throws -> ApproveFlowInput {
+        guard isSwapMode else {
+            throw SendApproveViewModelInputDataBuilderError.notSupported
+        }
+
+        return try swapModel.approveFlowInput()
     }
 
-    var approveViewModelInput: (any ApproveViewModelInput)? {
-        isSwapMode ? swapModel.approveViewModelInput : nil
-    }
-
-    var approveRequestedWithSelectedPolicy: ApprovePolicy? {
-        isSwapMode ? swapModel.approveRequestedWithSelectedPolicy : nil
+    func approveDidSendTransaction() {
+        guard isSwapMode else { return }
+        swapModel.approveDidSendTransaction()
     }
 }
 

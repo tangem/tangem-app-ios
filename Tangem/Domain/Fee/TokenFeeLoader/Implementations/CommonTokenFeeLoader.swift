@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 
 struct CommonTokenFeeLoader {
     let tokenItem: TokenItem
