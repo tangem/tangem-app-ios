@@ -13,9 +13,10 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 
-struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentView: View>: View {
+struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentView: View, HeaderContentView: View>: View {
     @ObservedObject var viewModel: AccountsAwareTokenSelectorViewModel
     private let emptyContentView: EmptyContentView
+    private let headerContent: HeaderContentView
     private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
@@ -24,20 +25,25 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
         @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder headerContent: () -> HeaderContentView,
         @ViewBuilder additionalContent: () -> AdditionalContentView
     ) {
         self.viewModel = viewModel
         self.emptyContentView = emptyContentView()
         self.additionalContent = additionalContent()
+        self.headerContent = headerContent()
     }
 
     var body: some View {
         switch searchType {
         case .native:
-            scrollView { scrollContent }
-                .searchable(text: $viewModel.searchText)
-                .keyboardType(.asciiCapable)
-                .autocorrectionDisabled()
+            scrollView {
+                scrollContent
+            }
+            .searchable(text: $viewModel.searchText)
+            .keyboardType(.asciiCapable)
+            .autocorrectionDisabled()
+
         case .custom:
             scrollView {
                 CustomSearchBar(
@@ -48,38 +54,63 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 
                 scrollContent
             }
+
         case .none:
             scrollView { scrollContent }
         }
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            content()
-                .animation(.easeInOut, value: viewModel.contentVisibility)
+        ScrollViewReader { reader in
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                Color.clear.frame(height: 0).id(Constants.scrollToTopAnchorID)
+                content().animation(.contentFrameUpdate, value: viewModel.contentVisibility)
+            }
+            .onChange(of: viewModel.scrollToTopTrigger) { _ in
+                withAnimation {
+                    reader.scrollTo(Constants.scrollToTopAnchorID, anchor: .top)
+                }
+            }
         }
     }
 
     @ViewBuilder
     private var scrollContent: some View {
-        switch viewModel.contentVisibility {
-        case .empty:
-            emptyContentView
-                .transition(.move(edge: .top).combined(with: .opacity).animation(.easeInOut))
-        case .visible(let itemsCount):
-            if let sectionHeaderConfiguration {
-                sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
-            }
-
-            LazyVStack(spacing: 8) {
-                ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
-            }
-            .transition(.opacity.animation(.easeInOut))
+        if !viewModel.contentVisibility.isEmpty {
+            headerContent
         }
 
-        additionalContent
+        switch viewModel.contentVisibility {
+        case .empty:
+            emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
+        case .loading:
+            loadingView.transition(.content)
+        case .visible(let itemsCount):
+            tokenListContent(itemsCount: itemsCount).transition(.content)
+        }
 
-        FixedSpacer(height: 12)
+        if !viewModel.contentVisibility.isLoading {
+            additionalContent
+        }
+    }
+
+    private var loadingView: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+
+            Text(Localization.wcCommonLoading)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+        }
+        .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private func tokenListContent(itemsCount: Int) -> some View {
+        if let sectionHeaderConfiguration {
+            sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
+        }
+
+        ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
     }
 
     private func sectionHeader(
@@ -121,17 +152,67 @@ extension AccountsAwareTokenSelectorView {
         case native
         case custom
     }
+
+    private enum Constants {
+        static var scrollToTopAnchorID: String { "AccountsAwareTokenSelectorView.scrollToTopAnchor" }
+    }
 }
 
 // MARK: - Convenience init
 
-extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView {
+extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView, HeaderContentView == EmptyView {
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
         @ViewBuilder emptyContentView: () -> EmptyContentView
     ) {
-        self.viewModel = viewModel
-        self.emptyContentView = emptyContentView()
-        additionalContent = EmptyView()
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: { EmptyView() },
+            additionalContent: { EmptyView() }
+        )
     }
+}
+
+extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView {
+    init(
+        viewModel: AccountsAwareTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder headerContent: () -> HeaderContentView
+    ) {
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: headerContent,
+            additionalContent: { EmptyView() }
+        )
+    }
+}
+
+extension AccountsAwareTokenSelectorView where HeaderContentView == EmptyView {
+    init(
+        viewModel: AccountsAwareTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder additionalContent: () -> AdditionalContentView
+    ) {
+        self.init(
+            viewModel: viewModel,
+            emptyContentView: emptyContentView,
+            headerContent: { EmptyView() },
+            additionalContent: additionalContent
+        )
+    }
+}
+
+// MARK: - Animations and Transitions
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.1))
+    )
+}
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }

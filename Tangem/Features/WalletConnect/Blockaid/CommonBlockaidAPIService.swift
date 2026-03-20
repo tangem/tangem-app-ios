@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemNetworkUtils
 import BlockchainSdk
 import ReownWalletKit

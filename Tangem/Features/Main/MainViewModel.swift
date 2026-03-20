@@ -29,6 +29,7 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
+    let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
     private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
@@ -47,6 +48,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    private let headerHeightRatioSubject = PassthroughSubject<CGFloat, Never>()
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
@@ -70,6 +72,7 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        headerHeightRatioPublisher = headerHeightRatioSubject.eraseToAnyPublisher()
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -111,6 +114,10 @@ final class MainViewModel: ObservableObject {
         coordinator?.openDetails()
     }
 
+    func openQRScan() {
+        coordinator?.openQRScan()
+    }
+
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         guard !isLoggingOut else { return }
@@ -144,7 +151,6 @@ final class MainViewModel: ObservableObject {
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
         // being placed over the authorization screen.
-        // This is a workaround until [REDACTED_INFO] is implemented.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
@@ -157,6 +163,10 @@ final class MainViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.coordinator?.beginHandlingIncomingActions()
         }
+    }
+
+    func onHeaderHeightRatioChange(_ ratio: CGFloat) {
+        headerHeightRatioSubject.send(ratio)
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -175,7 +185,11 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.buttonEditWalletTapped)
 
         if let selectedModel = userWalletRepository.selectedModel,
-           let alert = AlertBuilder.makeWalletRenamingAlert(userWalletModel: selectedModel, userWalletRepository: userWalletRepository) {
+           let alert = AlertBuilder.makeWalletRenamingAlert(
+               userWalletModel: selectedModel,
+               userWalletRepository: userWalletRepository,
+               updateName: nil
+           ) {
             AppPresenter.shared.show(alert)
         }
     }
@@ -494,13 +508,13 @@ final class MainViewModel: ObservableObject {
         let page = pages[index]
 
         switch page {
-        case .singleWallet(_, _, let viewModel):
+        case .singleWallet(_, _, _, let viewModel):
             await viewModel?.onPullToRefresh()
-        case .multiWallet(_, _, let viewModel):
+        case .multiWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         case .lockedWallet:
             break
-        case .visaWallet(_, _, let viewModel):
+        case .visaWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
 
@@ -602,7 +616,6 @@ private extension MainViewModel {
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 0.5
-        // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }

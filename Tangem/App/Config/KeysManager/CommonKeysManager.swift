@@ -43,6 +43,7 @@ extension CommonKeysManager: KeysManager {
         BlockchainSdkKeysConfig(
             blockchairApiKeys: keys.blockchairApiKeys,
             blockcypherTokens: keys.blockcypherTokens,
+            alchemyApiKey: keys.alchemyApiKey,
             infuraProjectId: keys.infuraProjectId,
             nowNodesApiKey: keys.nowNodesApiKey,
             getBlockCredentials: .init(keys.getBlockAccessTokens),
@@ -163,6 +164,7 @@ extension CommonKeysManager {
         let mercuryoSecret: String
         let blockchairApiKeys: [String]
         let blockcypherTokens: [String]
+        let alchemyApiKey: String
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockAccessTokens: [String: [String: String]]
