@@ -29,6 +29,30 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
         for tokenItem: TokenItem,
         inUserWalletWithInfo userWalletInfo: UserWalletInfo
     ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+        guard let walletModel = findSourceWalletModel() else {
+            return nil
+        }
+
+        return makeSendWalletData(from: walletModel)
+    }
+
+    func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? {
+        guard let sourceWalletModel = findSourceWalletModel() else {
+            return nil
+        }
+
+        return .init(
+            walletAddresses: sourceWalletModel.addresses.map(\.value),
+            suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId),
+            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
+        )
+    }
+}
+
+// MARK: - Private
+
+private extension SendReceiveTokenWalletDataProvider {
+    func findSourceWalletModel() -> (any WalletModel)? {
         let targetTokenItem: TokenItem
 
         switch sourceToken.tokenItem.token?.metadata.kind {
@@ -38,30 +62,12 @@ extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenc
             targetTokenItem = sourceToken.feeTokenItem
         case .fungible,
              .none:
-            targetTokenItem = tokenItem
+            targetTokenItem = sourceToken.tokenItem
         }
 
-        guard let walletModel = findWalletModel(for: targetTokenItem, inUserWalletWithInfo: userWalletInfo) else {
-            return nil
-        }
-
-        return makeSendWalletData(from: walletModel)
+        return findWalletModel(for: targetTokenItem, inUserWalletWithInfo: sourceToken.userWalletInfo)
     }
 
-    func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId)
-
-        return .init(
-            walletAddresses: [],
-            suggestedWallets: suggestedWallets,
-            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
-        )
-    }
-}
-
-// MARK: - Private
-
-private extension SendReceiveTokenWalletDataProvider {
     func findWalletModel(for tokenItem: TokenItem, inUserWalletWithInfo userWalletInfo: UserWalletInfo) -> (any WalletModel)? {
         userWalletRepository
             .models
