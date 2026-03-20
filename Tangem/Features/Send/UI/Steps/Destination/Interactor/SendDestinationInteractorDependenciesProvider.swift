@@ -79,11 +79,12 @@ private extension SendDestinationInteractorDependenciesProvider {
     ///   determine which user wallet the receive token belongs to at this point
     func swapWalletData(for receiveToken: SendReceiveToken) -> SendingWalletData {
         let sourceWalletData = walletData(for: sourceToken.tokenItem)
+        let receiveSwapData = receiveTokenWalletDataProvider.swapWalletData(for: receiveToken.tokenItem)
 
         return SendingWalletData(
             walletAddresses: sourceWalletData.walletAddresses,
-            suggestedWallets: receiveTokenWalletDataProvider.suggestedWallets(for: receiveToken.tokenItem),
-            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
+            suggestedWallets: receiveSwapData.suggestedWallets,
+            destinationTransactionHistoryProvider: receiveSwapData.destinationTransactionHistoryProvider
         )
     }
 
@@ -149,6 +150,8 @@ extension SendDestinationInteractorDependenciesProvider {
             inUserWalletWithInfo userWalletInfo: UserWalletInfo
         ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
 
-        func suggestedWallets(for tokenItem: TokenItem) -> [SendDestinationSuggestedWallet]
+        func swapWalletData(
+            for tokenItem: TokenItem
+        ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData
     }
 }

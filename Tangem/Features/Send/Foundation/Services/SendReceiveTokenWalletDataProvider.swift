@@ -25,8 +25,14 @@ final class SendReceiveTokenWalletDataProvider {
 // MARK: - SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider
 
 extension SendReceiveTokenWalletDataProvider: SendDestinationInteractorDependenciesProvider.ReceiveTokenWalletDataProvider {
-    func suggestedWallets(for tokenItem: TokenItem) -> [SendDestinationSuggestedWallet] {
-        SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId)
+    func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
+        let suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(forNetworkId: tokenItem.blockchain.networkId)
+
+        return .init(
+            walletAddresses: [],
+            suggestedWallets: suggestedWallets,
+            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
+        )
     }
 
     func walletData(
