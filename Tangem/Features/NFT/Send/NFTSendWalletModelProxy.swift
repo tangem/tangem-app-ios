@@ -379,6 +379,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         lhs.id == rhs.id
     }
 
+    var receiveAddressTypes: [ReceiveAddressType] {
+        mainTokenWalletModel.receiveAddressTypes
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         mainTokenWalletModel.receiveAddressTypesPublisher
     }
