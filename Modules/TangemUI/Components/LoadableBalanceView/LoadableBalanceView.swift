@@ -76,11 +76,11 @@ public struct LoadableBalanceView: View {
         switch loader.cornerRadiusStyle {
         case .rounded(let radius):
             RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(Color.Tangem.Skeleton.backgroundPrimary)
+                .fill(loader.skeletonColor)
 
         case .capsule:
             Capsule(style: .continuous)
-                .fill(Color.Tangem.Skeleton.backgroundPrimary)
+                .fill(loader.skeletonColor)
         }
     }
 
@@ -144,25 +144,30 @@ public extension LoadableBalanceView {
         public let size: CGSize
         public let padding: EdgeInsets
         public let cornerRadiusStyle: CornerRadiusStyle
+        public let skeletonColor: Color
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadiusStyle: CornerRadiusStyle = .rounded(3)
+            cornerRadiusStyle: CornerRadiusStyle = .rounded(3),
+            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary
         ) {
             self.size = size
             self.padding = padding
             self.cornerRadiusStyle = cornerRadiusStyle
+            self.skeletonColor = skeletonColor
         }
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadius: CGFloat
+            cornerRadius: CGFloat,
+            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary
         ) {
             self.size = size
             self.padding = padding
             cornerRadiusStyle = .rounded(cornerRadius)
+            self.skeletonColor = skeletonColor
         }
     }
 }

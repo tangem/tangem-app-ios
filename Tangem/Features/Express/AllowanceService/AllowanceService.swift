@@ -12,7 +12,8 @@ import TangemExpress
 
 protocol AllowanceService: ExpressAllowanceProvider {
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState
-    func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult
+
+    func markApproveTransactionSent(spender: String) async
 }
 
 // MARK: - ExpressAllowanceProvider

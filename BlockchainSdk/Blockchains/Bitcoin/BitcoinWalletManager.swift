@@ -67,7 +67,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         networkService.getFee()
             .withWeakCaptureOf(self)
-            .tryAsyncMap { try await $0.processFee($1, amount: amount, destination: destination) }
+            .asyncTryMap { try await $0.processFee($1, amount: amount, destination: destination) }
             .eraseToAnyPublisher()
     }
 
@@ -136,7 +136,7 @@ extension BitcoinWalletManager: TransactionSender {
                 .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
         }
         .withWeakCaptureOf(self)
-        .tryAsyncMap { manager, signatures -> String in
+        .asyncTryMap { manager, signatures -> String in
             let tx = try await manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures)
             return tx.hex()
         }
