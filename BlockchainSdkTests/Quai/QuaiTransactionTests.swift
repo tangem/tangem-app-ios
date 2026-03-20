@@ -30,7 +30,7 @@ struct QuaiTransactionTests {
         let nonce = 23
 
         let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let signature = Data(hex: "d90a028a29161381e85b36ecd61c0196e45598df4a582c358402306717cbcf94675a492faf527c47e72ca1a28a45801d40ea5c61bcab0656dfc54382c5dc72df")
 
@@ -68,7 +68,7 @@ struct QuaiTransactionTests {
         let nonce = 23
 
         let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let signature = Data(hex: "01b7afc5d39533178dde5239e9a76f4a322ce4258d10cb11bf2bf572b8cb8788767b45597533ebc3811bc1be4c5a15ce3f71ee2df4c73b4381185930e363feb7")
 

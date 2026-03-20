@@ -31,7 +31,7 @@ public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSe
     }
 
     public init(isTestnet: Bool) {
-        wallet = .init(blockchain: VisaUtilities.visaBlockchain(isTestnet: isTestnet), addressesProvider: EmptyAddressesProvider())
+        wallet = .init(blockchain: VisaUtilities.visaBlockchain(isTestnet: isTestnet), publicKey: .init(seedKey: Data(), derivationType: nil), addressesProvider: EmptyAddressesProvider())
         state = .loaded
     }
 

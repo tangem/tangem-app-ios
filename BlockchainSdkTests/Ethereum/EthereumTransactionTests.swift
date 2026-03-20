@@ -43,7 +43,7 @@ struct EthereumTransactionTests {
         let destinationAddress = "0x7655b9b19ffab8b897f836857dae22a1e7f8d735"
         let nonce = 15
         let walletAddress = "0xb1123efF798183B7Cb32F62607D3D39E950d9cc3"
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
         let sendAmount = Amount(with: blockchain, type: .coin, value: 0.1)
         let feeParameters = EthereumLegacyFeeParameters(gasLimit: BigUInt(21000), gasPrice: BigUInt(476190476190))
 
@@ -137,7 +137,7 @@ struct EthereumTransactionTests {
         let walletAddress = "0x29010F8F91B980858EB298A0843264cfF21Fd9c9"
         let contractAddress = "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
         let token = Token(name: "Tether", symbol: "USDT", contractAddress: contractAddress, decimalCount: 6)
 
         let nonce = 195
@@ -183,7 +183,7 @@ struct EthereumTransactionTests {
 
         let walletAddress = "0x29010F8F91B980858EB298A0843264cfF21Fd9c9"
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let nonce = 196
         let sendValue = Amount(with: blockchain, type: .coin, value: 1)
@@ -230,7 +230,7 @@ struct EthereumTransactionTests {
         let spenderAddress = "0x111111125421cA6dc452d289314280a0f8842A65"
         let contractAddress = "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
         let destinationAddress = contractAddress
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: BigUInt(47000),
@@ -281,7 +281,7 @@ struct EthereumTransactionTests {
         let walletAddress = "0xF686Cc42C39e942D5B4a237286C5A55B451bD6F0"
         let contractAddress = "0x111111125421ca6dc452d289314280a0f8842a65"
         let destinationAddress = contractAddress
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: BigUInt(156360),
@@ -328,7 +328,7 @@ struct EthereumTransactionTests {
         let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let walletAddress = Data(repeating: 0x0, count: 20).hexString // Just a dummy value to satisfy the compiler
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let sendValue = EthereumUtils.mapToBigUInt(1 * blockchain.decimalValue).serialize()
         let feeParameters = EthereumEIP1559FeeParameters(
@@ -375,7 +375,7 @@ struct EthereumTransactionTests {
         let rawPublicKey = Data(repeating: 0x0, count: 65) // Just a dummy value to satisfy the compiler
         let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let walletAddress = Data(repeating: 0x0, count: 20).hexString // Just a dummy value to satisfy the compiler
-        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+        let sourceAddress = PlainAddress(value: walletAddress, type: .default)
 
         let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 10, sourceAddress: sourceAddress)
         let amount = try #require(Decimal(stringValue: "1146241"))

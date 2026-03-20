@@ -20,7 +20,6 @@ struct KoinosWalletManagerTests {
                 addressesProvider: CommonAddressesProvider(
                     defaultAddress: PlainAddress(
                         value: "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp",
-                        publicKey: .init(seedKey: .init(), derivationType: nil),
                         type: .default
                     )
                 )
