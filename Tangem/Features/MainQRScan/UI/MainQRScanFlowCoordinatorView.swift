@@ -29,6 +29,13 @@ struct MainQRScanFlowCoordinatorView: CoordinatorView {
                 MainQRScanCoordinatorView(coordinator: qrScanCoordinator)
                     .transition(SendTransitions.transition)
             }
+        case .tokenSelector:
+            if let tokenSelectorViewModel = coordinator.tokenSelectorViewModel {
+                NavigationStack {
+                    MainQRScanTokenSelectorView(viewModel: tokenSelectorViewModel)
+                }
+                .transition(SendTransitions.transition)
+            }
         case .send:
             if let sendCoordinator = coordinator.sendCoordinator {
                 SendCoordinatorView(coordinator: sendCoordinator)
