@@ -261,13 +261,14 @@ private extension CommonExpressManager {
 
     func bestByRateProvider() -> ExpressAvailableProvider? {
         let isFixedRate = _amountType?.rateType == .fixed
-        var hasProviderWithQuote = false
 
-        let bests = availableProviders.sorted(by: { lhsProvider, rhsProvider in
+        guard availableProviders.contains(where: { $0.getState().quote != nil }) else {
+            return nil
+        }
+
+        return availableProviders.sorted(by: { lhsProvider, rhsProvider in
             let lhsQuote = lhsProvider.getState().quote
             let rhsQuote = rhsProvider.getState().quote
-
-            hasProviderWithQuote = lhsQuote != nil || rhsQuote != nil
 
             if isFixedRate {
                 // Fixed mode: lowest fromAmount is best (cheapest cost for user)
@@ -278,13 +279,7 @@ private extension CommonExpressManager {
                 guard let lhs = lhsQuote?.expectAmount, let rhs = rhsQuote?.expectAmount else { return false }
                 return lhs > rhs
             }
-        })
-
-        if hasProviderWithQuote, let best = bests.first {
-            return best
-        }
-
-        return nil
+        }).first
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {

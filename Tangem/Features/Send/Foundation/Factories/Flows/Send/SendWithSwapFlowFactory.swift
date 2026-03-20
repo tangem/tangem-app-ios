@@ -33,8 +33,6 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         predefinedValues: predefinedTransferValues
     )
-    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
-
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: .none,
