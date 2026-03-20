@@ -31,22 +31,27 @@ struct MainQRAddressRequest: Equatable {
 struct MainQRNoSupportedTokensContext: Equatable {
     let symbol: String?
     let networkId: String?
+    let qrType: String?
 
     init(
         symbol: String?,
-        networkId: String?
+        networkId: String?,
+        qrType: String? = nil
     ) {
         let trimmedSymbol = symbol?.trimmingCharacters(in: .whitespacesAndNewlines)
         self.symbol = (trimmedSymbol?.isEmpty == false) ? trimmedSymbol : nil
 
         let trimmedNetworkId = networkId?.trimmingCharacters(in: .whitespacesAndNewlines)
         self.networkId = (trimmedNetworkId?.isEmpty == false) ? trimmedNetworkId : nil
+
+        self.qrType = qrType
     }
 
     static func payment(_ request: MainQRPaymentRequest) -> MainQRNoSupportedTokensContext {
         return MainQRNoSupportedTokensContext(
             symbol: request.tokenSymbol,
-            networkId: request.blockchain.networkId
+            networkId: request.blockchain.networkId,
+            qrType: Analytics.ParameterValue.paymentUri.rawValue
         )
     }
 }
