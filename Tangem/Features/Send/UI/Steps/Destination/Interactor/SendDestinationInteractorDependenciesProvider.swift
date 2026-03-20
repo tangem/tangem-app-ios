@@ -60,18 +60,10 @@ private extension SendDestinationInteractorDependenciesProvider {
     var currentWalletData: SendingWalletData {
         switch receivedToken {
         case .none:
-            return sendWalletData()
+            return receiveTokenWalletDataProvider.sendWalletData() ?? .empty
         case .some(let receiveToken):
-            return swapWalletData(for: receiveToken)
+            return receiveTokenWalletDataProvider.swapWalletData(for: receiveToken.tokenItem) ?? .empty
         }
-    }
-
-    func swapWalletData(for receiveToken: SendReceiveToken) -> SendingWalletData {
-        receiveTokenWalletDataProvider.swapWalletData(for: receiveToken.tokenItem) ?? .empty
-    }
-
-    func sendWalletData() -> SendingWalletData {
-        receiveTokenWalletDataProvider.sendWalletData() ?? .empty
     }
 
     func makeValidator() -> SendDestinationValidator {
