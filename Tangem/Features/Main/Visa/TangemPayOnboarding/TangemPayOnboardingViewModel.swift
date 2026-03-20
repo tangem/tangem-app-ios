@@ -6,7 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemVisa
+import Combine
+import TangemFoundation
 import TangemPay
 
 enum TangemPayOnboardingSource {
@@ -15,64 +16,58 @@ enum TangemPayOnboardingSource {
 }
 
 final class TangemPayOnboardingViewModel: ObservableObject {
-    @Injected(\.tangemPayAvailabilityRepository)
-    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-
     let closeOfferScreen: @MainActor () -> Void
-    @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
+    @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     private let source: TangemPayOnboardingSource
+    private let availableSelection: TangemPayWalletSelectionType
     private let availabilityService: TangemPayAvailabilityService
     private weak var coordinator: TangemPayOnboardingRoutable?
 
     init(
         source: TangemPayOnboardingSource,
+        availableSelection: TangemPayWalletSelectionType,
+        availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build(),
         coordinator: TangemPayOnboardingRoutable?,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
         self.source = source
+        self.availableSelection = availableSelection
+        self.availabilityService = availabilityService
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
-
-        availabilityService = TangemPayAvailabilityServiceBuilder().build()
     }
 
+    @MainActor
     func onAppear() {
-        Task {
-            await prepareTangemPayOffer()
-        }
-    }
+        switch source {
+        case .other:
+            tangemPayOfferViewModel = TangemPayOfferViewModel(
+                walletSelectionType: availableSelection,
+                closeOfferScreen: closeOfferScreen,
+                coordinator: coordinator
+            )
 
-    private func prepareTangemPayOffer() async {
-        let minimumLoaderShowingTimeTask = Task {
-            try await Task.sleep(nanoseconds: 800_000_000)
-        }
-
-        do {
-            guard
-                let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection
-            else {
-                throw TangemPayOnboardingError.offerIsNotAvailable
+        case .deeplink(let deeplinkString):
+            let minimumLoaderShowingTimeTask = Task {
+                try await Task.sleep(nanoseconds: 800_000_000)
             }
 
-            switch source {
-            case .deeplink(let deeplink):
-                try await validateDeeplink(deeplinkString: deeplink)
-            case .other:
-                try await requestEligibility()
-            }
-            try? await minimumLoaderShowingTimeTask.value
+            runTask { [self] in
+                do {
+                    try await validateDeeplink(deeplinkString: deeplinkString)
+                    try? await minimumLoaderShowingTimeTask.value
 
-            await MainActor.run {
-                tangemPayOfferViewModel = TangemPayOfferViewModel(
-                    walletSelectionType: availableSelection,
-                    closeOfferScreen: closeOfferScreen,
-                    coordinator: coordinator
-                )
+                    tangemPayOfferViewModel = TangemPayOfferViewModel(
+                        walletSelectionType: availableSelection,
+                        closeOfferScreen: closeOfferScreen,
+                        coordinator: coordinator
+                    )
+                } catch {
+                    try? await minimumLoaderShowingTimeTask.value
+                    closeOfferScreen()
+                }
             }
-        } catch {
-            try? await minimumLoaderShowingTimeTask.value
-            await closeOfferScreen()
         }
     }
 
@@ -83,17 +78,6 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             break
         case .invalid:
             throw TangemPayOnboardingError.invalidDeeplink
-        }
-    }
-
-    private func requestEligibility() async throws {
-        let isTangemPayAvailable = await tangemPayAvailabilityRepository.requestEligibility()
-        await MainActor.run {
-            AppSettings.shared.tangemPayIsEligibilityAvailable = isTangemPayAvailable
-        }
-
-        if !isTangemPayAvailable {
-            throw TangemPayOnboardingError.tangemPayIsNotAvailable
         }
     }
 }
