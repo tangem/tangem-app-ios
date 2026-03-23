@@ -16,8 +16,7 @@ struct CommonExpressDestinationService {
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
     @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
 
-    /// [REDACTED_TODO_COMMENT]
-    /// [REDACTED_INFO]
+    // [REDACTED_TODO_COMMENT]
     private let userWalletId: UserWalletId?
 
     init(userWalletId: UserWalletId?) {
