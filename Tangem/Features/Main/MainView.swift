@@ -43,14 +43,12 @@ struct MainView: View {
             selectedIndex: $viewModel.selectedCardIndex,
             navigationFactory: makeRedesignedNavigation,
             headerFactory: makeRedesignedHeader,
-            bodyFactory: makeRedesignedBody
+            bodyFactory: makeRedesignedBody,
+            bottomOverlayFactory: makeRedesignedBottomOverlay
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onHeaderHeightRatioChange(viewModel.onHeaderHeightRatioChange)
         .onPageChange(viewModel.onPageChange(dueTo:))
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            Color.clear.frame(height: overlayCollapsedHeight)
-        }
     }
 
     private func makeRedesignedNavigation(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
@@ -71,6 +69,16 @@ struct MainView: View {
 
     private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
         pageBuilder.body
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: overlayCollapsedHeight)
+            }
+    }
+
+    private func makeRedesignedBottomOverlay(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        RedesignedBottomOverlay(
+            refreshScrollViewInteractor: viewModel.refreshScrollViewStateObject.scrollViewInteractor,
+            pageBuilder: pageBuilder
+        )
     }
 
     private var cardsInfoPagerContent: some View {

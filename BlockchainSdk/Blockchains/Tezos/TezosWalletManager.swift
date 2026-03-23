@@ -47,7 +47,7 @@ extension TezosWalletManager: TransactionSender {
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         guard let contents = txBuilder.buildContents(transaction: transaction) else {
-            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx, currentHost: currentHost)
         }
 
         return networkService
@@ -99,10 +99,10 @@ extension TezosWalletManager: TransactionSender {
                         wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: rawTransaction, currentProviderHost: currentHost)
                     }
-                    .mapAndEraseSendTxError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction, currentHost: currentHost)
                     .eraseToAnyPublisher()
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 

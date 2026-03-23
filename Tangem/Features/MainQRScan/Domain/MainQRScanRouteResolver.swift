@@ -12,13 +12,16 @@ import BlockchainSdk
 struct MainQRScanRouteResolver {
     private let parser: MainQRCodeContentParser
     private let addressResolver: AddressBlockchainResolver
+    private let tokenItemMatcher: MainQRTokenItemMatcher
 
     init(
         parser: MainQRCodeContentParser = MainQRCodeContentParser(),
-        addressResolver: AddressBlockchainResolver = AddressBlockchainResolver()
+        addressResolver: AddressBlockchainResolver = AddressBlockchainResolver(),
+        tokenItemMatcher: MainQRTokenItemMatcher = MainQRTokenItemMatcher()
     ) {
         self.parser = parser
         self.addressResolver = addressResolver
+        self.tokenItemMatcher = tokenItemMatcher
     }
 
     func resolve(
@@ -47,38 +50,14 @@ struct MainQRScanRouteResolver {
         availableBlockchains: [Blockchain],
         availableTokenItems: [TokenItem]
     ) -> MainQRScanAction {
-        let matchingTokenItems: [TokenItem]
-        if let tokenContractAddress = request.tokenContractAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !tokenContractAddress.isEmpty {
-            let normalizedContractAddress = tokenContractAddress.lowercased()
-            let matchedContractTokenItems = availableTokenItems.filter {
-                $0.blockchain == request.blockchain
-                    && $0.contractAddress?.lowercased() == normalizedContractAddress
-            }
-            let tokenMatchCount = matchedContractTokenItems.count
+        let matchingTokenItems = tokenItemMatcher.matchTokenItems(
+            for: request,
+            availableTokenItems: availableTokenItems,
+            availableBlockchains: availableBlockchains
+        )
 
-            guard tokenMatchCount > 0 else {
-                return .showNoSupportedTokens
-            }
-
-            matchingTokenItems = matchedContractTokenItems
-        } else {
-            let sameBlockchainItems = availableTokenItems.filter { $0.blockchain == request.blockchain }
-            if sameBlockchainItems.isEmpty {
-                let fallbackMatches = availableBlockchains
-                    .filter { $0 == request.blockchain }
-                    .map { TokenItem.blockchain(BlockchainNetwork($0, derivationPath: nil)) }
-                matchingTokenItems = fallbackMatches
-            } else {
-                let coinItems = sameBlockchainItems.filter(\.isBlockchain)
-                matchingTokenItems = coinItems.isEmpty ? sameBlockchainItems : coinItems
-            }
-        }
-
-        let matchCount = matchingTokenItems.count
-
-        guard matchCount > 0 else {
-            return .showNoSupportedTokens
+        guard !matchingTokenItems.isEmpty else {
+            return .showNoSupportedTokens(.payment(request))
         }
 
         let resolvedRequest = MainQRResolvedPaymentRequest(
@@ -86,12 +65,7 @@ struct MainQRScanRouteResolver {
             matchingTokenItems: matchingTokenItems
         )
 
-        switch matchCount {
-        case 1:
-            return .paymentSingle(resolvedRequest)
-        default:
-            return .paymentMultiple(resolvedRequest)
-        }
+        return .payment(resolvedRequest)
     }
 
     private func actionForAddress(
@@ -105,7 +79,8 @@ struct MainQRScanRouteResolver {
             )
 
             if !globallyCompatibleBlockchains.isEmpty {
-                return .showNoSupportedTokens
+                MainQRScanLogger.warning(MainQRScanLoggerStrings.addressQRGloballyValidWithoutAvailableBlockchains)
+                return .showNoSupportedTokens()
             }
         }
 
@@ -116,22 +91,15 @@ struct MainQRScanRouteResolver {
         let uniqueMatchingBlockchains = orderedUniqueBlockchains(
             from: availableBlockchains.filter { compatibleBlockchains.contains($0) }
         )
-        let matchCount = uniqueMatchingBlockchains.count
 
-        let addressRequest = MainQRAddressRequest(
-            destinationAddress: address,
-            matchingBlockchains: uniqueMatchingBlockchains,
-            matchCount: matchCount
-        )
-
-        switch matchCount {
-        case 0:
+        guard !uniqueMatchingBlockchains.isEmpty else {
             return .showUnrecognized
-        case 1:
-            return .addressSingle(addressRequest)
-        default:
-            return .addressMultiple(addressRequest)
         }
+
+        return .address(MainQRAddressRequest(
+            destinationAddress: address,
+            matchingBlockchains: uniqueMatchingBlockchains
+        ))
     }
 
     private func orderedUniqueBlockchains(from blockchains: [Blockchain]) -> [Blockchain] {

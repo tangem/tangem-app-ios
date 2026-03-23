@@ -21,7 +21,7 @@ struct TangemPayAvailabilityAPITarget: TargetType {
     var path: String {
         switch target {
         case .getEligibility:
-            return "customer/eligibility"
+            return "eligibility/channels"
         case .validateDeeplink:
             return "deeplink/validate"
         case .isPaeraCustomer(let customerWalletId):
