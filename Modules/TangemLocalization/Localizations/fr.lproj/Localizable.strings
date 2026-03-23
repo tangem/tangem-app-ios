@@ -1366,6 +1366,7 @@
 "swapping_high_price_impact_description" = "Échanger ce montant de jetons sélectionnés aura un impact significatif sur les prix et réduira votre résultat.";
 "swapping_high_price_impact_title" = "Impact élevé sur les prix";
 "swapping_insufficient_funds" = "Fonds insuffisants";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
 "swapping_swap_action_in_progress" = "Échange...";
