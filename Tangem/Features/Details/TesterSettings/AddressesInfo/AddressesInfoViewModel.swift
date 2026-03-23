@@ -29,7 +29,7 @@ final class AddressesInfoViewModel: ObservableObject {
         var wallets: [WalletInfoJSON] = []
 
         for userWallet in userWalletRepository.models {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWallet)
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWallet.accountModelsManager)
 
             for walletModel in walletModels {
                 let derivationPath = walletModel.publicKey.derivationPath

@@ -139,7 +139,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
+            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager),
             updatePublisher: userWalletModel.updatePublisher
         )
 
@@ -381,7 +381,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
     private func makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: Bool) throws -> NFTEntrypointViewModel? {
-        let hasWallets = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isNotEmpty
+        let hasWallets = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager).isNotEmpty
 
         // NFT Entrypoint is shown only if the feature is enabled for the wallet and there is at least one token in the token list
         guard isNFTEnabledForWallet, hasWallets else {
@@ -589,8 +589,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             },
             onTap: { [weak self] in
                 guard let userWalletModel = self?.userWalletModel,
-                      let walletModel = AccountsFeatureAwareWalletModelsResolver
-                      .walletModels(for: userWalletModel)
+                      let walletModel = AccountWalletModelsAggregator
+                      .walletModels(from: userWalletModel.accountModelsManager)
                       .first(where: { model in model.id == output.walletModelId })
                 else {
                     return
@@ -655,7 +655,7 @@ extension MultiWalletMainContentViewModel {
             data: [
                 .init(
                     userWalletEmailData: userWalletModel.emailData,
-                    walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+                    walletModels: AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
                 ),
             ]
         )
@@ -693,7 +693,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func findCloreWalletModelForMigration() -> (any WalletModel)? {
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
         let walletModelWithBalance = walletModels.first {
             $0.tokenItem.blockchain == .clore && ($0.totalTokenBalanceProvider.balanceType.value ?? 0) > 0

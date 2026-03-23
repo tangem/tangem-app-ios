@@ -59,7 +59,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
     }
 
     func updateMarkets() {
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
+        let walletModels = userWalletRepository.models.flatMap { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) }
         let chainIDs = Set(
             walletModels.compactMap { walletModel -> String? in
                 guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
@@ -146,7 +146,7 @@ private extension CommonYieldModuleNetworkManager {
         let allWalletModelsPublisher = allUserWalletModelsPublisher
             .map { userWalletModels in
                 userWalletModels.map { userWalletModel in
-                    AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+                    AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager)
                 }
             }
             .flatMapLatest { publishers -> AnyPublisher<[any WalletModel], Never> in

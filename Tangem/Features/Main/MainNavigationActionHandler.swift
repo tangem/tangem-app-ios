@@ -331,7 +331,7 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
-        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        var walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
         // If derivation is missing, prefer main account's wallet model - this is why we sort them here
         walletModels.sort { first, second in

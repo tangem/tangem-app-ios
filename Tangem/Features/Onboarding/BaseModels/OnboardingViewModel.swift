@@ -513,7 +513,7 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
@@ -535,7 +535,7 @@ extension OnboardingViewModel {
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
