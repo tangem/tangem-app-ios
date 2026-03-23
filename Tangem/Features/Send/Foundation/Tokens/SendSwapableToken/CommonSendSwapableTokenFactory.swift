@@ -56,9 +56,15 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         case .onramp: .onramp
         }
 
+        let swapAvailabilityProvider = CommonSwapAvailabilityProvider(
+            tokenItem: walletModel.tokenItem,
+            userWalletConfig: userWalletInfo.config
+        )
+
         return CommonSendSwapableToken(
             sourceToken: sourceToken,
             isExemptFee: false,
+            swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,

@@ -29,8 +29,7 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
         let coinTokenFeeProvider = makeMainTokenFeeProvider()
         var feeProviders = [coinTokenFeeProvider]
 
-        // Only a token sending support gasless fee
-        if walletModel.tokenItem.isToken {
+        if walletModel.tokenItem.token?.metadata.kind == .fungible {
             let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders()
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }

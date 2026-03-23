@@ -275,6 +275,7 @@
 "common_hour" = "hora";
 "common_import" = "Importe";
 "common_in_progress" = "En progreso";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Más tarde";
 "common_learn_and_earn" = "Aprende y gane";
 "common_learn_more" = "Más información";
@@ -704,6 +705,7 @@
 "markets_search_result_title" = "Resultado";
 "markets_search_see_tokens_under_100k" = "Ver tokens con marketcap inferior a 100.000$";
 "markets_search_show_tokens" = "Mostrar tokens";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "Sin resultado";
 "markets_select_network" = "Seleccione una red";
 "markets_select_wallet" = "Seleccione una billetera";

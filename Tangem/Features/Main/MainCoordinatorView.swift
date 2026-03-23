@@ -27,13 +27,19 @@ struct MainCoordinatorView: CoordinatorView {
                 if let mainViewModel = coordinator.mainViewModel {
                     MainView(viewModel: mainViewModel)
                         .navigationLinks(links)
+                        .onDidAppear { [weak coordinator] in
+                            coordinator?.showMarketsTooltip()
+                        }
+                        .onWillDisappear { [weak coordinator] in
+                            coordinator?.hideMarketsTooltipTemporarily()
+                        }
                 }
 
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
                 if !state.isCollapsed {
-                    coordinator?.hideMarketsTooltip()
+                    coordinator?.dismissMarketsTooltip()
                 } else {
                     // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
                     // [REDACTED_INFO]
@@ -179,7 +185,7 @@ struct MainCoordinatorView: CoordinatorView {
     private var marketsTooltipView: some View {
         BasicTooltipView(
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
-            onHideAction: coordinator.hideMarketsTooltip,
+            onHideAction: coordinator.dismissMarketsTooltip,
             title: Localization.marketsTooltipTitle,
             message: Localization.marketsTooltipMessage,
             leadingIcon: Assets.plusMini

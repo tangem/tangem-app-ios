@@ -275,6 +275,7 @@
 "common_hour" = "година";
 "common_import" = "Імпортувати";
 "common_in_progress" = "В процесі";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
 "common_learn_more" = "Дізнатися більше";
@@ -704,6 +705,7 @@
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Переглянути токени до 100к USD ринкової капіталізації";
 "markets_search_show_tokens" = "Показати токени";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "Жодного результату";
 "markets_select_network" = "Виберіть мережу";
 "markets_select_wallet" = "Оберіть гаманець";
