@@ -101,9 +101,22 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        MultiWalletTokenItemsEmptyView()
-            .padding(.top, 96)
-            .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        VStack(spacing: .unit(.x2)) {
+            MultiWalletTokenItemsEmptyView()
+                .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
+                .textColor(Color.Tangem.Text.Neutral.tertiary)
+                .spacing(.unit(.x5))
+
+            TangemButton(
+                content: .text(AttributedString(Localization.commonAddTokens)),
+                action: viewModel.onAddTokensTap
+            )
+            .setCornerStyle(.rounded)
+            .setStyleType(.secondary)
+            .setSize(.x10)
+            .setHorizontalLayout(.intrinsic)
+        }
+        .padding(.top, .unit(.x9))
     }
 
     // MARK: - Accounts List
