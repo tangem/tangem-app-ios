@@ -18,6 +18,7 @@ final class CommonDeeplinkPresenter {
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let coordinatorFactory: MainCoordinatorChildFactory
 
@@ -286,13 +287,15 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructTangemPayOnboardViewController(
-        deeplinkString: String
-    ) -> UIViewController {
+    private func constructTangemPayOnboardViewController(deeplinkString: String) -> UIViewController? {
+        guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
+            return nil
+        }
+
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             UIApplication.dismissTop()
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString)))
+        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
 
         return makeDeeplinkViewController(
             view: {

@@ -16,8 +16,20 @@ struct SendSuggestedWalletsFactory {
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     func makeSuggestedWallets(walletModel: any WalletModel) -> [SendDestinationSuggestedWallet] {
-        let ignoredAddresses = walletModel.addresses.map(\.value).toSet()
-        let targetNetworkId = walletModel.tokenItem.blockchain.networkId
+        makeSuggestedWallets(
+            targetNetworkId: walletModel.tokenItem.blockchain.networkId,
+            ignoredAddresses: walletModel.addresses.map(\.value).toSet(),
+            referenceTokenItem: walletModel.tokenItem
+        )
+    }
+
+    /// - Parameter referenceTokenItem: When non-nil, used to match TangemPay deposit accounts
+    ///   so that a Visa deposit address is included in the suggested wallets.
+    func makeSuggestedWallets(
+        targetNetworkId: String,
+        ignoredAddresses: Set<String>,
+        referenceTokenItem: TokenItem
+    ) -> [SendDestinationSuggestedWallet] {
         let shouldShowAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         let wallets = userWalletRepository.models.flatMap { userWalletModel in
@@ -46,8 +58,8 @@ struct SendSuggestedWalletsFactory {
             }
 
             if let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
-               walletModel.tokenItem.token == tangemPayAccount.paymentTokenItem.token,
-               walletModel.tokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
+               referenceTokenItem.token == tangemPayAccount.paymentTokenItem.token,
+               referenceTokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
                let depositAddress = tangemPayAccount.depositAddress {
                 results.append(
                     SendDestinationSuggestedWallet(
