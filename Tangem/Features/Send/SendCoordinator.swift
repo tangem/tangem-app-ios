@@ -104,6 +104,7 @@ extension SendCoordinator {
         case actionButtons
         case nft
         case onboarding
+        case qrScan
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -114,6 +115,7 @@ extension SendCoordinator {
             case .actionButtons: .main
             case .nft: .nft
             case .onboarding: .onboarding
+            case .qrScan: .qr
             }
         }
     }
@@ -255,13 +257,7 @@ extension SendCoordinator: SwapRoutable {
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
-        // Create external search view model if feature toggle is enabled
-        let marketsTokensViewModel: SwapMarketsTokensViewModel?
-        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-            marketsTokensViewModel = SwapMarketsTokensViewModel()
-        } else {
-            marketsTokensViewModel = nil
-        }
+        let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
         swapTokenSelectorViewModel = swapTokenSelectorViewModelBuilder.makeSwapTokenSelectorViewModel(
             direction: direction,
