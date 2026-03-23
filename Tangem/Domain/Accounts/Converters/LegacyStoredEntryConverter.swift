@@ -28,8 +28,26 @@ enum LegacyStoredEntryConverter {
         legacyStoredTokenListToAppearance legacyStoredTokenList: StoredUserTokenList
     ) -> CryptoAccountPersistentConfig.TokenListAppearance {
         return CryptoAccountPersistentConfig.TokenListAppearance(
-            grouping: legacyStoredTokenList.grouping,
-            sorting: legacyStoredTokenList.sorting
+            grouping: convert(legacyGrouping: legacyStoredTokenList.grouping),
+            sorting: convert(legacySorting: legacyStoredTokenList.sorting)
         )
+    }
+
+    private static func convert(legacyGrouping: StoredUserTokenList.Grouping) -> StoredCryptoAccount.Grouping {
+        switch legacyGrouping {
+        case .none:
+            return .none
+        case .byBlockchainNetwork:
+            return .byBlockchainNetwork
+        }
+    }
+
+    private static func convert(legacySorting: StoredUserTokenList.Sorting) -> StoredCryptoAccount.Sorting {
+        switch legacySorting {
+        case .manual:
+            return .manual
+        case .byBalance:
+            return .byBalance
+        }
     }
 }
