@@ -204,6 +204,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
+    func onAddTokensTap() {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+            return
+        }
+
+        coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
+    }
+
     @MainActor
     private func setIsUpdating(_ newValue: Bool) {
         isUpdating = newValue
