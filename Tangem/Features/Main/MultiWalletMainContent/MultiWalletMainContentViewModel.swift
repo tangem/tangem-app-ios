@@ -399,8 +399,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            // accounts_fixes_needed_none
-            walletModelsManager: userWalletModel.walletModelsManager
+            walletModelsManager: userWalletModel.walletModelsManager // Not used when accounts are enabled, will be removed in [REDACTED_INFO]
         )
 
         return NFTEntrypointViewModel(
