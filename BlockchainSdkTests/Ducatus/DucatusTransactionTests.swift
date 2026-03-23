@@ -17,7 +17,7 @@ struct DucatusTransactionTests {
         let pubKey = Data(hexString: "02b4a38ad5f363f91b9285a8c28040d87eb70bb63fee172f62aad261021d44e051")
         let addressService = AddressServiceFactory(blockchain: .ducatus).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .ducatus(changeAddress: address)
+        let unspentOutputManager: UnspentOutputManager = .ducatus(address: address)
 
         unspentOutputManager.update(
             outputs: [

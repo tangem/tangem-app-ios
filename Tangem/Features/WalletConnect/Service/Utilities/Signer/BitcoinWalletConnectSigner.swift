@@ -17,7 +17,7 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
         try await sign(
             data: data,
             using: walletModel,
-            address: walletModel.defaultAddress.value
+            address: walletModel.defaultAddress
         )
     }
 
@@ -30,7 +30,7 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
                         signedHash: signedHash,
                         hash: hashes[index],
                         publicKey: pubKey.blockchainKey,
-                        address: walletModel.defaultAddress.value
+                        address: walletModel.defaultAddress
                     )
                 }
             }

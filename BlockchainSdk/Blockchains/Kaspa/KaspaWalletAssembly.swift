@@ -33,7 +33,7 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
             ),
         ]
 
-        let unspentOutputManager: UnspentOutputManager = .kaspa(changeAddress: input.wallet.changeAddress)
+        let unspentOutputManager: UnspentOutputManager = .kaspa(address: input.wallet.defaultAddress)
         let txBuilder = KaspaTransactionBuilder(
             walletPublicKey: input.wallet.publicKey,
             unspentOutputManager: unspentOutputManager,

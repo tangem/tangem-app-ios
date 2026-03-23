@@ -50,10 +50,10 @@ extension CommonSendDestinationWalletDataProvider: SendDestinationInteractorDepe
             return nil
         }
 
-        let walletAddresses = sourceWalletModel.addresses.map(\.value)
+        let walletAddresses = sourceWalletModel.addresses
 
         return .init(
-            walletAddresses: walletAddresses,
+            addresses: walletAddresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
                 targetNetworkId: tokenItem.blockchain.networkId,
                 ignoredAddresses: walletAddresses.toSet(),
@@ -100,10 +100,10 @@ private extension CommonSendDestinationWalletDataProvider {
     }
 
     func makeSendWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let walletAddresses = walletModel.addresses.map(\.value)
+        let walletAddresses = walletModel.addresses
 
         return .init(
-            walletAddresses: walletAddresses,
+            addresses: walletAddresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel),
             destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
                 transactionHistoryUpdater: walletModel,

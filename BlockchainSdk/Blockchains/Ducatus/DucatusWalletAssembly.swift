@@ -10,7 +10,7 @@ import Foundation
 
 struct DucatusWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .ducatus(changeAddress: input.wallet.changeAddress)
+        let unspentOutputManager: UnspentOutputManager = .ducatus(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: DucatusNetworkParams(),
             unspentOutputManager: unspentOutputManager,

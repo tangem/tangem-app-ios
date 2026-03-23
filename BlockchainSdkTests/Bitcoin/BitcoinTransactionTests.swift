@@ -30,7 +30,7 @@ struct BitcoinTransactionTests {
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
-        let unspentOutputManager: UnspentOutputManager = .bitcoin(changeAddress: defaultAddress, sorter: TestUTXOTransactionInputsSorter(), isTestnet: false)
+        let unspentOutputManager: UnspentOutputManager = .bitcoin(address: defaultAddress, sorter: TestUTXOTransactionInputsSorter(), isTestnet: false)
         unspentOutputManager.update(
             outputs: [.init(blockId: 891646, txId: "ea8412e1d07d97c14be929c265691b6088cda91f518584c62345d52fb3779b13", index: 0, amount: 1000)],
             for: defaultAddress
@@ -88,7 +88,7 @@ struct BitcoinTransactionTests {
         let defaultAddress = try #require(addresses.first(where: { $0.type == .default }))
         let legacyAddress = try #require(addresses.first(where: { $0.type == .legacy }))
 
-        let unspentOutputManager: UnspentOutputManager = .bitcoin(changeAddress: defaultAddress, isTestnet: false)
+        let unspentOutputManager: UnspentOutputManager = .bitcoin(address: defaultAddress, isTestnet: false)
         unspentOutputManager.update(
             outputs: [.init(blockId: 891765, txId: "1df3c8aa649e1c1b3760685a0fc1ac7b3dd9be7e0ab35f7accf8195737e6caac", index: 0, amount: 1730)],
             for: defaultAddress

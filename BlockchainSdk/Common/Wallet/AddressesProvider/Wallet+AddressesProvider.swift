@@ -10,7 +10,6 @@ public extension Wallet {
     protocol AddressesProvider {
         var addresses: [Address] { get }
         var defaultAddress: Address { get }
-        var changeAddress: Address { get }
 
         mutating func update(address: Address)
     }

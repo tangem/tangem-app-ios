@@ -7,108 +7,108 @@
 //
 
 extension UnspentOutputManager where Self == CommonUnspentOutputManager {
-    static func bitcoin(changeAddress: any Address, sorter: UTXOTransactionInputsSorter = BIP69UTXOTransactionInputsSorter(), isTestnet: Bool) -> Self {
+    static func bitcoin(address: any Address, sorter: UTXOTransactionInputsSorter = BIP69UTXOTransactionInputsSorter(), isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .bitcoin(isTestnet: isTestnet),
             sorter: sorter,
             lockingScriptBuilder: .bitcoin(isTestnet: isTestnet)
         )
     }
 
-    static func litecoin(changeAddress: any Address) -> Self {
+    static func litecoin(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .litecoin(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .litecoin()
         )
     }
 
-    static func bitcoinCash(changeAddress: any Address, isTestnet: Bool) -> Self {
+    static func bitcoinCash(address: any Address, isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .bitcoinCash(isTestnet: isTestnet),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .bitcoinCash(isTestnet: isTestnet)
         )
     }
 
-    static func dogecoin(changeAddress: any Address) -> Self {
+    static func dogecoin(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .dogecoin(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .dogecoin()
         )
     }
 
-    static func dash(changeAddress: any Address, isTestnet: Bool) -> Self {
+    static func dash(address: any Address, isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .dash(isTestnet: isTestnet),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .dash(isTestnet: isTestnet)
         )
     }
 
-    static func ravencoin(changeAddress: any Address, isTestnet: Bool) -> Self {
+    static func ravencoin(address: any Address, isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .ravencoin(isTestnet: isTestnet),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .ravencoin(isTestnet: isTestnet)
         )
     }
 
-    static func ducatus(changeAddress: any Address) -> Self {
+    static func ducatus(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .ducatus(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .ducatus()
         )
     }
 
-    static func clore(changeAddress: any Address) -> Self {
+    static func clore(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .clore(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .clore()
         )
     }
 
-    static func radiant(changeAddress: any Address) -> Self {
+    static func radiant(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .radiant(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .radiant()
         )
     }
 
-    static func kaspa(changeAddress: any Address) -> Self {
+    static func kaspa(address: any Address) -> Self {
         KaspaUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .kaspa(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .kaspa()
         )
     }
 
-    static func fact0rn(changeAddress: any Address) -> Self {
+    static func fact0rn(address: any Address) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .fact0rn(),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .fact0rn()
         )
     }
 
-    static func pepecoin(changeAddress: any Address, isTestnet: Bool) -> Self {
+    static func pepecoin(address: any Address, isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
-            changeAddress: changeAddress,
+            address: address,
             preImageTransactionBuilder: .pepecoin(isTestnet: isTestnet),
             sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .pepecoin(isTestnet: isTestnet)

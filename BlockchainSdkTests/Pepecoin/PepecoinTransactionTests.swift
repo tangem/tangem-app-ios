@@ -18,7 +18,7 @@ struct PepecoinTransactionTests {
 
         let addressService = AddressServiceFactory(blockchain: .pepecoin(testnet: false)).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .pepecoin(changeAddress: address, isTestnet: false)
+        let unspentOutputManager: UnspentOutputManager = .pepecoin(address: address, isTestnet: false)
 
         unspentOutputManager.update(
             outputs: [

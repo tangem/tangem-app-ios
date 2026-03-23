@@ -13,7 +13,6 @@ public struct EmptyAddressesProvider: Wallet.AddressesProvider {
 
     public var addresses: [any Address] { [emptyAddress] }
     public var defaultAddress: any Address { emptyAddress }
-    public var changeAddress: any Address { emptyAddress }
 
     public mutating func update(address: any Address) {}
 }

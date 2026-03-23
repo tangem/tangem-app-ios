@@ -78,7 +78,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        addresses: walletModel.addresses,
+        walletAddresses: walletModel.addresses,
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )

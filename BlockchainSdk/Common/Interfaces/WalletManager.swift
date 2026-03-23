@@ -32,7 +32,7 @@ public protocol WalletProvider: AnyObject {
 
 extension WalletProvider {
     var defaultSourceAddress: String { wallet.address }
-    var defaultChangeAddress: String { wallet.changeAddress.value }
+    var defaultChangeAddress: String { wallet.address }
 }
 
 public enum WalletManagerState {

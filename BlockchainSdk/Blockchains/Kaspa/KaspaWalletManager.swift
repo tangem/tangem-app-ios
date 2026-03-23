@@ -410,7 +410,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     }
 
     private func updateWallet(_ response: UTXOResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
-        unspentOutputManager.update(outputs: response.outputs, for: wallet.changeAddress)
+        unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
         let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
@@ -443,7 +443,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             .getUnspentOutputs(address: wallet.address)
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { walletManager, unspentOutputs in
-                walletManager.unspentOutputManager.update(outputs: unspentOutputs, for: walletManager.wallet.changeAddress)
+                walletManager.unspentOutputManager.update(outputs: unspentOutputs, for: walletManager.wallet.defaultAddress)
             })
             .mapToVoid()
             .eraseToAnyPublisher()
