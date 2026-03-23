@@ -53,6 +53,8 @@ private extension CommonUTXOTransactionSerializer {
         // Version
         bytes += version.data
 
+        let opReturnOutput = opReturnOutput(from: transaction.opReturn)
+
         if transaction.isWitness {
             // Marker
             bytes += UInt8(0).data
@@ -67,9 +69,13 @@ private extension CommonUTXOTransactionSerializer {
         }
 
         // Outputs
-        bytes += transaction.outputs.count.byte
+        let outputsCount = transaction.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        bytes += outputsCount.byte
         transaction.outputs.forEach { output in
             bytes += encodeOutput(output)
+        }
+        if let opReturnOutput {
+            bytes += opReturnOutput
         }
 
         if transaction.isWitness {
@@ -146,6 +152,22 @@ private extension CommonUTXOTransactionSerializer {
         data.forEach { bytes += $0 }
         return bytes
     }
+
+    func opReturnOutput(from opReturn: Data?) -> Data? {
+        guard let opReturn, !opReturn.isEmpty else {
+            return nil
+        }
+
+        // Build locking script: OP_RETURN + push(memo)
+        let lockingScript = Data([OpCode.OP_RETURN.value]) + OpCode.push(opReturn)
+
+        // Serialize output: value(8 LE) + scriptLen(varint) + script
+        var bytes = Data()
+        bytes += UInt64.zero.bytes8LE
+        bytes += lockingScript.count.byte
+        bytes += lockingScript
+        return bytes
+    }
 }
 
 // MARK: - Digest
@@ -158,6 +180,8 @@ private extension CommonUTXOTransactionSerializer {
         // Version
         bytes += version.data
 
+        let opReturnOutput = opReturnOutput(from: transaction.opReturn)
+
         // Inputs
         bytes += transaction.inputs.count.byte
         transaction.inputs.enumerated().forEach { index, input in
@@ -166,9 +190,13 @@ private extension CommonUTXOTransactionSerializer {
         }
 
         // Outputs
-        bytes += transaction.outputs.count.byte
+        let outputsCount = transaction.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        bytes += outputsCount.byte
         transaction.outputs.forEach { output in
             bytes += encodeOutput(output)
+        }
+        if let opReturnOutput {
+            bytes += opReturnOutput
         }
 
         bytes += locktime.data
@@ -184,6 +212,8 @@ private extension CommonUTXOTransactionSerializer {
 
         // Version
         bytes += version.data
+
+        let opReturnOutput = opReturnOutput(from: transaction.opReturn)
 
         let prevouts = transaction.inputs.flatMap { encodeOutPoint($0) }
         bytes += prevouts.getDoubleSHA256()
@@ -215,8 +245,10 @@ private extension CommonUTXOTransactionSerializer {
         bytes += input.amount.data
         bytes += sequence.value.data
 
-        let outputs = transaction.outputs.flatMap { encodeOutput($0) }
-        bytes += Data(outputs).getDoubleSHA256()
+        let outputsCount = transaction.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        let outputsBytes = transaction.outputs.map { encodeOutput($0) } + (opReturnOutput.map { [$0] } ?? [])
+        assert(outputsBytes.count == outputsCount)
+        bytes += Data(outputsBytes.flatMap(\.self)).getDoubleSHA256()
 
         bytes += locktime.data
         bytes += UInt32(signHashType.value).data
