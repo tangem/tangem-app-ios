@@ -13,6 +13,13 @@ import TangemFoundation
 struct GenericWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
         switch blockchainNetwork.blockchain {
+        case .bitcoin(_, xpub: true):
+            return try BitcoinXPUBWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         case .chia:
             return try SimpleWalletManagerFactory().makeWalletManager(
                 blockchainNetwork: blockchainNetwork,
