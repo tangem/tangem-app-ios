@@ -92,6 +92,15 @@
       }
     },
     {
+      "identity" : "bdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitcoindevkit/bdk-swift",
+      "state" : {
+        "revision" : "c38d7caa06ec26289cb40b1ea42531aea631c47e",
+        "version" : "2.3.1"
+      }
+    },
+    {
       "identity" : "bigint",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/attaswift/BigInt",
