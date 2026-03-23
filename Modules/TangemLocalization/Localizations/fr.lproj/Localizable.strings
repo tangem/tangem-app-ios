@@ -276,6 +276,7 @@
 "common_import" = "Importez";
 "common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "En cours";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
 "common_learn_more" = "En savoir plus";
@@ -705,6 +706,7 @@
 "markets_search_result_title" = "Résultat";
 "markets_search_see_tokens_under_100k" = "Voir les jetons de moins de 100 000 $ de capitalisation boursière";
 "markets_search_show_tokens" = "Afficher les jetons";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "Aucun résultat";
 "markets_select_network" = "Sélectionnez un réseau";
 "markets_select_wallet" = "Sélectionnez un portefeuille";
@@ -1364,7 +1366,6 @@
 "swapping_high_price_impact_description" = "Échanger ce montant de jetons sélectionnés aura un impact significatif sur les prix et réduira votre résultat.";
 "swapping_high_price_impact_title" = "Impact élevé sur les prix";
 "swapping_insufficient_funds" = "Fonds insuffisants";
-"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
 "swapping_swap_action_in_progress" = "Échange...";

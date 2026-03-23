@@ -47,8 +47,8 @@ extension Publisher {
             .eraseToAnyPublisher()
     }
 
-    static func sendTxFail(error: Error) -> AnyPublisher<Output, SendTxError> {
-        return Fail(error: SendTxError(error: error.toUniversalError()))
+    static func sendTxFail(error: Error, currentHost: String? = nil) -> AnyPublisher<Output, SendTxError> {
+        return Fail(error: SendTxError(error: error.toUniversalError(), lastRetryHost: currentHost))
             .eraseToAnyPublisher()
     }
 
@@ -74,26 +74,26 @@ extension Publisher where Failure == Error {
      This method is used to override a network error when sending a transaction.
      Use only pair with send method for {{Blockchain}}NetworkService.
      */
-    public func mapAndEraseSendTxError(tx: String? = nil) -> Publishers.MapError<Self, Error> {
+    public func mapAndEraseSendTxError(tx: String? = nil, currentHost: String? = nil) -> Publishers.MapError<Self, Error> {
         mapError { error in
             if let sendTxError = error as? SendTxError {
                 return sendTxError
             }
 
-            return SendTxError(error: error.toUniversalError(), tx: tx)
+            return SendTxError(error: error.toUniversalError(), tx: tx, lastRetryHost: currentHost)
         }
     }
 
     /**
      This method is used to override a network error when sending a transaction after all chains publishers.
      */
-    func mapSendTxError(tx: String? = nil) -> Publishers.MapError<Self, SendTxError> {
+    func mapSendTxError(tx: String? = nil, currentHost: String? = nil) -> Publishers.MapError<Self, SendTxError> {
         mapError { error in
             if let sendTxError = error as? SendTxError {
                 return sendTxError
             }
 
-            return SendTxError(error: error.toUniversalError(), tx: tx)
+            return SendTxError(error: error.toUniversalError(), tx: tx, lastRetryHost: currentHost)
         }
     }
 }

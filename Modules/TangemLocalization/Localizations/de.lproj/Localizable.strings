@@ -276,6 +276,7 @@
 "common_import" = "Importieren";
 "common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "In Arbeit";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Später";
 "common_learn_and_earn" = "Lernen und verdienen";
 "common_learn_more" = "Mehr erfahren";
@@ -705,6 +706,7 @@
 "markets_search_result_title" = "Ergebnis";
 "markets_search_see_tokens_under_100k" = "Token unter 100k USD Marktkapitalisierung anzeigen";
 "markets_search_show_tokens" = "Token anzeigen";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "Kein Ergebnis";
 "markets_select_network" = "Netzwerk auswählen";
 "markets_select_wallet" = "Wallet auswählen";
@@ -1364,7 +1366,6 @@
 "swapping_high_price_impact_description" = "Der Tausch dieser Menge ausgewählter Token hat erhebliche Auswirkungen auf den Preis und verringert dein Ergebnis.";
 "swapping_high_price_impact_title" = "Hoher Einfluss auf den Preis";
 "swapping_insufficient_funds" = "Unzureichende Mittel";
-"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Erlaubnis erteilen";
 "swapping_permit_and_swap" = "Genehmigen und tauschen";
 "swapping_swap_action_in_progress" = "Tauschen...";

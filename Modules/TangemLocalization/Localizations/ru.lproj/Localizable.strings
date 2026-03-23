@@ -276,6 +276,7 @@
 "common_import" = "Импортировать";
 "common_insufficient_balance" = "Insufficient balance";
 "common_in_progress" = "В процессе";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Позже";
 "common_learn_and_earn" = "Учись и зарабатывай";
 "common_learn_more" = "Узнать больше";
@@ -705,6 +706,7 @@
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Токены с капитализацией меньше 100к USD";
 "markets_search_show_tokens" = "Показать токены";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "Нет результата";
 "markets_select_network" = "Выберите сеть";
 "markets_select_wallet" = "Выберите кошелек";
@@ -1364,7 +1366,6 @@
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_high_price_impact_title" = "Высокое влияние на цену";
 "swapping_insufficient_funds" = "Недостаточно средств";
-"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
 "swapping_swap_action_in_progress" = "Обмен…";
