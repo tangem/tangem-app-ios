@@ -12,9 +12,10 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 enum AccountModelUtils {
     static var maxAccountNameLength: Int { Constants.maxAccountNameLength }
+
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
 
-    @available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+    @available(iOS, deprecated: 100000.0, message: "Accessing raw derivation indices is discouraged and should be used only if absolutely necessary")
     static var mainAccountDerivationIndex: Int { Constants.mainAccountDerivationIndex }
 
     static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
