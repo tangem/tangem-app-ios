@@ -874,7 +874,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
             .filter { !$0.isLoading }
-            .map { state -> ReceiveAmountRestriction? in
+            .map { state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
                 }
