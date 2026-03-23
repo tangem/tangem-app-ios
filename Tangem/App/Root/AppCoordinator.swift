@@ -240,18 +240,16 @@ class AppCoordinator: CoordinatorObject {
             .dropFirst()
             .combineLatest(
                 userWalletRepository.eventProvider,
-                AppSettings.shared.$marketsTooltipWasShown,
                 cardSessionIsActivePublisher
             )
             .combineLatest(mobileUnlockIsActivePublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] params in
-                let ((viewState, walletRepositoryEvent, marketsTooltipWasShown, cardSessionIsActive), mobileUnlockIsActive) = params
+                let ((viewState, walletRepositoryEvent, cardSessionIsActive), mobileUnlockIsActive) = params
                 MainActor.assumeIsolated {
                     self?.updateFloatingSheetPresenterState(
                         viewState: viewState,
                         userWalletRepositoryEvent: walletRepositoryEvent,
-                        marketsTooltipWasShown: marketsTooltipWasShown,
                         cardSessionIsActive: cardSessionIsActive,
                         mobileUnlockIsActive: mobileUnlockIsActive
                     )
@@ -270,11 +268,10 @@ class AppCoordinator: CoordinatorObject {
     private func updateFloatingSheetPresenterState(
         viewState: ViewState?,
         userWalletRepositoryEvent: UserWalletRepositoryEvent,
-        marketsTooltipWasShown: Bool,
         cardSessionIsActive: Bool,
         mobileUnlockIsActive: Bool
     ) {
-        guard !cardSessionIsActive, !mobileUnlockIsActive, marketsTooltipWasShown else {
+        guard !cardSessionIsActive, !mobileUnlockIsActive else {
             floatingSheetPresenter.pauseSheetsDisplaying()
             return
         }

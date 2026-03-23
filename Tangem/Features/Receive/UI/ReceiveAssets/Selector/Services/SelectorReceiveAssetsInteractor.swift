@@ -39,7 +39,11 @@ class CommonSelectorReceiveAssetsInteractor {
     private func bind(to addressTypesProvider: ReceiveAddressTypesProvider) {
         addressTypesSubscription = addressTypesProvider
             .receiveAddressTypesPublisher
-            .subscribe(_addressTypesSubject)
+            .withWeakCaptureOf(_addressTypesSubject)
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { addressTypesSubject, value in addressTypesSubject.send(value) }
+            )
     }
 }
 
