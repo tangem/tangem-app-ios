@@ -77,15 +77,7 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
-        let previousRateType = _amountType?.rateType
         _amountType = amountType
-
-        if let _pair,
-           let rateType = amountType?.rateType,
-           rateType != previousRateType {
-            try await updateAvailableProviders(pair: _pair, rateType: rateType)
-        }
-
         return try await update(by: source)
     }
 
@@ -174,8 +166,8 @@ private extension CommonExpressManager {
         async let fixedIds = expressRepository.getAvailableProviders(for: pair, rateType: .fixed)
         let (allSet, fixedSet) = try await (Set(allIds), Set(fixedIds))
 
-        // In float mode all providers are available; in fixed mode only fixed-rate providers
-        let availableProviderIds = rateType == .float ? allSet : fixedSet
+        // Always include all providers; rate type filtering happens in bestProvider()
+        let availableProviderIds = allSet
 
         let providers = try await expressRepository.providers()
 
@@ -226,9 +218,10 @@ private extension CommonExpressManager {
     }
 
     func updateIsBestFlag() {
-        let bestRate = bestByRateProvider()
+        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+        let bestRate = bestByRateProvider(from: candidates)
 
-        let enabledProvidersMoreThanOne = availableProviders.compactMap { provider -> ExpressQuote? in
+        let enabledProvidersMoreThanOne = candidates.compactMap { provider -> ExpressQuote? in
             let state = provider.getState()
             return state.quote
         }
@@ -244,29 +237,30 @@ private extension CommonExpressManager {
     }
 
     func bestProvider() async -> ExpressAvailableProvider? {
-        // If we have more then one provider then selected the best
-        if availableProviders.count > 1 {
+        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+
+        // If we have more than one provider then select the best
+        if candidates.count > 1 {
             // Try to find the best with expectAmount
-            if let bestByRateProvider = bestByRateProvider() {
+            if let bestByRateProvider = bestByRateProvider(from: candidates) {
                 return bestByRateProvider
             }
         }
 
-        // If all availableProviders don't have the quote and the expectAmount
+        // If all candidates don't have the quote and the expectAmount
         // Just select the provider by priority
-        let provider = availableProviders.sorted(by: { $0.getPriority() > $1.getPriority() }).first
-
-        return provider
+        return candidates.sorted(by: { $0.getPriority() > $1.getPriority() }).first
     }
 
-    func bestByRateProvider() -> ExpressAvailableProvider? {
+    func bestByRateProvider(from candidates: [ExpressAvailableProvider]? = nil) -> ExpressAvailableProvider? {
+        let providers = candidates ?? availableProviders.filteredByRateType(_amountType?.rateType)
         let isFixedRate = _amountType?.rateType == .fixed
 
-        guard availableProviders.contains(where: { $0.getState().quote != nil }) else {
+        guard providers.contains(where: { $0.getState().quote != nil }) else {
             return nil
         }
 
-        return availableProviders.sorted(by: { lhsProvider, rhsProvider in
+        return providers.sorted(by: { lhsProvider, rhsProvider in
             let lhsQuote = lhsProvider.getState().quote
             let rhsQuote = rhsProvider.getState().quote
 

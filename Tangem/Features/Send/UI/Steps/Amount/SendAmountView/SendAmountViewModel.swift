@@ -168,6 +168,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         currentDestinationToken = nil
         compactSourceSubtitle = nil
         compactDestinationSubtitle = nil
+
         providerRateTypes = []
         interactor.userDidRequestClearReceiveToken()
 
