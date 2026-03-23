@@ -24,20 +24,24 @@ struct TokenHeaderProvider {
         self.account = account
     }
 
-    func makeHeader() -> TokenHeader {
+    func makeHeader() -> TokenHeader? {
         let hasMultipleCryptoAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
         let hasMultipleAccounts = hasMultipleCryptoAccounts || tangemPayAccountGlobalStateProvider.hasTangemPayAccount
 
-        if hasMultipleAccounts, let account {
-            let icon = AccountModelUtils.UI.iconViewData(accountModel: account)
-            return .account(name: account.name, icon: icon)
+        guard hasMultipleAccounts else {
+            return nil
         }
 
-        return .wallet(name: userWalletName, hasOnlyOneWallet: userWalletRepository.hasOnlyOneWallet)
+        guard let account else {
+            assertionFailure("Account should always be available in accounts-aware context")
+            return nil
+        }
+
+        let icon = AccountModelUtils.UI.iconViewData(accountModel: account)
+        return .account(name: account.name, icon: icon)
     }
 }
 
 enum TokenHeader: Hashable {
-    case wallet(name: String, hasOnlyOneWallet: Bool) // [REDACTED_TODO_COMMENT]
     case account(name: String, icon: AccountIconView.ViewData)
 }

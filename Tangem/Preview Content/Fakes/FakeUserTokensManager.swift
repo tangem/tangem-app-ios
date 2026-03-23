@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
-    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-
     var userTokens: [TokenItem] {
         let converter = StorageEntryConverter()
         return converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
