@@ -87,12 +87,8 @@ private extension CommonSendDestinationWalletDataProvider {
         userWalletRepository
             .models
             .filter { $0.userWalletId == userWalletInfo.id }
-            .flatMap { userWalletModel -> [any WalletModel] in
-                if FeatureProvider.isAvailable(.accounts) {
-                    return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-                } else {
-                    return userWalletModel.walletModelsManager.walletModels
-                }
+            .flatMap { userWalletModel in
+                AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             }
             .first { walletModel in
                 walletModel.tokenItem == tokenItem
