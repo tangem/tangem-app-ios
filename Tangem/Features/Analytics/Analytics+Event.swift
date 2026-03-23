@@ -405,6 +405,13 @@ extension Analytics {
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
 
+        // MARK: - Promotion Banner
+
+        case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
+        case promotionBannerCarouselScrolled = "[Promo Banner] Banner Carousel Scrolled"
+        case promotionBannerButtonClicked = "[Promo Banner] Banner Button Clicked"
+        case promotionBannerDismissed = "[Promo Banner] Banner Dismissed"
+
         // MARK: - Errors
 
         case cantScanTheCard = "[Errors] Cant Scan The Card"

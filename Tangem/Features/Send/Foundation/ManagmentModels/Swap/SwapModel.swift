@@ -1241,6 +1241,7 @@ extension SwapModel: NotificationTapDelegate {
              .retryKaspaTokenTransaction,
              .stake,
              .openLink,
+             .openDeeplink,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,

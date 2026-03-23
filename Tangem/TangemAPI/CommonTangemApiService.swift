@@ -275,6 +275,16 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .story(storyId))
     }
 
+    // MARK: - Promotions
+
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        try await self.request(for: .loadPromotions(request: request))
+    }
+
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
+        try await self.request(for: .hidePromotion(request: request))
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
