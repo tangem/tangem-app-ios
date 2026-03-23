@@ -127,6 +127,15 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
+            let promotionNotificationsViewModel: PromotionNotificationsViewModel? = {
+                guard model.config.hasFeature(.multiCurrency) else {
+                    return nil
+                }
+
+                let manager = CommonPromotionNotificationsManager(placement: .main)
+                return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
+            }()
+
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -143,6 +152,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                promotionNotificationsViewModel: promotionNotificationsViewModel,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
