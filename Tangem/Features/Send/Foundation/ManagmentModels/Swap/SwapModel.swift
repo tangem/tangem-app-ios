@@ -306,6 +306,7 @@ extension SwapModel {
         updateTask?.cancel()
         updateTask = runTask(in: self, code: { @MainActor input in
             do {
+                input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
 
                 switch result {
@@ -872,11 +873,8 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .map { state -> ExchangeAmountRestriction? in
-                if case .failure = state {
-                    return .exchangeDataLoadingFailed
-                }
-
+            .filter { !$0.isLoading }
+            .map { state -> ReceiveAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
                 }
@@ -898,6 +896,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
@@ -1130,7 +1129,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { $0.filter(loading: [.autoupdate]) }
+            .filter { $0.filter(loading: [.providers, .provider, .autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
