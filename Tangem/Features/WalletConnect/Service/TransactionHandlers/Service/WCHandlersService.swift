@@ -65,7 +65,7 @@ final class CommonWCHandlersService {
             return nil
         }
 
-        return  WCAccountFinder.findCryptoAccountModel(
+        return WCAccountFinder.findCryptoAccountModel(
             by: accountId,
             accountModelsManager: userWalletModel.accountModelsManager
         )

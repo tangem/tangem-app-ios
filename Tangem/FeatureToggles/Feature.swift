@@ -15,10 +15,9 @@ enum Feature: String, Hashable, CaseIterable {
     case redesign
     case marketsAndNews
     case marketsEarn
-    case tangemPayPermanentEntryPoint
     case exchangeOnlyWithinSingleAddress
     case experimentService
-    case expressAllTokensSearch
+    case walletConnectBitcoin
     case expressFixedRates
     case mainQRScan
     case customerIO
@@ -32,10 +31,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .redesign: return "Redesign"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
-        case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
-        case .expressAllTokensSearch: return "Express All Tokens Search"
+        case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .expressFixedRates: return "Express Fixed Rates"
         case .mainQRScan: return "Main QR Scan"
         case .customerIO: return "customer.io service integration"
@@ -51,12 +49,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .redesign: return .unspecified
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .version("5.35")
-        case .tangemPayPermanentEntryPoint: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
-        case .expressAllTokensSearch: return .version("5.34")
+        case .walletConnectBitcoin: return .unspecified
         case .expressFixedRates: return .unspecified
-        case .mainQRScan: return .unspecified
+        case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
         case .mobileWalletTokenAutoSync: return .unspecified
         }

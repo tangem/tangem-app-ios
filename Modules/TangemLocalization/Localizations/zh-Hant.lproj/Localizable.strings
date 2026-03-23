@@ -275,6 +275,7 @@
 "common_hour" = "hour";
 "common_import" = "導入";
 "common_in_progress" = "進行中";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_learn_more" = "Learn more";
@@ -441,7 +442,7 @@
 "earn_filter_by" = "Filter by";
 "earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
-"earn_mostly_used" = "Mostly used";
+"earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
 "earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "您好，支援團隊，我遇到了一個錯誤，代碼為：%@";
@@ -704,6 +705,7 @@
 "markets_search_result_title" = "Result";
 "markets_search_see_tokens_under_100k" = "See tokens under 100k USD market cap";
 "markets_search_show_tokens" = "Show tokens";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "No result";
 "markets_select_network" = "Select network";
 "markets_select_wallet" = "Select wallet";

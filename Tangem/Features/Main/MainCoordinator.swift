@@ -78,6 +78,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
 
+    private lazy var marketsTooltipScheduler = MarketsTooltipScheduler()
+
     // MARK: - Deeplink
 
     private var deeplinkDestination = PassthroughSubject<DeepLinkDestination, Never>()
@@ -85,7 +87,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
-    private var mainBottomSheetHideTooltipSubscription: AnyCancellable?
 
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
@@ -123,16 +124,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
-        setupUI()
         bind()
-    }
-
-    func hideMarketsTooltip() {
-        AppSettings.shared.marketsTooltipWasShown = true
-
-        withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-            isMarketsTooltipVisible = false
-        }
     }
 
     // MARK: - Private Implementation
@@ -156,39 +148,38 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                     previous?.didDismissSheet()
                 }
         }
-
-        if mainBottomSheetHideTooltipSubscription == nil {
-            mainBottomSheetHideTooltipSubscription = mainBottomSheetUIManager.isShownPublisher
-                .pairwise()
-                .filter { previous, current in previous && !current }
-                .receiveOnMain()
-                .sink { [weak self] _ in
-                    self?.hideMarketsTooltip()
-                }
-        }
     }
 
-    private func setupUI() {
-        showMarketsTooltip()
-    }
+    // MARK: - Tooltip Interaction
 
-    private func showMarketsTooltip() {
-        // Don't show markets tooltip during UI testing
-        guard !AppEnvironment.current.isUITest else {
-            AppSettings.shared.marketsTooltipWasShown = true
-            return
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
-            guard let self else {
-                self?.isMarketsTooltipVisible = false
-                return
-            }
-
+    @MainActor
+    func showMarketsTooltip() {
+        marketsTooltipScheduler.scheduleShow(delay: Constants.tooltipAnimationDelay) { [weak self] in
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-                self.isMarketsTooltipVisible = !AppSettings.shared.marketsTooltipWasShown
+                self?.isMarketsTooltipVisible = true
             }
         }
+    }
+
+    func dismissMarketsTooltip() {
+        marketsTooltipScheduler.dismiss { [weak self] in
+            withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
+                self?.isMarketsTooltipVisible = false
+            }
+        }
+    }
+
+    func hideMarketsTooltipTemporarily() {
+        marketsTooltipScheduler.hideTemporarily(
+            isVisible: { [weak self] in
+                self?.isMarketsTooltipVisible ?? false
+            },
+            onHide: { [weak self] in
+                withAnimation(.easeInOut(duration: Constants.tooltipTemporaryHideDuration)) {
+                    self?.isMarketsTooltipVisible = false
+                }
+            }
+        )
     }
 }
 
@@ -295,13 +286,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openGetTangemPay() {
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
             self?.tangemPayOnboardingCoordinator = nil
         }
 
         let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(source: .other))
+        coordinator.start(with: .init(source: .other, availableSelection: availableSelection))
         tangemPayOnboardingCoordinator = coordinator
     }
 
@@ -784,6 +775,7 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
 extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
+        static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
     }
 }
