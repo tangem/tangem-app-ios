@@ -26,8 +26,8 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
-        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
+        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 1, "Selected only one input")
@@ -67,7 +67,7 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 2)
@@ -93,7 +93,7 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 2)
