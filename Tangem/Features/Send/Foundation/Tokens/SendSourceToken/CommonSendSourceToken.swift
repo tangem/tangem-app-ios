@@ -12,7 +12,7 @@ import TangemExpress
 struct CommonSendSourceToken: SendSourceToken {
     let userWalletInfo: UserWalletInfo
     let id: WalletModelId
-    let header: TokenHeader
+    let header: TokenHeader?
     let feeTokenItem: TokenItem
     let isFixedFee: Bool
     let isCustom: Bool
