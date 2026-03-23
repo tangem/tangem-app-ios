@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import WalletCore
+import BitcoinDevKit
 
 /// Decoder:
 /// https://learnmeabitcoin.com/tools/
@@ -35,7 +36,7 @@ class BitcoinTransactionBuilder {
 
     func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
         let satoshi = amount.asSmallest().value.intValue()
-        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
+        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address, opReturn: nil)
         return preImage.fee
     }
 
