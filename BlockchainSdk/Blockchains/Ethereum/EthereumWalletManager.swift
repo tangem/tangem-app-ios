@@ -11,6 +11,7 @@ import BigInt
 import Combine
 import TangemSdk
 import Moya
+import TangemFoundation
 
 class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSigner {
     let txBuilder: EthereumTransactionBuilder
@@ -138,7 +139,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         }
 
         return networkService.getPendingTxCount(firstTransaction.sourceAddress)
-            .asyncMap { [addressConverter, txBuilder, wallet] pendingNonce in
+            .asyncTryMap { [addressConverter, txBuilder, wallet] pendingNonce in
                 let enrichedTransactions = try transactions.enumerated().map { index, transaction in
                     let convertedTransaction = try addressConverter.convertToETHAddresses(in: transaction)
                     return Self.enrichTransactionWithNonce(
@@ -602,8 +603,9 @@ private extension EthereumWalletManager {
         transactionFeeParameters: EthereumEIP1559FeeParameters
     ) async throws -> Fee {
         // Addresses
+        let ourAddress = wallet.defaultAddress.value
         let convertedFeeRecipientAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
-        let convertedOurAddress = try addressConverter.convertToETHAddress(wallet.defaultAddress.value)
+        let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
 
         // Fixed fee token amount (10000 minimal units)
         let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
@@ -671,14 +673,14 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransaction in
                 walletManager.networkService.send(transaction: rawTransaction)
-                    .mapAndEraseSendTxError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction, currentHost: walletManager.currentHost)
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
                 walletManager.pendingTransactionsManager.addTransactions([transaction], hashes: [hash])
                 return TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }
@@ -690,7 +692,7 @@ extension EthereumWalletManager: MultipleTransactionsSender {
         let sanitizedTransactions = transactions.map { Self.sanitizeTransaction($0, wallet: wallet) }
         return signMultiple(sanitizedTransactions, signer: signer)
             .withWeakCaptureOf(self)
-            .asyncMap { walletManager, rawTransactions in
+            .asyncTryMap { walletManager, rawTransactions in
                 var results: [TransactionSendResult] = []
                 for rawTransaction in rawTransactions {
                     let hash = try await walletManager.networkService
@@ -704,7 +706,7 @@ extension EthereumWalletManager: MultipleTransactionsSender {
 
                 return results
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }

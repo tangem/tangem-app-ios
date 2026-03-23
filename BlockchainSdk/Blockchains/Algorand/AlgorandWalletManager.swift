@@ -34,11 +34,11 @@ final class AlgorandWalletManager: BaseManager {
                     return []
                 }
 
-                let transactions = await TaskGroup.executeKeepingOrder(items: wallet.pendingTransactions) { tx in
-                    try? await self.networkService.getPendingTransaction(transactionHash: tx.hash).async()
-                }
-
-                return transactions.compactMap { $0 }
+                return await TaskGroup
+                    .executeKeepingOrder(items: wallet.pendingTransactions) { tx in
+                        try? await self.networkService.getPendingTransaction(transactionHash: tx.hash).async()
+                    }
+                    .compactMap(\.self)
             }()
 
             // Fetch account info
@@ -147,7 +147,7 @@ extension AlgorandWalletManager {
             .flatMap { walletManager, transactionData -> AnyPublisher<String, Error> in
                 return walletManager.networkService
                     .sendTransaction(data: transactionData)
-                    .mapAndEraseSendTxError(tx: transactionData.hex())
+                    .mapAndEraseSendTxError(tx: transactionData.hex(), currentHost: walletManager.currentHost)
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -157,7 +157,7 @@ extension AlgorandWalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 
