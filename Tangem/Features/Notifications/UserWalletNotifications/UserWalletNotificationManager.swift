@@ -485,6 +485,10 @@ extension UserWalletNotificationManager: NotificationManager {
                 rateAppController.dismissAppRate()
             case .mobileUpgrade:
                 mobileUpgradeBannerManager.shouldClose()
+            case .initialWalletTokenSyncCompleted:
+                Task { [walletId = userWalletModel.userWalletId] in
+                    await walletTokenSyncProgressProvider.removeProgress(for: walletId)
+                }
             default:
                 break
             }
