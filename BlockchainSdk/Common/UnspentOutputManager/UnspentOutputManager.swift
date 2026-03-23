@@ -12,8 +12,8 @@ protocol UnspentOutputManager {
     func update(outputs: [UnspentOutput], for address: String) throws
     func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
 
-    func preImage(amount: Int, fee: Int, destination: String) async throws -> PreImageTransaction
-    func preImage(amount: Int, feeRate: Int, destination: String) async throws -> PreImageTransaction
+    func preImage(amount: Int, fee: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction
+    func preImage(amount: Int, feeRate: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction
 
     /// Outputs which possible to spent
     func availableOutputs() -> [ScriptUnspentOutput]
@@ -42,7 +42,9 @@ extension UnspentOutputManager {
 
         let amount = transaction.amount.asSmallest().value.intValue()
         let fee = transaction.fee.amount.asSmallest().value.intValue()
-        return try await preImage(amount: amount, fee: fee, destination: transaction.destinationAddress)
+        let opReturn = try opReturn(from: transaction)
+        let preImage = try await preImage(amount: amount, fee: fee, destination: transaction.destinationAddress, opReturn: opReturn)
+        return preImage
     }
 
     func balance(blockchain: Blockchain) -> Decimal {
@@ -51,10 +53,30 @@ extension UnspentOutputManager {
     }
 }
 
+private extension UnspentOutputManager {
+    func opReturn(from transaction: Transaction) throws -> Data? {
+        guard let params = transaction.params as? BitcoinTransactionParams else {
+            return nil
+        }
+
+        guard !params.memo.isEmpty else {
+            return nil
+        }
+
+        // Standard OP_RETURN relay policy historically limits data to 80 bytes.
+        if params.memo.count > UnspentOutputManagerConstants.opReturnMaxDataSizeBytes {
+            throw UTXOTransactionSerializerError.walletCoreError("UTXO memo exceeds 80 bytes")
+        }
+
+        return params.memo
+    }
+}
+
 struct PreImageTransaction: Hashable {
     let inputs: [ScriptUnspentOutput]
     let outputs: [OutputType]
     let fee: Int
+    let opReturn: Data?
 }
 
 extension PreImageTransaction {
