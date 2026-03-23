@@ -1366,6 +1366,7 @@
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Insufficient funds";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Give Permission";
 "swapping_permit_and_swap" = "Permit and Swap";
 "swapping_swap_action_in_progress" = "Swapping...";
