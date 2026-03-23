@@ -56,7 +56,13 @@ final class ApproveViewModel: ObservableObject {
             actions: [.unlimited, .specified]
         )
 
-        feeCompactViewModel = FeeCompactViewModel(canEditFee: input.supportFeeSelection, showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
+        feeCompactViewModel = FeeCompactViewModel(
+            canEditFee: input.supportFeeSelection,
+            showsLeadingIcon: false,
+            showsRoundedBackground: false,
+            feeFormatter: feeFormatter
+        )
+
         bind()
     }
 
