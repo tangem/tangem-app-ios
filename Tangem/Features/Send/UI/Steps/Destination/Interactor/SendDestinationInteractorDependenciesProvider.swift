@@ -67,12 +67,11 @@ private extension SendDestinationInteractorDependenciesProvider {
     }
 
     func makeValidator() -> SendDestinationValidator {
-        let addresses = currentWalletData.addresses
-
+        let walletAddresses = currentWalletData.walletAddresses
         let addressService = AddressServiceFactory(blockchain: tokenItem.blockchain).makeAddressService()
 
         let validator = CommonSendDestinationValidator(
-            addresses: addresses,
+            walletAddresses: walletAddresses,
             addressService: addressService,
             allowSameAddressTransaction: tokenItem.blockchain.supportsCompound || receivedToken != nil
         )
@@ -100,12 +99,12 @@ private extension SendDestinationInteractorDependenciesProvider {
 extension SendDestinationInteractorDependenciesProvider {
     struct SendingWalletData {
         static let empty: SendingWalletData = .init(
-            addresses: [],
+            walletAddresses: [],
             suggestedWallets: [],
             destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
         )
 
-        let addresses: [String]
+        let walletAddresses: [String]
         let suggestedWallets: [SendDestinationSuggestedWallet]
         let destinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider
     }

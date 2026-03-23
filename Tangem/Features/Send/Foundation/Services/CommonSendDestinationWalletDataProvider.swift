@@ -53,7 +53,7 @@ extension CommonSendDestinationWalletDataProvider: SendDestinationInteractorDepe
         let walletAddresses = sourceWalletModel.addresses
 
         return .init(
-            addresses: walletAddresses,
+            walletAddresses: walletAddresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(
                 targetNetworkId: tokenItem.blockchain.networkId,
                 ignoredAddresses: walletAddresses.toSet(),
@@ -103,7 +103,7 @@ private extension CommonSendDestinationWalletDataProvider {
         let walletAddresses = walletModel.addresses
 
         return .init(
-            addresses: walletAddresses,
+            walletAddresses: walletAddresses,
             suggestedWallets: SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel),
             destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
                 transactionHistoryUpdater: walletModel,
