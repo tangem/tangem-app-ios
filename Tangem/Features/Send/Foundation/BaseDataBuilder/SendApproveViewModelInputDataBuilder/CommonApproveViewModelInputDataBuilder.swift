@@ -33,11 +33,7 @@ extension CommonApproveViewModelInputDataBuilder: SendApproveViewModelInputDataB
     func makeApproveFlowFactory() throws -> ApproveFlowFactory {
         let flowInput = try dataProvider.approveFlowInput()
         let input = try buildApproveViewModelInput(from: flowInput)
-        return ApproveFlowFactory(
-            approveInput: input,
-            tokenFeeProvidersManager: flowInput.tokenFeeProvidersManager,
-            confirmTransactionPolicy: confirmTransactionPolicy
-        )
+        return ApproveFlowFactory(approveInput: input, confirmTransactionPolicy: confirmTransactionPolicy)
     }
 }
 
@@ -49,9 +45,6 @@ private extension CommonApproveViewModelInputDataBuilder {
             throw SendApproveViewModelInputDataBuilderError.notFound("AllowanceService")
         }
 
-        let tokenFeeProvidersManager = flowInput.tokenFeeProvidersManager
-        let supportFeeSelection = tokenFeeProvidersManager.supportFeeSelection
-
         let approveTransactionDispatcher = flowInput.sourceToken.transactionDispatcherProvider.makeApproveTransactionDispatcher()
 
         let interactor = ApproveInteractor(
@@ -60,7 +53,7 @@ private extension CommonApproveViewModelInputDataBuilder {
             approveAmount: flowInput.approveAmount,
             allowanceService: allowanceService,
             approveTransactionDispatcher: approveTransactionDispatcher,
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            tokenFeeProvidersManager: flowInput.tokenFeeProvidersManager,
             analyticsLogger: analyticsLogger,
             output: output
         )
@@ -75,11 +68,17 @@ private extension CommonApproveViewModelInputDataBuilder {
 
         let feeFormatter = CommonFeeFormatter()
 
+        let supportsFeeSelection = if FeatureProvider.isAvailable(.gaslessDexAndApprove) {
+            flowInput.tokenFeeProvidersManager.supportFeeSelection
+        } else {
+            false
+        }
+
         return ApproveViewModel.Input(
             settings: settings,
             feeFormatter: feeFormatter,
             interactor: interactor,
-            supportFeeSelection: supportFeeSelection
+            supportFeeSelection: supportsFeeSelection
         )
     }
 }
