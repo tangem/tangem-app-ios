@@ -23,7 +23,7 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         Analytics.log(event: .walletConnectSessionFailed, params: [.errorCode: "\(error.errorCode)"])
     }
 
-    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    /// `accountAnalyticsProviding` should become non-optional when account migration is complete ([REDACTED_INFO])
     func logConnectionProposalReceived(
         _ connectionProposal: WalletConnectDAppConnectionProposal,
         accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?

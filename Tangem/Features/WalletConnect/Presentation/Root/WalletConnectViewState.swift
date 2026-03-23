@@ -229,7 +229,7 @@ extension WalletConnectViewState.ModalDialog {
 
 extension WalletConnectViewState {
     enum ContentMode {
-        case legacy
+        case legacy // [REDACTED_TODO_COMMENT]
         case repository
     }
 }
