@@ -49,10 +49,18 @@ struct TokenFeeLoaderBuilder {
             return nil
         }
 
-        return CommonGaslessTokenFeeLoader(
-            tokenItem: tokenItem,
-            feeToken: feeToken,
-            gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
-        )
+        if FeatureProvider.isAvailable(.gaslessDexAndApprove) {
+            return CommonGaslessTokenFeeLoader(
+                tokenItem: tokenItem,
+                feeToken: feeToken,
+                gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+            )
+        } else {
+            return LegacyGaslessTokenFeeLoader(
+                tokenItem: tokenItem,
+                feeToken: feeToken,
+                gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+            )
+        }
     }
 }
