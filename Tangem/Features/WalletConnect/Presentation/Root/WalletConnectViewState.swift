@@ -13,7 +13,6 @@ import struct TangemFoundation.IgnoredEquatable
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
 struct WalletConnectViewState: Equatable {
-    let contentMode: ContentMode
     let navigationBar = NavigationBar()
     var contentState: ContentState
     var dialog: ModalDialog?
@@ -24,16 +23,11 @@ struct WalletConnectViewState: Equatable {
     }
 
     var shouldDisplayWalletNames: Bool {
-        switch contentMode {
-        case .repository:
-            switch contentState {
-            case .content(let items):
-                return items.count > 1
-            case .empty, .loading:
-                return false
-            }
-        case .legacy:
-            return true
+        switch contentState {
+        case .content(let items):
+            return items.count > 1
+        case .empty, .loading:
+            return false
         }
     }
 
@@ -50,7 +44,6 @@ struct WalletConnectViewState: Equatable {
     )
 
     init(contentState: ContentState, dialog: ModalDialog? = nil, newConnectionButton: NewConnectionButton) {
-        contentMode = .repository
         self.contentState = contentState
         self.dialog = dialog
         self.newConnectionButton = newConnectionButton
@@ -224,12 +217,5 @@ extension WalletConnectViewState.ModalDialog {
     enum AlertButtonRole: Hashable {
         case cancel
         case destructive
-    }
-}
-
-extension WalletConnectViewState {
-    enum ContentMode {
-        case legacy // [REDACTED_TODO_COMMENT]
-        case repository
     }
 }

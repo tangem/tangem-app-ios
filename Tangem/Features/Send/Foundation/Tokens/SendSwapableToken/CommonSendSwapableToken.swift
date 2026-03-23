@@ -28,7 +28,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
 
     var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
     var id: WalletModelId { sourceToken.id }
-    var header: TokenHeader { sourceToken.header }
+    var header: TokenHeader? { sourceToken.header }
     var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
     var isFixedFee: Bool { sourceToken.isFixedFee }
     var isCustom: Bool { sourceToken.isCustom }
