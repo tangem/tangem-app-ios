@@ -124,6 +124,13 @@ struct TokenDetailsView: View {
                     Button(Localization.tokenDetailsGenerateXpub, action: viewModel.generateXPUBButtonAction)
                 }
 
+                if viewModel.canToggleXPUB {
+                    Button(
+                        viewModel.isXPUBEnabled ? "Disable multi-address (xpub)" : "Enable multi-address (xpub)",
+                        action: viewModel.toggleXPUBAction
+                    )
+                }
+
                 if viewModel.canHideToken {
                     Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)

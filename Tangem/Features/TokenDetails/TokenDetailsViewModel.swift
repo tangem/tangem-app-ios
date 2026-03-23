@@ -57,7 +57,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
-    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
+    var canToggleXPUB: Bool {
+        if case .bitcoin = walletModel.tokenItem.blockchain { return true }
+        return false
+    }
+
+    var isXPUBEnabled: Bool {
+        if case .bitcoin(_, let xpub) = walletModel.tokenItem.blockchain { return xpub }
+        return false
+    }
+
+    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB || canToggleXPUB }
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
@@ -218,6 +228,19 @@ extension TokenDetailsViewModel {
         } else {
             showUnableToHideAlert()
         }
+    }
+
+    func toggleXPUBAction() {
+        let blockchain = walletModel.tokenItem.blockchain
+        guard case .bitcoin(let testnet, let xpub) = blockchain else { return }
+
+        let newBlockchain: Blockchain = .bitcoin(testnet: testnet, xpub: !xpub)
+        let oldTokenItem = walletModel.tokenItem
+        let derivationPath = oldTokenItem.blockchainNetwork.derivationPath
+        let newBlockchainNetwork = BlockchainNetwork(newBlockchain, derivationPath: derivationPath)
+        let newTokenItem: TokenItem = .blockchain(newBlockchainNetwork)
+
+        try? userTokensManager.update(itemsToRemove: [oldTokenItem], itemsToAdd: [newTokenItem])
     }
 
     func generateXPUBButtonAction() {
