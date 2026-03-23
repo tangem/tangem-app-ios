@@ -42,7 +42,7 @@ struct CommonSendWithSwapToken: SendWithSwapToken {
     var feeTokenItem: TokenItem { transferableToken.feeTokenItem }
     var isFixedFee: Bool { transferableToken.isFixedFee }
     var isCustom: Bool { transferableToken.isCustom }
-    var defaultAddress: String { transferableToken.defaultAddress }
+    var defaultAddressString: String { transferableToken.defaultAddressString }
 
     var availableBalanceProvider: any TokenBalanceProvider { transferableToken.availableBalanceProvider }
     var fiatAvailableBalanceProvider: any TokenBalanceProvider { transferableToken.fiatAvailableBalanceProvider }

@@ -37,6 +37,6 @@ extension ExpressDestinationWallet where Self: SendReceiveToken {
 
 extension SendReceiveToken where Self: SendSourceToken {
     var destination: SendReceiveTokenDestination? {
-        SendReceiveTokenDestination(destination: .plain(defaultAddress), destinationTag: nil)
+        SendReceiveTokenDestination(destination: .plain(defaultAddressString), destinationTag: nil)
     }
 }

@@ -18,7 +18,7 @@ protocol SendSourceToken: SendReceiveToken {
     var feeTokenItem: TokenItem { get }
     var isFixedFee: Bool { get }
     var isCustom: Bool { get }
-    var defaultAddress: String { get }
+    var defaultAddressString: String { get }
 
     var availableBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }

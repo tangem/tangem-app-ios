@@ -243,18 +243,9 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
-    var addresses: [String] {
-        // [REDACTED_TODO_COMMENT]
-        []
-    }
-
     var defaultAddressString: String {
         // [REDACTED_TODO_COMMENT]
         ""
-    }
-
-    var addressNames: [String] {
-        []
     }
 
     var isMainToken: Bool {

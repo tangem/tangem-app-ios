@@ -23,9 +23,7 @@ protocol WalletModel:
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
-    var addresses: [String] { get }
     var defaultAddressString: String { get }
-    var addressNames: [String] { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
@@ -82,6 +80,10 @@ extension WalletModel {
 
     var addressNames: [String] {
         receiveAddressTypes.map { $0.info.localizedName }
+    }
+
+    var addresses: [String] {
+        receiveAddressTypes.map { $0.info.address }
     }
 }
 

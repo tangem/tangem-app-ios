@@ -370,7 +370,7 @@ private extension TangemPayMainViewModel {
             account: tangemPayAccount.account,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
-            defaultAddress: depositAddress,
+            defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
             cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,

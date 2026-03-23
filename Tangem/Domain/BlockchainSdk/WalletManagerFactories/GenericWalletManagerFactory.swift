@@ -27,13 +27,6 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
                 keys: keys,
                 apiList: apiList
             )
-        case .cardano(extended: false):
-            return try HDWalletManagerFactory().makeWalletManager(
-                blockchainNetwork: blockchainNetwork,
-                tokens: tokens,
-                keys: keys,
-                apiList: apiList
-            )
         case .quai:
             let dataStorage = UserDefaultsBlockchainDataStorage(
                 suiteName: AppEnvironment.current.blockchainDataStorageSuiteName

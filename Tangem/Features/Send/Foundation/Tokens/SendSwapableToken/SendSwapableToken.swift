@@ -22,7 +22,7 @@ protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
 // MARK: ExpressSourceWallet + SendSourceToken
 
 extension ExpressSourceWallet where Self: SendSwapableToken {
-    var address: String? { defaultAddress }
+    var address: String? { defaultAddressString }
     var extraId: String? { .none }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     var coinCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }

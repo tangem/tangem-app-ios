@@ -16,7 +16,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let feeTokenItem: TokenItem
     let isFixedFee: Bool
     let isCustom: Bool
-    let defaultAddress: String
+    let defaultAddressString: String
 
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider

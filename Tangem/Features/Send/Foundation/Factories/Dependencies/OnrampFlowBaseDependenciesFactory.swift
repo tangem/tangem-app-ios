@@ -73,7 +73,7 @@ extension OnrampFlowBaseDependenciesFactory {
         OnrampModel(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            defaultAddress: sourceToken.defaultAddress,
+            defaultAddressString: sourceToken.defaultAddressString,
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
