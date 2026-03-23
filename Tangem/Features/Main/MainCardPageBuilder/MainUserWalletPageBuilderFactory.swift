@@ -296,48 +296,21 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeMultiWalletMainContentViewSectionsProvider(
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
-        if FeatureProvider.isAvailable(.accounts) {
-            return AccountsAwareMultiWalletMainContentViewSectionsProvider(
-                userWalletModel: userWalletModel,
-                manageTokensActionFactory: { [weak coordinator] account in
-                    { coordinator?.openManageTokens(for: account, in: userWalletModel) }
-                }
-            )
-        }
-
-        // accounts_fixes_needed_none
-        let optionsManager = OrganizeTokensOptionsManager(
-            userTokensReorderer: userWalletModel.userTokensManager
-        )
-
-        // accounts_fixes_needed_none
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
-
-        return LegacyMultiWalletMainContentViewSectionsProvider(
+        return AccountsAwareMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
-            optionsEditing: optionsManager,
-            tokenSectionsAdapter: tokenSectionsAdapter
+            manageTokensActionFactory: { [weak coordinator] account in
+                { coordinator?.openManageTokens(for: account, in: userWalletModel) }
+            }
         )
     }
 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        let walletModelsManager: WalletModelsManager
-
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
-                return nil
-            }
-            walletModelsManager = mainAccount.walletModelsManager
-        } else {
-            // accounts_fixes_needed_none
-            walletModelsManager = userWalletModel.walletModelsManager
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return nil
         }
+        let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager
 
         guard let walletModel = walletModelsManager.walletModels.first else {
             return nil
