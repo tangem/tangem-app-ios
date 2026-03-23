@@ -138,7 +138,7 @@ private extension CommonTokenQuotesRepository {
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 let userWallets = repository.userWalletRepository.models
-                let walletModels = userWallets.flatMap { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) }
+                let walletModels = AccountWalletModelsAggregator.walletModels(from: userWallets)
                 let userCurrencyIds = walletModels.compactMap(\.tokenItem.currencyId).unique()
                 return repository.loadQuotes(currencyIds: userCurrencyIds)
             }
