@@ -185,7 +185,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func copyDefaultAddress() {
-        UIPasteboard.general.string = walletModel.defaultAddress
+        UIPasteboard.general.string = walletModel.defaultAddressString
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
     }

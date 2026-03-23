@@ -897,7 +897,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             openSell(for: walletModel)
         case .copyAddress:
             logContextTap(action: action, for: tokenItemViewModel)
-            UIPasteboard.general.string = walletModel.defaultAddress
+            UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
             tokenRouter.openSwap(walletModel: walletModel)

@@ -100,7 +100,7 @@ private extension AccountsAwareActionButtonsSellViewModel {
     func makeSendToSellModel(from response: String, and walletModel: any WalletModel) -> ActionButtonsSendToSellModel? {
         let sellUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddress
+            address: walletModel.defaultAddressString
         )
 
         guard let sellCryptoRequest = sellUtility.extractSellCryptoRequest(from: response) else {
@@ -121,7 +121,7 @@ private extension AccountsAwareActionButtonsSellViewModel {
             currencySymbol: walletModel.tokenItem.currencySymbol,
             amountType: walletModel.tokenItem.amountType,
             blockchain: walletModel.tokenItem.blockchain,
-            walletAddress: walletModel.defaultAddress
+            walletAddress: walletModel.defaultAddressString
         )
 
         return sellUrl

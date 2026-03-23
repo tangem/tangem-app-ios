@@ -38,7 +38,7 @@ struct CommonSendTransferableTokenFactory {
             fiatItem: fiatItem,
             currency: walletModel.tokenItem.expressCurrency,
             coinCurrency: walletModel.feeTokenItem.expressCurrency,
-            address: walletModel.defaultAddress,
+            address: walletModel.defaultAddressString,
             extraId: nil
         )
     }

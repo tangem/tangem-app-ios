@@ -27,7 +27,7 @@ struct TokenActionAvailabilityProvider {
         self.walletModel = walletModel
         sellCryptoUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddress
+            address: walletModel.defaultAddressString
         )
     }
 

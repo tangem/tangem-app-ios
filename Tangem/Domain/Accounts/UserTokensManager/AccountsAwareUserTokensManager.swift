@@ -347,7 +347,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             throw error
         }
 
-        return walletModel.defaultAddress
+        return walletModel.defaultAddressString
     }
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {

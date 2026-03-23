@@ -248,7 +248,7 @@ extension VisaWalletModel: WalletModel {
         []
     }
 
-    var defaultAddress: String {
+    var defaultAddressString: String {
         // [REDACTED_TODO_COMMENT]
         ""
     }

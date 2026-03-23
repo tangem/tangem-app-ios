@@ -115,8 +115,8 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var addresses: [String] { [defaultAddress] }
-    var defaultAddress: String { "mock" }
+    var addresses: [String] { [defaultAddressString] }
+    var defaultAddressString: String { "mock" }
 
     var addressNames: [String] { [] }
     var isMainToken: Bool { true }

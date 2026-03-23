@@ -149,7 +149,7 @@ private extension ActionButtonsSellViewModel {
             currencySymbol: token.infoProvider.tokenItem.currencySymbol,
             amountType: token.walletModel.tokenItem.amountType,
             blockchain: token.walletModel.tokenItem.blockchain,
-            walletAddress: token.walletModel.defaultAddress
+            walletAddress: token.walletModel.defaultAddressString
         )
 
         return sellUrl
@@ -158,7 +158,7 @@ private extension ActionButtonsSellViewModel {
     func makeSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
         SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddress
+            address: walletModel.defaultAddressString
         )
     }
 }

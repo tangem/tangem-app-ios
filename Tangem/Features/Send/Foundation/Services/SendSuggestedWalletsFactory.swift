@@ -43,7 +43,7 @@ struct SendSuggestedWalletsFactory {
             let suggestedWalletModels = walletModels.filter { walletModel in
                 let blockchain = walletModel.tokenItem.blockchain
                 let sameNetwork = blockchain.networkId == targetNetworkId
-                let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddress) }
+                let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
 
                 return sameNetwork && walletModel.isMainToken && shouldBeIncluded()
             }
@@ -56,7 +56,7 @@ struct SendSuggestedWalletsFactory {
 
                 return SendDestinationSuggestedWallet(
                     name: userWalletModel.name,
-                    address: walletModel.defaultAddress,
+                    address: walletModel.defaultAddressString,
                     account: shouldShowAccounts ? account : .none,
                     accountModelAnalyticsProvider: walletModel.account
                 )

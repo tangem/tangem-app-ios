@@ -114,7 +114,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         data.append(.separator(.dashes))
 
         data.append(contentsOf: [
-            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddress),
+            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddressString),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
             EmailCollectedData(type: .send(.amount), data: amount.description),
             EmailCollectedData(type: .send(.fee), data: fee.description),

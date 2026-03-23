@@ -260,7 +260,7 @@ extension CommonWalletModel: WalletModel {
 
     var addresses: [String] { wallet.addresses.map(\.value) }
 
-    var defaultAddress: String { wallet.defaultAddress.value }
+    var defaultAddressString: String { wallet.defaultAddress.value }
 
     var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
 
@@ -561,7 +561,7 @@ extension CommonWalletModel: WalletModelHelpers {
         )
 
         return CommonYieldModuleManager(
-            walletAddress: defaultAddress,
+            walletAddress: defaultAddressString,
             userWalletId: userWalletId.stringValue,
             token: token,
             blockchain: wallet.blockchain,
