@@ -212,9 +212,7 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
-
-        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
+        updateTask(loadingType: .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
@@ -238,6 +236,7 @@ extension SwapModel {
         updateTask?.cancel()
         updateTask = runTask(in: self, code: { @MainActor input in
             do {
+                input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
 
                 switch result {
@@ -785,6 +784,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .map { state -> ReceiveAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
@@ -807,6 +807,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
