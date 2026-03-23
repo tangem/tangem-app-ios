@@ -34,6 +34,7 @@ enum NotificationButtonActionType: Identifiable {
     case reduceAmountBy(amount: Decimal, amountFormatted: String, needsAttention: Bool = false)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case openLink(promotionLink: URL, buttonTitle: String)
+    case openDeeplink(url: URL, buttonTitle: String)
     case swap
     case addHederaTokenAssociation
     case addTokenTrustline
@@ -74,6 +75,7 @@ enum NotificationButtonActionType: Identifiable {
         case .reduceAmountBy(let amount, let amountFormatted, _): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
         case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
         case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
+        case .openDeeplink(let url, let buttonTitle): "openDeeplink\(url)\(buttonTitle)".hashValue
         case .swap: "swap".hashValue
         case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
         case .addTokenTrustline: "addTokenTrustline".hashValue
@@ -118,6 +120,8 @@ enum NotificationButtonActionType: Identifiable {
         case .reduceAmountTo(_, let amountFormatted), .leaveAmount(_, let amountFormatted):
             return Localization.sendNotificationLeaveButton(amountFormatted)
         case .openLink(_, let buttonTitle):
+            return buttonTitle
+        case .openDeeplink(_, let buttonTitle):
             return buttonTitle
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
@@ -188,6 +192,7 @@ enum NotificationButtonActionType: Identifiable {
              .leaveAmount,
              .addHederaTokenAssociation,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -232,6 +237,7 @@ enum NotificationButtonActionType: Identifiable {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .support,
              .stake,
              .openFeedbackMail,

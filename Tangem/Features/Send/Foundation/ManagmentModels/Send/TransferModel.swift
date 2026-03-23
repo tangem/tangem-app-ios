@@ -465,6 +465,7 @@ extension TransferModel: NotificationTapDelegate {
              .retryKaspaTokenTransaction,
              .stake,
              .openLink,
+             .openDeeplink,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,

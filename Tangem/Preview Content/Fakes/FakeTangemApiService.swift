@@ -86,6 +86,14 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        throw "Not implemented"
+    }
+
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
+        throw "Not implemented"
+    }
+
     func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }

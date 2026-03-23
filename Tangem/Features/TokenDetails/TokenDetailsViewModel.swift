@@ -153,6 +153,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
