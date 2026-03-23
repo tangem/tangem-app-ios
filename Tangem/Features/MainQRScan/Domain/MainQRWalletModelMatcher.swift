@@ -35,7 +35,7 @@ struct MainQRWalletModelMatcher {
         var matches: [MainQRWalletModelMatch] = []
 
         for userWalletModel in userWalletRepository.models {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
             for walletModel in walletModels {
                 matches.append(
