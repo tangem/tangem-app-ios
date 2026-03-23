@@ -38,6 +38,6 @@ struct TokenHeaderProvider {
 }
 
 enum TokenHeader: Hashable {
-    case wallet(name: String, hasOnlyOneWallet: Bool)
+    case wallet(name: String, hasOnlyOneWallet: Bool) // [REDACTED_TODO_COMMENT]
     case account(name: String, icon: AccountIconView.ViewData)
 }

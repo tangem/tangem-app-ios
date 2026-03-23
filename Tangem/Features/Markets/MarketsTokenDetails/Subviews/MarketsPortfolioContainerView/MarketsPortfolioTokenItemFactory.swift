@@ -115,7 +115,7 @@ extension MarketsPortfolioTokenItemFactory {
     }
 
     enum NamingStyle {
-        case userWalletName
+        case userWalletName // [REDACTED_TODO_COMMENT]
         case tokenItemName
     }
 }
