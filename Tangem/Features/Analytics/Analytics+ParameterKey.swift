@@ -119,6 +119,11 @@ extension Analytics {
 
         case selectedCategories = "Selected Categories"
 
+        // MARK: - Promotion
+
+        case displayId = "Display Id"
+        case placeholder = "Placeholder"
+
         // MARK: - Earn
 
         case networkFilterType = "Network Filter Type"
