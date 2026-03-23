@@ -1040,7 +1040,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { $0.filter(loading: [.autoupdate]) }
+            .filter { $0.filter(loading: [.providers, .provider, .autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
