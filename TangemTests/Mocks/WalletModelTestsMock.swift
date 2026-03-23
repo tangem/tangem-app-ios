@@ -76,6 +76,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - ReceiveAddressTypesProvider
 
+    var receiveAddressTypes: [ReceiveAddressType] { [] }
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { .just(output: []) }
 
     // MARK: - WalletModelResolvable
