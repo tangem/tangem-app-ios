@@ -17,6 +17,7 @@ enum Feature: String, Hashable, CaseIterable {
     case marketsEarn
     case exchangeOnlyWithinSingleAddress
     case experimentService
+    case walletConnectBitcoin
     case expressFixedRates
     case mainQRScan
     case customerIO
@@ -32,6 +33,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketsEarn: return "Markets Earn"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
+        case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .expressFixedRates: return "Express Fixed Rates"
         case .mainQRScan: return "Main QR Scan"
         case .customerIO: return "customer.io service integration"
@@ -49,6 +51,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketsEarn: return .version("5.35")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
+        case .walletConnectBitcoin: return .unspecified
         case .expressFixedRates: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
