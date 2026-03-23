@@ -23,6 +23,8 @@ public extension Wallet {
                 return derivationKey.extendedPublicKey.publicKey
             case .double(let first, let second):
                 return CardanoUtil().extendPublicKey(first.extendedPublicKey, with: second.extendedPublicKey)
+            case .xpub(let derivationKey, _):
+                return derivationKey.extendedPublicKey.publicKey
             }
         }
 
@@ -46,13 +48,28 @@ public extension Wallet.PublicKey {
         /// Used only for Cardano
         case double(first: HDKey, second: HDKey)
 
+        /// Account-level extended public key for multi-address derivation (Bitcoin XPUB)
+        case xpub(plain: HDKey, xpub: XPUBKey)
+
         public var hdKey: HDKey {
             switch self {
             case .plain(let derivationKey):
                 return derivationKey
             case .double(let derivationKey, _):
                 return derivationKey
+            case .xpub(let derivationKey, _):
+                return derivationKey
             }
+        }
+    }
+
+    struct XPUBKey: Codable, Hashable {
+        public let child: HDKey
+        public let parent: HDKey
+
+        public init(child: HDKey, parent: HDKey) {
+            self.child = child
+            self.parent = parent
         }
     }
 

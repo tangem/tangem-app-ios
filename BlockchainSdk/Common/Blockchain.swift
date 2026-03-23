@@ -15,7 +15,7 @@ import enum WalletCore.CoinType
 /// This enum should be indirect because of memory issues on iOS15
 @available(iOS 13.0, *)
 public indirect enum Blockchain: Equatable, Hashable {
-    case bitcoin(testnet: Bool)
+    case bitcoin(testnet: Bool, xpub: Bool = false)
     case litecoin
     case stellar(curve: EllipticCurve, testnet: Bool)
     case ethereum(testnet: Bool)
@@ -114,7 +114,7 @@ public indirect enum Blockchain: Equatable, Hashable {
 
     public var isTestnet: Bool {
         switch self {
-        case .bitcoin(let testnet),
+        case .bitcoin(let testnet, _),
              .ethereum(let testnet),
              .bsc(let testnet),
              .ethereumClassic(let testnet),
@@ -1233,6 +1233,7 @@ extension Blockchain: Codable {
         case testnet
         case curve
         case extended
+        case xpub
     }
 
     public init(from decoder: Decoder) throws {
@@ -1246,7 +1247,9 @@ extension Blockchain: Codable {
         }
 
         switch key {
-        case "bitcoin": self = .bitcoin(testnet: isTestnet)
+        case "bitcoin":
+            let xpub = try container.decodeIfPresent(Bool.self, forKey: Keys.xpub) ?? false
+            self = .bitcoin(testnet: isTestnet, xpub: xpub)
         case "stellar": self = .stellar(curve: curve, testnet: isTestnet)
         case "ethereum": self = .ethereum(testnet: isTestnet)
         case "ethereumClassic": self = .ethereumClassic(testnet: isTestnet)
@@ -1355,6 +1358,10 @@ extension Blockchain: Codable {
 
         if case .cardano(let extended) = self {
             try container.encode(extended, forKey: Keys.extended)
+        }
+
+        if case .bitcoin(_, let xpub) = self {
+            try container.encode(xpub, forKey: Keys.xpub)
         }
     }
 }

@@ -18,6 +18,11 @@ struct GenericWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
 
     func makePublicKey(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet.PublicKey {
         switch blockchainNetwork.blockchain {
+        case .bitcoin(_, xpub: true):
+            return try BitcoinXPUBPublicKeyFactory().makePublicKey(
+                blockchainNetwork: blockchainNetwork,
+                keys: keys
+            )
         case .chia:
             return try SimpleWalletPublicKeyFactory().makePublicKey(
                 blockchainNetwork: blockchainNetwork,
