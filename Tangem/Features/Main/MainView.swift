@@ -27,7 +27,7 @@ struct MainView: View {
 
     @ViewBuilder
     private var content: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesignEnabled {
             fullPagePagerContent
                 .modifier(RedesignedBackgroundModifier(headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher))
         } else {
