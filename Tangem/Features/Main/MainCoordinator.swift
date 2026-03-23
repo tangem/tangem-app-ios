@@ -153,7 +153,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Tooltip Interaction
 
-    @MainActor
     func showMarketsTooltip() {
         marketsTooltipScheduler.scheduleShow(delay: Constants.tooltipAnimationDelay) { [weak self] in
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
