@@ -102,6 +102,8 @@ private extension WalletCoreUTXOTransactionSerializer {
 
         let change = transaction.preImage.outputs.first(where: { $0.isChange })
 
+        let opReturnData = try opReturnData(from: transaction.transaction)
+
         var input = BitcoinSigningInput.with {
             $0.coinType = coinType.rawValue
             $0.hashType = WalletCore.TWBitcoinScriptHashTypeForCoin(.init(coinType.rawValue))
@@ -112,6 +114,10 @@ private extension WalletCoreUTXOTransactionSerializer {
 
             if change != nil {
                 $0.changeAddress = transaction.transaction.changeAddress
+            }
+
+            if let opReturnData {
+                $0.outputOpReturn = opReturnData
             }
         }
 
@@ -132,5 +138,22 @@ private extension WalletCoreUTXOTransactionSerializer {
         }
 
         return input
+    }
+
+    func opReturnData(from transaction: BlockchainSdk.Transaction) throws -> Data? {
+        guard let params = transaction.params as? BitcoinTransactionParams else {
+            return nil
+        }
+
+        guard !params.memo.isEmpty else {
+            return nil
+        }
+
+        // Standard OP_RETURN relay policy historically limits data to 80 bytes.
+        if params.memo.count > 80 {
+            throw UTXOTransactionSerializerError.walletCoreError("UTXO memo exceeds 80 bytes")
+        }
+
+        return params.memo
     }
 }
