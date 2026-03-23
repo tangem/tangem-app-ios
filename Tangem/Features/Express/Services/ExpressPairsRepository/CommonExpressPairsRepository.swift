@@ -23,8 +23,8 @@ actor CommonExpressPairsRepository {
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
-        let walletModels = AccountsFeatureAwareWalletModelsResolver
-            .walletModels(for: userWalletRepository.models)
+        let walletModels = userWalletRepository.models
+            .flatMap { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) }
 
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
     }
