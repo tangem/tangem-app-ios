@@ -210,7 +210,6 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
-            waitAndAssertTrue(networkFeeBlock, "Network fee button should exist")
             networkFeeBlock.waitAndTap()
         }
         return SendFeeSelectorScreen(app)
