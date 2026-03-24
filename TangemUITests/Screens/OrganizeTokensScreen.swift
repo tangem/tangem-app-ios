@@ -24,6 +24,16 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
         }
     }
 
+    @discardableResult
+    func cancelOrganizeTokens() -> MainScreen {
+        XCTContext.runActivity(named: "Cancel organize tokens (dismiss sheet)") { _ in
+            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            return MainScreen(app)
+        }
+    }
+
     func applyChanges() -> MainScreen {
         XCTContext.runActivity(named: "Apply organize tokens changes") { _ in
             applyButton.waitAndTap()
