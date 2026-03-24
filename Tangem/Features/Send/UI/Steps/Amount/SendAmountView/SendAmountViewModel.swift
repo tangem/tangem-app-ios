@@ -37,6 +37,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     /// Temporarily set to `false` on first destination entry to prevent animation.
     var animateActiveFieldChange = true
 
+    /// When `true`, the FROM section's token row shows compact data even while expanded.
+    /// Used for two-phase animation: Phase 1 swaps data instantly, Phase 2 animates collapse.
+    @Published var forceCompactSourceTokenRow = false
+
     /// Gates the `.animation(_, value: isAmountEditable)` modifier.
     /// Set to `true` in `removeReceivedToken` so the removal animates. Entry never animates.
     var animateDestinationRemoval = false
@@ -111,6 +115,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
 
     private var sourceCurrencySymbol: String = ""
+    private var sourceCryptoBalance: String?
     private var bag: Set<AnyCancellable> = []
     private var sourceFieldBag: AnyCancellable?
     private var destinationFieldBag: AnyCancellable?
@@ -193,8 +198,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func userDidTapCompactField(_ tappedField: ActiveAmountField) {
         guard !isInputFieldSwitchingLocked else { return }
 
-        animateActiveFieldChange = true
-
         if isFixedRateSupportedByProvider, activeField == tappedField.opposite {
             let field = amountField(for: tappedField)
 
@@ -207,26 +210,40 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
             guard let currentValue else {
                 // No value in the tapped field — just switch without recalculation
+                forceCompactSourceTokenRow = tappedField != .send
+                animateActiveFieldChange = true
                 activeField = tappedField
                 pendingFocusField = tappedField
                 return
             }
 
-            isInputFieldSwitchingLocked = true
-            activeField = tappedField
-            pendingFocusField = tappedField
-            lastUpdateSource = tappedField
+            // Phase 1: Instantly swap FROM token row to target state (no animation)
+            forceCompactSourceTokenRow = tappedField != .send
+            if tappedField != .send {
+                compactSourceSubtitle = .balance(state: .loading())
+            }
 
-            // Trigger rate recalculation for the tapped field
-            switch tappedField {
-            case .send:
-                let amount = try? interactor.update(sourceAmount: currentValue)
-                sourceAmountField.updateAmountsUI(amount: amount)
-            case .receive:
-                let amount = interactor.update(receiveAmount: currentValue)
-                destinationAmountField?.updateAmountsUI(amount: amount)
+            // Phase 2: Animate the collapse/expand after SwiftUI commits Phase 1
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(20)) { [weak self] in
+                guard let self else { return }
+                animateActiveFieldChange = true
+                isInputFieldSwitchingLocked = true
+                activeField = tappedField
+                pendingFocusField = tappedField
+                lastUpdateSource = tappedField
+
+                // Trigger rate recalculation for the tapped field
+                switch tappedField {
+                case .send:
+                    let amount = try? interactor.update(sourceAmount: currentValue)
+                    sourceAmountField.updateAmountsUI(amount: amount)
+                case .receive:
+                    let amount = interactor.update(receiveAmount: currentValue)
+                    destinationAmountField?.updateAmountsUI(amount: amount)
+                }
             }
         } else {
+            animateActiveFieldChange = true
             activeField = tappedField
             pendingFocusField = tappedField
         }
@@ -422,7 +439,10 @@ extension SendAmountViewModel {
         tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
-        var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
+        let cryptoBalance = sourceToken.availableBalanceProvider.formattedBalanceType.value
+        sourceCryptoBalance = cryptoBalance
+
+        var balanceFormatted = cryptoBalance
         if sourceToken.fiatAvailableBalanceProvider.balanceType.value != nil {
             balanceFormatted += " \(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
         }
@@ -431,7 +451,7 @@ extension SendAmountViewModel {
         sourceAmountTokenViewData = .init(
             tokenIconInfo: tokenIconInfo,
             title: sourceToken.tokenItem.name,
-            subtitle: .balance(state: .loaded(text: .string(balanceFormatted))),
+            subtitle: .balance(state: .loaded(text: .builder(builder: { $0 }, sensitive: balanceFormatted))),
             detailsType: .max { [weak self] in
                 self?.userDidTapMaxAmount()
             }
@@ -487,7 +507,7 @@ extension SendAmountViewModel {
                     let expandedDestinationData = SendAmountTokenViewData(
                         tokenIconInfo: destinationTokenIconInfo,
                         title: destinationToken.tokenItem.name,
-                        subtitle: .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+                        subtitle: .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
                         detailsType: .select(individualAction: nil),
                         action: { [weak self] in
                             self?.openReceiveTokensList()
@@ -604,7 +624,15 @@ extension SendAmountViewModel {
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                compactSourceSubtitle = .balance(state: .loaded(text: "\(Localization.sendFromTitle) \(formatted)"))
+                let sendText = Localization.sendSummaryTitle(formatted)
+                if let balance = sourceCryptoBalance {
+                    compactSourceSubtitle = .balance(state: .loaded(text: .builder(
+                        builder: { "\($0) \(AppConstants.dotSign) \(sendText)" },
+                        sensitive: balance
+                    )))
+                } else {
+                    compactSourceSubtitle = .balance(state: .loaded(text: sendText))
+                }
             } else {
                 compactSourceSubtitle = nil
             }
@@ -625,11 +653,11 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            return .balance(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
         case .failure:
-            return .balance(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
+            return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
-            return .balance(state: .loading())
+            return .receive(state: .loading)
         }
     }
 }
