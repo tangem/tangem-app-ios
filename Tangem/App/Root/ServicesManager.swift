@@ -127,7 +127,9 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearStoriesState()
         }
 
-        UITestsStorageCleaner.clearWalletData()
+        if arguments.firstIndex(of: "-uitest-keep-wallets") == nil {
+            UITestsStorageCleaner.clearWalletData()
+        }
 
         UIView.setAnimationsEnabled(false)
     }
