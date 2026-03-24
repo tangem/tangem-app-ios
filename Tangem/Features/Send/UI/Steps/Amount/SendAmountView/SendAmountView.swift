@@ -46,6 +46,7 @@ struct SendAmountView: View {
             isLocked: isAmountEditable ? viewModel.isInputFieldSwitchingLocked : true,
             expandedTokenData: viewModel.sourceAmountTokenViewData,
             compactTokenData: isAmountEditable ? viewModel.compactSourceTokenViewData : nil,
+            useCompactTokenRow: viewModel.forceCompactSourceTokenRow,
             expandedContentVerticalPadding: viewModel.sourceRateBadge != nil ? 45 : 51,
             onTapCompact: { viewModel.userDidTapCompactField(.send) }
         ) {
