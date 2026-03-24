@@ -90,7 +90,7 @@ extension WalletConnectBitcoinGetAccountAddressesHandler: WalletConnectMessageHa
 
         let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
             WalletConnectBtcAccountAddressResponse(
-                address: $0.value,
+                address: $0,
                 path: pathString,
                 intention: "payment" // Always "payment" per requirements. We don't support ordinals
             )

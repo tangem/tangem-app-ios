@@ -26,7 +26,7 @@ struct ValidatorTests {
     @Test
     func txValidation() {
         let blockchain = Blockchain.bitcoin(testnet: false)
-        let transactionValidator = BaseTransactionValidator(wallet: Wallet(blockchain: .bitcoin(testnet: false), addresses: [:]))
+        let transactionValidator = BaseTransactionValidator(wallet: Wallet(blockchain: .bitcoin(testnet: false), addressesProvider: EmptyAddressesProvider()))
         transactionValidator.wallet.add(coinValue: 10)
 
         #expect(throws: Never.self) {

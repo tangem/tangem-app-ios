@@ -31,7 +31,7 @@ struct SolanaEd25519Slip0010Tests {
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let address = try! service.makeAddress(from: walletPubKey)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         manager = .init(wallet: wallet)
         manager.networkService = SolanaNetworkService(
