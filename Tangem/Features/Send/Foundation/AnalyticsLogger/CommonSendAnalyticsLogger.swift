@@ -435,7 +435,9 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             return
         }
 
+        let source: Analytics.ParameterValue = sendType == .swap ? .swap : .sendAndSwap
         var analyticsParameters: [Analytics.ParameterKey: String] = [
+            .source: source.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: sourceTokenItem),
             .blockchain: sourceTokenItem.blockchain.displayName,
             .walletForm: result.signerType,
@@ -459,6 +461,8 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         switch sendReceiveTokenInput?.receiveToken.value {
         case .none:
             logSendFinishScreenOpened(destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false)
+        case .some where sendType == .swap:
+            logSwapFinishScreenOpened()
         case .some:
             logSendWithSwapFinishScreenOpened()
         }
@@ -513,6 +517,14 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     private func logSendWithSwapFinishScreenOpened() {
+        logFinishScreenWithSwapParameters(event: .sendSendWithSwapInProgressScreenOpened)
+    }
+
+    private func logSwapFinishScreenOpened() {
+        logFinishScreenWithSwapParameters(event: .swapSwapInProgressScreenOpened)
+    }
+
+    private func logFinishScreenWithSwapParameters(event: Analytics.Event) {
         guard let sourceTokenItem else {
             return
         }
@@ -541,7 +553,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
         Analytics.log(
-            event: .sendSendWithSwapInProgressScreenOpened,
+            event: event,
             params: analyticsParameters,
             analyticsSystems: .all
         )
