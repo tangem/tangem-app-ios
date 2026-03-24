@@ -10,37 +10,57 @@ import Foundation
 
 struct WalletFactory {
     private let blockchain: Blockchain
-
-    private var addressProvider: AddressProvider {
-        AddressServiceFactory(blockchain: blockchain).makeAddressService()
-    }
+    private let addressService: AddressService
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
+        addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
     }
 
     /// With one public key
     func makeWallet(publicKey: Wallet.PublicKey) throws -> Wallet {
-        let addressTypes: [AddressType] = AddressTypesConfig().types(for: blockchain)
+        let defaultAddress = try addressService.makeAddress(for: publicKey, with: .default)
+        let legacyAddress = try makeLegacyAddressIfNeeded(publicKey: publicKey)
 
-        let addresses: [AddressType: Address] = try addressTypes.reduce(into: [:]) { result, addressType in
-            result[addressType] = try addressProvider.makeAddress(for: publicKey, with: addressType)
-        }
-
-        return Wallet(blockchain: blockchain, addresses: addresses)
+        let addressesProvider = CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
+        return Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
     }
 
     /// With multisig script public key
     func makeWallet(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> Wallet {
-        guard let addressProvider = addressProvider as? BitcoinScriptAddressesProvider else {
-            throw BlockchainSdkError.empty
+        guard let addressService = addressService as? BitcoinScriptAddressesProvider else {
+            throw WalletFactoryError.bitcoinScriptAddressesProviderNotFound
         }
 
-        let addresses = try addressProvider.makeAddresses(publicKey: publicKey, pairPublicKey: pairPublicKey)
+        let addresses = try addressService.makeAddresses(publicKey: publicKey, pairPublicKey: pairPublicKey)
+        let defaultAddress = addresses.first(where: { $0.type == .default })
+        let legacyAddress = addresses.first(where: { $0.type == .legacy })
 
-        return Wallet(
-            blockchain: blockchain,
-            addresses: addresses.reduce(into: [:]) { $0[$1.type] = $1 }
-        )
+        guard let defaultAddress else {
+            throw WalletFactoryError.defaultAddressNotFound
+        }
+
+        let addressesProvider = CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
+        return Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
+    }
+
+    private func makeLegacyAddressIfNeeded(publicKey: Wallet.PublicKey) throws -> Address? {
+        guard AddressTypesConfig().hasLegacy(for: blockchain) else {
+            return nil
+        }
+
+        return try addressService.makeAddress(for: publicKey, with: .legacy)
+    }
+}
+
+enum WalletFactoryError: LocalizedError {
+    case defaultAddressNotFound
+    case bitcoinScriptAddressesProviderNotFound
+
+    var errorDescription: String? {
+        switch self {
+        case .defaultAddressNotFound: "Default address not found"
+        case .bitcoinScriptAddressesProviderNotFound: "Bitcoin script addresses provider not found"
+        }
     }
 }
