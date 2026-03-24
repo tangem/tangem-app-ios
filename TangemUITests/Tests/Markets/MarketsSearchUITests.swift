@@ -90,7 +90,7 @@ final class MarketsSearchUITests: BaseTestCase {
     func testMarketsSearch_BySmartContractAddress() {
         setAllureId(38)
         let network = "ETHEREUM"
-        let managedToken = "Tether  USDT"
+        let managedToken = "tether"
         let expectedMarketsToken = "Tether"
 
         launchApp()
@@ -103,7 +103,7 @@ final class MarketsSearchUITests: BaseTestCase {
             .openManageTokens()
 
         let mainScreen = manageTokens
-            .expandTokenIfNeeded(managedToken)
+            .expandTokenIfNeeded(coinId: managedToken)
             .ensureNetworkSelected(network)
             .longPressNetworkToCopy(network, duration: 1.0)
             .goBackToAccountSettings()
