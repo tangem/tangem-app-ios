@@ -58,7 +58,7 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
             return true
         }
 
-        return model.addresses.contains { $0.value.caseInsensitiveCompare(address) == .orderedSame }
+        return model.addresses.contains { $0.caseInsensitiveCompare(address) == .orderedSame }
     }
 }
 
