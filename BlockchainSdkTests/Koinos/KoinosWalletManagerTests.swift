@@ -17,13 +17,13 @@ struct KoinosWalletManagerTests {
         walletManager = KoinosWalletManager(
             wallet: Wallet(
                 blockchain: .koinos(testnet: false),
-                addresses: [
-                    .default: PlainAddress(
+                addressesProvider: CommonAddressesProvider(
+                    defaultAddress: PlainAddress(
                         value: "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp",
                         publicKey: .init(seedKey: .init(), derivationType: nil),
                         type: .default
-                    ),
-                ]
+                    )
+                )
             ),
             networkService: KoinosNetworkService(providers: []),
             transactionBuilder: KoinosTransactionBuilder(koinosNetworkParams: KoinosNetworkParams(isTestnet: false))
