@@ -23,7 +23,7 @@ struct CosmosTransactionTests {
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
         let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
         txBuilder.setAccountNumber(1037)
@@ -65,7 +65,7 @@ struct CosmosTransactionTests {
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
         let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
         txBuilder.setAccountNumber(158)
@@ -108,7 +108,7 @@ struct CosmosTransactionTests {
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
         let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
         txBuilder.setAccountNumber(1037)
@@ -151,7 +151,7 @@ struct CosmosTransactionTests {
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
         let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
         txBuilder.setAccountNumber(1037)

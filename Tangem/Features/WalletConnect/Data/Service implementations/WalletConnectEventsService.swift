@@ -122,7 +122,7 @@ extension WalletConnectEventsService {
 
         let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
             WalletConnectBtcAccountAddressResponse(
-                address: $0.value,
+                address: $0,
                 path: pathString,
                 intention: "payment"
             )
