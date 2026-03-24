@@ -20,7 +20,7 @@ protocol NotificationTapDelegate: AnyObject {
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
-    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenAutoSyncProgressProvider: WalletTokenAutoSyncProgressProvider
 
     private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
@@ -374,7 +374,7 @@ final class UserWalletNotificationManager {
 
             let userWalletId = userWalletModel.userWalletId
 
-            await walletTokenSyncProgressProvider
+            await walletTokenAutoSyncProgressProvider
                 .eventPublisher(for: userWalletId)
                 .removeDuplicates()
                 .filter { $0 == .completed }
@@ -487,7 +487,7 @@ extension UserWalletNotificationManager: NotificationManager {
                 mobileUpgradeBannerManager.shouldClose()
             case .initialWalletTokenSyncCompleted:
                 Task { [walletId = userWalletModel.userWalletId] in
-                    await walletTokenSyncProgressProvider.removeProgress(for: walletId)
+                    await walletTokenAutoSyncProgressProvider.removeProgress(for: walletId)
                 }
             default:
                 break
