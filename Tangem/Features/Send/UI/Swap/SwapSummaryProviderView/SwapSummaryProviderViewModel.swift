@@ -48,13 +48,14 @@ private extension SwapSummaryProviderViewModel {
         receiveTokenInput: SendReceiveTokenInput,
         swapProvidersInput: SendSwapProvidersInput
     ) {
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
             receiveTokenInput.receiveTokenPublisher.compactMap { $0.value },
-            swapProvidersInput.selectedExpressProviderPublisher
+            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.expressProvidersPublisher,
         )
         .withWeakCaptureOf(self)
-        .map { $0.mapToProviderState(sourceToken: $1.0, receiveToken: $1.1, provider: $1.2) }
+        .map { $0.mapToProviderState(sourceToken: $1.0, receiveToken: $1.1, provider: $1.2, providers: $1.3) }
         .receiveOnMain()
         .assign(to: &$providerState)
     }
@@ -62,7 +63,8 @@ private extension SwapSummaryProviderViewModel {
     func mapToProviderState(
         sourceToken: SendSourceToken,
         receiveToken: SendReceiveToken,
-        provider: LoadingResult<ExpressAvailableProvider, any Error>?
+        provider: LoadingResult<ExpressAvailableProvider, any Error>?,
+        providers: [ExpressAvailableProvider],
     ) -> ProviderState? {
         switch provider {
         case .none:
@@ -72,7 +74,12 @@ private extension SwapSummaryProviderViewModel {
         case .failure:
             return nil
         case .success(let provider):
-            if let data = mapToProviderRowViewModel(sourceToken: sourceToken, receiveToken: receiveToken, provider: provider) {
+            if let data = mapToProviderRowViewModel(
+                sourceToken: sourceToken,
+                receiveToken: receiveToken,
+                selectedProvider: provider,
+                providers: providers
+            ) {
                 return .loaded(data: data)
             }
 
@@ -83,11 +90,15 @@ private extension SwapSummaryProviderViewModel {
     func mapToProviderRowViewModel(
         sourceToken: SendSourceToken,
         receiveToken: SendReceiveToken,
-        provider selectedProvider: ExpressAvailableProvider
+        selectedProvider: ExpressAvailableProvider,
+        providers: [ExpressAvailableProvider],
     ) -> ProviderRowViewModel? {
+        // Has more than one `showableProviders` to selection
+        let hasAnotherProviders = providers.showableProviders().count > 1
         let state = selectedProvider.getState()
-        if state.isError {
-            // Don't show a error provider
+        let selectedProviderNonError = !state.isError
+
+        guard hasAnotherProviders || selectedProviderNonError else {
             return nil
         }
 
