@@ -13,20 +13,20 @@ public struct Wallet {
     // MARK: - Properties
 
     public let blockchain: Blockchain
-    public private(set) var walletAddresses: [AddressType: Address]
+    private(set) var addressesProvider: AddressesProvider
 
     public private(set) var amounts: [Amount.AmountType: Amount] = [:]
     public private(set) var pendingTransactions: [PendingTransactionRecord] = []
 
     // MARK: - Calculations
 
-    public var addresses: [Address] { walletAddresses.map { $0.value }.sorted(by: { $0.type < $1.type }) }
-    public var defaultAddress: Address { walletAddresses[.default]! }
+    public var addresses: [Address] { addressesProvider.addresses }
+    public var defaultAddress: Address { addressesProvider.defaultAddress }
 
     /// `publicKey` from default address
     public var publicKey: Wallet.PublicKey { defaultAddress.publicKey }
 
-    /// Default address
+    /// Default address string
     public var address: String { defaultAddress.value }
 
     public var isEmpty: Bool {
@@ -41,9 +41,9 @@ public struct Wallet {
     /// willSet/didSet/CurrentValueSubject with the value of this `Wallet` to update.
     private var hasAssetRequirements: Bool = false
 
-    public init(blockchain: Blockchain, addresses: [AddressType: Address]) {
+    public init(blockchain: Blockchain, addressesProvider: AddressesProvider) {
         self.blockchain = blockchain
-        walletAddresses = addresses
+        self.addressesProvider = addressesProvider
     }
 
     public func hasPendingTx(for amountType: Amount.AmountType) -> Bool {
@@ -128,7 +128,7 @@ public struct Wallet {
     }
 
     mutating func set(address: Address) {
-        walletAddresses[address.type] = address
+        addressesProvider.update(address: address)
     }
 
     private func feeAmountType(transactionAmountType: Amount.AmountType) -> Amount.AmountType {
