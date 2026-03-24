@@ -234,28 +234,29 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        updateTask = runTask(in: self, code: { @MainActor input in
+        updateTask = runTask(in: self, code: { input in
             do {
-                input.update(providersState: .loading(loadingType))
+                await MainActor.run { input.update(providersState: .loading(loadingType)) }
                 let result = try await block(input.expressManager)
 
                 switch result {
                 case .none:
-                    input.update(providersState: .idle)
+                    await MainActor.run { input.update(providersState: .idle) }
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
-                    input.update(providersState: .loaded(
-                        providers: updatingResult.providers,
-                        selected: updatingResult.selected,
-                        state: state
-                    ))
+                    await MainActor.run {
+                        input.update(providersState: .loaded(
+                            providers: updatingResult.providers,
+                            selected: updatingResult.selected,
+                            state: state
+                        ))
+                    }
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
-                // Do nothing
             } catch {
-                input.update(providersState: .failure(error))
+                await MainActor.run { input.update(providersState: .failure(error)) }
             }
         })
     }
@@ -897,6 +898,7 @@ extension SwapModel: SendSwapProvidersInput {
         case .failure(let error): .failure(error)
         case .loading(.rates): .loading
         case .loading: .none
+        case .loaded(_, _, .idle): .none
         case .loaded(_, let selected, _): selected.map { .success($0) }
         }
     }
