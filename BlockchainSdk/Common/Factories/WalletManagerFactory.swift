@@ -90,7 +90,8 @@ public extension WalletManagerFactory {
         blockchain: Blockchain,
         dummyPublicKey: Data,
         dummyAddress: String
-    ) throws -> WalletManager { let publicKey = Wallet.PublicKey(seedKey: dummyPublicKey, derivationType: .none)
+    ) throws -> WalletManager {
+        let publicKey = Wallet.PublicKey(seedKey: dummyPublicKey, derivationType: .none)
         let address: Address
 
         if dummyAddress.isEmpty {
@@ -100,7 +101,8 @@ public extension WalletManagerFactory {
             address = PlainAddress(value: dummyAddress, publicKey: publicKey, type: .default)
         }
 
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let addressesProvider = CommonAddressesProvider(defaultAddress: address)
+        let wallet = Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
 
         let networkInput = NetworkProviderAssembly.Input(
             blockchain: blockchain,
