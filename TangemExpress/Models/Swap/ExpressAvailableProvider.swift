@@ -59,6 +59,28 @@ public class ExpressAvailableProvider {
     }
 }
 
+// MARK: - CustomStringConvertible
+
+extension ExpressAvailableProvider: CustomStringConvertible {
+    public var description: String {
+        objectDescription(self, userInfo: ["provider": provider.name])
+    }
+}
+
+// MARK: - ExpressAvailableProvider + Priority
+
+public extension ExpressAvailableProvider {
+    enum Priority: Comparable {
+        case lowest
+        case low
+        case medium(minimumAmount: Decimal)
+        case high(rate: Decimal)
+        case highest
+    }
+}
+
+// MARK: - [ExpressAvailableProvider]+
+
 public extension [ExpressAvailableProvider] {
     func sortedByPriorityAndQuotes() -> [ExpressAvailableProvider] {
         typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
@@ -78,6 +100,13 @@ public extension [ExpressAvailableProvider] {
         }
     }
 
+    func showableProviders() -> [ExpressAvailableProvider] {
+        filter { provider in
+            let isAvailableToShow = !provider.getState().isError
+            return isAvailableToShow
+        }
+    }
+
     func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
         filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
@@ -86,15 +115,5 @@ public extension [ExpressAvailableProvider] {
 
             return isSelected || isAvailableToShow
         }
-    }
-}
-
-public extension ExpressAvailableProvider {
-    enum Priority: Comparable {
-        case lowest
-        case low
-        case medium(minimumAmount: Decimal)
-        case high(rate: Decimal)
-        case highest
     }
 }
