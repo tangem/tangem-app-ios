@@ -21,11 +21,7 @@ class FakeUserWalletModel: UserWalletModel {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {
-        CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: .init(userWalletIdSeed: Data()),
-            keys: .cardWallet(keys: [])
-        )
+        CommonKeysRepository(keys: .cardWallet(keys: []))
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -84,15 +80,6 @@ class FakeUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
-    }
-
-    var tangemPayManager: TangemPayManager {
-        TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: signer
-        )
-        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {

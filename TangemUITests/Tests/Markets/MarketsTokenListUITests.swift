@@ -175,8 +175,6 @@ final class MarketsTokenListUITests: BaseTestCase {
         case buyers
         case gainers
         case losers
-        case staking
-        case yield
 
         public var displayName: String {
             switch self {
@@ -185,8 +183,6 @@ final class MarketsTokenListUITests: BaseTestCase {
             case .buyers: return "Experienced buyers"
             case .gainers: return "Gainers"
             case .losers: return "Losers"
-            case .staking: return "Staking"
-            case .yield: return "Yield Mode"
             }
         }
 

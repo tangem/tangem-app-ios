@@ -13,17 +13,19 @@ final class MobileOnboardingSuccessStep: MobileOnboardingFlowStep {
 
     init(
         type: MobileOnboardingSuccessViewModel.SuccessType,
+        navigationTitle: String,
         onAppear: @escaping () -> Void,
         onComplete: @escaping () -> Void
     ) {
         viewModel = MobileOnboardingSuccessViewModel(
             type: type,
+            navigationTitle: navigationTitle,
             onAppear: onAppear,
             onComplete: onComplete
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSuccessView(viewModel: viewModel)
     }
 }

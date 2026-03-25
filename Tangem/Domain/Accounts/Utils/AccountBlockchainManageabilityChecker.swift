@@ -39,8 +39,7 @@ private extension AccountBlockchainManageabilityChecker {
         for account: any CryptoAccountModel,
         predicate: () -> Bool
     ) -> Bool {
-        guard !account.isMainAccount else { return true }
-        return predicate()
+        return account.isMainAccount || predicate()
     }
 
     /// Checks if a blockchain with the given networkId supports multiple accounts.

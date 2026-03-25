@@ -10,12 +10,11 @@ import Combine
 import SwiftUI
 
 final class StoriesViewModel: ObservableObject {
-    @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
     @Injected(\.ukGeoDefiner) var ukGeoDefiner: UKGeoDefiner
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
-    @Published var checkingPromotionAvailability = true
+    @Published var checkingAvailability = true
     @Published var isScanning = false
 
     var currentPageIndex: Int {
@@ -30,10 +29,8 @@ final class StoriesViewModel: ObservableObject {
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
 
-    private var showLearnPage: Bool = false
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
-    private let promotionCheckTimeout: TimeInterval = 5
     private var shouldStartTimer: Bool = true
 
     weak var delegate: StoriesDelegate?
@@ -66,19 +63,9 @@ final class StoriesViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    func checkPromotion() async {
-        let isNewCard = true
-        let userWalletId: String? = nil
-
-        async let promotionResultCheck: Void = promotionService.checkPromotion(
-            isNewCard: isNewCard,
-            userWalletId: userWalletId,
-            timeout: promotionCheckTimeout
-        )
-        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegionIfNeeded()
-
-        let _ = await (promotionResultCheck, geoIpRegionCheck)
-        await didFinishCheckingPromotion()
+    func checkInitialData() async {
+        await ukGeoDefiner.waitForGeoIpRegionIfNeeded()
+        await didFinishChecking()
     }
 
     func onCreateWallet() {
@@ -167,14 +154,8 @@ final class StoriesViewModel: ObservableObject {
     }
 
     @MainActor
-    private func didFinishCheckingPromotion() {
-        showLearnPage = promotionService.promotionAvailable
-
+    private func didFinishChecking() {
         var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-        if !showLearnPage,
-           let learnIndex = pages.firstIndex(of: .learn) {
-            pages.remove(at: learnIndex)
-        }
 
         if ukGeoDefiner.isUK, let currenciesIndex = pages.firstIndex(of: .currencies) {
             pages.remove(at: currenciesIndex)
@@ -184,7 +165,7 @@ final class StoriesViewModel: ObservableObject {
 
         currentPage = pages[0]
 
-        checkingPromotionAvailability = false
+        checkingAvailability = false
     }
 
     private func move(forward: Bool) {

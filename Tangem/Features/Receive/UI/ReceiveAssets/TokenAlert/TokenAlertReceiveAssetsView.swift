@@ -47,14 +47,14 @@ struct TokenAlertReceiveAssetsView: View {
 
     private var networkTitleView: some View {
         VStack(alignment: .center, spacing: .zero) {
-            Text(Localization.domainReceiveAssetsOnboardingTitle)
-                .style(Fonts.Regular.title3, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
+            Group {
+                Text(Localization.domainReceiveAssetsOnboardingTitle)
+                    .lineLimit(2)
 
-            Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName))
-                .style(Fonts.Regular.title3, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
+                Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName))
+            }
+            .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+            .multilineTextAlignment(.center)
         }
     }
 

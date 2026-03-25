@@ -27,24 +27,26 @@ final class MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingFlowBuilder {
         self.source = source
         self.context = context
         self.coordinator = coordinator
-        super.init()
+        super.init(hasProgressBar: false)
     }
 
     override func setupFlow() {
-        let mode: MobileOnboardingAccessCodeViewModel.Mode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode ? .change(context) : .create(canSkip: false)
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: mode, source: source, delegate: self)
-            .configureNavBar(
-                title: Localization.accessCodeNavtitle,
-                leadingAction: navBarCloseAction
-            )
+        let mode: MobileOnboardingAccessCodeViewModel.Mode = userWalletModel.config.userWalletAccessCodeStatus
+            .hasAccessCode ? .change(context) : .create(canSkip: false)
+
+        let accessCodeStep = MobileOnboardingAccessCodeStep(
+            mode: mode,
+            source: source,
+            delegate: self
+        )
         append(step: accessCodeStep)
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
+            navigationTitle: Localization.commonDone,
             onAppear: {},
             onComplete: weakify(self, forFunction: MobileOnboardingAccessCodeFlowBuilder.closeOnboarding)
         )
-        doneStep.configureNavBar(title: Localization.commonDone)
         append(step: doneStep)
     }
 }
@@ -61,16 +63,6 @@ private extension MobileOnboardingAccessCodeFlowBuilder {
     }
 }
 
-// MARK: - Private methods
-
-private extension MobileOnboardingAccessCodeFlowBuilder {
-    var navBarCloseAction: MobileOnboardingFlowNavBarAction {
-        MobileOnboardingFlowNavBarAction.close(handler: { [weak self] in
-            self?.closeOnboarding()
-        })
-    }
-}
-
 // MARK: - MobileOnboardingAccessCodeDelegate
 
 extension MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingAccessCodeDelegate {
@@ -80,5 +72,9 @@ extension MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingAccessCodeDeleg
 
     func didCompleteAccessCode() {
         openNext()
+    }
+
+    func onAccessCodeClose() {
+        coordinator?.closeOnboarding()
     }
 }

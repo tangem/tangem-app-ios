@@ -77,19 +77,13 @@ private extension AccountsAwareActionButtonsBuyViewModel {
 
     func filterHotTokens(_ hotTokens: [HotCryptoToken]) -> [HotCryptoToken] {
         hotTokens.filter { hotToken in
-            guard let tokenItem = hotToken.tokenItem, let coinId = tokenItem.id else { return false }
+            guard let tokenItem = hotToken.tokenItem else { return false }
 
-            let network = NetworkModel(
-                networkId: tokenItem.networkId,
-                contractAddress: tokenItem.contractAddress,
-                decimalCount: tokenItem.decimalCount
-            )
-
-            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
-                coinId: coinId,
-                availableNetworks: [network],
+            let isAddedOnAll = TokenAdditionChecker.areTokenItemsAddedInAllAccounts(
                 userWalletModels: userWalletModels
-            )
+            ) { _, _ in
+                [tokenItem]
+            }
 
             return !isAddedOnAll
         }
@@ -100,10 +94,11 @@ private extension AccountsAwareActionButtonsBuyViewModel {
 
 extension AccountsAwareActionButtonsBuyViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
-        ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
+        guard let walletModel = item.kind.walletModel else {
+            return
+        }
 
-        let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
-        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-        coordinator?.openOnramp(input: sendInput, parameters: parameters)
+        let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
+        coordinator?.openOnramp(input: sendInput, parameters: .none)
     }
 }

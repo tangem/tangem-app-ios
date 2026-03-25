@@ -244,11 +244,6 @@ extension WelcomeViewModel: StoriesDelegate {
         coordinator?.openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
     }
 
-    func openPromotion() {
-        Analytics.log(.introductionProcessLearn)
-        coordinator?.openPromotion()
-    }
-
     func openShop() {
         coordinator?.openShop()
     }

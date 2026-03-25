@@ -17,7 +17,7 @@ struct CollapsedAccountItemHeaderView: View {
     let iconData: AccountIconView.ViewData
     let tokensCount: String
     let totalFiatBalance: LoadableBalanceView.State
-    let priceChange: TokenPriceChangeView.State
+    let priceChange: PriceChangeView.State
     let iconGeometryEffect: GeometryEffectPropertiesModel
     let iconBackgroundGeometryEffect: GeometryEffectPropertiesModel
     let nameGeometryEffect: GeometryEffectPropertiesModel
@@ -61,10 +61,10 @@ struct CollapsedAccountItemHeaderView: View {
                     .matchedGeometryEffect(tokensCountGeometryEffect)
             },
             secondaryTrailingView: {
-                TokenPriceChangeView(
+                PriceChangeView(
                     state: priceChange,
                     showSkeletonWhenLoading: true,
-                    showSeparatorForNeutralStyle: false
+                    showIconForNeutral: false
                 )
             }
         )
@@ -88,7 +88,7 @@ private struct CollapsedAccountItemHeaderViewPreview: View {
                 iconData: .init(backgroundColor: .red, nameMode: .letter("A")),
                 tokensCount: "5 Tokens",
                 totalFiatBalance: .loaded(text: "$1234.56"),
-                priceChange: .loaded(signType: .positive, text: "+5.67%"),
+                priceChange: .loaded(changeType: .positive, text: "+5.67%"),
                 iconGeometryEffect: effects.icon,
                 iconBackgroundGeometryEffect: effects.iconBackground,
                 nameGeometryEffect: effects.name,

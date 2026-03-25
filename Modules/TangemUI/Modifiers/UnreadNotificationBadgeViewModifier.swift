@@ -7,16 +7,24 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 public extension View {
-    func unreadNotificationBadge(_ shouldShowBadge: Bool, badgeColor: Color) -> some View {
-        modifier(UnreadNotificationBadgeViewModifier(shouldShowBadge: shouldShowBadge, badgeColor: badgeColor))
+    func unreadNotificationBadge(_ shouldShowBadge: Bool, badgeColor: Color, accessibilityIdentifier: String? = nil) -> some View {
+        modifier(
+            UnreadNotificationBadgeViewModifier(
+                shouldShowBadge: shouldShowBadge,
+                badgeColor: badgeColor,
+                accessibilityIdentifier: accessibilityIdentifier
+            )
+        )
     }
 }
 
 struct UnreadNotificationBadgeViewModifier: ViewModifier {
     let shouldShowBadge: Bool
     let badgeColor: Color
+    let accessibilityIdentifier: String?
 
     func body(content: Content) -> some View {
         content
@@ -34,6 +42,8 @@ struct UnreadNotificationBadgeViewModifier: ViewModifier {
                             .offset(x: 2, y: -2)
                     }
                     .transition(.scale)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityIdentifier(accessibilityIdentifier)
                 }
             }
             .compositingGroup()

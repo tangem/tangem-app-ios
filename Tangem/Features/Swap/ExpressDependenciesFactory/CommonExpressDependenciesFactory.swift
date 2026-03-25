@@ -14,72 +14,41 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private var _onrampRepository: OnrampRepository
 
     @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: any ExpressPairsRepository
+    var expressPairsRepository: any ExpressPairsRepository
 
     @Injected(\.expressPendingTransactionsRepository)
-    private var pendingTransactionRepository: ExpressPendingTransactionRepository
+    var expressPendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletInfo: UserWalletInfo
-    private let initialTokenItem: TokenItem
-    private let swappingPair: ExpressInteractor.SwappingPair
-
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
-    private(set) lazy var expressInteractor = makeExpressInteractor()
+    private(set) lazy var expressManager = makeExpressManager()
+    private(set) lazy var expressDestinationService = makeExpressDestinationService()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var expressRepository = makeExpressRepository()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
-    init(input: ExpressDependenciesInput) {
-        userWalletInfo = input.userWalletInfo
-        initialTokenItem = input.source.tokenItem
-
-        swappingPair = .init(
-            sender: .success(input.source),
-            destination: input.destination.asExpressInteractorDestination
-        )
-    }
-
-    init(input: ExpressDependenciesDestinationInput) {
-        userWalletInfo = input.userWalletInfo
-        initialTokenItem = input.destination.tokenItem
-
-        swappingPair = .init(
-            sender: .loading,
-            destination: .success(input.destination)
-        )
+    init(userWalletInfo: UserWalletInfo) {
+        self.userWalletInfo = userWalletInfo
     }
 }
 
 // MARK: - Private
 
 private extension CommonExpressDependenciesFactory {
-    func makeExpressInteractor() -> ExpressInteractor {
-        let transactionValidator = CommonExpressProviderTransactionValidator(
-            tokenItem: initialTokenItem,
-            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
-        )
-
-        let expressManager = TangemExpressFactory().makeExpressManager(
+    func makeExpressManager() -> ExpressManager {
+        return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository,
-            transactionValidator: transactionValidator
+            expressRepository: expressRepository
         )
+    }
 
+    func makeExpressDestinationService() -> ExpressDestinationService {
         let shouldFilterForOneWallet = !FeatureProvider.isAvailable(.accounts)
-        let interactor = ExpressInteractor(
-            userWalletInfo: userWalletInfo,
-            swappingPair: swappingPair,
-            expressManager: expressManager,
-            expressPairsRepository: expressPairsRepository,
-            expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: CommonExpressDestinationService(
-                userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
-            ),
-            expressAPIProvider: expressAPIProvider
-        )
 
-        return interactor
+        return CommonExpressDestinationService(
+            userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
+        )
     }
 
     func makeExpressRepository() -> ExpressRepository {
@@ -100,17 +69,5 @@ private extension CommonExpressDependenciesFactory {
         }
 
         return _onrampRepository
-    }
-}
-
-// MARK: - ExpressDependenciesInput.PredefinedDestination+
-
-extension ExpressDependenciesInput.PredefinedDestination {
-    var asExpressInteractorDestination: ExpressInteractor.Destination? {
-        switch self {
-        case .none: .none
-        case .loadingAndSet: .loading
-        case .chosen(let wallet): .success(wallet)
-        }
     }
 }

@@ -21,6 +21,7 @@ class VisaWalletModel {
     let id: WalletModelId
     let userWalletId: UserWalletId
 
+    let feeTokenItemBalanceProvider: any TokenBalanceProvider = NotSupportedStakingTokenBalanceProvider()
     lazy var availableBalanceProvider = makeAvailableBalanceProvider()
     let stakingBalanceProvider: TokenBalanceProvider = NotSupportedStakingTokenBalanceProvider()
     lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
@@ -95,6 +96,10 @@ extension VisaWalletModel: WalletModelBalancesProvider {
     func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
         FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: totalTokenBalanceProvider)
     }
+
+    func makeBSDKTokenBalanceProvider(tokenItem: TokenItem) -> any TokenBalanceProvider {
+        NotSupportedStakingTokenBalanceProvider()
+    }
 }
 
 extension VisaWalletModel: AvailableTokenBalanceProviderInput {
@@ -113,7 +118,7 @@ extension VisaWalletModel: StakingTokenBalanceProviderInput {
     }
 
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> {
-        Just(.notEnabled).eraseToAnyPublisher()
+        .just(output: stakingManagerState)
     }
 }
 
@@ -154,20 +159,12 @@ extension VisaWalletModel: WalletModelHelpers {
 }
 
 extension VisaWalletModel: WalletModelFeesProvider {
-    var customFeeProvider: (any CustomFeeProvider)? { .none }
-
-    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
-        DemoTokenFeeLoader(tokenItem: tokenItem)
-    }
-}
-
-extension VisaWalletModel: WalletModelFeeProvider {
-    func getFeeCurrencyBalance() -> Decimal {
-        return 0
+    var customFeeProviderBuilder: CustomFeeProviderBuilder {
+        fatalError("VisaWalletModel does not support CustomFeeProviderBuilder")
     }
 
-    func hasFeeCurrency() -> Bool {
-        return false
+    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
+        fatalError("VisaWalletModel does not support TokenFeeLoaderBuilder")
     }
 }
 
@@ -176,10 +173,12 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }
     var assetRequirementsManager: (any AssetRequirementsManager)? { nil }
     var addressResolver: (any AddressResolver)? { nil }
+    var transactionFeeProvider: any TransactionFeeProvider { fatalError("VisaWalletModel does not support TransactionFeeProvider") }
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
     var transactionSender: any TransactionSender { transactionDependency }
     var multipleTransactionsSender: (any MultipleTransactionsSender)? { nil }
+    var compiledTransactionFeeProvider: (any CompiledTransactionFeeProvider)? { nil }
     var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
@@ -299,11 +298,6 @@ extension VisaWalletModel: WalletModel {
         Localization.addressQrCodeMessageFormat(tokenItem.name, tokenItem.currencySymbol, tokenItem.blockchain.displayName)
     }
 
-    var balanceState: WalletModelBalanceState? {
-        // [REDACTED_TODO_COMMENT]
-        nil
-    }
-
     var isDemo: Bool {
         false
     }
@@ -330,15 +324,11 @@ extension VisaWalletModel: WalletModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 
-    var receiveAddressInfos: [ReceiveAddressInfo] {
-        // [REDACTED_TODO_COMMENT]
-        ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         // [REDACTED_TODO_COMMENT]
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-        return addressInfos.map { .address($0) }
+        let types = addressInfos.map { ReceiveAddressType.address($0) }
+        return .just(output: types)
     }
 
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {

@@ -1,5 +1,5 @@
 {
-  "originHash" : "19778a0bc5465fb4febdd41eff18b326b436ddc01cf58e74598a04d524838dbf",
+  "originHash" : "bc13e10a38914b8601337335f9796c9c30c0522d4a30bd6874cdb7c67c156aee",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "862808b2070cd908cb04f9aafe7de83d35f81b05",
         "version" : "0.6.7"
+      }
+    },
+    {
+      "identity" : "bluruikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TimOliver/BlurUIKit.git",
+      "state" : {
+        "revision" : "c25ddfec89088dd8e7dac1f85bbe84bb91b449a2",
+        "version" : "1.4.0"
       }
     },
     {
@@ -42,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "d5cf86061be9515d37552551443fc8b955ad49a2",
-        "version" : "1.39.0"
+        "revision" : "dc605c8e3d1120d6418ae8adda7f658b24174e68",
+        "version" : "1.41.1"
       }
     },
     {
@@ -51,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
-        "version" : "8.6.2"
+        "revision" : "e227df15448d2ad1a5d4e4c49722a71c68f9058a",
+        "version" : "8.7.0"
       }
     },
     {
@@ -60,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/airbnb/lottie-spm.git",
       "state" : {
-        "revision" : "04f2fd18cc9404a0a0917265a449002674f24ec9",
-        "version" : "4.5.2"
+        "revision" : "69faaefa7721fba9e434a52c16adf4329c9084db",
+        "version" : "4.6.0"
       }
     },
     {
@@ -71,15 +80,6 @@
       "state" : {
         "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
         "version" : "15.0.3"
-      }
-    },
-    {
-      "identity" : "openssl",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzyzanowskim/OpenSSL",
-      "state" : {
-        "revision" : "e7d34385da795aaaeb2212e38c7401e5c333f792",
-        "version" : "3.6.1"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
       "state" : {
-        "revision" : "5734ad2b6d7d4c0656df3d09ca4ce54fa3c09913",
-        "version" : "6.10.1"
+        "revision" : "132aea4f236ccadc51590b38af0357a331d51fa2",
+        "version" : "6.10.2"
       }
     },
     {
@@ -119,21 +119,12 @@
       }
     },
     {
-      "identity" : "twilio-video-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/twilio/twilio-video-ios",
-      "state" : {
-        "revision" : "74bfe58e6242ee421b5448fc9972839fc711dd2f",
-        "version" : "5.11.2"
-      }
-    },
-    {
       "identity" : "zipfoundation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation.git",
       "state" : {
-        "revision" : "02b6abe5f6eef7e3cbd5f247c5cc24e246efcfe0",
-        "version" : "0.9.19"
+        "revision" : "22787ffb59de99e5dc1fbfe80b19c97a904ad48d",
+        "version" : "0.9.20"
       }
     }
   ],
