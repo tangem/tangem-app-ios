@@ -40,7 +40,6 @@ extension RadiantAddressService: AddressProvider {
 
         return LockingScriptAddress(
             value: address,
-            publicKey: publicKey,
             type: addressType,
             lockingScript: script
         )
