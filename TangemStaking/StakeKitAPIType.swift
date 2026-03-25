@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public enum StakeKitAPIType: String, CaseIterable, Codable {
     case prod
@@ -17,7 +18,7 @@ public enum StakeKitAPIType: String, CaseIterable, Codable {
         case .prod:
             return URL(string: "https://api.stakek.it/v1/")!
         case .mock:
-            return URL(string: "https://wiremock.tests-d.com/stake_api/v1/")!
+            return URL(string: "\(WireMockEnvironment.baseURL)/stake_api/v1/")!
         }
     }
 }

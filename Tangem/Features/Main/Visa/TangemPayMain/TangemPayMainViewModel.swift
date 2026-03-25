@@ -89,6 +89,7 @@ final class TangemPayMainViewModel: ObservableObject {
         .makePendingExpressTransactionsManager()
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
+            userWalletId: userWalletInfo.id,
             repository: cardDetailsRepository
         )
 
@@ -108,12 +109,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        Analytics.log(.visaScreenButtonVisaAddFunds)
+        Analytics.log(.visaScreenButtonVisaAddFunds, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
             guard let depositAddress = tangemPayAccount.depositAddress,
-                  let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+                  let swapableToken = makeSendSwapableToken() else {
                 coordinator?.openTangemPayNoDepositAddressSheet()
                 return
             }
@@ -122,14 +123,14 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    tangemPayWalletWrapper: tangemPayWalletWrapper
+                    swapableToken: swapableToken
                 )
             )
         }
     }
 
     func onPin() {
-        Analytics.log(.visaScreenPinCodeClicked)
+        Analytics.log(.visaScreenPinCodeClicked, contextParams: .userWallet(userWalletInfo.id))
         guard tangemPayAccount.card?.isPinSet == true else {
             setPin()
             return
@@ -149,8 +150,8 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func withdraw() {
-        Analytics.log(.visaScreenWithdrawClicked)
-        guard let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+        Analytics.log(.visaScreenWithdrawClicked, contextParams: .userWallet(userWalletInfo.id))
+        guard let swapableToken = makeSendSwapableToken() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
             return
         }
@@ -162,7 +163,7 @@ final class TangemPayMainViewModel: ObservableObject {
             self?.isWithdrawButtonLoading = false
         }) { @MainActor [weak self] in
             do {
-                try await self?.openWithdraw(tangemPayWalletWrapper: tangemPayWalletWrapper)
+                try await self?.openWithdraw(swapableToken: swapableToken)
             } catch is CancellationError {
                 // Do nothing
             } catch {
@@ -174,7 +175,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenVisaMainScreenOpened)
+        Analytics.log(.visaScreenVisaMainScreenOpened, contextParams: .userWallet(userWalletInfo.id))
 
         runTask { [tangemPayAccount] in
             await tangemPayAccount.loadBalance()
@@ -188,9 +189,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        Analytics.log(.visaScreenAddToWalletClicked)
+        Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openAddToApplePayGuide(
-            viewModel: .init(repository: cardDetailsRepository)
+            viewModel: .init(
+                userWalletId: userWalletInfo.id,
+                repository: cardDetailsRepository
+            )
         )
     }
 
@@ -199,14 +203,14 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func showFreezePopup() {
-        Analytics.log(.visaScreenFreezeCardClicked)
-        coordinator?.openTangemPayFreezeSheet { [weak self] in
+        Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
             self?.freeze()
         }
     }
 
     func unfreeze() {
-        Analytics.log(.visaScreenUnfreezeCardClicked)
+        Analytics.log(.visaScreenUnfreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
         freezingState = .unfreezingInProgress
         tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
 
@@ -229,12 +233,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func termsAndLimits() {
-        Analytics.log(.visaScreenTermsAndLimitsClicked)
+        Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTermsAndLimits()
     }
 
     func contactSupport() {
-        Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked)
+        Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked, contextParams: .userWallet(userWalletInfo.id))
         let dataCollector = TangemPaySupportDataCollector(
             source: .permanentBanner,
             userWalletId: userWalletInfo.id.stringValue,
@@ -289,17 +293,18 @@ final class TangemPayMainViewModel: ObservableObject {
             params: [
                 .status: transaction.record.analyticsStatus,
                 .type: transaction.transactionType.rawValue,
-            ]
+            ],
+            contextParams: .userWallet(userWalletInfo.id)
         )
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId
         )
     }
 
     func onToolbarClicked() {
-        Analytics.log(.visaScreenCardSettingsClicked)
+        Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
     }
 }
 
@@ -355,24 +360,25 @@ private extension TangemPayMainViewModel {
             .assign(to: &$pendingExpressTransactions)
     }
 
-    func makeExpressInteractorTangemPayWalletWrapper() -> ExpressInteractorTangemPayWalletWrapper? {
+    func makeSendSwapableToken() -> (any SendSwapableToken)? {
         guard let depositAddress = tangemPayAccount.depositAddress else {
             return nil
         }
 
-        let tangemPayWalletWrapper = ExpressInteractorTangemPayWalletWrapper(
-            userWalletId: userWalletInfo.id,
+        return TangemPaySwapableTokenFactory(
+            userWalletInfo: userWalletInfo,
+            account: tangemPayAccount.account,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
+            fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
             cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
             transactionValidator: TangemPayExpressTransactionValidator(
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            )
-        )
-
-        return tangemPayWalletWrapper
+            ),
+            operationType: .swap
+        ).makeSwapableToken()
     }
 }
 
@@ -380,16 +386,12 @@ private extension TangemPayMainViewModel {
 
 private extension TangemPayMainViewModel {
     @MainActor
-    func openWithdraw(tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper) async throws {
+    func openWithdraw(swapableToken: any SendSwapableToken) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
 
         switch restriction {
         case .none, .zeroWalletBalance:
-            coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
-                userWalletInfo: userWalletInfo,
-                source: tangemPayWalletWrapper,
-                destination: .loadingAndSet
-            ))
+            coordinator?.openTangemPayWithdraw(input: .from(swapableToken))
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:

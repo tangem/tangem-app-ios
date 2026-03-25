@@ -10,46 +10,52 @@ import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
-    case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
     case accounts
+    case redesign
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
-    case gaslessTransactions
     case exchangeOnlyWithinSingleAddress
     case experimentService
     case expressAllTokensSearch
+    case expressFixedRates
+    case mainQRScan
+    case customerIO
 
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
-        case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
         case .accounts: return "Accounts"
+        case .redesign: return "Redesign"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
-        case .gaslessTransactions: return "Gasless transactions"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
         case .expressAllTokensSearch: return "Express All Tokens Search"
+        case .expressFixedRates: return "Express Fixed Rates"
+        case .mainQRScan: return "Main QR Scan"
+        case .customerIO: return "customer.io service integration"
         }
     }
 
     var releaseVersion: ReleaseVersion {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
-        case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .accounts: return .version("5.33")
+        case .redesign: return .unspecified
         case .marketsAndNews: return .version("5.33")
-        case .marketsEarn: return .unspecified
+        case .marketsEarn: return .version("5.35")
         case .tangemPayPermanentEntryPoint: return .version("5.33")
-        case .gaslessTransactions: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .expressAllTokensSearch: return .version("5.34")
+        case .expressFixedRates: return .unspecified
+        case .mainQRScan: return .unspecified
+        case .customerIO: return .version("5.35")
         }
     }
 }

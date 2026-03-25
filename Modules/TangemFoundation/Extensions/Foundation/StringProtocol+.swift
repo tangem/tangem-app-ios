@@ -21,6 +21,9 @@ public extension StringProtocol {
     /// EM DASH, Unicode U+2014.
     static var emDashSign: Self { "—" }
 
+    /// NO-BREAK SPACE, Unicode U+00A0.
+    static var unbreakableSpace: Self { "\u{00A0}" }
+
     func caseInsensitiveContains(_ other: some StringProtocol) -> Bool {
         return range(of: other, options: .caseInsensitive) != nil
     }

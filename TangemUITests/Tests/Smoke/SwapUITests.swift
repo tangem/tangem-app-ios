@@ -15,7 +15,7 @@ final class SwapUITests: BaseTestCase {
     func testSwapCommission_validateReceivedAmount() {
         setAllureId(3546)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -51,7 +51,13 @@ final class SwapUITests: BaseTestCase {
     func testSwapNoInternet_showConnectionError() {
         setAllureId(3549)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "exchange_quote_polygon", initialState: "Unreachable"),
+            ]
+        )
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
