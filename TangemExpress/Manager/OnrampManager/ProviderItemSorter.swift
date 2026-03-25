@@ -23,7 +23,7 @@ public struct ProviderItemSorterByPaymentMethodPriority: ProviderItemSorter {
 
         switch (lhs.providers.first, rhs.providers.first) {
         case (.some(let lhsProvider), .some(let rhsProvider)):
-            return lhsProvider > rhsProvider
+            return lhsProvider < rhsProvider
         case (.none, _), (_, .none):
             return false
         }
@@ -36,7 +36,7 @@ public struct ProviderItemSorterByOnrampProviderExpectedAmount: ProviderItemSort
     public func sort(lhs: ProviderItem, rhs: ProviderItem) -> Bool {
         switch (lhs.providers.first, rhs.providers.first) {
         case (.some(let lhsProvider), .some(let rhsProvider)):
-            return lhsProvider > rhsProvider
+            return lhsProvider < rhsProvider
         case (.none, _), (_, .none):
             return false
         }
