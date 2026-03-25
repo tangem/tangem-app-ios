@@ -17,10 +17,10 @@ struct KoinosWalletManagerTests {
         walletManager = KoinosWalletManager(
             wallet: Wallet(
                 blockchain: .koinos(testnet: false),
+                publicKey: .empty,
                 addressesProvider: CommonAddressesProvider(
                     defaultAddress: PlainAddress(
                         value: "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp",
-                        publicKey: .init(seedKey: .init(), derivationType: nil),
                         type: .default
                     )
                 )

@@ -19,7 +19,6 @@ public struct EmptyAddressesProvider: Wallet.AddressesProvider {
 
 public struct EmptyAddress: Address {
     public let value: String = "empty"
-    public let publicKey: Wallet.PublicKey = .init(seedKey: Data(), derivationType: nil)
     public let type: AddressType = .default
     public var localizedName: String { type.defaultLocalizedName }
 
