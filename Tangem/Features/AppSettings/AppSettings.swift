@@ -57,9 +57,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.understandsAddressNetworkRequirements)
     var understandsAddressNetworkRequirements: [String] = []
 
-    @AppStorageCompat(StorageType.promotionQuestionnaireFinished)
-    var promotionQuestionnaireFinished: Bool = false
-
     @AppStorageCompat(StorageType.hideSensitiveInformation)
     var isHidingSensitiveInformation: Bool = false
 
@@ -144,11 +141,11 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
 
+    @AppStorageCompat(StorageType.tangemPayCachedLocalState)
+    var tangemPayCachedLocalState: [String: String] = [:]
+
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
-
-    @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
-    var showMarketsYieldModeNotification = true
 
     @AppStorageCompat(StorageType.referralRefcode)
     var referralRefcode: String? = nil
@@ -204,5 +201,27 @@ extension AppSettings: TangemPayPaeraCustomerFlagRepository {
 
     func setShouldShowGetBanner(_ value: Bool) {
         tangemPayShouldShowGetBanner = value
+    }
+}
+
+extension AppSettings: TangemPayCachedStateStorage {
+    func cachedLocalState(customerWalletId: String) -> TangemPayCachedLocalState? {
+        guard let jsonString = tangemPayCachedLocalState[customerWalletId],
+              let data = jsonString.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(TangemPayCachedLocalState.self, from: data)
+    }
+
+    func saveCachedLocalState(_ state: TangemPayCachedLocalState, customerWalletId: String) {
+        guard let data = try? JSONEncoder().encode(state),
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
+            return
+        }
+
+        tangemPayCachedLocalState[customerWalletId] = jsonString
     }
 }

@@ -451,9 +451,11 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Validate currency symbol: \(expectedSymbol)") { _ in
             let currencySymbolElement = app.staticTexts[SendAccessibilityIdentifiers.currencySymbol]
             waitAndAssertTrue(currencySymbolElement, "Currency symbol element should exist")
-            XCTAssertTrue(
-                currencySymbolElement.label.contains(expectedSymbol),
-                "Currency symbol should be '\(expectedSymbol)' but was '\(currencySymbolElement.label)'"
+
+            waitForPredicate(
+                NSPredicate(format: "label CONTAINS %@", expectedSymbol),
+                on: currencySymbolElement,
+                "Currency symbol should contain '\(expectedSymbol)' but was '\(currencySymbolElement.label)'"
             )
         }
         return self
@@ -473,14 +475,11 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForCryptoAmount(_ expectedAmount: String) -> Self {
         XCTContext.runActivity(named: "Wait for crypto alternative amount: \(expectedAmount)") { _ in
             let alternativeCryptoAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeCryptoAmount]
-            waitAndAssertTrue(
-                alternativeCryptoAmount,
-                "Alternative crypto amount element should exist"
-            )
+            waitAndAssertTrue(alternativeCryptoAmount, "Alternative crypto amount element should exist")
 
-            XCTAssertEqual(
-                alternativeCryptoAmount.label,
-                expectedAmount,
+            waitForPredicate(
+                NSPredicate(format: "label == %@", expectedAmount),
+                on: alternativeCryptoAmount,
                 "Alternative crypto amount should be '\(expectedAmount)' but was '\(alternativeCryptoAmount.label)'"
             )
         }
@@ -491,14 +490,11 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForFiatAmount(_ expectedAmount: String) -> Self {
         XCTContext.runActivity(named: "Wait for fiat alternative amount: \(expectedAmount)") { _ in
             let alternativeFiatAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeFiatAmount]
-            waitAndAssertTrue(
-                alternativeFiatAmount,
-                "Alternative fiat amount element should exist"
-            )
+            waitAndAssertTrue(alternativeFiatAmount, "Alternative fiat amount element should exist")
 
-            XCTAssertEqual(
-                alternativeFiatAmount.label,
-                expectedAmount,
+            waitForPredicate(
+                NSPredicate(format: "label == %@", expectedAmount),
+                on: alternativeFiatAmount,
                 "Alternative fiat amount should be '\(expectedAmount)' but was '\(alternativeFiatAmount.label)'"
             )
         }
@@ -1033,6 +1029,12 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             )
         }
         return self
+    }
+
+    private func waitForPredicate(_ predicate: NSPredicate, on element: XCUIElement, _ message: String) {
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+        XCTAssertEqual(result, .completed, message)
     }
 }
 
