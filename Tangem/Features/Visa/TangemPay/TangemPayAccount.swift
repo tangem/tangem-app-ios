@@ -12,6 +12,10 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
+    var paymentTokenItem: TokenItem {
+        TangemPayUtilities.usdcTokenItem
+    }
+
     var statusPublisher: AnyPublisher<VisaCustomerInfoResponse.ProductStatus, Never> {
         customerInfoSubject
             .map(\.productInstance.status)
@@ -63,6 +67,9 @@ final class TangemPayAccount {
         customerInfoSubject.value.productInstance.cardId
     }
 
+    let userWalletId: UserWalletId
+    private(set) weak var account: (any TangemPayAccountModel)?
+
     private let balancesService: any TangemPayBalancesService
     private let customerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
 
@@ -70,6 +77,7 @@ final class TangemPayAccount {
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
 
     init(
+        userWalletId: UserWalletId,
         customerInfo: VisaCustomerInfoResponse,
         productInstance: VisaCustomerInfoResponse.ProductInstance,
         customerService: any CustomerInfoManagementService,
@@ -78,8 +86,10 @@ final class TangemPayAccount {
         expressCEXTransactionDispatcher: any TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
-        mainHeaderBalanceProvider: MainHeaderBalanceProvider
+        mainHeaderBalanceProvider: MainHeaderBalanceProvider,
+        account: (any TangemPayAccountModel)?
     ) {
+        self.userWalletId = userWalletId
         customerInfoSubject = CurrentValueSubject((customerInfo, productInstance))
         self.customerService = customerService
         self.balancesService = balancesService
@@ -88,6 +98,7 @@ final class TangemPayAccount {
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
+        self.account = account
     }
 
     func loadBalance() async {
