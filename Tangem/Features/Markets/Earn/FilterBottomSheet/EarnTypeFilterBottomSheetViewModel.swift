@@ -29,12 +29,18 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
 
     private var subscription: AnyCancellable?
     private let filterProvider: EarnDataFilterProvider
+    private let analyticsProvider: EarnAnalyticsProvider
     private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
-    init(filterProvider: EarnDataFilterProvider, onDismiss: (() -> Void)? = nil) {
+    init(
+        filterProvider: EarnDataFilterProvider,
+        analyticsProvider: EarnAnalyticsProvider,
+        onDismiss: (() -> Void)? = nil
+    ) {
         self.filterProvider = filterProvider
+        self.analyticsProvider = analyticsProvider
         dismissAction = onDismiss
         currentSelection = filterProvider.selectedFilterType
         listOptionViewModel = filterProvider.supportedFilterTypes.map {
@@ -59,6 +65,7 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
 
     private func selectAndDismiss(type: EarnFilterType) {
         currentSelection = type
+        analyticsProvider.logBestOpportunitiesFilterTypeApplied(type: type.analyticsTypeValue)
         filterProvider.didSelectFilterType(type)
         dismissAction?()
     }

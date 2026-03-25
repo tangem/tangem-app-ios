@@ -24,7 +24,7 @@ final class MobileOnboardingSeedPhraseRecoveryStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseRecoveryView(viewModel: viewModel)
     }
 }

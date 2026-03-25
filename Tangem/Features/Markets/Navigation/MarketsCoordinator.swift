@@ -16,6 +16,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -140,19 +141,29 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     // MARK: - Earn
 
-    func routeOnTokenResolved(_ resolution: EarnTokenResolution) {
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {
         switch resolution {
         case .toAdd(let token, let userWalletModels):
-            openAddEarnToken(for: token, userWalletModels: userWalletModels)
+            openAddEarnToken(for: token, userWalletModels: userWalletModels, source: source)
         case .alreadyAdded(let walletModel, let userWalletModel):
             openMainTokenDetails(walletModel: walletModel, with: userWalletModel)
         }
     }
 
-    private func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
+    private func openAddEarnToken(
+        for token: EarnTokenModel,
+        userWalletModels: [any UserWalletModel],
+        source: EarnOpportunitySource
+    ) {
+        earnAnalyticsProvider.logAddTokenScreenOpened(
+            token: token.symbol,
+            blockchain: token.networkName,
+            source: source.rawValue
+        )
         let configuration = EarnAddTokenFlowConfigurationFactory.make(
             earnToken: token,
-            coordinator: self
+            coordinator: self,
+            analyticsProvider: earnAnalyticsProvider
         )
 
         Task { @MainActor in
@@ -171,8 +182,8 @@ extension MarketsCoordinator: MarketsMainRoutable {
             dismissAction: { [weak self] in
                 self?.earnListCoordinator = nil
             },
-            routeOnEarnTokenResolvedAction: { [weak self] resolution in
-                self?.routeOnTokenResolved(resolution)
+            routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
+                self?.routeOnTokenResolved(resolution, source: source)
             }
         )
 

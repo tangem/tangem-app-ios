@@ -358,9 +358,30 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             initialState: "Ripple"
         )
 
+        let rippleCustomDerivationScenario = ScenarioConfig(
+            name: "ripple_custom_derivation",
+            initialState: "Positive"
+        )
+
+        let rippleAccountInfoScenario = ScenarioConfig(
+            name: "ripple_account_info",
+            initialState: "Started"
+        )
+
+        let rippleAccountLinesScenario = ScenarioConfig(
+            name: "ripple_account_lines",
+            initialState: "Started"
+        )
+
         launchApp(
             tangemApiType: .mock,
-            scenarios: [userTokensScenario, quotesScenario]
+            scenarios: [
+                userTokensScenario,
+                quotesScenario,
+                rippleCustomDerivationScenario,
+                rippleAccountInfoScenario,
+                rippleAccountLinesScenario,
+            ]
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
