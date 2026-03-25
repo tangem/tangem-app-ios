@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct ActionButtonsView: View {
     @ObservedObject var viewModel: ActionButtonsViewModel
@@ -18,7 +19,11 @@ struct ActionButtonsView: View {
             ActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
 
             ActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
-                .unreadNotificationBadge(viewModel.shouldShowSwapUnreadNotificationBadge, badgeColor: Colors.Icon.accent)
+                .unreadNotificationBadge(
+                    viewModel.shouldShowSwapUnreadNotificationBadge,
+                    badgeColor: Colors.Icon.accent,
+                    accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.swapButtonBadge
+                )
 
             ActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
         }

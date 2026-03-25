@@ -62,16 +62,32 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
+    private var headerModel: MainHeaderViewModel {
+        switch self {
+        case .singleWallet(_, let headerModel, _): headerModel
+        case .multiWallet(_, let headerModel, _): headerModel
+        case .lockedWallet(_, let headerModel, _): headerModel
+        case .visaWallet(_, let headerModel, _): headerModel
+        }
+    }
+
+    private var actionButtonsViewModel: ActionButtonsViewModel? {
+        switch self {
+        case .multiWallet(_, _, let bodyModel):
+            return bodyModel.actionButtonsViewModel
+        case .singleWallet, .lockedWallet, .visaWallet:
+            return nil
+        }
+    }
+
     @ViewBuilder
     var header: some View {
-        switch self {
-        case .singleWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .multiWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .lockedWallet(_, let headerModel, _):
-            MainHeaderView(viewModel: headerModel)
-        case .visaWallet(_, let headerModel, _):
+        if FeatureProvider.isAvailable(.redesign) {
+            MainUserWalletHeader(model: MainUserWalletHeaderModel(
+                headerViewModel: headerModel,
+                actionButtonsViewModel: actionButtonsViewModel
+            ))
+        } else {
             MainHeaderView(viewModel: headerModel)
         }
     }
@@ -88,8 +104,13 @@ enum MainUserWalletPageBuilder: Identifiable {
                     .id(id)
             }
         case .multiWallet(let id, _, let bodyModel):
-            MultiWalletMainContentView(viewModel: bodyModel)
-                .id(id)
+            if FeatureProvider.isAvailable(.redesign) {
+                MultiWalletMainContentRedesignedView(viewModel: bodyModel)
+                    .id(id)
+            } else {
+                MultiWalletMainContentView(viewModel: bodyModel)
+                    .id(id)
+            }
         case .lockedWallet(let id, _, let bodyModel):
             LockedWalletMainContentView(viewModel: bodyModel)
                 .id(id)

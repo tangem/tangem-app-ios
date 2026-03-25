@@ -51,12 +51,12 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
+    @Published var manageTokensCoordinator: ManageTokensCoordinator?
 
     // MARK: - Child coordinators (Other)
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
@@ -78,6 +78,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var modalOnboardingCoordinatorKeeper = false
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
+
+    private lazy var marketsTooltipScheduler = MarketsTooltipScheduler()
 
     // MARK: - Deeplink
 
@@ -123,16 +125,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
-        setupUI()
         bind()
-    }
-
-    func hideMarketsTooltip() {
-        AppSettings.shared.marketsTooltipWasShown = true
-
-        withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-            isMarketsTooltipVisible = false
-        }
     }
 
     // MARK: - Private Implementation
@@ -158,24 +151,35 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         }
     }
 
-    private func setupUI() {
-        showMarketsTooltip()
-    }
+    // MARK: - Tooltip Interaction
 
-    private func showMarketsTooltip() {
-        // Don't show markets tooltip during UI testing
-        guard !AppEnvironment.current.isUITest else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
-            guard let self else {
-                self?.isMarketsTooltipVisible = false
-                return
-            }
-
+    func showMarketsTooltip() {
+        marketsTooltipScheduler.scheduleShow(delay: Constants.tooltipAnimationDelay) { [weak self] in
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-                self.isMarketsTooltipVisible = !AppSettings.shared.marketsTooltipWasShown
+                self?.isMarketsTooltipVisible = true
             }
         }
+    }
+
+    func dismissMarketsTooltip() {
+        marketsTooltipScheduler.dismiss { [weak self] in
+            withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
+                self?.isMarketsTooltipVisible = false
+            }
+        }
+    }
+
+    func hideMarketsTooltipTemporarily() {
+        marketsTooltipScheduler.hideTemporarily(
+            isVisible: { [weak self] in
+                self?.isMarketsTooltipVisible ?? false
+            },
+            onHide: { [weak self] in
+                withAnimation(.easeInOut(duration: Constants.tooltipTemporaryHideDuration)) {
+                    self?.isMarketsTooltipVisible = false
+                }
+            }
+        )
     }
 }
 
@@ -359,6 +363,32 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let manageTokensCoordinator = ManageTokensCoordinator(
+            dismissAction: { [weak self] in
+                self?.manageTokensCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        let context = AccountsAwareManageTokensContext(
+            accountModelsManager: userWalletModel.accountModelsManager,
+            currentAccount: account
+        )
+
+        manageTokensCoordinator.start(
+            with: ManageTokensCoordinator.Options(
+                context: context,
+                userWalletConfig: userWalletModel.config,
+                analyticsSourceRawValue: Analytics.ParameterValue.main.rawValue
+            )
+        )
+
+        self.manageTokensCoordinator = manageTokensCoordinator
+    }
+
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
@@ -392,10 +422,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCStatusPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
 
@@ -403,10 +433,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCDeclinedPopupViewModel(
-                tangemPayManager: tangemPayManager,
+                tangemPayKYCInteractor: tangemPayKYCInteractor,
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -426,8 +456,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
         mainBottomSheetUIManager.hide()
 
+        let dismissAction: Action<FeeCurrencyNavigatingDismissOption?> = { [weak self] dismissOptions in
+            self?.tangemPayMainCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: dismissOptions)
+        }
+
         let coordinator = TangemPayMainCoordinator(
-            dismissAction: makeExpressCoordinatorDismissAction(),
+            dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
 
@@ -477,11 +512,40 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceTokenFactory = SendWithSwapTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        )
+        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
+        let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+
+    func openSwap(input: SendInput) {
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swap
+        )
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: options)
+                    self?.sendCoordinator = coordinator
+                }
+            )
+        }
     }
 
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {
@@ -489,32 +553,18 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: input,
-            type: .sell(parameters: sellParameters),
+            type: .sell(sourceToken, parameters: sellParameters),
             source: .main
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
-    }
-
-    func openExpress(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = makeExpressCoordinator(factory: factory)
-
-        let openExpressBlock = { [weak self] in
-            coordinator.start(with: .default)
-            self?.expressCoordinator = coordinator
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .tokenListContextMenu,
-                presentCompletion: openExpressBlock
-            )
-        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
@@ -541,10 +591,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: input,
-            type: .onramp(parameters: parameters),
+            type: .onramp(sourceToken, parameters: parameters),
             source: .main
         )
         coordinator.start(with: options)
@@ -567,11 +621,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+// MARK: - SendFeeCurrencyNavigating
 
-extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+extension MainCoordinator: SendFeeCurrencyNavigating {
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        // We use our own custom implementation instead of implementation in `ExpressFeeCurrencyNavigating` because
+        // We use our own custom implementation instead of the default because
         // we have to call `mainBottomSheetUIManager.hide()` when performing this navigation action from the main screen
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
@@ -791,6 +845,7 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
 extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
+        static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
     }
 }
