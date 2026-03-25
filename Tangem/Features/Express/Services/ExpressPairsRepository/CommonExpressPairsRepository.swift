@@ -33,7 +33,11 @@ actor CommonExpressPairsRepository {
 // MARK: - ExpressPairsRepository
 
 extension CommonExpressPairsRepository: ExpressPairsRepository {
-    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {
+    func updatePairs(
+        from wallet: ExpressWalletCurrency,
+        to currencies: [ExpressWalletCurrency],
+        userWalletInfo: UserWalletInfo
+    ) async throws {
         guard !currencies.isEmpty else { return }
 
         let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
@@ -54,7 +58,37 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         try await pairs.formUnion(pairsFrom.toSet())
     }
 
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async throws -> [ExpressProvider.Id] {
+    func getAvailableProvidersIds(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) async -> [ExpressProvider.Id] {
+        let providers = getAvailableProviders(for: pair, rateType: rateType)
+
+        return providers.map(\.id)
+    }
+
+    func availableRateTypes(for pair: ExpressManagerSwappingPair) async -> Set<ExpressProviderRateType> {
+        let providers = getAvailableProviders(for: pair, rateType: nil)
+
+        let rateTypes = providers.flatMap(\.rates)
+
+        return Set(rateTypes)
+    }
+
+    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.destination == wallet.asCurrency }.asArray
+    }
+
+    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.source == wallet.asCurrency }.asArray
+    }
+}
+
+private extension CommonExpressPairsRepository {
+    func getAvailableProviders(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) -> [ExpressPairProvider] {
         let source = pair.source.currency.asCurrency
         let destination = pair.destination.currency.asCurrency
 
@@ -68,17 +102,9 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         let providers = availablePair.providers
 
         if let rateType {
-            return providers.filter { $0.rates.contains(rateType) }.map(\.id)
+            return providers.filter { $0.rates.contains(rateType) }
         }
 
-        return providers.map(\.id)
-    }
-
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
-    }
-
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        return providers
     }
 }

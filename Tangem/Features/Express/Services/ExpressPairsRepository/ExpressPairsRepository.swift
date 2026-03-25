@@ -17,7 +17,11 @@ protocol ExpressPairsRepository {
 
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws
 
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async throws -> [ExpressProvider.Id]
+    func getAvailableProvidersIds(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) async -> [ExpressProvider.Id]
+    func availableRateTypes(for pair: ExpressManagerSwappingPair) async -> Set<ExpressProviderRateType>
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair]
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair]
