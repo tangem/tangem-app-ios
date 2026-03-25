@@ -64,7 +64,8 @@ extension TangemPayAddFundsSheetViewModel {
                     colorScheme: .whiteBlack
                 ),
                 isYieldModuleActive: false
-            )
+            ),
+            receiveTokenWithdrawNoticeInteractor: TangemPayReceiveTokenWithdrawNoticeInteractor()
         )
         receiveViewModel.start()
         coordinator?.addFundsSheetRequestReceive(viewModel: receiveViewModel)
