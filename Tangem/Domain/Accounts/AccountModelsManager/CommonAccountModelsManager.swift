@@ -444,7 +444,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
     }
 
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {
-        await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+        await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor, pendingDerivations: [])
         guard case .kycRequired = tangemPayManager.state else {
             return
         }
