@@ -49,10 +49,16 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
     func testTokenDetailsSwapButton_ShowErrorUnreachable() {
         setAllureId(4460)
 
+        let expressApiUnreachableScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "Unreachable"
+        )
+
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
-            clearStorage: true
+            clearStorage: true,
+            scenarios: [expressApiUnreachableScenario]
         )
 
         CreateWalletSelectorScreen(app)

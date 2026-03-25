@@ -161,6 +161,7 @@ extension Analytics {
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
+        case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
@@ -468,11 +469,22 @@ extension Analytics {
         case marketsNewsCarouselTrendingClicked = "[Markets] News Carousel Trending Clicked"
         case marketsNewsListLoadError = "[Markets] News List Load Error"
         case marketsNewsCategoriesSelected = "[Markets] News Categories Selected"
-        case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
-        case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
-        case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
+        case marketsEarnLoadError = "[Markets] Earn Load Error"
+        case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+
+        // MARK: - Earn
+
+        case earnPageOpened = "[Earn] Page Opened"
+        case earnMostlyUsedCarouselScrolled = "[Earn] Mostly Used Carousel Scrolled"
+        case earnBestOpportunitiesFilterNetworkApplied = "[Earn] Best Opportunities Filter Network Applied"
+        case earnBestOpportunitiesFilterTypeApplied = "[Earn] Best Opportunities Filter Type Applied"
+        case earnOpportunitySelected = "[Earn] Opportunity selected"
+        case earnAddTokenScreenOpened = "[Earn] Add Token Screen Opened"
+        case earnTokenAdded = "[Earn] Token Added"
+        case earnPageLoadError = "[Earn] Page Load Error"
+        case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
 
         // MARK: - Markets / Chart
 
@@ -488,6 +500,7 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonShare = "[Markets / Chart] Button - Share"
         case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
@@ -623,6 +636,13 @@ extension Analytics {
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
+
+        case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
+        case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
+        case visaOnboardingVisaKYCPassedAndOrderCreated = "[Visa Onboarding] Visa KYC Passed And Order Created"
+
+        case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
+        case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"

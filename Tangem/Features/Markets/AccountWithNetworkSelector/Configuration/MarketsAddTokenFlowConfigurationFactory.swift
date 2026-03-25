@@ -19,11 +19,8 @@ enum MarketsAddTokenFlowConfigurationFactory {
 
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
-                MarketsTokenItemsProvider.calculateTokenItems(
-                    coinId: inputData.coinId,
-                    coinName: inputData.coinName,
-                    coinSymbol: inputData.coinSymbol,
-                    networks: inputData.networks,
+                makeTokenItems(
+                    inputData: inputData,
                     supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
                     cryptoAccount: accountSelectorCell.cryptoAccountModel
                 )
@@ -37,14 +34,11 @@ enum MarketsAddTokenFlowConfigurationFactory {
                     coordinator: coordinator
                 )
             ),
-            accountFilter: { account, supportedBlockchains in
-                let networkIds = inputData.networks.map(\.networkId)
-                return networkIds.contains { networkId in
-                    AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
-                }
-            },
+            accountFilter: makeAccountFilter(inputData: inputData),
             accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
                 coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
                 availableNetworks: inputData.networks
             ),
             analyticsLogger: analyticsLogger
@@ -59,7 +53,19 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         analyticsLogger: GetTokenAnalyticsLogger,
         coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration {
-        AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+        let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
+
+        return AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+            isBuyAvailable: { tokenItem, accountSelectorCell in
+                let config = accountSelectorCell.userWalletModel.config
+                guard config.isFeatureVisible(.exchange) else { return false }
+                return expressAvailabilityProvider.canOnramp(tokenItem: tokenItem)
+            },
+            isExchangeAvailable: { tokenItem, accountSelectorCell in
+                let config = accountSelectorCell.userWalletModel.config
+                guard config.isFeatureVisible(.swapping) else { return false }
+                return expressAvailabilityProvider.canSwap(tokenItem: tokenItem)
+            },
             onBuy: { [weak coordinator] tokenItem, accountSelectorCell in
                 handleGetTokenAction(
                     action: .buy,
@@ -121,17 +127,17 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             case .buy:
                 analyticsLogger.logBuyTapped()
                 let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-                let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-                coordinator.openOnramp(input: sendInput, parameters: parameters)
+                coordinator.openOnramp(input: sendInput, parameters: .none)
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
-                let expressInput = ExpressDependenciesDestinationInput(
+                let swapableToken = CommonSendSwapableTokenFactory(
                     userWalletInfo: userWalletInfo,
-                    walletModel: walletModel
-                )
+                    walletModel: walletModel,
+                    operationType: .swap
+                ).makeSwapableToken()
 
-                coordinator.openExchange(input: expressInput)
+                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
@@ -157,5 +163,52 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     ) -> (any WalletModel)? {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
         return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
+    }
+
+    static func makeAccountFilter(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+        { context in
+            let networkIds = inputData.networks.map(\.networkId)
+            let cryptoAccount = context.account
+            let supportedBlockchains = context.supportedBlockchains
+
+            func hasManageableNetworks() -> Bool {
+                return networkIds.contains { networkId in
+                    AccountBlockchainManageabilityChecker.canManageNetwork(
+                        networkId,
+                        for: cryptoAccount,
+                        in: supportedBlockchains
+                    )
+                }
+            }
+
+            func hasNotEmptyTokenItems() -> Bool {
+                let tokenItems = makeTokenItems(
+                    inputData: inputData,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: cryptoAccount
+                )
+
+                return tokenItems.isNotEmpty
+            }
+
+            return hasManageableNetworks() && hasNotEmptyTokenItems()
+        }
+    }
+
+    static func makeTokenItems(
+        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        supportedBlockchains: Set<Blockchain>,
+        cryptoAccount: any CryptoAccountModel
+    ) -> [TokenItem] {
+        MarketsTokenItemsProvider.calculateTokenItems(
+            coinId: inputData.coinId,
+            coinName: inputData.coinName,
+            coinSymbol: inputData.coinSymbol,
+            networks: inputData.networks,
+            supportedBlockchains: supportedBlockchains,
+            cryptoAccount: cryptoAccount
+        )
     }
 }

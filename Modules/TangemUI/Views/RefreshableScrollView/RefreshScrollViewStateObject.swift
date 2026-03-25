@@ -235,3 +235,15 @@ public extension RefreshScrollViewStateObject {
         public var threshold: CGFloat { refreshAreaHeight * thresholdMultiplier }
     }
 }
+
+// MARK: - Observers
+
+public extension RefreshScrollViewStateObject {
+    func addDelegate(_ delegate: UIScrollViewDelegate) {
+        scrollViewDelegate.addObserver(delegate)
+    }
+
+    func removeDelegate(_ delegate: UIScrollViewDelegate) {
+        scrollViewDelegate.removeObserver(delegate)
+    }
+}

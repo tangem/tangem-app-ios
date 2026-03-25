@@ -29,6 +29,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var receiveButton = button(.receiveButton)
     private lazy var sendButton = button(.sendButton)
     private lazy var swapButton = button(.swapButton)
+    private lazy var swapButtonBadge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
     private lazy var buyButton = button(.buyButton)
     private lazy var sellButton = button(.sellButton)
 
@@ -54,7 +55,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
-            XCTAssertTrue(actionButtons.waitForExistence(timeout: .robustUIUpdate), "Action buttons container should exist")
+            waitAndAssertTrue(actionButtons, "Action buttons container should exist")
 
             let button = actionButtons.buttons[action.rawValue]
 
@@ -106,9 +107,9 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func waitForStakingInfo() -> Self {
         XCTContext.runActivity(named: "Validate staking information on token screen") { _ in
-            XCTAssertTrue(nativeStakingBlock.waitForExistence(timeout: .robustUIUpdate), "Native staking block should be displayed")
-            XCTAssertTrue(nativeStakingTitle.waitForExistence(timeout: .robustUIUpdate), "Native staking title should be displayed")
-            XCTAssertTrue(nativeStakingChevron.waitForExistence(timeout: .robustUIUpdate), "Navigation chevron should be displayed")
+            waitAndAssertTrue(nativeStakingBlock, "Native staking block should be displayed")
+            waitAndAssertTrue(nativeStakingTitle, "Native staking title should be displayed")
+            waitAndAssertTrue(nativeStakingChevron, "Navigation chevron should be displayed")
 
             return self
         }
@@ -170,21 +171,21 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     func getTotalBalance() -> String {
         XCTContext.runActivity(named: "Get total balance") { _ in
-            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
             return totalBalance.label
         }
     }
 
     func getAvailableBalance() -> String {
         XCTContext.runActivity(named: "Get available balance") { _ in
-            XCTAssertTrue(availableBalance.waitForExistence(timeout: .robustUIUpdate), "Available balance element should exist")
+            waitAndAssertTrue(availableBalance, "Available balance element should exist")
             return availableBalance.label
         }
     }
 
     func getStakingBalance() -> String {
         XCTContext.runActivity(named: "Get staking balance") { _ in
-            XCTAssertTrue(stakingBalance.waitForExistence(timeout: .robustUIUpdate), "Staking balance element should exist")
+            waitAndAssertTrue(stakingBalance, "Staking balance element should exist")
             return stakingBalance.label
         }
     }
@@ -204,8 +205,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled")
             waitAndAssertTrue(sellButton, "Sell button should exist")
             XCTAssertTrue(sellButton.isEnabled, "Sell button should be enabled")
+            return self
         }
-        return self
     }
 
     // MARK: - Notification Validation Methods
@@ -214,8 +215,56 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForNotEnoughFeeForTransactionBanner() -> Self {
         XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
             waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
+            return self
         }
-        return self
+    }
+
+    // MARK: - Badge Validation Methods
+
+    @discardableResult
+    func assertSwapButtonHasBadge() -> Self {
+        XCTContext.runActivity(named: "Assert Swap button has badge indicator") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            waitAndAssertTrue(swapButtonBadge, "Swap button badge should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapButtonHasNoBadge() -> Self {
+        XCTContext.runActivity(named: "Assert Swap button has no badge indicator") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            XCTAssertFalse(swapButtonBadge.exists, "Swap button badge should not be displayed")
+            return self
+        }
+    }
+
+    // MARK: - Swap Button State Methods
+
+    @discardableResult
+    func waitForSwapButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button is available") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForSwapButtonDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Swap button shows unavailability alert on tap") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            swapButton.waitAndTap()
+
+            // An alert should appear indicating swap is not available
+            let alert = app.alerts.firstMatch
+            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Unavailability alert should appear for a non-swappable token")
+
+            // Dismiss the alert
+            let okButton = alert.buttons.firstMatch
+            XCTAssertTrue(okButton.exists, "Alert should have a dismiss button")
+            okButton.tap()
+            return self
+        }
     }
 }
 

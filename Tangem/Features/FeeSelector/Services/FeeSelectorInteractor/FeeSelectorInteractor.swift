@@ -16,7 +16,6 @@ protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDa
     func userDidSelect(feeOption: FeeOption)
 
     func completeSelection()
-    func userDidDismissFeeSelection()
 }
 
 enum FeeSelectorInteractorState {

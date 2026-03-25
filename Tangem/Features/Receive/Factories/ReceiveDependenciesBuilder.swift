@@ -37,8 +37,8 @@ struct ReceiveDependenciesBuilder {
         let notificationInputs = notificationInputsFactory.makeNotificationInputs(for: tokenItem)
 
         return CommonSelectorReceiveAssetsInteractor(
-            notificationInputs: notificationInputs,
-            addressTypes: addressTypesProvider.receiveAddressTypes
+            addressTypesProvider: addressTypesProvider,
+            notificationInputs: notificationInputs
         )
     }
 

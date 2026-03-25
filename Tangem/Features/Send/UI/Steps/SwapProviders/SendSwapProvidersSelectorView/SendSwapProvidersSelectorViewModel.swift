@@ -19,7 +19,6 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 
     @Published var ukNotificationInput: NotificationViewInput?
     @Published var providerViewModels: [SendSwapProvidersSelectorProviderViewData] = []
-    @Published var selectedProvider: ExpressAvailableProvider?
 
     // MARK: - Dependencies
 
@@ -32,7 +31,6 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private let priceChangeFormatter: PriceChangeFormatter
     private let analyticsLogger: SendSwapProvidersAnalyticsLogger
 
-    private var providers: ThreadSafeContainer<[ExpressAvailableProvider]> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -52,17 +50,14 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         self.priceChangeFormatter = priceChangeFormatter
         self.analyticsLogger = analyticsLogger
 
-        bind()
+        bind(input: input)
     }
 
     func isSelected(_ providerId: String) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
-            root.selectedProvider?.provider.id == providerId
+            root.input?.selectedExpressProvider?.value?.provider.id == providerId
         } set: { root, isSelected in
-            if let provider = root.providers.read().first(where: { $0.provider.id == providerId }) {
-                root.selectedProvider = provider
-                root.userDidTap(provider: provider)
-            }
+            root.userDidTap(providerId: providerId)
         }
     }
 
@@ -75,54 +70,39 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 // MARK: - Private
 
 private extension SendSwapProvidersSelectorViewModel {
-    func bind() {
-        input?
-            .expressProvidersPublisher
-            .withWeakCaptureOf(self)
-            .asyncMap { await $0.prepareProviderRows(providers: $1) }
-            .receiveOnMain()
-            .assign(to: &$providerViewModels)
+    func bind(input: SendSwapProvidersInput) {
+        Publishers.CombineLatest(
+            input.selectedExpressProviderPublisher.map { $0?.value },
+            input.expressProvidersPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { $0.prepareProviderRows(selectedProvider: $1.0, providers: $1.1) }
+        .receiveOnMain()
+        .assign(to: &$providerViewModels)
 
-        input?
+        input
             .expressProvidersPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .map { $0.mapToFCAWarningIfNeeded(providers: $1) }
             .assign(to: &$ukNotificationInput)
-
-        input?
-            .expressProvidersPublisher
-            .withWeakCaptureOf(self)
-            .sink { viewModel, providers in
-                viewModel.providers.mutate { $0 = providers }
-            }
-            .store(in: &bag)
-
-        input?
-            .selectedExpressProviderPublisher
-            .receiveOnMain()
-            .assign(to: &$selectedProvider)
     }
 
-    @MainActor
-    private func prepareProviderRows(providers: [ExpressAvailableProvider]) async -> [SendSwapProvidersSelectorProviderViewData] {
-        let viewModels: [SendSwapProvidersSelectorProviderViewData] = await providers
+    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider]) -> [SendSwapProvidersSelectorProviderViewData] {
+        let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await self.mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
+            .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0) }
 
         return viewModels
     }
 
-    @MainActor
-    func mapToSendSwapProvidersSelectorProviderViewData(
-        availableProvider: ExpressAvailableProvider
-    ) async -> SendSwapProvidersSelectorProviderViewData {
+    func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider) -> SendSwapProvidersSelectorProviderViewData {
         let senderCurrencyCode = tokenItem.currencySymbol
-        let destinationCurrencyCode = receiveTokenInput?.receiveToken.tokenItem.currencySymbol
+        let destinationCurrencyCode = receiveTokenInput?.receiveToken.value?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
-        let state = await availableProvider.getState()
+        let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
@@ -132,7 +112,7 @@ private extension SendSwapProvidersSelectorViewModel {
             )
         )
 
-        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: availableProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: availableProvider)
         let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
         case .none: .none
         case .fcaWarning: .fcaWarning
@@ -140,7 +120,7 @@ private extension SendSwapProvidersSelectorViewModel {
         case .bestRate: .bestRate
         }
 
-        if let percentSubtitle = await makePercentSubtitle(provider: availableProvider) {
+        if let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -150,27 +130,30 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
-            isDisabled: state.quote == nil,
             badge: badge,
             subtitles: subtitles
         )
     }
 
-    func userDidTap(provider: ExpressAvailableProvider) {
-        // Cancel subscription that view do not jump
+    func userDidTap(providerId: String) {
+        guard let provider = input?.expressProviders.first(where: { $0.provider.id == providerId }) else {
+            return
+        }
+
         analyticsLogger.logSendSwapProvidersChosen(provider: provider.provider)
         output?.userDidSelect(provider: provider)
+
         Task { @MainActor in dismiss() }
     }
 
-    func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
+    func makePercentSubtitle(selectedProvider: ExpressAvailableProvider?, provider: ExpressAvailableProvider) -> ProviderRowViewModel.Subtitle? {
         // For selectedProvider we don't add percent badge
         guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
         }
 
-        guard let quote = await provider.getState().quote,
-              let selectedRate = await selectedProvider?.getState().quote?.rate else {
+        guard let quote = provider.getState().quote,
+              let selectedRate = selectedProvider?.getState().quote?.rate else {
             return nil
         }
 

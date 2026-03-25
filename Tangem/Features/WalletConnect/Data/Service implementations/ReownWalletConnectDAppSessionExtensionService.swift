@@ -31,15 +31,14 @@ final class ReownWalletConnectDAppSessionExtensionService {
     // MARK: - Private methods
 
     private func socketConnectionHasBeenEstablished() async throws {
-        if await socketConnectionStatusStorage.socketConnectionHasBeenEstablished {
-            return
-        }
-
         try Task.checkCancellation()
 
+        // Atomic check-and-store: if already connected, returns immediately.
+        // Otherwise stores the continuation in a single actor call to avoid
+        // a race where the socket connects between checking and storing.
         return await withCheckedContinuation { [socketConnectionStatusStorage] continuation in
             Task {
-                await socketConnectionStatusStorage.store(continuation: continuation)
+                await socketConnectionStatusStorage.storeIfNeeded(continuation: continuation)
             }
         }
     }
@@ -76,8 +75,17 @@ extension ReownWalletConnectDAppSessionExtensionService {
             self.socketConnectionHasBeenEstablished = socketConnectionHasBeenEstablished
         }
 
-        func store(continuation: CheckedContinuation<Void, Never>) {
-            socketConnectionContinuations.append(continuation)
+        /// Atomically checks if the socket is already connected and either resumes the
+        /// continuation immediately or stores it for later resumption.
+        ///
+        /// This prevents a race condition where the socket connects between separate
+        /// check and store calls, leaving the continuation stored but never resumed.
+        func storeIfNeeded(continuation: CheckedContinuation<Void, Never>) {
+            if socketConnectionHasBeenEstablished {
+                continuation.resume()
+            } else {
+                socketConnectionContinuations.append(continuation)
+            }
         }
 
         func resumeSocketConnectionContinuations() {

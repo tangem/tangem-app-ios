@@ -45,8 +45,6 @@ struct EnvironmentSetupView: View {
                 appUidControls
 
                 fcmControls
-
-                promotionProgramControls
             }
             .interContentPadding(8)
         }
@@ -115,46 +113,6 @@ struct EnvironmentSetupView: View {
             }
         }
         .padding(.horizontal)
-    }
-
-    private var promotionProgramControls: some View {
-        VStack(spacing: 10) {
-            Text("PROMOTION PROGRAM")
-                .font(.headline)
-
-            VStack(spacing: 15) {
-                HStack {
-                    Text("Current promo code: \(viewModel.currentPromoCode)")
-
-                    Button {
-                        viewModel.copyField(\.currentPromoCode)
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundColor(Color.blue)
-                    }
-                }
-
-                Button("Reset promo codes", action: viewModel.resetCurrentPromoCode)
-                    .foregroundColor(Color.red)
-            }
-
-            VStack(spacing: 15) {
-                Text("Finished program names: \(viewModel.finishedPromotionNames)")
-
-                Button("Reset finished programs", action: viewModel.resetFinishedPromotionNames)
-                    .foregroundColor(Color.red)
-            }
-
-            VStack(spacing: 15) {
-                Text("Awarded program names: \(viewModel.awardedPromotionNames)")
-
-                Text("Reset award for this card on the backend (tangem-dev only)")
-                    .multilineTextAlignment(.center)
-
-                Button("Reset award", action: viewModel.resetAward)
-                    .foregroundColor(Color.red)
-            }
-        }
     }
 
     private var exitButton: some View {

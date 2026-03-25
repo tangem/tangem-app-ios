@@ -23,7 +23,6 @@ struct EarnBestOpportunitiesListView: View {
 
     var body: some View {
         rootView
-            .transition(.opacity.animation(.easeInOut))
             .defaultRoundedBackground(
                 with: Color.Tangem.Surface.level4,
                 verticalPadding: Layout.innerContentPadding,
@@ -52,7 +51,6 @@ struct EarnBestOpportunitiesListView: View {
                 MarketsSkeletonItemView()
             }
         }
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private var opportunitiesList: some View {
@@ -63,6 +61,7 @@ struct EarnBestOpportunitiesListView: View {
 
             paginationFooter
         }
+        .transition(.opacity.animation(.easeInOut))
     }
 
     @ViewBuilder
@@ -79,12 +78,36 @@ struct EarnBestOpportunitiesListView: View {
         }
     }
 
+    @ViewBuilder
     private var emptyView: some View {
+        if hasActiveFilters {
+            emptyViewWithClearFilter
+        } else {
+            emptyViewWithoutFilters
+        }
+    }
+
+    private var emptyViewWithoutFilters: some View {
+        VStack(spacing: Layout.emptyViewSpacing) {
+            Assets.emptyTokenList.image
+                .foregroundColor(Colors.Icon.inactive)
+
+            Text(Localization.earnEmpty)
+                .multilineTextAlignment(.center)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, Layout.emptyViewHorizontalPadding)
+        .infinityFrame(axis: .horizontal, alignment: .center)
+        .frame(height: Layout.defaultMaxHeight)
+    }
+
+    private var emptyViewWithClearFilter: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
             Text(Localization.earnNoResults)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
-            if hasActiveFilters, let clearFilterAction {
+            if let clearFilterAction {
                 Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
                         .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
@@ -119,7 +142,8 @@ private extension EarnBestOpportunitiesListView {
         static let horizontalPadding: CGFloat = 16.0
         static let innerContentPadding: CGFloat = 0.0
         static let defaultMaxHeight: CGFloat = 180
-        static let emptyViewSpacing: CGFloat = 12
+        static let emptyViewSpacing: CGFloat = 16
+        static let emptyViewHorizontalPadding: CGFloat = 48
 
         enum ClearFilterButton {
             static let verticalPadding: CGFloat = 8

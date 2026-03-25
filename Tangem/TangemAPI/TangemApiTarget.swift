@@ -22,7 +22,7 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .newPromotion:
+        case .promotion:
             AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
@@ -52,18 +52,8 @@ struct TangemApiTarget: TargetType {
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
             return "/referral"
-        case .promotion, .newPromotion:
+        case .promotion:
             return "/promotion"
-        case .validateNewUserPromotionEligibility:
-            return "/promotion/code/validate"
-        case .validateOldUserPromotionEligibility:
-            return "/promotion/validate"
-        case .awardNewUser:
-            return "/promotion/code/award"
-        case .awardOldUser:
-            return "/promotion/award"
-        case .resetAward:
-            return "/private/manual-check/promotion-award"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -154,7 +144,6 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
-             .newPromotion,
              .apiList,
              .features,
              .coinsList,
@@ -186,18 +175,12 @@ struct TangemApiTarget: TargetType {
              .connectUserWallets:
             return .put
         case .participateInReferralProgram,
-             .validateNewUserPromotionEligibility,
-             .validateOldUserPromotionEligibility,
-             .awardNewUser,
-             .awardOldUser,
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
              .bindWalletsByCode:
             return .post
-        case .resetAward:
-            return .delete
         case .updateUserWalletsApplication, .updateWallet:
             return .patch
         }
@@ -228,34 +211,6 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestData)
         case .promotion(let request):
             return .requestParameters(request)
-        case .newPromotion(let request):
-            return .requestParameters(request)
-        case .validateNewUserPromotionEligibility(let walletId, let code):
-            return .requestParameters(parameters: [
-                "walletId": walletId,
-                "code": code,
-            ], encoding: JSONEncoding.default)
-        case .validateOldUserPromotionEligibility(let walletId, let programName):
-            return .requestParameters(parameters: [
-                "walletId": walletId,
-                "programName": programName,
-            ], encoding: JSONEncoding.default)
-        case .awardNewUser(let walletId, let address, let code):
-            return .requestParameters(parameters: [
-                "walletId": walletId,
-                "address": address,
-                "code": code,
-            ], encoding: JSONEncoding.default)
-        case .awardOldUser(let walletId, let address, let programName):
-            return .requestParameters(parameters: [
-                "walletId": walletId,
-                "address": address,
-                "programName": programName,
-            ], encoding: JSONEncoding.default)
-        case .resetAward(let cardId):
-            return .requestParameters(parameters: [
-                "cardId": cardId,
-            ], encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -373,12 +328,6 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
-             .newPromotion,
-             .validateNewUserPromotionEligibility,
-             .validateOldUserPromotionEligibility,
-             .awardNewUser,
-             .awardOldUser,
-             .resetAward,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -432,13 +381,7 @@ extension TangemApiTarget {
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
 
         // Promotion
-        case promotion(request: ExpressPromotion.Request)
-        case newPromotion(request: ExpressPromotion.NewRequest)
-        case validateNewUserPromotionEligibility(walletId: String, code: String)
-        case validateOldUserPromotionEligibility(walletId: String, programName: String)
-        case awardNewUser(walletId: String, address: String, code: String)
-        case awardOldUser(walletId: String, address: String, programName: String)
-        case resetAward(cardId: String)
+        case promotion(request: BannerPromotion.Request)
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case story(_ id: String)
@@ -552,12 +495,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
-             .newPromotion,
-             .validateNewUserPromotionEligibility,
-             .validateOldUserPromotionEligibility,
-             .awardNewUser,
-             .awardOldUser,
-             .resetAward,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
              .seedNotifyGetStatusConfirmed,

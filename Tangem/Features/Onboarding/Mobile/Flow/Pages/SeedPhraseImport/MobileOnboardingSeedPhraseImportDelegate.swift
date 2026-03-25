@@ -10,4 +10,5 @@ import Foundation
 
 protocol MobileOnboardingSeedPhraseImportDelegate: AnyObject {
     func didImportSeedPhrase(userWalletModel: UserWalletModel)
+    func onSeedPhraseImportBack()
 }

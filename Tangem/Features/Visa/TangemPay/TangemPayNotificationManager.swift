@@ -33,14 +33,23 @@ final class TangemPayNotificationManager {
         self.userWalletModel = userWalletModel
 
         cancellable = userWalletModel
-            .tangemPayManager
-            .statePublisher
+            .accountModelsManager
+            .tangemPayAccountModelPublisher
             .withWeakCaptureOf(self)
-            .map { manager, state in
-                if let event = state.asNotificationEvent(syncNeededTitle: manager.syncNeededTitle, icon: manager.mainButtonIcon) {
-                    [manager.makeNotificationViewInput(event: event)]
+            .flatMapLatest { manager, accountModel -> AnyPublisher<[NotificationViewInput], Never> in
+                if let accountModel {
+                    accountModel.statePublisher
+                        .withWeakCaptureOf(manager)
+                        .map { manager, state in
+                            if let event = state.asNotificationEvent() {
+                                [manager.makeNotificationViewInput(event: event)]
+                            } else {
+                                []
+                            }
+                        }
+                        .eraseToAnyPublisher()
                 } else {
-                    []
+                    Just([]).eraseToAnyPublisher()
                 }
             }
             .sink(receiveValue: notificationInputsSubject.send)
@@ -82,15 +91,19 @@ extension TangemPayNotificationManager: NotificationManager {
 // MARK: - TangemPayLocalState+notificationEvent
 
 private extension TangemPayLocalState {
-    func asNotificationEvent(syncNeededTitle: String, icon: MainButton.Icon?) -> TangemPayNotificationEvent? {
+    func asNotificationEvent() -> TangemPayNotificationEvent? {
         switch self {
-        case .syncNeeded, .syncInProgress:
-            .syncNeeded(title: syncNeededTitle, icon: icon)
-
         case .unavailable:
             .unavailable
 
-        case .initial, .loading, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
+        case .loading,
+             .kycRequired,
+             .kycDeclined,
+             .issuingCard,
+             .failedToIssueCard,
+             .tangemPayAccount,
+             .syncNeeded,
+             .syncInProgress:
             nil
         }
     }
