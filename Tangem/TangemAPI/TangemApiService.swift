@@ -94,19 +94,7 @@ protocol TangemApiService: AnyObject {
 
     func bindReferral(request model: ReferralDTO.Request) async throws
 
-    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters
-
-    @discardableResult
-    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult
-    @discardableResult
-    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult
-    @discardableResult
-    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult
-    @discardableResult
-    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult
-    @discardableResult
-    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
+    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response
 
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
 
