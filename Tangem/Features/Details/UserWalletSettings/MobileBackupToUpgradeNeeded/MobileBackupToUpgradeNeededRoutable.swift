@@ -10,5 +10,6 @@ import Foundation
 
 @MainActor
 protocol MobileBackupToUpgradeNeededRoutable: AnyObject {
+    func openMobileOnboardingFromMobileBackupToUpgradeNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void)
     func dismissMobileBackupToUpgradeNeeded()
 }

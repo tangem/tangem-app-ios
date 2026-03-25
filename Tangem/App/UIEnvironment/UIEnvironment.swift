@@ -68,6 +68,10 @@ extension InjectedValues {
         environment.floatingSheetViewModel
     }
 
+    var floatingSheetPresentingStateProvider: any FloatingSheetPresentingStateProvider {
+        environment.floatingSheetViewModel
+    }
+
     var alertPresenterViewModel: AlertPresenterViewModel {
         environment.alertPresenter
     }

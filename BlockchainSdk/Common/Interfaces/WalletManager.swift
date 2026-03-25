@@ -120,10 +120,19 @@ public extension TransactionSigner {
 
 // MARK: - AddressResolver
 
-@available(iOS 13.0, *)
 public protocol AddressResolver {
     func requiresResolution(address: String) -> Bool
-    func resolve(_ address: String) async throws -> String
+    func resolve(_ address: String) async throws -> AddressResolverResult
+}
+
+public struct AddressResolverResult {
+    public let resolved: String
+    public let requiresDestinationTag: Bool
+
+    public init(resolved: String, requiresDestinationTag: Bool = false) {
+        self.resolved = resolved
+        self.requiresDestinationTag = requiresDestinationTag
+    }
 }
 
 // MARK: - DomainNameAddressResolver

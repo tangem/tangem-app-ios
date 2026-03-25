@@ -10,21 +10,18 @@ import Foundation
 import XCTest
 
 final class EthereumWCLinksUITests: BaseTestCase {
-    let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+    let safariHelper = SafariHelper()
     let qaToolsClient = QAToolsClient()
     private var wcURI: String!
 
     func testOpenTangemAppFromSafari_ShowsWalletConnectSheet() throws {
         setAllureId(3957)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "WalletConnect deeplink does not load dapp data on cold start")
-
         getWcURI()
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
         CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
-            .allowPushNotificationsIfNeeded()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
 
@@ -34,9 +31,10 @@ final class EthereumWCLinksUITests: BaseTestCase {
             .organizeTokens()
         app.terminate()
 
-        safari.launch()
+        safariHelper.safari.launch()
 
-        openDeeplinkInSafari(wcURI)
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenButton()
 
         app.activate()
 
@@ -50,6 +48,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
             .tapConnectionButton()
 
         MainScreen(app)
+            .skipPushNotificationsSetup()
             .openDetails()
             .openWalletConnections()
             .tapFirstDAppRow()
@@ -66,8 +65,9 @@ final class EthereumWCLinksUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
-        safari.launch()
-        openDeeplinkInSafari(wcURI)
+        safariHelper.safari.launch()
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenButton()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -91,8 +91,9 @@ final class EthereumWCLinksUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
 
-        safari.launch()
-        openDeeplinkInSafari(wcURI)
+        safariHelper.safari.launch()
+        safariHelper.openDeeplink(wcURI)
+        safariHelper.tapOpenButton()
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -137,30 +138,6 @@ final class EthereumWCLinksUITests: BaseTestCase {
 
         XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
             XCTAssert(!wcURI.isEmpty, "WC URI is empty")
-        }
-    }
-
-    private func openDeeplinkInSafari(_ deeplink: String) {
-        let clearButton = safari.buttons["ClearTextButton"]
-
-        // Open address bar
-        let urlField = safari.textFields["Address"]
-        XCTAssertTrue(urlField.waitForExistence(timeout: 5), "Address bar not found")
-        urlField.tap()
-
-        if clearButton.isHittable {
-            clearButton.tap()
-        }
-
-        // Insert deeplink
-        UIPasteboard.general.string = deeplink
-        urlField.doubleTap()
-        safari.menuItems["Paste and Go"].tap()
-
-        // Wait for system alert (permission to open another app)
-        let openButton = safari.buttons["Open"]
-        if openButton.waitForExistence(timeout: 5) {
-            openButton.tap()
         }
     }
 }

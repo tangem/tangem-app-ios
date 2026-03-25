@@ -11,8 +11,6 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_INFO]
 struct ProviderRowView: View {
     let viewModel: ProviderRowViewModel
 
