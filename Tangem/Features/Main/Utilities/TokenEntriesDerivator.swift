@@ -40,18 +40,31 @@ final class TokenEntriesDerivator {
                 .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
                 .prefix(1)
                 .sink { cryptoAccounts, tangemPayAccount in
-                    for account in cryptoAccounts {
-                        group.enter()
-                        account.userTokensManager.deriveIfNeeded { _ in
-                            group.leave()
+                    guard let tangemPayAccount, tangemPayAccount.state?.isSyncNeeded == true else {
+                        for account in cryptoAccounts {
+                            group.enter()
+                            account.userTokensManager.deriveIfNeeded { _ in
+                                group.leave()
+                            }
                         }
+                        withExtendedLifetime(subscription) {}
+                        return
                     }
 
-                    if let tangemPayAccount {
-                        group.enter()
-                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
-                            group.leave()
-                        }
+                    let pendingDerivations = cryptoAccounts.flatMap {
+                        $0.userTokensManager.derivationManager?.pendingDerivations ?? []
+                    }
+
+                    // Batch all pending derivations into the TangemPay card session,
+                    // so that crypto account derivations and TangemPay authorization
+                    // happen in a single user interaction
+                    // [REDACTED_TODO_COMMENT]
+                    group.enter()
+                    tangemPayAccount.syncTokens(
+                        authorizingInteractor: tangemPayAuthorizingInteractor,
+                        pendingDerivations: pendingDerivations
+                    ) {
+                        group.leave()
                     }
 
                     withExtendedLifetime(subscription) {}
