@@ -37,6 +37,8 @@ public extension Wallet {
     }
 }
 
+// MARK: Nested types
+
 public extension Wallet.PublicKey {
     enum DerivationType: Codable, Hashable {
         case plain(HDKey)
