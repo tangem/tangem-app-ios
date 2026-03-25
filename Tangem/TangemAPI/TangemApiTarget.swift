@@ -57,7 +57,7 @@ struct TangemApiTarget: TargetType {
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
-            return "/displays/\(request.displayId)"
+            return "/banner/displays/\(request.displayId)"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
