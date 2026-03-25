@@ -222,17 +222,6 @@ struct MarketsSearchView: View {
                         .frame(height: overlayHeight)
 
                     LazyVStack(spacing: 0) {
-                        if !showSearchResult, viewModel.yieldModeNotificationVisible {
-                            MarketsYieldModeNotificationView(
-                                openAction: { [viewModel] in
-                                    viewModel.openYieldModeFiter()
-                                },
-                                closeAction: { [viewModel] in
-                                    viewModel.closeYieldModeNotification()
-                                }
-                            )
-                        }
-
                         ForEach(viewModel.tokenListViewModel.tokenViewModels) {
                             MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
                         }
