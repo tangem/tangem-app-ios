@@ -73,7 +73,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 
         return swapModelStateProvider
             .statePublisher
-            .filter { $0.filter(loading: [.autoupdate]) }
+            .filter { $0.filter(loading: [.providers, .provider, .autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
