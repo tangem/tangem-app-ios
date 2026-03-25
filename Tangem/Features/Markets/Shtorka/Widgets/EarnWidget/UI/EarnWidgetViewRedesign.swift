@@ -1,5 +1,5 @@
 //
-//  EarnWidgetView.swift
+//  EarnWidgetViewRedesign.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct EarnWidgetView: View {
+struct EarnWidgetViewRedesign: View {
     @ObservedObject var viewModel: EarnWidgetViewModel
 
     @ViewBuilder
@@ -30,7 +30,7 @@ struct EarnWidgetView: View {
     }
 
     private var header: some View {
-        MarketsCommonWidgetHeaderView(
+        MarketsCommonWidgetHeaderViewRedesign(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
@@ -45,16 +45,13 @@ struct EarnWidgetView: View {
             case .loading:
                 loadingSkeletons
             case .success(let tokenViewModels):
-                VStack(spacing: .zero) {
-                    ForEach(tokenViewModels) { tokenViewModel in
-                        EarnTokenItemView(viewModel: tokenViewModel)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: .unit(.x2)) {
+                        ForEach(tokenViewModels) { tokenViewModel in
+                            EarnTokenTileView(viewModel: tokenViewModel)
+                        }
                     }
                 }
-                .defaultRoundedBackground(
-                    with: Color.Tangem.Surface.level4,
-                    verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-                    horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-                )
             case .failure:
                 MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
