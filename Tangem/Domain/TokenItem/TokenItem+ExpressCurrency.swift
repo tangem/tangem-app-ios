@@ -27,4 +27,13 @@ extension TokenItem {
             )
         }
     }
+
+    var expressCoinCurrency: ExpressWalletCurrency {
+        ExpressWalletCurrency(
+            // Fixed constant value for the main token contract address
+            contractAddress: ExpressConstants.coinContractAddress,
+            network: networkId,
+            decimalCount: decimalCount
+        )
+    }
 }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 enum ChangeSignType: Int, Hashable {
     case positive
@@ -43,6 +44,18 @@ enum ChangeSignType: Int, Hashable {
             return Colors.Text.tertiary
         case .negative:
             return Colors.Text.warning
+        }
+    }
+
+    /// Converts to the shared `PriceChangeView.ChangeType`.
+    var priceChangeViewChangeType: PriceChangeView.ChangeType {
+        switch self {
+        case .positive:
+            return .positive
+        case .neutral:
+            return .neutral
+        case .negative:
+            return .negative
         }
     }
 }

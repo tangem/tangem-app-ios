@@ -19,14 +19,15 @@ struct EthereumAddressResolver {
 }
 
 extension EthereumAddressResolver: AddressResolver {
-    func resolve(_ address: String) async throws -> String {
+    func resolve(_ address: String) async throws -> AddressResolverResult {
         guard requiresResolution(address: address) else {
-            return address
+            return AddressResolverResult(resolved: address)
         }
 
         let nameHash = try ensProcessor.getNameHash(address)
         let encodedName = try ensProcessor.encode(name: address)
-        return try await networkService.resolveAddress(hash: nameHash, encode: encodedName).async()
+        let resolved = try await networkService.resolveAddress(hash: nameHash, encode: encodedName).async()
+        return AddressResolverResult(resolved: resolved)
     }
 
     func requiresResolution(address: String) -> Bool {

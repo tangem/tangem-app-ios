@@ -21,7 +21,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
     @Published private(set) var isSearching: Bool = false
-    @Published private(set) var yieldModeNotificationVisible = false
 
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
@@ -37,7 +36,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
-    private lazy var marketsNotificationsManager = MarketsNotificationsManager(tokenLoadingStateProvider: tokenListViewModel.$tokenListLoadingState.eraseToAnyPublisher())
 
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
@@ -92,8 +90,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
-
-        yieldModeNotificationBind(filterProvider.filterPublisher)
     }
 
     deinit {
@@ -132,16 +128,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         tokenListViewModel.onTryLoadList()
     }
 
-    func openYieldModeFiter() {
-        Analytics.log(.marketsYieldModeMoreInfo)
-        filterProvider.didSelectMarketOrder(.yield)
-    }
-
-    func closeYieldModeNotification() {
-        Analytics.log(.marketsYieldModePromoClosed)
-        AppSettings.shared.showMarketsYieldModeNotification = false
-    }
-
     func onSearchButtonAction() {
         Analytics.log(.marketsTokenSearchedClicked)
 
@@ -168,17 +154,6 @@ private extension MarketsSearchViewModel {
         tokenListViewModel.onResetShowItemsBelowCapFlag()
         currentSearchValue = ""
         tokenListViewModel.onFetch(with: "", by: filterProvider.currentFilterValue)
-    }
-
-    private func yieldModeNotificationBind(_ filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
-        marketsNotificationsManager.yieldNotificationVisible(from: filterPublisher)
-            .sink { [weak self] visible in
-                if visible {
-                    Analytics.log(.marketsNoticeYieldModePromo)
-                }
-                self?.yieldModeNotificationVisible = visible
-            }
-            .store(in: &bag)
     }
 
     private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {

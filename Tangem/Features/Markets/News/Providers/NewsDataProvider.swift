@@ -50,7 +50,7 @@ final class NewsDataProvider {
     private var lastCategoryIds: [Int]?
 
     private let limitPerPage: Int
-    private let repeatRequestDelayInSeconds: TimeInterval = 10
+    private let repeatRequestDelayInSeconds: TimeInterval
 
     private var taskCancellable: AnyCancellable?
     private var categoriesCancellable: AnyCancellable?
@@ -59,8 +59,12 @@ final class NewsDataProvider {
 
     // MARK: - Init
 
-    init(limitPerPage: Int = 20) {
+    init(
+        limitPerPage: Int = 20,
+        repeatRequestDelayInSeconds: TimeInterval = 10
+    ) {
         self.limitPerPage = limitPerPage
+        self.repeatRequestDelayInSeconds = repeatRequestDelayInSeconds
     }
 
     // MARK: - Public Methods

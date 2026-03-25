@@ -19,7 +19,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var totalFiatBalance: LoadableBalanceView.State
-    @Published private(set) var priceChange: TokenPriceChangeView.State
+    @Published private(set) var priceChange: PriceChangeView.State
 
     var tokensCount: String { Localization.commonTokensCount(rawTokensCount) }
     var isEmptyContent: Bool { rawTokensCount == 0 }
@@ -27,6 +27,8 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - Private properties
 
     @Published private var rawTokensCount: Int
+
+    let onManageTokensTap: () -> Void
 
     private let accountModel: any CryptoAccountModel
     private var stateStorage: ExpandableAccountItemStateStorage
@@ -37,10 +39,12 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     init(
         accountModel: any CryptoAccountModel,
-        stateStorage: ExpandableAccountItemStateStorage
+        stateStorage: ExpandableAccountItemStateStorage,
+        onManageTokensTap: @escaping () -> Void
     ) {
         self.accountModel = accountModel
         self.stateStorage = stateStorage
+        self.onManageTokensTap = onManageTokensTap
 
         let priceChangeUtility = PriceChangeUtility()
         self.priceChangeUtility = priceChangeUtility
@@ -123,7 +127,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     private static func mapToPriceChangeState(
         rate: RateValue<AccountQuote>,
         using priceChangeUtility: PriceChangeUtility
-    ) -> TokenPriceChangeView.State {
+    ) -> PriceChangeView.State {
         switch rate {
         case .loading(.none):
             return .loading

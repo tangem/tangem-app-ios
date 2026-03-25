@@ -35,6 +35,7 @@ struct SelectorReceiveAssetsView: View {
         }
         .padding(.top, Layout.Container.paddingTop)
         .padding(.bottom, Layout.Container.paddingBottom)
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     private func defaultSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {

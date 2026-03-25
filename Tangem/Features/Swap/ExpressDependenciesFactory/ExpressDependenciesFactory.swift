@@ -9,74 +9,12 @@
 import TangemExpress
 
 protocol ExpressDependenciesFactory {
-    var expressInteractor: ExpressInteractor { get }
+    var expressManager: ExpressManager { get }
+    var expressPairsRepository: ExpressPairsRepository { get }
+    var expressPendingTransactionRepository: ExpressPendingTransactionRepository { get }
+    var expressDestinationService: ExpressDestinationService { get }
     var expressAPIProvider: ExpressAPIProvider { get }
     var expressRepository: ExpressRepository { get }
 
     var onrampRepository: OnrampRepository { get }
-}
-
-// MARK: - ExpressDependenciesInput
-
-struct ExpressDependenciesInput {
-    let userWalletInfo: UserWalletInfo
-    let source: any ExpressInteractorSourceWallet
-    let destination: PredefinedDestination
-
-    enum PredefinedDestination {
-        case none
-        case loadingAndSet
-        case chosen(any ExpressInteractorDestinationWallet)
-    }
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        source: any ExpressInteractorSourceWallet,
-        destination: PredefinedDestination = .none
-    ) {
-        self.userWalletInfo = userWalletInfo
-        self.source = source
-        self.destination = destination
-    }
-}
-
-// MARK: - ExpressDependenciesDestinationInput
-
-struct ExpressDependenciesDestinationInput {
-    let userWalletInfo: UserWalletInfo
-    let source: PredefinedSource
-    let destination: any ExpressInteractorDestinationWallet
-
-    enum PredefinedSource {
-        case loadingAndSet
-        case chosen(any ExpressInteractorSourceWallet)
-    }
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        source: PredefinedSource,
-        destination: any ExpressInteractorDestinationWallet
-    ) {
-        self.userWalletInfo = userWalletInfo
-        self.source = source
-        self.destination = destination
-    }
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        walletModel: any WalletModel,
-        source: PredefinedSource = .loadingAndSet
-    ) {
-        let wrapper = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            expressOperationType: .swap
-        )
-
-        self.init(
-            userWalletInfo: userWalletInfo,
-            source: source,
-            destination: wrapper
-        )
-    }
 }

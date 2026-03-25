@@ -164,7 +164,10 @@ private extension WalletConnectSolanaSignTransactionHandler {
         unsignedHash: Data,
         signatureCount: Int
     ) {
-        let transactionData = try Data(transaction.base64Decoded())
+        guard let transactionData = Data(base64Encoded: transaction) else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Transaction payload must be base64 encoded")
+        }
+
         let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
         let unsignedHash = withoutSignaturePlaceholders.transaction
 

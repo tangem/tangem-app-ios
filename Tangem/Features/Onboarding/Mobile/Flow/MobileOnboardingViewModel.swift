@@ -18,6 +18,10 @@ final class MobileOnboardingViewModel: ObservableObject {
 
     lazy var flowBuilder = makeFlowBuilder()
 
+    var flowId: AnyHashable {
+        ObjectIdentifier(flowBuilder)
+    }
+
     private let input: MobileOnboardingInput
     private weak var coordinator: MobileOnboardingRoutable?
 
@@ -49,7 +53,7 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        case .seedPhraseBackup(let userWalletModel, _), .seedPhraseBackupToUpgrade(let userWalletModel, _, _):
+        case .seedPhraseBackup(let userWalletModel, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -81,13 +85,6 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         case .seedPhraseReveal(let context):
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
-        case .seedPhraseBackupToUpgrade(let userWalletModel, let source, let onContinue):
-            MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder(
-                userWalletModel: userWalletModel,
-                source: source,
-                coordinator: self,
-                onContinue: onContinue
-            )
         }
     }
 }
