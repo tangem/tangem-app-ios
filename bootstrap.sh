@@ -14,6 +14,7 @@ usage() {
     echo "    --skip-mint             -  Skip installing dependencies via Mint"
     echo "    --force-lint            -  Install SwiftFormat even on CI"
     echo "    --update-submodule      -  Git submodule update with --remote option"
+    echo "    --install-marathon      -  Install Marathon CLI (for parallel UI tests)"
     exit 1;
 }
 
@@ -21,6 +22,7 @@ OPT_RUBY=true
 OPT_MINT=true
 OPT_FORCE_LINT=false
 OPT_SUBMODULE=false
+OPT_INSTALL_MARATHON=false
 
 while test $# -gt 0
 do
@@ -36,6 +38,9 @@ do
             ;;
         --force-lint)
             OPT_FORCE_LINT=true
+            ;;
+        --install-marathon)
+            OPT_INSTALL_MARATHON=true
             ;;
         *)
         usage 1>&2
@@ -108,6 +113,21 @@ fi
 if [[ "$OPT_SUBMODULE" = true ]] ; then
     echo "🚀 Running submodule remote update"
     git submodule update --remote
+fi
+
+# Install Marathon CLI for parallel UI test execution (only when explicitly requested)
+if [[ "$OPT_INSTALL_MARATHON" = true ]] ; then
+    echo "🔄 Installing Marathon CLI for parallel UI tests"
+    if which marathon > /dev/null; then
+        echo "🟢 Marathon already installed"
+        marathon version
+    else
+        echo "🔴 Marathon not installed. Installing via Homebrew..."
+        HOMEBREW_NO_AUTO_UPDATE=1 brew tap malinskiy/tap
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install malinskiy/tap/marathon
+        echo "✅ Marathon CLI successfully installed"
+        marathon version
+    fi
 fi
 
 echo "Bootstrap competed 🎉"

@@ -167,7 +167,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     private func onTapNewAccount() {
         Analytics.log(event: .walletSettingsButtonAddAccount, params: [.productType: userWalletConfig.productType.rawValue])
-        coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
+        coordinator?.addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
     }
 
     private func handleAccountLimitReached() {

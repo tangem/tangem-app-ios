@@ -22,7 +22,7 @@ enum EarnFilterType: String, CaseIterable, Encodable, CustomStringConvertible, I
 
     var description: String {
         switch self {
-        case .all: return Localization.commonAll
+        case .all: return Localization.earnFilterAllTypes
         case .staking: return Localization.commonStaking
         case .yield: return Localization.commonYieldMode
         }
@@ -33,6 +33,15 @@ enum EarnFilterType: String, CaseIterable, Encodable, CustomStringConvertible, I
         case .all: return nil
         case .staking: return .staking
         case .yield: return .yield
+        }
+    }
+
+    /// String value for analytics (e.g. "[Earn] Best Opportunities Filter Type Applied").
+    var analyticsTypeValue: String {
+        switch self {
+        case .all: return "All types"
+        case .staking: return "Staking"
+        case .yield: return "Yield"
         }
     }
 }

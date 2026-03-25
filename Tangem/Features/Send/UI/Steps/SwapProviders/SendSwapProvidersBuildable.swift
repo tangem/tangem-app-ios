@@ -26,6 +26,7 @@ enum SendSwapProvidersBuilder {
     struct IO {
         let input: SendSwapProvidersInput
         let output: SendSwapProvidersOutput
+        let sourceTokenInput: SendSourceTokenInput
         let receiveTokenInput: SendReceiveTokenInput
     }
 
@@ -39,7 +40,7 @@ enum SendSwapProvidersBuilder {
         let priceChangeFormatter: PriceChangeFormatter
     }
 
-    typealias ReturnValue = SendSwapProvidersSelectorViewModel
+    typealias ReturnValue = (selector: SendSwapProvidersSelectorViewModel, compact: SwapSummaryProviderViewModel)
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let providersSelector = SendSwapProvidersSelectorViewModel(
@@ -52,6 +53,13 @@ enum SendSwapProvidersBuilder {
             analyticsLogger: dependencies.analyticsLogger
         )
 
-        return providersSelector
+        let swapSummaryProviderViewModel = SwapSummaryProviderViewModel(
+            expressProviderFormatter: .init(),
+            sourceTokenInput: io.sourceTokenInput,
+            receiveTokenInput: io.receiveTokenInput,
+            swapProvidersInput: io.input
+        )
+
+        return (selector: providersSelector, compact: swapSummaryProviderViewModel)
     }
 }

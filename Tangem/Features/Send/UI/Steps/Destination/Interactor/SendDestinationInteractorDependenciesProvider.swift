@@ -13,32 +13,38 @@ class SendDestinationInteractorDependenciesProvider {
     lazy var addressResolver: AddressResolver? = makeAddressResolver()
     lazy var transactionHistoryProvider: SendDestinationTransactionHistoryProvider = makeSendDestinationTransactionHistoryProvider()
     lazy var parametersBuilder: TransactionParamsBuilder = makeTransactionParamsBuilder()
-    lazy var analyticsLogger: SendDestinationAnalyticsLogger = makeAnalyticsLogger()
+    let analyticsLogger: SendDestinationAnalyticsLogger
 
     var suggestedWallets: [SendDestinationSuggestedWallet] {
         currentWalletData.suggestedWallets
     }
 
     var additionalFieldType: SendDestinationAdditionalFieldType? {
-        .type(for: receivedTokenType.tokenItem.blockchain)
+        .type(for: tokenItem.blockchain)
     }
 
-    private let sourceWalletData: SendingWalletData
-    private let receiveTokenWalletDataProvider: ReceiveTokenWalletDataProvider?
-    private var receivedTokenType: SendReceiveTokenType
+    private let sourceToken: SendSourceToken
+    private let destinationWalletDataProvider: SendDestinationWalletDataProvider
+    private var receivedToken: SendReceiveToken?
+
+    private var tokenItem: TokenItem {
+        receivedToken?.tokenItem ?? sourceToken.tokenItem
+    }
 
     init(
-        receivedTokenType: SendReceiveTokenType,
-        sourceWalletData: SendingWalletData,
-        receiveTokenWalletDataProvider: ReceiveTokenWalletDataProvider? = nil
+        sourceToken: SendSourceToken,
+        receivedToken: SendReceiveToken?,
+        analyticsLogger: SendDestinationAnalyticsLogger,
+        destinationWalletDataProvider: SendDestinationWalletDataProvider
     ) {
-        self.receivedTokenType = receivedTokenType
-        self.sourceWalletData = sourceWalletData
-        self.receiveTokenWalletDataProvider = receiveTokenWalletDataProvider
+        self.sourceToken = sourceToken
+        self.receivedToken = receivedToken
+        self.analyticsLogger = analyticsLogger
+        self.destinationWalletDataProvider = destinationWalletDataProvider
     }
 
-    func update(receivedTokenType: SendReceiveTokenType) {
-        self.receivedTokenType = receivedTokenType
+    func update(receivedToken: SendReceiveToken?) {
+        self.receivedToken = receivedToken
 
         validator = makeValidator()
         addressResolver = makeAddressResolver()
@@ -52,36 +58,23 @@ class SendDestinationInteractorDependenciesProvider {
 private extension SendDestinationInteractorDependenciesProvider {
     /// Returns the appropriate wallet data based on the current receive token type
     var currentWalletData: SendingWalletData {
-        switch receivedTokenType {
-        case .same:
-            return sourceWalletData
-        case .swap(let receiveToken):
-            return receiveWalletData(for: receiveToken)
+        switch receivedToken {
+        case .none:
+            return destinationWalletDataProvider.sendWalletData() ?? .empty
+        case .some(let receiveToken):
+            return destinationWalletDataProvider.swapWalletData(for: receiveToken.tokenItem) ?? .empty
         }
-    }
-
-    func receiveWalletData(for receiveToken: SendReceiveToken) -> SendingWalletData {
-        guard let walletData = receiveTokenWalletDataProvider?.walletData(for: receiveToken) else {
-            return SendingWalletData(
-                walletAddresses: [],
-                suggestedWallets: [],
-                destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider(),
-                analyticsLogger: sourceWalletData.analyticsLogger
-            )
-        }
-
-        return walletData
     }
 
     func makeValidator() -> SendDestinationValidator {
         let walletAddresses = currentWalletData.walletAddresses
 
-        let addressService = AddressServiceFactory(blockchain: receivedTokenType.tokenItem.blockchain).makeAddressService()
+        let addressService = AddressServiceFactory(blockchain: tokenItem.blockchain).makeAddressService()
 
         let validator = CommonSendDestinationValidator(
             walletAddresses: walletAddresses,
             addressService: addressService,
-            allowSameAddressTransaction: receivedTokenType.tokenItem.blockchain.supportsCompound || receivedTokenType.isSwap
+            allowSameAddressTransaction: tokenItem.blockchain.supportsCompound || receivedToken != nil
         )
 
         return validator
@@ -90,7 +83,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     private func makeAddressResolver() -> AddressResolver? {
         AddressResolverFactoryProvider()
             .factory
-            .makeAddressResolver(for: receivedTokenType.tokenItem.blockchain)
+            .makeAddressResolver(for: tokenItem.blockchain)
     }
 
     private func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
@@ -98,11 +91,7 @@ private extension SendDestinationInteractorDependenciesProvider {
     }
 
     private func makeTransactionParamsBuilder() -> TransactionParamsBuilder {
-        TransactionParamsBuilder(blockchain: receivedTokenType.tokenItem.blockchain)
-    }
-
-    private func makeAnalyticsLogger() -> SendDestinationAnalyticsLogger {
-        sourceWalletData.analyticsLogger
+        TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
 }
 
@@ -110,14 +99,22 @@ private extension SendDestinationInteractorDependenciesProvider {
 
 extension SendDestinationInteractorDependenciesProvider {
     struct SendingWalletData {
+        static let empty: SendingWalletData = .init(
+            walletAddresses: [],
+            suggestedWallets: [],
+            destinationTransactionHistoryProvider: EmptySendDestinationTransactionHistoryProvider()
+        )
+
         let walletAddresses: [String]
         let suggestedWallets: [SendDestinationSuggestedWallet]
         let destinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider
-        let analyticsLogger: SendDestinationAnalyticsLogger
     }
 
-    /// Protocol for providing wallet data for receive tokens in swap flows
-    protocol ReceiveTokenWalletDataProvider {
-        func walletData(for receiveToken: SendReceiveToken) -> SendingWalletData?
+    protocol SendDestinationWalletDataProvider {
+        func sendWalletData() -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
+
+        func swapWalletData(
+            for tokenItem: TokenItem
+        ) -> SendDestinationInteractorDependenciesProvider.SendingWalletData?
     }
 }

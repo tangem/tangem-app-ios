@@ -17,18 +17,13 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
     case buyers
     case gainers
     case losers
-    case staking
-    case yield
 
     var id: String {
         rawValue
     }
 
     var analyticsValue: String {
-        switch self {
-        case .yield: "yield mode"
-        default: rawValue
-        }
+        rawValue
     }
 
     var description: String {
@@ -38,8 +33,6 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
         case .buyers: return Localization.marketsSortByExperiencedBuyersTitle
         case .gainers: return Localization.marketsSortByTopGainersTitle
         case .losers: return Localization.marketsSortByTopLosersTitle
-        case .staking: return Localization.commonStaking
-        case .yield: return Localization.commonYieldMode
         }
     }
 }

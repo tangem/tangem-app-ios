@@ -29,7 +29,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     @Published var balanceCrypto: LoadableBalanceView.State
     @Published var balanceFiat: LoadableBalanceView.State
-    @Published var priceChangeState: TokenPriceChangeView.State = .loading
+    @Published var priceChangeState: PriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
     @Published var contextActionSections: [TokenContextActionsSection] = []
     @Published private var missingDerivation: Bool = false
