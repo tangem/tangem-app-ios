@@ -25,6 +25,12 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
         stringForAddress(addressInfo.address)
     }
 
+    var isLoading: Bool {
+        // Some blockchains (e.g., Hedera) delivers the address asynchronously,
+        // so it may be empty at the moment of creating the view model
+        addressInfo.address.isEmpty
+    }
+
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem

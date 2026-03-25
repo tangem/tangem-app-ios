@@ -7,8 +7,6 @@
 //
 
 enum TangemPayLocalState {
-    case initial
-
     case loading
 
     case syncNeeded
@@ -16,17 +14,25 @@ enum TangemPayLocalState {
 
     case unavailable
 
-    case kycRequired
-    case kycDeclined
+    case kycRequired(TangemPayKYCInteractor)
+    case kycDeclined(TangemPayKYCInteractor)
     case issuingCard
     case failedToIssueCard
 
     case tangemPayAccount(TangemPayAccount)
 }
 
+enum TangemPayCachedLocalState: Codable {
+    case kycRequired
+    case kycDeclined
+    case issuingCard
+    case failedToIssueCard
+    case tangemPayAccount(cardNumberEnd: String?)
+}
+
 extension TangemPayLocalState {
-    var isInitial: Bool {
-        if case .initial = self {
+    var isSyncNeeded: Bool {
+        if case .syncNeeded = self {
             return true
         }
         return false
@@ -44,5 +50,22 @@ extension TangemPayLocalState {
             return tangemPayAccount
         }
         return nil
+    }
+
+    var cachedLocalState: TangemPayCachedLocalState? {
+        switch self {
+        case .kycRequired:
+            .kycRequired
+        case .kycDeclined:
+            .kycDeclined
+        case .issuingCard:
+            .issuingCard
+        case .failedToIssueCard:
+            .failedToIssueCard
+        case .tangemPayAccount(let account):
+            .tangemPayAccount(cardNumberEnd: account.card?.cardNumberEnd)
+        case .loading, .syncNeeded, .syncInProgress, .unavailable:
+            nil
+        }
     }
 }

@@ -66,6 +66,8 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         case .standard(.multiple(let accounts)):
             selectedAccount = accounts.first
             hasMultipleAccounts = true
+        case .tangemPay:
+            selectedAccount = nil
         case .none:
             selectedAccount = nil
         }
@@ -196,7 +198,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         case .standard(.multiple(let accounts)):
             selectedAccount = accounts.first
             hasMultipleAccounts = true
-        case .none:
+        case .none, .tangemPay:
             selectedAccount = nil
             hasMultipleAccounts = false
         }

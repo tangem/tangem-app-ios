@@ -211,7 +211,7 @@ struct ReferralView: View {
             .defaultRoundedBackground()
 
             HStack(spacing: 12) {
-                TangemButton(
+                TangemButtonLegacy(
                     title: Localization.commonCopy,
                     systemImage: "square.on.square",
                     iconPosition: .leading,
@@ -223,7 +223,7 @@ struct ReferralView: View {
                     layout: .flexibleWidth
                 ))
 
-                TangemButton(
+                TangemButtonLegacy(
                     title: Localization.commonShare,
                     systemImage: "arrowshape.turn.up.forward",
                     iconPosition: .leading,

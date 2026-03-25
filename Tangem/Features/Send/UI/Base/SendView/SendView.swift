@@ -31,7 +31,7 @@ struct SendView: View {
                 // Important!!
                 // When the currentPage has removal transition
                 // It immediately disappears below `Colors.Background.tertiary.ignoresSafeArea()`
-                // Because lost the `zIndex`
+                // Because the `currentPage` lost the `zIndex`
                 .zIndex(1)
                 .focused($focused)
                 .allowsHitTesting(!viewModel.isUserInteractionDisabled)
@@ -143,6 +143,10 @@ struct SendView: View {
             OnrampSummaryView(viewModel: onrampViewModel, keyboardActive: $focused)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .swap(let swapSummaryViewModel):
+            SwapSummaryView(viewModel: swapSummaryViewModel, keyboardActive: $focused)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
             SendFinishView(viewModel: sendFinishViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
@@ -153,21 +157,47 @@ struct SendView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         if let mainButtonType = viewModel.bottomBarSettings.action {
-            MainButton(
-                title: mainButtonType.title(action: viewModel.flowActionType),
-                icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
-                style: .primary,
-                size: .default,
-                isLoading: viewModel.mainButtonLoading,
-                isDisabled: !viewModel.actionIsAvailable,
-                action: {
-                    viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
-                }
-            )
-            .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
-            .padding(.bottom, 14)
-            .padding(.horizontal, 16)
+            bottomActionButton(mainButtonType)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
+                .padding(.bottom, 14)
+                .padding(.horizontal, 16)
         }
+    }
+
+    @ViewBuilder
+    private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
+        if viewModel.mainButtonUpdating {
+            bottomAction(type: mainButtonType, isLoading: true)
+        } else if viewModel.needsHoldAction(mainButtonType: mainButtonType) {
+            bottomHoldAction(mainButtonType)
+        } else {
+            bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
+        }
+    }
+
+    private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
+        MainButton(
+            title: mainButtonType.title(action: viewModel.flowActionType),
+            icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
+            style: .primary,
+            size: .default,
+            isLoading: isLoading,
+            isDisabled: !viewModel.actionIsAvailable,
+            action: {
+                viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+            }
+        )
+    }
+
+    private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
+        HoldToConfirmButton(
+            title: mainButtonType.title(action: viewModel.flowActionType),
+            isLoading: viewModel.mainButtonLoading,
+            isDisabled: !viewModel.actionIsAvailable,
+            action: {
+                viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+            }
+        )
     }
 
     private var bottomOverlay: some View {

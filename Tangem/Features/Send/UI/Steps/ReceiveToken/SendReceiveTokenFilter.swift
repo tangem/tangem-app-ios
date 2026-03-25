@@ -9,10 +9,12 @@
 import BlockchainSdk
 
 enum SendReceiveTokenFilter {
-    static func isMemoRequiring(receiveTokenBlockchain blockchain: Blockchain) -> Bool {
+    static func isSupported(receiveTokenBlockchain blockchain: Blockchain) -> Bool {
         switch blockchain {
-        case .algorand, .internetComputer, .casper, .xrp, .stellar: true
-        default: false
+        // Express providers work incorrectly with MEMO in these networks.
+        // We decided not to allow users to select this option
+        case .algorand, .internetComputer, .casper: false
+        default: true
         }
     }
 }

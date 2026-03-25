@@ -32,6 +32,29 @@ extension AccountModel.Icon {
         case pattypan = "Pattypan"
         case ufoGreen = "UFOGreen"
         case vitalGreen = "VitalGreen"
+
+        // Workaround for correctly displaying TangemPay account icon
+        // [REDACTED_TODO_COMMENT]
+        case clear
+
+        /// User-selectable colors for crypto accounts.
+        /// Excludes `.clear` which is a non-selectable workaround for TangemPay ([REDACTED_INFO]).
+        static var cryptoAccountColors: [Color] {
+            [
+                .azure,
+                .caribbeanBlue,
+                .dullLavender,
+                .candyGrapeFizz,
+                .sweetDesire,
+                .palatinateBlue,
+                .fuchsiaNebula,
+                .mexicanPink,
+                .pelati,
+                .pattypan,
+                .ufoGreen,
+                .vitalGreen,
+            ]
+        }
     }
 
     enum Name: String, CaseIterable, Hashable {
@@ -53,6 +76,7 @@ extension AccountModel.Icon {
         case clock = "Clock"
         case package = "Package"
         case gift = "Gift"
+        case tangemPay = "TangemPay"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -76,7 +100,33 @@ extension AccountModel.Icon {
             case .clock: 15
             case .package: 16
             case .gift: 17
+            case .tangemPay: 18
             }
+        }
+
+        /// User-selectable icon names for crypto accounts.
+        /// Excludes `.tangemPay` which is a fixed, non-selectable icon.
+        static var cryptoAccountIcons: [Name] {
+            [
+                .letter,
+                .star,
+                .user,
+                .family,
+                .wallet,
+                .money,
+                .home,
+                .safe,
+                .beach,
+                .airplaneMode,
+                .shirt,
+                .shoppingBasket,
+                .favorite,
+                .bookmark,
+                .startUp,
+                .clock,
+                .package,
+                .gift,
+            ]
         }
     }
 }
