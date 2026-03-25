@@ -23,6 +23,7 @@ protocol WalletModel:
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
+    var addresses: [String] { get }
     var defaultAddressString: String { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
@@ -76,14 +77,6 @@ extension WalletModel {
         let converter = factory.makeConverter(for: tokenItem.blockchain)
         let convertedAddress = try? converter.convertToETHAddress(defaultAddressString)
         return convertedAddress ?? defaultAddressString
-    }
-
-    var addressNames: [String] {
-        receiveAddressTypes.map { $0.info.localizedName }
-    }
-
-    var addresses: [String] {
-        receiveAddressTypes.map { $0.info.address }
     }
 }
 
