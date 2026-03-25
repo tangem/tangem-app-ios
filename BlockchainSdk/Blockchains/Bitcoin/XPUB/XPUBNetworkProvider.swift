@@ -8,6 +8,11 @@
 
 import Foundation
 
+struct XPUBStateChecker {
+    let xpub: String
+    let networkProvider: XPUBNetworkProvider
+}
+
 protocol XPUBNetworkProvider {
     func getInfo(xpub: String) async throws -> XPUBInfo
 }

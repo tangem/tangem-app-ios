@@ -147,7 +147,7 @@ public struct TransactionHistoryProviderFactory {
     ) -> [BlockBookUTXOProvider] {
         var providers: [BlockBookUTXOProvider] = []
 
-        if input.apiInfo.contains(where: { if case .mock = $0 { return true } else { return false } }),
+        if input.apiInfo.contains(where: { $0 == .mock }),
            let mockNode = APINodeInfoResolver(
                blockchain: blockchain,
                keysConfig: keysConfig
