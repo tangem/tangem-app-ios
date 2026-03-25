@@ -91,7 +91,7 @@ public extension BottomSheetErrorContentView {
 
         public let icon: ImageType
         public let overlay: Color
-        public var tint: Color?
+        public let tint: Color?
 
         public init(icon: ImageType, overlay: Color, tint: Color? = nil) {
             self.icon = icon
