@@ -272,12 +272,13 @@ private extension CommonExpressManager {
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
-        let providers = availableProviders.map { $0.provider.name }.joined(separator: ", ")
+        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+        let providers = candidates.map { $0.provider.name }.joined(separator: ", ")
         ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
 
         // Run a parallel asynchronous tasks
-        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
-            await self?.availableProviders.forEach { provider in
+        await withTaskGroup(of: Void.self) { taskGroup in
+            candidates.forEach { provider in
                 taskGroup.addTask {
                     await provider.manager.update(request: request)
                 }
