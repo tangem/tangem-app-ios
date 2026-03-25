@@ -1,5 +1,5 @@
 //
-//  EarnWidgetView.swift
+//  TopMarketWidgetViewRedesign.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,26 +11,23 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct EarnWidgetView: View {
-    @ObservedObject var viewModel: EarnWidgetViewModel
+struct TopMarketWidgetViewRedesign: View {
+    @ObservedObject var viewModel: TopMarketWidgetViewModel
 
-    @ViewBuilder
+    @Environment(\.mainWindowSize) private var mainWindowSize
+
     var body: some View {
-        if viewModel.hasContent {
-            rootView
-        }
-    }
-
-    private var rootView: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
 
             list
+
+            promotion
         }
     }
 
     private var header: some View {
-        MarketsCommonWidgetHeaderView(
+        MarketsCommonWidgetHeaderViewRedesign(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
@@ -39,26 +36,32 @@ struct EarnWidgetView: View {
         )
     }
 
+    @ViewBuilder
+    private var promotion: some View {
+        PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+            .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+    }
+
     private var list: some View {
         Group {
-            switch viewModel.resultState {
+            switch viewModel.tokenViewModelsState {
             case .loading:
                 loadingSkeletons
             case .success(let tokenViewModels):
                 VStack(spacing: .zero) {
-                    ForEach(tokenViewModels) { tokenViewModel in
-                        EarnTokenItemView(viewModel: tokenViewModel)
+                    ForEach(tokenViewModels) {
+                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
                     }
                 }
-                .defaultRoundedBackground(
-                    with: Color.Tangem.Surface.level4,
-                    verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-                    horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-                )
             case .failure:
                 MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
         }
+        .defaultRoundedBackground(
+            with: Color.Tangem.Surface.level4,
+            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+        )
         .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
     }
 
