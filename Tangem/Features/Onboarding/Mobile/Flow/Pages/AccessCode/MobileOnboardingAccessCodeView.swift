@@ -18,14 +18,16 @@ struct MobileOnboardingAccessCodeView: View {
 
     var body: some View {
         content
-            .ifLet(viewModel.leadingNavBarItem) { view, item in
-                view.flowNavBar(leadingItem: item.view)
-            }
-            .ifLet(viewModel.trailingNavBarItem) { view, item in
-                view.flowNavBar(trailingItem: item.view)
-            }
+            .stepsFlowNavBar(title: viewModel.navigationTitle)
+            .stepsFlowNavBar(
+                leading: { viewModel.leadingNavBarItem?.view() },
+                trailing: { viewModel.trailingNavBarItem?.view() }
+            )
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
             .onFirstAppear(perform: viewModel.onFirstAppear)
+            .onDisappear {
+                UIApplication.shared.endEditing()
+            }
             .animation(.default, value: viewModel.state)
     }
 }
