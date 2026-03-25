@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
+import TangemAssets
+import TangemLocalization
 
 struct OnrampAmountCompactView: View {
     @ObservedObject var viewModel: OnrampAmountCompactViewModel
@@ -53,7 +54,7 @@ struct OnrampAmountCompactView: View {
 
     private var providerView: some View {
         HStack(spacing: 6) {
-            Text("with")
+            Text(Localization.commonWith)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
             IconView(
