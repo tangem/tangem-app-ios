@@ -52,18 +52,23 @@ extension PromotionsDTO {
         struct Request: Encodable {
             let displayId: Int
             let walletId: String
-            let isDismissed: Bool
+            let status: Status
 
             enum CodingKeys: String, CodingKey {
                 case walletId
-                case isDismissed
+                case status
             }
         }
 
         struct Response: Decodable {
             let displayId: Int
             let walletId: String
-            let isDismissed: Bool
+            let status: Status
+        }
+
+        enum Status: String, Codable {
+            case active
+            case dismissed
         }
     }
 }

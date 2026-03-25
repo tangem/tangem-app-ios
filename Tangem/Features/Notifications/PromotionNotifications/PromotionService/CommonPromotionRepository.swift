@@ -51,7 +51,7 @@ extension CommonPromotionRepository: PromotionRepository {
         let request = PromotionsDTO.Hide.Request(
             displayId: displayId,
             walletId: walletId,
-            isDismissed: true
+            status: .dismissed
         )
 
         _ = try await tangemApiService.hidePromotion(request: request)
