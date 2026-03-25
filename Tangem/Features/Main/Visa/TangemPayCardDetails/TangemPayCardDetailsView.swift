@@ -82,7 +82,7 @@ struct TangemPayCardDetailsView: View {
                 Assets.Visa.logo.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(height: 24)
+                    .frame(height: 38)
             }
 
             Spacer()
@@ -197,6 +197,7 @@ struct TangemPayCardDetailsView: View {
             }
         }
         .padding(16)
+        .screenCaptureProtection()
     }
 
     private func showDetailsButton() -> some View {
@@ -231,8 +232,6 @@ struct TangemPayCardDetailsView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.constantWhite
                     )
-                    .screenCaptureProtection()
-                    .fixedSize()
 
                 Spacer()
 
