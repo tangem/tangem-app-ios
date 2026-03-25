@@ -38,7 +38,7 @@ struct CommonSendWithSwapToken: SendWithSwapToken {
 
     var userWalletInfo: UserWalletInfo { transferableToken.userWalletInfo }
     var id: WalletModelId { transferableToken.id }
-    var header: TokenHeader? { transferableToken.header }
+    var header: TokenHeader { transferableToken.header }
     var feeTokenItem: TokenItem { transferableToken.feeTokenItem }
     var isFixedFee: Bool { transferableToken.isFixedFee }
     var isCustom: Bool { transferableToken.isCustom }
