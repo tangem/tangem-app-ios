@@ -16,7 +16,7 @@ final class CommonDerivationManager {
     private let userTokensManager: UserTokensManager
     private weak var keysDerivingProvider: KeysDerivingProvider?
     private var bag = Set<AnyCancellable>()
-    private let pendingDerivations: CurrentValueSubject<[PendingDerivation], Never> = .init([])
+    private let pendingDerivationsSubject: CurrentValueSubject<[PendingDerivation], Never> = .init([])
 
     init(keysRepository: KeysRepository, userTokensManager: UserTokensManager) {
         self.keysRepository = keysRepository
@@ -35,7 +35,7 @@ final class CommonDerivationManager {
 
     private func process(_ entries: [TokenItem], _ keys: [KeyInfo]) {
         let derivations = entries.flatMap { PendingDerivationHelper.pendingDerivations(network: $0.blockchainNetwork, keys: keys) }
-        pendingDerivations.send(derivations)
+        pendingDerivationsSubject.send(derivations)
     }
 }
 
@@ -43,19 +43,23 @@ final class CommonDerivationManager {
 
 extension CommonDerivationManager: DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
-        pendingDerivations
+        pendingDerivationsSubject
             .map { !$0.isEmpty }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     var pendingDerivationsCount: AnyPublisher<Int, Never> {
-        pendingDerivations
+        pendingDerivationsSubject
             .map { pending in
                 pending.reduce(0) { $0 + $1.paths.count }
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    var pendingDerivations: [PendingDerivation] {
+        pendingDerivationsSubject.value
     }
 
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
@@ -71,7 +75,7 @@ extension CommonDerivationManager: DerivationManager {
 
         // Filter pending derivations by removing those that belong to networks scheduled for removal.
         // This ensures we only consider derivations that will still be relevant after the update.
-        let filteredPendingDerivations = pendingDerivations.value.filter { !networksToRemove.contains($0.network) }
+        let filteredPendingDerivations = pendingDerivationsSubject.value.filter { !networksToRemove.contains($0.network) }
 
         // Derivation is needed if the user adds networks requiring a card,
         // or if unresolved derivations remain for existing networks.
@@ -80,14 +84,14 @@ extension CommonDerivationManager: DerivationManager {
 
     func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
         guard
-            pendingDerivations.value.isNotEmpty,
+            pendingDerivationsSubject.value.isNotEmpty,
             let interactor = keysDerivingProvider?.keysDerivingInteractor
         else {
             completion(.success(()))
             return
         }
 
-        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations.value)
+        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivationsSubject.value)
 
         interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }
