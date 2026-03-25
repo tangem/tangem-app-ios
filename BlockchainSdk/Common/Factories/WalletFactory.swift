@@ -23,7 +23,7 @@ struct WalletFactory {
         let legacyAddress = try makeLegacyAddressIfNeeded(publicKey: publicKey)
 
         let addressesProvider = CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
-        return Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
+        return Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
     }
 
     /// With multisig script public key
@@ -41,7 +41,7 @@ struct WalletFactory {
         }
 
         let addressesProvider = CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
-        return Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
+        return Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
     }
 
     private func makeLegacyAddressIfNeeded(publicKey: Wallet.PublicKey) throws -> Address? {
