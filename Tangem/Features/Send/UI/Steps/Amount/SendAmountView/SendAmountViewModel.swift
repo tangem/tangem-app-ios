@@ -165,6 +165,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         isDestinationTokenClearing = true
         animateActiveFieldChange = true
         animateDestinationRemoval = true
+        forceCompactSourceTokenRow = false
         destinationAmountField = nil
         destinationFieldBag = nil
         lastUpdateSource = nil
@@ -389,6 +390,7 @@ private extension SendAmountViewModel {
             // Transitioning from supported → unsupported: tear down editable TO
             pendingReverseRecalculation = false
             isInputFieldSwitchingLocked = false
+            forceCompactSourceTokenRow = false
 
             if activeField == .receive {
                 animateActiveFieldChange = true
@@ -402,6 +404,10 @@ private extension SendAmountViewModel {
 
             // Reset so the next CombineLatest emission treats it as "token changed"
             // and rebuilds the destination view in non-editable mode
+            currentDestinationToken = nil
+        } else if !wasFixedSupported, isFixedRateSupportedByProvider {
+            // Transitioning from unsupported → supported: force rebuild so the
+            // next CombineLatest emission creates the editable TO field
             currentDestinationToken = nil
         }
     }

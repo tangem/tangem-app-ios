@@ -66,10 +66,8 @@ extension CommonExpressManager: ExpressManager {
         // Clear for reselected the best quote
         clearCache()
 
-        let rateType = _amountType?.rateType ?? .float
-
         switch pair {
-        case .some(let pair): try await updateAvailableProviders(pair: pair, rateType: rateType)
+        case .some(let pair): try await updateAvailableProviders(pair: pair)
         case .none: availableProviders.removeAll()
         }
 
@@ -161,10 +159,10 @@ private extension CommonExpressManager {
         return selectedProvider
     }
 
-    func updateAvailableProviders(pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws {
-        async let allIds = expressRepository.getAvailableProviders(for: pair, rateType: nil)
-        async let fixedIds = expressRepository.getAvailableProviders(for: pair, rateType: .fixed)
-        let (allSet, fixedSet) = try await (Set(allIds), Set(fixedIds))
+    func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
+        async let allIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: nil)
+        async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
+        let (allSet, fixedSet) = await (Set(allIds), Set(fixedIds))
 
         // Always include all providers; rate type filtering happens in bestProvider()
         let availableProviderIds = allSet
