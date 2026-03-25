@@ -27,30 +27,43 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+        authorizationService: TangemPayAuthorizationService,
+        pendingDerivations: [Data: [DerivationPath]]
+    ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
         let task = CustomerWalletAuthorizationTask(
             customerWalletId: customerWalletId,
-            authorizationService: authorizationService
+            authorizationService: authorizationService,
+            pendingDerivations: pendingDerivations
         )
 
-        let response = try await withCheckedThrowingContinuation { continuation in
+        let response: CustomerWalletAuthorizationTask.Response = await withCheckedContinuation { continuation in
             tangemSdk.startSession(with: task, filter: filter) { result in
                 switch result {
-                case .success(let hashResponse):
-                    continuation.resume(returning: hashResponse)
+                case .success(let response):
+                    continuation.resume(returning: response)
                 case .failure(let error):
-                    continuation.resume(throwing: error)
+                    continuation.resume(returning: .init(
+                        authorizationError: error,
+                        derivationResult: [:]
+                    ))
                 }
 
                 withExtendedLifetime(task) {}
             }
         }
 
-        return TangemPayAuthorizingResponse(
-            customerWalletAddress: response.customerWalletAddress,
-            tokens: response.tokens,
-            derivationResult: response.derivationResult
-        )
+        switch response.authorizationResult {
+        case .success(let authData):
+            return TangemPayAuthorizingResponse(
+                customerWalletAddress: authData.customerWalletAddress,
+                tokens: authData.tokens,
+                derivationResult: response.derivationResult
+            )
+        case .failure(let error):
+            throw TangemPayAuthorizationError(
+                underlyingError: error,
+                derivationResult: response.derivationResult
+            )
+        }
     }
 }
