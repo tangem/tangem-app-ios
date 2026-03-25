@@ -81,7 +81,7 @@ final class TangemPayBuilder {
 
     func buildTangemPayManager() -> TangemPayManager {
         TangemPayManager(
-            customerWalletId: customerWalletId,
+            userWalletId: userWalletId,
             keysRepository: keysRepository,
             availabilityService: availabilityService,
             authorizationService: authorizationService,
@@ -90,6 +90,7 @@ final class TangemPayBuilder {
             orderStatusPollingService: orderStatusPollingService,
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
+            cachedStateStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
@@ -98,9 +99,11 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance
+        productInstance: VisaCustomerInfoResponse.ProductInstance,
+        account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
+            userWalletId: userWalletId,
             customerInfo: customerInfo,
             productInstance: productInstance,
             customerService: customerService,
@@ -109,7 +112,8 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
-            mainHeaderBalanceProvider: mainHeaderBalanceProvider
+            mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            account: account
         )
     }
 }

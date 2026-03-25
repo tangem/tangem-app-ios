@@ -11,12 +11,13 @@ import TangemExpress
 
 protocol SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO { get }
+    var amountTypes: SendAmountStepBuilder.Types { get }
     var amountDependencies: SendAmountStepBuilder.Dependencies { get }
 }
 
 extension SendAmountStepBuildable {
     func makeSendAmountStep() -> SendAmountStepBuilder.ReturnValue {
-        SendAmountStepBuilder.make(io: amountIO, dependencies: amountDependencies)
+        SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
     }
 }
 
@@ -43,6 +44,11 @@ enum SendAmountStepBuilder {
         }
     }
 
+    struct Types {
+        let initialSourceToken: SendSourceToken
+        let flowActionType: SendFlowActionType
+    }
+
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let amountModifier: (any SendAmountModifier)?
@@ -52,7 +58,7 @@ enum SendAmountStepBuilder {
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
 
-    static func make(io: IO, dependencies: Dependencies) -> ReturnValue {
+    static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
             sourceTokenAmountInput: io.sourceAmountIO.input,
             sourceTokenAmountOutput: io.sourceAmountIO.output,
@@ -74,7 +80,8 @@ enum SendAmountStepBuilder {
         )
 
         let viewModel = SendAmountViewModel(
-            sourceToken: io.sourceIO.input.sourceToken,
+            sourceToken: types.initialSourceToken,
+            flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger
         )
@@ -87,6 +94,8 @@ enum SendAmountStepBuilder {
         )
 
         let compact = SendAmountCompactViewModel(
+            initialSourceToken: types.initialSourceToken,
+            actionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
@@ -96,6 +105,7 @@ enum SendAmountStepBuilder {
 
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         let finish = SendAmountFinishViewModel(
+            flowActionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,

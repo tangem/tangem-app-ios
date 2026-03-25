@@ -36,7 +36,7 @@ public struct InfoRowWithAction<Icon: View>: View {
                 icon
             },
             content: {
-                VStack(alignment: .leading, spacing: .zero) {
+                VStack(alignment: .leading, spacing: 2.0) {
                     Text(title)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 

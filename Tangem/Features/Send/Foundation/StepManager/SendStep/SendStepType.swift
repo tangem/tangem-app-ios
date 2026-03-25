@@ -15,6 +15,7 @@ enum SendStepType {
     case finish(SendFinishViewModel)
     case targets(StakingTargetsViewModel)
     case onramp(OnrampSummaryViewModel)
+    case swap(SwapSummaryViewModel)
 
     var isSummary: Bool {
         if case .summary = self {
@@ -44,6 +45,7 @@ extension SendStepType: Identifiable {
         case .summary(let viewModel): viewModel.id
         case .finish(let viewModel): viewModel.id
         case .onramp(let viewModel): viewModel.id
+        case .swap(let viewModel): viewModel.id
         }
     }
 }
@@ -65,6 +67,7 @@ extension SendStepType {
         case .summary: .summary
         case .finish: .finish
         case .onramp: .onramp
+        case .swap: .swap
         }
     }
 }

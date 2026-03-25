@@ -15,6 +15,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private typealias EntitiesCache = ThreadSafeContainer<Cache>
 
     private let userWalletModel: UserWalletModel
+    private let manageTokensActionFactory: (any CryptoAccountModel) -> () -> Void
     private let cache: EntitiesCache
     private let mappingQueue: DispatchQueue
 
@@ -24,9 +25,11 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private var purgeCacheSubscription: AnyCancellable?
 
     init(
-        userWalletModel: UserWalletModel
+        userWalletModel: UserWalletModel,
+        manageTokensActionFactory: @escaping (any CryptoAccountModel) -> () -> Void
     ) {
         self.userWalletModel = userWalletModel
+        self.manageTokensActionFactory = manageTokensActionFactory
 
         mappingQueue = DispatchQueue(
             label: "com.tangem.AccountsAwareMultiWalletMainContentViewSectionsProvider.mappingQueue",
@@ -107,7 +110,8 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private static func makeOrGetCachedAccountItemViewModel(
         for cryptoAccountModel: any CryptoAccountModel,
         in userWallet: UserWalletModel,
-        using cache: EntitiesCache
+        using cache: EntitiesCache,
+        onManageTokensTap: @escaping () -> Void
     ) -> ExpandableAccountItemViewModel {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
@@ -119,7 +123,11 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
         var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
 
         let stateStorage = expandableAccountItemStateStorageProvider.makeStateStorage(for: userWallet.userWalletId)
-        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel, stateStorage: stateStorage)
+        let itemViewModel = ExpandableAccountItemViewModel(
+            accountModel: cryptoAccountModel,
+            stateStorage: stateStorage,
+            onManageTokensTap: onManageTokensTap
+        )
 
         cache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
 
@@ -290,7 +298,8 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
                     let model = Self.makeOrGetCachedAccountItemViewModel(
                         for: input.cryptoAccountModel,
                         in: provider.userWalletModel,
-                        using: cache
+                        using: cache,
+                        onManageTokensTap: provider.manageTokensActionFactory(input.cryptoAccountModel)
                     )
                     let items = provider.convertToSections(input.sections, using: cache)
 

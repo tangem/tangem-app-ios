@@ -63,7 +63,10 @@ struct EarnDetailView: View {
         VStack(alignment: .leading, spacing: Layout.blockContentBeetweenHeaderSpacing) {
             EarnDetailHeaderView(headerTitle: Localization.earnMostlyUsed)
 
-            EarnMostlyUsedView(viewModels: viewModel.mostlyUsedViewModels)
+            EarnMostlyUsedView(
+                viewModels: viewModel.mostlyUsedViewModels,
+                onFourthItemAppeared: viewModel.onMostlyUsedScrolledToFourthItem
+            )
         }
     }
 
@@ -73,7 +76,8 @@ struct EarnDetailView: View {
                 EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
 
                 EarnFilterHeaderView(
-                    isFilterInteractionEnabled: viewModel.isFilterInteractionEnabled,
+                    isNetworksFilterEnabled: viewModel.isFilterInteractionEnabled,
+                    isTypesFilterEnabled: true,
                     isLoading: viewModel.isFilterLoading,
                     networkFilterTitle: viewModel.selectedNetworkFilterTitle,
                     typesFilterTitle: viewModel.selectedFilterTypeTitle,

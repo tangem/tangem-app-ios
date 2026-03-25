@@ -88,7 +88,8 @@ final class CommonYieldModuleFlowFactory {
             yieldManagerInteractor: interactor,
             coordinator: coordinator,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
-            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction)
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher)
         )
     }
 
@@ -101,6 +102,7 @@ final class CommonYieldModuleFlowFactory {
             yieldManagerInteractor: interactor,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher),
             coordinator: coordinator
         )
     }
