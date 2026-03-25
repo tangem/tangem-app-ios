@@ -22,7 +22,7 @@ struct YieldModuleBalanceInfoView: View {
         YieldModuleBottomSheetContainerView(
             title: Localization.yieldModuleBalanceInfoSheetTitle(viewModel.tokenName),
             subtitle: Localization.yieldModuleBalanceInfoSheetSubtitle,
-            button: .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onCloseTap)),
+            button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onCloseTap)),
             header: { BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) }) },
             topContent: { LendingPairIcon(tokenId: viewModel.tokenId, iconsSize: IconViewSizeSettings.tokenDetails.iconSize) },
             content: { Color.clear.frame(height: 6) }

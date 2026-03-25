@@ -69,7 +69,7 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboarding(with: .mobileInput(input))
+        openOnboarding(options: .mobileInput(input))
     }
 
     func openUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
@@ -88,9 +88,21 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
         mobileUpgradeCoordinator = coordinator
     }
 
-    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
-        let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
-        floatingSheetPresenter.enqueue(sheet: sheet)
+    func openMobileBackupNeeded(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        onBackupFinished: @escaping () -> Void
+    ) {
+        let viewModel = MobileBackupToUpgradeNeededViewModel(
+            userWalletModel: userWalletModel,
+            source: source,
+            onBackupFinished: onBackupFinished,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openMain(userWalletModel: UserWalletModel) {
@@ -105,6 +117,14 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
 // MARK: - MobileBackupToUpgradeNeededRoutable
 
 extension HardwareBackupTypesCoordinator: MobileBackupToUpgradeNeededRoutable {
+    func openMobileOnboardingFromMobileBackupToUpgradeNeeded(
+        input: MobileOnboardingInput,
+        onBackupFinished: @escaping () -> Void
+    ) {
+        dismissMobileBackupToUpgradeNeeded()
+        openOnboarding(options: .mobileInput(input), onSuccess: onBackupFinished)
+    }
+
     func dismissMobileBackupToUpgradeNeeded() {
         floatingSheetPresenter.removeActiveSheet()
     }
@@ -113,11 +133,14 @@ extension HardwareBackupTypesCoordinator: MobileBackupToUpgradeNeededRoutable {
 // MARK: - Navigation
 
 private extension HardwareBackupTypesCoordinator {
-    func openOnboarding(with options: OnboardingCoordinator.Options) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
+    func openOnboarding(options: OnboardingCoordinator.Options, onSuccess: (() -> Void)? = nil) {
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.onboardingCoordinator = nil
+            if result.isSuccessful {
+                onSuccess?()
+            }
 
-            switch options {
+            switch result {
             case .main(let userWalletModel):
                 self?.dismiss(with: .main(userWalletModel: userWalletModel))
             case .dismiss:

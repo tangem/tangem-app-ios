@@ -11,5 +11,5 @@ import BlockchainSdk
 public typealias ExpressAllowanceProvider = AllowanceProvider
 
 public protocol AllowanceProvider {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState
+    func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState
 }
