@@ -247,12 +247,7 @@ extension SwapModel {
         receiveAmount: Decimal,
         source: SendSwapableToken
     ) async throws -> ExpressManagerUpdatingResult {
-        if isFixedRatesFeatureEnabled {
-            let rateTypes = await expressPairsRepository.availableRateTypes(for: pair)
-            if !rateTypes.isEmpty {
-                _providerRateTypes.send(rateTypes)
-            }
-        }
+        await fetchAndPublishRateTypes(for: pair)
 
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
         let isFixedRateSupported = pairResult.selected?.supportedRateTypes.contains(.fixed) ?? false
@@ -288,12 +283,7 @@ extension SwapModel {
         source: SendSwapableToken,
         destination: SendReceiveToken
     ) async throws -> ExpressManagerUpdatingResult {
-        if isFixedRatesFeatureEnabled {
-            let rateTypes = await expressPairsRepository.availableRateTypes(for: pair)
-            if !rateTypes.isEmpty {
-                _providerRateTypes.send(rateTypes)
-            }
-        }
+        await fetchAndPublishRateTypes(for: pair)
 
         // Compute local estimate without sending yet — deferring the send
         // prevents a race where the ViewModel's pendingReverseRecalculation
@@ -319,6 +309,15 @@ extension SwapModel {
         }
 
         return result
+    }
+
+    private func fetchAndPublishRateTypes(for pair: ExpressManagerSwappingPair) async {
+        guard isFixedRatesFeatureEnabled else { return }
+
+        let rateTypes = await expressPairsRepository.availableRateTypes(for: pair)
+        if !rateTypes.isEmpty {
+            _providerRateTypes.send(rateTypes)
+        }
     }
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {

@@ -164,9 +164,6 @@ private extension CommonExpressManager {
         async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
         let (allSet, fixedSet) = await (Set(allIds), Set(fixedIds))
 
-        // Always include all providers; rate type filtering happens in bestProvider()
-        let availableProviderIds = allSet
-
         let providers = try await expressRepository.providers()
 
         availableProviders = try providers.compactMap { provider in
@@ -176,7 +173,7 @@ private extension CommonExpressManager {
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
             return try makeExpressAvailableProvider(
-                availableProviderIds: availableProviderIds,
+                availableProviderIds: allSet,
                 supportedRateTypes: rateTypes,
                 provider: provider,
                 pair: pair
