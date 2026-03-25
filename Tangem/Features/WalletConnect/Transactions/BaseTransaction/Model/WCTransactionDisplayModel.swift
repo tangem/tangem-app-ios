@@ -36,6 +36,7 @@ protocol WCTransactionDisplayModel {
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
     var tangemIconProvider: TangemIconProvider { get }
+    var confirmTransactionPolicy: ConfirmTransactionPolicy { get }
 }
 
 @MainActor
@@ -152,5 +153,9 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
 
     var tangemIconProvider: TangemIconProvider {
         CommonTangemIconProvider(config: transactionData.userWalletModel.config)
+    }
+
+    var confirmTransactionPolicy: ConfirmTransactionPolicy {
+        CommonConfirmTransactionPolicy(userWalletInfo: transactionData.userWalletModel.userWalletInfo)
     }
 }

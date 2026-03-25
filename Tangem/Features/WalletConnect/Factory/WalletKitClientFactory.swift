@@ -6,7 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import ReownWalletKit
+import WalletConnectRelay
+import WalletConnectKMS
+import WalletConnectUtils
 import enum TangemFoundation.AppEnvironment
 
 enum WalletKitClientFactory {
@@ -14,6 +18,7 @@ enum WalletKitClientFactory {
 
     static func make() -> ReownWalletKit.WalletKitClient {
         configureNetworking()
+        overrideRelayWithSafeNetworkMonitor()
         configureWalletKit()
 
         return WalletKit.instance
@@ -25,6 +30,40 @@ enum WalletKitClientFactory {
             projectId: keysManager.walletConnectProjectId,
             socketFactory: WalletConnectV2DefaultSocketFactory(),
             socketConnectionType: .automatic
+        )
+    }
+
+    /// Overrides `Relay.instance` with a `RelayClient` that uses `SafeNetworkMonitor`
+    /// instead of the library's default `NetworkMonitor`.
+    ///
+    /// This fixes a critical crash in `WalletPairService.resolveNetworkConnectionStatus()`
+    /// where a `CheckedContinuation` can be resumed twice due to rapid `NWPathMonitor`
+    /// re-evaluations. `SafeNetworkMonitor` emits the current value immediately and debounces
+    /// subsequent updates, so the second emission cannot arrive inside the cancellation race
+    /// window. Duplicate statuses are filtered as an additional guard.
+    ///
+    /// Must be called after `Networking.configure()` (which sets the config) and before
+    /// `WalletKit.configure()` (which first accesses `Relay.instance`).
+    private static func overrideRelayWithSafeNetworkMonitor() {
+        let groupIdentifier = AppEnvironment.current.suiteName
+
+        guard let keyValueStorage = UserDefaults(suiteName: groupIdentifier) else {
+            assertionFailure("Could not instantiate UserDefaults for group identifier \(groupIdentifier)")
+            return
+        }
+
+        let keychainStorage = KeychainStorage(serviceIdentifier: "com.walletconnect.sdk", accessGroup: groupIdentifier)
+        let logger = ConsoleLogger(prefix: "WC Network Monitor", loggingLevel: .off)
+
+        Relay.instance = RelayClientFactory.create(
+            relayHost: "relay.walletconnect.org",
+            projectId: keysManager.walletConnectProjectId,
+            keyValueStorage: keyValueStorage,
+            keychainStorage: keychainStorage,
+            socketFactory: WalletConnectV2DefaultSocketFactory(),
+            socketConnectionType: .automatic,
+            networkMonitor: SafeNetworkMonitor(),
+            logger: logger
         )
     }
 

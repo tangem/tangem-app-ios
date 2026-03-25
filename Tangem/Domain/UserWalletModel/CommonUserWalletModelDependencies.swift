@@ -22,16 +22,12 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
-    let tangemPayManager: TangemPayManager
 
     private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
     private var innerDependencies: InnerDependenciesConfigurable
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
-        guard
-            let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
-            let keysRepositoryEncryptionKey = UserWalletEncryptionKey(config: config)
-        else {
+        guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
@@ -40,11 +36,8 @@ struct CommonUserWalletModelDependencies {
         let hasTokenSynchronization = config.hasFeature(.multiCurrency)
         let hasAccounts = FeatureProvider.isAvailable(.accounts)
 
-        keysRepository = CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: keysRepositoryEncryptionKey,
-            keys: keys
-        )
+        let keysRepository = CommonKeysRepository(keys: keys)
+        self.keysRepository = keysRepository
 
         let (userTokensManager, legacyInnerDependencies) = Self.makeUserTokensManager(
             userWalletId: userWalletId,
@@ -77,6 +70,13 @@ struct CommonUserWalletModelDependencies {
 
         let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
 
+        let tangemPayManager = TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: config.tangemSigner
+        )
+        .buildTangemPayManager()
+
         if hasAccounts {
             let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
                 userWalletId: userWalletId,
@@ -89,6 +89,7 @@ struct CommonUserWalletModelDependencies {
                 walletManagerFactory: walletManagerFactory,
                 keysRepository: keysRepository,
                 cryptoAccountsRepository: accountModelsManagerDependencies.repository,
+                tangemPayManager: tangemPayManager,
                 cryptoAccountsNetworkMapper: accountModelsManagerDependencies.mapper,
                 archivedCryptoAccountsProvider: accountModelsManagerDependencies.provider,
                 derivationManager: derivationManager,
@@ -100,13 +101,6 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager = DummyCommonAccountModelsManager()
             remoteStatusSyncing = userTokensManager
         }
-
-        tangemPayManager = TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: config.tangemSigner
-        )
-        .buildTangemPayManager()
 
         let userTokensPushNotificationsManager = Self.makeUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
@@ -169,7 +163,7 @@ private extension CommonUserWalletModelDependencies {
         // Create base provider based on accounts mode
         // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
         // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
-        let baseProvider: TotalBalanceProvider = hasAccounts
+        return hasAccounts
             ? AccountsAwareTotalBalanceProvider(
                 accountModelsManager: accountModelsManager,
                 analyticsLogger: analyticsLogger
@@ -179,11 +173,6 @@ private extension CommonUserWalletModelDependencies {
                 analyticsLogger: analyticsLogger,
                 derivationManager: derivationManager
             )
-
-        return TangemPayAwareTotalBalanceProvider(
-            totalBalanceProvider: baseProvider,
-            tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(tangemPayManager: tangemPayManager)
-        )
     }
 
     static func makeNFTManager(
@@ -320,8 +309,9 @@ private extension CommonUserWalletModelDependencies {
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         walletManagerFactory: AnyWalletManagerFactory,
-        keysRepository: KeysRepository,
+        keysRepository: CommonKeysRepository,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
+        tangemPayManager: TangemPayManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -349,6 +339,7 @@ private extension CommonUserWalletModelDependencies {
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
             cryptoAccountsRepository: cryptoAccountsRepository,
+            tangemPayManager: tangemPayManager,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported
@@ -357,7 +348,8 @@ private extension CommonUserWalletModelDependencies {
         // If accounts are enabled, we have to use a special set of dependencies, overriding the existing `innerDependencies`
         let accountsAwareInnerDependencies = AccountsAwareInnerDependencies(
             cryptoAccountsRepository: cryptoAccountsRepository,
-            cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper
+            cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper,
+            keysRepository: keysRepository
         )
 
         return (accountModelsManager, accountsAwareInnerDependencies)
@@ -456,6 +448,7 @@ private extension CommonUserWalletModelDependencies {
     struct AccountsAwareInnerDependencies: InnerDependenciesConfigurable {
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper
+        let keysRepository: CommonKeysRepository
 
         func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {
             cryptoAccountsNetworkMapper.externalParametersProvider = externalParametersProvider
@@ -469,6 +462,7 @@ private extension CommonUserWalletModelDependencies {
 
         func configure(with model: UserWalletModel) {
             cryptoAccountsRepository.configure(with: model)
+            keysRepository.configure(with: model)
         }
     }
 

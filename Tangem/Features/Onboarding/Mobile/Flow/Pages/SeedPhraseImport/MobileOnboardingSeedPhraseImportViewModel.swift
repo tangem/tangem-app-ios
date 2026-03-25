@@ -18,6 +18,8 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isCreating: Bool = false
     @Published var alert: AlertBinder?
 
+    let navigationTitle = Localization.walletImportTitle
+
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: false),
@@ -43,8 +45,12 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingSeedPhraseImportViewModel {
-    func onAppear() {
+    func onFirstAppear() {
         logScreenOpenedAnalytics()
+    }
+
+    func onBack() {
+        delegate?.onSeedPhraseImportBack()
     }
 }
 

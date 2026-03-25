@@ -31,18 +31,29 @@ final class TokenEntriesDerivator {
             let group = DispatchGroup()
             var subscription: AnyCancellable?
 
+            let accountModelsManager = userWalletModel.accountModelsManager
+            let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
+
             // One-time subscription to get the latest list of crypto accounts
-            subscription = userWalletModel
-                .accountModelsManager
+            subscription = accountModelsManager
                 .cryptoAccountModelsPublisher
+                .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
                 .prefix(1)
-                .sink { cryptoAccounts in
+                .sink { cryptoAccounts, tangemPayAccount in
                     for account in cryptoAccounts {
                         group.enter()
                         account.userTokensManager.deriveIfNeeded { _ in
                             group.leave()
                         }
                     }
+
+                    if let tangemPayAccount {
+                        group.enter()
+                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
+                            group.leave()
+                        }
+                    }
+
                     withExtendedLifetime(subscription) {}
                 }
 

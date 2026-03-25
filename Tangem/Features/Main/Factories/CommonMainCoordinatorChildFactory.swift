@@ -21,7 +21,7 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
 
     func makeSwapCoordinator(
         userWalletModel: UserWalletModel,
-        dismissAction: @escaping ExpressCoordinator.DismissAction,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator {
         ActionButtonsSwapCoordinator(
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),

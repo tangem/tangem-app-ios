@@ -17,6 +17,8 @@ struct SendAmountFinishView: View {
 
     var body: some View {
         switch viewModel.viewType {
+        case .none:
+            EmptyView()
         case .one(let large):
             SendAmountFinishLargeAmountView(viewModel: large)
         case .double(let source, let destination, let provider):

@@ -15,7 +15,7 @@ final class MobileOnboardingImportWalletStep: MobileOnboardingFlowStep {
         viewModel = MobileOnboardingSeedPhraseImportViewModel(delegate: delegate)
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseImportView(viewModel: viewModel)
     }
 }

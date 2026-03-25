@@ -11,15 +11,18 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
-    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
-        throw "Not implemented"
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response {
         throw "Not implemented"
     }
 
     private let geoIpRegionCode: String
+
+    // MARK: - News Handlers (Tests/Previews)
+
+    var loadNewsListHandler: ((NewsDTO.List.Request) async throws -> NewsDTO.List.Response)?
+    var loadNewsDetailsHandler: ((NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response)?
+    var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
+    var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -80,26 +83,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
-        throw "Not implemented"
-    }
-
-    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult {
-        throw "Not implemented"
-    }
-
-    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult {
-        throw "Not implemented"
-    }
-
-    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
         throw "Not implemented"
     }
 
@@ -220,18 +203,34 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        if let handler = loadTrendingNewsHandler {
+            return try await handler(limit, lang)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        if let handler = loadNewsListHandler {
+            return try await handler(requestModel)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        if let handler = loadNewsDetailsHandler {
+            return try await handler(requestModel)
+        }
+
         throw "Not implemented"
     }
 
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        if let handler = loadNewsCategoriesHandler {
+            return try await handler()
+        }
+
         throw "Not implemented"
     }
 
