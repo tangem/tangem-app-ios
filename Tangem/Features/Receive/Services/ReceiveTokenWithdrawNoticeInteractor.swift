@@ -8,7 +8,12 @@
 
 import Foundation
 
-class ReceiveTokenWithdrawNoticeInteractor {
+protocol ReceiveTokenWithdrawNoticeInteractor {
+    func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool
+    func markWithdrawalAlertShown(for tokenItem: TokenItem)
+}
+
+class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNoticeInteractor {
     // MARK: - Services
 
     @AppStorageCompat(StorageKeys.shownWithdrawalAlerts)
@@ -46,7 +51,7 @@ class ReceiveTokenWithdrawNoticeInteractor {
     }
 }
 
-private extension ReceiveTokenWithdrawNoticeInteractor {
+private extension GeneralReceiveTokenWithdrawNoticeInteractor {
     enum StorageKeys: String, RawRepresentable {
         case shownWithdrawalAlerts = "receive_shown_withdrawal_token_alerts"
     }
