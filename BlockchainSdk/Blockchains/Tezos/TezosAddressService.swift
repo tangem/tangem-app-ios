@@ -45,7 +45,7 @@ extension TezosAddressService: AddressProvider {
         let prefixedHashWithChecksum = prefixedHash + checksum
         let address = Base58.encode(prefixedHashWithChecksum)
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		223B58AD3B1E974EFA015E41 /* Wallet.PublicKey+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7E297259157982E95639A4 /* Wallet.PublicKey+.swift */; };
 		024EDB5690C64F8FBCB95458 /* NoOpAddTokenFlowAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */; };
 		03807896275744A4AAC0BB83 /* OverlayCollapsedHeightEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6F56DC034B4840A5F91326 /* OverlayCollapsedHeightEnvironmentKey.swift */; };
 		0A0186BC2EF400D800D9AD5E /* AAVETokenRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0186BB2EF400D800D9AD5E /* AAVETokenRepository.swift */; };
@@ -4244,7 +4245,6 @@
 		EF42FC6C2D95643B009CBB22 /* UnspentOutputManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */; };
 		EF42FC6E2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */; };
 		EF42FC712D957082009CBB22 /* UnspentOutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC702D957082009CBB22 /* UnspentOutputManagerTests.swift */; };
-		EF42FC742D9571B3009CBB22 /* Wallet.PublicKey+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC732D9571B3009CBB22 /* Wallet.PublicKey+.swift */; };
 		EF435A052C2B124A00B627EB /* SendDestinationInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */; };
 		EF435A072C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */; };
 		EF440EF72F2384C4005D20C3 /* SendFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF440EF62F2384C4005D20C3 /* SendFeeCompactViewModel.swift */; };
@@ -5122,6 +5122,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6F7E297259157982E95639A4 /* Wallet.PublicKey+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet.PublicKey+.swift"; sourceTree = "<group>"; };
 		006C05863959479BA9205BB8 /* MarketsAddTokenFlowAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAddTokenFlowAnalyticsLogger.swift; sourceTree = "<group>"; };
 		01C1AF7D2445755666A97A1F /* LockedWalletMainContentRedesignedView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LockedWalletMainContentRedesignedView.swift; sourceTree = "<group>"; };
 		03FDC20E30AF49F7835DB8C0 /* CommonMarketsWidgetNewsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMarketsWidgetNewsServiceTests.swift; sourceTree = "<group>"; };
@@ -9319,7 +9320,6 @@
 		EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UnspentOutputManager+.swift"; sourceTree = "<group>"; };
 		EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UTXOPreImageTransactionBuilder+.swift"; sourceTree = "<group>"; };
 		EF42FC702D957082009CBB22 /* UnspentOutputManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnspentOutputManagerTests.swift; sourceTree = "<group>"; };
-		EF42FC732D9571B3009CBB22 /* Wallet.PublicKey+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet.PublicKey+.swift"; sourceTree = "<group>"; };
 		EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputOutput.swift; sourceTree = "<group>"; };
 		EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationTransactionHistoryProvider.swift; sourceTree = "<group>"; };
 		EF440EF62F2384C4005D20C3 /* SendFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeCompactViewModel.swift; sourceTree = "<group>"; };
@@ -24399,7 +24399,7 @@
 		EF42FC722D9571A3009CBB22 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				EF42FC732D9571B3009CBB22 /* Wallet.PublicKey+.swift */,
+				6F7E297259157982E95639A4 /* Wallet.PublicKey+.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -32765,6 +32765,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				223B58AD3B1E974EFA015E41 /* Wallet.PublicKey+.swift in Sources */,
 				B62D43462CBC79E400C2460E /* SS58Tests.swift in Sources */,
 				B62D436E2CBC79E400C2460E /* KaspaTransactionTests.swift in Sources */,
 				30A5A44C2E0D526F00ACFD5A /* TransferERC1155TokenMethodTestCase.swift in Sources */,
@@ -32881,7 +32882,6 @@
 				B62D435B2CBC79E400C2460E /* BitcoinTransactionTests.swift in Sources */,
 				B62D43662CBC79E400C2460E /* TWPublicKeyType+.swift in Sources */,
 				B62D43412CBC79E400C2460E /* Bech32Tests.swift in Sources */,
-				EF42FC742D9571B3009CBB22 /* Wallet.PublicKey+.swift in Sources */,
 				2DAD346A2D57CD5500C4BDA5 /* AlephiumTransactionTests.swift in Sources */,
 				305B22362D789D49009BCC73 /* DogecoinAddressTests.swift in Sources */,
 			);
