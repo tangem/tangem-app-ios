@@ -334,9 +334,10 @@ private extension LockedUserWalletModel {
 
         func authorize(
             customerWalletId: String,
-            authorizationService: TangemPay.TangemPayAuthorizationService
-        ) async throws -> TangemPayAuthorizingResponse {
-            throw "Locked wallet does not support Tangem Pay authorization using '\(#function)'"
+            authorizationService: TangemPay.TangemPayAuthorizationService,
+            pendingDerivations: [Data: [DerivationPath]]
+        ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
+            throw TangemPayAuthorizationError(underlyingError: "Locked wallet does not support Tangem Pay authorization", derivationResult: [:])
         }
     }
 }
