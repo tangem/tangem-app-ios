@@ -70,13 +70,11 @@ struct ExpressApproveView: View {
 
     private var buttons: some View {
         VStack(spacing: 10) {
-            MainButton(
-                title: Localization.commonApprove,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-                isLoading: viewModel.isLoading,
-                isDisabled: viewModel.mainButtonIsDisabled,
-                action: viewModel.didTapApprove
-            )
+            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                holdToApproveButton
+            } else {
+                approveButton
+            }
 
             MainButton(
                 title: Localization.commonCancel,
@@ -87,67 +85,23 @@ struct ExpressApproveView: View {
         // This fix for text's font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
     }
-}
 
-struct ExpressApproveView_Preview: PreviewProvider {
-    struct StatableContainer: View {
-        @ObservedObject private var coordinator = BottomSheetCoordinator()
-
-        var body: some View {
-            ZStack {
-                Colors.Background.primary
-                    .edgesIgnoringSafeArea(.all)
-
-                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
-                    coordinator.toggleItem()
-                }
-                .font(Fonts.Bold.body)
-                .offset(y: -200)
-
-                NavHolder()
-                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
-                        ExpressApproveView(viewModel: $0)
-                    }
-            }
-        }
+    private var approveButton: some View {
+        MainButton(
+            title: Localization.commonApprove,
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
+            isLoading: viewModel.isLoading,
+            isDisabled: viewModel.mainButtonIsDisabled,
+            action: viewModel.didTapApprove
+        )
     }
 
-    class BottomSheetCoordinator: ObservableObject, ExpressApproveRoutable {
-        @Published var item: ExpressApproveViewModel?
-
-        func toggleItem() {
-            if item == nil {
-                item = ExpressModulesFactoryMock().makeExpressApproveViewModel(
-                    source: ExpressInteractorWalletModelWrapper(
-                        userWalletInfo: UserWalletModelMock().userWalletInfo,
-                        walletModel: CommonWalletModel.mockETH,
-                        expressOperationType: .swap,
-                    ),
-                    providerName: "1inch",
-                    selectedPolicy: .unlimited,
-                    coordinator: self
-                )
-            } else {
-                item = nil
-            }
-        }
-
-        func didSendApproveTransaction() {
-            item = nil
-        }
-
-        func userDidCancel() {
-            item = nil
-        }
-
-        func openLearnMore() {}
-    }
-
-    static var previews: some View {
-        StatableContainer()
-            .preferredColorScheme(.light)
-
-        StatableContainer()
-            .preferredColorScheme(.dark)
+    private var holdToApproveButton: some View {
+        HoldToConfirmButton(
+            title: Localization.commonApprove,
+            isLoading: viewModel.isLoading,
+            isDisabled: viewModel.mainButtonIsDisabled,
+            action: viewModel.didTapApprove
+        )
     }
 }

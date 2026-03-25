@@ -162,7 +162,11 @@ struct TangemPayTransactionRecordMapper {
             return format(amount: spend.amount, currencyCode: spend.currency)
         case .spend(let spend):
             let prefix = spend.amount < 0 ? "+" : ""
-            return format(amount: -spend.amount, currencyCode: spend.currency, prefix: prefix)
+            return format(
+                amount: -(spend.isDeclined ? spend.authorizedAmount : spend.amount),
+                currencyCode: spend.currency,
+                prefix: prefix
+            )
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
