@@ -40,15 +40,19 @@ class ReceiveMainViewModel: ObservableObject {
         isYieldModuleActive: options.isYieldModuleActive
     )
 
-    private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
+    private let receiveTokenWithdrawNoticeInteractor: any ReceiveTokenWithdrawNoticeInteractor
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     private lazy var selectorViewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
 
     // MARK: - Helpers
 
-    init(options: Options) {
+    init(
+        options: Options,
+        receiveTokenWithdrawNoticeInteractor: any ReceiveTokenWithdrawNoticeInteractor = GeneralReceiveTokenWithdrawNoticeInteractor()
+    ) {
         self.options = options
+        self.receiveTokenWithdrawNoticeInteractor = receiveTokenWithdrawNoticeInteractor
     }
 
     func start() {
