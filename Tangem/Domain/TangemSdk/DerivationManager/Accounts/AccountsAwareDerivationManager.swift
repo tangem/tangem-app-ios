@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemPay
 
 /// One instance per unique user wallet.
 final class AccountsAwareDerivationManager {
@@ -140,6 +141,14 @@ extension AccountsAwareDerivationManager: DerivationDependenciesConfigurable {
                     .combineLatest()
                     .map { $0.flattened() }
                     .eraseToAnyPublisher()
+            }
+            .combineLatest(with: accountModelsManager.tangemPayAccountModelPublisher)
+            .map { cryptoEntries, tangemPayAccountModel in
+                if tangemPayAccountModel != nil {
+                    cryptoEntries + [TangemPayUtilities.usdcTokenItem]
+                } else {
+                    cryptoEntries
+                }
             }
             .combineLatest(keysRepository.keysPublisher)
             .withWeakCaptureOf(self)

@@ -47,18 +47,24 @@ final class TokenEntriesDerivator {
                         }
                     }
 
-                    if let tangemPayAccount {
-                        group.enter()
-                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
-                            group.leave()
-                        }
-                    }
+//                    if let tangemPayAccount {
+//                        group.enter()
+//                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
+//                            group.leave()
+//                        }
+//                    }
 
                     withExtendedLifetime(subscription) {}
                 }
 
             group.notify(queue: .main) { [weak self] in
-                self?.onFinish()
+                Task {
+                    if let tangemPayAccount = accountModelsManager.tangemPayAccountModel.state?.tangemPayAccount {
+                        tangemPayAccount.syncTokens(authorizingInteractor: tangemPayAuthorizingInteractor) {
+                            self?.onFinish()
+                        }
+                    }
+                }
             }
         } else {
             // accounts_fixes_needed_none
