@@ -63,6 +63,10 @@ extension AccountDerivationManager: DerivationManager {
         innerDerivationManager.shouldDeriveKeys(networksToRemove: networksToRemove, networksToAdd: networksToAdd)
     }
 
+    var pendingDerivations: [PendingDerivation] {
+        innerDerivationManager.pendingDerivations
+    }
+
     func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
         innerDerivationManager.deriveKeys(completion: completion)
     }
