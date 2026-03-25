@@ -3,28 +3,34 @@
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-import TangemFoundation
-import CombineExt
+import Foundation
+import BlockchainSdk
 
-class SendWithSwapNotificationManager {
+/// A unified notification manager that combines `SendNotificationManager` and `SwapNotificationManager`.
+/// It switches between send and swap modes based on the receive token state,
+/// similar to how `SendWithSwapModel` operates.
+final class SendWithSwapNotificationManager {
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
     private let sendNotificationManager: SendNotificationManager
-    private let expressNotificationManager: ExpressNotificationManager
+    private let swapNotificationManager: SwapNotificationManager
 
     init(
         receiveTokenInput: SendReceiveTokenInput?,
         sendNotificationManager: SendNotificationManager,
-        expressNotificationManager: ExpressNotificationManager,
+        swapNotificationManager: SwapNotificationManager
     ) {
         self.receiveTokenInput = receiveTokenInput
         self.sendNotificationManager = sendNotificationManager
-        self.expressNotificationManager = expressNotificationManager
+        self.swapNotificationManager = swapNotificationManager
+    }
+
+    deinit {
+        AppLogger.debug("SendWithSwapNotificationManager deinit")
     }
 }
 
@@ -41,16 +47,16 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, receiveToken -> AnyPublisher<String?, Never> in
-                switch receiveToken {
-                case .same:
+                switch receiveToken.value {
+                case .none:
                     return .just(output: nil)
-                case .swap:
+                case .some:
                     return manager
-                        .expressNotificationManager
+                        .swapNotificationManager
                         .notificationPublisher
                         .map { inputs in
                             let suitable = inputs.first { input in
-                                switch input.settings.event as? ExpressNotificationEvent {
+                                switch input.settings.event as? SwapNotificationEvent {
                                 case .tooSmallAmountToSwap, .tooBigAmountToSwap:
                                     return true
                                 default:
@@ -67,15 +73,15 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
     }
 }
 
-// MARK: - SendNotificationManager
+// MARK: - SendWithSwapNotificationManager
 
-extension SendWithSwapNotificationManager: SendNotificationManager {
+extension SendWithSwapNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        switch receiveTokenInput?.receiveToken {
-        case .none, .same:
+        switch receiveTokenInput?.receiveToken.value {
+        case .none:
             return sendNotificationManager.notificationInputs
-        case .swap:
-            return expressNotificationManager.notificationInputs
+        case .some:
+            return swapNotificationManager.notificationInputs
         }
     }
 
@@ -89,27 +95,25 @@ extension SendWithSwapNotificationManager: SendNotificationManager {
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, receiveToken in
-                switch receiveToken {
-                case .same:
+                switch receiveToken.value {
+                case .none:
                     return manager.sendNotificationManager.notificationPublisher
-                case .swap:
-                    return manager.expressNotificationManager.notificationPublisher
+                case .some:
+                    return manager.swapNotificationManager.notificationPublisher
                 }
             }
             .eraseToAnyPublisher()
     }
 
-    func setup(input: any SendNotificationManagerInput) {
-        sendNotificationManager.setup(input: input)
-    }
-
-    func setupManager(with delegate: (any NotificationTapDelegate)?) {
+    func setupManager(with delegate: NotificationTapDelegate?) {
+        // Forward delegate to both managers
         sendNotificationManager.setupManager(with: delegate)
-        expressNotificationManager.setupManager(with: delegate)
+        swapNotificationManager.setupManager(with: delegate)
     }
 
     func dismissNotification(with id: NotificationViewId) {
+        // Forward to both managers - whichever is active will handle it
         sendNotificationManager.dismissNotification(with: id)
-        expressNotificationManager.dismissNotification(with: id)
+        swapNotificationManager.dismissNotification(with: id)
     }
 }
