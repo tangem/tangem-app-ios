@@ -66,7 +66,7 @@ extension TangemPayAddFundsSheetOptionView {
         var subtitle: String {
             switch self {
             case .receive: Localization.receiveTokenDescription
-            case .swap: Localization.exсhangeTokenDescription
+            case .swap: Localization.exchangeTokenDescription
             }
         }
 

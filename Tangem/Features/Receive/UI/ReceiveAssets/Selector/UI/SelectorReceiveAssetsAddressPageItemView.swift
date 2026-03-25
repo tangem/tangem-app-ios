@@ -28,6 +28,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
             FixedSpacer(height: Layout.Container.textQRCodeButtonVerticalSpacing)
 
             SelectorReceiveQRCodeButtonView(qrCodeAction: viewModel.qrCodeButtonDidTap)
+                .disabled(viewModel.isLoading)
 
             FixedSpacer(height: Layout.Container.qrCodeButtonActionsVerticalSpacing)
 
@@ -35,6 +36,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 copyAction: viewModel.copyAddressButtonDidTap,
                 shareAction: viewModel.shareButtonDidTap
             )
+            .disabled(viewModel.isLoading)
         }
         .defaultRoundedBackground(
             with: Colors.Background.action,
@@ -51,10 +53,16 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            Text(viewModel.address)
-                .multilineTextAlignment(.center)
-                .infinityFrame(axis: .horizontal, alignment: .center)
-                .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
+            if viewModel.isLoading {
+                SkeletonView()
+                    .frame(width: 80, height: 14)
+                    .cornerRadiusContinuous(4)
+            } else {
+                Text(viewModel.address)
+                    .multilineTextAlignment(.center)
+                    .infinityFrame(axis: .horizontal, alignment: .center)
+                    .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
+            }
         }
     }
 }

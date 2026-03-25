@@ -53,7 +53,7 @@ final class LockedUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = tangemPayManager.customerId {
+        if let tangemPayCustomerId = accountModelsManager.tangemPayAccountModel?.customerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
@@ -99,25 +99,12 @@ final class LockedUserWalletModel: UserWalletModel {
         DummyCommonAccountModelsManager()
     }
 
-    var tangemPayManager: TangemPayManager {
-        TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: signer
-        )
-        .buildTangemPayManager()
-    }
-
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
 
     var keysRepository: KeysRepository {
-        CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: .init(userWalletIdSeed: Data()),
-            keys: .cardWallet(keys: [])
-        )
+        CommonKeysRepository(keys: .cardWallet(keys: []))
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -169,15 +156,12 @@ final class LockedUserWalletModel: UserWalletModel {
             config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
             userWalletRepository.savePublicData()
             updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
-        case .newName:
-            break
-        case .accessCodeDidSet:
-            break
-        case .accessCodeDidSkip:
-            break
-        case .iCloudBackupCompleted:
-            break
-        case .mnemonicBackupCompleted:
+        case .updateSensitiveInfo,
+             .newName,
+             .accessCodeDidSet,
+             .accessCodeDidSkip,
+             .iCloudBackupCompleted,
+             .mnemonicBackupCompleted:
             break
         }
     }

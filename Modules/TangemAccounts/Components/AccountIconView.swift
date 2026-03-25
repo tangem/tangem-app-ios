@@ -42,8 +42,8 @@ public struct AccountIconView: View {
     public var body: some View {
         label
             .matchedGeometryEffect(iconGeometryEffect)
-            .frame(width: scaledWidth, height: scaledHeight)
-            .padding(scaledPadding)
+            .frame(size: labelFrameSize)
+            .padding(labelPadding)
             .background(
                 GeometryReader { geo in
                     RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
@@ -52,6 +52,31 @@ public struct AccountIconView: View {
                 .matchedGeometryEffect(backgroundGeometryEffect)
             )
             .animation(.default, value: data.nameMode)
+    }
+
+    private var labelFrameSize: CGSize {
+        switch data.backgroundColor {
+        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
+        // [REDACTED_TODO_COMMENT]
+        case .clear:
+            CGSize(
+                width: scaledWidth + scaledPadding * 2,
+                height: scaledHeight + scaledPadding * 2
+            )
+        default:
+            CGSize(width: scaledWidth, height: scaledHeight)
+        }
+    }
+
+    private var labelPadding: CGFloat {
+        switch data.backgroundColor {
+        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
+        // [REDACTED_TODO_COMMENT]
+        case .clear:
+            .zero
+        default:
+            scaledPadding
+        }
     }
 
     @ViewBuilder
@@ -65,7 +90,9 @@ public struct AccountIconView: View {
 
         case .imageType(let imageType, let config):
             imageType.image
-                .renderingMode(.template)
+                // case .clear currently serves as a workaround for correctly displaying TangemPay account icon
+                // [REDACTED_TODO_COMMENT]
+                .renderingMode(data.backgroundColor == .clear ? .original : .template)
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
@@ -125,7 +152,7 @@ public extension AccountIconView {
 
         public static let largeSized: Self = .init(
             padding: 24,
-            size: CGSize(bothDimensions: 34),
+            size: CGSize(bothDimensions: 40),
             letterFontStyle: Fonts.Bold.largeTitle
         )
 

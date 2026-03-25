@@ -59,6 +59,9 @@ struct SolanaAccountKeysSplitUtils: SolanaAccountKeysSplitProvider {
 
     // MARK: - Private Implementation
 
+    /// Splits account keys into static (payer + signers + program IDs) and ALT candidates.
+    /// - Static: payer (writable), signers (writable or readonly per header), program IDs
+    /// - ALT: everything else, ordered writable-first then readonly
     private func splitStaticAccountKeysForSeparation(
         _ inputStaticAccountKeys: [PublicKey],
         header: MessageHeader,
@@ -68,71 +71,47 @@ struct SolanaAccountKeysSplitUtils: SolanaAccountKeysSplitProvider {
         guard let payer = inputStaticAccountKeys.first else {
             return ([], [])
         }
-        var staticKeySet = Set<PublicKey>()
-        staticKeySet.insert(payer)
-        // Add signers
+
+        var signerKeys = Set<PublicKey>()
         for i in 0 ..< Int(header.numRequiredSignatures) {
-            staticKeySet.insert(inputStaticAccountKeys[i])
+            signerKeys.insert(inputStaticAccountKeys[i])
         }
-        // Add programIds from all instructions
+
+        var programIdKeys = Set<PublicKey>()
         for instr in compiledInstructions {
             let programIdIndex = Int(instr.programIdIndex)
             if programIdIndex < inputStaticAccountKeys.count {
-                staticKeySet.insert(inputStaticAccountKeys[programIdIndex])
+                programIdKeys.insert(inputStaticAccountKeys[programIdIndex])
             }
         }
-        // Explicitly add system programs (Memo, ComputeBudget, SystemProgram, etc.)
-        for key in inputStaticAccountKeys {
-            if SolanaAccountKeysSplitUtils.alwaysStatic.contains(key.base58EncodedString) {
-                staticKeySet.insert(key)
-            }
-        }
+
+        var staticKeySet = Set<PublicKey>()
+        staticKeySet.insert(payer)
+        staticKeySet.formUnion(signerKeys)
+        staticKeySet.formUnion(programIdKeys)
 
         var staticAccountKeys: [(PublicKey, Bool)] = []
         var altCandidatesWritable: [PublicKey] = []
         var altCandidatesReadonly: [PublicKey] = []
-        for (idx, key) in inputStaticAccountKeys.enumerated() {
-            let isWritable = isAccountWritable(idx)
 
+        for (idx, key) in inputStaticAccountKeys.enumerated() {
             guard !staticKeySet.contains(key) else {
-                staticAccountKeys.append((key, isWritable))
+                staticAccountKeys.append((key, isAccountWritable(idx)))
                 continue
             }
 
-            if isWritable {
+            if isAccountWritable(idx) {
                 altCandidatesWritable.append(key)
             } else {
                 altCandidatesReadonly.append(key)
             }
         }
-        // payer is always first
+
         if let payerIdx = staticAccountKeys.map({ $0.0 }).firstIndex(of: payer), payerIdx != 0 {
             staticAccountKeys.remove(at: payerIdx)
             staticAccountKeys.insert((payer, true), at: 0)
         }
+
         return (staticAccountKeys, altCandidatesWritable + altCandidatesReadonly)
     }
-}
-
-extension SolanaAccountKeysSplitUtils {
-    /// System programs that must always be included only in staticAccountKeys
-    static let alwaysStatic: Set<String> = [
-        // System
-        "11111111111111111111111111111111",
-        // Memo
-        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        // ComputeBudget
-        "ComputeBudget111111111111111111111111111111",
-        // Wrapped SOL
-        "So11111111111111111111111111111111111111112",
-        // SPL Token
-        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        // Associated Token
-        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-        // Token2022
-        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-        // Address Lookup Table
-        "AddressLookupTab1e1111111111111111111111111",
-        // (add others if used)
-    ]
 }
