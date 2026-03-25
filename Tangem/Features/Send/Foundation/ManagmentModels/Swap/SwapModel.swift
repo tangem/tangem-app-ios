@@ -248,29 +248,34 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        updateTask = runTask(in: self, code: { input in
+        updateTask = runTask(in: self, code: { @MainActor input in
             do {
-                await MainActor.run { input.update(providersState: .loading(loadingType)) }
-                let result = try await block(input.expressManager)
+                input.update(providersState: .loading(loadingType))
+
+                // Run the network-heavy block off the main actor.
+                // Awaiting .value suspends the @MainActor task and frees the main thread
+                // while network calls are in flight.
+                let expressManager = input.expressManager
+                let result = try await Task.detached {
+                    try await block(expressManager)
+                }.value
 
                 switch result {
                 case .none:
-                    await MainActor.run { input.update(providersState: .idle) }
+                    input.update(providersState: .idle)
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
-                    await MainActor.run {
-                        input.update(providersState: .loaded(
-                            providers: updatingResult.providers,
-                            selected: updatingResult.selected,
-                            state: state
-                        ))
-                    }
+                    input.update(providersState: .loaded(
+                        providers: updatingResult.providers,
+                        selected: updatingResult.selected,
+                        state: state
+                    ))
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
             } catch {
-                await MainActor.run { input.update(providersState: .failure(error)) }
+                input.update(providersState: .failure(error))
             }
         })
     }
