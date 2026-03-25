@@ -27,15 +27,19 @@ struct MainCoordinatorView: CoordinatorView {
                 if let mainViewModel = coordinator.mainViewModel {
                     MainView(viewModel: mainViewModel)
                         .navigationLinks(links)
+                        .onDidAppear { [weak coordinator] in
+                            coordinator?.showMarketsTooltip()
+                        }
+                        .onWillDisappear { [weak coordinator] in
+                            coordinator?.hideMarketsTooltipTemporarily()
+                        }
                 }
-
-                marketsTooltipView
 
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
                 if !state.isCollapsed {
-                    coordinator?.hideMarketsTooltip()
+                    coordinator?.dismissMarketsTooltip()
                 } else {
                     // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
                     // [REDACTED_INFO]
@@ -46,6 +50,9 @@ struct MainCoordinatorView: CoordinatorView {
                 }
             }
             .injectNavigationAssertionDelegate()
+        }
+        .overlay {
+            marketsTooltipView
         }
     }
 
@@ -78,6 +85,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.manageTokensCoordinator) {
+                ManageTokensCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -90,9 +100,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.expressCoordinator) { coordinator in
-                ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -182,9 +189,10 @@ struct MainCoordinatorView: CoordinatorView {
     private var marketsTooltipView: some View {
         BasicTooltipView(
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
-            onHideAction: coordinator.hideMarketsTooltip,
+            onHideAction: coordinator.dismissMarketsTooltip,
             title: Localization.marketsTooltipTitle,
-            message: Localization.marketsTooltipMessage
+            message: Localization.marketsTooltipMessage,
+            leadingIcon: Assets.plusMini
         )
     }
 }

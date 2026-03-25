@@ -18,14 +18,25 @@ final class MobileOnboardingSeedPhraseRevealViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
 
-    @Published var shouldDismiss = false
+    let navigationTitle = Localization.commonBackup
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
-    var bag: Set<AnyCancellable> = []
+    private weak var delegate: MobileOnboardingSeedPhraseRevealDelegate?
 
-    init(context: MobileWalletContext) {
+    private var bag: Set<AnyCancellable> = []
+
+    init(context: MobileWalletContext, delegate: MobileOnboardingSeedPhraseRevealDelegate) {
+        self.delegate = delegate
         setup(with: context)
+    }
+}
+
+// MARK: - Internal methods
+
+extension MobileOnboardingSeedPhraseRevealViewModel {
+    func onCloseTap() {
+        delegate?.onSeedPhraseRevealClose()
     }
 }
 
@@ -67,7 +78,7 @@ private extension MobileOnboardingSeedPhraseRevealViewModel {
     @MainActor
     func setupAlert(error: Error) {
         alert = error.alertBinder(okAction: { [weak self] in
-            self?.shouldDismiss = true
+            self?.delegate?.onSeedPhraseRevealClose()
         })
     }
 

@@ -56,8 +56,8 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
-            .sheet(item: $coordinator.expressCoordinator) {
-                ExpressCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.addToApplePayGuideViewModel) {
                 TangemPayAddToAppPayGuideView(viewModel: $0)

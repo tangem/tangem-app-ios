@@ -32,7 +32,8 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         }
     }
 
-    func selectWalletFromList(name: CardMockAccessibilityIdentifiers) {
+    @discardableResult
+    func selectWalletFromList(name: CardMockAccessibilityIdentifiers) -> Self {
         // Find the mock wallet button in the alert
         let walletButton = app.buttons[name.rawValue].firstMatch
 
@@ -45,32 +46,23 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
             XCTFail(
                 "Mock wallet button '\(name.rawValue)' not found in alert. Available buttons: \(availableButtons)"
             )
-            return
+            return self
         }
 
         guard walletButton.waitForState(state: .hittable) else {
             XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
-            return
+            return self
         }
 
         walletButton.tap()
+        return self
     }
 
     @discardableResult
     func acceptToSIfNeeded() -> Self {
         XCTContext.runActivity(named: "Accept ToS if needed") { _ in
             if tosAcceptButton.waitForExistence(timeout: .conditional) {
-                tosAcceptButton.tap()
-            }
-            return self
-        }
-    }
-
-    @discardableResult
-    func allowPushNotificationsIfNeeded() -> Self {
-        XCTContext.runActivity(named: "Accept ToS if needed") { _ in
-            if app.buttons["Allow"].waitForExistence(timeout: .conditional) {
-                app.buttons["Allow"].tap()
+                tosAcceptButton.waitAndTap()
             }
             return self
         }

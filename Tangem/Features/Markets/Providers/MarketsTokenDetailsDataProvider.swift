@@ -25,7 +25,7 @@ struct MarketsTokenDetailsDataProvider {
         let request = MarketsDTO.Coins.Request(
             tokenId: tokenId,
             currency: baseCurrencyCode,
-            language: Locale.deviceLanguageCode
+            language: Locale.deviceLanguageCode(withRegion: false)
         )
         let result = try await tangemAPIService.loadTokenMarketsDetails(requestModel: request)
         let model = try mapper.map(response: result)

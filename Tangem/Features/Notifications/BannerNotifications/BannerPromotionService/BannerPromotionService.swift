@@ -26,7 +26,7 @@ extension InjectedValues {
 }
 
 enum PromotionServicePromotionInfo {
-    typealias PromotionInfo = ExpressPromotion.Response
+    typealias PromotionInfo = BannerPromotion.Response
 
     case expired
     case active(PromotionInfo)
