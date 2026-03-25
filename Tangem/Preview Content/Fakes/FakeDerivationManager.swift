@@ -20,6 +20,8 @@ class FakeDerivationManager: DerivationManager {
         _pendingDerivationsCount.eraseToAnyPublisher()
     }
 
+    var pendingDerivations: [PendingDerivation] { [] }
+
     private let _pendingDerivationsCount: CurrentValueSubject<Int, Never> = .init(0)
 
     init(pendingDerivationsCount: Int = 0) {
