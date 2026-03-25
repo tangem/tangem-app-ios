@@ -116,6 +116,7 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
+    var addresses: [String] { [defaultAddressString] }
     var defaultAddressString: String { "mock" }
 
     var isMainToken: Bool { true }
@@ -123,7 +124,7 @@ final class WalletModelTestsMock: WalletModel {
     var feeTokenItem: TokenItem { tokenItem }
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { false }
-    var publicKey: Wallet.PublicKey { .init(seedKey: Data(), derivationType: nil) }
+    var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
     var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }

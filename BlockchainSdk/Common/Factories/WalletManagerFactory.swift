@@ -98,11 +98,11 @@ public extension WalletManagerFactory {
             let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
             address = try service.makeAddress(for: publicKey, with: .default)
         } else {
-            address = PlainAddress(value: dummyAddress, publicKey: publicKey, type: .default)
+            address = PlainAddress(value: dummyAddress, type: .default)
         }
 
         let addressesProvider = CommonAddressesProvider(defaultAddress: address)
-        let wallet = Wallet(blockchain: blockchain, addressesProvider: addressesProvider)
+        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
 
         let networkInput = NetworkProviderAssembly.Input(
             blockchain: blockchain,
