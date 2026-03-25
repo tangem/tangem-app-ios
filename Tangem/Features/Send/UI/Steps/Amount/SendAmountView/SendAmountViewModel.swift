@@ -67,7 +67,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var providerRateTypes: Set<ExpressProviderRateType> = []
 
-    var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
+    private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
@@ -383,10 +383,12 @@ private extension SendAmountViewModel {
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
         guard providerRateTypes != rateTypes else { return }
+
         let wasFixedSupported = isFixedRateSupportedByProvider
         providerRateTypes = rateTypes
 
-        if wasFixedSupported, !isFixedRateSupportedByProvider {
+        switch (wasFixedSupported, isFixedRateSupportedByProvider) {
+        case (true, false):
             // Transitioning from supported → unsupported: tear down editable TO
             pendingReverseRecalculation = false
             isInputFieldSwitchingLocked = false
@@ -405,10 +407,12 @@ private extension SendAmountViewModel {
             // Reset so the next CombineLatest emission treats it as "token changed"
             // and rebuilds the destination view in non-editable mode
             currentDestinationToken = nil
-        } else if !wasFixedSupported, isFixedRateSupportedByProvider {
+        case (false, true):
             // Transitioning from unsupported → supported: force rebuild so the
             // next CombineLatest emission creates the editable TO field
             currentDestinationToken = nil
+        default:
+            break
         }
     }
 
@@ -479,128 +483,180 @@ extension SendAmountViewModel {
             return
         }
 
-        switch destinationToken {
-        case .none:
-            isDestinationTokenClearing = false
-            pendingReverseRecalculation = false
-            animateDestinationRemoval = false
-            destinationTokenViewType = .selectButton
-            currentDestinationToken = nil
-            compactDestinationSubtitle = nil
-        case .some(let destinationToken):
-            guard !isDestinationTokenClearing else { return }
-            let destinationTokenIconInfo = tokenIconInfoBuilder.build(from: destinationToken.tokenItem, isCustom: destinationToken.isCustom)
+        guard let destinationToken else {
+            clearDestinationToken()
+            return
+        }
 
-            if isFixedRateSupportedByProvider {
-                let isFirstSelection = currentDestinationToken == nil
-                let tokenDidChange = currentDestinationToken?.tokenItem.id != destinationToken.tokenItem.id
-                currentDestinationToken = destinationToken
+        guard !isDestinationTokenClearing else { return }
 
-                let field = destinationAmountField ?? createDestinationAmountField(for: destinationToken, tokenIconInfo: destinationTokenIconInfo)
+        let iconInfo = tokenIconInfoBuilder.build(from: destinationToken.tokenItem, isCustom: destinationToken.isCustom)
 
-                // Only rebuild the destination section when the token itself changes,
-                // NOT on every amount update. This prevents view re-creation that
-                // clears @FocusState during the focus-claim window.
-                if tokenDidChange {
-                    if !isFirstSelection {
-                        field.reconfigure(
-                            tokenItem: destinationToken.tokenItem,
-                            fiatItem: destinationToken.fiatItem,
-                            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
-                        )
-                        field.cryptoIconURL = destinationTokenIconInfo.imageURL
-                    }
-                    let expandedDestinationData = SendAmountTokenViewData(
-                        tokenIconInfo: destinationTokenIconInfo,
-                        title: destinationToken.tokenItem.name,
-                        subtitle: .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
-                        detailsType: .select(individualAction: nil),
-                        action: { [weak self] in
-                            self?.openReceiveTokensList()
-                        }
-                    )
-
-                    let compactDestinationData = SendAmountTokenViewData(
-                        tokenIconInfo: destinationTokenIconInfo,
-                        title: destinationToken.tokenItem.name,
-                        subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount),
-                        detailsType: .none,
-                        action: { [weak self] in
-                            FeedbackGenerator.heavy()
-                            self?.userDidTapCompactField(.receive)
-                        }
-                    )
-
-                    if isFirstSelection {
-                        // Suppress expand/collapse animation on first entry.
-                        // Re-enabled in userDidTapCompactField on first switch.
-                        animateActiveFieldChange = false
-                    }
-
-                    destinationTokenViewType = .selectedEditableAmount(
-                        expandedDestinationData: expandedDestinationData,
-                        compactDestinationData: compactDestinationData
-                    )
-
-                    if isFirstSelection {
-                        activeField = .receive
-                        pendingReverseRecalculation = true
-                        pendingFocusField = .receive
-                    } else if lastUpdateSource == .receive {
-                        // Token changed while user was editing TO — trigger reverse
-                        // calculation with the user's current field value once the
-                        // pair-change quote completes
-                        pendingReverseRecalculation = true
-                    }
-                }
-
-                // Always update the compact subtitle separately (drives compactDestinationTokenViewData)
-                compactDestinationSubtitle = mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount)
-
-                // Update destination fields from external amount
-                if case .success(let sendAmount) = amount {
-                    if pendingReverseRecalculation {
-                        pendingReverseRecalculation = false
-                        lastUpdateSource = .receive
-
-                        // If the field is empty (first selection), populate from the forward quote
-                        if field.cryptoTextFieldViewModel.value == nil {
-                            field.updateAmountsUI(amount: sendAmount)
-                        }
-
-                        let receiveValue = field.cryptoTextFieldViewModel.value
-                        _ = interactor.update(receiveAmount: receiveValue)
-                    } else if lastUpdateSource == .receive {
-                        // When the user edited the destination (To) field, only update fiat/alternative
-                        // to avoid overwriting the crypto value the user typed
-                        field.updateFromExternalAmount(sendAmount, tokenItem: destinationToken.tokenItem)
-                    } else {
-                        // When the user edited the source (From) field or on initial load,
-                        // fully update the destination field including the crypto value from the quote
-                        field.updateAmountsUI(amount: sendAmount)
-                    }
-                }
-
-                // Unlock when destination recalculation finishes (Source→Destination switch)
-                if !amount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .send {
-                    isInputFieldSwitchingLocked = false
-                }
-            } else {
-                let tokenViewData = SendAmountTokenViewData(
-                    tokenIconInfo: destinationTokenIconInfo,
-                    title: destinationToken.tokenItem.name,
-                    subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: destinationToken.tokenItem, amount: amount),
-                    detailsType: .select(individualAction: nil),
-                    action: { [weak self] in
-                        self?.openReceiveTokensList()
-                    }
-                )
-                destinationTokenViewType = .selected(tokenViewData)
-            }
+        if isFixedRateSupportedByProvider {
+            updateEditableDestination(token: destinationToken, iconInfo: iconInfo, amount: amount)
+        } else {
+            updateStaticDestination(token: destinationToken, iconInfo: iconInfo, amount: amount)
         }
     }
 
-    private func createDestinationAmountField(for destinationToken: SendReceiveToken, tokenIconInfo: TokenIconInfo) -> AmountInputFieldModel {
+    private func clearDestinationToken() {
+        isDestinationTokenClearing = false
+        pendingReverseRecalculation = false
+        animateDestinationRemoval = false
+        destinationTokenViewType = .selectButton
+        currentDestinationToken = nil
+        compactDestinationSubtitle = nil
+    }
+
+    private func updateStaticDestination(
+        token: SendReceiveToken,
+        iconInfo: TokenIconInfo,
+        amount: LoadingResult<SendAmount, Error>
+    ) {
+        let tokenViewData = SendAmountTokenViewData(
+            tokenIconInfo: iconInfo,
+            title: token.tokenItem.name,
+            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount),
+            detailsType: .select(individualAction: nil),
+            action: { [weak self] in
+                self?.openReceiveTokensList()
+            }
+        )
+        destinationTokenViewType = .selected(tokenViewData)
+    }
+
+    private func updateEditableDestination(
+        token: SendReceiveToken,
+        iconInfo: TokenIconInfo,
+        amount: LoadingResult<SendAmount, Error>
+    ) {
+        let isFirstSelection = currentDestinationToken == nil
+        let tokenDidChange = currentDestinationToken?.tokenItem.id != token.tokenItem.id
+        currentDestinationToken = token
+
+        let field = destinationAmountField ?? createDestinationAmountField(for: token, tokenIconInfo: iconInfo)
+
+        // Only rebuild the destination section when the token itself changes,
+        // NOT on every amount update. This prevents view re-creation that
+        // clears @FocusState during the focus-claim window.
+        if tokenDidChange {
+            rebuildEditableDestinationViews(
+                token: token,
+                iconInfo: iconInfo,
+                field: field,
+                isFirstSelection: isFirstSelection,
+                amount: amount
+            )
+        }
+
+        updateEditableDestinationAmount(field: field, token: token, amount: amount)
+    }
+
+    private func rebuildEditableDestinationViews(
+        token: SendReceiveToken,
+        iconInfo: TokenIconInfo,
+        field: AmountInputFieldModel,
+        isFirstSelection: Bool,
+        amount: LoadingResult<SendAmount, Error>
+    ) {
+        if !isFirstSelection {
+            field.reconfigure(
+                tokenItem: token.tokenItem,
+                fiatItem: token.fiatItem,
+                possibleToConvertToFiat: token.tokenItem.currencyId != nil
+            )
+            field.cryptoIconURL = iconInfo.imageURL
+        }
+
+        let expandedDestinationData = SendAmountTokenViewData(
+            tokenIconInfo: iconInfo,
+            title: token.tokenItem.name,
+            subtitle: .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle)),
+            detailsType: .select(individualAction: nil),
+            action: { [weak self] in
+                self?.openReceiveTokensList()
+            }
+        )
+
+        let compactDestinationData = SendAmountTokenViewData(
+            tokenIconInfo: iconInfo,
+            title: token.tokenItem.name,
+            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount),
+            detailsType: .none,
+            action: { [weak self] in
+                FeedbackGenerator.heavy()
+                self?.userDidTapCompactField(.receive)
+            }
+        )
+
+        if isFirstSelection {
+            // Suppress expand/collapse animation on first entry.
+            // Re-enabled in userDidTapCompactField on first switch.
+            animateActiveFieldChange = false
+        }
+
+        destinationTokenViewType = .selectedEditableAmount(
+            expandedDestinationData: expandedDestinationData,
+            compactDestinationData: compactDestinationData
+        )
+
+        if isFirstSelection {
+            activeField = .receive
+            pendingReverseRecalculation = true
+            pendingFocusField = .receive
+        } else if lastUpdateSource == .receive {
+            // Token changed while user was editing TO — trigger reverse
+            // calculation with the user's current field value once the
+            // pair-change quote completes
+            pendingReverseRecalculation = true
+        }
+    }
+
+    private func updateEditableDestinationAmount(
+        field: AmountInputFieldModel,
+        token: SendReceiveToken,
+        amount: LoadingResult<SendAmount, Error>
+    ) {
+        // Always update the compact subtitle separately (drives compactDestinationTokenViewData)
+        compactDestinationSubtitle = mapToSendAmountTokenViewDataSubtitleType(
+            tokenItem: token.tokenItem,
+            amount: amount
+        )
+
+        // Update destination fields from external amount
+        if case .success(let sendAmount) = amount {
+            if pendingReverseRecalculation {
+                pendingReverseRecalculation = false
+                lastUpdateSource = .receive
+
+                // If the field is empty (first selection), populate from the forward quote
+                if field.cryptoTextFieldViewModel.value == nil {
+                    field.updateAmountsUI(amount: sendAmount)
+                }
+
+                let receiveValue = field.cryptoTextFieldViewModel.value
+                _ = interactor.update(receiveAmount: receiveValue)
+            } else if lastUpdateSource == .receive {
+                // When the user edited the destination (To) field, only update fiat/alternative
+                // to avoid overwriting the crypto value the user typed
+                field.updateFromExternalAmount(sendAmount, tokenItem: token.tokenItem)
+            } else {
+                // When the user edited the source (From) field or on initial load,
+                // fully update the destination field including the crypto value from the quote
+                field.updateAmountsUI(amount: sendAmount)
+            }
+        }
+
+        // Unlock when destination recalculation finishes (Source→Destination switch)
+        if !amount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .send {
+            isInputFieldSwitchingLocked = false
+        }
+    }
+
+    private func createDestinationAmountField(
+        for destinationToken: SendReceiveToken,
+        tokenIconInfo: TokenIconInfo
+    ) -> AmountInputFieldModel {
         let field = AmountInputFieldModel(
             tokenItem: destinationToken.tokenItem,
             fiatItem: destinationToken.fiatItem,
