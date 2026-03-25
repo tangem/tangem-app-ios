@@ -16,13 +16,13 @@ struct SendDestination: Equatable {
 extension SendDestination {
     enum Destination: Hashable {
         case plain(String)
-        case resolved(address: String, resolved: String)
+        case resolved(address: String, resolved: String, memoRequired: Bool)
 
         /// The address which user typed in the text field
         var typedAddress: String {
             switch self {
             case .plain(let address): address
-            case .resolved(let address, _): address
+            case .resolved(let address, _, _): address
             }
         }
 
@@ -30,7 +30,7 @@ extension SendDestination {
         var transactionAddress: String {
             switch self {
             case .plain(let address): address
-            case .resolved(_, let resolved): resolved
+            case .resolved(_, let resolved, _): resolved
             }
         }
 
@@ -38,14 +38,14 @@ extension SendDestination {
         var showableResolved: String? {
             switch self {
             case .plain: nil
-            case .resolved(let address, let resolved): address == resolved ? nil : resolved
+            case .resolved(let address, let resolved, _): address == resolved ? nil : resolved
             }
         }
 
         var isResolved: Bool {
             switch self {
             case .plain: return false
-            case .resolved(let address, let resolved): return address == resolved ? false : true
+            case .resolved(let address, let resolved, _): return address == resolved ? false : true
             }
         }
     }

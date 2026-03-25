@@ -19,8 +19,8 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
         AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { _ in
                 // HotTokens always have single network
-                // Additionaly, availability to add hot token is controlled by parent.
-                // Those that are already added wont show up in the list thus
+                // Additionally, availability to add hot token is controlled by parent.
+                // Those that are already added won't show up in the list thus
                 // Will not get to this method at all
                 guard let tokenItem = hotToken.tokenItem else {
                     return []
@@ -70,28 +70,26 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
         let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
         let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
-
         coordinator.close()
-        coordinator.openOnramp(input: sendInput, parameters: parameters)
+        coordinator.openOnramp(input: sendInput, parameters: .none)
     }
 
     static func makeAccountFilter(
         hotToken: HotCryptoToken
-    ) -> ((any CryptoAccountModel, Set<Blockchain>) -> Bool)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
         guard let tokenItem = hotToken.tokenItem else {
-            return { _, _ in false }
+            return { _ in false }
         }
 
         let blockchain = tokenItem.blockchain
-        return { account, _ in
-            AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: account)
+        return { context in
+            AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: context.account)
         }
     }
 
     static func makeAccountAvailabilityProvider(
         hotToken: HotCryptoToken
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability)? {
+    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> AccountAvailability)? {
         guard let tokenItem = hotToken.tokenItem else {
             return { _ in .unavailable(reason: nil) }
         }
