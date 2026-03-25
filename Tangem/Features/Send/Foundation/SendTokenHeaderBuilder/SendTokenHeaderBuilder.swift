@@ -18,11 +18,29 @@ struct SendTokenHeaderBuilder {
         case (_, .unstake):
             return .action(name: Localization.stakingStakedAmount)
 
+        case (.wallet(_, hasOnlyOneWallet: true), .send):
+            return .action(name: Localization.sendFromTitle)
+
+        case (.wallet(_, hasOnlyOneWallet: true), .swap) where isSource:
+            return .action(name: Localization.swappingFromTitle)
+
+        case (.wallet(_, hasOnlyOneWallet: true), .swap):
+            return .action(name: Localization.swappingToTitle)
+
+        case (.wallet(let name, hasOnlyOneWallet: false), .swap) where isSource:
+            return .wallet(name: Localization.commonFromWalletName(name))
+
+        case (.wallet(let name, hasOnlyOneWallet: false), .swap):
+            return .wallet(name: Localization.commonToWalletName(name))
+
         case (.account(let name, let icon), .swap) where isSource:
             return .account(prefix: Localization.commonFrom, name: name, icon: icon)
 
         case (.account(let name, let icon), .swap):
             return .account(prefix: Localization.commonTo, name: name, icon: icon)
+
+        case (.wallet(let name, _), _):
+            return .wallet(name: Localization.commonFromWalletName(name))
 
         case (.account(let name, let icon), _):
             return .account(name: name, icon: icon)
