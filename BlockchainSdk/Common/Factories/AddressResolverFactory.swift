@@ -37,21 +37,25 @@ public struct AddressResolverFactory {
     }
 
     public func makeAddressResolver(for blockchain: Blockchain) -> AddressResolver? {
+        try? makeAddressResolverWithType(for: blockchain)
+    }
+
+    public func makeAddressResolverWithType(for blockchain: Blockchain) throws -> AddressResolver {
         switch blockchain {
         case .ethereum:
-            guard let networkService: EthereumNetworkService = try? walletNetworkServiceFactory.makeServiceWithType(for: blockchain) else {
-                return nil
-            }
-
+            let networkService: EthereumNetworkService = try walletNetworkServiceFactory.makeServiceWithType(for: blockchain)
             return EthereumAddressResolver(networkService: networkService, ensProcessor: CommonENSProcessor())
         case .near:
-            guard let networkService: NEARNetworkService = try? walletNetworkServiceFactory.makeServiceWithType(for: blockchain) else {
-                return nil
-            }
-
+            let networkService: NEARNetworkService = try walletNetworkServiceFactory.makeServiceWithType(for: blockchain)
             return NEARAddressResolver(networkService: networkService)
+        case .xrp:
+            let networkService: XRPNetworkService = try walletNetworkServiceFactory.makeServiceWithType(for: blockchain)
+            return XRPAddressResolver(networkService: networkService)
+        case .stellar:
+            let networkService: StellarNetworkService = try walletNetworkServiceFactory.makeServiceWithType(for: blockchain)
+            return StellarAddressResolver(networkService: networkService)
         default:
-            return nil
+            throw BlockchainSdkError.notImplemented
         }
     }
 }
