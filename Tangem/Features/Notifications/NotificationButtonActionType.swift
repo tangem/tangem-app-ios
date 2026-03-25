@@ -61,6 +61,7 @@ enum NotificationButtonActionType: Identifiable {
     case postponePushPermissionRequest
     case activate
     case givePermission
+    case openManageTokensAfterWalletSuccessImport
 
     var id: Int {
         switch self {
@@ -98,6 +99,7 @@ enum NotificationButtonActionType: Identifiable {
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
         case .givePermission: "givePermission".hashValue
+        case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         }
     }
 
@@ -167,6 +169,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.givePermissionTitle
         case .openCloreMigration:
             return Localization.warningCloreMigrationButton
+        case .openManageTokensAfterWalletSuccessImport:
+            return Localization.mainManageTokens
         }
     }
 
@@ -207,7 +211,8 @@ enum NotificationButtonActionType: Identifiable {
              .postponePushPermissionRequest,
              .activate,
              .givePermission,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             return nil
         }
     }
@@ -246,7 +251,8 @@ enum NotificationButtonActionType: Identifiable {
              .postponePushPermissionRequest,
              .givePermission,
              .openCloreMigration,
-             .closeMobileUpgrade:
+             .closeMobileUpgrade,
+             .openManageTokensAfterWalletSuccessImport:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
