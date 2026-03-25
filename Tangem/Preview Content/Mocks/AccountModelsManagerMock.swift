@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
@@ -128,7 +129,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #1",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: .init(name: .cryptoAccountIcons.randomElement()!, color: .cryptoAccountColors.randomElement()!),
                 tokensCount: 3,
                 networksCount: 1,
                 derivationIndex: 10
@@ -136,7 +137,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
                 name: "Archived crypto account #2",
-                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                icon: .init(name: .cryptoAccountIcons.randomElement()!, color: .cryptoAccountColors.randomElement()!),
                 tokensCount: 10,
                 networksCount: 10,
                 derivationIndex: 20
@@ -191,4 +192,6 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
 }

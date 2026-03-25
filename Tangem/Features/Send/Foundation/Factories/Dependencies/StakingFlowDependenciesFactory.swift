@@ -12,7 +12,14 @@ import TangemLocalization
 
 /// Sharing between Staking / Restaking / Unstaking / StakingSingleAction
 protocol StakingFlowDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
+    var stakingableToken: SendStakingableToken { get }
     var actionType: StakingAction.ActionType { get }
+}
+
+extension StakingFlowDependenciesFactory {
+    var userWalletInfo: UserWalletInfo { stakingableToken.userWalletInfo }
+    var tokenItem: TokenItem { stakingableToken.tokenItem }
+    var feeTokenItem: TokenItem { stakingableToken.feeTokenItem }
 }
 
 // MARK: - Shared dependencies
@@ -30,16 +37,8 @@ extension StakingFlowDependenciesFactory {
         StakingSendAlertBuilder()
     }
 
-    func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
-        baseDataBuilderFactory.makeStakingBaseDataBuilder(input: input)
-    }
-
     func makeStakingFeeIncludedCalculator() -> FeeIncludedCalculator {
-        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: walletModelDependenciesProvider.transactionValidator)
-    }
-
-    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
-        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+        StakingFeeIncludedCalculator(tokenItem: tokenItem, validator: stakingableToken.transactionValidator)
     }
 
     func makeStakingSendAnalyticsLogger() -> StakingSendAnalyticsLogger {

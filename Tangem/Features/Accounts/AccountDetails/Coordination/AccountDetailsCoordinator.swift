@@ -66,7 +66,7 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
         editAccountViewModel = AccountFormViewModel(
             accountModelsManager: options.accountModelsManager,
             flowType: .edit(account: options.account),
-            closeAction: { [weak self] _ in
+            closeAction: { [weak self] _, _ in
                 self?.editAccountViewModel = nil
             }
         )
@@ -119,5 +119,8 @@ private extension AccountDetailsCoordinator {
 
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
+
+        /// TangemPay does not support token management
+        func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }

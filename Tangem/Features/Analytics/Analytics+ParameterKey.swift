@@ -91,6 +91,7 @@ extension Analytics {
         case link = "Link"
         case method = "Method"
         case appTheme = "App Theme"
+        case appCurrency = "App Currency"
         case mobileWallet = "Mobile Wallet"
         case feeToken = "Fee Token"
         case availableFee = "Available Fee"
@@ -116,6 +117,10 @@ extension Analytics {
         case watched = "Watched"
 
         case selectedCategories = "Selected Categories"
+
+        // MARK: - Earn
+
+        case networkFilterType = "Network Filter Type"
 
         // MARK: - Wallet Connect
 
