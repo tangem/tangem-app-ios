@@ -68,7 +68,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB || canToggleXPUB }
-
+ 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
@@ -234,6 +234,8 @@ extension TokenDetailsViewModel {
     func toggleXPUBAction() {
         let blockchain = walletModel.tokenItem.blockchain
         guard case .bitcoin(let testnet, let xpub) = blockchain else { return }
+
+        AppSettings.shared.bitcoinXPUBEnabled = !xpub
 
         let newBlockchain: Blockchain = .bitcoin(testnet: testnet, xpub: !xpub)
         let oldTokenItem = walletModel.tokenItem

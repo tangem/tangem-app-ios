@@ -23,8 +23,6 @@ class BaseManager {
     /// Default config. Can be overridden
     var config: Config = .init()
 
-    var cancellable: Cancellable?
-
     init(wallet: Wallet) {
         _wallet = .init(wallet)
     }

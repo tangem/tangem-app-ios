@@ -291,8 +291,13 @@ final class CryptoAccountsNetworkMapper {
         token: AccountsDTO.Response.Accounts.Token
     ) throws -> StoredCryptoAccount.Token.BlockchainNetworkContainer {
         // Unknown blockchain
-        guard let blockchain = supportedBlockchains[token.networkId] else {
+        guard var blockchain = supportedBlockchains[token.networkId] else {
             return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
+        }
+
+        // Apply the XPUB flag for Bitcoin from user settings
+        if case .bitcoin(let testnet, _) = blockchain {
+            blockchain = .bitcoin(testnet: testnet, xpub: AppSettings.shared.bitcoinXPUBEnabled)
         }
 
         // Known blockchain, but w/o tokens support
