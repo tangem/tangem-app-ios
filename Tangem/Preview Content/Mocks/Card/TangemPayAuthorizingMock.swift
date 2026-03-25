@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemSdk
 import TangemVisa
 import TangemPay
 
@@ -14,8 +15,9 @@ class TangemPayAuthorizingMock: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+        authorizationService: TangemPayAuthorizationService,
+        pendingDerivations: [Data: [DerivationPath]]
+    ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
         TangemPayAuthorizingResponse(
             customerWalletAddress: "",
             tokens: TangemPayAuthorizationTokens(

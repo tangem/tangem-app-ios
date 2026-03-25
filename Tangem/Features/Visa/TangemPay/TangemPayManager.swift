@@ -11,6 +11,7 @@ import Foundation
 import TangemFoundation
 import TangemPay
 import TangemVisa
+import TangemSdk
 
 final class TangemPayManager: TangemPayAccountModel {
     var state: TangemPayLocalState? {
@@ -87,20 +88,27 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func authorizeWithCustomerWallet(authorizingInteractor: TangemPayAuthorizing) async {
+    func authorizeWithCustomerWallet(
+        authorizingInteractor: TangemPayAuthorizing,
+        pendingDerivations: [PendingDerivation]
+    ) async {
+        let derivationPaths = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations)
+
         do {
             let authorizingResponse = try await authorizingInteractor.authorize(
                 customerWalletId: customerWalletId,
-                authorizationService: authorizationService
+                authorizationService: authorizationService,
+                pendingDerivations: derivationPaths
             )
 
             keysRepository.update(derivations: authorizingResponse.derivationResult)
-            try authorizationService.saveTokens(tokens: authorizingResponse.tokens)
+            try? authorizationService.saveTokens(tokens: authorizingResponse.tokens)
 
             paeraCustomerFlagRepository.setIsPaeraCustomer(true, for: customerWalletId)
             paeraCustomerFlagRepository.setIsKYCHidden(false, for: customerWalletId)
         } catch {
-            VisaLogger.error("Failed to authorize with customer wallet", error: error)
+            keysRepository.update(derivations: error.derivationResult)
+            VisaLogger.error("Failed to authorize with customer wallet", error: error.underlyingError)
             stateSubject.value = .unavailable
             return
         }
@@ -213,10 +221,14 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func syncTokens(authorizingInteractor: TangemPayAuthorizing, completion: @escaping () -> Void) {
+    func syncTokens(
+        authorizingInteractor: TangemPayAuthorizing,
+        pendingDerivations: [PendingDerivation],
+        completion: @escaping () -> Void
+    ) {
         runTask { [self] in
             stateSubject.value = .syncInProgress
-            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor, pendingDerivations: pendingDerivations)
             completion()
         }
     }
