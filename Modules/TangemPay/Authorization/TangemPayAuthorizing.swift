@@ -12,8 +12,9 @@ import TangemSdk
 public protocol TangemPayAuthorizing: TangemPayAuthorizerSyncNeededTitleProvider {
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse
+        authorizationService: TangemPayAuthorizationService,
+        pendingDerivations: [Data: [DerivationPath]]
+    ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse
 }
 
 public struct TangemPayAuthorizingResponse {
@@ -24,6 +25,16 @@ public struct TangemPayAuthorizingResponse {
     public init(customerWalletAddress: String, tokens: TangemPayAuthorizationTokens, derivationResult: [Data: DerivedKeys]) {
         self.customerWalletAddress = customerWalletAddress
         self.tokens = tokens
+        self.derivationResult = derivationResult
+    }
+}
+
+public struct TangemPayAuthorizationError: Error {
+    public let underlyingError: Error
+    public let derivationResult: [Data: DerivedKeys]
+
+    public init(underlyingError: Error, derivationResult: [Data: DerivedKeys]) {
+        self.underlyingError = underlyingError
         self.derivationResult = derivationResult
     }
 }
