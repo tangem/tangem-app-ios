@@ -243,6 +243,8 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
+    var addresses: [String] { [defaultAddressString] }
+
     var defaultAddressString: String {
         // [REDACTED_TODO_COMMENT]
         ""
@@ -270,7 +272,7 @@ extension VisaWalletModel: WalletModel {
     }
 
     var publicKey: Wallet.PublicKey {
-        .init(seedKey: Data(), derivationType: nil)
+        Wallet.PublicKey(seedKey: Data(), derivationType: .none)
     }
 
     var shouldShowFeeSelector: Bool {
