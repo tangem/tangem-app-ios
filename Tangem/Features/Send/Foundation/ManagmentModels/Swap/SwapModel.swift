@@ -226,7 +226,9 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
+        ExpressLogger.info("[Timing] swappingPairDidChange called")
         updateTask(loadingType: .providers) { [weak self] expressManager in
+            ExpressLogger.info("[Timing] updateTask block started executing")
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
@@ -234,7 +236,9 @@ extension SwapModel {
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+            ExpressLogger.info("[Timing] calling expressManager.update(pair:)")
             let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+            ExpressLogger.info("[Timing] expressManager.update(pair:) finished")
 
             // Populate _receiveAmount from the quote so the destination field
             // shows the calculated value when a TO token is selected after entering FROM amount
@@ -248,34 +252,36 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        updateTask = runTask(in: self, code: { @MainActor input in
+        ExpressLogger.info("[Timing] updateTask: creating task for \(loadingType)")
+        updateTask = runTask(in: self, code: { input in
+            ExpressLogger.info("[Timing] updateTask: task started executing for \(loadingType)")
             do {
-                input.update(providersState: .loading(loadingType))
+                // Fire-and-forget: deliver loading state to main without blocking.
+                // The main thread can be saturated for 10+ seconds by unrelated work
+                // (e.g. CHHapticEngine cleanup) — awaiting MainActor here would delay
+                // the network call by that entire duration.
+                Task { @MainActor [weak input] in input?.update(providersState: .loading(loadingType)) }
 
-                // Run the network-heavy block off the main actor.
-                // Awaiting .value suspends the @MainActor task and frees the main thread
-                // while network calls are in flight.
-                let expressManager = input.expressManager
-                let result = try await Task.detached {
-                    try await block(expressManager)
-                }.value
+                let result = try await block(input.expressManager)
 
                 switch result {
                 case .none:
-                    input.update(providersState: .idle)
+                    await MainActor.run { input.update(providersState: .idle) }
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
-                    input.update(providersState: .loaded(
-                        providers: updatingResult.providers,
-                        selected: updatingResult.selected,
-                        state: state
-                    ))
+                    await MainActor.run {
+                        input.update(providersState: .loaded(
+                            providers: updatingResult.providers,
+                            selected: updatingResult.selected,
+                            state: state
+                        ))
+                    }
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
             } catch {
-                input.update(providersState: .failure(error))
+                await MainActor.run { input.update(providersState: .failure(error)) }
             }
         })
     }
