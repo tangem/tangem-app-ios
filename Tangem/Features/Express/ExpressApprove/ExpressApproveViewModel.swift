@@ -27,6 +27,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     @Published var errorAlert: AlertBinder?
 
     let tangemIconProvider: TangemIconProvider
+    let confirmTransactionPolicy: ConfirmTransactionPolicy
     let feeFooterText: String
 
     // MARK: - Dependencies
@@ -53,6 +54,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
         tangemIconProvider = input.settings.tangemIconProvider
+        confirmTransactionPolicy = input.settings.confirmTransactionPolicy
 
         menuRowViewModel = .init(
             title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
@@ -150,14 +152,20 @@ private extension ExpressApproveViewModel {
     func sendApproveTransaction() {
         runTask(in: self) { viewModel in
             do {
+                await runOnMain {
+                    viewModel.isLoading = true
+                }
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
                 try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
-                // Do nothing
+                await runOnMain {
+                    viewModel.isLoading = false
+                }
             } catch {
                 ExpressLogger.error(error: error)
                 await runOnMain {
+                    viewModel.isLoading = false
                     viewModel.errorAlert = .init(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
@@ -178,6 +186,7 @@ extension ExpressApproveViewModel {
         let tokenItem: TokenItem
         let selectedPolicy: BSDKApprovePolicy
         let tangemIconProvider: TangemIconProvider
+        let confirmTransactionPolicy: ConfirmTransactionPolicy
     }
 }
 

@@ -14,7 +14,14 @@ import TangemUI
 struct EarnWidgetView: View {
     @ObservedObject var viewModel: EarnWidgetViewModel
 
+    @ViewBuilder
     var body: some View {
+        if viewModel.hasContent {
+            rootView
+        }
+    }
+
+    private var rootView: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
 
@@ -28,7 +35,7 @@ struct EarnWidgetView: View {
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.isFirstLoading
+            isLoadingState: viewModel.headerLoadingState
         )
     }
 

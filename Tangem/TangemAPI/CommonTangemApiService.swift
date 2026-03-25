@@ -256,12 +256,8 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func expressPromotion(request requestModel: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
-        try await request(for: .newPromotion(request: requestModel), decoder: decoder)
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        try await request(for: .promotion(request: .init(programName: programName)))
+    func promotion(request requestModel: BannerPromotion.Request) async throws -> BannerPromotion.Response {
+        try await request(for: .promotion(request: requestModel), decoder: decoder)
     }
 
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
@@ -273,31 +269,6 @@ extension CommonTangemApiService: TangemApiService {
             .map(PromoCodeActivationDTO.Response.self)
             .mapTangemAPIError()
             .eraseToAnyPublisher()
-    }
-
-    @discardableResult
-    func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
-        try await request(for: .validateNewUserPromotionEligibility(walletId: walletId, code: code))
-    }
-
-    @discardableResult
-    func validateOldUserPromotionEligibility(walletId: String, programName: String) async throws -> PromotionValidationResult {
-        try await request(for: .validateOldUserPromotionEligibility(walletId: walletId, programName: programName))
-    }
-
-    @discardableResult
-    func awardNewUser(walletId: String, address: String, code: String) async throws -> PromotionAwardResult {
-        try await request(for: .awardNewUser(walletId: walletId, address: address, code: code))
-    }
-
-    @discardableResult
-    func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult {
-        try await request(for: .awardOldUser(walletId: walletId, address: address, programName: programName))
-    }
-
-    @discardableResult
-    func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
-        try await request(for: .resetAward(cardId: cardId))
     }
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response {

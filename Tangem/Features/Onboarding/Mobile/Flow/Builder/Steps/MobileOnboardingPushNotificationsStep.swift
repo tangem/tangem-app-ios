@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 final class MobileOnboardingPushNotificationsStep: MobileOnboardingFlowStep {
     private let viewModel: PushNotificationsPermissionRequestViewModel
+    private let navigationTitle = Localization.onboardingTitleNotifications
 
     init(
         permissionManager: PushNotificationsPermissionManager,
@@ -21,11 +23,12 @@ final class MobileOnboardingPushNotificationsStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         PushNotificationsPermissionRequestView(
             viewModel: viewModel,
             topInset: 0,
             buttonsAxis: .vertical
         )
+        .stepsFlowNavBar(title: navigationTitle)
     }
 }

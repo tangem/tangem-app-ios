@@ -20,30 +20,27 @@ protocol KeysProvider {
     var keysPublisher: AnyPublisher<[KeyInfo], Never> { get }
 }
 
-class CommonKeysRepository {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    private let userWalletDataStorage = UserWalletDataStorage()
+final class CommonKeysRepository {
+    private let _keys: CurrentValueSubject<WalletKeys, Never>
 
-    private var _keys: CurrentValueSubject<WalletKeys, Never>
-    private let userWalletId: UserWalletId
-    private let encryptionKey: UserWalletEncryptionKey
+    private weak var userWalletModel: UserWalletModel?
 
     init(
-        userWalletId: UserWalletId,
-        encryptionKey: UserWalletEncryptionKey,
         keys: WalletKeys
     ) {
-        self.userWalletId = userWalletId
-        self.encryptionKey = encryptionKey
         _keys = .init(keys)
     }
 
+    // MARK: - Configuration
+
+    func configure(with userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
+    }
+
+    // MARK: - Helpers
+
     private func saveSensitiveData(sensitiveInfo: StoredUserWallet.SensitiveInfo) {
-        userWalletDataStorage.savePrivateData(
-            sensitiveInfo: sensitiveInfo,
-            userWalletId: userWalletId,
-            encryptionKey: encryptionKey
-        )
+        userWalletModel?.update(type: .updateSensitiveInfo(sensitiveInfo: sensitiveInfo))
     }
 }
 
@@ -59,7 +56,8 @@ extension CommonKeysRepository: KeysRepository {
     }
 
     func update(derivations: DerivationResult) {
-        var existingKeys = _keys.value
+        let existingKeys = _keys.value
+        let updatedKeys: WalletKeys
 
         switch existingKeys {
         case .cardWallet(let keys):
@@ -70,8 +68,7 @@ extension CommonKeysRepository: KeysRepository {
                     mutableKeys[masterKey.key]?.derivedKeys[derivedKey.key] = derivedKey.value
                 }
             }
-
-            existingKeys = .cardWallet(keys: mutableKeys)
+            updatedKeys = .cardWallet(keys: mutableKeys)
             saveSensitiveData(sensitiveInfo: .cardWallet(keys: mutableKeys))
 
         case .mobileWallet(let keys):
@@ -82,12 +79,11 @@ extension CommonKeysRepository: KeysRepository {
                     mutableKeys[masterKey.key]?.derivedKeys[derivedKey.key] = derivedKey.value
                 }
             }
-
-            existingKeys = .mobileWallet(keys: mutableKeys)
+            updatedKeys = .mobileWallet(keys: mutableKeys)
             saveSensitiveData(sensitiveInfo: .mobileWallet(keys: mutableKeys))
         }
 
-        _keys.value = existingKeys
+        _keys.value = updatedKeys
     }
 
     func update(keys: WalletKeys) {
