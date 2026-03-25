@@ -593,13 +593,13 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openAddressSelector(callback: @escaping (Int) -> Void) {
-        let addressNames = walletModel.addressNames
-        if addressNames.isEmpty {
+        let addressTypes = walletModel.receiveAddressTypes
+        if addressTypes.isEmpty {
             return
         }
 
-        let addressButtons = addressNames.enumerated().map { index, name in
-            ConfirmationDialogViewModel.Button(title: name) {
+        let addressButtons = addressTypes.enumerated().map { index, addressType in
+            ConfirmationDialogViewModel.Button(title: addressType.info.localizedName) {
                 callback(index)
             }
         }
