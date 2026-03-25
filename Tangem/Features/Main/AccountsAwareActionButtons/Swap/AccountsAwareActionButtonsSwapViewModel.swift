@@ -12,6 +12,7 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
+import TangemPay
 
 final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     // MARK: - Injected
@@ -30,12 +31,12 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
-    var sourceHeaderType: ExpressCurrencyHeaderType {
-        makeHeaderType(for: source, viewType: .send)
+    var sourceHeaderType: SendTokenHeader {
+        makeHeaderType(for: source, isSource: true)
     }
 
-    var destinationHeaderType: ExpressCurrencyHeaderType {
-        makeHeaderType(for: destination, viewType: .receive)
+    var destinationHeaderType: SendTokenHeader {
+        makeHeaderType(for: destination, isSource: false)
     }
 
     // MARK: - Private
@@ -107,9 +108,9 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
         switch source {
         case .placeholder:
             Task { await updateSourceToken(item: item) }
-        case .token:
+        case .token(let sourceItem, _):
             logPortfolioTokenSelected(item: item)
-            Task { await openExpressWithDestination(item: item) }
+            openSwap(source: sourceItem, receive: item)
         }
     }
 }
@@ -148,41 +149,23 @@ extension AccountsAwareActionButtonsSwapViewModel {
             return
         }
 
-        Task {
-            await updatePairs(sourceItem: sourceItem)
-
-            try? await Task.sleep(for: .seconds(Constants.floatingSheetDismissDelay))
-
-            await openExpressWithDestination(item: item)
-        }
+        openSwap(source: sourceItem, receive: item)
     }
 
-    private func openExpressWithDestination(item: AccountsAwareTokenSelectorItem) async {
-        guard case .token(let sourceItem, _) = source else {
-            return
-        }
+    private func openSwap(
+        source: AccountsAwareTokenSelectorItem,
+        receive: AccountsAwareTokenSelectorItem,
+    ) {
+        let source = source
+            .makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
-        await updateDestinationToken(item: item)
+        let receive = receive
+            .makeSendSwapableTokenFactory(expressOperationType: .swap)
+            .makeSwapableToken()
 
-        await MainActor.run {
-            coordinator?.openExpress(
-                input: .init(
-                    userWalletInfo: sourceItem.userWalletInfo,
-                    source: ExpressInteractorWalletModelWrapper(
-                        userWalletInfo: sourceItem.userWalletInfo,
-                        walletModel: sourceItem.walletModel,
-                        expressOperationType: .swap
-                    ),
-                    destination: .chosen(
-                        ExpressInteractorWalletModelWrapper(
-                            userWalletInfo: item.userWalletInfo,
-                            walletModel: item.walletModel,
-                            expressOperationType: .swap
-                        )
-                    )
-                )
-            )
-        }
+        let input = PredefinedSwapParameters.from(source, receive: receive)
+        coordinator?.openSwap(input: input)
     }
 }
 
@@ -192,7 +175,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
     func updateSourceToken(item: AccountsAwareTokenSelectorItem) async {
         ActionButtonsAnalyticsService.trackTokenClicked(
             .swap,
-            tokenSymbol: item.walletModel.tokenItem.currencySymbol
+            tokenSymbol: item.tokenItem.currencySymbol
         )
 
         let viewModel = itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) {}
@@ -201,7 +184,9 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             source = .token(item, viewModel: viewModel)
             destination = .placeholder(text: Localization.actionButtonsYouWantToReceive)
 
-            coordinator?.showYieldNotificationIfNeeded(for: item.walletModel, completion: nil)
+            if let walletModel = item.kind.walletModel {
+                coordinator?.showYieldNotificationIfNeeded(for: walletModel, completion: nil)
+            }
         }
 
         await updatePairs(sourceItem: item)
@@ -222,13 +207,13 @@ private extension AccountsAwareActionButtonsSwapViewModel {
                 self.tokenSelectorState = .loading
             } operation: {
                 try await self.expressPairsRepository.updatePairs(
-                    for: sourceItem.walletModel.tokenItem.expressCurrency,
+                    for: sourceItem.tokenItem.expressCurrency,
                     userWalletInfo: sourceItem.userWalletInfo
                 )
             }.value
 
             // We set the `filterTokenItem` after pairs is loading
-            filterTokenItem.send(sourceItem.walletModel.tokenItem)
+            filterTokenItem.send(sourceItem.tokenItem)
 
             await MainActor.run {
                 tokenSelectorState = .selector
@@ -269,18 +254,17 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         notificationInput = input
     }
 
-    func makeHeaderType(for tokenItemType: TokenItemType?, viewType: ExpressCurrencyViewType) -> ExpressCurrencyHeaderType {
+    func makeHeaderType(for tokenItemType: TokenItemType?, isSource: Bool) -> SendTokenHeader {
         switch tokenItemType {
-        case .none,
-             .placeholder:
-            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: nil)
+        case .none, .placeholder:
+            return .action(name: isSource ? Localization.swappingFromTitle : Localization.swappingToTitle)
         case .token(let item, _):
-            let provider = ExpressInteractorTokenHeaderProvider(
-                userWalletInfo: item.userWalletInfo,
-                account: item.account
-            )
-            let tokenHeader = provider.makeHeader()
-            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: tokenHeader)
+            let tokenHeader = TokenHeaderProvider(
+                userWalletName: item.userWalletInfo.name,
+                account: item.kind.account
+            ).makeHeader()
+
+            return tokenHeader.asSendTokenHeader(actionType: .swap, isSource: isSource)
         }
     }
 
@@ -289,7 +273,7 @@ private extension AccountsAwareActionButtonsSwapViewModel {
             source: .portfolio,
             userHasSearchedDuringThisSession: false
         )
-        analyticsLogger.logTokenSelected(coinSymbol: item.walletModel.tokenItem.currencySymbol)
+        analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 }
 
@@ -308,7 +292,7 @@ extension AccountsAwareActionButtonsSwapViewModel {
         var tokenItem: TokenItem? {
             switch self {
             case .placeholder: .none
-            case .token(let item, _): item.walletModel.tokenItem
+            case .token(let item, _): item.tokenItem
             }
         }
     }

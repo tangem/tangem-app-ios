@@ -37,16 +37,16 @@ enum SendSummaryStepBuilder {
     struct IO {
         let input: SendSummaryInput
         let output: SendSummaryOutput
-        let receiveTokenAmountInput: SendReceiveTokenAmountInput?
+        let swapModelStateProvider: SwapModelStateProvider?
 
         init(
             input: SendSummaryInput,
             output: SendSummaryOutput,
-            receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil
+            swapModelStateProvider: SwapModelStateProvider? = nil
         ) {
             self.input = input
             self.output = output
-            self.receiveTokenAmountInput = receiveTokenAmountInput
+            self.swapModelStateProvider = swapModelStateProvider
         }
     }
 
@@ -57,10 +57,29 @@ enum SendSummaryStepBuilder {
     struct Dependencies {
         let sendFeeProvider: any SendFeeUpdater
         let notificationManager: any NotificationManager
+        let autoupdatingTimer: AutoupdatingTimer?
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
-        let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
+        let sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder
         let stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
+
+        init(
+            sendFeeProvider: any SendFeeUpdater,
+            notificationManager: any NotificationManager,
+            autoupdatingTimer: AutoupdatingTimer? = nil,
+            analyticsLogger: any SendSummaryAnalyticsLogger,
+            sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
+            sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder,
+            stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
+        ) {
+            self.sendFeeProvider = sendFeeProvider
+            self.notificationManager = notificationManager
+            self.autoupdatingTimer = autoupdatingTimer
+            self.analyticsLogger = analyticsLogger
+            self.sendDescriptionBuilder = sendDescriptionBuilder
+            self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
+            self.stakingDescriptionBuilder = stakingDescriptionBuilder
+        }
     }
 
     typealias ReturnValue = SendSummaryStep
@@ -78,9 +97,9 @@ enum SendSummaryStepBuilder {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,
             output: io.output,
-            receiveTokenAmountInput: io.receiveTokenAmountInput,
+            swapModelStateProvider: io.swapModelStateProvider,
             sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
-            swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
+            sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
             stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
         )
 
@@ -99,6 +118,7 @@ enum SendSummaryStepBuilder {
         let step = SendSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
+            autoupdatingTimer: dependencies.autoupdatingTimer,
             analyticsLogger: dependencies.analyticsLogger,
             sendFeeProvider: dependencies.sendFeeProvider
         )

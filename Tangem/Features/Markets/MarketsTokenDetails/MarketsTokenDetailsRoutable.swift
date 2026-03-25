@@ -18,4 +18,5 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle)
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int)
+    func shareTokenDetails(url: URL)
 }

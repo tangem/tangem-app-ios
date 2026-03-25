@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import Kingfisher
+import TangemUI
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
