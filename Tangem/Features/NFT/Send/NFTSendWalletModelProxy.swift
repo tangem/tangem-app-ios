@@ -57,6 +57,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
+    var addresses: [String] {
+        mainTokenWalletModel.addresses
+    }
+
     var defaultAddressString: String {
         mainTokenWalletModel.defaultAddressString
     }
