@@ -417,8 +417,8 @@ extension CommonUserWalletModel: UserWalletSerializable {
         switch walletInfo {
         case .cardWallet(let cardInfo):
             return .cardWallet(keys: cardInfo.card.wallets)
-        case .mobileWallet:
-            return .mobileWallet(keys: keysRepository.keys)
+        case .mobileWallet(let mobileWalletInfo):
+            return .mobileWallet(keys: mobileWalletInfo.keys)
         }
     }
 }
