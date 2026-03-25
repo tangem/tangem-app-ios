@@ -23,4 +23,7 @@ protocol TangemPayBalancesProvider {
 
     /// Available Tangem Pay balance as crypto currency from `TangemPayBalance.availableForWithdrawal.amount`
     var availableBalanceProvider: TokenBalanceProvider { get }
+
+    /// Available Tangem Pay balance as fiat currency from `TangemPayBalance.availableForWithdrawal.amount`
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
 }
