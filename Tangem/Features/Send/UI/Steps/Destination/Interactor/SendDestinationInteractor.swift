@@ -23,15 +23,17 @@ protocol SendDestinationInteractor {
     var destinationError: AnyPublisher<String?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<String?, Never> { get }
 
-    func willResolve(address: String) -> Bool
+    func shouldResolve(address: String) -> Bool
 
-    func update(destination: String, source: Analytics.DestinationAddressSource)
+    @MainActor
+    func update(destination: String, source: Analytics.DestinationAddressSource) async
     func update(additionalField: String)
 
     func preloadTransactionsHistoryIfNeeded()
 }
 
 class CommonSendDestinationInteractor {
+    private let initialSourceToken: SendSourceToken
     private weak var input: SendDestinationInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
@@ -50,15 +52,16 @@ class CommonSendDestinationInteractor {
     private let _suggestedWallets: CurrentValueSubject<[SendDestinationSuggestedWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendDestinationSuggestedTransactionRecord], Never> = .init([])
 
-    private var updatingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
+        initialSourceToken: SendSourceToken,
         input: SendDestinationInput,
-        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
         dependenciesBuilder: SendDestinationInteractorDependenciesProvider
     ) {
+        self.initialSourceToken = initialSourceToken
         self.input = input
         self.receiveTokenInput = receiveTokenInput
         self.saver = saver
@@ -68,15 +71,21 @@ class CommonSendDestinationInteractor {
     }
 
     private func bind() {
-        receiveTokenInput?.receiveTokenPublisher
+        // Fallback publisher is used to trigger dependencies update once on initialization if `receiveTokenInput` is nil
+        let receiveTokenPublisher = receiveTokenInput?
+            .receiveTokenPublisher
+            .eraseToOptional()
+            .eraseToAnyPublisher() ?? .just(output: nil)
+
+        receiveTokenPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { $0.updateDependencies(receivedTokenType: $1) }
+            .sink { $0.updateDependencies(receivedToken: $1?.value) }
             .store(in: &bag)
     }
 
-    private func updateDependencies(receivedTokenType: SendReceiveTokenType) {
-        dependenciesBuilder.update(receivedTokenType: receivedTokenType)
+    private func updateDependencies(receivedToken: SendReceiveToken?) {
+        dependenciesBuilder.update(receivedToken: receivedToken)
 
         _suggestedWallets.send(dependenciesBuilder.suggestedWallets)
         dependenciesBuilder.transactionHistoryProvider
@@ -128,18 +137,6 @@ class CommonSendDestinationInteractor {
             throw error
         }
     }
-
-    private func resolveIfPossible(address: String, source: Analytics.DestinationAddressSource) async throws -> SendDestination {
-        guard let addressResolver = dependenciesBuilder.addressResolver else {
-            return .init(value: .plain(address), source: source)
-        }
-
-        defer { _isValidatingDestination.send(false) }
-        _isValidatingDestination.send(true)
-
-        let resolved = try await addressResolver.resolve(address)
-        return .init(value: .resolved(address: address, resolved: resolved), source: source)
-    }
 }
 
 // MARK: - SendDestinationInteractor
@@ -152,7 +149,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         return receiveTokenInput
             .receiveTokenPublisher
-            .map { $0.tokenItem }
+            .withWeakCaptureOf(self)
+            .map { $1.value?.tokenItem ?? $0.initialSourceToken.tokenItem }
             .eraseToAnyPublisher()
     }
 
@@ -199,12 +197,12 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         _destinationAdditionalFieldError.map { $0?.localizedDescription }.eraseToAnyPublisher()
     }
 
-    func willResolve(address: String) -> Bool {
+    func shouldResolve(address: String) -> Bool {
         guard let addressResolver = dependenciesBuilder.addressResolver else { return false }
         return addressResolver.requiresResolution(address: address)
     }
 
-    func update(destination address: String, source: Analytics.DestinationAddressSource) {
+    func update(destination address: String, source: Analytics.DestinationAddressSource) async {
         let validator = dependenciesBuilder.validator
         _canEmbedAdditionalField.send(validator.canEmbedAdditionalField(into: address))
 
@@ -213,26 +211,48 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             return
         }
 
-        updatingTask?.cancel()
-        updatingTask = runTask(in: self) {
-            do {
-                try validator.validate(destination: address)
-                let resolved = try await $0.resolveIfPossible(address: address, source: source)
-                $0.update(destination: .success(resolved), source: source)
-            } catch is CancellationError {
-                // Do nothing
-            } catch let error as SendAddressServiceError {
-                $0.update(destination: .failure(error), source: source)
-            } catch {
-                AppLogger.error("Resolving address error: ", error: error)
-                $0.update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
-            }
+        if let validationError = validate(destination: address) {
+            update(destination: .failure(validationError), source: source)
+            return
+        }
+
+        guard let addressResolver = dependenciesBuilder.addressResolver,
+              addressResolver.requiresResolution(address: address) else {
+            update(destination: .success(.init(value: .plain(address), source: source)), source: source)
+            return
+        }
+
+        defer { _isValidatingDestination.send(false) }
+        _isValidatingDestination.send(true)
+
+        do {
+            let result = try await addressResolver.resolve(address)
+            let resolvedDestination = SendDestination(
+                value: .resolved(address: address, resolved: result.resolved, memoRequired: result.requiresDestinationTag),
+                source: source
+            )
+            update(destination: .success(resolvedDestination), source: source)
+        } catch is CancellationError {
+            // Do nothing
+        } catch let error as SendAddressServiceError {
+            update(destination: .failure(error), source: source)
+        } catch {
+            AppLogger.error("Resolving address error: ", error: error)
+            update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
+        }
+    }
+
+    func validate(destination address: String) -> Error? {
+        do {
+            try dependenciesBuilder.validator.validate(destination: address)
+            return nil
+        } catch {
+            return error
         }
     }
 
     func update(additionalField value: String) {
         guard let type = dependenciesBuilder.additionalFieldType else {
-            assertionFailure("This method don't have to be called if additionalFieldType is nil")
             saver.update(additionalField: .notSupported)
             _additionalFieldValid.send(true)
             return

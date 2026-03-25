@@ -21,7 +21,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    let tangemPayManager: TangemPayManager
+    let tangemPayKYCInteractor: TangemPayKYCInteractor
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     var primaryButton: MainButton.Settings {
@@ -60,10 +60,10 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     init(
-        tangemPayManager: TangemPayManager,
+        tangemPayKYCInteractor: TangemPayKYCInteractor,
         coordinator: TangemPayKYCDeclinedRoutable
     ) {
-        self.tangemPayManager = tangemPayManager
+        self.tangemPayKYCInteractor = tangemPayKYCInteractor
         self.coordinator = coordinator
     }
 
@@ -75,7 +75,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         coordinator?.closeKYCDeclinedPopup()
         runTask(in: self) { viewModel in
             do {
-                try await viewModel.tangemPayManager.launchKYC()
+                try await viewModel.tangemPayKYCInteractor.launchKYC()
             } catch {
                 VisaLogger.error("Failed to launch KYC from hyperlink", error: error)
             }
@@ -85,7 +85,9 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     private func openSupport() {
         dismiss()
         let logsComposer = LogsComposer(
-            infoProvider: TangemPayKYCDeclinedDataCollector(customerId: tangemPayManager.customerId),
+            infoProvider: TangemPayKYCDeclinedDataCollector(
+                customerId: tangemPayKYCInteractor.customerId
+            ),
             includeZipLogs: false
         )
         let mailViewModel = MailViewModel(
@@ -100,7 +102,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     private func hideKYC() {
-        tangemPayManager.cancelKYC { [weak self] succeeded in
+        tangemPayKYCInteractor.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }

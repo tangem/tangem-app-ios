@@ -192,6 +192,7 @@
 "common_activate" = "Activate";
 "common_add_to_portfolio" = "Add to portfolio";
 "common_add_token" = "Add token";
+"common_add_tokens" = "Add tokens";
 "common_add" = "Add";
 "common_added" = "Added";
 "common_address" = "Address";
@@ -274,6 +275,7 @@
 "common_hour" = "hour";
 "common_import" = "Import";
 "common_in_progress" = "In progress";
+"common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_learn_more" = "Learn more";
@@ -290,6 +292,7 @@
 "common_next" = "Next";
 "common_nft" = "NFT";
 "common_no_address" = "No address";
+"common_no_results" = "No results";
 "common_no" = "No";
 "common_not_added" = "Not Added";
 "common_not_available" = "Not available";
@@ -350,6 +353,7 @@
 "common_to_wallet_name" = "To %@";
 "common_to" = "To";
 "common_today" = "Today";
+"common_token_send" = "Token to send";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
@@ -358,6 +362,7 @@
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "I understand";
 "common_unknown_error" = "There was an error. Please try again.";
+"common_unlock" = "Unlock";
 "common_unreachable" = "Unreachable";
 "common_unstake" = "Unstake";
 "common_utxo_validate_withdrawal_message_warning" = "Due to %1$@ limitations only %2$li UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
@@ -437,9 +442,9 @@
 "earn_filter_by" = "Filter by";
 "earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
-"earn_mostly_used" = "Mostly used";
+"earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
-"earn_title" = "Earn";
+"earn_title" = "Staking & Yield mode";
 "email_preface_wc_error" = "Ciao team di supporto, ho riscontrato un errore con il codice: %@";
 "email_subject_wc_error" = "Errore WalletConnect";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
@@ -448,7 +453,6 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
-"exсhange_token_description" = "Swap any asset in your portfolio for this token";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_cex_status_button_title" = "Status";
 "express_choose_provider" = "Choose provider";
@@ -645,6 +649,9 @@
 "initial_message_purge_wallet_body" = "To reset to factory settings tap the card or ring as shown above and do not remove until the end of the operation";
 "initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "To sign tap the card or ring as shown above and do not remove until the end of the operation";
+"initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
+"initial_wallet_sync_banner_title" = "Wallet successfully imported";
+"initial_wallet_sync_restore_progress" = "Restoring %li%";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card or ring to enter";
@@ -660,6 +667,7 @@
 "mail_error_no_accounts_title" = "No Mail accounts";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "Manage tokens";
+"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card or ring";
 "main_tokens" = "Tokens";
@@ -683,8 +691,10 @@
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
-"markets_earn_common_title" = "Earn with Tangem";
+"markets_earn_common_title" = "Staking & Yield mode";
 "markets_generate_addresses_notification" = "To generate addresses for selected networks, you must scan your Tangem Wallet card or ring";
+"markets_hint_part_one" = "Swipe up to explore the market";
+"markets_hint_part_two" = "Find new hidden gems";
 "markets_hint" = "To add tokens pull this up or tap the search bar";
 "markets_insights_info_description_message" = "This section’s data is sourced from the following networks: %@";
 "markets_loading_error_title" = "Unable to load the data…";
@@ -695,6 +705,7 @@
 "markets_search_result_title" = "Result";
 "markets_search_see_tokens_under_100k" = "See tokens under 100k USD market cap";
 "markets_search_show_tokens" = "Show tokens";
+"markets_search_title_placeholder" = "Crypto, news and more";
 "markets_search_token_no_result_title" = "No result";
 "markets_select_network" = "Select network";
 "markets_select_wallet" = "Select wallet";
@@ -740,6 +751,10 @@
 "markets_token_details_holders_description" = "The change in the number of token holders within a specific timeframe";
 "markets_token_details_holders_full" = "Holders";
 "markets_token_details_holders" = "Holders";
+"markets_token_details_insight_day_timeline" = "D";
+"markets_token_details_insight_month_timeline" = "M";
+"markets_token_details_insight_week_timeline" = "W";
+"markets_token_details_insight_year_timeline" = "Y";
 "markets_token_details_insights" = "Insights";
 "markets_token_details_links" = "Links";
 "markets_token_details_liquidity_description" = "The change in how much liquidity is available for the token during the specified timeframe";
@@ -767,9 +782,11 @@
 "markets_token_details_total_supply_description" = "The maximum number of coins or tokens that can ever exist for a particular cryptocurrency";
 "markets_token_details_total_supply_full" = "Total supply";
 "markets_token_details_total_supply" = "Total supply";
+"markets_token_details_trading_interval" = "24h";
 "markets_token_details_trading_volume_24h_description" = "The total amount of a cryptocurrency that has been traded within the last 24 hours, indicating the level of activity and liquidity in the market";
 "markets_token_details_trading_volume_full" = "Trading volume (24h)";
 "markets_token_details_trading_volume" = "Trading volume (24h)";
+"markets_token_details_valuation_value_in_total" = "%@ in total";
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
@@ -785,6 +802,7 @@
 "news_related_tokens" = "Related tokens";
 "news_sources" = "Related news";
 "news_stay_in_the_loop" = "Stay in the loop";
+"news_trending_score" = "Trending score";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
 "nft_collections_empty_description" = "NFTs sent to your wallet address will show up here.";
@@ -944,7 +962,7 @@
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
 "onramp_no_available_providers" = "No available providers for this currency";
-"onramp_offer_type_fastet" = "Quickest Processing";
+"onramp_offer_type_fastet" = "Quickest processing";
 "onramp_pay_with" = "Pay with";
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
@@ -986,6 +1004,10 @@
 "qr_scanner_camera_denied_settings_button" = "Settings";
 "qr_scanner_camera_denied_text" = "You have not given access to your camera";
 "qr_scanner_camera_denied_title" = "Camera access denied";
+"qr_scanner_error_unrecognized_message" = "Sorry, this QR code could not be recognized.";
+"qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
+"qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
+"qr_scanner_error_unsupported_network_title" = "No supported tokens found";
 "receive_bottom_sheet_no_memo_required_message" = "No memo required";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
 "receive_bottom_sheet_warning_message_description" = "Sending any other currency will result in its irreversible loss.";
@@ -1109,6 +1131,11 @@
 "send_notification_transaction_limit_title" = "Transaction limitation";
 "send_optional_field" = "Optional";
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
+"send_rate_fixed_info_description" = "When you use a fixed rate, the amount you receive is locked in at the time of the swap. This protects you from price changes during the transaction.";
+"send_rate_fixed_info_title" = "Fixed rate";
+"send_rate_floating_info_description" = "A floating rate means the final amount you receive may change slightly based on market conditions between the time you start and complete the swap.";
+"send_rate_floating_info_title" = "Floating rate";
+"send_rate_is_fixed" = "Rate is fixed";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
@@ -1146,6 +1173,7 @@
 "send_with_swap_recipient_get_amount" = "Recipient gets %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
+"send_with_swap_something_went_wrong" = "Something went wrong. Try again.";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
@@ -1310,8 +1338,8 @@
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
-"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
-"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
@@ -1336,6 +1364,7 @@
 "swapping_from_title" = "You swap";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_high_price_impact_title" = "High price impact";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_permission_header" = "Give Permission";
 "swapping_permit_and_swap" = "Permit and Swap";
@@ -1382,6 +1411,7 @@
 "tangempay_cancel_kyc" = "Nascondi verifica dalla schermata";
 "tangempay_card_details_add_funds_subtitle" = "Opzioni di ricarica";
 "tangempay_card_details_add_funds" = "Aggiungi fondi";
+"tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
 "tangempay_card_details_card_number" = "Numero carta";
 "tangempay_card_details_change_pin_success_description" = "La carta è completamente pronta per i pagamenti.";
 "tangempay_card_details_change_pin_success_title" = "Codice PIN creato";

@@ -52,14 +52,18 @@ final class AccountsAwareActionButtonsSellViewModel: ObservableObject {
 
 extension AccountsAwareActionButtonsSellViewModel: AccountsAwareTokenSelectorViewModelOutput {
     func userDidSelect(item: AccountsAwareTokenSelectorItem) {
-        ActionButtonsAnalyticsService.trackTokenClicked(.sell, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
+        guard let walletModel = item.kind.walletModel else {
+            return
+        }
 
-        guard let url = makeSellUrl(walletModel: item.walletModel) else {
+        ActionButtonsAnalyticsService.trackTokenClicked(.sell, tokenSymbol: walletModel.tokenItem.currencySymbol)
+
+        guard let url = makeSellUrl(walletModel: walletModel) else {
             return
         }
 
         coordinator?.openSellCrypto(at: url) { [weak self] response in
-            self?.makeSendToSellModel(from: response, and: item.walletModel)
+            self?.makeSendToSellModel(from: response, and: walletModel)
         }
     }
 }

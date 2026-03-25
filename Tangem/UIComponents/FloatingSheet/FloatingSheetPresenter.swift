@@ -6,7 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import protocol TangemUI.FloatingSheetContentViewModel
+
+protocol FloatingSheetPresentingStateProvider: AnyObject {
+    var hasPresentedSheetPublisher: AnyPublisher<Bool, Never> { get }
+}
 
 @MainActor
 protocol FloatingSheetPresenter: AnyObject {

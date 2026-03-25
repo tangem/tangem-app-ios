@@ -29,7 +29,9 @@ enum SendViewModelBuilder {
 
     struct Dependencies {
         let alertBuilder: any SendAlertBuilder
-        let dataBuilder: any SendGenericBaseDataBuilder
+        let mailDataBuilder: any SendMailDataBuilder
+        let approveViewModelInputDataBuilder: any SendApproveViewModelInputDataBuilder
+        let feeCurrencyProviderDataBuilder: any SendFeeCurrencyProviderDataBuilder
         let analyticsLogger: any SendBaseViewAnalyticsLogger
         let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
         let tangemIconProvider: TangemIconProvider
@@ -49,7 +51,9 @@ enum SendViewModelBuilder {
             interactor: interactor,
             stepsManager: stepsManager,
             alertBuilder: dependencies.alertBuilder,
-            dataBuilder: dependencies.dataBuilder,
+            mailDataBuilder: dependencies.mailDataBuilder,
+            approveViewModelInputDataBuilder: dependencies.approveViewModelInputDataBuilder,
+            feeCurrencyProviderDataBuilder: dependencies.feeCurrencyProviderDataBuilder,
             analyticsLogger: dependencies.analyticsLogger,
             blockchainSDKNotificationMapper: dependencies.blockchainSDKNotificationMapper,
             tangemIconProvider: dependencies.tangemIconProvider,

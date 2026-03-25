@@ -8,23 +8,17 @@
 
 import TangemAccounts
 import Foundation
+import TangemMacro
 import TangemFoundation
 
 extension MarketsAccountsAwarePortfolioContainerViewModel {
+    @CaseFlagable
     enum TypeView {
         case empty
         case list(ListStyle)
         case unsupported
         case unavailable
         case loading
-
-        var isList: Bool {
-            if case .list = self {
-                return true
-            }
-
-            return false
-        }
     }
 }
 
