@@ -439,6 +439,7 @@
 "dynamic_addresses_enter_features_receving_description" = "Easily receive funds in UTXO-based networks with automatic address generation — no manual address management required.";
 "dynamic_addresses_enter_features_receving_title" = "Seamless receiving";
 "dynamic_addresses_enter_main_button_title" = "Enable Dynamic Addresses";
+"dynamic_addresses_enter_subtitle" = "Dynamic addresses create a new one each time for extra privacy — your total balance stays the same. ";
 "dynamic_addresses_error_has_custom_token_description" = "Dynamic Addresses cannot be enabled because some custom addresses/tokens use a modified derivation path, which doesn’t meet the required criteria.";
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
