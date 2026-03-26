@@ -42,4 +42,24 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
             return nil
         }
     }
+
+    // MARK: - Combined provider support
+
+    /// Creates a `CombinedExpressProviderManager` for hybrid providers whose CEX/DEX
+    /// flow type is determined dynamically after the quote response.
+    /// Wire this into `makeExpressProviderManager` when the backend defines the new provider type.
+    func makeCombinedExpressProviderManager(
+        provider: ExpressProvider,
+        pair: ExpressManagerSwappingPair,
+        flowTypeResolver: ExpressFlowTypeResolver = DefaultExpressFlowTypeResolver()
+    ) -> ExpressProviderManager {
+        CombinedExpressProviderManager(
+            provider: provider,
+            swappingPair: pair,
+            expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
+            expressAPIProvider: expressAPIProvider,
+            mapper: mapper,
+            flowTypeResolver: flowTypeResolver
+        )
+    }
 }
