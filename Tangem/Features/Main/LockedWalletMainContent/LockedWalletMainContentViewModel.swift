@@ -46,8 +46,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
             )
         }
 
-    var footerViewModel: MainFooterViewModel?
-
     @Published
     private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
