@@ -117,11 +117,5 @@ extension MarketsPortfolioTokenItemFactory {
     enum NamingStyle {
         case userWalletName
         case tokenItemName
-
-        private var timeToRemove: Bool {
-            // Run into compilation error here? This means .accounts toggle is removed
-            // NamingStyle enum should be removed in favor of `.tokenItemName` case
-            FeatureProvider.isAvailable(.accounts)
-        }
     }
 }
