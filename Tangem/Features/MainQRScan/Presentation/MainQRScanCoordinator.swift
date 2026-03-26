@@ -69,11 +69,6 @@ extension MainQRScanCoordinator: MainQRScanRoutable {
 
 extension MainQRScanCoordinator {
     @MainActor
-    func rearmScanner() {
-        rootViewModel?.rearmScanner()
-    }
-
-    @MainActor
     func turnOffFlashIfNeeded() {
         rootViewModel?.turnOffFlashIfNeeded()
     }
