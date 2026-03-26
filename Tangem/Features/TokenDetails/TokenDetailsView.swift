@@ -124,6 +124,10 @@ struct TokenDetailsView: View {
                     Button(Localization.tokenDetailsGenerateXpub, action: viewModel.generateXPUBButtonAction)
                 }
 
+                if viewModel.canManageDynamicAddresses {
+                    Button(Localization.dynamicAddresses, action: viewModel.openDynamicAddressesManagement)
+                }
+
                 if viewModel.canHideToken {
                     Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
