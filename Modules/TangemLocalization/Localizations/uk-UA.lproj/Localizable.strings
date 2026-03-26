@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "Немає даних";
 "markets_pulse_common_title" = "Пульс ринку";
 "markets_quick_actions" = "Швидкі дії";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Шукати на маркеті";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Переглянути токени до 100к USD ринкової капіталізації";
 "markets_search_show_tokens" = "Показати токени";
