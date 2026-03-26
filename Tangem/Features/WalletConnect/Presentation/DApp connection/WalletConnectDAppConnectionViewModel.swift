@@ -81,11 +81,7 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
 
 extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRoutable {
     func openConnectionRequest() {
-        if FeatureProvider.isAvailable(.accounts) {
-            connectionRequestViewModel.updateSelectedAccount(selectedAccount, selectedUserWallet: selectedUserWallet)
-        } else {
-            connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
-        }
+        connectionRequestViewModel.updateSelectedAccount(selectedAccount, selectedUserWallet: selectedUserWallet)
 
         state = .connectionRequest(connectionRequestViewModel)
     }
@@ -213,11 +209,7 @@ extension WalletConnectDAppConnectionViewModel {
                 self?.openConnectionRequest()
             },
             doneAction: { [weak self] selectedBlockchains in
-                if FeatureProvider.isAvailable(.accounts) {
-                    self?.connectionRequestViewModel.updateSelectedBlockchainsForAccount(selectedBlockchains)
-                } else {
-                    self?.connectionRequestViewModel.updateSelectedBlockchainsForWallet(selectedBlockchains)
-                }
+                self?.connectionRequestViewModel.updateSelectedBlockchainsForAccount(selectedBlockchains)
                 self?.openConnectionRequest()
             }
         )
