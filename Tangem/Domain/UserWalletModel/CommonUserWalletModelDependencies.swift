@@ -175,7 +175,7 @@ private extension CommonUserWalletModelDependencies {
         userTokensManager: UserTokensManager,
         walletManagerFactory: AnyWalletManagerFactory
     ) -> WalletModelsManager {
-        WalletModelsManagerStub()
+        WalletModelsManagerMock()
     }
 
     static func makeAccountModelsManagerDependencies(

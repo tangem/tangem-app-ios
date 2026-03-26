@@ -25,7 +25,7 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
 
     func logConnectionProposalReceived(
         _ connectionProposal: WalletConnectDAppConnectionProposal,
-        accountAnalyticsProviding: any AccountModelAnalyticsProviding
+        accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
     ) {
         let proposalReceivedDomainVerificationValue = getAnalyticsVerificationParameterValue(
             from: connectionProposal.verificationStatus
@@ -44,17 +44,21 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
-        proposalReceivedParams.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        if let accountAnalyticsProviding {
+            proposalReceivedParams.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
 
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
     }
 
-    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: any AccountModelAnalyticsProviding) {
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?) {
         var params: [Analytics.ParameterKey: String] = [
             .walletConnectDAppName: dAppName,
         ]
 
-        params.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        if let accountAnalyticsProviding {
+            params.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
 
         Analytics.log(event: .walletConnectDAppConnectionRequestConnectButtonTapped, params: params)
     }

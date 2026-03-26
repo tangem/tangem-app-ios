@@ -18,10 +18,6 @@ struct WalletConnectViewState: Equatable {
     var dialog: ModalDialog?
     var newConnectionButton: NewConnectionButton
 
-    var usesAccountBasedLayout: Bool {
-        contentMode == .repository
-    }
-
     var shouldDisplayWalletNames: Bool {
         switch contentState {
         case .content(let items):
