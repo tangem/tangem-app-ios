@@ -4571,6 +4571,7 @@
 		EF9E38022B73FCBD004B694C /* BannerNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E38012B73FCBD004B694C /* BannerNotificationEvent.swift */; };
 		EF9E4CFE2E57649B0019FADC /* PreferredValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E4CFD2E57649B0019FADC /* PreferredValues.swift */; };
 		EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9EA9622B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift */; };
+		EF9EA9652B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9EA9642B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift */; };
 		EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907C299CFCBE006F638F /* WebViewContainer.swift */; };
 		EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */; };
 		EF9F9081299CFCE9006F638F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9080299CFCE9006F638F /* WebView.swift */; };
@@ -9626,6 +9627,7 @@
 		EF9E38012B73FCBD004B694C /* BannerNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerNotificationEvent.swift; sourceTree = "<group>"; };
 		EF9E4CFD2E57649B0019FADC /* PreferredValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredValues.swift; sourceTree = "<group>"; };
 		EF9EA9622B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListAdapter.swift; sourceTree = "<group>"; };
+		EF9EA9642B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTokensListAdapter.swift; sourceTree = "<group>"; };
 		EF9F907C299CFCBE006F638F /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainerViewModel.swift; sourceTree = "<group>"; };
 		EF9F9080299CFCE9006F638F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
@@ -26003,6 +26005,7 @@
 			isa = PBXGroup;
 			children = (
 				EF9EA9622B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift */,
+				EF9EA9642B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift */,
 			);
 			path = ExpressTokensListAdapter;
 			sourceTree = "<group>";
@@ -30604,6 +30607,7 @@
 				B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */,
+				EF9EA9652B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
 				B0D18AC52D37A2D7009357AD /* VisaOnboardingWalletConnectViewModel.swift in Sources */,
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
