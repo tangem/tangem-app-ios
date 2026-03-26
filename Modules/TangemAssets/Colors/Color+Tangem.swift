@@ -392,4 +392,8 @@ public extension Color {
 
         return nil
     }
+
+    init(hex: String, fallback: Color = .clear) {
+        self = Color(hex: hex) ?? fallback
+    }
 }
