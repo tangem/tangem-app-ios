@@ -63,7 +63,8 @@ struct MainQRJSONPaymentParser {
             amount: amount,
             memo: memo,
             tokenSymbol: tokenSymbol,
-            tokenContractAddress: nil
+            tokenContractAddress: nil,
+            rawTokenAmount: nil
         )
     }
 }
