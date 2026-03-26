@@ -116,3 +116,15 @@ struct ExpressAPITarget: Moya.TargetType {
 
     var headers: [String: String]? { nil }
 }
+
+// MARK: - TargetTypeLogConvertible
+
+extension ExpressAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        true
+    }
+}

@@ -80,7 +80,11 @@ public struct TangemExpressFactory {
             DeviceInfoPlugin(),
             TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
-        let provider = TangemProvider<ExpressAPITarget>(plugins: plugins, sessionConfiguration: configuration)
+        let provider = TangemProvider<ExpressAPITarget>(
+            callbackQueue: .global(qos: .userInitiated),
+            plugins: plugins,
+            sessionConfiguration: configuration
+        )
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
