@@ -6,7 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 enum MainQRParserConstants {
+    /// Tron amount heuristic threshold.
+    /// Integer amounts above this value (without a decimal point) are treated as raw
+    /// values that need to be divided by `10^decimals`.
+    static let tronRawAmountThreshold: Decimal = 100_000
+
     static let walletConnectSchemeName = "wc"
     static let eip681TransferPath = "/transfer"
     static let genericTransferPrefix = "transfer/"
@@ -41,17 +48,27 @@ enum MainQRParserConstants {
         QueryKey.message,
         QueryKey.tag,
         QueryKey.destinationTag,
+        QueryKey.dt,
     ]
 
     static let tokenContractQueryKeys = [
         QueryKey.contract,
         QueryKey.token,
+        QueryKey.splToken,
+        QueryKey.splTokenNormalized,
     ]
 
     static let tokenSymbolQueryKeys = [
         QueryKey.symbol,
         QueryKey.ticker,
+    ]
+
+    /// For Tron, `token` can be a symbol (e.g. `USDT`) or a contract address.
+    /// The parser passes the value to both fields; the matcher resolves by priority.
+    static let tronTokenSymbolQueryKeys = [
         QueryKey.token,
+        QueryKey.symbol,
+        QueryKey.ticker,
     ]
 
     static let eip681TransferAmountQueryKeys = [
@@ -108,10 +125,13 @@ enum MainQRParserConstants {
         static let network = "network"
         static let blockchain = "blockchain"
         static let destinationTag = "destinationtag"
+        static let dt = "dt"
         static let contract = "contract"
         static let token = "token"
         static let symbol = "symbol"
         static let ticker = "ticker"
+        static let splToken = "spl-token"
+        static let splTokenNormalized = "spltoken"
     }
 
     enum PayloadKey {
