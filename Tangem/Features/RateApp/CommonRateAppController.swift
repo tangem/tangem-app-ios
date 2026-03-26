@@ -18,6 +18,7 @@ final class CommonRateAppController {
     private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
         userWalletModel
             .totalBalancePublisher
+            .filter { !$0.isLoading }
             .map { $0.isLoaded }
             .removeDuplicates()
             .eraseToAnyPublisher()
