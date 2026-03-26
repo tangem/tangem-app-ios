@@ -16,6 +16,31 @@ struct MainQRPaymentRequest: Equatable {
     let memo: String?
     let tokenSymbol: String?
     let tokenContractAddress: String?
+    /// Raw token amount in the smallest unit (e.g. uint256 from EIP-681).
+    /// Requires conversion using token's `decimalCount` before use.
+    let rawTokenAmount: Decimal?
+    /// Query parameters that were present in the URI but not recognized by the parser.
+    let unknownParameters: [String: String]
+
+    init(
+        blockchain: Blockchain,
+        destinationAddress: String,
+        amount: Decimal?,
+        memo: String?,
+        tokenSymbol: String?,
+        tokenContractAddress: String?,
+        rawTokenAmount: Decimal?,
+        unknownParameters: [String: String] = [:]
+    ) {
+        self.blockchain = blockchain
+        self.destinationAddress = destinationAddress
+        self.amount = amount
+        self.memo = memo
+        self.tokenSymbol = tokenSymbol
+        self.tokenContractAddress = tokenContractAddress
+        self.rawTokenAmount = rawTokenAmount
+        self.unknownParameters = unknownParameters
+    }
 }
 
 struct MainQRResolvedPaymentRequest: Equatable {
