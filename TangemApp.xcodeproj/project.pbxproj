@@ -4789,6 +4789,11 @@
 		EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7D5782AA201CB0047D93A /* PercentFormatter.swift */; };
 		EFE7D57B2AA209990047D93A /* TokenQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7D57A2AA209990047D93A /* TokenQuote.swift */; };
 		EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7D5832AA224C50047D93A /* FetchMore.swift */; };
+		EFE7E1BD2F7458300092FB0A /* DynamicAddressesEnterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7E1BC2F7458300092FB0A /* DynamicAddressesEnterViewModel.swift */; };
+		EFE7E1BF2F7458300092FB0A /* DynamicAddressesEnterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7E1BE2F7458300092FB0A /* DynamicAddressesEnterView.swift */; };
+		EFE7E1C12F7540C40092FB0A /* DynamicAddressesEnterRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7E1C02F7540C40092FB0A /* DynamicAddressesEnterRoutable.swift */; };
+		EFE7E1C52F755E2E0092FB0A /* DynamicAddressesUnavailableSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7E1C42F755E2E0092FB0A /* DynamicAddressesUnavailableSheetView.swift */; };
+		EFE7E1C72F755E2E0092FB0A /* DynamicAddressesUnavailableSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE7E1C62F755E2E0092FB0A /* DynamicAddressesUnavailableSheetViewModel.swift */; };
 		EFE8C70E2C77388A0067CF2E /* MultipleRewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C7092C77388A0067CF2E /* MultipleRewardsView.swift */; };
 		EFE8C70F2C77388A0067CF2E /* MultipleRewardsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C70A2C77388A0067CF2E /* MultipleRewardsViewModel.swift */; };
 		EFE8C7102C77388A0067CF2E /* MultipleRewardsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */; };
@@ -9845,6 +9850,11 @@
 		EFE7D5782AA201CB0047D93A /* PercentFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PercentFormatter.swift; sourceTree = "<group>"; };
 		EFE7D57A2AA209990047D93A /* TokenQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenQuote.swift; sourceTree = "<group>"; };
 		EFE7D5832AA224C50047D93A /* FetchMore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMore.swift; sourceTree = "<group>"; };
+		EFE7E1BC2F7458300092FB0A /* DynamicAddressesEnterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAddressesEnterViewModel.swift; sourceTree = "<group>"; };
+		EFE7E1BE2F7458300092FB0A /* DynamicAddressesEnterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAddressesEnterView.swift; sourceTree = "<group>"; };
+		EFE7E1C02F7540C40092FB0A /* DynamicAddressesEnterRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAddressesEnterRoutable.swift; sourceTree = "<group>"; };
+		EFE7E1C42F755E2E0092FB0A /* DynamicAddressesUnavailableSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAddressesUnavailableSheetView.swift; sourceTree = "<group>"; };
+		EFE7E1C62F755E2E0092FB0A /* DynamicAddressesUnavailableSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAddressesUnavailableSheetViewModel.swift; sourceTree = "<group>"; };
 		EFE8C7092C77388A0067CF2E /* MultipleRewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsView.swift; sourceTree = "<group>"; };
 		EFE8C70A2C77388A0067CF2E /* MultipleRewardsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsViewModel.swift; sourceTree = "<group>"; };
 		EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsRoutable.swift; sourceTree = "<group>"; };
@@ -22007,6 +22017,7 @@
 		DC8C22E42D89FF6E005159FE /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				EFE7E1B92F7455A00092FB0A /* DynamicAddresses */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				30AC0FD82EFBCFE5009AACB7 /* AccountsAwareAddTokenFlow */,
 				B0D1AC302906718600584E6C /* Analytics */,
@@ -27012,6 +27023,34 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		EFE7E1B92F7455A00092FB0A /* DynamicAddresses */ = {
+			isa = PBXGroup;
+			children = (
+				EFE7E1C22F7542060092FB0A /* DynamicAddressesEnterView */,
+				EFE7E1C82F755E3D0092FB0A /* DynamicAddressesUnavailableSheet */,
+			);
+			path = DynamicAddresses;
+			sourceTree = "<group>";
+		};
+		EFE7E1C22F7542060092FB0A /* DynamicAddressesEnterView */ = {
+			isa = PBXGroup;
+			children = (
+				EFE7E1BE2F7458300092FB0A /* DynamicAddressesEnterView.swift */,
+				EFE7E1BC2F7458300092FB0A /* DynamicAddressesEnterViewModel.swift */,
+				EFE7E1C02F7540C40092FB0A /* DynamicAddressesEnterRoutable.swift */,
+			);
+			path = DynamicAddressesEnterView;
+			sourceTree = "<group>";
+		};
+		EFE7E1C82F755E3D0092FB0A /* DynamicAddressesUnavailableSheet */ = {
+			isa = PBXGroup;
+			children = (
+				EFE7E1C42F755E2E0092FB0A /* DynamicAddressesUnavailableSheetView.swift */,
+				EFE7E1C62F755E2E0092FB0A /* DynamicAddressesUnavailableSheetViewModel.swift */,
+			);
+			path = DynamicAddressesUnavailableSheet;
+			sourceTree = "<group>";
+		};
 		EFE8C7062C7738520067CF2E /* MultipleRewards */ = {
 			isa = PBXGroup;
 			children = (
@@ -28461,6 +28500,7 @@
 				EFC377E62E7C70B500B7B86A /* OnrampAmountBadgeBuilder.swift in Sources */,
 				EA4216542E74623400B36D39 /* YieldModulePromoCoordinatorView.swift in Sources */,
 				304579A92F72D62F00C796E0 /* NewsWidgetViewRedesign.swift in Sources */,
+				EFE7E1BF2F7458300092FB0A /* DynamicAddressesEnterView.swift in Sources */,
 				DA89AC0A2CE6B18100AFB755 /* PendingExpressTxTokenInfoView.swift in Sources */,
 				EF46621D2924DEEE00346B6C /* DefaultRowView.swift in Sources */,
 				EFA4E37F2C3EEE9E008815AD /* StakingModel.swift in Sources */,
@@ -28753,6 +28793,7 @@
 				C25E104B2DFF744C0050BC26 /* WalletConnectConnectedDAppMapper.swift in Sources */,
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
 				B0063A7E2CDE3A6A00EDE943 /* VisaOnboardingPinView.swift in Sources */,
+				EFE7E1BD2F7458300092FB0A /* DynamicAddressesEnterViewModel.swift in Sources */,
 				EFA23E782DEF6CFC004ADD0A /* SendFinishViewModel.swift in Sources */,
 				EF1D52B42F4E115F002DC0F1 /* SendApproveViewModelInputDataBuilder.swift in Sources */,
 				EF7A072E2C2F0738003DED83 /* TransactionDispatcher.swift in Sources */,
@@ -29694,6 +29735,7 @@
 				2D5DCC352C330A33000EE379 /* WalletSelectorItemView.swift in Sources */,
 				EF2674022F19B132005A3909 /* CommonFeeSelectorInteractor.swift in Sources */,
 				DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */,
+				EFE7E1C12F7540C40092FB0A /* DynamicAddressesEnterRoutable.swift in Sources */,
 				B08EE5192BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift in Sources */,
 				DC13D03929DEC1230003895C /* CardDTO.swift in Sources */,
 				B6875A2F2EFF5F6C00B8AEA7 /* AccountModel.Icon.swift in Sources */,
@@ -30504,6 +30546,7 @@
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				DC80FE9E2F23E3C900E81B1A /* CommonReferralService.swift in Sources */,
 				DC80FE9F2F23E3C900E81B1A /* ReferralDTO.swift in Sources */,
+				EFE7E1C52F755E2E0092FB0A /* DynamicAddressesUnavailableSheetView.swift in Sources */,
 				DC80FEA02F23E3C900E81B1A /* ReferralService.swift in Sources */,
 				DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */,
 				EF019ADE2F08804A00BD3802 /* FeeSelectorFeesView.swift in Sources */,
@@ -31194,6 +31237,7 @@
 				F2C101A16E0010020000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift in Sources */,
 				F2C101A16E0010020000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift in Sources */,
 				A1B2C3D4E5F6078901234503 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift in Sources */,
+				EFE7E1C72F755E2E0092FB0A /* DynamicAddressesUnavailableSheetViewModel.swift in Sources */,
 				A1B2C3D4E5F6078901234504 /* Tangem/Features/MainQRScan/Domain/MainQRScanRouteResolver.swift in Sources */,
 				995FF691213F4EA0899884F5 /* Tangem/Features/MainQRScan/Domain/MainQRCodeContentParser.swift in Sources */,
 				F2C101A16E00100200000001 /* Tangem/Features/MainQRScan/Domain/MainQRPaymentRequestParser.swift in Sources */,
