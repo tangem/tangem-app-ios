@@ -43,7 +43,6 @@ private final class WalletConnectEnvironment {
 
     lazy var dAppSessionsExtender = WalletConnectDAppSessionsExtender(
         connectedDAppRepository: connectedDAppRepository,
-        savedSessionMigrationService: savedSessionMigrationService,
         savedSessionToAccountsMigrationService: savedSessionToAccountsMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient),
         logger: WCLogger
