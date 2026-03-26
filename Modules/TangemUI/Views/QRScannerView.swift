@@ -179,8 +179,6 @@ extension QRScannerUIView: AVCaptureMetadataOutputObjectsDelegate {
         didOutput metadataObjects: [AVMetadataObject],
         from connection: AVCaptureConnection
     ) {
-        captureSession.stopRunning()
-
         guard
             let readableCodeObject = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
             let qrCode = readableCodeObject.stringValue
@@ -188,6 +186,7 @@ extension QRScannerUIView: AVCaptureMetadataOutputObjectsDelegate {
             return
         }
 
+        captureSession.stopRunning()
         scanningSucceeded(with: qrCode)
     }
 }
