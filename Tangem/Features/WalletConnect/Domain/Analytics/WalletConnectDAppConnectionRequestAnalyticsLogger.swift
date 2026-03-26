@@ -14,10 +14,10 @@ protocol WalletConnectDAppConnectionRequestAnalyticsLogger {
 
     func logConnectionProposalReceived(
         _ connectionProposal: WalletConnectDAppConnectionProposal,
-        accountAnalyticsProviding: any AccountModelAnalyticsProviding
+        accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
     )
 
-    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: any AccountModelAnalyticsProviding)
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?)
     func logCancelButtonTapped()
 
     func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus)
