@@ -22,15 +22,36 @@ struct MainQRTokenItemMatcher {
             .nilIfEmpty
             .map(MainQRParserSupport.normalizeIdentifier)
 
+        MainQRScanLogger.debug(
+            "[TokenItemMatcher] blockchain=\(request.blockchain), contract=\(trimmedContractAddress ?? "nil"), symbol=\(normalizedSymbol ?? "nil")"
+        )
+
+        let sameBlockchainItems = availableTokenItems.filter { $0.blockchain == request.blockchain }
+        for item in sameBlockchainItems {
+            MainQRScanLogger.debug(
+                "[TokenItemMatcher] available: \(item.currencySymbol) contract=\(item.contractAddress ?? "coin")"
+            )
+        }
+
         if let result = matchByContractAddress(trimmedContractAddress, blockchain: request.blockchain, availableTokenItems: availableTokenItems) {
+            MainQRScanLogger.debug("[TokenItemMatcher] matched by contract address: \(result.count) items")
             return result
         }
 
         if let result = matchBySymbol(normalizedSymbol: normalizedSymbol, contractAddressForSymbolFallback: trimmedContractAddress, blockchain: request.blockchain, availableTokenItems: availableTokenItems) {
+            MainQRScanLogger.debug("[TokenItemMatcher] matched by symbol: \(result.count) items")
             return result
         }
 
-        return matchByCoinOrSynthetic(blockchain: request.blockchain, availableTokenItems: availableTokenItems, availableBlockchains: availableBlockchains)
+        let hasSpecificToken = trimmedContractAddress != nil || normalizedSymbol != nil
+        if hasSpecificToken {
+            MainQRScanLogger.debug("[TokenItemMatcher] specific token requested but not found, returning empty")
+            return []
+        }
+
+        let fallback = matchByCoinOrSynthetic(blockchain: request.blockchain, availableTokenItems: availableTokenItems, availableBlockchains: availableBlockchains)
+        MainQRScanLogger.debug("[TokenItemMatcher] fallback to native coin: \(fallback.count) items")
+        return fallback
     }
 
     // MARK: - Private
@@ -49,7 +70,7 @@ struct MainQRTokenItemMatcher {
 
         let isHexLike = contractAddress.hasPrefix("0x") || contractAddress.hasPrefix("0X")
 
-        return availableTokenItems.filter { item in
+        let matched = availableTokenItems.filter { item in
             guard
                 item.blockchain == blockchain,
                 let itemContractAddress = item.contractAddress
@@ -63,6 +84,8 @@ struct MainQRTokenItemMatcher {
                 return itemContractAddress == contractAddress
             }
         }
+
+        return matched.isEmpty ? nil : matched
     }
 
     /// Falls back to contract address as symbol — some QR formats put the symbol in the contract address field
@@ -76,12 +99,15 @@ struct MainQRTokenItemMatcher {
             return nil
         }
 
-        return availableTokenItems.filter {
+        let matched = availableTokenItems.filter {
             $0.blockchain == blockchain
                 && MainQRParserSupport.normalizeIdentifier($0.currencySymbol) == symbol
         }
+
+        return matched.isEmpty ? nil : matched
     }
 
+    /// When no token is specified, returns the native coin for this blockchain.
     private func matchByCoinOrSynthetic(
         blockchain: Blockchain,
         availableTokenItems: [TokenItem],

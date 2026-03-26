@@ -56,7 +56,7 @@ class CommonSendStepsManager {
         self.router = router
 
         switch initialStep {
-        case .amount:
+        case .amount, .amountThenSummary:
             stack = [amountStep]
         case .summary:
             stack = [amountStep, destinationStep, summaryStep]
@@ -70,7 +70,7 @@ class CommonSendStepsManager {
 
     private func step(for type: InitialStep) -> SendStep {
         switch type {
-        case .amount:
+        case .amount, .amountThenSummary:
             return amountStep
         case .summary:
             return summaryStep
@@ -80,6 +80,8 @@ class CommonSendStepsManager {
     private func getNextStep() -> (SendStep)? {
         switch currentStep().type {
         case .destination:
+            return summaryStep
+        case .amount where selectedInitialStep == .amountThenSummary:
             return summaryStep
         case .amount:
             return destinationStep
@@ -270,6 +272,7 @@ extension CommonSendStepsManager: SendDestinationStepRoutable {
 extension CommonSendStepsManager {
     enum InitialStep {
         case amount
+        case amountThenSummary
         case summary
     }
 }

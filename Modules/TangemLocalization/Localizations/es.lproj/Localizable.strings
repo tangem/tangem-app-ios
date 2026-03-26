@@ -651,7 +651,7 @@
 "initial_message_sign_body" = "Para firmar, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
 "initial_wallet_sync_banner_title" = "Wallet successfully imported";
-"initial_wallet_sync_restore_progress" = "Restoring %li%";
+"initial_wallet_sync_restore_progress" = "Restoring %li%%";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
 "jailbreak_warning_title" = "Jailbreak detectado";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "Sin datos";
 "markets_pulse_common_title" = "Análisis del Mercado";
 "markets_quick_actions" = "Acciones rápidas";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Buscar tokens";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Resultado";
 "markets_search_see_tokens_under_100k" = "Ver tokens con marketcap inferior a 100.000$";
 "markets_search_show_tokens" = "Mostrar tokens";
@@ -769,9 +772,11 @@
 "markets_token_details_market_rating_description" = "Posición en la clasificación de criptomonedas entre todas las monedas según la capitalización de mercado";
 "markets_token_details_market_rating_full" = "Evaluación de mercado";
 "markets_token_details_market_rating" = "Posición en el mercado";
+"markets_token_details_max_supply_and_circulation_full" = "Circulating and Max Supply";
 "markets_token_details_max_supply_description" = "La cantidad máxima de monedas o tokens que pueden existir para una criptomoneda en particular";
 "markets_token_details_max_supply_full" = "Suministro máximo";
 "markets_token_details_max_supply" = "Suministro máximo";
+"markets_token_details_metrics_no_limited" = "No limited";
 "markets_token_details_metrics" = "Métrica";
 "markets_token_details_official_links" = "Enlaces oficiales";
 "markets_token_details_price_performance" = "Rendimiento de precios";
@@ -1008,6 +1013,8 @@
 "qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
 "qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
 "qr_scanner_error_unsupported_network_title" = "No supported tokens found";
+"qr_scanner_warning_unknown_parameters_message" = "This QR code contains parameters that are not recognized: %@. Some payment details may be lost if you continue.";
+"qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "receive_bottom_sheet_no_memo_required_message" = "No se requiere nota";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ en la red %2$@";
 "receive_bottom_sheet_warning_message_description" = "El envío de cualquier otra moneda supondrá una pérdida irreversible.";
@@ -1363,6 +1370,7 @@
 "swapping_fee_estimation_error_text" = "Error en la estimación de la tarifa. Envíe sus comentarios al servicio de asistencia.";
 "swapping_from_title" = "Usted intercambia";
 "swapping_high_price_impact_description" = "Hacer un intercambio de esta cantidad del token seleccionado causará un impacto significativo en el precio y reducirá su resultado.";
+"swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
 "swapping_high_price_impact_title" = "Alto impacto en los precios";
 "swapping_insufficient_funds" = "Fondos insuficientes";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
@@ -1373,6 +1381,8 @@
 "swapping_to_title" = "Usted recibe";
 "swapping_token_list_title" = "Elige token";
 "swapping_token_not_available" = "no disponible";
+"swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
+"swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "Nos encantaría recibir tus comentarios";
 "tangem_pay_beta_notification_title" = "Tangem Pay ya está en beta";
 "tangem_pay_card_frozen" = "Tarjeta congelada";
@@ -1533,6 +1543,7 @@
 "token_details_token_type_subtitle" = "Token de %1$@ en la red %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "El token %1$@ (%2$@) es la moneda principal en la red %3$@ y no se puede ocultar mientras tengas otros tokens de esta red en la lista";
 "token_details_unable_hide_alert_title" = "No se puede ocultar %@";
+"token_market_metrics_no_data" = "N/A";
 "token_receive_show_qr_code_title" = "Mostrar código QR";
 "token_swap_promotion_button" = "Intercambie ahora";
 "tokens_list_available_to_buy_header" = "Seleccione el token que desea comprar";

@@ -651,7 +651,7 @@
 "initial_message_sign_body" = "Щоб підписати транзакцію, прикладіть картку або кільце як показано вище, і не прибирайте її до кінця операції";
 "initial_wallet_sync_banner_description" = "Your wallet is synced and ready.\nSome tokens missing?";
 "initial_wallet_sync_banner_title" = "Wallet successfully imported";
-"initial_wallet_sync_restore_progress" = "Restoring %li%";
+"initial_wallet_sync_restore_progress" = "Restoring %li%%";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
 "jailbreak_warning_title" = "Виявлено джейлбрейк";
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "Немає даних";
 "markets_pulse_common_title" = "Пульс ринку";
 "markets_quick_actions" = "Швидкі дії";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Шукати на маркеті";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Переглянути токени до 100к USD ринкової капіталізації";
 "markets_search_show_tokens" = "Показати токени";
@@ -769,9 +772,11 @@
 "markets_token_details_market_rating_description" = "Позиція в крипторейтингу між усіма монетами на основі ринкової капіталізації";
 "markets_token_details_market_rating_full" = "Рейтинг";
 "markets_token_details_market_rating" = "Рейтинг";
+"markets_token_details_max_supply_and_circulation_full" = "Circulating and Max Supply";
 "markets_token_details_max_supply_description" = "Максимальна кількість монет або токенів, яка може коли-небудь існувати для певної криптовалюти";
 "markets_token_details_max_supply_full" = "Максимальна пропозиція";
 "markets_token_details_max_supply" = "Макс. обсяг";
+"markets_token_details_metrics_no_limited" = "No limited";
 "markets_token_details_metrics" = "Метрики";
 "markets_token_details_official_links" = "Офіційні посилання";
 "markets_token_details_price_performance" = "Цінова ефективність";
@@ -1008,6 +1013,8 @@
 "qr_scanner_error_unrecognized_title" = "Unrecognized QR Code";
 "qr_scanner_error_unsupported_network_message" = "This network isn't supported by any of your added tokens. Add a supported token to send crypto.";
 "qr_scanner_error_unsupported_network_title" = "No supported tokens found";
+"qr_scanner_warning_unknown_parameters_message" = "This QR code contains parameters that are not recognized: %@. Some payment details may be lost if you continue.";
+"qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
@@ -1363,6 +1370,7 @@
 "swapping_fee_estimation_error_text" = "Помилка при розрахунку комісії. Будь ласка, надішліть відгук до служби підтримки.";
 "swapping_from_title" = "Ви обмінюєте";
 "swapping_high_price_impact_description" = "Обмін цієї кількості обраних токенів призведе до значного впливу на ціну і зменшить вашу кінцеву суму.";
+"swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
 "swapping_high_price_impact_title" = "Високий вплив на ціну";
 "swapping_insufficient_funds" = "Недостатньо коштів";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
@@ -1373,6 +1381,8 @@
 "swapping_to_title" = "Ви отримаєте";
 "swapping_token_list_title" = "Оберіть токен";
 "swapping_token_not_available" = "недоступно";
+"swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
+"swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "Будемо раді вашому зворотньому звʼязку";
 "tangem_pay_beta_notification_title" = "Tangem Pay у режимі beta";
 "tangem_pay_card_frozen" = "Картку заморожено";
@@ -1533,6 +1543,7 @@
 "token_details_token_type_subtitle" = "%1$@ токен в мережі %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) є основною валютою в мережі %3$@ і не може бути прихований до тих пір, поки у вас в списку є інші токени цієї мережі";
 "token_details_unable_hide_alert_title" = "Неможливо приховати %@";
+"token_market_metrics_no_data" = "N/A";
 "token_receive_show_qr_code_title" = "Показати QR-код";
 "token_swap_promotion_button" = "Обміняти";
 "tokens_list_available_to_buy_header" = "Оберіть токен для купівлі";

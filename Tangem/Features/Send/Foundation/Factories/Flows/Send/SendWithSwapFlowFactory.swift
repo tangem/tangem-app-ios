@@ -103,6 +103,8 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         switch parameters.initialStep {
         case .amount:
             return .amount
+        case .amountThenSummary:
+            return .amountThenSummary
         case .summary:
             return .summary
         }
