@@ -12,13 +12,14 @@ import Moya
 public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
     public init(
         stubClosure: @escaping StubClosure = MoyaProvider.neverStub,
+        callbackQueue: DispatchQueue? = nil,
         plugins: [PluginType] = [],
         sessionConfiguration: URLSessionConfiguration = .defaultConfiguration
     ) {
         let serverTrustManager = TangemTrustEvaluatorServerTrustManager()
         let session = Session(configuration: sessionConfiguration, serverTrustManager: serverTrustManager)
 
-        super.init(stubClosure: stubClosure, session: session, plugins: plugins)
+        super.init(stubClosure: stubClosure, callbackQueue: callbackQueue, session: session, plugins: plugins)
     }
 
     public convenience init(
