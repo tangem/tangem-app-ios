@@ -134,7 +134,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 .toSet()
 
             var networkIds = supportedNetworkIds
-            // accounts_fixes_needed_none
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
                 guard let entryId = entry.id else {
@@ -171,9 +170,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
         let tokenItemViewModelByUserWalletModels: [MarketsPortfolioTokenItemViewModel] = walletDataProvider.userWalletModels
             .reduce(into: []) { partialResult, userWalletModel in
-                // accounts_fixes_needed_none
                 let walletModels = userWalletModel.walletModelsManager.walletModels
-                // accounts_fixes_needed_none
                 let entries = userWalletModel.userTokensManager.userTokens
 
                 let viewModels: [MarketsPortfolioTokenItemViewModel] = portfolioTokenItemFactory.makeViewModels(
@@ -214,7 +211,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindToTokensListsUpdates(userWalletModels: [UserWalletModel]) {
-        // accounts_fixes_needed_none
         let publishers = userWalletModels.map { $0.userTokensManager.userTokensPublisher }
         let walletModelsPublishers = userWalletModels.map { $0.walletModelsManager.walletModelsPublisher }
 
@@ -234,7 +230,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
         guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
-              // accounts_fixes_needed_none
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -261,7 +256,6 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
         let userWalletModel = walletDataProvider.userWalletModels[userWalletId]
-        // accounts_fixes_needed_none
         let walletModel = userWalletModel?.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
 
         guard let userWalletModel, let walletModel, let coordinator else {
