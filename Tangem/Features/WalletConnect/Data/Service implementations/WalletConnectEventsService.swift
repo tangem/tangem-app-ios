@@ -78,37 +78,28 @@ final class WalletConnectEventsService {
             }
         })?.blockchain else { return }
 
-        if FeatureProvider.isAvailable(.accounts) {
-            let accountIds = Set(
-                dApps.compactMap { dApp -> String? in
-                    guard dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId }) else {
-                        return nil
-                    }
-
-                    return dApp.accountId
-                }
-            )
-
-            guard accountIds.isNotEmpty else {
-                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Account ID not found for blockchain: \(blockchain).")
-                return
-            }
-
-            for accountId in accountIds {
-                guard let walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
-                    with: blockchain.networkId,
-                    accountId: accountId
-                ) else {
-                    WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain) and accountId: \(accountId).")
-                    continue
+        let accountIds = Set(
+            dApps.compactMap { dApp -> String? in
+                guard dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId }) else {
+                    return nil
                 }
 
-                emitAddressesChangedEvent(for: walletModel, on: blockchain)
+                return dApp.accountId
             }
-        } else {
-            guard let walletModel = userWalletModel.wcWalletModelProvider.getModel(with: blockchain.networkId) else {
-                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain).")
-                return
+        )
+
+        guard accountIds.isNotEmpty else {
+            WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Account ID not found for blockchain: \(blockchain).")
+            return
+        }
+
+        for accountId in accountIds {
+            guard let walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
+                with: blockchain.networkId,
+                accountId: accountId
+            ) else {
+                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain) and accountId: \(accountId).")
+                continue
             }
 
             emitAddressesChangedEvent(for: walletModel, on: blockchain)
