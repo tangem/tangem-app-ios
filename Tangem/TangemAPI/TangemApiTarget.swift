@@ -54,6 +54,10 @@ struct TangemApiTarget: TargetType {
             return "/referral"
         case .promotion:
             return "/promotion"
+        case .loadPromotions:
+            return "/banner/displays"
+        case .hidePromotion(let request):
+            return "/banner/displays/\(request.displayId)"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -144,6 +148,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .loadPromotions,
              .apiList,
              .features,
              .coinsList,
@@ -181,7 +186,7 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .bindWalletsByCode:
             return .post
-        case .updateUserWalletsApplication, .updateWallet:
+        case .updateUserWalletsApplication, .updateWallet, .hidePromotion:
             return .patch
         }
     }
@@ -211,6 +216,10 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestData)
         case .promotion(let request):
             return .requestParameters(request)
+        case .loadPromotions(let request):
+            return .requestParameters(request)
+        case .hidePromotion(let request):
+            return .requestJSONEncodable(request)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -328,6 +337,8 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .loadPromotions,
+             .hidePromotion,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -383,6 +394,10 @@ extension TangemApiTarget {
         // Promotion
         case promotion(request: BannerPromotion.Request)
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
+
+        // Promotions
+        case loadPromotions(request: PromotionsDTO.Load.Request)
+        case hidePromotion(request: PromotionsDTO.Hide.Request)
 
         case story(_ id: String)
 
@@ -495,6 +510,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .loadPromotions,
+             .hidePromotion,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
              .seedNotifyGetStatusConfirmed,

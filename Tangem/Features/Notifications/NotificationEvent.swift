@@ -46,6 +46,8 @@ extension NotificationEvent {
                 return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
             case .missingDerivation:
                 return MainAccessibilityIdentifiers.missingDerivationNotification
+            case .walletLocked:
+                return MainAccessibilityIdentifiers.walletLockedNotification
             default:
                 return nil
             }
