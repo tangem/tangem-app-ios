@@ -46,12 +46,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
 
     @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
+    @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel?
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
 
     weak var delegate: MultiWalletMainContentDelegate?
-
-    var footerViewModel: MainFooterViewModel?
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
@@ -108,6 +107,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
+        promotionNotificationsViewModel: PromotionNotificationsViewModel?,
         tangemPayNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
@@ -120,6 +120,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.sectionsProvider = sectionsProvider
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
+        self.promotionNotificationsViewModel = promotionNotificationsViewModel
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
@@ -172,6 +173,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         await setIsUpdating(true)
+        await promotionNotificationsViewModel?.loadPromotions()
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
@@ -204,6 +206,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
+    func onAddTokensTap() {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+            return
+        }
+
+        coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
+    }
+
     @MainActor
     private func setIsUpdating(_ newValue: Bool) {
         isUpdating = newValue
@@ -219,19 +229,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
-            AccountWalletModelsAggregator
-                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel
-                .walletModelsManager
-                .walletModelsPublisher
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        }
+        let nftEntrypointViewModelPublisher = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+            .withLatestFrom(walletsWithNFTEnabledPublisher)
+            .merge(with: walletsWithNFTEnabledPublisher)
 
         nftEntrypointViewModelPublisher
             .withWeakCaptureOf(self)
@@ -396,8 +397,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            // accounts_fixes_needed_none
-            walletModelsManager: userWalletModel.walletModelsManager
+            walletModelsManager: userWalletModel.walletModelsManager // Not used when accounts are enabled, will be removed in [REDACTED_INFO]
         )
 
         return NFTEntrypointViewModel(
@@ -425,28 +425,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel
-                .accountModelsManager
-                .hasSyncedWithRemotePublisher
-                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
-                    // We disable loading state when the token list is synced with remote or there is at least one token
-                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
-                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
-                }
-                .filter { $0 }
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            userWalletModel
-                .userTokensManager // accounts_fixes_needed_none
-                .initializedPublisher
-                .filter { $0 }
-                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        }
+        let didSyncTokenListPublisher = userWalletModel
+            .accountModelsManager
+            .hasSyncedWithRemotePublisher
+            .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                // We disable loading state when the token list is synced with remote or there is at least one token
+                // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+            }
+            .filter { $0 }
+            .mapToVoid()
+            .eraseToAnyPublisher()
 
         didSyncTokenListPublisher
             .prefix(1)
@@ -614,10 +603,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        // accounts_fixes_needed_none
-        let allWalletModels = FeatureProvider.isAvailable(.accounts)
-            ? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            : userWalletModel.walletModelsManager.walletModels
+        let allWalletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
         return allWalletModels.first(where: { $0.id.id == id.id })
     }
@@ -658,6 +644,14 @@ extension MultiWalletMainContentViewModel {
         }
 
         coordinator?.openCloreMigration(walletModel: walletModel)
+    }
+
+    private func openManageTokens() {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return
+        }
+
+        coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
     }
 
     private func openSupport() {
@@ -810,6 +804,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openCloreMigration:
             openCloreMigration()
+        case .openManageTokensAfterWalletSuccessImport:
+            openManageTokens()
         default:
             break
         }

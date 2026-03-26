@@ -89,7 +89,7 @@ extension CommonWCHandlersService: WCHandlersService {
 
         let account: (any CryptoAccountModel)?
 
-        if FeatureProvider.isAvailable(.accounts), let accountId = connectedDApp.accountId {
+        if let accountId = connectedDApp.accountId {
             account = WCAccountFinder.findCryptoAccountModel(
                 by: accountId,
                 accountModelsManager: userWalletModel.accountModelsManager

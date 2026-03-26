@@ -26,9 +26,9 @@ extension DecimalAddressService: AddressProvider {
         case .default:
             // If need to convert address to decimal native type
             let decimalAddress = try converter.convertToDecimalAddress(ethAddress)
-            return DecimalPlainAddress(value: decimalAddress, publicKey: publicKey, type: addressType)
+            return DecimalPlainAddress(value: decimalAddress, type: addressType)
         case .legacy:
-            return DecimalPlainAddress(value: ethAddress, publicKey: publicKey, type: addressType)
+            return DecimalPlainAddress(value: ethAddress, type: addressType)
         }
     }
 }

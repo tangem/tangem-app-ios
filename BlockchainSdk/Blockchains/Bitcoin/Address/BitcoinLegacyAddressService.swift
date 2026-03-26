@@ -45,6 +45,6 @@ extension BitcoinLegacyAddressService: AddressProvider {
         try publicKey.blockchainKey.validateAsSecp256k1Key()
 
         let (address, lockingScript) = try builder.encode(publicKey: publicKey.blockchainKey, type: .p2pkh)
-        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
+        return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
     }
 }

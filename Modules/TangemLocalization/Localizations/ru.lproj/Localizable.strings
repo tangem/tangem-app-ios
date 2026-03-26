@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "Нет данных";
 "markets_pulse_common_title" = "Пульс рынка";
 "markets_quick_actions" = "Быстрые действия";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Поиск токенов";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Токены с капитализацией меньше 100к USD";
 "markets_search_show_tokens" = "Показать токены";
