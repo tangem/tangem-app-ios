@@ -33,7 +33,7 @@ enum LegacyStoredEntryConverter {
         )
     }
 
-    static func convert(grouping: StoredUserTokenList.Grouping) -> StoredCryptoAccount.Grouping {
+    private static func convert(grouping: StoredUserTokenList.Grouping) -> StoredCryptoAccount.Grouping {
         switch grouping {
         case .none:
             return .none
@@ -42,7 +42,7 @@ enum LegacyStoredEntryConverter {
         }
     }
 
-    static func convert(sorting: StoredUserTokenList.Sorting) -> StoredCryptoAccount.Sorting {
+    private static func convert(sorting: StoredUserTokenList.Sorting) -> StoredCryptoAccount.Sorting {
         switch sorting {
         case .manual:
             return .manual
