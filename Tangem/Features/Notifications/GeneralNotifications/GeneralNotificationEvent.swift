@@ -30,8 +30,6 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
-    case seedSupport
-    case seedSupport2
     case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
     case pushNotificationsPermissionRequest
@@ -49,7 +47,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .failedToVerifyCard, .demoCard, .devCard, .testnetCard:
             return .status
 
-        case .backupErrors, .seedSupport, .seedSupport2, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
+        case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
             return .critical
 
         case .missingDerivation, .walletLocked:
@@ -103,10 +101,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
             return .string(Localization.commonAttention)
-        case .seedSupport:
-            return .string(Localization.warningSeedphraseIssueTitle)
-        case .seedSupport2:
-            return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
@@ -162,10 +156,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return nil
         case .backupErrors:
             return Localization.warningBackupErrorsMessage
-        case .seedSupport:
-            return Localization.warningSeedphraseIssueMessage
-        case .seedSupport2:
-            return Localization.warningSeedphraseContactedSupport
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
@@ -182,8 +172,6 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp,
              .missingDerivation,
              .missingBackup,
-             .seedSupport,
-             .seedSupport2,
              .backupErrors,
              .mobileFinishActivation,
              .mobileUpgrade,
@@ -204,7 +192,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
+        case .failedToVerifyCard, .devCard, .backupErrors:
             return .init(iconType: .image(Assets.redCircleWarning))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -238,9 +226,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .walletLocked,
              .failedToVerifyCard,
              .devCard,
-             .backupErrors,
-             .seedSupport,
-             .seedSupport2:
+             .backupErrors:
             return .critical
         case .demoCard,
              .legacyDerivation,
@@ -280,8 +266,6 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
-             .seedSupport,
-             .seedSupport2,
              .mobileUpgrade,
              .mobileFinishActivation:
             return false
@@ -397,8 +381,6 @@ extension GeneralNotificationEvent {
         case .missingBackup: return .mainNoticeBackupYourWallet
         case .supportedOnlySingleCurrencyWallet: return nil
         case .backupErrors: return .mainNoticeBackupErrors
-        case .seedSupport: return .mainNoticeSeedSupport
-        case .seedSupport2: return .mainNoticeSeedSupport2
         case .mobileFinishActivation: return .noticeFinishActivation
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
