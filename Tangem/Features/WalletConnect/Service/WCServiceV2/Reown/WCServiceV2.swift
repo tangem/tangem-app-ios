@@ -113,7 +113,7 @@ private extension WCServiceV2 {
             }
 
             let walletModel: (any WalletModel)?
-            if FeatureProvider.isAvailable(.accounts), let accountId = target.accountId {
+            if let accountId = target.accountId {
                 walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
                     with: target.blockchain.networkId,
                     accountId: accountId
@@ -170,7 +170,7 @@ private extension WCServiceV2 {
         var targets: [BalanceSubscriptionTarget] = []
 
         for dApp in lastConnectedDAppsSnapshot {
-            let accountId = FeatureProvider.isAvailable(.accounts) ? dApp.accountId : nil
+            let accountId = dApp.accountId
             for dAppBlockchain in dApp.dAppBlockchains {
                 let target = BalanceSubscriptionTarget(
                     walletId: dApp.userWalletID,
@@ -590,7 +590,7 @@ private extension WCServiceV2 {
     }
 
     func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
-        guard FeatureProvider.isAvailable(.accounts), hasWalletModels else {
+        guard hasWalletModels else {
             return
         }
 
