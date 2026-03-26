@@ -102,10 +102,14 @@ extension CommonExpressAPIService: ExpressAPIService {
 
 private extension CommonExpressAPIService {
     func _request<T: Decodable>(target: ExpressAPITarget.Target) async throws -> T {
+        let targetName = "\(target)".prefix(60)
+        let t0 = CFAbsoluteTimeGetCurrent()
+
         let request = ExpressAPITarget(expressAPIType: expressAPIType, target: target)
         var response: Response
 
         response = try await provider.requestPublisher(request).async()
+        let t1 = CFAbsoluteTimeGetCurrent()
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
@@ -117,7 +121,12 @@ private extension CommonExpressAPIService {
             throw error
         }
 
-        return try decoder.decode(T.self, from: response.data)
+        let decoded: T = try decoder.decode(T.self, from: response.data)
+        let t2 = CFAbsoluteTimeGetCurrent()
+
+        ExpressLogger.info("[Timing] \(targetName): network=\(String(format: "%.3f", t1 - t0))s, decode=\(String(format: "%.3f", t2 - t1))s, size=\(response.data.count)b")
+
+        return decoded
     }
 
     func tryMapError(target: ExpressAPITarget, response: Response) -> ExpressAPIError? {
