@@ -11,7 +11,6 @@ import TangemFoundation
 
 struct ApproveFlowFactory {
     let approveInput: ApproveViewModel.Input
-    let tokenFeeProvidersManager: any TokenFeeProvidersManager
     let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     func make(router: ApproveRoutable) -> ApproveFlowViewModel {
