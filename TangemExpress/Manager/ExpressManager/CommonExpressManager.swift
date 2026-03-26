@@ -248,18 +248,23 @@ private extension CommonExpressManager {
     func bestByRateProvider() -> ExpressAvailableProvider? {
         var hasProviderWithQuote = false
 
-        let bests = availableProviders.sorted(by: { lhsProvider, rhsProvider in
-            let lhsExpectAmount = lhsProvider.getState().quote?.expectAmount
-            let rhsExpectAmount = rhsProvider.getState().quote?.expectAmount
+        let bests = availableProviders
+            // Don't compare with error provider
+            .filter { !$0.getState().isError }
+            .sorted(by: { lhsProvider, rhsProvider in
+                let lhsExpectAmount = lhsProvider.getState().quote?.expectAmount
+                let rhsExpectAmount = rhsProvider.getState().quote?.expectAmount
 
-            hasProviderWithQuote = lhsExpectAmount != nil || rhsExpectAmount != nil
+                if !hasProviderWithQuote {
+                    hasProviderWithQuote = lhsExpectAmount != nil || rhsExpectAmount != nil
+                }
 
-            if let lhsExpectAmount, let rhsExpectAmount {
-                return lhsExpectAmount > rhsExpectAmount
-            }
+                if let lhsExpectAmount, let rhsExpectAmount {
+                    return lhsExpectAmount > rhsExpectAmount
+                }
 
-            return false
-        })
+                return false
+            })
 
         if hasProviderWithQuote, let best = bests.first {
             return best
