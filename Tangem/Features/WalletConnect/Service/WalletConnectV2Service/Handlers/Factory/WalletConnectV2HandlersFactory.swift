@@ -24,13 +24,16 @@ protocol WalletConnectHandlersCreator: AnyObject {
 
 final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let ethTransactionBuilder: WCEthTransactionBuilder
+    private let btcTransactionBuilder: WCBtcTransactionBuilder
     private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
 
     init(
         ethTransactionBuilder: WCEthTransactionBuilder,
+        btcTransactionBuilder: WCBtcTransactionBuilder,
         walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
     ) {
         self.ethTransactionBuilder = ethTransactionBuilder
+        self.btcTransactionBuilder = btcTransactionBuilder
         self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
     }
 
@@ -235,6 +238,86 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // Need to find documentation and find place where it can be tested on 2.0
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+
+        // MARK: - Bitcoin
+
+        case .sendTransfer:
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectSendTransferHandler(
+                    requestParams: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectSendTransferHandler(
+                    requestParams: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
+
+        case .getAccountAddresses:
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectBitcoinGetAccountAddressesHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectBitcoinGetAccountAddressesHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
+
+        case .signPsbt:
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectBitcoinSignPsbtHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectBitcoinSignPsbtHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
+
+        case .signMessage:
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectBitcoinSignMessageHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    signer: BitcoinWalletConnectSigner(signer: signer),
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectBitcoinSignMessageHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    signer: BitcoinWalletConnectSigner(signer: signer),
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
         }
     }
 
@@ -243,11 +326,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private func resolveWalletScope(for connectedDApp: WalletConnectConnectedDApp) -> WalletScope {
         switch connectedDApp {
         case .v1:
-            if FeatureProvider.isAvailable(.accounts) {
-                return .account(accountId: connectedDApp.accountId ?? "")
-            } else {
-                return .wallet
-            }
+            return .account(accountId: connectedDApp.accountId ?? "")
         case .v2(let walletConnectConnectedDAppV2):
             return .account(accountId: walletConnectConnectedDAppV2.accountId)
         }

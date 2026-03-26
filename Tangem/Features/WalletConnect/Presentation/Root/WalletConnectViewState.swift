@@ -50,7 +50,7 @@ struct WalletConnectViewState: Equatable {
     )
 
     init(contentState: ContentState, dialog: ModalDialog? = nil, newConnectionButton: NewConnectionButton) {
-        contentMode = FeatureProvider.isAvailable(.accounts) ? .repository : .legacy
+        contentMode = .repository
         self.contentState = contentState
         self.dialog = dialog
         self.newConnectionButton = newConnectionButton
