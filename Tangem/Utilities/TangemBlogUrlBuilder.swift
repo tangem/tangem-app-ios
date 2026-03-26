@@ -22,7 +22,6 @@ extension TangemBlogUrlBuilder {
         case scanCard
         case refundedDex
         case whatIsStaking
-        case seedNotify
         case mobileWallet
         case giveRevokePermission
     }
@@ -39,8 +38,6 @@ private extension TangemBlogUrlBuilder.Post {
             "an-overview-of-cross-chain-bridges"
         case .whatIsStaking:
             "how-to-stake-cryptocurrency"
-        case .seedNotify:
-            "seed-notify"
         case .mobileWallet:
             "mobile-wallet"
         case .giveRevokePermission:
