@@ -1352,7 +1352,8 @@ extension SwapModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             assertionFailure("Notification tap not handled")
         }
     }
