@@ -85,12 +85,6 @@ struct TangemApiTarget: TargetType {
         // MARK: - Action Buttons
         case .hotCrypto:
             return "/hot_crypto"
-
-        // MARK: SeedNotify
-        case .seedNotifyGetStatus(let userWalletId), .seedNotifySetStatus(let userWalletId, _):
-            return "/seedphrase-notification/\(userWalletId)"
-        case .seedNotifyGetStatusConfirmed(let userWalletId), .seedNotifySetStatusConfirmed(let userWalletId, _):
-            return "/seedphrase-notification/\(userWalletId)/confirmed"
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
 
@@ -158,8 +152,6 @@ struct TangemApiTarget: TargetType {
              .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
-             .seedNotifyGetStatus,
-             .seedNotifyGetStatusConfirmed,
              .story,
              .pushNotificationsEligible,
              .getUserAccounts,
@@ -173,8 +165,6 @@ struct TangemApiTarget: TargetType {
             return .get
         case .saveUserWalletTokens,
              .saveUserAccounts,
-             .seedNotifySetStatus,
-             .seedNotifySetStatusConfirmed,
              .connectUserWallets:
             return .put
         case .participateInReferralProgram,
@@ -241,10 +231,7 @@ struct TangemApiTarget: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
-        case .seedNotifySetStatus(_, let status), .seedNotifySetStatusConfirmed(_, let status):
-            let requestModel = SeedNotifyDTO(status: status)
-            return .requestParameters(requestModel, encoding: URLEncoding.default)
-        case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
+        case .tokenExchangesList:
             return .requestPlain
 
         // MARK: - Earn tasks
@@ -345,10 +332,6 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .apiList,
-             .seedNotifyGetStatus,
-             .seedNotifySetStatus,
-             .seedNotifyGetStatusConfirmed,
-             .seedNotifySetStatusConfirmed,
              .pushNotificationsEligible,
              .createUserWalletsApplication,
              .updateUserWalletsApplication,
@@ -413,12 +396,6 @@ extension TangemApiTarget {
 
         /// Configs
         case apiList
-
-        // Seed notification
-        case seedNotifyGetStatus(userWalletId: String)
-        case seedNotifySetStatus(userWalletId: String, status: SeedNotifyStatus)
-        case seedNotifyGetStatusConfirmed(userWalletId: String)
-        case seedNotifySetStatusConfirmed(userWalletId: String, status: SeedNotifyStatus)
 
         /// Notifications
         case pushNotificationsEligible
@@ -504,10 +481,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .promotion,
              .loadPromotions,
              .hidePromotion,
-             .seedNotifyGetStatus,
-             .seedNotifySetStatus,
-             .seedNotifyGetStatusConfirmed,
-             .seedNotifySetStatusConfirmed,
              .pushNotificationsEligible,
              .getUserAccounts,
              .saveUserAccounts,
