@@ -34,6 +34,13 @@ enum WalletConnectConnectedDApp: Hashable {
     case v1(WalletConnectConnectedDAppV1)
     case v2(WalletConnectConnectedDAppV2)
 
+    var userWalletID: String {
+        switch self {
+        case .v1(let dApp): return dApp.userWalletID
+        case .v2(let dApp): return dApp.userWalletID
+        }
+    }
+
     var session: WalletConnectDAppSession {
         switch self {
         case .v1(let dApp): return dApp.session
