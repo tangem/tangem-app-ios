@@ -1241,6 +1241,7 @@ extension SwapModel: NotificationTapDelegate {
              .retryKaspaTokenTransaction,
              .stake,
              .openLink,
+             .openDeeplink,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -1259,7 +1260,8 @@ extension SwapModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             assertionFailure("Notification tap not handled")
         }
     }
