@@ -141,12 +141,8 @@ extension BuyActionButtonViewModel {
 
 extension BuyActionButtonViewModel {
     private func openBuy() {
-        if FeatureProvider.isAvailable(.accounts) {
-            let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-            coordinator?.openBuy(userWalletModels: userWalletModels)
-        } else {
-            coordinator?.openBuy(userWalletModel: userWalletModel)
-        }
+        let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        coordinator?.openBuy(userWalletModels: userWalletModels)
     }
 }
 

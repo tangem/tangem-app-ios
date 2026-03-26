@@ -235,6 +235,15 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            makeRedesignContentView(with: item)
+        } else {
+            makeLegacyContentView(with: item)
+        }
+    }
+
+    @ViewBuilder
+    private func makeLegacyContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
         case .top(let viewModel):
             TopMarketWidgetView(viewModel: viewModel)
@@ -244,6 +253,20 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private func makeRedesignContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        switch item {
+        case .top(let viewModel):
+            TopMarketWidgetViewRedesign(viewModel: viewModel)
+        case .pulse(let viewModel):
+            PulseMarketWidgetViewRedesign(viewModel: viewModel)
+        case .news(let viewModel):
+            NewsWidgetViewRedesign(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnWidgetViewRedesign(viewModel: viewModel)
         }
     }
 }

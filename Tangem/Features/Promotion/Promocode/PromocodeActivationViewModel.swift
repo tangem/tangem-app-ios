@@ -86,13 +86,11 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
 
-        if FeatureProvider.isAvailable(.accounts) {
-            // Prefer main account's wallet model when multiple accounts are present - this is why we sort them here
-            walletModels.sort { first, second in
-                let isFirstMainAccount = first.account?.isMainAccount ?? false
-                let isSecondMainAccount = second.account?.isMainAccount ?? false
-                return isFirstMainAccount && !isSecondMainAccount
-            }
+        // Prefer main account's wallet model when multiple accounts are present - this is why we sort them here
+        walletModels.sort { first, second in
+            let isFirstMainAccount = first.account?.isMainAccount ?? false
+            let isSecondMainAccount = second.account?.isMainAccount ?? false
+            return isFirstMainAccount && !isSecondMainAccount
         }
 
         guard let walletModel = walletModels.first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) }) else {
