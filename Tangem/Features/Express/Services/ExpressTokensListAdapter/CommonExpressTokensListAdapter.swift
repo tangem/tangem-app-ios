@@ -29,9 +29,7 @@ extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
             return .empty
         }
 
-        // accounts_fixes_needed_none
         let tokenSectionsSourcePublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-        // accounts_fixes_needed_none
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(
