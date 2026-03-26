@@ -275,7 +275,7 @@
 "common_hour" = "時間";
 "common_import" = "インポート";
 "common_in_progress" = "進行中";
-"common_insufficient_balance" = "Insufficient balance";
+"common_insufficient_balance" = "残高不足";
 "common_later" = "後で";
 "common_learn_and_earn" = "学ぶ＆稼ぐ";
 "common_learn_more" = "もっと詳しく";
@@ -442,7 +442,7 @@
 "earn_filter_by" = "絞り込み";
 "earn_filter_my_networks" = "マイネットワーク";
 "earn_filter_networks" = "ネットワーク";
-"earn_mostly_used" = "よく使われています";
+"earn_mostly_used" = "人気";
 "earn_no_results" = "該当する結果はありません";
 "earn_title" = "ステーキング・利息モード";
 "email_preface_wc_error" = "こんにちは、サポートチームの皆さん、コード %@ のエラーが発生しました。";
@@ -651,7 +651,7 @@
 "initial_message_sign_body" = "署名するには、上記のようにカードまはたリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_wallet_sync_banner_description" = "ウォレットは同期され、準備ができています。\n一部のトークンが見つかりませんか？";
 "initial_wallet_sync_banner_title" = "ウォレットのインポートが完了しました";
-"initial_wallet_sync_restore_progress" = "%li%を復元中";
+"initial_wallet_sync_restore_progress" = "%li%%を復元中";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
 "jailbreak_warning_title" = "ジェイルブレイクが検出されました";
 "key_invalidated_warning_description" = "生体認証を更新しました。カードまたはリングをスキャンして入ってください。";
@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "データなし";
 "markets_pulse_common_title" = "マーケット動向";
 "markets_quick_actions" = "クイックアクション";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "トークンを探す";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "結果";
 "markets_search_see_tokens_under_100k" = "時価総額10万ドル以下のトークンを見る";
 "markets_search_show_tokens" = "トークンを表示";
@@ -769,9 +772,11 @@
 "markets_token_details_market_rating_description" = "時価総額に基づくすべてのコイン間の暗号資産評価における位置";
 "markets_token_details_market_rating_full" = "市場格付け";
 "markets_token_details_market_rating" = "市場格付け";
+"markets_token_details_max_supply_and_circulation_full" = "Circulating and Max Supply";
 "markets_token_details_max_supply_description" = "特定の暗号資産に存在しうるコインまたはトークンの最大数";
 "markets_token_details_max_supply_full" = "最大供給量";
 "markets_token_details_max_supply" = "最大供給量";
+"markets_token_details_metrics_no_limited" = "No limited";
 "markets_token_details_metrics" = "指標";
 "markets_token_details_official_links" = "公式リンク";
 "markets_token_details_price_performance" = "値動き";
@@ -1008,6 +1013,8 @@
 "qr_scanner_error_unrecognized_title" = "認識できないQRコード";
 "qr_scanner_error_unsupported_network_message" = "このネットワークは、追加されているトークンのいずれにも対応していません。対応しているトークンを追加してから暗号資産を送金してください。";
 "qr_scanner_error_unsupported_network_title" = "対応しているトークンが見つかりません";
+"qr_scanner_warning_unknown_parameters_message" = "This QR code contains parameters that are not recognized: %@. Some payment details may be lost if you continue.";
+"qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "receive_bottom_sheet_no_memo_required_message" = "メモ不要";
 "receive_bottom_sheet_warning_message_compact" = "%2$@ネットワーク上の%1$@";
 "receive_bottom_sheet_warning_message_description" = "他の暗号資産を送信すると、取り返しのつかない損失が発生します。";
@@ -1363,6 +1370,7 @@
 "swapping_fee_estimation_error_text" = "手数料見積りエラーです。サポートにフィードバックをお送りください。";
 "swapping_from_title" = "スワップする";
 "swapping_high_price_impact_description" = "選択したトークンをこの量を交換すると、価格に大きな影響が生じ、結果が減少します。";
+"swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
 "swapping_high_price_impact_title" = "価格への影響が甚大です";
 "swapping_insufficient_funds_description" = "この取引を完了するには残高が不足しています。受け取り額を減らすか、資金を追加してください。";
 "swapping_insufficient_funds" = "残高不足";
@@ -1373,6 +1381,8 @@
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
+"swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
+"swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "皆様からのフィードバックをお待ちしております";
 "tangem_pay_beta_notification_title" = "Tangem Payのベータ版を公開しました";
 "tangem_pay_card_frozen" = "カードが凍結されています";
@@ -1533,6 +1543,7 @@
 "token_details_token_type_subtitle" = "%%image%% %2$@ ネットワークの %1$@ トークン";
 "token_details_unable_hide_alert_message" = "%1$@ ( %2$@ ) トークンは%3$@ネットワークの主要通貨であり、このネットワーク上の他のトークンがリストにある限り、非表示にすることはできません。";
 "token_details_unable_hide_alert_title" = "%@を非表示にできません";
+"token_market_metrics_no_data" = "N/A";
 "token_receive_show_qr_code_title" = "QRコードを表示";
 "token_swap_promotion_button" = "今すぐスワップ";
 "tokens_list_available_to_buy_header" = "買付したいトークンを選択します";
