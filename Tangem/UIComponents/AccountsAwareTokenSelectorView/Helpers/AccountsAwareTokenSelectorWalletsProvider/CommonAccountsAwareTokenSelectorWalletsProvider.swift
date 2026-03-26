@@ -17,6 +17,12 @@ final class CommonAccountsAwareTokenSelectorWalletsProvider {
 
     @Injected(\.tangemPayAccountGlobalStateProvider)
     private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
+
+    private let accountModelFilter: ((AccountModel) -> Bool)?
+
+    init(accountModelFilter: ((AccountModel) -> Bool)? = nil) {
+        self.accountModelFilter = accountModelFilter
+    }
 }
 
 // MARK: - AccountsAwareTokenSelectorWalletsProvider
@@ -89,7 +95,9 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         userWalletInfo: UserWalletInfo,
         isUserWalletLocked: Bool
     ) -> AccountsAwareTokenSelectorWallet.AccountType {
-        let items: [AccountsAwareTokenSelectorAccount] = accountModels.flatMap { accountModel -> [AccountsAwareTokenSelectorAccount] in
+        let filteredAccountModels = accountModelFilter.map { filter in accountModels.filter(filter) } ?? accountModels
+
+        let items: [AccountsAwareTokenSelectorAccount] = filteredAccountModels.flatMap { accountModel -> [AccountsAwareTokenSelectorAccount] in
             switch accountModel {
             case .standard(.single(let account)):
                 [mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)]
@@ -107,8 +115,10 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
             }
         }
 
+        let hasTangemPayInResults = filteredAccountModels.contains { if case .tangemPay = $0 { return true } else { return false } }
+
         switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
-        case .single where tangemPayAccountGlobalStateProvider.hasTangemPayAccount:
+        case .single where hasTangemPayInResults:
             return .multiple(items)
         case .single:
             if let item = items.singleElement {

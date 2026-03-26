@@ -16,7 +16,6 @@ import TangemUIUtils
 final class MainQRScanViewModel: ObservableObject {
     @Published private(set) var hasCameraAccess = false
     @Published private(set) var isFlashActive = false
-    @Published private(set) var scannerViewID = UUID()
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let hintText: String
@@ -55,11 +54,6 @@ final class MainQRScanViewModel: ObservableObject {
         coordinator?.didScanQRCode(string)
     }
 
-    func rearmScanner() {
-        didProduceResult = false
-        scannerViewID = UUID()
-    }
-
     func onScannerFailure() {
         MainQRScanLogger.warning(MainQRScanLoggerStrings.scannerSessionFailed)
         turnOffFlashIfNeeded()
@@ -87,15 +81,14 @@ final class MainQRScanViewModel: ObservableObject {
     }
 
     func didSelectImage(_ image: UIImage?) {
-        guard
-            let image,
-            let code = scanQRCode(from: image)
-        else {
-            return
-        }
+        guard let image else { return }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.onQRCodeScanned(code)
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let code = self?.scanQRCode(from: image), let self else { return }
+
+            await MainActor.run {
+                self.onQRCodeScanned(code)
+            }
         }
     }
 
@@ -141,7 +134,7 @@ final class MainQRScanViewModel: ObservableObject {
         )
     }
 
-    private func scanQRCode(from image: UIImage) -> String? {
+    private nonisolated func scanQRCode(from image: UIImage) -> String? {
         let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
         guard
             let ciImage = CIImage(image: image),
