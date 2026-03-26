@@ -11,7 +11,6 @@ import Foundation
 enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
-    case accounts
     case redesign
     case marketsAndNews
     case marketsEarn
@@ -28,7 +27,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
-        case .accounts: return "Accounts"
         case .redesign: return "Redesign"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
@@ -47,7 +45,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .accounts: return .version("5.33")
         case .redesign: return .unspecified
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .version("5.35")

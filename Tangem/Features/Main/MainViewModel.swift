@@ -435,7 +435,7 @@ final class MainViewModel: ObservableObject {
 
         let userWalletModel = userWalletRepository.selectedModel
 
-        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+        if let userWalletModel {
             mainScreenOpenedAnalyticsSubscription = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
