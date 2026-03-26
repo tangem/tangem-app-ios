@@ -229,19 +229,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
-            AccountWalletModelsAggregator
-                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel
-                .walletModelsManager
-                .walletModelsPublisher
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-                .merge(with: walletsWithNFTEnabledPublisher)
-        }
+        let nftEntrypointViewModelPublisher = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+            .withLatestFrom(walletsWithNFTEnabledPublisher)
+            .merge(with: walletsWithNFTEnabledPublisher)
 
         nftEntrypointViewModelPublisher
             .withWeakCaptureOf(self)
@@ -406,8 +397,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            // accounts_fixes_needed_none
-            walletModelsManager: userWalletModel.walletModelsManager
+            walletModelsManager: userWalletModel.walletModelsManager // Not used when accounts are enabled, will be removed in [REDACTED_INFO]
         )
 
         return NFTEntrypointViewModel(
@@ -435,28 +425,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel
-                .accountModelsManager
-                .hasSyncedWithRemotePublisher
-                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
-                    // We disable loading state when the token list is synced with remote or there is at least one token
-                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
-                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
-                }
-                .filter { $0 }
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            userWalletModel
-                .userTokensManager // accounts_fixes_needed_none
-                .initializedPublisher
-                .filter { $0 }
-                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
-                .mapToVoid()
-                .eraseToAnyPublisher()
-        }
+        let didSyncTokenListPublisher = userWalletModel
+            .accountModelsManager
+            .hasSyncedWithRemotePublisher
+            .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                // We disable loading state when the token list is synced with remote or there is at least one token
+                // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+            }
+            .filter { $0 }
+            .mapToVoid()
+            .eraseToAnyPublisher()
 
         didSyncTokenListPublisher
             .prefix(1)
@@ -624,10 +603,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        // accounts_fixes_needed_none
-        let allWalletModels = FeatureProvider.isAvailable(.accounts)
-            ? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            : userWalletModel.walletModelsManager.walletModels
+        let allWalletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
         return allWalletModels.first(where: { $0.id.id == id.id })
     }
