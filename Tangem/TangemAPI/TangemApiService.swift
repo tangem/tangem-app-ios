@@ -105,13 +105,6 @@ protocol TangemApiService: AnyObject {
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response
 
-    // MARK: - Seed Notify
-
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws
-
     // MARK: - Configs
 
     func loadFeatures() async throws -> [String: Bool]
