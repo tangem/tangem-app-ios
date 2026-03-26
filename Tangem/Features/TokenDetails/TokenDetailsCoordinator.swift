@@ -36,6 +36,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
+    @Published var dynamicAddressesEnterViewModel: DynamicAddressesEnterViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
@@ -168,8 +169,37 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openDynamicAddressesEnterView() {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    }
+
+    func openDynamicAddressesUnavailableSheet() {
+        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openURLInSystemBrowser(url: URL) {
         UIApplication.shared.open(url)
+    }
+}
+
+// MARK: - DynamicAddressesEnterRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesEnterRoutable {
+    func closeDynamicAddressesEnterView() {
+        dynamicAddressesEnterViewModel = nil
+    }
+}
+
+// MARK: - DynamicAddressesUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
+    func closeDynamicAddressesUnavailableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
