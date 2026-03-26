@@ -52,6 +52,7 @@ private extension CommonExpressDestinationService {
         base: TokenItem,
         searchType: SearchType
     ) async -> UserWalletInfoWalletModelPair? {
+        let t0 = CFAbsoluteTimeGetCurrent()
         let walletModels: [UserWalletInfoWalletModelPair] = {
             if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
                 let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
@@ -74,7 +75,9 @@ private extension CommonExpressDestinationService {
             }
         }()
 
+        let t1 = CFAbsoluteTimeGetCurrent()
         let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
+        let t2 = CFAbsoluteTimeGetCurrent()
         let availablePairDestinations = Set(availablePairs.map(\.destination))
         let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
@@ -85,6 +88,8 @@ private extension CommonExpressDestinationService {
             return isNotSource && isAvailable && isNotCustom && mayHavePair
         }
 
+        let t3 = CFAbsoluteTimeGetCurrent()
+        ExpressLogger.info("[Timing] getWalletModelPair: walletModels=\(walletModels.count), buildModels=\(String(format: "%.3f", t1 - t0))s, getPairs=\(String(format: "%.3f", t2 - t1))s, filter=\(String(format: "%.3f", t3 - t2))s, searchable=\(searchableWalletModels.count)")
         ExpressLogger.info(self, "has searchableWalletModels: \(searchableWalletModels.map(\.walletModel.tokenItem.expressCurrency))")
 
         if let bestPair = selectBestPair(from: searchableWalletModels, searchType: searchType) {

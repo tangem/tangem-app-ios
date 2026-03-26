@@ -34,11 +34,19 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     }
 
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] {
+        let t0 = CFAbsoluteTimeGetCurrent()
         let from = from.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let to = to.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Swap.Pairs.Request(from: from, to: to)
+        let t1 = CFAbsoluteTimeGetCurrent()
+
         let response = try await expressAPIService.pairs(request: request)
+        let t2 = CFAbsoluteTimeGetCurrent()
+
         let pairs = response.map(expressAPIMapper.mapToExpressPair(response:))
+        let t3 = CFAbsoluteTimeGetCurrent()
+
+        ExpressLogger.info("[Timing] pairs(from:\(from.count),to:\(to.count)): dtoMap=\(String(format: "%.3f", t1 - t0))s, api=\(String(format: "%.3f", t2 - t1))s, domainMap=\(String(format: "%.3f", t3 - t2))s, resultCount=\(pairs.count)")
         return pairs
     }
 

@@ -170,12 +170,18 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws {
+        let t0 = CFAbsoluteTimeGetCurrent()
         let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair, rateType: rateType).toSet()
+        let t1 = CFAbsoluteTimeGetCurrent()
         let providers = try await expressRepository.providers()
+        let t2 = CFAbsoluteTimeGetCurrent()
 
         availableProviders = try providers.compactMap { provider in
             try makeExpressAvailableProvider(availableProviderIds: availableProviderIds, provider: provider, pair: pair)
         }
+        let t3 = CFAbsoluteTimeGetCurrent()
+
+        ExpressLogger.info("[Timing] updateAvailableProviders: getAvailableProviders=\(String(format: "%.3f", t1 - t0))s, providers()=\(String(format: "%.3f", t2 - t1))s, makeProviders=\(String(format: "%.3f", t3 - t2))s")
     }
 
     func makeExpressAvailableProvider(

@@ -235,10 +235,16 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
+        let taskCreatedAt = CFAbsoluteTimeGetCurrent()
+        ExpressLogger.info("[Timing] updateTask(\(loadingType)): created")
         updateTask = runTask(in: self, code: { @MainActor input in
+            let mainActorEnteredAt = CFAbsoluteTimeGetCurrent()
+            ExpressLogger.info("[Timing] updateTask(\(loadingType)): @MainActor entered, waited \(String(format: "%.3f", mainActorEnteredAt - taskCreatedAt))s")
             do {
                 input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
+                let blockFinishedAt = CFAbsoluteTimeGetCurrent()
+                ExpressLogger.info("[Timing] updateTask(\(loadingType)): block finished at \(String(format: "%.3f", blockFinishedAt - mainActorEnteredAt))s")
 
                 switch result {
                 case .none:
@@ -252,6 +258,7 @@ extension SwapModel {
                         state: state
                     ))
                 }
+                ExpressLogger.info("[Timing] updateTask(\(loadingType)): state updated at \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - mainActorEnteredAt))s")
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
                 // Do nothing
@@ -262,9 +269,10 @@ extension SwapModel {
     }
 
     func update(providersState: ProvidersState) {
-        ExpressLogger.debug(self, "ProvidersState will update to: \(providersState)")
-
+        let t0 = CFAbsoluteTimeGetCurrent()
         _providersState.send(providersState)
+        let elapsed = CFAbsoluteTimeGetCurrent() - t0
+        ExpressLogger.info("[Timing] _providersState.send(\(providersState)): subscribers took \(String(format: "%.3f", elapsed))s")
     }
 }
 
@@ -601,6 +609,8 @@ extension SwapModel {
 
 extension SwapModel {
     func initialLoading() async {
+        let t0 = CFAbsoluteTimeGetCurrent()
+        ExpressLogger.info("[Timing] initialLoading: started")
         do {
             switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
@@ -608,6 +618,7 @@ extension SwapModel {
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
+                ExpressLogger.info("[Timing] initialLoading: updatePairs done at \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - t0))s")
 
                 // All already set
                 swappingPairDidChange()
@@ -617,9 +628,11 @@ extension SwapModel {
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
+                ExpressLogger.info("[Timing] initialLoading: updatePairs done at \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - t0))s")
 
                 _receiveToken.send(.loading)
                 let destination: SendSwapableToken = try await expressDestinationService.getDestination(source: source.tokenItem)
+                ExpressLogger.info("[Timing] initialLoading: getDestination done at \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - t0))s")
                 update(receive: destination)
 
             case (_, .success(let destination as SendSwapableToken)):

@@ -42,7 +42,9 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     }
 
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws {
+        let t0 = CFAbsoluteTimeGetCurrent()
         let currencies = userCurrencies.filter { $0 != wallet }
+        let t1 = CFAbsoluteTimeGetCurrent()
 
         guard !currencies.isEmpty else { return }
 
@@ -50,8 +52,15 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 
-        try await pairs.formUnion(pairsTo.toSet())
-        try await pairs.formUnion(pairsFrom.toSet())
+        let resolvedPairsTo = try await pairsTo
+        let resolvedPairsFrom = try await pairsFrom
+        let t2 = CFAbsoluteTimeGetCurrent()
+
+        pairs.formUnion(resolvedPairsTo.toSet())
+        pairs.formUnion(resolvedPairsFrom.toSet())
+        let t3 = CFAbsoluteTimeGetCurrent()
+
+        ExpressLogger.info("[Timing] updatePairs: currencies=\(currencies.count), userCurrencies=\(String(format: "%.3f", t1 - t0))s, network=\(String(format: "%.3f", t2 - t1))s, formUnion=\(String(format: "%.3f", t3 - t2))s, totalPairs=\(pairs.count)")
     }
 
     func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws -> [ExpressProvider.Id] {
