@@ -101,10 +101,10 @@ public extension Color.Tangem.Button {
 // MARK: - Surface
 
 public extension Color.Tangem.Surface {
-    static let level1: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
-    static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Base.black)
-    static let level3: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
-    static let level4: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark5)
+    static let level1: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Base.black)
+    static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark7)
+    static let level3: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
+    static let level4: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
 }
 
 // MARK: - Controls
