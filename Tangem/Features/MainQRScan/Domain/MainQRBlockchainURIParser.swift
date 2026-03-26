@@ -12,6 +12,8 @@ import TangemFoundation
 
 struct MainQRBlockchainURIParser {
     private let eip681Parser: MainQREIP681Parser
+    private let tronBuilder: MainQRBlockchainURIRequestBuilder = MainQRTronURIRequestBuilder()
+    private let defaultBuilder: MainQRBlockchainURIRequestBuilder = MainQRDefaultURIRequestBuilder()
 
     init(eip681Parser: MainQREIP681Parser = MainQREIP681Parser()) {
         self.eip681Parser = eip681Parser
@@ -45,24 +47,33 @@ struct MainQRBlockchainURIParser {
             }
 
             let queryItems = MainQRParserSupport.queryItems(from: value)
+            let builder = requestBuilder(for: blockchain)
 
-            return MainQRPaymentRequest(
+            let request = builder.buildRequest(
                 blockchain: blockchain,
-                destinationAddress: parsed.destination,
-                amount: parsed.amount?.value,
-                memo: parsed.memo ?? MainQRParserSupport.firstQueryValue(
-                    in: queryItems,
-                    names: MainQRParserConstants.memoQueryKeys
-                ),
-                tokenSymbol: MainQRParserSupport.firstQueryValue(
-                    in: queryItems,
-                    names: MainQRParserConstants.tokenSymbolQueryKeys
-                ),
-                tokenContractAddress: nil
+                destination: parsed.destination,
+                parsedAmount: parsed.amount?.value,
+                parsedMemo: parsed.memo,
+                queryItems: queryItems
             )
+
+            logUnknownParametersIfNeeded(request: request, blockchain: blockchain)
+
+            return request
         }
 
         return parseGenericBlockchainURI(value)
+    }
+
+    // MARK: - Private
+
+    private func requestBuilder(for blockchain: Blockchain) -> MainQRBlockchainURIRequestBuilder {
+        switch blockchain {
+        case .tron:
+            return tronBuilder
+        default:
+            return defaultBuilder
+        }
     }
 
     private func parseGenericBlockchainURI(_ value: String) -> MainQRPaymentRequest? {
@@ -124,13 +135,45 @@ struct MainQRBlockchainURIParser {
             names: MainQRParserConstants.tokenContractQueryKeys
         )
 
-        return MainQRPaymentRequest(
+        let knownKeys = genericKnownKeys
+        let unknown = MainQRParserSupport.unknownParameters(in: queryItems, knownKeys: knownKeys)
+
+        let request = MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: destinationAddress,
             amount: amount,
             memo: memo,
             tokenSymbol: tokenSymbol,
-            tokenContractAddress: tokenContractAddress
+            tokenContractAddress: tokenContractAddress,
+            rawTokenAmount: nil,
+            unknownParameters: unknown
+        )
+
+        logUnknownParametersIfNeeded(request: request, blockchain: blockchain)
+
+        return request
+    }
+
+    private var genericKnownKeys: Set<String> {
+        var keys = Set<String>()
+        MainQRParserConstants.rawAmountQueryKeys.forEach { keys.insert($0) }
+        MainQRParserConstants.memoQueryKeys.forEach { keys.insert($0) }
+        MainQRParserConstants.tokenSymbolQueryKeys.forEach { keys.insert($0) }
+        MainQRParserConstants.tokenContractQueryKeys.forEach { keys.insert($0) }
+        MainQRParserConstants.destinationQueryKeys.forEach { keys.insert($0) }
+        return keys
+    }
+
+    private func logUnknownParametersIfNeeded(request: MainQRPaymentRequest, blockchain: Blockchain) {
+        guard !request.unknownParameters.isEmpty else {
+            return
+        }
+
+        MainQRScanLogger.warning(
+            MainQRScanLoggerStrings.unknownQueryParameters(
+                blockchain: blockchain.displayName,
+                parameters: request.unknownParameters
+            )
         )
     }
 }
