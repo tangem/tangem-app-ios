@@ -156,7 +156,7 @@ struct WalletConnectView: View {
     }
 
     private func contentStateView(_ walletsWithConnectedDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps]) -> some View {
-        LazyVStack(spacing: viewModel.state.usesAccountBasedLayout ? 22 : 14) {
+        LazyVStack(spacing: 22) {
             ForEach(walletsWithConnectedDApps, content: walletWithDAppsRowView)
         }
         .padding(.vertical, 12)
@@ -164,46 +164,28 @@ struct WalletConnectView: View {
 
     private func walletWithDAppsRowView(_ wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            if viewModel.state.usesAccountBasedLayout {
-                if shouldShowWalletName(for: wallet) {
+            if shouldShowWalletName(for: wallet) {
+                Text(wallet.walletName)
+                    .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                    .padding(.horizontal, 14)
+            }
+
+            if wallet.hasAccountSections {
+                VStack(spacing: 8) {
+                    ForEach(wallet.accountSections, content: accountSectionView)
+                }
+            } else if wallet.hasWalletLevelDApps {
+                VStack(alignment: .leading, spacing: .zero) {
                     Text(wallet.walletName)
-                        .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .padding(.bottom, 8)
                         .padding(.horizontal, 14)
-                }
 
-                if wallet.hasAccountSections {
-                    VStack(spacing: 8) {
-                        ForEach(wallet.accountSections, content: accountSectionView)
-                    }
-                } else if wallet.hasWalletLevelDApps {
-                    VStack(alignment: .leading, spacing: .zero) {
-                        Text(wallet.walletName)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                            .padding(.bottom, 8)
-                            .padding(.horizontal, 14)
-
-                        ForEach(wallet.walletLevelDApps, content: dAppRowView)
-                    }
-                    .padding(.top, 12)
-                    .background(Colors.Background.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    ForEach(wallet.walletLevelDApps, content: dAppRowView)
                 }
-            } else {
-                if wallet.hasWalletLevelDApps {
-                    VStack(alignment: .leading, spacing: .zero) {
-                        if shouldShowWalletName(for: wallet) {
-                            Text(wallet.walletName)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                                .padding(.bottom, 8)
-                                .padding(.horizontal, 14)
-                        }
-
-                        ForEach(wallet.walletLevelDApps, content: dAppRowView)
-                    }
-                    .padding(.top, 12)
-                    .background(Colors.Background.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                }
+                .padding(.top, 12)
+                .background(Colors.Background.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
         .animation(.bouncy(duration: 0.2), value: wallet)
