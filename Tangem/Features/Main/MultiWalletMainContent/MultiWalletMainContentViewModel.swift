@@ -52,8 +52,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     weak var delegate: MultiWalletMainContentDelegate?
 
-    var footerViewModel: MainFooterViewModel?
-
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
@@ -648,6 +646,14 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openCloreMigration(walletModel: walletModel)
     }
 
+    private func openManageTokens() {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return
+        }
+
+        coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
+    }
+
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
@@ -798,6 +804,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openCloreMigration:
             openCloreMigration()
+        case .openManageTokensAfterWalletSuccessImport:
+            openManageTokens()
         default:
             break
         }

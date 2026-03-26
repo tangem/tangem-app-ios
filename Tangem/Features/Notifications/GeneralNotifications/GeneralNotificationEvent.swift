@@ -35,6 +35,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
     case pushNotificationsPermissionRequest
+    case initialWalletTokenSyncCompleted
 }
 
 /// For Notifications
@@ -57,7 +58,8 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp:
             return .survey
 
-        case .pushNotificationsPermissionRequest:
+        case .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return .informational
 
         default:
@@ -119,6 +121,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.hwUpgradeToColdBannerTitle)
         case .pushNotificationsPermissionRequest:
             return .string(Localization.userPushNotificationBannerTitle)
+        case .initialWalletTokenSyncCompleted:
+            return .string(Localization.initialWalletSyncBannerTitle)
         }
     }
 
@@ -168,6 +172,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.hwUpgradeToColdBannerDescription
         case .pushNotificationsPermissionRequest:
             return Localization.userPushNotificationBannerSubtitle
+        case .initialWalletTokenSyncCompleted:
+            return Localization.initialWalletSyncBannerDescription
         }
     }
 
@@ -181,7 +187,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .mobileFinishActivation,
              .mobileUpgrade,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return .primary
         default:
             return .secondary
@@ -221,6 +228,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
+        case .initialWalletTokenSyncCompleted:
+            return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 
@@ -239,7 +248,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingDerivation,
              .rateApp,
              .mobileUpgrade,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -278,7 +288,8 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .rateApp,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return true
         }
     }
@@ -351,6 +362,13 @@ extension GeneralNotificationEvent: NotificationEvent {
                 .init(action: buttonAction, actionType: .closeMobileUpgrade, isWithLoader: false),
                 .init(action: buttonAction, actionType: .openMobileUpgrade, isWithLoader: false),
             ])
+        case .initialWalletTokenSyncCompleted:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -384,6 +402,7 @@ extension GeneralNotificationEvent {
         case .mobileFinishActivation: return .noticeFinishActivation
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
+        case .initialWalletTokenSyncCompleted: return nil
         }
     }
 
