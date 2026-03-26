@@ -53,7 +53,6 @@ final class SwapModel {
     private let isFixedRatesEnabled: Bool
     private let balanceConverter = BalanceConverter()
     private var autoupdatingTimerSubscription: AnyCancellable?
-    private var initialLoadingTask: Task<Void, Never>?
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -84,19 +83,8 @@ final class SwapModel {
         _receiveAmount = .init(.none)
 
         if shouldStartInitialLoading {
-            let sourceToken = _sourceToken.value
-            let receiveToken = _receiveToken.value
-            let pairsRepository = expressPairsRepository
-            let destinationService = expressDestinationService
-
-            initialLoadingTask = Task.detached { [weak self] in
-                await Self.performInitialLoading(
-                    weakSelf: self,
-                    sourceToken: sourceToken,
-                    receiveToken: receiveToken,
-                    pairsRepository: pairsRepository,
-                    destinationService: destinationService
-                )
+            Task.detached { [weak self] in
+                await self?.initialLoading()
             }
         }
 
@@ -104,7 +92,6 @@ final class SwapModel {
     }
 
     deinit {
-        initialLoadingTask?.cancel()
         updateTask?.cancel()
         ExpressLogger.debug("deinit SwapModel")
     }
@@ -226,9 +213,7 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        ExpressLogger.info("[Timing] swappingPairDidChange called")
         updateTask(loadingType: .providers) { [weak self] expressManager in
-            ExpressLogger.info("[Timing] updateTask block started executing")
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
@@ -236,9 +221,7 @@ extension SwapModel {
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            ExpressLogger.info("[Timing] calling expressManager.update(pair:)")
             let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
-            ExpressLogger.info("[Timing] expressManager.update(pair:) finished")
 
             // Populate _receiveAmount from the quote so the destination field
             // shows the calculated value when a TO token is selected after entering FROM amount
@@ -252,36 +235,28 @@ extension SwapModel {
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
-        ExpressLogger.info("[Timing] updateTask: creating task for \(loadingType)")
-        updateTask = runTask(in: self, code: { input in
-            ExpressLogger.info("[Timing] updateTask: task started executing for \(loadingType)")
+        updateTask = runTask(in: self, code: { @MainActor input in
             do {
-                // Fire-and-forget: deliver loading state to main without blocking.
-                // The main thread can be saturated for 10+ seconds by unrelated work
-                // (e.g. CHHapticEngine cleanup) — awaiting MainActor here would delay
-                // the network call by that entire duration.
-                Task { @MainActor [weak input] in input?.update(providersState: .loading(loadingType)) }
-
+                input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
 
                 switch result {
                 case .none:
-                    await MainActor.run { input.update(providersState: .idle) }
+                    input.update(providersState: .idle)
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
-                    await MainActor.run {
-                        input.update(providersState: .loaded(
-                            providers: updatingResult.providers,
-                            selected: updatingResult.selected,
-                            state: state
-                        ))
-                    }
+                    input.update(providersState: .loaded(
+                        providers: updatingResult.providers,
+                        selected: updatingResult.selected,
+                        state: state
+                    ))
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
+                // Do nothing
             } catch {
-                await MainActor.run { input.update(providersState: .failure(error)) }
+                input.update(providersState: .failure(error))
             }
         })
     }
@@ -625,89 +600,71 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    /// Static method to avoid retaining `self` across slow network calls.
-    /// Dependencies are captured as parameters, and `weakSelf` is only accessed
-    /// briefly via optional chaining — allowing SwapModel to deallocate mid-flight
-    /// when the swap screen is dismissed.
-    private static func performInitialLoading(
-        weakSelf: SwapModel?,
-        sourceToken: LoadingResult<SendSwapableToken, any Error>,
-        receiveToken: LoadingResult<SendReceiveToken, any Error>,
-        pairsRepository: ExpressPairsRepository,
-        destinationService: ExpressDestinationService
-    ) async {
+    func initialLoading() async {
         do {
-            switch (sourceToken, receiveToken) {
+            switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
-                try await pairsRepository.updatePairs(
+                try await expressPairsRepository.updatePairs(
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
 
-                try Task.checkCancellation()
-                weakSelf?.swappingPairDidChange()
+                // All already set
+                swappingPairDidChange()
 
             case (.success(let source), _):
-                do {
-                    try await pairsRepository.updatePairs(
-                        for: source.tokenItem.expressCurrency,
-                        userWalletInfo: source.userWalletInfo
-                    )
-                } catch {
-                    ExpressLogger.info("Update pairs failed with error: \(error)")
-                }
+                await updatePairsIgnoringErrors(
+                    for: source.tokenItem.expressCurrency,
+                    userWalletInfo: source.userWalletInfo
+                )
 
-                try Task.checkCancellation()
-                weakSelf?._receiveToken.send(.loading)
-
-                let destination: SendSwapableToken = try await destinationService.getDestination(source: source.tokenItem)
-                try Task.checkCancellation()
-                weakSelf?.update(receive: destination)
+                _receiveToken.send(.loading)
+                let destination: SendSwapableToken = try await expressDestinationService.getDestination(source: source.tokenItem)
+                update(receive: destination)
 
             case (_, .success(let destination as SendSwapableToken)):
-                do {
-                    try await pairsRepository.updatePairs(
-                        for: destination.tokenItem.expressCurrency,
-                        userWalletInfo: destination.userWalletInfo
-                    )
-                } catch {
-                    ExpressLogger.info("Update pairs failed with error: \(error)")
-                }
+                await updatePairsIgnoringErrors(
+                    for: destination.tokenItem.expressCurrency,
+                    userWalletInfo: destination.userWalletInfo
+                )
 
-                try Task.checkCancellation()
-                weakSelf?._sourceToken.send(.loading)
-
-                let source: SendSwapableToken = try await destinationService.getSource(destination: destination.tokenItem)
-                try Task.checkCancellation()
-                weakSelf?.update(source: source)
+                _sourceToken.send(.loading)
+                let source: SendSwapableToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
+                update(source: source)
 
             default:
                 assertionFailure("Wrong case. Check implementation")
-                weakSelf?._sourceToken.send(.failure(SwapModel.SwapModelError.sourceNotFound))
-                weakSelf?._receiveToken.send(.failure(SwapModel.SwapModelError.destinationNotFound))
+                _sourceToken.send(.failure(SwapModel.SwapModelError.sourceNotFound))
+                _receiveToken.send(.failure(SwapModel.SwapModelError.destinationNotFound))
             }
-        } catch is CancellationError {
-            ExpressLogger.debug("initialLoading was cancelled")
         } catch ExpressDestinationServiceError.sourceNotFound(let destination) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             ExpressLogger.info("Source not found")
-            weakSelf?._sourceToken.send(.failure(ExpressDestinationServiceError.sourceNotFound(destination: destination)))
+            _sourceToken.send(.failure(ExpressDestinationServiceError.sourceNotFound(destination: destination)))
 
         } catch ExpressDestinationServiceError.destinationNotFound(let source) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             ExpressLogger.info("Destination not found")
-            weakSelf?._receiveToken.send(.failure(ExpressDestinationServiceError.destinationNotFound(source: source)))
+            _receiveToken.send(.failure(ExpressDestinationServiceError.destinationNotFound(source: source)))
 
         } catch {
             ExpressLogger.info("Update pairs failed with error: \(error)")
 
-            if weakSelf?._receiveToken.value.isLoading == true {
-                weakSelf?._receiveToken.send(.failure(error))
+            if _receiveToken.value.isLoading {
+                _receiveToken.send(.failure(error))
             }
 
-            if weakSelf?._sourceToken.value.isLoading == true {
-                weakSelf?._sourceToken.send(.failure(error))
+            if _sourceToken.value.isLoading {
+                _sourceToken.send(.failure(error))
             }
+        }
+    }
+
+    private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
+        do {
+            try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
+        } catch {
+            ExpressLogger.info("Update pairs failed with error: \(error)")
         }
     }
 }
