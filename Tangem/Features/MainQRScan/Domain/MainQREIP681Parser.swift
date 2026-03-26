@@ -90,14 +90,33 @@ struct MainQREIP681Parser {
             names: MainQRParserConstants.tokenSymbolQueryKeys
         )
 
-        return MainQRPaymentRequest(
+        let rawTokenAmount = MainQRParserSupport.firstQueryValue(
+            in: queryItems,
+            names: MainQRParserConstants.eip681TransferAmountQueryKeys
+        ).flatMap(MainQRDecimalParser.parseDecimal)
+
+        let knownKeys: Set<String> = Set(
+            [MainQRParserConstants.QueryKey.address, MainQRParserConstants.QueryKey.chainId]
+                + MainQRParserConstants.eip681TransferMemoQueryKeys
+                + MainQRParserConstants.tokenSymbolQueryKeys
+                + MainQRParserConstants.eip681TransferAmountQueryKeys
+        )
+        let unknown = MainQRParserSupport.unknownParameters(in: queryItems, knownKeys: knownKeys)
+
+        let request = MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: destination,
             amount: nil,
             memo: memo,
             tokenSymbol: tokenSymbol,
-            tokenContractAddress: contractOrAddress
+            tokenContractAddress: contractOrAddress,
+            rawTokenAmount: rawTokenAmount,
+            unknownParameters: unknown
         )
+
+        logUnknownParametersIfNeeded(request: request, blockchain: blockchain)
+
+        return request
     }
 
     private func parseCoinTransfer(
@@ -126,7 +145,15 @@ struct MainQREIP681Parser {
             return nil
         }
 
-        return MainQRPaymentRequest(
+        let knownKeys: Set<String> = Set(
+            [MainQRParserConstants.QueryKey.chainId]
+                + MainQRParserConstants.eip681AmountQueryKeys
+                + MainQRParserConstants.eip681TransferMemoQueryKeys
+                + MainQRParserConstants.tokenSymbolQueryKeys
+        )
+        let unknown = MainQRParserSupport.unknownParameters(in: queryItems, knownKeys: knownKeys)
+
+        let request = MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: destination,
             amount: resolveAmount(
@@ -144,7 +171,26 @@ struct MainQREIP681Parser {
                 in: queryItems,
                 names: MainQRParserConstants.tokenSymbolQueryKeys
             ),
-            tokenContractAddress: nil
+            tokenContractAddress: nil,
+            rawTokenAmount: nil,
+            unknownParameters: unknown
+        )
+
+        logUnknownParametersIfNeeded(request: request, blockchain: blockchain)
+
+        return request
+    }
+
+    private func logUnknownParametersIfNeeded(request: MainQRPaymentRequest, blockchain: Blockchain) {
+        guard !request.unknownParameters.isEmpty else {
+            return
+        }
+
+        MainQRScanLogger.warning(
+            MainQRScanLoggerStrings.unknownQueryParameters(
+                blockchain: blockchain.displayName,
+                parameters: request.unknownParameters
+            )
         )
     }
 
