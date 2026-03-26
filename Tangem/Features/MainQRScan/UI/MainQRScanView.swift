@@ -49,7 +49,6 @@ struct MainQRScanView: View {
                 shouldDismissOnFailure: false,
                 onScanningFailure: viewModel.onScannerFailure
             )
-            .id(viewModel.scannerViewID)
             .transition(.opacity)
         } else {
             Color.black
@@ -83,12 +82,6 @@ struct MainQRScanView: View {
 
             Button(action: viewModel.toggleFlash) {
                 (viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image)
-                    .foregroundColor(Colors.Text.constantWhite)
-            }
-            .padding(7)
-
-            Button(action: viewModel.openGallery) {
-                Assets.gallery.image
                     .foregroundColor(Colors.Text.constantWhite)
             }
             .padding(7)
