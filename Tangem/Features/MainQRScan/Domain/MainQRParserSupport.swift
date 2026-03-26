@@ -66,6 +66,24 @@ enum MainQRParserSupport {
         return prefixes.contains { lowercasedValue.hasPrefix($0.lowercased()) }
     }
 
+    /// Collects query parameters whose keys are not in the provided known keys set.
+    static func unknownParameters(
+        in queryItems: [URLQueryItem],
+        knownKeys: Set<String>
+    ) -> [String: String] {
+        let normalizedKnownKeys = Set(knownKeys.map(normalizeQueryKey))
+        var result: [String: String] = [:]
+
+        for item in queryItems {
+            let normalizedName = normalizeQueryKey(item.name)
+            if !normalizedKnownKeys.contains(normalizedName), let value = item.value {
+                result[item.name] = value
+            }
+        }
+
+        return result
+    }
+
     static func stripEthereumSchemePrefix(from value: String) -> String? {
         let lowercasedValue = value.lowercased()
         let ethereumPrefixes = Blockchain.ethereum(testnet: false).qrPrefixes
