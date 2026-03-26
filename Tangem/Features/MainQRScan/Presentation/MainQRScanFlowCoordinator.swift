@@ -10,7 +10,6 @@ import Foundation
 import BlockchainSdk
 import SwiftUI
 import TangemAccounts
-import TangemLocalization
 import TangemUIUtils
 
 final class MainQRScanFlowCoordinator: CoordinatorObject {
@@ -41,6 +40,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     private lazy var walletModelMatcher = MainQRWalletModelMatcher(userWalletRepository: userWalletRepository)
     private let routeResolver = MainQRScanRouteResolver()
     private let sendParametersFactory = MainQRSendParametersFactory()
+    private let alertFactory = MainQRScanAlertFactory()
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -60,6 +60,8 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func openQRScanner() {
+        qrScanCoordinator = nil
+
         let dismissAction: Action<String?> = { [weak self] scannedCode in
             guard let self else { return }
             guard let scannedCode else {
@@ -84,16 +86,18 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func handleScannedCode(_ code: String) {
-        let context = walletModelMatcher.collectContext()
+        let walletModelMatcher = walletModelMatcher
         let resolver = routeResolver
 
         Task { [weak self] in
-            let action = await Task.detached(priority: .userInitiated) {
-                resolver.resolve(
+            let (context, action) = await Task.detached(priority: .userInitiated) {
+                let context = walletModelMatcher.collectContext()
+                let action = resolver.resolve(
                     scannedCode: code,
                     availableBlockchains: context.allBlockchains,
                     availableTokenItems: context.allTokenItems
                 )
+                return (context, action)
             }.value
 
             guard let self, qrScanCoordinator != nil else { return }
@@ -109,19 +113,12 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             handleWalletConnect(uri: uri)
 
         case .payment(let request):
-            let sendParameters = sendParametersFactory.makeSendParameters(
-                destination: request.request.destinationAddress,
-                amount: request.request.amount,
-                tag: request.request.memo
-            )
-            let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingTokenItems)
+            if !request.request.unknownParameters.isEmpty {
+                showUnknownParametersAlert(request: request, allMatches: allMatches)
+                return
+            }
 
-            openSendOrSelector(
-                matches: matches,
-                sendParameters: sendParameters,
-                filter: .tokenItems(Set(request.matchingTokenItems)),
-                noSupportedTokensContext: .payment(request.request)
-            )
+            handlePayment(request: request, allMatches: allMatches)
 
         case .address(let request):
             let sendParameters = sendParametersFactory.makeSendParameters(
@@ -130,9 +127,11 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
                 tag: nil
             )
             let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingBlockchains)
+            let filteredMatches = filterOutSelfAddressMatches(matches, destination: request.destinationAddress)
 
             openSendOrSelector(
-                matches: matches,
+                matches: filteredMatches,
+                unfilteredMatchCount: matches.count,
                 sendParameters: sendParameters,
                 filter: .blockchains(Set(request.matchingBlockchains)),
                 noSupportedTokensContext: nil
@@ -166,13 +165,18 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     @MainActor
     private func openSendOrSelector(
         matches: [MainQRWalletModelMatch],
+        unfilteredMatchCount: Int,
         sendParameters: PredefinedSendParameters,
         filter: MainQRScanTokenSelectorAvailabilityFilter,
         noSupportedTokensContext: MainQRNoSupportedTokensContext?
     ) {
         switch matches.count {
         case 0:
-            showNoSupportedTokensAlert(context: noSupportedTokensContext)
+            if unfilteredMatchCount > 0 {
+                showSelfAddressAlert()
+            } else {
+                showNoSupportedTokensAlert(context: noSupportedTokensContext)
+            }
         case 1:
             guard let match = matches.first else {
                 showNoSupportedTokensAlert(context: noSupportedTokensContext)
@@ -181,7 +185,18 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
             openSend(with: match, parameters: sendParameters)
         default:
-            openTokenSelector(filter: filter, sendParameters: sendParameters)
+            let matchesWithBalance = matches.filter { match in
+                if case .loaded(let balance) = match.walletModel.availableBalanceProvider.balanceType, balance > 0 {
+                    return true
+                }
+                return false
+            }
+
+            if matchesWithBalance.count == 1, let singleMatch = matchesWithBalance.first {
+                openSend(with: singleMatch, parameters: sendParameters)
+            } else {
+                openTokenSelector(filter: filter, sendParameters: sendParameters)
+            }
         }
     }
 
@@ -192,7 +207,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     ) {
         closeScanner()
 
-        let walletsProvider = CommonAccountsAwareTokenSelectorWalletsProvider()
+        let walletsProvider = CommonAccountsAwareTokenSelectorWalletsProvider(accountModelFilter: \.isStandard)
         let selectorViewModel = AccountsAwareTokenSelectorViewModel(
             walletsProvider: walletsProvider,
             availabilityProvider: MainQRScanTokenSelectorAvailabilityProvider(filter: filter)
@@ -252,15 +267,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
         Analytics.log(event: .mainScreenNoticeUnrecognizedQR, params: [.qrType: "Unrecognized"])
 
-        alert = AlertBinder(
-            alert: Alert(
-                title: Text(Localization.qrScannerErrorUnrecognizedTitle),
-                message: Text(Localization.qrScannerErrorUnrecognizedMessage),
-                dismissButton: .default(Text(Localization.commonOk), action: { [weak self] in
-                    self?.rearmScanner()
-                })
-            )
-        )
+        alert = alertFactory.makeUnrecognizedAlert { [weak self] in
+            self?.rearmScanner()
+        }
     }
 
     @MainActor
@@ -276,20 +285,94 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         }
         Analytics.log(event: .sendNoticeNoAvailableTokens, params: analyticsParams)
 
-        alert = AlertBinder(
-            alert: Alert(
-                title: Text(Localization.qrScannerErrorUnsupportedNetworkTitle),
-                message: Text(Localization.qrScannerErrorUnsupportedNetworkMessage),
-                dismissButton: .default(Text(Localization.commonOk), action: { [weak self] in
-                    self?.rearmScanner()
-                })
-            )
+        alert = alertFactory.makeNoSupportedTokensAlert { [weak self] in
+            self?.rearmScanner()
+        }
+    }
+
+    @MainActor
+    private func showUnknownParametersAlert(request: MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch]) {
+        turnOffScannerFlashIfNeeded()
+
+        let parameterNames = request.request.unknownParameters
+            .map { "\($0.key)=\($0.value)" }
+            .joined(separator: ", ")
+
+        alert = alertFactory.makeUnknownParametersAlert(
+            parameterNames: parameterNames,
+            onContinue: { [weak self] in
+                self?.handlePayment(request: request, allMatches: allMatches)
+            },
+            onCancel: { [weak self] in
+                self?.rearmScanner()
+            }
         )
+    }
+
+    @MainActor
+    private func handlePayment(request: MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch]) {
+        let amount = resolvePaymentAmount(request: request.request, matchingTokenItems: request.matchingTokenItems)
+        let sendParameters = sendParametersFactory.makeSendParameters(
+            destination: request.request.destinationAddress,
+            amount: amount,
+            tag: request.request.memo
+        )
+        let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingTokenItems)
+        let filteredMatches = filterOutSelfAddressMatches(matches, destination: request.request.destinationAddress)
+
+        openSendOrSelector(
+            matches: filteredMatches,
+            unfilteredMatchCount: matches.count,
+            sendParameters: sendParameters,
+            filter: .tokenItems(Set(request.matchingTokenItems)),
+            noSupportedTokensContext: .payment(request.request)
+        )
+    }
+
+    @MainActor
+    private func showSelfAddressAlert() {
+        turnOffScannerFlashIfNeeded()
+
+        alert = alertFactory.makeSelfAddressAlert { [weak self] in
+            self?.rearmScanner()
+        }
+    }
+
+    private func filterOutSelfAddressMatches(
+        _ matches: [MainQRWalletModelMatch],
+        destination: String
+    ) -> [MainQRWalletModelMatch] {
+        matches.filter { match in
+            let blockchain = match.walletModel.tokenItem.blockchain
+            guard !blockchain.supportsCompound else {
+                return true
+            }
+
+            let walletAddresses = match.walletModel.addresses.map(\.value)
+            return !walletAddresses.contains(destination)
+        }
+    }
+
+    private func resolvePaymentAmount(request: MainQRPaymentRequest, matchingTokenItems: [TokenItem]) -> Decimal? {
+        if let amount = request.amount {
+            return amount
+        }
+
+        guard let rawTokenAmount = request.rawTokenAmount, let tokenItem = matchingTokenItems.first else {
+            return nil
+        }
+
+        let decimalCount = tokenItem.decimalCount
+        guard decimalCount > 0 else {
+            return rawTokenAmount
+        }
+
+        return rawTokenAmount / pow(10, decimalCount)
     }
 
     private func rearmScanner() {
         Task { @MainActor [weak self] in
-            self?.qrScanCoordinator?.rearmScanner()
+            self?.openQRScanner()
         }
     }
 

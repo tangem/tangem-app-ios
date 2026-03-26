@@ -53,6 +53,7 @@ struct PredefinedSendParameters {
 extension PredefinedSendParameters {
     enum InitialStep {
         case amount
+        case amountThenSummary
         case summary
     }
 }
