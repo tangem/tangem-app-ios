@@ -27,7 +27,7 @@ struct MainView: View {
 
     @ViewBuilder
     private var content: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesignEnabled {
             fullPagePagerContent
                 .modifier(RedesignedBackgroundModifier(headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher))
         } else {
@@ -68,7 +68,7 @@ struct MainView: View {
     }
 
     private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.body
+        pageBuilder.content
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 Color.clear.frame(height: overlayCollapsedHeight)
             }
@@ -87,21 +87,24 @@ struct MainView: View {
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
             discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
-            headerFactory: { info in
-                info.header
+            headerViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.header
                     .contextMenu {
-                        if !info.isLockedWallet {
+                        if !userWalletPageBuilder.isLockedWallet {
                             if AppSettings.shared.saveUserWallets {
                                 renameButton
                             }
                         }
                     }
             },
-            contentFactory: { info in
-                info.body
+            contentViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.content
             },
-            bottomOverlayFactory: { info, overlayParams in
-                info.makeBottomOverlay(overlayParams)
+            bottomOverlayViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.bottomOverlay
+            },
+            footerOverlayViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.footerOverlay
             }
         )
         .pageSwitchThreshold(0.4)

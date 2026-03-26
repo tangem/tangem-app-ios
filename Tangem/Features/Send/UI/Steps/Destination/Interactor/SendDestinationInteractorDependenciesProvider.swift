@@ -68,7 +68,6 @@ private extension SendDestinationInteractorDependenciesProvider {
 
     func makeValidator() -> SendDestinationValidator {
         let walletAddresses = currentWalletData.walletAddresses
-
         let addressService = AddressServiceFactory(blockchain: tokenItem.blockchain).makeAddressService()
 
         let validator = CommonSendDestinationValidator(
