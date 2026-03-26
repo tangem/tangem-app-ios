@@ -56,16 +56,40 @@ struct MainQRDeepLinkPaymentParser {
         let memo = MainQRParserSupport.firstQueryValue(in: queryItems, names: MainQRParserConstants.memoQueryKeys)
         let tokenSymbol = MainQRParserSupport.firstQueryValue(in: queryItems, names: MainQRParserConstants.tokenSymbolQueryKeys)
 
+        let tokenContractAddress = MainQRParserSupport.firstQueryValue(
+            in: queryItems,
+            names: MainQRParserConstants.tokenContractQueryKeys
+        )
+
+        let knownKeys = Set<String>(
+            MainQRParserConstants.embeddedPayloadQueryKeys
+                + MainQRParserConstants.destinationQueryKeys
+                + MainQRParserConstants.chainQueryKeys
+                + MainQRParserConstants.rawAmountQueryKeys
+                + MainQRParserConstants.memoQueryKeys
+                + MainQRParserConstants.tokenSymbolQueryKeys
+                + MainQRParserConstants.tokenContractQueryKeys
+        )
+        let unknown = MainQRParserSupport.unknownParameters(in: queryItems, knownKeys: knownKeys)
+
+        if !unknown.isEmpty {
+            MainQRScanLogger.warning(
+                MainQRScanLoggerStrings.unknownQueryParameters(
+                    blockchain: blockchain.displayName,
+                    parameters: unknown
+                )
+            )
+        }
+
         return MainQRPaymentRequest(
             blockchain: blockchain,
             destinationAddress: address,
             amount: amount,
             memo: memo,
             tokenSymbol: tokenSymbol,
-            tokenContractAddress: MainQRParserSupport.firstQueryValue(
-                in: queryItems,
-                names: MainQRParserConstants.tokenContractQueryKeys
-            )
+            tokenContractAddress: tokenContractAddress,
+            rawTokenAmount: nil,
+            unknownParameters: unknown
         )
     }
 
