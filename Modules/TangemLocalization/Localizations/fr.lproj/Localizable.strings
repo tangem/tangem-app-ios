@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "Aucune donnée";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_quick_actions" = "Actions rapides";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Résultat";
 "markets_search_see_tokens_under_100k" = "Voir les jetons de moins de 100 000 $ de capitalisation boursière";
 "markets_search_show_tokens" = "Afficher les jetons";

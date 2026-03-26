@@ -153,6 +153,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -169,7 +170,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openManageTokensAfterWalletSuccessImport:
             super.didTapNotification(with: id, action: action)
         }
     }

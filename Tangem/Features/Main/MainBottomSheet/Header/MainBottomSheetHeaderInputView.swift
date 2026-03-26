@@ -29,7 +29,6 @@ struct MainBottomSheetHeaderInputView: View {
         FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
     }
 
-    @ViewBuilder
     private var searchBar: some View {
         CustomSearchBar(
             searchText: $searchText,
