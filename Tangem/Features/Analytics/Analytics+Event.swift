@@ -376,12 +376,6 @@ extension Analytics {
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
-        case mainNoticeSeedSupport = "[Main Screen] Notice - Seed Phrase Support"
-        case mainNoticeSeedSupportButtonYes = "[Main Screen] Button - Support Yes"
-        case mainNoticeSeedSupportButtonNo = "[Main Screen] Button - Support No"
-        case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
-        case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
-        case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions

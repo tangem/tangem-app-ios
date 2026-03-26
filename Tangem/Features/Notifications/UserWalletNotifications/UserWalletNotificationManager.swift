@@ -40,10 +40,8 @@ final class UserWalletNotificationManager {
 
     private var showMobileUpgradeNotification = false
     private var shownMobileUpgradeNotificationId: NotificationViewId?
-
     private var shownTokenSyncNotificationId: NotificationViewId?
 
-    private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
     init(
@@ -128,23 +126,9 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
-        createIfNeededAndShowSupportSeedNotification()
         showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
-    }
-
-    private func createIfNeededAndShowSupportSeedNotification() {
-        guard userWalletModel.hasImportedWallets else {
-            return
-        }
-
-        // demo cards
-        if case .disabled = userWalletModel.config.getFeatureAvailability(.backup) {
-            return
-        }
-
-        supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
@@ -438,14 +422,6 @@ final class UserWalletNotificationManager {
             .eraseToAnyPublisher()
     }
 
-    private func makeSupportSeedNotificationsManager() -> SupportSeedNotificationManager {
-        CommonSupportSeedNotificationManager(
-            userWalletId: userWalletModel.userWalletId,
-            displayDelegate: self,
-            notificationTapDelegate: delegate
-        )
-    }
-
     private func makePushPermissionNotificationsManager() -> PushPermissionNotificationManager {
         CommonPushPermissionNotificationManager(displayDelegate: self, notificationTapDelegate: delegate)
     }
@@ -493,14 +469,6 @@ extension UserWalletNotificationManager: NotificationManager {
         }
 
         hideNotification(with: id)
-    }
-}
-
-// MARK: - SupportSeedNotificationDelegate
-
-extension UserWalletNotificationManager: SupportSeedNotificationDelegate {
-    func showSupportSeedNotification(input: NotificationViewInput) {
-        addInputIfNeeded(input)
     }
 }
 
