@@ -49,10 +49,6 @@ enum NotificationButtonActionType: Identifiable {
     case empty
     case support
     case openCurrency
-    case seedSupportYes
-    case seedSupportNo
-    case seedSupport2Yes
-    case seedSupport2No
     case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
@@ -87,10 +83,6 @@ enum NotificationButtonActionType: Identifiable {
         case .empty: "empty".hashValue
         case .support: "support".hashValue
         case .openCurrency: "openCurrency".hashValue
-        case .seedSupportYes: "seedSupportYes".hashValue
-        case .seedSupportNo: "seedSupportNo".hashValue
-        case .seedSupport2Yes: "seedSupport2Yes".hashValue
-        case .seedSupport2No: "seedSupport2No".hashValue
         case .unlock: "unlock".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
@@ -141,14 +133,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
-        case .seedSupportYes:
-            return Localization.commonYes
-        case .seedSupportNo:
-            return Localization.commonNo
-        case .seedSupport2Yes:
-            return Localization.seedWarningYes
-        case .seedSupport2No:
-            return Localization.seedWarningNo
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .addTokenTrustline:
@@ -199,10 +183,6 @@ enum NotificationButtonActionType: Identifiable {
              .empty,
              .support,
              .openCurrency,
-             .seedSupportYes,
-             .seedSupportNo,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -243,10 +223,6 @@ enum NotificationButtonActionType: Identifiable {
              .openFeedbackMail,
              .openCurrency,
              .swap,
-             .seedSupportNo,
-             .seedSupportYes,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .addTokenTrustline,
              .postponePushPermissionRequest,
              .givePermission,
