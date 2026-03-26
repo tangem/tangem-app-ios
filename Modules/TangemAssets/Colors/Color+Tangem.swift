@@ -27,6 +27,7 @@ public extension Color {
         public enum Visa {}
         public enum Tabs {}
         public enum CardCollection {}
+        public enum Market {}
     }
 }
 
@@ -351,6 +352,18 @@ public extension Color.Tangem.CardCollection {
     static let winter2 = CardCollection.winter2
     static let winter3 = CardCollection.winter3
     static let cashclubgold = CardCollection.cashclubgold
+}
+
+// MARK: - Market
+
+public extension Color.Tangem.Market {
+    static let textTop1: Color = Primitives.Gold.gold
+    static let textTop2: Color = Primitives.Cobalt.cobalt
+    static let textTop3: Color = Primitives.Coral.coral
+
+    static let iconTop1: Color = Primitives.Gold.gold
+    static let iconTop2: Color = Primitives.Cobalt.cobalt
+    static let iconTop3: Color = Primitives.Coral.coral
 }
 
 // MARK: - Init with hex-value
