@@ -312,6 +312,7 @@
 		0FBB13F12E015F290086784A /* MobileOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */; };
 		0FBF7E6B2E7C49790076A627 /* MobileUnlock+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */; };
+		0FC27AD52F730C1800D6877A /* TangemSegmentedPickerDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC27AD42F730C1800D6877A /* TangemSegmentedPickerDemo.swift */; };
 		0FC609152DF344FB0033B946 /* MobileCreateWalletDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC609142DF344FB0033B946 /* MobileCreateWalletDelegate.swift */; };
 		0FC9A0F12EB53DDC00C58643 /* MobileFinishActivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */; };
 		0FD875922E957677006E6044 /* MobileCreateWalletRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */; };
@@ -5456,6 +5457,7 @@
 		0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
 		0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileUnlock+Notification.swift"; sourceTree = "<group>"; };
+		0FC27AD42F730C1800D6877A /* TangemSegmentedPickerDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSegmentedPickerDemo.swift; sourceTree = "<group>"; };
 		0FC609142DF344FB0033B946 /* MobileCreateWalletDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletDelegate.swift; sourceTree = "<group>"; };
 		0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileFinishActivationManager.swift; sourceTree = "<group>"; };
 		0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletRoutable.swift; sourceTree = "<group>"; };
@@ -23325,6 +23327,7 @@
 				DF3176012F4E36EC00E77AF1 /* TangemBadgeDemo.swift */,
 				0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */,
 				DF3176032F4E36F300E77AF1 /* TangemMainActionButtonDemo.swift */,
+				0FC27AD42F730C1800D6877A /* TangemSegmentedPickerDemo.swift */,
 				DF4A2F322F4DB1FA002FE2D5 /* TypographyDemo.swift */,
 			);
 			path = DesignSystemDemo;
@@ -29871,6 +29874,7 @@
 				2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */,
 				B60263872EC7F0C0001A4614 /* CollapsedAccountItemHeaderView.swift in Sources */,
 				EA31CB2C2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift in Sources */,
+				0FC27AD52F730C1800D6877A /* TangemSegmentedPickerDemo.swift in Sources */,
 				EFC84B262C37FBB300546882 /* SendStep.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DA67AF372CEDC426008B05D3 /* SentOnrampTransactionData.swift in Sources */,
