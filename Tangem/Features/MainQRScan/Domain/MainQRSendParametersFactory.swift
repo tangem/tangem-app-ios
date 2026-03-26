@@ -14,7 +14,7 @@ struct MainQRSendParametersFactory {
         amount: Decimal?,
         tag: String?
     ) -> PredefinedSendParameters {
-        let initialStep: PredefinedSendParameters.InitialStep = amount == nil ? .amount : .summary
+        let initialStep: PredefinedSendParameters.InitialStep = amount == nil ? .amountThenSummary : .summary
         return PredefinedSendParameters(
             destination: destination,
             amount: amount,
@@ -36,7 +36,7 @@ struct MainQRSendParametersFactory {
                 destination: parameters.destination,
                 amount: parameters.amount,
                 tag: parameters.tag,
-                initialStep: .amount
+                initialStep: .amountThenSummary
             )
         }
 
