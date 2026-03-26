@@ -337,24 +337,6 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .hotCrypto(requestModel))
     }
 
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO {
-        return try await request(for: .seedNotifyGetStatus(userWalletId: userWalletId), decoder: decoder)
-    }
-
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO {
-        return try await request(for: .seedNotifyGetStatusConfirmed(userWalletId: userWalletId), decoder: decoder)
-    }
-
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target: TangemApiTarget.TargetType = .seedNotifySetStatus(userWalletId: userWalletId, status: status)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
-    }
-
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target: TangemApiTarget.TargetType = .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
-    }
-
     // MARK: - Notification
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
