@@ -701,7 +701,10 @@
 "markets_loading_no_data_title" = "No data";
 "markets_pulse_common_title" = "Market Pulse";
 "markets_quick_actions" = "Quick actions";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Search tokens";
+"markets_search_hint_header" = "Recents";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Result";
 "markets_search_see_tokens_under_100k" = "See tokens under 100k USD market cap";
 "markets_search_show_tokens" = "Show tokens";

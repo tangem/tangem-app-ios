@@ -55,20 +55,12 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         let reownAccountsToAdd: [ReownWalletKit.Account]
 
-        if FeatureProvider.isAvailable(.accounts) {
-            reownAccountsToAdd = WalletConnectAccountsMapper.map(
-                from: blockchainToAdd,
-                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                preferredCAIPReference: nil,
-                accountId: accountId
-            )
-        } else {
-            reownAccountsToAdd = WalletConnectAccountsMapper.map(
-                from: blockchainToAdd,
-                walletConnectWalletModelProvider: walletModelProvider,
-                preferredCAIPReference: nil
-            )
-        }
+        reownAccountsToAdd = WalletConnectAccountsMapper.map(
+            from: blockchainToAdd,
+            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+            preferredCAIPReference: nil,
+            accountId: accountId
+        )
 
         var reownNamespacesToUpdate = WalletConnectSessionNamespaceMapper.mapFromDomain(connectedDApp.session.namespaces)
         var reownNamespaceToUpdate = reownNamespacesToUpdate[WalletConnectSupportedNamespace.eip155.rawValue]
