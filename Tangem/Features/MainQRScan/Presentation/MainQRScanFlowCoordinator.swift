@@ -348,8 +348,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
                 return true
             }
 
-            let walletAddresses = match.walletModel.addresses.map(\.value)
-            return !walletAddresses.contains(destination)
+            return !match.walletModel.addresses.contains(destination)
         }
     }
 

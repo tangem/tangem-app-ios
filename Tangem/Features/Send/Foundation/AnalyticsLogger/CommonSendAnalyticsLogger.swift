@@ -45,10 +45,6 @@ class CommonSendAnalyticsLogger {
     }
 
     private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            return [:]
-        }
-
         var result: [Analytics.ParameterKey: String] = [:]
 
         if let sourceAccount = sendSourceTokenInput?.sourceToken.value?.accountModelAnalyticsProvider {

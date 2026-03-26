@@ -30,8 +30,9 @@ struct SolanaEd25519Tests {
         let solanaSdk = Solana(router: networkingRouter, accountStorage: SolanaDummyAccountStorage())
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
+        let publicKey = Wallet.PublicKey(seedKey: walletPubKey, derivationType: .none)
         let address = try! service.makeAddress(from: walletPubKey)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         manager = .init(wallet: wallet)
         manager.networkService = SolanaNetworkService(

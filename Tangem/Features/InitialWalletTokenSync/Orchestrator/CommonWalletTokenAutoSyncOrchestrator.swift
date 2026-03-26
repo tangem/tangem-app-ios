@@ -104,7 +104,6 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         }
 
         await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
-        await progressService.remove(userWalletId: userWalletId)
     }
 
     func fetchContractAddressToCoinIdMap(
