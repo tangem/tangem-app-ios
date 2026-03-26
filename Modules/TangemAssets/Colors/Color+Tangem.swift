@@ -123,7 +123,7 @@ public extension Color.Tangem.Border {
         public static let primary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
         public static let secondary: Color = .dynamic(light: Primitives.Lights.light5, dark: Primitives.Darks.dark4)
         public static let banner: Color = .dynamic(light: Primitives.Darks.dark5, dark: Primitives.Lights.light1)
-        public static let tertiary: Color = Primitives.Base.white
+        public static let tertiary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     }
 
     enum Status {
