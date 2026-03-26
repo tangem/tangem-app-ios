@@ -35,49 +35,64 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
-        let context = try await unlock()
-        let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
+        authorizationService: TangemPayAuthorizationService,
+        pendingDerivations: [Data: [DerivationPath]]
+    ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
+        var derivationResult: DerivationResult = [:]
 
-        guard let seedKey = mobileWallet.wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
-            throw TangemSdkError.walletNotFound
-        }
+        do {
+            let context = try await unlock()
+            let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
-        let derivationPath = TangemPayUtilities.derivationPath
-        let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: [seedKey: [derivationPath]])
-        let derivationResult: DerivationResult = rawResult.reduce(into: [:]) { partialResult, keyInfo in
-            partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
-        }
+            var combinedPendingDerivations = pendingDerivations
 
-        guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
-            throw Error.derivedKeyNotFound
-        }
+            let derivationPath = TangemPayUtilities.derivationPath
+            let wallets = mobileWallet.wallets
+            let seedKey = wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey
 
-        let walletPublicKey = Wallet.PublicKey(
-            seedKey: seedKey,
-            derivationType: .plain(
-                .init(
-                    path: derivationPath,
-                    extendedPublicKey: extendedPublicKey
+            // Proceed with derivation even without the TangemPay seed key,
+            // so that other pending derivations are not blocked
+            if let seedKey {
+                combinedPendingDerivations[seedKey, default: []].append(derivationPath)
+            }
+
+            let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: combinedPendingDerivations)
+
+            derivationResult = rawResult.reduce(into: [:]) { partialResult, keyInfo in
+                partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
+            }
+
+            guard let seedKey, let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
+                throw Error.derivedKeyNotFound
+            }
+
+            let walletPublicKey = Wallet.PublicKey(
+                seedKey: seedKey,
+                derivationType: .plain(
+                    .init(
+                        path: derivationPath,
+                        extendedPublicKey: extendedPublicKey
+                    )
                 )
             )
-        )
 
-        let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
-        let tokens = try await handleCustomerWalletAuthorization(
-            context: context,
-            walletPublicKey: walletPublicKey,
-            customerWalletId: customerWalletId,
-            customerWalletAddress: customerWalletAddress,
-            authorizationService: authorizationService
-        )
+            let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+            let tokens = try await handleCustomerWalletAuthorization(
+                context: context,
+                walletPublicKey: walletPublicKey,
+                customerWalletId: customerWalletId,
+                customerWalletAddress: customerWalletAddress,
+                authorizationService: authorizationService
+            )
 
-        return TangemPayAuthorizingResponse(
-            customerWalletAddress: customerWalletAddress,
-            tokens: tokens,
-            derivationResult: derivationResult
-        )
+            return TangemPayAuthorizingResponse(
+                customerWalletAddress: customerWalletAddress,
+                tokens: tokens,
+                derivationResult: derivationResult
+            )
+        } catch {
+            throw TangemPayAuthorizationError(underlyingError: error, derivationResult: derivationResult)
+        }
     }
 
     private func handleCustomerWalletAuthorization(
