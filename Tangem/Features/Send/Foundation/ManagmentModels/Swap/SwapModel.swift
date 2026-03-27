@@ -209,7 +209,9 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        updateTask(loadingType: .providers) { [weak self] expressManager in
+        let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
+
+        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 return try await expressManager.update(pair: .none)
@@ -306,7 +308,6 @@ extension SwapModel {
                     let state = try await input.mapToLoadedState(result: updatingResult)
 
                     try Task.checkCancellation()
-
 
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
