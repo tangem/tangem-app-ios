@@ -31,18 +31,19 @@ enum WCAccountFinder {
         return nil
     }
 
-    static func firstAvailableCryptoAccountModel(from accountModel: AccountModel) -> any CryptoAccountModel {
+    static func firstAvailableCryptoAccountModel(from accountModel: AccountModel) -> (any CryptoAccountModel)? {
         switch accountModel {
         case .standard(.single(let cryptoAccount)):
             return cryptoAccount
         case .standard(.multiple(let cryptoAccounts)):
             guard let cryptoAccount = cryptoAccounts.first else {
-                preconditionFailure("Required existence of at least one account in multiple account model")
+                WCLogger.error(error: "Required existence of at least one account in multiple account model")
+                return nil
             }
 
             return cryptoAccount
         case .tangemPay:
-            preconditionFailure("TangemPay account is not available for WalletConnect")
+            return nil
         }
     }
 }
