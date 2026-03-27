@@ -16,20 +16,20 @@ import enum WalletCore.CoinType
 @available(iOS 13.0, *)
 public indirect enum Blockchain: Equatable, Hashable {
     case bitcoin(testnet: Bool, xpub: Bool = false)
-    case litecoin
+    case litecoin(xpub: Bool = false)
     case stellar(curve: EllipticCurve, testnet: Bool)
     case ethereum(testnet: Bool)
     case ethereumPoW(testnet: Bool)
     case disChain // ex-EthereumFair
     case ethereumClassic(testnet: Bool)
     case rsk
-    case bitcoinCash
+    case bitcoinCash(xpub: Bool = false)
     case binance(testnet: Bool)
     case cardano(extended: Bool)
     case xrp(curve: EllipticCurve)
     case ducatus
     case tezos(curve: EllipticCurve)
-    case dogecoin
+    case dogecoin(xpub: Bool = false)
     case bsc(testnet: Bool)
     case polygon(testnet: Bool)
     case avalanche(testnet: Bool)
@@ -40,13 +40,13 @@ public indirect enum Blockchain: Equatable, Hashable {
     case azero(curve: EllipticCurve, testnet: Bool)
     case tron(testnet: Bool)
     case arbitrum(testnet: Bool)
-    case dash(testnet: Bool)
+    case dash(testnet: Bool, xpub: Bool = false)
     case gnosis
     case optimism(testnet: Bool)
     case ton(curve: EllipticCurve, testnet: Bool)
     case kava(testnet: Bool)
     case kaspa(testnet: Bool)
-    case ravencoin(testnet: Bool)
+    case ravencoin(testnet: Bool, xpub: Bool = false)
     case cosmos(testnet: Bool)
     case terraV1
     case terraV2
@@ -124,11 +124,11 @@ public indirect enum Blockchain: Equatable, Hashable {
              .fantom(let testnet),
              .tron(let testnet),
              .arbitrum(let testnet),
-             .dash(let testnet),
+             .dash(let testnet, _),
              .optimism(let testnet),
              .ethereumPoW(let testnet),
              .kava(let testnet),
-             .ravencoin(let testnet),
+             .ravencoin(let testnet, _),
              .cosmos(let testnet),
              .telos(let testnet),
              .chia(let testnet),
@@ -171,19 +171,19 @@ public indirect enum Blockchain: Equatable, Hashable {
              .monad(let testnet),
              .plasma(let testnet):
             return testnet
-        case .litecoin,
+        case .litecoin(_),
              .ducatus,
              .cardano,
              .xrp,
              .rsk,
              .tezos,
-             .dogecoin,
+             .dogecoin(_),
              .kusama,
              .terraV1,
              .terraV2,
              .cronos,
              .octa,
-             .bitcoinCash,
+             .bitcoinCash(_),
              .gnosis,
              .disChain,
              .playa3ullGames,
@@ -250,12 +250,6 @@ public indirect enum Blockchain: Equatable, Hashable {
         case _ where isUTXO: true
         default: false
         }
-    }
-
-    /// Just drop the last node to generate XPUB
-    /// https://iancoleman.io/bip39/
-    public var isBip44DerivationStyleXPUB: Bool {
-        isUTXO
     }
 
     public var isUTXO: Bool {
@@ -443,7 +437,7 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "AZERO"
         case .tron:
             return "TRX"
-        case .dash(let testnet):
+        case .dash(let testnet, _):
             return testnet ? "tDASH" : "DASH"
         case .gnosis:
             return "xDAI"
@@ -1241,6 +1235,7 @@ extension Blockchain: Codable {
         let key = try container.decode(String.self, forKey: Keys.key)
         let curveString = try container.decode(String.self, forKey: Keys.curve)
         let isTestnet = try container.decodeIfPresent(Bool.self, forKey: Keys.testnet) ?? false
+        let isXPUB = try container.decodeIfPresent(Bool.self, forKey: Keys.xpub) ?? false
 
         guard let curve = EllipticCurve(rawValue: curveString) else {
             throw BlockchainSdkError.decodingFailed
@@ -1248,14 +1243,13 @@ extension Blockchain: Codable {
 
         switch key {
         case "bitcoin":
-            let xpub = try container.decodeIfPresent(Bool.self, forKey: Keys.xpub) ?? false
-            self = .bitcoin(testnet: isTestnet, xpub: xpub)
+            self = .bitcoin(testnet: isTestnet, xpub: isXPUB)
         case "stellar": self = .stellar(curve: curve, testnet: isTestnet)
         case "ethereum": self = .ethereum(testnet: isTestnet)
         case "ethereumClassic": self = .ethereumClassic(testnet: isTestnet)
-        case "litecoin": self = .litecoin
+        case "litecoin": self = .litecoin(xpub: isXPUB)
         case "rsk": self = .rsk
-        case "bitcoinCash": self = .bitcoinCash
+        case "bitcoinCash": self = .bitcoinCash(xpub: isXPUB)
         case "binance": self = .binance(testnet: isTestnet)
         case "cardano":
             let extended = try container.decodeIfPresent(Bool.self, forKey: Keys.extended)
@@ -1263,7 +1257,7 @@ extension Blockchain: Codable {
         case "xrp": self = .xrp(curve: curve)
         case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: curve)
-        case "dogecoin": self = .dogecoin
+        case "dogecoin": self = .dogecoin(xpub: isXPUB)
         case "bsc": self = .bsc(testnet: isTestnet)
         case "polygon", "matic": self = .polygon(testnet: isTestnet)
         case "avalanche": self = .avalanche(testnet: isTestnet)
@@ -1274,7 +1268,7 @@ extension Blockchain: Codable {
         case "aleph-zero": self = .azero(curve: curve, testnet: isTestnet)
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum": self = .arbitrum(testnet: isTestnet)
-        case "dash": self = .dash(testnet: isTestnet)
+        case "dash": self = .dash(testnet: isTestnet, xpub: isXPUB)
         case "xdai": self = .gnosis
         case "optimism": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
@@ -1282,7 +1276,7 @@ extension Blockchain: Codable {
         case "ton": self = .ton(curve: curve, testnet: isTestnet)
         case "kava": self = .kava(testnet: isTestnet)
         case "kaspa": self = .kaspa(testnet: isTestnet)
-        case "ravencoin": self = .ravencoin(testnet: isTestnet)
+        case "ravencoin": self = .ravencoin(testnet: isTestnet, xpub: isXPUB)
         case "cosmos-hub": self = .cosmos(testnet: isTestnet)
         case "terra": self = .terraV1
         case "terra-2": self = .terraV2
@@ -1360,8 +1354,8 @@ extension Blockchain: Codable {
             try container.encode(extended, forKey: Keys.extended)
         }
 
-        if case .bitcoin(_, let xpub) = self {
-            try container.encode(xpub, forKey: Keys.xpub)
+        if isXPUB {
+            try container.encode(true, forKey: Keys.xpub)
         }
     }
 }
@@ -1391,16 +1385,16 @@ public extension Blockchain {
         case "btc": return .bitcoin(testnet: isTestnet)
         case "xlm", "asset", "xlm-tag": return .stellar(curve: curve, testnet: isTestnet)
         case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
-        case "ltc": return .litecoin
+        case "ltc": return .litecoin()
         case "rsk", "rsktoken": return .rsk
-        case "bch": return .bitcoinCash
+        case "bch": return .bitcoinCash()
         case "binance", "binanceasset": return .binance(testnet: isTestnet)
         // For old cards cardano will work like ed25519_slip0010
         case "cardano", "cardano-s": return .cardano(extended: false)
         case "xrp": return .xrp(curve: curve)
         case "duc": return .ducatus
         case "xtz": return .tezos(curve: curve)
-        case "doge": return .dogecoin
+        case "doge": return .dogecoin()
         case "bsc": return .bsc(testnet: isTestnet)
         case "clore-ai": return .clore
         // DO NOT ADD new blockchains here. This is legacy code and used only for Tangem Note and cards release before 4.12 firmware
