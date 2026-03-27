@@ -212,7 +212,7 @@ class CommonPendingExpressTransactionsManager {
     private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
-            let sourceUserWalletId = transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
+            let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
             let refcode = userWalletRepository.models
                 .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
                 .refcodeProvider?.getRefcode()
