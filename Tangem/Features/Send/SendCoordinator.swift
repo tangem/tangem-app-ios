@@ -201,7 +201,12 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openRateInfoSheet(rateType: RateInfoSheetViewModel.RateType, onDismiss: @escaping () -> Void) {
-        let viewModel = RateInfoSheetViewModel(rateType: rateType, onDismiss: onDismiss)
+        let viewModel = RateInfoSheetViewModel(rateType: rateType, onDismiss: { [floatingSheetPresenter] in
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+            onDismiss()
+        })
         Task { @MainActor in
             UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)

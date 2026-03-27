@@ -67,14 +67,6 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         return providers.map(\.id)
     }
 
-    func availableRateTypes(for pair: ExpressManagerSwappingPair) async -> Set<ExpressProviderRateType> {
-        let providers = getAvailableProviders(for: pair, rateType: nil)
-
-        let rateTypes = providers.flatMap(\.rates)
-
-        return Set(rateTypes)
-    }
-
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
         pairs.filter { $0.destination == wallet.asCurrency }.asArray
     }
