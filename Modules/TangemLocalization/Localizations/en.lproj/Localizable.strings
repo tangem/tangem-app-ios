@@ -1,3 +1,6 @@
+"danger_test_percent_s" = "Hello %s world";
+"danger_test_positional_s" = "Hello %1$s world";
+"danger_test_bare_percent" = "Get 10% off";
 "access_code_alert_skip_description" = "Without an access code, your wallet is not secure.";
 "access_code_alert_skip_ok" = "Skip anyway";
 "access_code_alert_skip_title" = "Access code not set";
