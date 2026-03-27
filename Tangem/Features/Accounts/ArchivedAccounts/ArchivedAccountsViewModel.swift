@@ -53,7 +53,7 @@ final class ArchivedAccountsViewModel: ObservableObject {
         let subtitle = Localization.accountLabelTokensInfo(tokensString, networksString)
 
         return ArchivedAccountRowView.ViewData(
-            iconData: AccountModelUtils.UI.iconViewData(cryptoIcon: model.icon, accountName: model.name),
+            iconData: AccountModelUtils.UI.iconViewData(compositeIcon: model.icon, accountName: model.name),
             name: model.name,
             subtitle: subtitle,
             isRecovering: recoveringAccountId == model.id,

@@ -108,7 +108,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon.CryptoIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
         let cryptoAccount = CryptoAccountModelMock(
             isMainAccount: false,
             walletModelsManager: walletModelsManager

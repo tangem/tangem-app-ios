@@ -11,36 +11,36 @@ import TangemFoundation
 
 extension AccountModel {
     /// Icon representation for an account.
-    /// - `crypto`: user-editable icon with a named glyph over a colored background (crypto accounts).
-    /// - `fixed`: hardcoded, non-editable icon for specific account types (e.g. TangemPay).
+    /// - `composite`: user-editable icon with a named glyph over a colored background.
+    /// - `standalone`: hardcoded, self-contained icon for specific account types (e.g. TangemPay).
     enum Icon: Hashable {
-        case crypto(CryptoIcon)
-        case fixed(FixedIcon)
+        case composite(CompositeIcon)
+        case standalone(StandaloneIcon)
     }
 }
 
-// MARK: - CryptoIcon
+// MARK: - CompositeIcon
 
-extension AccountModel.Icon {
-    /// Composite icon for crypto accounts: a named glyph drawn over a colored background.
+extension AccountModel {
+    /// Composite icon: a named glyph drawn over a colored background.
     /// Serializable and user-editable.
-    struct CryptoIcon: Hashable {
+    struct CompositeIcon: Hashable {
         let name: Name
         let color: Color
     }
 }
 
-// MARK: - FixedIcon
+// MARK: - StandaloneIcon
 
-extension AccountModel.Icon {
-    enum FixedIcon: Hashable {
+extension AccountModel {
+    enum StandaloneIcon: Hashable {
         case tangemPay
     }
 }
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/main/kotlin/com/tangem/domain/models/account/CryptoPortfolioIcon.kt
-extension AccountModel.Icon {
+extension AccountModel.CompositeIcon {
     enum Color: String, CaseIterable, Hashable {
         case azure = "Azure"
         case caribbeanBlue = "CaribbeanBlue"
@@ -105,11 +105,11 @@ extension AccountModel.Icon {
 
 // MARK: - Convenience extensions
 
-extension AccountModel.Icon.CryptoIcon {
+extension AccountModel.CompositeIcon {
     init?(rawName: String, rawColor: String) {
         guard
-            let color = AccountModel.Icon.Color(rawValue: rawColor),
-            let name = AccountModel.Icon.Name(rawValue: rawName)
+            let color = Color(rawValue: rawColor),
+            let name = Name(rawValue: rawName)
         else {
             return nil
         }
@@ -120,8 +120,8 @@ extension AccountModel.Icon.CryptoIcon {
 
 // MARK: - Comparable protocol conformance
 
-extension AccountModel.Icon.Name: Comparable {
-    static func < (lhs: AccountModel.Icon.Name, rhs: AccountModel.Icon.Name) -> Bool {
+extension AccountModel.CompositeIcon.Name: Comparable {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.sortOrder < rhs.sortOrder
     }
 }
@@ -131,19 +131,19 @@ extension AccountModel.Icon.Name: Comparable {
 extension AccountModel.Icon: CustomStringConvertible {
     var description: String {
         switch self {
-        case .crypto(let cryptoIcon):
+        case .composite(let compositeIcon):
             objectDescription(
                 .empty,
                 userInfo: [
-                    "name": cryptoIcon.name.rawValue,
-                    "color": cryptoIcon.color.rawValue,
+                    "name": compositeIcon.name.rawValue,
+                    "color": compositeIcon.color.rawValue,
                 ]
             )
-        case .fixed(let fixedIcon):
+        case .standalone(let standaloneIcon):
             objectDescription(
                 .empty,
                 userInfo: [
-                    "fixed": "\(fixedIcon)",
+                    "standalone": "\(standaloneIcon)",
                 ]
             )
         }
