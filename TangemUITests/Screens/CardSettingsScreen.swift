@@ -13,7 +13,7 @@ import TangemAccessibilityIdentifiers
 final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var referralButton = button(.referralButton)
     private lazy var deviceSettingsButton = button(.deviceSettings)
-    private lazy var manageTokensButton = button(.manageTokens)
+    private lazy var addAccountButton = button(.addAccount)
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -37,17 +37,30 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
         }
     }
 
-    func openManageTokens() -> ManageTokensScreen {
-        XCTContext.runActivity(named: "Open Manage tokens") { _ in
-            manageTokensButton.waitAndTap()
-            return ManageTokensScreen(app)
-        }
-    }
-
     func goBackToDetails() -> DetailsScreen {
         XCTContext.runActivity(named: "Go back to Details") { _ in
             app.navigationBars.buttons["Details"].waitAndTap()
             return DetailsScreen(app)
+        }
+    }
+
+    // MARK: - Account Management
+
+    func tapAddAccount() -> AccountFormScreen {
+        XCTContext.runActivity(named: "Tap 'Add account' button") { _ in
+            scrollToElement(addAccountButton)
+            addAccountButton.waitAndTap()
+            return AccountFormScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyAddAccountButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add account' button is enabled") { _ in
+            scrollToElement(addAccountButton)
+            waitAndAssertTrue(addAccountButton, "Add account button should exist")
+            XCTAssertTrue(addAccountButton.isEnabled, "Add account button should be enabled")
+            return self
         }
     }
 }
@@ -55,7 +68,7 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
 enum CardSettingsScreenElement: String, UIElement {
     case referralButton
     case deviceSettings
-    case manageTokens
+    case addAccount
 
     var accessibilityIdentifier: String {
         switch self {
@@ -63,8 +76,8 @@ enum CardSettingsScreenElement: String, UIElement {
             return CardSettingsAccessibilityIdentifiers.referralProgramButton
         case .deviceSettings:
             return CardSettingsAccessibilityIdentifiers.deviceSettingsButton
-        case .manageTokens:
-            return CardSettingsAccessibilityIdentifiers.manageTokensButton
+        case .addAccount:
+            return AccountsAccessibilityIdentifiers.walletSettingsAddAccountButton
         }
     }
 }
