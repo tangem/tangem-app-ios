@@ -3068,6 +3068,8 @@
 		D82BB8312F71AAC000EFED16 /* BlockedCardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82BB8302F71AAC000EFED16 /* BlockedCardUITests.swift */; };
 		D82BB8342F71AAE300EFED16 /* HideTokenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82BB8322F71AAE300EFED16 /* HideTokenUITests.swift */; };
 		D82BB8362F71AD4200EFED16 /* AuthScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82BB8352F71AD4200EFED16 /* AuthScreen.swift */; };
+		D82BB90B2F73CFB700EFED16 /* AccountCreationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82BB9092F73CFB700EFED16 /* AccountCreationUITests.swift */; };
+		D82BB90D2F73D17200EFED16 /* AccountFormScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82BB90C2F73D17200EFED16 /* AccountFormScreen.swift */; };
 		D82DA8DE2E7AFB7000DFF7AF /* wallet2Imported.json in Resources */ = {isa = PBXBuildFile; fileRef = D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */; };
 		D830EDB22F1FD3C700515821 /* AccountSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D830EDB12F1FD3C700515821 /* AccountSettingsScreen.swift */; };
 		D830EDB42F20EA6400515821 /* SetAccessCodeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D830EDB32F20EA6400515821 /* SetAccessCodeScreen.swift */; };
@@ -8145,6 +8147,8 @@
 		D82BB8302F71AAC000EFED16 /* BlockedCardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedCardUITests.swift; sourceTree = "<group>"; };
 		D82BB8322F71AAE300EFED16 /* HideTokenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTokenUITests.swift; sourceTree = "<group>"; };
 		D82BB8352F71AD4200EFED16 /* AuthScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthScreen.swift; sourceTree = "<group>"; };
+		D82BB9092F73CFB700EFED16 /* AccountCreationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationUITests.swift; sourceTree = "<group>"; };
+		D82BB90C2F73D17200EFED16 /* AccountFormScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormScreen.swift; sourceTree = "<group>"; };
 		D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2Imported.json; sourceTree = "<group>"; };
 		D830EDB12F1FD3C700515821 /* AccountSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingsScreen.swift; sourceTree = "<group>"; };
 		D830EDB32F20EA6400515821 /* SetAccessCodeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAccessCodeScreen.swift; sourceTree = "<group>"; };
@@ -13773,6 +13777,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D82BB90C2F73D17200EFED16 /* AccountFormScreen.swift */,
 				D82BB8352F71AD4200EFED16 /* AuthScreen.swift */,
 				D8A4BE4F2F67F2BF00BCA2BB /* SendFinishScreen.swift */,
 				D8A4BDC12F62F1A800BCA2BB /* SendSwapProviderSelectorScreen.swift */,
@@ -13822,6 +13827,7 @@
 		7982B01F2DE70E1900C41EA5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D82BB90A2F73CFB700EFED16 /* Accounts */,
 				D82BB8332F71AAE300EFED16 /* HideToken */,
 				D8F6018E2F485DD400192E22 /* Swap */,
 				D8BDC5942EEC163200709D4F /* Markets */,
@@ -19980,6 +19986,14 @@
 				D82BB8322F71AAE300EFED16 /* HideTokenUITests.swift */,
 			);
 			path = HideToken;
+			sourceTree = "<group>";
+		};
+		D82BB90A2F73CFB700EFED16 /* Accounts */ = {
+			isa = PBXGroup;
+			children = (
+				D82BB9092F73CFB700EFED16 /* AccountCreationUITests.swift */,
+			);
+			path = Accounts;
 			sourceTree = "<group>";
 		};
 		D83EAE772EF2CFF5009B72AC /* AddressesInfo */ = {
@@ -31606,6 +31620,7 @@
 				7982B0222DE70E1900C41EA5 /* XCUIElement+Extensions.swift in Sources */,
 				D8B79F4B2F28F4B5009567E9 /* MarketsSecurityScoreDetailsScreen.swift in Sources */,
 				D81E0ED92E9E31060066E171 /* SendKaspaNotificationUITests.swift in Sources */,
+				D82BB90D2F73D17200EFED16 /* AccountFormScreen.swift in Sources */,
 				7982B0232DE70E1900C41EA5 /* NSPredicateFormat.swift in Sources */,
 				D847DA5E2E5DC94F004D5931 /* WalletConnectionsScreen.swift in Sources */,
 				D87591F72E69D2610088BBEA /* CreateWalletScreen.swift in Sources */,
@@ -31620,6 +31635,7 @@
 				D83EAEE22EF413CE009B72AC /* AddressesInfoScreen.swift in Sources */,
 				D83EAEE32EF413CE009B72AC /* SeedPhraseImportScreen.swift in Sources */,
 				7982B0252DE70E1900C41EA5 /* Screen.swift in Sources */,
+				D82BB90B2F73CFB700EFED16 /* AccountCreationUITests.swift in Sources */,
 				7982B0262DE70E1900C41EA5 /* ScreenBase.swift in Sources */,
 				D8F983D42EBA22630061F55F /* SwapTokenSelectorScreen.swift in Sources */,
 				D8E17CE32E37B6E600E9D791 /* CardSettingsScreen.swift in Sources */,
