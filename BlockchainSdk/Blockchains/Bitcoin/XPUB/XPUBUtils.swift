@@ -12,6 +12,30 @@ import TangemSdk
 public struct XPUBUtils {
     public init() {}
 
+    public func generateXPUB(key: Wallet.PublicKey.XPUBKey, isTestnet: Bool) throws -> String {
+        let childPublicKey = key.child.extendedPublicKey.publicKey
+        let childChainCode = key.child.extendedPublicKey.chainCode
+        let parentPublicKey = key.parent.extendedPublicKey.publicKey
+
+        guard let lastChildNode = key.child.path.nodes.last else {
+            throw Error.failedToGenerateXPUB
+        }
+
+        let depth = key.child.path.nodes.count
+        let childNumber = lastChildNode.index
+        let parentFingerprint = parentPublicKey.sha256Ripemd160.prefix(4)
+
+        let extendedKey = try ExtendedPublicKey(
+            publicKey: childPublicKey,
+            chainCode: childChainCode,
+            depth: depth,
+            parentFingerprint: parentFingerprint,
+            childNumber: childNumber
+        )
+
+        return try extendedKey.serialize(for: isTestnet ? .testnet : .mainnet)
+    }
+
     /// Returns additional derivation paths needed for XPUB generation.
     /// - **child** (account-level): leaf path with last 2 nodes dropped, e.g. `m/84'/0'/0'/0/0` → `m/84'/0'/0'`
     /// - **parent**: one level above child, e.g. `m/84'/0'/0'` → `m/84'/0'`
@@ -32,6 +56,7 @@ public struct XPUBUtils {
 extension XPUBUtils {
     enum Error: String, LocalizedError {
         case derivationPathTooShort
+        case failedToGenerateXPUB
 
         var errorDescription: String? {
             rawValue
