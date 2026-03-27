@@ -219,15 +219,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
-    @discardableResult
-    func validateMandatorySecurityUpdateBannerExists() -> Self {
-        XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
-            let bannerElement = app.otherElements[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
-            waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
-            return self
-        }
-    }
-
     func getTokensOrder() -> TokensOrder {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
