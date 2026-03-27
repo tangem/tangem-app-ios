@@ -74,13 +74,14 @@ private extension CommonExpressDestinationService {
         }()
 
         let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
+        let availablePairDestinations = Set(availablePairs.map(\.destination))
         let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != .init(tokenItem: base)
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
-            let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
+            let mayHavePair = availablePairs.isEmpty || availablePairDestinations.contains(wallet.tokenItem.expressCurrency.asCurrency)
 
-            return isNotSource && isAvailable && isNotCustom && hasPair
+            return isNotSource && isAvailable && isNotCustom && mayHavePair
         }
 
         ExpressLogger.info(self, "has searchableWalletModels: \(searchableWalletModels.map(\.walletModel.tokenItem.expressCurrency))")
@@ -100,9 +101,9 @@ private extension CommonExpressDestinationService {
             let isNotAvailable = swapState != .available
             let isNotUnavailable = swapState != .unavailable
             let isNotCustom = !wallet.walletModel.isCustom
-            let hasPair = availablePairs.isEmpty || availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
+            let mayHavePair = availablePairs.isEmpty || availablePairDestinations.contains(wallet.tokenItem.expressCurrency.asCurrency)
 
-            return isNotSource && isNotAvailable && isNotUnavailable && isNotCustom && hasPair
+            return isNotSource && isNotAvailable && isNotUnavailable && isNotCustom && mayHavePair
         }
 
         if let fallback = selectBestPair(from: notLoadedWalletModels, searchType: searchType) {
