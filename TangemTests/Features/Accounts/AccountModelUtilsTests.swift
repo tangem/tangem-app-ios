@@ -45,23 +45,6 @@ struct AccountModelUtilsTests {
             let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
             #expect(newAccountIcon.name != .letter)
             #expect(newAccountIcon.name != .star)
-            #expect(newAccountIcon.name != .tangemPay)
         }
-    }
-
-    @Test("cryptoAccountIcons contains all Name cases except .tangemPay")
-    func testCryptoIconsAreAllCasesMinusTangemPay() {
-        let expected = Set(AccountModel.Icon.Name.allCases).subtracting([AccountModel.Icon.Name.tangemPay])
-        let actual = Set(AccountModel.Icon.Name.cryptoAccountIcons)
-
-        #expect(actual == expected)
-    }
-
-    @Test("cryptoAccountColors contains all Color cases except .clear")
-    func testCryptoColorsAreAllCasesMinusClear() {
-        let expected = Set(AccountModel.Icon.Color.allCases).subtracting([AccountModel.Icon.Color.clear])
-        let actual = Set(AccountModel.Icon.Color.cryptoAccountColors)
-
-        #expect(actual == expected)
     }
 }

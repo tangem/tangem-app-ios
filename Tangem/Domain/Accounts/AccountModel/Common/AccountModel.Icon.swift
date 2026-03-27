@@ -10,9 +10,31 @@ import Foundation
 import TangemFoundation
 
 extension AccountModel {
-    struct Icon: Hashable {
+    /// Icon representation for an account.
+    /// - `crypto`: user-editable icon with a named glyph over a colored background (crypto accounts).
+    /// - `fixed`: hardcoded, non-editable icon for specific account types (e.g. TangemPay).
+    enum Icon: Hashable {
+        case crypto(CryptoIcon)
+        case fixed(FixedIcon)
+    }
+}
+
+// MARK: - CryptoIcon
+
+extension AccountModel.Icon {
+    /// Composite icon for crypto accounts: a named glyph drawn over a colored background.
+    /// Serializable and user-editable.
+    struct CryptoIcon: Hashable {
         let name: Name
         let color: Color
+    }
+}
+
+// MARK: - FixedIcon
+
+extension AccountModel.Icon {
+    enum FixedIcon: Hashable {
+        case tangemPay
     }
 }
 
@@ -32,29 +54,6 @@ extension AccountModel.Icon {
         case pattypan = "Pattypan"
         case ufoGreen = "UFOGreen"
         case vitalGreen = "VitalGreen"
-
-        // Workaround for correctly displaying TangemPay account icon
-        // [REDACTED_TODO_COMMENT]
-        case clear
-
-        /// User-selectable colors for crypto accounts.
-        /// Excludes `.clear` which is a non-selectable workaround for TangemPay ([REDACTED_INFO]).
-        static var cryptoAccountColors: [Color] {
-            [
-                .azure,
-                .caribbeanBlue,
-                .dullLavender,
-                .candyGrapeFizz,
-                .sweetDesire,
-                .palatinateBlue,
-                .fuchsiaNebula,
-                .mexicanPink,
-                .pelati,
-                .pattypan,
-                .ufoGreen,
-                .vitalGreen,
-            ]
-        }
     }
 
     enum Name: String, CaseIterable, Hashable {
@@ -76,7 +75,6 @@ extension AccountModel.Icon {
         case clock = "Clock"
         case package = "Package"
         case gift = "Gift"
-        case tangemPay = "TangemPay"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -100,44 +98,18 @@ extension AccountModel.Icon {
             case .clock: 15
             case .package: 16
             case .gift: 17
-            case .tangemPay: 18
             }
-        }
-
-        /// User-selectable icon names for crypto accounts.
-        /// Excludes `.tangemPay` which is a fixed, non-selectable icon.
-        static var cryptoAccountIcons: [Name] {
-            [
-                .letter,
-                .star,
-                .user,
-                .family,
-                .wallet,
-                .money,
-                .home,
-                .safe,
-                .beach,
-                .airplaneMode,
-                .shirt,
-                .shoppingBasket,
-                .favorite,
-                .bookmark,
-                .startUp,
-                .clock,
-                .package,
-                .gift,
-            ]
         }
     }
 }
 
 // MARK: - Convenience extensions
 
-extension AccountModel.Icon {
+extension AccountModel.Icon.CryptoIcon {
     init?(rawName: String, rawColor: String) {
         guard
-            let color = Color(rawValue: rawColor),
-            let name = Name(rawValue: rawName)
+            let color = AccountModel.Icon.Color(rawValue: rawColor),
+            let name = AccountModel.Icon.Name(rawValue: rawName)
         else {
             return nil
         }
@@ -158,12 +130,22 @@ extension AccountModel.Icon.Name: Comparable {
 
 extension AccountModel.Icon: CustomStringConvertible {
     var description: String {
-        objectDescription(
-            .empty,
-            userInfo: [
-                "name": name.rawValue,
-                "color": color.rawValue,
-            ]
-        )
+        switch self {
+        case .crypto(let cryptoIcon):
+            objectDescription(
+                .empty,
+                userInfo: [
+                    "name": cryptoIcon.name.rawValue,
+                    "color": cryptoIcon.color.rawValue,
+                ]
+            )
+        case .fixed(let fixedIcon):
+            objectDescription(
+                .empty,
+                userInfo: [
+                    "fixed": "\(fixedIcon)",
+                ]
+            )
+        }
     }
 }

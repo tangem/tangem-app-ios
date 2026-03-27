@@ -35,11 +35,10 @@ extension CryptoAccountPersistentConfig {
 // MARK: - Convenience extensions
 
 extension CryptoAccountPersistentConfig {
-    /// A convenience initializer to create a config from an `AccountModel.Icon`.
     init(
         derivationIndex: Int,
         name: String?,
-        icon: AccountModel.Icon
+        icon: AccountModel.Icon.CryptoIcon
     ) {
         self.init(
             derivationIndex: derivationIndex,

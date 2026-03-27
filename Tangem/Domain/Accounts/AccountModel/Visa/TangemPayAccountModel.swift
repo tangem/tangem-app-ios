@@ -40,7 +40,7 @@ extension TangemPayAccountModel {
     }
 
     var icon: AccountModel.Icon {
-        AccountModel.Icon(name: .tangemPay, color: .clear)
+        .fixed(.tangemPay)
     }
 
     var name: String {

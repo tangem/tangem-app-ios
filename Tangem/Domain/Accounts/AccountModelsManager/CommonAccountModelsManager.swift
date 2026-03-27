@@ -106,7 +106,7 @@ actor CommonAccountModelsManager {
                     return nil
                 }
 
-                guard let accountIcon = AccountModel.Icon(
+                guard let accountIcon = AccountModel.Icon.CryptoIcon(
                     rawName: storedCryptoAccount.icon.iconName,
                     rawColor: storedCryptoAccount.icon.iconColor
                 ) else {
@@ -350,7 +350,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon.CryptoIcon) async throws(AccountEditError) -> AccountOperationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
         }

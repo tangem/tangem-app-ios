@@ -44,81 +44,83 @@ public struct AccountIconView: View {
             .matchedGeometryEffect(iconGeometryEffect)
             .frame(size: labelFrameSize)
             .padding(labelPadding)
-            .background(
-                GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
-                        .fill(data.backgroundColor)
+            .background {
+                if case .composite(let backgroundColor, _) = data {
+                    GeometryReader { geo in
+                        RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
+                            .fill(backgroundColor)
+                    }
+                    .matchedGeometryEffect(backgroundGeometryEffect)
                 }
-                .matchedGeometryEffect(backgroundGeometryEffect)
-            )
-            .animation(.default, value: data.nameMode)
+            }
+            .animation(.default, value: data)
     }
 
     private var labelFrameSize: CGSize {
-        switch data.backgroundColor {
-        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
-        // [REDACTED_TODO_COMMENT]
-        case .clear:
+        switch data {
+        case .plain:
             CGSize(
                 width: scaledWidth + scaledPadding * 2,
                 height: scaledHeight + scaledPadding * 2
             )
-        default:
+        case .composite:
             CGSize(width: scaledWidth, height: scaledHeight)
         }
     }
 
     private var labelPadding: CGFloat {
-        switch data.backgroundColor {
-        // .clear currently serves as a workaround for correctly displaying TangemPay account icon
-        // [REDACTED_TODO_COMMENT]
-        case .clear:
+        switch data {
+        case .plain:
             .zero
-        default:
+        case .composite:
             scaledPadding
         }
     }
 
     @ViewBuilder
     private var label: some View {
-        switch data.nameMode {
-        case .letter(let letter, let config):
-            Text(letter)
-                .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
-                // Needed for scale animation. E.g. on Main
-                .minimumScaleFactor(config.minimumScaleFactor)
+        switch data {
+        case .composite(_, let nameMode):
+            switch nameMode {
+            case .letter(let letter, let config):
+                Text(letter)
+                    .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
+                    // Needed for scale animation. E.g. on Main
+                    .minimumScaleFactor(config.minimumScaleFactor)
 
-        case .imageType(let imageType, let config):
-            imageType.image
-                // case .clear currently serves as a workaround for correctly displaying TangemPay account icon
-                // [REDACTED_TODO_COMMENT]
-                .renderingMode(data.backgroundColor == .clear ? .original : .template)
+            case .imageType(let imageType, let config):
+                imageType.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .foregroundStyle(Colors.Text.constantWhite)
+                    .opacity(config.opacity)
+            }
+
+        case .plain(let image):
+            image.image
+                .renderingMode(.original)
                 .resizable()
-                .foregroundStyle(Colors.Text.constantWhite)
-                .opacity(config.opacity)
         }
     }
 }
 
-// MARK: - AccountIconViewData
+// MARK: - ViewData
 
 public extension AccountIconView {
-    struct ViewData: Hashable {
-        let backgroundColor: Color
-        let nameMode: NameMode
-
-        public init(backgroundColor: Color, nameMode: NameMode) {
-            self.backgroundColor = backgroundColor
-            self.nameMode = nameMode
-        }
+    /// What the icon view should render.
+    enum ViewData: Hashable {
+        /// Icon drawn over a colored background (crypto accounts).
+        case composite(backgroundColor: Color, nameMode: NameMode)
+        /// Self-contained image that already includes its own background (TangemPay, etc.).
+        case plain(image: ImageType)
 
         /// Applies the given letter config if the name mode is `.letter`.
         /// Returns unchanged data for other name modes.
         public func applyingLetterConfig(_ config: NameMode.LetterConfig) -> Self {
-            switch nameMode {
-            case .letter(let letter, _):
-                return ViewData(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .imageType:
+            switch self {
+            case .composite(let backgroundColor, .letter(let letter, _)):
+                return .composite(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
+            case .composite(_, .imageType), .plain:
                 return self
             }
         }
@@ -230,28 +232,28 @@ extension AccountIconView: Setupable {
 
 #Preview("Icon With Image") {
     HStack {
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
             .settings(.largeSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
             .settings(.mediumSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
             .settings(.smallSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.starAccounts)))
             .settings(.extraSmallSized)
     }
 }
 
 #Preview("Icon With Text") {
     HStack {
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .letter("A")))
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .letter("A")))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .letter("A")))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .letter("A")))
             .settings(.largeSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .letter("A")))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .letter("A")))
             .settings(.mediumSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .letter("A")))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .letter("A")))
             .settings(.smallSized)
-        AccountIconView(data: .init(backgroundColor: .blue, nameMode: .letter("A")))
+        AccountIconView(data: .composite(backgroundColor: .blue, nameMode: .letter("A")))
             .settings(.extraSmallSized)
     }
 }
