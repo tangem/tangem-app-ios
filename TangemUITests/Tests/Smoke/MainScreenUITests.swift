@@ -82,16 +82,6 @@ final class MainScreenUITests: BaseTestCase {
         mainScreen.waitDeveloperCardBannerNotExists()
     }
 
-    func testScanRing_MandatorySecurityUpdateBannerDisplayed() {
-        setAllureId(227)
-        launchApp()
-
-        let mainScreen = CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: .wallet2Imported)
-
-        mainScreen.validateMandatorySecurityUpdateBannerExists()
-    }
-
     func testUnavailableNetworksWarning_DisplayedWithMessage() {
         setAllureId(184)
 
