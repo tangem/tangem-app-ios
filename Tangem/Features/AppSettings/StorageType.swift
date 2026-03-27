@@ -50,6 +50,7 @@ enum StorageType: String {
     case tangemPayCardIssuingOrderIdForCustomerWalletId = "tangem_pay_card_issuing_order_id_for_customer_wallet_id"
     case tangemPayShowAddToApplePayGuide = "tangem_pay_show_add_to_apple_pay_guide"
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
+    case tangemPayIsDisabledForCustomerWalletId = "tangem_pay_is_disabled_for_customer_wallet_id"
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"
     case tangemPayShouldShowGetBanner = "tangem_pay_should_show_get_banner"
     case tangemPayEligibleDistributionChannels = "tangem_pay_eligible_distribution_channels"
