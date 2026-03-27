@@ -252,7 +252,10 @@ extension WalletConnectDAppConnectionViewModel {
 
                     selectedUserWallet = userWallets.first {
                         $0.accountModelsManager.accountModels.contains {
-                            WCAccountFinder.firstAvailableCryptoAccountModel(from: $0).id == accountModel.domainModel.id
+                            guard let cryptoAccount = WCAccountFinder.firstAvailableCryptoAccountModel(from: $0) else {
+                                return false
+                            }
+                            return cryptoAccount.id == accountModel.domainModel.id
                         }
                     } ?? selectedUserWallet
                 }
