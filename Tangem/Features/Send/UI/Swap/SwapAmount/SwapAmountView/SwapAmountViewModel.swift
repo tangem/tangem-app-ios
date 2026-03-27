@@ -165,8 +165,6 @@ private extension SwapAmountViewModel {
         case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
-        case .loading(.autoupdate), .loading(.fee):
-            break // Keep current error state during background updates to avoid flicker
         default:
             sourceExpressCurrencyViewModel.update(errorState: .none)
         }

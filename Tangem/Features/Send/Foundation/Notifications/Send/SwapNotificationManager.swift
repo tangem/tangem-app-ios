@@ -56,7 +56,7 @@ private extension CommonSwapNotificationManager {
             sourceTokenInput.sourceTokenPublisher,
             receiveTokenInput.receiveTokenPublisher,
             swapModelStateProvider.statePublisher
-                .filter { $0.filter(loading: [.providers]) }
+                .filter { $0.filter(loading: [.providers, .rates]) }
         )
         .withWeakCaptureOf(self)
         .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2) }
