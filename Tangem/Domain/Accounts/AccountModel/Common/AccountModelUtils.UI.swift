@@ -40,8 +40,6 @@ extension AccountModelUtils {
                 return Colors.Accounts.ufoGreen
             case .vitalGreen:
                 return Colors.Accounts.vitalGreen
-            case .clear:
-                return .clear
             }
         }
 
@@ -83,20 +81,25 @@ extension AccountModelUtils {
                 return Assets.Accounts.user
             case .wallet:
                 return Assets.Accounts.walletAccounts
+            }
+        }
+
+        static func fixedIconAsset(from fixedIcon: AccountModel.Icon.FixedIcon) -> ImageType {
+            switch fixedIcon {
             case .tangemPay:
                 return Assets.Visa.accountAvatar
             }
         }
 
-        static func newAccountIcon() -> AccountModel.Icon {
-            let iconColor = AccountModel.Icon.Color.cryptoAccountColors.randomElement() ?? .azure
+        static func newAccountIcon() -> AccountModel.Icon.CryptoIcon {
+            let iconColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
 
-            var allIconNames = AccountModel.Icon.Name.cryptoAccountIcons.toSet()
+            var allIconNames = AccountModel.Icon.Name.allCases.toSet()
             allIconNames.remove(.letter)
             allIconNames.remove(.star)
             let iconName = allIconNames.randomElement() ?? .wallet
 
-            return AccountModel.Icon(name: iconName, color: iconColor)
+            return AccountModel.Icon.CryptoIcon(name: iconName, color: iconColor)
         }
     }
 }
@@ -108,9 +111,21 @@ extension AccountModelUtils.UI {
         icon: AccountModel.Icon,
         accountName: String
     ) -> AccountIconView.ViewData {
-        AccountIconView.ViewData(
-            backgroundColor: iconColor(from: icon.color),
-            nameMode: nameMode(from: icon.name, accountName: accountName)
+        switch icon {
+        case .crypto(let cryptoIcon):
+            iconViewData(cryptoIcon: cryptoIcon, accountName: accountName)
+        case .fixed(let fixedIcon):
+            .plain(image: fixedIconAsset(from: fixedIcon))
+        }
+    }
+
+    static func iconViewData(
+        cryptoIcon: AccountModel.Icon.CryptoIcon,
+        accountName: String
+    ) -> AccountIconView.ViewData {
+        .composite(
+            backgroundColor: iconColor(from: cryptoIcon.color),
+            nameMode: nameMode(from: cryptoIcon.name, accountName: accountName)
         )
     }
 
