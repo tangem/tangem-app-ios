@@ -37,10 +37,6 @@ final class SwapModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
 
-    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
-        _providerRateTypes.eraseToAnyPublisher()
-    }
-
     weak var router: SwapModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -54,8 +50,6 @@ final class SwapModel {
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
-    private let isFixedRatesFeatureEnabled: Bool
-    private let _providerRateTypes = CurrentValueSubject<Set<ExpressProviderRateType>, Never>([])
     private let balanceConverter = BalanceConverter()
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var updateTask: Task<Void, Never>?
@@ -70,8 +64,7 @@ final class SwapModel {
         expressAPIProvider: ExpressAPIProvider,
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
-        shouldStartInitialLoading: Bool,
-        isFixedRatesEnabled: Bool = false
+        shouldStartInitialLoading: Bool
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -80,7 +73,6 @@ final class SwapModel {
         self.expressAPIProvider = expressAPIProvider
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
-        isFixedRatesFeatureEnabled = isFixedRatesEnabled
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _sourceAmount = .init(.none)
@@ -219,7 +211,6 @@ extension SwapModel {
         updateTask(loadingType: .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
-                self?._providerRateTypes.send([])
                 return try await expressManager.update(pair: .none)
             }
 
@@ -247,8 +238,6 @@ extension SwapModel {
         receiveAmount: Decimal,
         source: SendSwapableToken
     ) async throws -> ExpressManagerUpdatingResult {
-        await fetchAndPublishRateTypes(for: pair)
-
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
         let isFixedRateSupported = pairResult.selected?.supportedRateTypes.contains(.fixed) ?? false
 
@@ -283,8 +272,6 @@ extension SwapModel {
         source: SendSwapableToken,
         destination: SendReceiveToken
     ) async throws -> ExpressManagerUpdatingResult {
-        await fetchAndPublishRateTypes(for: pair)
-
         // Compute local estimate without sending yet — deferring the send
         // prevents a race where the ViewModel's pendingReverseRecalculation
         // starts a new task that cancels this pair setup before providers load
@@ -311,15 +298,6 @@ extension SwapModel {
         return result
     }
 
-    private func fetchAndPublishRateTypes(for pair: ExpressManagerSwappingPair) async {
-        guard isFixedRatesFeatureEnabled else { return }
-
-        let rateTypes = await expressPairsRepository.availableRateTypes(for: pair)
-        if !rateTypes.isEmpty {
-            _providerRateTypes.send(rateTypes)
-        }
-    }
-
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
         updateTask?.cancel()
         updateTask = runTask(in: self, code: { @MainActor input in
@@ -333,11 +311,9 @@ extension SwapModel {
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
-                    let rateType = await input.expressManager.getAmountType()?.rateType
-                    let filteredProviders = updatingResult.providers.filteredByRateType(rateType)
 
                     input.update(providersState: .loaded(
-                        providers: filteredProviders,
+                        providers: updatingResult.providers,
                         selected: updatingResult.selected,
                         state: state
                     ))

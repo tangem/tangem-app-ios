@@ -351,14 +351,15 @@ private extension SendAmountViewModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             interactor.receivedTokenPublisher,
             interactor.receivedTokenAmountPublisher,
+            $providerRateTypes
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { viewModel, args in
-            let (token, amount) = args
+            let (token, amount, _) = args
             viewModel.updateDestinationToken(destinationToken: token.value, amount: amount)
         }
         .store(in: &bag)
