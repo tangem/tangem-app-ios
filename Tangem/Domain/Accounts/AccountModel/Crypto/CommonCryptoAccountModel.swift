@@ -17,9 +17,9 @@ final class CommonCryptoAccountModel {
     let accountBalanceProvider: AccountBalanceProvider
     let accountRateProvider: AccountRateProvider
 
-    private(set) var cryptoIcon: AccountModel.CompositeIcon {
+    private(set) var compositeIcon: AccountModel.CompositeIcon {
         didSet {
-            if oldValue != cryptoIcon {
+            if oldValue != compositeIcon {
                 didChangeSubject.send()
             }
         }
@@ -72,7 +72,7 @@ final class CommonCryptoAccountModel {
 
         self.accountId = accountId
         _name = accountName
-        cryptoIcon = accountIcon
+        compositeIcon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
@@ -93,7 +93,7 @@ final class CommonCryptoAccountModel {
         }
 
         if let newIcon = accountModelEditor.icon {
-            cryptoIcon = newIcon
+            compositeIcon = newIcon
         }
 
         return self
@@ -144,7 +144,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: derivationIndex,
             name: accountModelEditor.name ?? _name,
-            icon: accountModelEditor.icon ?? cryptoIcon
+            icon: accountModelEditor.icon ?? compositeIcon
         )
 
         try await delegate.commonCryptoAccountModel(self, wantsToUpdateWith: persistentConfig)

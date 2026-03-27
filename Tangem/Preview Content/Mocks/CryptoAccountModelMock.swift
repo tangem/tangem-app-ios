@@ -27,12 +27,12 @@ final class CryptoAccountModelMock {
         }
     }
 
-    private(set) var cryptoIcon: AccountModel.CompositeIcon = .init(
+    private(set) var compositeIcon: AccountModel.CompositeIcon = .init(
         name: .allCases.randomElement()!,
         color: .allCases.randomElement()!
     ) {
         didSet {
-            if oldValue != cryptoIcon {
+            if oldValue != compositeIcon {
                 didChangeSubject.send()
             }
         }
@@ -147,7 +147,7 @@ private extension CryptoAccountModelMock {
         }
 
         func setIcon(_ icon: AccountModel.CompositeIcon) {
-            cryptoAccountModel.cryptoIcon = icon
+            cryptoAccountModel.compositeIcon = icon
         }
     }
 }

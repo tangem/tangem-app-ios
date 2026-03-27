@@ -109,8 +109,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
         switch flowType {
         case .edit(let account):
-            iconColor = account.cryptoIcon.color
-            iconName = account.cryptoIcon.name
+            iconColor = account.compositeIcon.color
+            iconName = account.compositeIcon.name
             accountName = account.name
         case .create:
             let newIcon = AccountModelUtils.UI.newAccountIcon()

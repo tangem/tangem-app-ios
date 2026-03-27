@@ -38,7 +38,7 @@ extension AccountSelectorAccountItem {
         name = account.name
         self.userWalletModel = userWalletModel
         tokensCount = Localization.commonTokensCount(account.userTokensManager.userTokens.count)
-        icon = account.cryptoIcon
+        icon = account.compositeIcon
         domainModel = account
         formattedBalanceTypePublisher = account.fiatTotalBalanceProvider.totalFiatBalancePublisher
         self.availability = availability
