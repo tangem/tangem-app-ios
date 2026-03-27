@@ -10,29 +10,16 @@ import Foundation
 import TangemFoundation
 
 extension AccountModel {
-    /// Icon representation for an account.
-    /// - `composite`: user-editable icon with a named glyph over a colored background.
-    /// - `standalone`: hardcoded, self-contained icon for specific account types (e.g. TangemPay).
     enum Icon: Hashable {
         case composite(CompositeIcon)
         case standalone(StandaloneIcon)
     }
-}
-
-// MARK: - CompositeIcon
-
-extension AccountModel {
-    /// Composite icon: a named glyph drawn over a colored background.
-    /// Serializable and user-editable.
+    
     struct CompositeIcon: Hashable {
         let name: Name
         let color: Color
     }
-}
-
-// MARK: - StandaloneIcon
-
-extension AccountModel {
+    
     enum StandaloneIcon: Hashable {
         case tangemPay
     }
@@ -121,7 +108,7 @@ extension AccountModel.CompositeIcon {
 // MARK: - Comparable protocol conformance
 
 extension AccountModel.CompositeIcon.Name: Comparable {
-    static func < (lhs: Self, rhs: Self) -> Bool {
+    static func < (lhs: AccountModel.CompositeIcon.Name, rhs: AccountModel.CompositeIcon.Name) -> Bool {
         lhs.sortOrder < rhs.sortOrder
     }
 }

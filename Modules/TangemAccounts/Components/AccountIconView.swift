@@ -99,29 +99,28 @@ public struct AccountIconView: View {
     }
 }
 
-// MARK: - ViewData
+// MARK: - AccountIconViewData
 
 public extension AccountIconView {
-    /// What the icon view should render.
     enum ViewData: Hashable {
-        /// Icon drawn over a colored background (crypto accounts).
         case composite(backgroundColor: Color, nameMode: NameMode)
-        /// Self-contained image that already includes its own background (TangemPay, etc.).
         case standalone(image: ImageType)
 
-        /// Applies the given letter config if the name mode is `.letter`.
-        /// Returns unchanged data for other name modes.
         var backgroundColor: Color {
             switch self {
-            case .composite(let backgroundColor, _): backgroundColor
-            case .standalone: .clear
+            case .composite(let backgroundColor, _):
+                backgroundColor
+            case .standalone:
+                .clear
             }
         }
 
         var nameMode: NameMode? {
             switch self {
-            case .composite(_, let nameMode): nameMode
-            case .standalone: nil
+            case .composite(_, let nameMode):
+                nameMode
+            case .standalone:
+                nil
             }
         }
 
