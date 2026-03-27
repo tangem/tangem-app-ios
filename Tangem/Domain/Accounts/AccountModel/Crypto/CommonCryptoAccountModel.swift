@@ -17,7 +17,7 @@ final class CommonCryptoAccountModel {
     let accountBalanceProvider: AccountBalanceProvider
     let accountRateProvider: AccountRateProvider
 
-    private(set) var cryptoIcon: AccountModel.Icon.CryptoIcon {
+    private(set) var cryptoIcon: AccountModel.CompositeIcon {
         didSet {
             if oldValue != cryptoIcon {
                 didChangeSubject.send()
@@ -59,7 +59,7 @@ final class CommonCryptoAccountModel {
     init(
         userWalletId: UserWalletId,
         accountName: String?,
-        accountIcon: AccountModel.Icon.CryptoIcon,
+        accountIcon: AccountModel.CompositeIcon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
@@ -204,7 +204,7 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
 private extension CommonCryptoAccountModel {
     final class CommonAccountModelEditor: AccountModelEditor {
         var name: String?
-        var icon: AccountModel.Icon.CryptoIcon?
+        var icon: AccountModel.CompositeIcon?
 
         var hasChanges: Bool {
             return name != nil || icon != nil
@@ -214,7 +214,7 @@ private extension CommonCryptoAccountModel {
             self.name = name
         }
 
-        func setIcon(_ icon: AccountModel.Icon.CryptoIcon) {
+        func setIcon(_ icon: AccountModel.CompositeIcon) {
             self.icon = icon
         }
     }

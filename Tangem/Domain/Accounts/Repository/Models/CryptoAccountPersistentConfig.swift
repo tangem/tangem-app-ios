@@ -38,7 +38,7 @@ extension CryptoAccountPersistentConfig {
     init(
         derivationIndex: Int,
         name: String?,
-        icon: AccountModel.Icon.CryptoIcon
+        icon: AccountModel.CompositeIcon
     ) {
         self.init(
             derivationIndex: derivationIndex,

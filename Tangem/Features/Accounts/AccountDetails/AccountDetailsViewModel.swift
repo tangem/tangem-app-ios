@@ -24,7 +24,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - State
 
     @Published private(set) var accountName: String = ""
-    @Published private(set) var accountIcon: AccountModel.Icon = .crypto(AccountModelUtils.UI.newAccountIcon())
+    @Published private(set) var accountIcon: AccountModel.Icon = .composite(AccountModelUtils.UI.newAccountIcon())
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 

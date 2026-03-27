@@ -58,7 +58,7 @@ public struct AccountIconView: View {
 
     private var labelFrameSize: CGSize {
         switch data {
-        case .plain:
+        case .standalone:
             CGSize(
                 width: scaledWidth + scaledPadding * 2,
                 height: scaledHeight + scaledPadding * 2
@@ -70,7 +70,7 @@ public struct AccountIconView: View {
 
     private var labelPadding: CGFloat {
         switch data {
-        case .plain:
+        case .standalone:
             .zero
         case .composite:
             scaledPadding
@@ -93,7 +93,7 @@ public struct AccountIconView: View {
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
 
-        case .plain(let image):
+        case .standalone(let image):
             image.image
                 .renderingMode(.original)
                 .resizable()
@@ -109,7 +109,7 @@ public extension AccountIconView {
         /// Icon drawn over a colored background (crypto accounts).
         case composite(backgroundColor: Color, nameMode: NameMode)
         /// Self-contained image that already includes its own background (TangemPay, etc.).
-        case plain(image: ImageType)
+        case standalone(image: ImageType)
 
         /// Applies the given letter config if the name mode is `.letter`.
         /// Returns unchanged data for other name modes.
