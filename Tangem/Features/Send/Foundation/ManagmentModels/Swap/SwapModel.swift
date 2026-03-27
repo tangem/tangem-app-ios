@@ -88,6 +88,7 @@ final class SwapModel {
     }
 
     deinit {
+        updateTask?.cancel()
         ExpressLogger.debug("deinit SwapModel")
     }
 }
@@ -295,12 +296,17 @@ extension SwapModel {
                 input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
 
+                try Task.checkCancellation()
+
                 switch result {
                 case .none:
                     input.update(providersState: .idle)
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
+
+                    try Task.checkCancellation()
+
 
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
