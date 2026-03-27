@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemUI
 import TangemAssets
 import TangemLocalization
@@ -27,6 +28,7 @@ struct UserSettingsAccountsSectionView: View {
             ].compactMap { $0 },
             staticContent: { viewData in
                 AddListItemButton(viewData: viewData)
+                    .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAddAccountButton)
             },
             sectionHeader: {
                 DefaultHeaderView(Localization.commonAccounts)
@@ -53,6 +55,7 @@ struct UserSettingsAccountsSectionView: View {
                 trailingChevron
             }
         )
+        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsArchivedAccountsButton)
     }
 
     private var trailingChevron: some View {
