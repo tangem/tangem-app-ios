@@ -88,6 +88,7 @@ final class SwapModel {
     }
 
     deinit {
+        updateTask?.cancel()
         ExpressLogger.debug("deinit SwapModel")
     }
 }
@@ -208,7 +209,9 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        updateTask(loadingType: .providers) { [weak self] expressManager in
+        let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
+
+        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 return try await expressManager.update(pair: .none)
@@ -295,12 +298,16 @@ extension SwapModel {
                 input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
 
+                try Task.checkCancellation()
+
                 switch result {
                 case .none:
                     input.update(providersState: .idle)
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
+
+                    try Task.checkCancellation()
 
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
@@ -310,6 +317,7 @@ extension SwapModel {
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
+                // Do nothing
             } catch {
                 input.update(providersState: .failure(error))
             }
@@ -840,7 +848,6 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .filter { !$0.isLoading }
             .map { state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
@@ -863,7 +870,6 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         _providersState
-            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
@@ -953,7 +959,6 @@ extension SwapModel: SendSwapProvidersInput {
         case .failure(let error): .failure(error)
         case .loading(.rates): .loading
         case .loading: .none
-        case .loaded(_, _, .idle): .none
         case .loaded(_, let selected, _): selected.map { .success($0) }
         }
     }
@@ -1097,7 +1102,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { $0.filter(loading: [.providers, .provider, .autoupdate]) }
+            .filter { $0.filter(loading: [.autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
