@@ -17,9 +17,9 @@ final class CommonCryptoAccountModel {
     let accountBalanceProvider: AccountBalanceProvider
     let accountRateProvider: AccountRateProvider
 
-    private(set) var icon: AccountModel.Icon {
+    private(set) var cryptoIcon: AccountModel.Icon.CryptoIcon {
         didSet {
-            if oldValue != icon {
+            if oldValue != cryptoIcon {
                 didChangeSubject.send()
             }
         }
@@ -59,7 +59,7 @@ final class CommonCryptoAccountModel {
     init(
         userWalletId: UserWalletId,
         accountName: String?,
-        accountIcon: AccountModel.Icon,
+        accountIcon: AccountModel.Icon.CryptoIcon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
@@ -72,7 +72,7 @@ final class CommonCryptoAccountModel {
 
         self.accountId = accountId
         _name = accountName
-        icon = accountIcon
+        cryptoIcon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
@@ -93,7 +93,7 @@ final class CommonCryptoAccountModel {
         }
 
         if let newIcon = accountModelEditor.icon {
-            icon = newIcon
+            cryptoIcon = newIcon
         }
 
         return self
@@ -144,7 +144,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: derivationIndex,
             name: accountModelEditor.name ?? _name,
-            icon: accountModelEditor.icon ?? icon
+            icon: accountModelEditor.icon ?? cryptoIcon
         )
 
         try await delegate.commonCryptoAccountModel(self, wantsToUpdateWith: persistentConfig)
@@ -204,7 +204,7 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
 private extension CommonCryptoAccountModel {
     final class CommonAccountModelEditor: AccountModelEditor {
         var name: String?
-        var icon: AccountModel.Icon?
+        var icon: AccountModel.Icon.CryptoIcon?
 
         var hasChanges: Bool {
             return name != nil || icon != nil
@@ -214,7 +214,7 @@ private extension CommonCryptoAccountModel {
             self.name = name
         }
 
-        func setIcon(_ icon: AccountModel.Icon) {
+        func setIcon(_ icon: AccountModel.Icon.CryptoIcon) {
             self.icon = icon
         }
     }

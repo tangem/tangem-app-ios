@@ -93,7 +93,7 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                accountIconViewData: AccountIconView.ViewData(
+                accountIconViewData: .composite(
                     backgroundColor: Colors.Accounts.vitalGreen,
                     nameMode: .letter("N")
                 ),
@@ -104,7 +104,7 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                accountIconViewData: AccountIconView.ViewData(
+                accountIconViewData: .composite(
                     backgroundColor: Colors.Accounts.ufoGreen,
                     nameMode: .imageType(Assets.Accounts.airplane)
                 ),
