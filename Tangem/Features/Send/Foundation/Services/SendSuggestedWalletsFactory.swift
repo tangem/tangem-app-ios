@@ -66,7 +66,7 @@ struct SendSuggestedWalletsFactory {
                         name: userWalletModel.name,
                         address: depositAddress,
                         account: SendDestinationSuggestedWallet.Account(
-                            icon: .plain(image: Assets.Visa.accountAvatar),
+                            icon: .standalone(image: Assets.Visa.accountAvatar),
                             name: Localization.tangempayPaymentAccount
                         ),
                         accountModelAnalyticsProvider: nil

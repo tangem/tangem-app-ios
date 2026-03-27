@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, DisposableEntity, AnyObject {
-    var cryptoIcon: AccountModel.Icon.CryptoIcon { get }
+    var cryptoIcon: AccountModel.CompositeIcon { get }
 
     var isMainAccount: Bool { get }
 
@@ -27,7 +27,7 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Dis
 
 extension CryptoAccountModel {
     var icon: AccountModel.Icon {
-        .crypto(cryptoIcon)
+        .composite(cryptoIcon)
     }
 }
 

@@ -14,7 +14,7 @@ import TangemAccounts
 // [REDACTED_TODO_COMMENT]
 extension AccountModelUtils {
     enum UI {
-        static func iconColor(from color: AccountModel.Icon.Color) -> Color {
+        static func iconColor(from color: AccountModel.CompositeIcon.Color) -> Color {
             switch color {
             case .azure:
                 return Colors.Accounts.azureBlue
@@ -43,7 +43,7 @@ extension AccountModelUtils {
             }
         }
 
-        static func iconAsset(from name: AccountModel.Icon.Name) -> ImageType {
+        static func iconAsset(from name: AccountModel.CompositeIcon.Name) -> ImageType {
             switch name {
             case .airplaneMode:
                 return Assets.Accounts.airplane
@@ -84,22 +84,22 @@ extension AccountModelUtils {
             }
         }
 
-        static func fixedIconAsset(from fixedIcon: AccountModel.Icon.FixedIcon) -> ImageType {
-            switch fixedIcon {
+        static func standaloneIconAsset(from standaloneIcon: AccountModel.StandaloneIcon) -> ImageType {
+            switch standaloneIcon {
             case .tangemPay:
                 return Assets.Visa.accountAvatar
             }
         }
 
-        static func newAccountIcon() -> AccountModel.Icon.CryptoIcon {
-            let iconColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+        static func newAccountIcon() -> AccountModel.CompositeIcon {
+            let iconColor = AccountModel.CompositeIcon.Color.allCases.randomElement() ?? .azure
 
-            var allIconNames = AccountModel.Icon.Name.allCases.toSet()
+            var allIconNames = AccountModel.CompositeIcon.Name.allCases.toSet()
             allIconNames.remove(.letter)
             allIconNames.remove(.star)
             let iconName = allIconNames.randomElement() ?? .wallet
 
-            return AccountModel.Icon.CryptoIcon(name: iconName, color: iconColor)
+            return AccountModel.CompositeIcon(name: iconName, color: iconColor)
         }
     }
 }
@@ -112,20 +112,20 @@ extension AccountModelUtils.UI {
         accountName: String
     ) -> AccountIconView.ViewData {
         switch icon {
-        case .crypto(let cryptoIcon):
-            iconViewData(cryptoIcon: cryptoIcon, accountName: accountName)
-        case .fixed(let fixedIcon):
-            .plain(image: fixedIconAsset(from: fixedIcon))
+        case .composite(let compositeIcon):
+            iconViewData(compositeIcon: compositeIcon, accountName: accountName)
+        case .standalone(let standaloneIcon):
+            .standalone(image: standaloneIconAsset(from: standaloneIcon))
         }
     }
 
     static func iconViewData(
-        cryptoIcon: AccountModel.Icon.CryptoIcon,
+        compositeIcon: AccountModel.CompositeIcon,
         accountName: String
     ) -> AccountIconView.ViewData {
         .composite(
-            backgroundColor: iconColor(from: cryptoIcon.color),
-            nameMode: nameMode(from: cryptoIcon.name, accountName: accountName)
+            backgroundColor: iconColor(from: compositeIcon.color),
+            nameMode: nameMode(from: compositeIcon.name, accountName: accountName)
         )
     }
 
@@ -137,7 +137,7 @@ extension AccountModelUtils.UI {
 // MARK: - Private implementation
 
 private extension AccountModelUtils.UI {
-    static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
+    static func nameMode(from name: AccountModel.CompositeIcon.Name, accountName: String) -> AccountIconView.NameMode {
         switch name {
         case .letter:
             .letter(accountName.first.map { String($0) } ?? "")

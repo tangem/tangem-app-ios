@@ -14,7 +14,7 @@ struct AccountSelectorAccountItem: Identifiable {
     let id: AnyHashable
     let name: String
     let tokensCount: String
-    let icon: AccountModel.Icon.CryptoIcon
+    let icon: AccountModel.CompositeIcon
     let domainModel: any CryptoAccountModel
     let userWalletModel: any UserWalletModel
     let formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
