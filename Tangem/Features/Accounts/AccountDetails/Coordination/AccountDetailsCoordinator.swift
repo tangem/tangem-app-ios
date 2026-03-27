@@ -63,7 +63,7 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
     func editAccount() {
         guard let options else { return }
 
-        guard let cryptoAccount = options.account.resolve(using: CryptoAccountExtractor()) else {
+        guard let cryptoAccount = options.account as? any CryptoAccountModel else {
             assertionFailure("Only crypto accounts support editing")
             return
         }
@@ -91,18 +91,6 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
         }
 
         options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
-    }
-}
-
-// MARK: - CryptoAccountExtractor
-
-private struct CryptoAccountExtractor: AccountModelResolving {
-    func resolve(accountModel: any CryptoAccountModel) -> (any CryptoAccountModel)? {
-        accountModel
-    }
-
-    func resolve(accountModel: any TangemPayAccountModel) -> (any CryptoAccountModel)? {
-        nil
     }
 }
 
