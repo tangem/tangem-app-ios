@@ -317,6 +317,7 @@ extension SwapModel {
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
+                // Do nothing
             } catch {
                 input.update(providersState: .failure(error))
             }
@@ -847,7 +848,6 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .filter { !$0.isLoading }
             .map { state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
@@ -870,7 +870,6 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         _providersState
-            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
@@ -1104,7 +1103,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { $0.filter(loading: [.providers, .provider, .autoupdate]) }
+            .filter { $0.filter(loading: [.autoupdate]) }
             .map { $0.isLoading }
             .eraseToAnyPublisher()
     }
