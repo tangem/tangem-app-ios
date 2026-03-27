@@ -114,6 +114,7 @@ class CommonSendAmountInteractor {
 
     private func bind() {
         _cachedAmount
+            .drop(while: { $0 == nil })
             .withWeakCaptureOf(self)
             .tryMap { try $0.modifyIfNeeded(amount: $1) }
             .replaceError(with: .none)
