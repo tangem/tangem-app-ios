@@ -95,12 +95,20 @@ enum SendAmountStepBuilder {
             saver: interactorSaver
         )
 
+        let swapHandler: SendAmountSwapHandler? = dependencies.providerRateTypesPublisher.map { publisher in
+            CommonSendAmountSwapHandler(
+                interactor: interactor,
+                analyticsLogger: dependencies.analyticsLogger,
+                providerRateTypesPublisher: publisher
+            )
+        }
+
         let viewModel = SendAmountViewModel(
             sourceToken: types.initialSourceToken,
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
-            providerRateTypesPublisher: dependencies.providerRateTypesPublisher
+            swapHandler: swapHandler
         )
 
         let step = SendAmountStep(
