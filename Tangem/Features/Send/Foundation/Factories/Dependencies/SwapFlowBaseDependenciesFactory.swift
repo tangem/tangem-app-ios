@@ -31,6 +31,7 @@ extension SwapFlowBaseDependenciesFactory {
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
+            expressUserWalletId: expressDependenciesFactory.userWalletInfo.id,
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             shouldStartInitialLoading: shouldStartInitialLoading,
