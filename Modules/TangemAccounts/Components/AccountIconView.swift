@@ -44,16 +44,14 @@ public struct AccountIconView: View {
             .matchedGeometryEffect(iconGeometryEffect)
             .frame(size: labelFrameSize)
             .padding(labelPadding)
-            .background {
-                if case .composite(let backgroundColor, _) = data {
-                    GeometryReader { geo in
-                        RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
-                            .fill(backgroundColor)
-                    }
-                    .matchedGeometryEffect(backgroundGeometryEffect)
+            .background(
+                GeometryReader { geo in
+                    RoundedRectangle(cornerRadius: geo.size.width * Constants.cornerRadiusRatio, style: .continuous)
+                        .fill(data.backgroundColor)
                 }
-            }
-            .animation(.default, value: data)
+                .matchedGeometryEffect(backgroundGeometryEffect)
+            )
+            .animation(.default, value: data.nameMode)
     }
 
     private var labelFrameSize: CGSize {
@@ -113,6 +111,20 @@ public extension AccountIconView {
 
         /// Applies the given letter config if the name mode is `.letter`.
         /// Returns unchanged data for other name modes.
+        var backgroundColor: Color {
+            switch self {
+            case .composite(let backgroundColor, _): backgroundColor
+            case .standalone: .clear
+            }
+        }
+
+        var nameMode: NameMode? {
+            switch self {
+            case .composite(_, let nameMode): nameMode
+            case .standalone: nil
+            }
+        }
+
         public func applyingLetterConfig(_ config: NameMode.LetterConfig) -> Self {
             switch self {
             case .composite(let backgroundColor, .letter(let letter, _)):
