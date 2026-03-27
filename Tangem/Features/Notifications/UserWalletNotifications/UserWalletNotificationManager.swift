@@ -44,6 +44,8 @@ final class UserWalletNotificationManager {
 
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
+    private var tokenSyncProgressTask: Task<Void, Never>?
+
     init(
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController
@@ -55,6 +57,10 @@ final class UserWalletNotificationManager {
 
         bind()
         bindTokenSyncProgress()
+    }
+
+    deinit {
+        tokenSyncProgressTask?.cancel()
     }
 
     private func createNotifications() {
@@ -357,9 +363,7 @@ final class UserWalletNotificationManager {
     }
 
     private func bindTokenSyncProgress() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-
+        tokenSyncProgressTask = Task { @MainActor in
             let userWalletId = userWalletModel.userWalletId
 
             await walletTokenSyncProgressProvider
