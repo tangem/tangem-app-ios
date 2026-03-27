@@ -80,21 +80,18 @@ public struct AccountIconView: View {
     @ViewBuilder
     private var label: some View {
         switch data {
-        case .composite(_, let nameMode):
-            switch nameMode {
-            case .letter(let letter, let config):
-                Text(letter)
-                    .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
-                    // Needed for scale animation. E.g. on Main
-                    .minimumScaleFactor(config.minimumScaleFactor)
+        case .composite(_, .letter(let letter, let config)):
+            Text(letter)
+                .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
+                // Needed for scale animation. E.g. on Main
+                .minimumScaleFactor(config.minimumScaleFactor)
 
-            case .imageType(let imageType, let config):
-                imageType.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(Colors.Text.constantWhite)
-                    .opacity(config.opacity)
-            }
+        case .composite(_, .imageType(let imageType, let config)):
+            imageType.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Colors.Text.constantWhite)
+                .opacity(config.opacity)
 
         case .plain(let image):
             image.image
