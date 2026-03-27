@@ -14,12 +14,12 @@ extension AccountModel {
         case composite(CompositeIcon)
         case standalone(StandaloneIcon)
     }
-    
+
     struct CompositeIcon: Hashable {
         let name: Name
         let color: Color
     }
-    
+
     enum StandaloneIcon: Hashable {
         case tangemPay
     }
