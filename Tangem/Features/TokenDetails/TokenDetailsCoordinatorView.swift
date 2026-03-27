@@ -71,5 +71,11 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: CloreMigrationViewModel.self) {
                 CloreMigrationView(viewModel: $0)
             }
+            .floatingSheetContent(for: DynamicAddressesUnavailableSheetViewModel.self) {
+                DynamicAddressesUnavailableSheetView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
+                DynamicAddressesEnterView(viewModel: $0)
+            }
     }
 }
