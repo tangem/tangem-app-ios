@@ -15,6 +15,11 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let expressTransactionId: String
     let transactionType: TransactionType
     let transactionHash: String
+
+    /// The `userWalletId` that was used when calling the Express API to create this transaction.
+    /// May differ from `sourceTokenTxInfo.userWalletId` when tokens are reversed in the swap UI.
+    let expressUserWalletId: String?
+
     let sourceTokenTxInfo: TokenTxInfo
     let destinationTokenTxInfo: TokenTxInfo
     let feeString: String
@@ -186,6 +191,7 @@ extension ExpressPendingTransactionRecord {
         expressTransactionId = try container.decode(String.self, forKey: .expressTransactionId)
         transactionType = try container.decode(ExpressPendingTransactionRecord.TransactionType.self, forKey: .transactionType)
         transactionHash = try container.decode(String.self, forKey: .transactionHash)
+        expressUserWalletId = try container.decodeIfPresent(String.self, forKey: .expressUserWalletId)
 
         if let sourceTokenTxInfo = try? container.decode(ExpressPendingTransactionRecord.TokenTxInfo.self, forKey: .sourceTokenTxInfo) {
             self.sourceTokenTxInfo = sourceTokenTxInfo
