@@ -117,7 +117,7 @@ public extension AccountIconView {
             switch self {
             case .composite(let backgroundColor, .letter(let letter, _)):
                 return .composite(backgroundColor: backgroundColor, nameMode: .letter(letter, config))
-            case .composite(_, .imageType), .plain:
+            case .composite(_, .imageType), .standalone:
                 return self
             }
         }
