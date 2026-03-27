@@ -62,6 +62,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             expressTransactionId: transaction.expressTransactionData.expressTransactionId,
             transactionType: .type(from: transaction.expressTransactionData.transactionType),
             transactionHash: transaction.result.hash,
+            expressUserWalletId: transaction.expressUserWalletId,
             sourceTokenTxInfo: .init(
                 userWalletId: transaction.source.userWalletInfo.id.stringValue,
                 tokenItem: transaction.source.tokenItem,
