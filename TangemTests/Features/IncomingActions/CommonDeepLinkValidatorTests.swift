@@ -25,7 +25,7 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func tokenChartWithValidAtSymbok() {
+    func tokenChartWithValidAtSymbol() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
             params: .init(tokenId: "ethereum@"),
