@@ -167,39 +167,20 @@ private extension CommonExpressManager {
         let providers = try await expressRepository.providers()
 
         availableProviders = try providers.compactMap { provider in
-            var rateTypes: Set<ExpressProviderRateType> = []
-            // Every available provider can serve float (FROM) requests
-            if allSet.contains(provider.id) { rateTypes.insert(.float) }
+            guard allSet.contains(provider.id),
+                  pair.source.supportedProvidersFilter.isSupported(provider: provider) else {
+                return nil
+            }
+
+            guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider, pair: pair) else {
+                throw ExpressManagerError.unsupportedProviderType
+            }
+
+            var rateTypes: Set<ExpressProviderRateType> = [.float]
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
-            return try makeExpressAvailableProvider(
-                availableProviderIds: allSet,
-                supportedRateTypes: rateTypes,
-                provider: provider,
-                pair: pair
-            )
+            return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: rateTypes, isBest: false)
         }
-    }
-
-    func makeExpressAvailableProvider(
-        availableProviderIds: Set<String>,
-        supportedRateTypes: Set<ExpressProviderRateType>,
-        provider: ExpressProvider,
-        pair: ExpressManagerSwappingPair
-    ) throws -> ExpressAvailableProvider? {
-        let isSupportedBySource = pair.source.supportedProvidersFilter.isSupported(provider: provider)
-        let isSupportedByExpress = availableProviderIds.contains(provider.id)
-        let isAvailable = isSupportedBySource && isSupportedByExpress
-
-        guard isAvailable else {
-            return nil
-        }
-
-        guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider, pair: pair) else {
-            throw ExpressManagerError.unsupportedProviderType
-        }
-
-        return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: supportedRateTypes, isBest: false)
     }
 
     func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressProviderUpdateSource) async {

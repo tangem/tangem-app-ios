@@ -14,13 +14,8 @@ struct RateInfoSheetViewModel: FloatingSheetContentViewModel {
     let rateType: RateType
     let onDismiss: () -> Void
 
-    @Injected(\.floatingSheetPresenter)
-    private var floatingSheetPresenter: any FloatingSheetPresenter
-
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        onDismiss()
     }
 
     enum RateType {
