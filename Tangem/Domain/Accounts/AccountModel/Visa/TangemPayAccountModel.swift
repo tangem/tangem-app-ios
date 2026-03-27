@@ -11,6 +11,8 @@ import TangemPay
 import TangemLocalization
 
 protocol TangemPayAccountModel: BaseAccountModel {
+    var standaloneIcon: AccountModel.StandaloneIcon { get }
+
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
@@ -39,8 +41,12 @@ extension TangemPayAccountModel {
         resolver.resolve(accountModel: self)
     }
 
+    var standaloneIcon: AccountModel.StandaloneIcon {
+        .tangemPay
+    }
+
     var icon: AccountModel.Icon {
-        .standalone(.tangemPay)
+        .standalone(standaloneIcon)
     }
 
     var name: String {
