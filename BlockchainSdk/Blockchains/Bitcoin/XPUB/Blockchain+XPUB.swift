@@ -23,6 +23,15 @@ public extension Blockchain {
         }
     }
 
+    func updatedIfSupported(xpub enabled: Bool) -> Self {
+        do {
+            let blockchain = try updated(xpub: enabled)
+            return blockchain
+        } catch {
+            return self
+        }
+    }
+
     func updated(xpub enabled: Bool) throws -> Self {
         switch self {
         case .bitcoin(let testnet, _):

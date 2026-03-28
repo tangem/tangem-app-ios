@@ -31,7 +31,7 @@ struct BlockchainNetwork: Codable, Hashable, Equatable {
                 let extendedPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
                 return [derivationPath, extendedPath]
 
-            case .bitcoin(_, xpub: true):
+            case let blockchain where blockchain.isXPUB:
                 let xpubPaths = try XPUBUtils().xpubDerivationPaths(for: derivationPath)
                 return [derivationPath, xpubPaths.child, xpubPaths.parent]
 
