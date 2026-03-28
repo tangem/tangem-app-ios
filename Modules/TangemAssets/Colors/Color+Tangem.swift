@@ -101,10 +101,10 @@ public extension Color.Tangem.Button {
 // MARK: - Surface
 
 public extension Color.Tangem.Surface {
-    static let level1: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
-    static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Base.black)
-    static let level3: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
-    static let level4: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark5)
+    static let level1: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Base.black)
+    static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark7)
+    static let level3: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
+    static let level4: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
 }
 
 // MARK: - Controls
@@ -123,7 +123,7 @@ public extension Color.Tangem.Border {
         public static let primary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
         public static let secondary: Color = .dynamic(light: Primitives.Lights.light5, dark: Primitives.Darks.dark4)
         public static let banner: Color = .dynamic(light: Primitives.Darks.dark5, dark: Primitives.Lights.light1)
-        public static let tertiary: Color = Primitives.Base.white
+        public static let tertiary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     }
 
     enum Status {
@@ -391,5 +391,9 @@ public extension Color {
         }
 
         return nil
+    }
+
+    init(hex: String, fallback: Color = .clear) {
+        self = Color(hex: hex) ?? fallback
     }
 }

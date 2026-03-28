@@ -25,6 +25,10 @@ public struct TangemPayEnrollmentStateFetcher {
         let customerInfo = try await customerService.loadCustomerInfo()
         let customerId = customerInfo.id
 
+        if customerInfo.state == .former || customerInfo.productInstance?.status == .deactivated {
+            return (.disabled, customerId)
+        }
+
         guard customerInfo.kyc?.status == .approved else {
             if case .declined = customerInfo.kyc?.status {
                 return (.kycDeclined, customerId)

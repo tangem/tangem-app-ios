@@ -89,6 +89,13 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
             return AccountSettingsScreen(app)
         }
     }
+
+    func goBackToWalletSettings() -> CardSettingsScreen {
+        XCTContext.runActivity(named: "Go back to Wallet settings") { _ in
+            app.navigationBars.buttons["Wallet settings"].waitAndTap()
+            return CardSettingsScreen(app)
+        }
+    }
 }
 
 enum ManageTokensScreenElement: String, UIElement {

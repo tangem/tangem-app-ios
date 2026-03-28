@@ -10,6 +10,7 @@ import Foundation
 import TangemExpress
 
 struct SentSwapTransactionData {
+    let expressUserWalletId: String
     let result: TransactionDispatcherResult
     let source: any SendSourceToken
     let receive: any SendReceiveToken
