@@ -11,6 +11,7 @@ import TangemSdk
 import Combine
 
 public protocol WalletManager: WalletProvider,
+    WalletUpdater,
     TokensWalletProvider,
     WalletManagerUpdater,
     BlockchainDataProvider,

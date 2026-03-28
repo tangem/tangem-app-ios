@@ -613,6 +613,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager
     }
 
+    var walletUpdater: WalletUpdater {
+        walletManager
+    }
+
     var multipleTransactionsSender: (any MultipleTransactionsSender)? {
         walletManager as? (any MultipleTransactionsSender)
     }

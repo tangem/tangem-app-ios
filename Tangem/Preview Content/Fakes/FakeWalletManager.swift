@@ -70,6 +70,8 @@ class FakeWalletManager: WalletManager {
         state = nextState()
     }
 
+    func update(wallet: Wallet) throws {}
+
     func removeToken(_ token: BlockchainSdk.Token) {
         cardTokens.removeAll(where: { $0 == token })
     }

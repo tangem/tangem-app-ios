@@ -162,6 +162,8 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var walletUpdater: WalletUpdater { get }
+
     var multipleTransactionsSender: MultipleTransactionsSender? { get }
 
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { get }
