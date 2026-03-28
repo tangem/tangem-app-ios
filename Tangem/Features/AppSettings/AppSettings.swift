@@ -90,9 +90,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
 
-    @AppStorageCompat(StorageType.supportSeedNotificationShownDate)
-    var supportSeedNotificationShownDate: Date? = nil
-
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
@@ -131,6 +128,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
+    var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
 
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
@@ -197,6 +197,14 @@ extension AppSettings: TangemPayPaeraCustomerFlagRepository {
 
     func setIsKYCHidden(_ value: Bool, for customerWalletId: String) {
         tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = value
+    }
+
+    func isTangemPayDisabled(customerWalletId: String) -> Bool {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId, default: false]
+    }
+
+    func setIsTangemPayDisabled(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = value
     }
 
     func setShouldShowGetBanner(_ value: Bool) {
