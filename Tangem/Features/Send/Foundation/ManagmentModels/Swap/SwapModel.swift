@@ -47,6 +47,7 @@ final class SwapModel {
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
+    private let expressUserWalletId: UserWalletId
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
@@ -63,6 +64,7 @@ final class SwapModel {
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
+        expressUserWalletId: UserWalletId,
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         shouldStartInitialLoading: Bool,
@@ -73,6 +75,7 @@ final class SwapModel {
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
+        self.expressUserWalletId = expressUserWalletId
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.isFixedRatesEnabled = isFixedRatesEnabled
@@ -92,6 +95,7 @@ final class SwapModel {
     }
 
     deinit {
+        updateTask?.cancel()
         ExpressLogger.debug("deinit SwapModel")
     }
 }
@@ -238,7 +242,10 @@ extension SwapModel {
         updateTask?.cancel()
         updateTask = runTask(in: self, code: { @MainActor input in
             do {
+                input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
+
+                try Task.checkCancellation()
 
                 switch result {
                 case .none:
@@ -246,6 +253,9 @@ extension SwapModel {
 
                 case .some(let updatingResult):
                     let state = try await input.mapToLoadedState(result: updatingResult)
+
+                    try Task.checkCancellation()
+
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
                         selected: updatingResult.selected,
@@ -584,6 +594,7 @@ extension SwapModel {
         result: TransactionDispatcherResult
     ) {
         let sentTransactionData = SentSwapTransactionData(
+            expressUserWalletId: expressUserWalletId.stringValue,
             result: result,
             source: source,
             receive: receive,
@@ -1248,10 +1259,6 @@ extension SwapModel: NotificationTapDelegate {
              .empty,
              .support,
              .openCurrency,
-             .seedSupportYes,
-             .seedSupportNo,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
