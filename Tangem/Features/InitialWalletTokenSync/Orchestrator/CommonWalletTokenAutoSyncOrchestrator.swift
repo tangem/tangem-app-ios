@@ -10,44 +10,39 @@ import Combine
 import CombineExt
 import TangemFoundation
 import BlockchainSdk
+import TangemSdk
 
-final class CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
-    private let addressResolver: WalletAddressResolver
-    private let tokenBalanceClient: MoralisTokenBalanceClient
-    private let tangemApiService: TangemApiService
+final class CommonWalletTokenAutoSyncOrchestrator {
     private let syncStateActor: WalletTokenAutoSyncStateActor
     private let progressService: WalletTokenAutoSyncProgressService
-
-    private let coinMapper = CoinsCatalogMapper()
-    private var waitForTokenListTask: Task<Void, Error>?
+    private let relayerFactory: (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
 
     init(
-        addressResolver: WalletAddressResolver,
-        tokenBalanceClient: MoralisTokenBalanceClient,
-        tangemApiService: TangemApiService,
         syncStateActor: WalletTokenAutoSyncStateActor,
-        progressService: WalletTokenAutoSyncProgressService
+        progressService: WalletTokenAutoSyncProgressService,
+        relayerFactory: @escaping (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
     ) {
-        self.addressResolver = addressResolver
-        self.tokenBalanceClient = tokenBalanceClient
-        self.tangemApiService = tangemApiService
         self.syncStateActor = syncStateActor
         self.progressService = progressService
+        self.relayerFactory = relayerFactory
     }
+}
 
+// MARK: - WalletTokenAutoSyncInteractor
+
+extension CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
     func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
         let userWalletId = userWalletModel.userWalletId
         let stateActor = syncStateActor
         try await stateActor.tryRegister(userWalletId: userWalletId)
 
-        Task.detached(priority: .utility) { [weak self] in
+        Task(priority: .utility) { [weak self] in
             do {
-                if let self {
-                    try await performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
-                }
+                try await self?.performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
             } catch {
                 AppLogger.tag("CommonWalletTokenAutoSyncOrchestrator").error("Sync failed", error: error)
             }
+
             await stateActor.unregister(userWalletId: userWalletId)
         }
     }
@@ -61,33 +56,23 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
 
         await progressService.add(userWalletId: userWalletId)
 
+        let relayerPairs = resolveRelayerPairs()
+        let totalNetworks = relayerPairs.count
         var allTokens: [TokenItem] = []
 
-        let totalNetworks = MoralisSupportedBlockchains.all.count
-
-        for (index, blockchain) in MoralisSupportedBlockchains.all.enumerated() {
+        for (index, (blockchain, relayer)) in relayerPairs.enumerated() {
             if Task.isCancelled { break }
 
             do {
-                let pair = try addressResolver.resolveAddress(for: blockchain, keyInfos: keyInfos)
-
-                let balances = try await tokenBalanceClient.getTokenBalances(
-                    network: pair.blockchainNetwork.blockchain,
-                    address: pair.address
+                let stream = try await relayer.resolveTokenStream(
+                    blockchain: blockchain,
+                    keyInfos: keyInfos
                 )
 
-                let nonZeroBalances = balances.filter { $0.amount > 0 }
-
-                let contractAddressToCoinId = await fetchContractAddressToCoinIdMap(
-                    balances: nonZeroBalances,
-                    blockchain: pair.blockchainNetwork.blockchain
-                )
-                let tokenItems = mapToTokenItems(
-                    balances: nonZeroBalances,
-                    blockchainNetwork: pair.blockchainNetwork,
-                    contractAddressToCoinId: contractAddressToCoinId
-                )
-                allTokens.append(contentsOf: tokenItems)
+                for try await token in stream {
+                    if Task.isCancelled { break }
+                    allTokens.append(token)
+                }
             } catch {
                 AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchain.displayName): \(error)")
             }
@@ -104,59 +89,17 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         }
 
         await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
-        await progressService.remove(userWalletId: userWalletId)
     }
 
-    func fetchContractAddressToCoinIdMap(
-        balances: [MoralisTokenBalance],
-        blockchain: Blockchain
-    ) async -> [String: String] {
-        let contractAddresses = balances
-            .filter { !$0.isNativeToken }
-            .compactMap { $0.contractAddress }
+    func resolveRelayerPairs() -> [(Blockchain, any WalletTokenAutoSyncRelayer)] {
+        SupportedBlockchains.all
+            .compactMap { blockchain -> (Blockchain, any WalletTokenAutoSyncRelayer)? in
+                guard let relayer = relayerFactory(blockchain) else {
+                    return nil
+                }
 
-        guard !contractAddresses.isEmpty else {
-            return [:]
-        }
-
-        do {
-            let request = CoinsList.Request(
-                supportedBlockchains: [blockchain],
-                contractAddresses: contractAddresses,
-                limit: contractAddresses.count,
-                active: true
-            )
-            let response = try await tangemApiService.loadCoins(requestModel: request)
-            let mapResult = coinMapper.buildContractAddressToCoinIdMap(from: response)
-            return mapResult
-        } catch {
-            AppLogger.tag("WalletTokenAutoSync").debug("Coins catalog lookup failed: \(error)")
-            return [:]
-        }
-    }
-
-    func mapToTokenItems(
-        balances: [MoralisTokenBalance],
-        blockchainNetwork: BlockchainNetwork,
-        contractAddressToCoinId: [String: String]
-    ) -> [TokenItem] {
-        balances.compactMap { balance in
-            if balance.isNativeToken {
-                return .blockchain(blockchainNetwork)
+                return (blockchain, relayer)
             }
-            guard let contractAddress = balance.contractAddress else {
-                return nil
-            }
-            let currencyId = contractAddressToCoinId[contractAddress.lowercased()]
-            let token = Token(
-                name: balance.name,
-                symbol: balance.symbol,
-                contractAddress: contractAddress,
-                decimalCount: balance.decimals,
-                id: currencyId
-            )
-            return .token(token, blockchainNetwork)
-        }
     }
 
     func syncDiscoveredTokensWithAccounts(
@@ -242,5 +185,22 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
     enum Constants {
         static let maxSyncRetries = 5
         static let syncTimeoutSeconds = 3
+    }
+}
+
+// MARK: - InjectedValues
+
+extension InjectedValues {
+    var walletTokenAutoSyncInteractor: WalletTokenAutoSyncInteractor {
+        shared
+    }
+
+    private var shared: CommonWalletTokenAutoSyncOrchestrator {
+        get { Self[Key.self] }
+        set { Self[Key.self] = newValue }
+    }
+
+    private struct Key: InjectionKey {
+        static var currentValue: CommonWalletTokenAutoSyncOrchestrator = WalletTokenAutoSyncOrchestratorFactory().makeOrchestrator()
     }
 }

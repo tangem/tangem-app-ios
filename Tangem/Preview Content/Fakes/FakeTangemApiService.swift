@@ -86,6 +86,14 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        throw "Not implemented"
+    }
+
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
+        throw "Not implemented"
+    }
+
     func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }
@@ -123,22 +131,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
-        throw "Not implemented"
-    }
-
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO {
-        throw "Not implemented"
-    }
-
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        throw "Not implemented"
-    }
-
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO {
-        throw "Not implemented"
-    }
-
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
         throw "Not implemented"
     }
 
