@@ -1,5 +1,5 @@
 {
-  "originHash" : "369196b9253721913a65af84c4cf718c813b1961ce9a3855d6fabb98f42ffb60",
+  "originHash" : "be4ad3e1fccb9fc3c7a5b31562dee1b9b7f6d61ca97c046e129f7f5356e99431",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -456,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "revision" : "9ebd28be65dd60322b91a114b2645f1f4171d9d2",
-        "version" : "1.2.0-tangem18"
+        "revision" : "493281fedf15f6a70a221c9e46803b17dfb8f8c6",
+        "version" : "1.2.0-tangem19"
       }
     },
     {
@@ -485,6 +485,15 @@
       "state" : {
         "revision" : "0d9dcc32538bb47fadeaf5c907fa8cfd154a87e9",
         "version" : "3.1.0-tangem1"
+      }
+    },
+    {
+      "identity" : "surveysparrow-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/surveysparrow/surveysparrow-ios-sdk.git",
+      "state" : {
+        "revision" : "cdb2cddc2c35b53ad3fa71ccfaf4620b630e1ee2",
+        "version" : "1.2.7"
       }
     },
     {
