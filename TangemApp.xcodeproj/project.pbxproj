@@ -2794,6 +2794,10 @@
 		B6D1139C2D91756800B2F17C /* CommonNFTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113972D91756800B2F17C /* CommonNFTManager.swift */; };
 		B6D274E82C38318900FEFCDC /* OnboardingLayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */; };
 		B6D274EB2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */; };
+		B6D888632F7610C700A283D4 /* MarketsTokenPriceFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D888622F7610C700A283D4 /* MarketsTokenPriceFormatterTests.swift */; };
+		B6D888B02F7618F500A283D4 /* MainQRDefaultURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D888AD2F7618F500A283D4 /* MainQRDefaultURIRequestBuilder.swift */; };
+		B6D888B12F7618F500A283D4 /* MainQRTronURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D888AE2F7618F500A283D4 /* MainQRTronURIRequestBuilder.swift */; };
+		B6D888B22F7618F500A283D4 /* MainQRBlockchainURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D888AC2F7618F500A283D4 /* MainQRBlockchainURIRequestBuilder.swift */; };
 		B6DA215E2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DA215D2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift */; };
 		B6DB1D872F2C2D5C007CEA89 /* DisposableEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DB1D862F2C2D5C007CEA89 /* DisposableEntity.swift */; };
 		B6DC54B82E4E8F91005C8EB9 /* AccountDerivationPathHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DC54B72E4E8F91005C8EB9 /* AccountDerivationPathHelper.swift */; };
@@ -4958,9 +4962,6 @@
 		F2C101A16E0010020000000B /* Tangem/Features/MainQRScan/Domain/MainQRTokenItemMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000B /* Tangem/Features/MainQRScan/Domain/MainQRTokenItemMatcher.swift */; };
 		F2C101A16E0010020000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift */; };
 		F2C101A16E0010020000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift */; };
-		F2C101A16E0010020000000E /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000E /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift */; };
-		F2C101A16E0010020000000F /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E0010010000000F /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift */; };
-		F2C101A16E00100200000011 /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C101A16E00100100000011 /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift */; };
 		F92DB9C92CD4C2F400C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9C82CD4C2F400C16530 /* TangemModules */; };
 		F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CA2CD4C36100C16530 /* TangemModules */; };
 		F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CC2CD4C3D200C16530 /* TangemModules */; };
@@ -5472,7 +5473,6 @@
 		2D06399B2EF0271300BE0499 /* MarketsNoResultsStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNoResultsStateView.swift; sourceTree = "<group>"; };
 		2D06399C2EF0271300BE0499 /* MarketsSearchResultListOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSearchResultListOverlayView.swift; sourceTree = "<group>"; };
 		2D067EDC2EA243B900983972 /* WCTransactionSendLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSendLoadingView.swift; sourceTree = "<group>"; };
-		2D0718952F72AB87009F611E /* MainHeaderSubtitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHeaderSubtitleView.swift; sourceTree = "<group>"; };
 		2D1366162D036737000AE1C4 /* TONError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONError.swift; sourceTree = "<group>"; };
 		2D1366172D036737000AE1C4 /* TONTransactionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONTransactionInput.swift; sourceTree = "<group>"; };
 		2D173CD32E25A726006584C0 /* SolanaALTLookupTableCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTLookupTableCreator.swift; sourceTree = "<group>"; };
@@ -7900,6 +7900,10 @@
 		B6D113972D91756800B2F17C /* CommonNFTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTManager.swift; sourceTree = "<group>"; };
 		B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLayoutConstants.swift; sourceTree = "<group>"; };
 		B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsBottomSheetView.swift; sourceTree = "<group>"; };
+		B6D888622F7610C700A283D4 /* MarketsTokenPriceFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenPriceFormatterTests.swift; sourceTree = "<group>"; };
+		B6D888AC2F7618F500A283D4 /* MainQRBlockchainURIRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRBlockchainURIRequestBuilder.swift; sourceTree = "<group>"; };
+		B6D888AD2F7618F500A283D4 /* MainQRDefaultURIRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRDefaultURIRequestBuilder.swift; sourceTree = "<group>"; };
+		B6D888AE2F7618F500A283D4 /* MainQRTronURIRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQRTronURIRequestBuilder.swift; sourceTree = "<group>"; };
 		B6DA215D2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMarketsHistoryChartViewModelFactory.swift; sourceTree = "<group>"; };
 		B6DB1D862F2C2D5C007CEA89 /* DisposableEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisposableEntity.swift; sourceTree = "<group>"; };
 		B6DC54B72E4E8F91005C8EB9 /* AccountDerivationPathHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDerivationPathHelper.swift; sourceTree = "<group>"; };
@@ -10050,9 +10054,6 @@
 		F2C101A16E0010010000000B /* Tangem/Features/MainQRScan/Domain/MainQRTokenItemMatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRTokenItemMatcher.swift; sourceTree = SOURCE_ROOT; };
 		F2C101A16E0010010000000C /* Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRWalletModelMatcher.swift; sourceTree = SOURCE_ROOT; };
 		F2C101A16E0010010000000D /* Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/MainQRSendParametersFactory.swift; sourceTree = SOURCE_ROOT; };
-		F2C101A16E0010010000000E /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift; sourceTree = SOURCE_ROOT; };
-		F2C101A16E0010010000000F /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift; sourceTree = SOURCE_ROOT; };
-		F2C101A16E00100100000011 /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift; sourceTree = SOURCE_ROOT; };
 		F3C3AABE01A84C53B268B455 /* NewsModelMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelMapperTests.swift; sourceTree = "<group>"; };
 		F8451B78432644CAA5EEC880 /* BSDKApprovePolicy+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BSDKApprovePolicy+Extensions.swift"; sourceTree = "<group>"; };
 		F99007012CD3E1C700DFE2D3 /* KaspaNetworkModelsKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkModelsKRC20.swift; sourceTree = "<group>"; };
@@ -10512,13 +10513,6 @@
 				0ABBB2CD2ECCB6E60082BC76 /* P2PStakingManager.swift */,
 			);
 			path = P2P;
-			sourceTree = "<group>";
-		};
-		0AEB1FCF2DBF75A5009EA212 /* Notifications */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Notifications;
 			sourceTree = "<group>";
 		};
 		0AED02F82EDDA571001D067E /* Cache */ = {
@@ -11981,17 +11975,6 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-		2D9F49D42F74273300AE3A09 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2D0718952F72AB87009F611E /* MainHeaderSubtitleView.swift */,
-				F2C101A16E0010010000000E /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift */,
-				F2C101A16E0010010000000F /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift */,
-				F2C101A16E00100100000011 /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2D9F4A6B2F7431DA00AE3A09 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
@@ -12783,6 +12766,7 @@
 			isa = PBXGroup;
 			children = (
 				2DF123452F28A1B10NEWS0008 /* News */,
+				B6D888622F7610C700A283D4 /* MarketsTokenPriceFormatterTests.swift */,
 			);
 			path = Markets;
 			sourceTree = "<group>";
@@ -13353,7 +13337,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2D9F49D42F74273300AE3A09 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -13669,6 +13652,7 @@
 		784E99BCAC6F44D4B657F441 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				B6D888AF2F7618F500A283D4 /* BlockchainURIBuilders */,
 				F1A3B42C5D6E7F8091A2B3E0 /* Models */,
 				575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */,
 				A1B2C3D4E5F6078901234501 /* Tangem/Features/MainQRScan/Domain/MainQRScanAction.swift */,
@@ -19253,6 +19237,16 @@
 			path = PushNotificationsBottomSheet;
 			sourceTree = "<group>";
 		};
+		B6D888AF2F7618F500A283D4 /* BlockchainURIBuilders */ = {
+			isa = PBXGroup;
+			children = (
+				B6D888AC2F7618F500A283D4 /* MainQRBlockchainURIRequestBuilder.swift */,
+				B6D888AD2F7618F500A283D4 /* MainQRDefaultURIRequestBuilder.swift */,
+				B6D888AE2F7618F500A283D4 /* MainQRTronURIRequestBuilder.swift */,
+			);
+			path = BlockchainURIBuilders;
+			sourceTree = "<group>";
+		};
 		B6DC54B62E4E8F7F005C8EB9 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -20566,7 +20560,6 @@
 				2D245DD92E97E9BD006AD2DC /* Models */,
 				2DC5675F2B0DFFAF00B0244F /* Navigation */,
 				DC37C1902EF7820C009FEDF8 /* News */,
-				0AEB1FCF2DBF75A5009EA212 /* Notifications */,
 				2D1BB3752C07501C008392F7 /* Providers */,
 				2D0639872EF024DA00BE0499 /* Shtorka */,
 				2DC567592B0DFFAF00B0244F /* TokenList */,
@@ -30222,6 +30215,9 @@
 				2D96E9732E55D25300B69F91 /* ReceiveFlow.swift in Sources */,
 				DAD212BC2E822F6B00097D16 /* TangemPayCardDetailsViewModel.swift in Sources */,
 				2D96E9752E55D25300B69F91 /* ReceiveAddressType.swift in Sources */,
+				B6D888B02F7618F500A283D4 /* MainQRDefaultURIRequestBuilder.swift in Sources */,
+				B6D888B12F7618F500A283D4 /* MainQRTronURIRequestBuilder.swift in Sources */,
+				B6D888B22F7618F500A283D4 /* MainQRBlockchainURIRequestBuilder.swift in Sources */,
 				2D96E9762E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift in Sources */,
 				B6F06D192E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift in Sources */,
 				2D96E97D2E55D25300B69F91 /* ReceiveDependenciesBuilder.swift in Sources */,
@@ -31422,9 +31418,6 @@
 				F2C101A16E00100200000009 /* Tangem/Features/MainQRScan/Domain/MainQRDecimalParser.swift in Sources */,
 				F2C101A16E0010020000000A /* Tangem/Features/MainQRScan/Domain/MainQRBlockchainResolver.swift in Sources */,
 				F2C101A16E0010020000000B /* Tangem/Features/MainQRScan/Domain/MainQRTokenItemMatcher.swift in Sources */,
-				F2C101A16E0010020000000E /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRBlockchainURIRequestBuilder.swift in Sources */,
-				F2C101A16E0010020000000F /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRTronURIRequestBuilder.swift in Sources */,
-				F2C101A16E00100200000011 /* Tangem/Features/MainQRScan/Domain/BlockchainURIBuilders/MainQRDefaultURIRequestBuilder.swift in Sources */,
 				CE455F6CFE5A466F92C9D2E7 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift in Sources */,
 				F1A3B42C5D6E7F8091A2B3D6 /* Tangem/Features/MainQRScan/Domain/MainQRScanLoggerStrings.swift in Sources */,
 				F1A3B42C5D6E7F8091A2B3D5 /* Tangem/Features/MainQRScan/Domain/Models/MainQRPaymentRequest.swift in Sources */,
@@ -31467,6 +31460,7 @@
 				2DF123452F28A1B10NEWS0004 /* NewsIncomingLinkParserTests.swift in Sources */,
 				2DF123452F28A1B10NEWS0006 /* NewsDeeplinkValidationServiceTests.swift in Sources */,
 				57249494E8B64FB6B60C4265 /* NewsReadStatusSortableTests.swift in Sources */,
+				B6D888632F7610C700A283D4 /* MarketsTokenPriceFormatterTests.swift in Sources */,
 				CC7DD5D0F9284E6AB41DB80D /* InMemoryNewsReadStatusProviderTests.swift in Sources */,
 				87A9ED8D55774A68B4735A76 /* NewsLikeServiceTests.swift in Sources */,
 				3FA8DB8CFE8747568D98742E /* NewsDataProviderEventTests.swift in Sources */,
