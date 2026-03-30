@@ -25,6 +25,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @Published var viewState: ViewState = .scanner
     @Published var alert: AlertBinder?
+    @Published var isProcessing = false
 
     // MARK: - Child coordinators
 
@@ -60,8 +61,6 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func openQRScanner() {
-        qrScanCoordinator = nil
-
         let dismissAction: Action<String?> = { [weak self] scannedCode in
             guard let self else { return }
             guard let scannedCode else {
@@ -86,33 +85,27 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func handleScannedCode(_ code: String) {
-        let walletModelMatcher = walletModelMatcher
-        let resolver = routeResolver
+        isProcessing = true
 
         Task { [weak self] in
-            let (context, action) = await Task.detached(priority: .userInitiated) {
-                let context = walletModelMatcher.collectContext()
-                let action = resolver.resolve(
-                    scannedCode: code,
-                    availableBlockchains: context.allBlockchains,
-                    availableTokenItems: context.allTokenItems
-                )
-                return (context, action)
-            }.value
+            guard let self else { return }
 
-            guard let self, qrScanCoordinator != nil else { return }
+            let routeAction = await resolveRouteAction(code: code)
 
-            route(action, allMatches: context.allMatches)
+            guard qrScanCoordinator != nil else { return }
+            route(routeAction)
         }
     }
 
     @MainActor
-    private func route(_ action: MainQRScanAction, allMatches: [MainQRWalletModelMatch]) {
+    private func route(_ action: ResolvedRouteAction) {
+        isProcessing = false
+
         switch action {
         case .walletConnect(let uri):
             handleWalletConnect(uri: uri)
 
-        case .payment(let request):
+        case .payment(let request, let allMatches):
             if !request.request.unknownParameters.isEmpty {
                 showUnknownParametersAlert(request: request, allMatches: allMatches)
                 return
@@ -120,20 +113,12 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
             handlePayment(request: request, allMatches: allMatches)
 
-        case .address(let request):
-            let sendParameters = sendParametersFactory.makeSendParameters(
-                destination: request.destinationAddress,
-                amount: nil,
-                tag: nil
-            )
-            let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingBlockchains)
-            let filteredMatches = filterOutSelfAddressMatches(matches, destination: request.destinationAddress)
-
+        case .address(let matchResult, let sendParameters, let filter):
             openSendOrSelector(
-                matches: filteredMatches,
-                unfilteredMatchCount: matches.count,
+                matches: matchResult.filtered,
+                unfilteredMatchCount: matchResult.unfilteredCount,
                 sendParameters: sendParameters,
-                filter: .blockchains(Set(request.matchingBlockchains)),
+                filter: filter,
                 noSupportedTokensContext: nil
             )
 
@@ -170,33 +155,17 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         filter: MainQRScanTokenSelectorAvailabilityFilter,
         noSupportedTokensContext: MainQRNoSupportedTokensContext?
     ) {
-        switch matches.count {
-        case 0:
-            if unfilteredMatchCount > 0 {
-                showSelfAddressAlert()
-            } else {
-                showNoSupportedTokensAlert(context: noSupportedTokensContext)
-            }
-        case 1:
-            guard let match = matches.first else {
-                showNoSupportedTokensAlert(context: noSupportedTokensContext)
-                return
-            }
+        let resolution = Self.resolveMatchDestination(matches: matches, unfilteredMatchCount: unfilteredMatchCount)
 
+        switch resolution {
+        case .selfAddress:
+            showSelfAddressAlert()
+        case .noSupportedTokens:
+            showNoSupportedTokensAlert(context: noSupportedTokensContext)
+        case .singleMatch(let match):
             openSend(with: match, parameters: sendParameters)
-        default:
-            let matchesWithBalance = matches.filter { match in
-                if case .loaded(let balance) = match.walletModel.availableBalanceProvider.balanceType, balance > 0 {
-                    return true
-                }
-                return false
-            }
-
-            if matchesWithBalance.count == 1, let singleMatch = matchesWithBalance.first {
-                openSend(with: singleMatch, parameters: sendParameters)
-            } else {
-                openTokenSelector(filter: filter, sendParameters: sendParameters)
-            }
+        case .tokenSelector:
+            openTokenSelector(filter: filter, sendParameters: sendParameters)
         }
     }
 
@@ -311,22 +280,21 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     @MainActor
     private func handlePayment(request: MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch]) {
-        let amount = resolvePaymentAmount(request: request.request, matchingTokenItems: request.matchingTokenItems)
-        let sendParameters = sendParametersFactory.makeSendParameters(
-            destination: request.request.destinationAddress,
-            amount: amount,
-            tag: request.request.memo
-        )
-        let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingTokenItems)
-        let filteredMatches = filterOutSelfAddressMatches(matches, destination: request.request.destinationAddress)
+        Task { [weak self] in
+            guard let self else { return }
 
-        openSendOrSelector(
-            matches: filteredMatches,
-            unfilteredMatchCount: matches.count,
-            sendParameters: sendParameters,
-            filter: .tokenItems(Set(request.matchingTokenItems)),
-            noSupportedTokensContext: .payment(request.request)
-        )
+            let (matchResult, sendParameters, filter) = await resolvePaymentRoute(request: request, allMatches: allMatches)
+
+            guard qrScanCoordinator != nil else { return }
+
+            openSendOrSelector(
+                matches: matchResult.filtered,
+                unfilteredMatchCount: matchResult.unfilteredCount,
+                sendParameters: sendParameters,
+                filter: filter,
+                noSupportedTokensContext: .payment(request.request)
+            )
+        }
     }
 
     @MainActor
@@ -338,19 +306,73 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         }
     }
 
+    private func isSelfAddress(walletModel: any WalletModel, destination: String) -> Bool {
+        let blockchain = walletModel.tokenItem.blockchain
+        guard !blockchain.supportsCompound else {
+            return false
+        }
+
+        return walletModel.addresses.contains { $0.value.caseInsensitiveCompare(destination) == .orderedSame }
+    }
+
     private func filterOutSelfAddressMatches(
         _ matches: [MainQRWalletModelMatch],
         destination: String
     ) -> [MainQRWalletModelMatch] {
-        matches.filter { match in
-            let blockchain = match.walletModel.tokenItem.blockchain
-            guard !blockchain.supportsCompound else {
-                return true
-            }
+        matches.filter { !isSelfAddress(walletModel: $0.walletModel, destination: destination) }
+    }
 
-            let walletAddresses = match.walletModel.addresses.map(\.value)
-            return !walletAddresses.contains(destination)
+    // MARK: - Background Processing
+
+    private func resolveRouteAction(code: String) async -> ResolvedRouteAction {
+        let context = walletModelMatcher.collectContext()
+        let action = routeResolver.resolve(
+            scannedCode: code,
+            availableBlockchains: context.allBlockchains,
+            availableTokenItems: context.allTokenItems
+        )
+
+        switch action {
+        case .walletConnect(let uri):
+            return .walletConnect(uri)
+
+        case .payment(let request):
+            return .payment(request, allMatches: context.allMatches)
+
+        case .address(let request):
+            let sendParameters = sendParametersFactory.makeSendParameters(
+                destination: request.destinationAddress,
+                amount: nil,
+                tag: nil
+            )
+            let matches = walletModelMatcher.filterMatches(context.allMatches, for: request.matchingBlockchains)
+            let filtered = filterOutSelfAddressMatches(matches, destination: request.destinationAddress)
+            let matchResult = MatchFilterResult(filtered: filtered, unfilteredCount: matches.count)
+            return .address(matchResult, sendParameters: sendParameters, filter: .blockchains(Set(request.matchingBlockchains)))
+
+        case .showNoSupportedTokens(let noTokensContext):
+            return .showNoSupportedTokens(noTokensContext)
+
+        case .showUnrecognized:
+            return .showUnrecognized
         }
+    }
+
+    private func resolvePaymentRoute(
+        request: MainQRResolvedPaymentRequest,
+        allMatches: [MainQRWalletModelMatch]
+    ) async -> (MatchFilterResult, PredefinedSendParameters, MainQRScanTokenSelectorAvailabilityFilter) {
+        let amount = resolvePaymentAmount(request: request.request, matchingTokenItems: request.matchingTokenItems)
+        let sendParameters = sendParametersFactory.makeSendParameters(
+            destination: request.request.destinationAddress,
+            amount: amount,
+            tag: request.request.memo
+        )
+        let matches = walletModelMatcher.filterMatches(allMatches, for: request.matchingTokenItems)
+        let filtered = filterOutSelfAddressMatches(matches, destination: request.request.destinationAddress)
+        let matchResult = MatchFilterResult(filtered: filtered, unfilteredCount: matches.count)
+        let filter = MainQRScanTokenSelectorAvailabilityFilter.tokenItems(Set(request.matchingTokenItems))
+        return (matchResult, sendParameters, filter)
     }
 
     private func resolvePaymentAmount(request: MainQRPaymentRequest, matchingTokenItems: [TokenItem]) -> Decimal? {
@@ -372,7 +394,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     private func rearmScanner() {
         Task { @MainActor [weak self] in
-            self?.openQRScanner()
+            self?.qrScanCoordinator?.rearmForNextScan()
         }
     }
 
@@ -408,6 +430,53 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     }
 }
 
+// MARK: - Supporting Types
+
+extension MainQRScanFlowCoordinator {
+    struct MatchFilterResult {
+        let filtered: [MainQRWalletModelMatch]
+        let unfilteredCount: Int
+    }
+
+    enum MatchDestination {
+        case selfAddress
+        case noSupportedTokens
+        case singleMatch(MainQRWalletModelMatch)
+        case tokenSelector
+    }
+
+    enum ResolvedRouteAction {
+        case walletConnect(WalletConnectRequestURI)
+        case payment(MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch])
+        case address(MatchFilterResult, sendParameters: PredefinedSendParameters, filter: MainQRScanTokenSelectorAvailabilityFilter)
+        case showNoSupportedTokens(MainQRNoSupportedTokensContext?)
+        case showUnrecognized
+    }
+
+    static func resolveMatchDestination(
+        matches: [MainQRWalletModelMatch],
+        unfilteredMatchCount: Int
+    ) -> MatchDestination {
+        switch matches.count {
+        case 0:
+            return unfilteredMatchCount > 0 ? .selfAddress : .noSupportedTokens
+        case 1:
+            return .singleMatch(matches[0])
+        default:
+            let matchesWithBalance = matches.filter { match in
+                if case .loaded(let balance) = match.walletModel.availableBalanceProvider.balanceType, balance > 0 {
+                    return true
+                }
+                return false
+            }
+            if matchesWithBalance.count == 1, let singleMatch = matchesWithBalance.first {
+                return .singleMatch(singleMatch)
+            }
+            return .tokenSelector
+        }
+    }
+}
+
 // MARK: - Options
 
 extension MainQRScanFlowCoordinator {
@@ -439,6 +508,11 @@ extension MainQRScanFlowCoordinator: MainQRScanTokenSelectorRoutable {
         userWalletInfo: UserWalletInfo,
         sendParameters: PredefinedSendParameters
     ) {
+        if isSelfAddress(walletModel: walletModel, destination: sendParameters.destination) {
+            showSelfAddressAlert()
+            return
+        }
+
         let tokenItem = walletModel.tokenItem
         Analytics.log(event: .sendTokenSelected, params: [
             .token: tokenItem.currencySymbol,
