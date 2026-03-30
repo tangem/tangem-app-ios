@@ -115,6 +115,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func openQRScan() {
+        Analytics.log(.mainScreenButtonQRScan)
         coordinator?.openQRScan()
     }
 
