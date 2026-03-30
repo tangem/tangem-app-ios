@@ -34,7 +34,7 @@ final class AddressesInfoViewModel: ObservableObject {
             for walletModel in walletModels {
                 let derivationPath = walletModel.publicKey.derivationPath
 
-                let addresses = walletModel.addresses.map { $0.value }
+                let addresses = walletModel.addresses
 
                 let walletInfo = WalletInfoJSON(
                     addresses: addresses,
