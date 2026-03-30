@@ -17,7 +17,6 @@ struct TokenSectionsSourcePublisherFactory {
     func makeSourcePublisher(
         for userWalletModel: UserWalletModel
     ) -> some Publisher<[any WalletModel], Never> {
-        // accounts_fixes_needed_none
         return makeSourcePublisher(
             walletModelsPublisher: userWalletModel.walletModelsManager.walletModelsPublisher,
             totalBalancePublisher: userWalletModel.totalBalancePublisher
