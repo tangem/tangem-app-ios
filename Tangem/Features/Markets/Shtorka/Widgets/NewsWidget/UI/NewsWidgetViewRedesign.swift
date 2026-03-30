@@ -21,7 +21,6 @@ struct NewsWidgetViewRedesign: View {
 
             content
         }
-        .infinityFrame(axis: .horizontal)
     }
 
     // MARK: - Private Properties
@@ -47,6 +46,7 @@ struct NewsWidgetViewRedesign: View {
                 makeLoadingContent()
             }
         }
+        .padding(.horizontal, -SizeUnit.x4.value)
     }
 
     func makeSuccessContent(for state: NewsWidgetViewModel.ResultState) -> some View {
