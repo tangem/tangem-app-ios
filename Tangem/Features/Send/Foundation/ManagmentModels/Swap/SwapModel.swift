@@ -47,6 +47,7 @@ final class SwapModel {
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
+    private let expressUserWalletId: UserWalletId
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
@@ -62,6 +63,7 @@ final class SwapModel {
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
+        expressUserWalletId: UserWalletId,
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         shouldStartInitialLoading: Bool
@@ -71,6 +73,7 @@ final class SwapModel {
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
+        self.expressUserWalletId = expressUserWalletId
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
@@ -647,6 +650,7 @@ extension SwapModel {
         result: TransactionDispatcherResult
     ) {
         let sentTransactionData = SentSwapTransactionData(
+            expressUserWalletId: expressUserWalletId.stringValue,
             result: result,
             source: source,
             receive: receive,
