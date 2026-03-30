@@ -1,5 +1,5 @@
 {
-  "originHash" : "369196b9253721913a65af84c4cf718c813b1961ce9a3855d6fabb98f42ffb60",
+  "originHash" : "27ac498a8dd8214569d37e219ac6522bd929efc3fa1a575fd4ef2c78c984244f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -485,6 +485,15 @@
       "state" : {
         "revision" : "0d9dcc32538bb47fadeaf5c907fa8cfd154a87e9",
         "version" : "3.1.0-tangem1"
+      }
+    },
+    {
+      "identity" : "surveysparrow-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/surveysparrow/surveysparrow-ios-sdk.git",
+      "state" : {
+        "revision" : "cdb2cddc2c35b53ad3fa71ccfaf4620b630e1ee2",
+        "version" : "1.2.7"
       }
     },
     {
