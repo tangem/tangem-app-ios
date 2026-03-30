@@ -31,6 +31,12 @@ struct NetworkProviderAssembly {
                 blockBookConfig: GetBlockBlockBookConfig(input.keysConfig.getBlockCredentials),
                 networkConfiguration: input.tangemProviderConfig
             )
+        case .public(let url):
+            return BlockBookUTXOProvider(
+                blockchain: input.blockchain,
+                blockBookConfig: PublicBlockBookConfig(urlNode: url),
+                networkConfiguration: input.tangemProviderConfig
+            )
         case .clore(let url):
             return CloreBlockBookUTXOProvider(
                 blockchain: input.blockchain,
