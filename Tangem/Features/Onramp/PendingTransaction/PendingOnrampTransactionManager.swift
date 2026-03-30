@@ -27,7 +27,8 @@ class CommonPendingOnrampTransactionsManager {
         },
         shouldStopPolling: { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) },
         hasChanges: { $0.transactionRecord.transactionStatus != $1.transactionRecord.transactionStatus },
-        pollingInterval: Constants.statusUpdateTimeout
+        pollingInterval: Constants.statusUpdateTimeout,
+        maxConcurrentRequests: 3
     )
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
