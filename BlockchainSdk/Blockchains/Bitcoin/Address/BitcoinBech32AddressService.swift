@@ -42,6 +42,6 @@ extension BitcoinBech32AddressService: AddressProvider {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
 
         let (address, lockingScript) = try segWitBuilder.encode(publicKey: compressedKey, type: .p2wpkh)
-        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
+        return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
     }
 }
