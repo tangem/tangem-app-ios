@@ -51,12 +51,13 @@ struct EarnWidgetViewRedesign: View {
                             EarnTokenTileView(viewModel: tokenViewModel)
                         }
                     }
+                    .padding(.horizontal, SizeUnit.x4.value)
                 }
             case .failure:
                 MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
         }
-        .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+        .padding(.horizontal, -SizeUnit.x4.value)
     }
 
     private var loadingSkeletons: some View {
