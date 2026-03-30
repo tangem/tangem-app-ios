@@ -51,7 +51,6 @@ final class SwapModel {
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
-    private let isFixedRatesEnabled: Bool
     private let balanceConverter = BalanceConverter()
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var updateTask: Task<Void, Never>?
@@ -67,8 +66,7 @@ final class SwapModel {
         expressUserWalletId: UserWalletId,
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
-        shouldStartInitialLoading: Bool,
-        isFixedRatesEnabled: Bool = false
+        shouldStartInitialLoading: Bool
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -78,8 +76,6 @@ final class SwapModel {
         self.expressUserWalletId = expressUserWalletId
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
-        self.isFixedRatesEnabled = isFixedRatesEnabled
-
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _sourceAmount = .init(.none)
@@ -221,21 +217,81 @@ extension SwapModel {
         updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
-                let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: .none)
-                return provider
+                return try await expressManager.update(pair: .none)
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            let provider: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
-
-            // Populate _receiveAmount from the quote so the destination field
-            // shows the calculated value when a TO token is selected after entering FROM amount
-            if let quote = provider.selected?.getState().quote {
-                _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId))
-            }
-
-            return provider
+            return try await updatePair(pair: pair, source: source, destination: destination)
         }
+    }
+
+    private func updatePair(
+        pair: ExpressManagerSwappingPair,
+        source: SendSwapableToken,
+        destination: SendReceiveToken
+    ) async throws -> ExpressManagerUpdatingResult {
+        let existingReceiveAmount = _receiveAmount.value?.crypto
+
+        // Phase 1: Pre-pair — compute local TO estimate for first selection
+        // Uses local quotes to fill TO field immediately, avoiding empty display
+        var estimatedTo: Decimal?
+        if existingReceiveAmount == nil,
+           let sourceAmount = _sourceAmount.value?.crypto,
+           let sourceCurrencyId = source.tokenItem.currencyId,
+           let destCurrencyId = destination.tokenItem.currencyId {
+            estimatedTo = try? await balanceConverter.convertCryptoToCrypto(
+                sourceId: sourceCurrencyId,
+                sourceAmount: sourceAmount,
+                targetId: destCurrencyId
+            )
+        }
+
+        // Phase 2: Pair update — populates availableProviders in CommonExpressManager
+        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+
+        // Phase 3: Post-pair — either send estimate or fetch quote
+        guard let existingReceiveAmount else {
+            // First selection — send estimated amount now that providers are populated,
+            // deferring prevents a race where pendingReverseRecalculation cancels this task
+            if let estimatedTo, let destCurrencyId = destination.tokenItem.currencyId {
+                _receiveAmount.send(makeSendAmount(crypto: estimatedTo, currencyId: destCurrencyId))
+            }
+            return pairResult
+        }
+
+        // Existing amount — fetch quote with appropriate direction
+        let amountType = await resolveAmountTypeAfterPairChange(
+            pairResult: pairResult,
+            receiveAmount: existingReceiveAmount
+        )
+        let result: ExpressManagerUpdatingResult = try await expressManager.update(
+            amountType: amountType,
+            by: .pairChange
+        )
+
+        if let quote = result.selected?.getState().quote {
+            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId))
+        }
+
+        return result
+    }
+
+    /// Determines whether to use forward (FROM→TO) or reverse (TO→FROM) calculation after a pair change.
+    /// Falls back to forward if the selected provider doesn't support the current fixed rate mode.
+    private func resolveAmountTypeAfterPairChange(
+        pairResult: ExpressManagerUpdatingResult,
+        receiveAmount: Decimal
+    ) async -> ExpressAmountType {
+        let isFixedRateSupported = pairResult.selected?.supportedRateTypes.contains(.fixed) ?? false
+
+        if !isFixedRateSupported,
+           let currentAmountType = await expressManager.getAmountType(),
+           currentAmountType.rateType == .fixed,
+           let sourceAmount = _sourceAmount.value?.crypto {
+            return .from(sourceAmount)
+        }
+
+        return .to(receiveAmount)
     }
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
@@ -794,9 +850,9 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .eraseToAnyPublisher()
     }
 
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+    var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .map { state -> ReceiveAmountRestriction? in
+            .map { state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
                     return nil
                 }
