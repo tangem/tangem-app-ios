@@ -39,6 +39,7 @@ struct SingleWalletMainContentRedesignedView: View {
             MainPageTangemTokenRow(viewModel: tokenItemViewModel)
                 .backgroundColor(Constants.tokenListBackgroundColor)
                 .cornerRadiusContinuous(Constants.cornerRadius)
+
         case .account(let accountViewModel, let tokenItemViewModel):
             ExpandableAccountItemView(viewModel: accountViewModel) {
                 MainPageTangemTokenRow(viewModel: tokenItemViewModel)
@@ -46,6 +47,7 @@ struct SingleWalletMainContentRedesignedView: View {
             }
             .backgroundColor(Constants.tokenListBackgroundColor)
             .cornerRadiusContinuous(Constants.cornerRadius)
+
         case .none:
             EmptyView()
         }
@@ -57,7 +59,7 @@ struct SingleWalletMainContentRedesignedView: View {
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
         static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level1
+        static let tokenListBackgroundColor = Color.Tangem.Surface.level2
     }
 }
 

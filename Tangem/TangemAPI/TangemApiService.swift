@@ -83,7 +83,7 @@ protocol TangemApiService: AnyObject {
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>
 
-    // MARK: - Promotions and awards
+    // MARK: - Awards
 
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo
     func participateInReferralProgram(
@@ -100,12 +100,10 @@ protocol TangemApiService: AnyObject {
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
 
-    // MARK: - Seed Notify
+    // MARK: - Promotions
 
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response
 
     // MARK: - Configs
 

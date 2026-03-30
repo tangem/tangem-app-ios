@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUIUtils
 import TangemLocalization
@@ -77,6 +78,7 @@ public struct AccountFormHeaderView: View {
             .onChange(of: accountName) { newValue in
                 accountName = String(newValue.prefix(maxCharacters))
             }
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormNameInput)
     }
 }
 

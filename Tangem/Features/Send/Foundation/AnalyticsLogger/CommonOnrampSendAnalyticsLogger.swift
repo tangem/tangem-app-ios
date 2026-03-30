@@ -32,7 +32,7 @@ class CommonOnrampSendAnalyticsLogger {
             .token: tokenItem.currencySymbol,
         ]
 
-        if FeatureProvider.isAvailable(.accounts), let accountModelAnalyticsProvider {
+        if let accountModelAnalyticsProvider {
             analyticsParameters.enrich(with: accountModelAnalyticsProvider.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
         }
 

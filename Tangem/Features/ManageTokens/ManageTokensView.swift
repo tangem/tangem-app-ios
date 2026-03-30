@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
@@ -47,6 +48,7 @@ struct ManageTokensView: View {
                     title: Localization.commonSave,
                     icon: savingIcon,
                     isLoading: viewModel.isSavingChanges,
+                    accessibilityIdentifier: ManageTokensAccessibilityIdentifiers.saveButton,
                     action: viewModel.saveChanges
                 )
                 .padding(.bottom, 10)

@@ -30,4 +30,6 @@ struct FakeWalletTokenAutoSyncProgressProvider: WalletTokenAutoSyncProgressProvi
     func eventPublisher(for userWalletId: UserWalletId) async -> AnyPublisher<WalletTokenAutoSyncProgressEvent, Never> {
         Just(.inProgress(percent: percent ?? 0)).eraseToAnyPublisher()
     }
+
+    func removeProgress(for userWalletId: UserWalletId) async {}
 }
