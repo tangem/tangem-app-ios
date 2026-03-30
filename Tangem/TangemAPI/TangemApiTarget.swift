@@ -54,6 +54,10 @@ struct TangemApiTarget: TargetType {
             return "/referral"
         case .promotion:
             return "/promotion"
+        case .loadPromotions:
+            return "/banner/displays"
+        case .hidePromotion(let request):
+            return "/banner/displays/\(request.displayId)"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -82,12 +86,6 @@ struct TangemApiTarget: TargetType {
         // MARK: - Action Buttons
         case .hotCrypto:
             return "/hot_crypto"
-
-        // MARK: SeedNotify
-        case .seedNotifyGetStatus(let userWalletId), .seedNotifySetStatus(let userWalletId, _):
-            return "/seedphrase-notification/\(userWalletId)"
-        case .seedNotifyGetStatusConfirmed(let userWalletId), .seedNotifySetStatusConfirmed(let userWalletId, _):
-            return "/seedphrase-notification/\(userWalletId)/confirmed"
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
 
@@ -144,6 +142,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .loadPromotions,
              .apiList,
              .features,
              .coinsList,
@@ -154,8 +153,6 @@ struct TangemApiTarget: TargetType {
              .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
-             .seedNotifyGetStatus,
-             .seedNotifyGetStatusConfirmed,
              .story,
              .pushNotificationsEligible,
              .getUserAccounts,
@@ -170,8 +167,6 @@ struct TangemApiTarget: TargetType {
         case .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
              .saveUserAccounts,
-             .seedNotifySetStatus,
-             .seedNotifySetStatusConfirmed,
              .connectUserWallets:
             return .put
         case .participateInReferralProgram,
@@ -181,7 +176,7 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .bindWalletsByCode:
             return .post
-        case .updateUserWalletsApplication, .updateWallet:
+        case .updateUserWalletsApplication, .updateWallet, .hidePromotion:
             return .patch
         }
     }
@@ -211,6 +206,10 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestData)
         case .promotion(let request):
             return .requestParameters(request)
+        case .loadPromotions(let request):
+            return .requestParameters(request)
+        case .hidePromotion(let request):
+            return .requestJSONEncodable(request)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -236,10 +235,7 @@ struct TangemApiTarget: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
-        case .seedNotifySetStatus(_, let status), .seedNotifySetStatusConfirmed(_, let status):
-            let requestModel = SeedNotifyDTO(status: status)
-            return .requestParameters(requestModel, encoding: URLEncoding.default)
-        case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
+        case .tokenExchangesList:
             return .requestPlain
 
         // MARK: - Earn tasks
@@ -328,6 +324,8 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .loadPromotions,
+             .hidePromotion,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -339,10 +337,6 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .apiList,
-             .seedNotifyGetStatus,
-             .seedNotifySetStatus,
-             .seedNotifyGetStatusConfirmed,
-             .seedNotifySetStatusConfirmed,
              .pushNotificationsEligible,
              .createUserWalletsApplication,
              .updateUserWalletsApplication,
@@ -384,6 +378,10 @@ extension TangemApiTarget {
         case promotion(request: BannerPromotion.Request)
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
+        // Promotions
+        case loadPromotions(request: PromotionsDTO.Load.Request)
+        case hidePromotion(request: PromotionsDTO.Hide.Request)
+
         case story(_ id: String)
 
         // MARK: - Markets Targets
@@ -405,12 +403,6 @@ extension TangemApiTarget {
 
         /// Configs
         case apiList
-
-        // Seed notification
-        case seedNotifyGetStatus(userWalletId: String)
-        case seedNotifySetStatus(userWalletId: String, status: SeedNotifyStatus)
-        case seedNotifyGetStatusConfirmed(userWalletId: String)
-        case seedNotifySetStatusConfirmed(userWalletId: String, status: SeedNotifyStatus)
 
         /// Notifications
         case pushNotificationsEligible
@@ -495,10 +487,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
-             .seedNotifyGetStatus,
-             .seedNotifySetStatus,
-             .seedNotifyGetStatusConfirmed,
-             .seedNotifySetStatusConfirmed,
+             .loadPromotions,
+             .hidePromotion,
              .pushNotificationsEligible,
              .getUserAccounts,
              .saveUserAccounts,
