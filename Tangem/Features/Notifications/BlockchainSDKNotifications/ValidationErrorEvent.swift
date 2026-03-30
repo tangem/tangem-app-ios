@@ -65,7 +65,7 @@ extension ValidationErrorEvent {
         case .invalidNumber:
             return .string(Localization.commonError)
         case .insufficientBalance:
-            return .string(Localization.sendNotificationExceedBalanceTitle)
+            return .string(Localization.commonInsufficientBalance)
         case .insufficientBalanceForFee(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .dustRestriction, .remainingAmountIsLessThanRentExemption, .sendingAmountIsLessThanRentExemption:
