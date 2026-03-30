@@ -341,6 +341,7 @@
 		0FFA35102E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */; };
 		13C86474A069B410EF9 /* AccountModelResolvable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC4F6321F76C4310F9B /* AccountModelResolvable.swift */; };
 		18962A2086F04643926FC435 /* WCTransactionAccountRowViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4628EA9C4083415B9BBA6E1F /* WCTransactionAccountRowViewData.swift */; };
+		1BA4E08821BE6F1CC40E8B6D /* PollingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E11C88F9D65E07BEFAC328 /* PollingServiceTests.swift */; };
 		1D24A4E28AE9604A5EF2986D /* PromotionNotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D99B0405BFE5672A50F5DC /* PromotionNotificationsViewModel.swift */; };
 		1D4A3154D7C14B0EA3D4B86F /* NewsListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23F20A9D32647A0A3A1CF92 /* NewsListViewModelTests.swift */; };
 		223B58AD3B1E974EFA015E41 /* Wallet.PublicKey+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7E297259157982E95639A4 /* Wallet.PublicKey+.swift */; };
@@ -6145,6 +6146,7 @@
 		4628EA9C4083415B9BBA6E1F /* WCTransactionAccountRowViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionAccountRowViewData.swift; sourceTree = "<group>"; };
 		4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoOpAddTokenFlowAnalyticsLogger.swift; sourceTree = "<group>"; };
 		520C08D3A0242981BCF41D41 /* ActiveAmountField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveAmountField.swift; sourceTree = "<group>"; };
+		52E11C88F9D65E07BEFAC328 /* PollingServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PollingServiceTests.swift; sourceTree = "<group>"; };
 		56175A03C3B0406DB7DA32C5 /* NewsDTOListRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDTOListRequestTests.swift; sourceTree = "<group>"; };
 		575C9FE9DAB144A0AB2DDD68 /* Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Tangem/Features/MainQRScan/Domain/AddressBlockchainResolver.swift; sourceTree = SOURCE_ROOT; };
 		577E971F0753B1D8AB034DED /* SendViaSwapUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SendViaSwapUITests.swift; sourceTree = "<group>"; };
@@ -19808,6 +19810,15 @@
 			path = "DApp connection";
 			sourceTree = "<group>";
 		};
+		C6B8581067D100C1D5DF250E /* Express */ = {
+			isa = PBXGroup;
+			children = (
+				52E11C88F9D65E07BEFAC328 /* PollingServiceTests.swift */,
+			);
+			name = Express;
+			path = Express;
+			sourceTree = "<group>";
+		};
 		D0C94219907D4CC0B469B0DD /* FullPagePagerView */ = {
 			isa = PBXGroup;
 			children = (
@@ -23594,6 +23605,7 @@
 			children = (
 				B61E809D2F6B5A5E00C92B97 /* Accounts */,
 				EA098D0D2F644C2F005622CC /* Approve */,
+				C6B8581067D100C1D5DF250E /* Express */,
 				2DF24A1E2F605ED100E9D89A /* InitialWalletTokenSync */,
 				2DF123452F28A1B10NEWS0007 /* Markets */,
 				EAF6A6812DF9C44A0094B883 /* IncomingActions */,
@@ -31380,6 +31392,7 @@
 				B61E80982F6B58AA00C92B97 /* UserTokensRepositoryStub.swift in Sources */,
 				EFE242A72F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift in Sources */,
 				2D2F277A2EBA4D6E00C63178 /* HostAnalyticsFormatterUtilTests.swift in Sources */,
+				1BA4E08821BE6F1CC40E8B6D /* PollingServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
