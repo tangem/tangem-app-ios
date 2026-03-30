@@ -137,7 +137,7 @@ struct GaslessTransactionBuilder {
             fee: fee,
             nonce: nonce,
             chainId: chainId,
-            verifyingContract: walletModel.defaultAddress.value,
+            verifyingContract: walletModel.defaultAddressString,
         )
 
         return typedData.signHash

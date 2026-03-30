@@ -36,6 +36,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
+    @Published var dynamicAddressesEnterViewModel: DynamicAddressesEnterViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
@@ -168,8 +169,37 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openDynamicAddressesEnterView() {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    }
+
+    func openDynamicAddressesUnavailableSheet() {
+        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openURLInSystemBrowser(url: URL) {
         UIApplication.shared.open(url)
+    }
+}
+
+// MARK: - DynamicAddressesEnterRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesEnterRoutable {
+    func closeDynamicAddressesEnterView() {
+        dynamicAddressesEnterViewModel = nil
+    }
+}
+
+// MARK: - DynamicAddressesUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
+    func closeDynamicAddressesUnavailableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -187,35 +217,22 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
 
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
-                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
-                    walletModel: walletModel
-                )
-            )
+        guard let account = walletModel.account else {
+            let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+            AppLogger.error(error: message)
+            assertionFailure(message)
+            return
         }
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: account.walletModelsManager,
+                userTokensManager: account.userTokensManager,
+                walletModel: walletModel
+            )
+        )
 
         tokenDetailsCoordinator = coordinator
     }
