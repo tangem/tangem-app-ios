@@ -10,5 +10,6 @@ import Foundation
 import Combine
 
 protocol WalletModelDynamicAddressesFeatureManager {
-    var dynamicAddressesFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> { get }
+    var dynamicAddressesFeature: WalletModelFeature? { get }
+    var dynamicAddressesFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> { get }
 }

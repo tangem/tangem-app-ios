@@ -300,6 +300,8 @@ extension VisaWalletModel: WalletModel {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
+    var features: [WalletModelFeature] { [] }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         .just(output: [])
     }

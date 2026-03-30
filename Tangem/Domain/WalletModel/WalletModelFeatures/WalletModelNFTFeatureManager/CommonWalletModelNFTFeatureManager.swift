@@ -19,7 +19,7 @@ final class CommonWalletModelNFTFeatureManager {
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
 
-    private lazy var _nftFeaturePublisher: some Publisher<[WalletModelFeature], Never> = nftAvailabilityProvider
+    private lazy var _nftFeaturePublisher: some Publisher<WalletModelFeature?, Never> = nftAvailabilityProvider
         .didChangeNFTAvailabilityPublisher
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -28,10 +28,10 @@ final class CommonWalletModelNFTFeatureManager {
                 featuresManager.isNFTAvailable,
                 let networkService = featuresManager.nftNetworkService
             else {
-                return []
+                return nil
             }
 
-            return [.nft(networkService: networkService)]
+            return .nft(networkService: networkService)
         }
 
     /// Can change its value at runtime.
@@ -73,7 +73,14 @@ final class CommonWalletModelNFTFeatureManager {
 // MARK: - WalletModelNFTFeatureManager protocol conformance
 
 extension CommonWalletModelNFTFeatureManager: WalletModelNFTFeatureManager {
-    var nftFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> {
+    var nftFeature: WalletModelFeature? {
+        guard isNFTAvailable, let networkService = nftNetworkService else {
+            return nil
+        }
+        return .nft(networkService: networkService)
+    }
+
+    var nftFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
         _nftFeaturePublisher.eraseToAnyPublisher()
     }
 }

@@ -10,5 +10,6 @@ import Foundation
 import Combine
 
 protocol WalletModelNFTFeatureManager {
-    var nftFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> { get }
+    var nftFeature: WalletModelFeature? { get }
+    var nftFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> { get }
 }

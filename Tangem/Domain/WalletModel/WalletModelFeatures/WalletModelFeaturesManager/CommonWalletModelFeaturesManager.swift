@@ -17,12 +17,12 @@ final class CommonWalletModelFeaturesManager {
     // MARK: - Staking
 
     // [REDACTED_TODO_COMMENT]
-    private lazy var stakingFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
+    private lazy var stakingFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
 
     // MARK: - Transaction history
 
     // [REDACTED_TODO_COMMENT]
-    private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
+    private lazy var transactionHistoryFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
 
     init(
         nftFeatureManager: WalletModelNFTFeatureManager,
@@ -36,14 +36,22 @@ final class CommonWalletModelFeaturesManager {
 // MARK: - WalletModelFeaturesManager protocol conformance
 
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
+    var features: [WalletModelFeature] {
+        [
+            nftFeatureManager.nftFeature,
+            dynamicAddressesFeatureManager.dynamicAddressesFeature,
+        ].compactMap { $0 }
+    }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        return Publishers.CombineLatest4(
+        [
             nftFeatureManager.nftFeaturePublisher,
             dynamicAddressesFeatureManager.dynamicAddressesFeaturePublisher,
             stakingFeaturePublisher,
-            transactionHistoryFeaturePublisher
-        )
-        .map { $0.0 + $0.1 + $0.2 + $0.3 }
+            transactionHistoryFeaturePublisher,
+        ]
+        .combineLatest()
+        .map { $0.compactMap(\.self) }
         .eraseToAnyPublisher()
     }
 }
