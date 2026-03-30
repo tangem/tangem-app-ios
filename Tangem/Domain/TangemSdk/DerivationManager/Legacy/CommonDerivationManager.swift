@@ -51,9 +51,7 @@ extension CommonDerivationManager: DerivationManager {
 
     var pendingDerivationsCount: AnyPublisher<Int, Never> {
         pendingDerivationsSubject
-            .map { pending in
-                pending.reduce(0) { $0 + $1.paths.count }
-            }
+            .map { $0.unique().count }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
