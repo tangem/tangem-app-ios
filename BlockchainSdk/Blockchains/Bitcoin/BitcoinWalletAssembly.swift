@@ -31,6 +31,10 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .getBlock)
                 )
+            case .public(let link):
+                partialResult.append(
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .public(link))
+                )
             case .blockchair:
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
@@ -62,7 +66,7 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = MultiUTXONetworkProvider(
+        let networkService = BitcoinNetworkService(
             providers: providers,
             blockchainName: input.wallet.blockchain.displayName,
         )
