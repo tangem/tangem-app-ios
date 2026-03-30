@@ -19,11 +19,19 @@ public struct WalletFactory {
 
     /// With one public key
     public func makeWallet(publicKey: Wallet.PublicKey) throws -> Wallet {
+        let addressesProvider = try makeAddressesProvider(publicKey: publicKey)
+        return Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
+    }
+
+    private func makeAddressesProvider(publicKey: Wallet.PublicKey) throws -> Wallet.AddressesProvider {
         let defaultAddress = try addressService.makeAddress(for: publicKey, with: .default)
         let legacyAddress = try makeLegacyAddressIfNeeded(publicKey: publicKey)
 
-        let addressesProvider = CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
-        return Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
+        if blockchain.isXPUB {
+            return XPUBAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
+        }
+
+        return CommonAddressesProvider(defaultAddress: defaultAddress, legacyAddress: legacyAddress)
     }
 
     /// With multisig script public key

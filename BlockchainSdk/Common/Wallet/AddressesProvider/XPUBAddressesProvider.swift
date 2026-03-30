@@ -20,7 +20,7 @@ public struct XPUBAddressesProvider {
 
 extension XPUBAddressesProvider: Wallet.AddressesProvider {
     public var addresses: [any Address] {
-        [_defaultAddress, _legacyAddress].compactMap(\.self)
+        [EmptyAddress()]
     }
 
     public var defaultAddress: any Address {
