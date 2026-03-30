@@ -18,38 +18,37 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
     let buttonAction: (() -> Void)?
     let isLoadingState: MarketsCommonWidgetHeaderView.LoadingState
 
+    @ScaledSize private var chevronSize = CGSize(width: 24, height: 24)
+
     private var isDisplayButton: Bool {
         return buttonTitle != nil && isLoadingState.isButtonVisibility
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            HStack(alignment: .center, spacing: .zero) {
-                Text(headerTitle)
-                    .lineLimit(1)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    .skeletonable(isShown: isLoadingState.isHeaderSkeletonable)
+        HStack(alignment: .center, spacing: .zero) {
+            Text(headerTitle)
+                .lineLimit(1)
+                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .skeletonable(isShown: isLoadingState.isHeaderSkeletonable)
 
-                if let headerImage = headerImage {
-                    FixedSpacer(width: Layout.HeaderImage.spacing)
+            if let headerImage = headerImage {
+                FixedSpacer(width: SizeUnit.x2.value)
 
-                    headerImage
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: Layout.HeaderImage.height)
-                        .hidden(isLoadingState.isHeaderSkeletonable)
-                }
-
-                Spacer(minLength: 8)
-
-                if isDisplayButton {
-                    buttonView
-                }
+                headerImage
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: SizeUnit.x5.value)
+                    .hidden(isLoadingState.isHeaderSkeletonable)
             }
-            .padding(.horizontal, Layout.Content.horizontalPadding)
+
+            Spacer(minLength: SizeUnit.x2.value)
+
+            if isDisplayButton {
+                buttonView
+            }
         }
-        .padding(.vertical, Layout.Container.verticalPadding)
-        .padding(.horizontal, Layout.Container.horizontalPadding)
+        .padding(.vertical, SizeUnit.x2.value)
+        .padding(.horizontal, SizeUnit.x2.value)
     }
 
     private var buttonView: some View {
@@ -58,29 +57,14 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
         } label: {
             HStack(spacing: 0) {
                 Text(buttonTitle ?? "")
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+
                 Assets.chevron.image
-                    .frame(size: .init(bothDimensions: 24))
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                    .frame(size: chevronSize)
             }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
-    }
-}
-
-private extension MarketsCommonWidgetHeaderViewRedesign {
-    enum Layout {
-        enum Container {
-            static let horizontalPadding: CGFloat = 16.0
-            static let verticalPadding: CGFloat = 2.0
-        }
-
-        enum Content {
-            static let horizontalPadding: CGFloat = 8.0
-        }
-
-        enum HeaderImage {
-            static let spacing: CGFloat = 8.0
-            static let height: CGFloat = 20.0
-        }
     }
 }
