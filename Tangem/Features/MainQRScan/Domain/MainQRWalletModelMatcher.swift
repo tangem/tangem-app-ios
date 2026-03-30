@@ -16,9 +16,24 @@ struct MainQRWalletModelMatcher {
     }
 
     func collectContext() -> ResolvedContext {
-        let allMatches = collectAllWalletModels()
+        collectContext(from: userWalletRepository.models)
+    }
+
+    func collectContext(from userWalletModels: [any UserWalletModel]) -> ResolvedContext {
+        let allMatches = collectAllWalletModels(from: userWalletModels)
         let allTokenItems = allMatches.map(\.walletModel.tokenItem)
-        return ResolvedContext(allMatches: allMatches, allTokenItems: allTokenItems)
+
+        var seenBlockchains = Set<Blockchain>()
+        var uniqueBlockchains: [Blockchain] = []
+        uniqueBlockchains.reserveCapacity(allTokenItems.count)
+        for tokenItem in allTokenItems {
+            let blockchain = tokenItem.blockchain
+            if seenBlockchains.insert(blockchain).inserted {
+                uniqueBlockchains.append(blockchain)
+            }
+        }
+
+        return ResolvedContext(allMatches: allMatches, allTokenItems: allTokenItems, allBlockchains: uniqueBlockchains)
     }
 
     func filterMatches(_ allMatches: [MainQRWalletModelMatch], for tokenItems: [TokenItem]) -> [MainQRWalletModelMatch] {
@@ -31,10 +46,10 @@ struct MainQRWalletModelMatcher {
         return allMatches.filter { compatibleBlockchains.contains($0.walletModel.tokenItem.blockchain) }
     }
 
-    private func collectAllWalletModels() -> [MainQRWalletModelMatch] {
+    private func collectAllWalletModels(from userWalletModels: [any UserWalletModel]) -> [MainQRWalletModelMatch] {
         var matches: [MainQRWalletModelMatch] = []
 
-        for userWalletModel in userWalletRepository.models {
+        for userWalletModel in userWalletModels {
             let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
 
             for walletModel in walletModels {
@@ -57,10 +72,7 @@ extension MainQRWalletModelMatcher {
     struct ResolvedContext {
         let allMatches: [MainQRWalletModelMatch]
         let allTokenItems: [TokenItem]
-
-        var allBlockchains: [Blockchain] {
-            allTokenItems.map(\.blockchain)
-        }
+        let allBlockchains: [Blockchain]
     }
 }
 
