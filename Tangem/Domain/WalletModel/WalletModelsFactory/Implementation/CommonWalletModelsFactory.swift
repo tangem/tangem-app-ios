@@ -15,10 +15,16 @@ import TangemFoundation
 struct CommonWalletModelsFactory {
     private let config: UserWalletConfig
     private let userWalletId: UserWalletId
+    private let walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider
 
-    init(config: UserWalletConfig, userWalletId: UserWalletId) {
+    init(
+        config: UserWalletConfig,
+        userWalletId: UserWalletId,
+        walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider
+    ) {
         self.config = config
         self.userWalletId = userWalletId
+        self.walletModelFeaturesManagerProvider = walletModelFeaturesManagerProvider
     }
 
     private func isMainCoinCustom(
@@ -132,16 +138,9 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 addresses: walletManager.wallet.addresses
             )
 
-            let nftFeatureManager = CommonWalletModelNFTFeatureManager(
-                userWalletId: userWalletId,
-                userWalletConfig: config,
-                tokenItem: tokenItem
-            )
-            let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager()
-
-            let featureManager = CommonWalletModelFeaturesManager(
-                nftFeatureManager: nftFeatureManager,
-                dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
+            let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
+                tokenItem: tokenItem,
+                walletManager: walletManager
             )
 
             let mainCoinModel = CommonWalletModel(
@@ -178,15 +177,9 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     addresses: walletManager.wallet.addresses
                 )
-                let nftFeatureManager = CommonWalletModelNFTFeatureManager(
-                    userWalletId: userWalletId,
-                    userWalletConfig: config,
-                    tokenItem: tokenItem
-                )
-                let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager()
-                let featureManager = CommonWalletModelFeaturesManager(
-                    nftFeatureManager: nftFeatureManager,
-                    dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
+                let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
+                    tokenItem: tokenItem,
+                    walletManager: walletManager
                 )
 
                 let tokenModel = CommonWalletModel(

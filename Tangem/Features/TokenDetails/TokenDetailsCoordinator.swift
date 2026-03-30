@@ -169,8 +169,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesEnterView() {
-        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    func openDynamicAddressesEnterView(dynamicAddressesManager: DynamicAddressesManager) {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
+            dynamicAddressesManager: dynamicAddressesManager,
+            coordinator: self
+        )
     }
 
     func openDynamicAddressesUnavailableSheet() {

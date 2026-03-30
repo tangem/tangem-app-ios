@@ -233,6 +233,12 @@ private extension CommonUserWalletModelDependencies {
         shouldLoadExpressAvailability: Bool
     ) -> (manager: AccountModelsManager, innerDependencies: InnerDependenciesConfigurable) {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysProvider: keysRepository
+        )
+
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
@@ -246,9 +252,7 @@ private extension CommonUserWalletModelDependencies {
             userTokensRepositoryProvider: { derivationIndex in
                 UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIndex: derivationIndex)
             },
-            walletModelsFactoryProvider: { userWalletId in
-                config.makeWalletModelsFactory(userWalletId: userWalletId)
-            }
+            walletModelsFactoryProvider: walletModelsFactoryProvider
         )
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,

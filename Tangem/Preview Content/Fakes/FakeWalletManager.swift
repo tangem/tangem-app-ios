@@ -39,13 +39,19 @@ class FakeWalletManager: WalletManager {
             derivationPath: wallet.publicKey.derivationPath
         )
 
-        walletModels = CommonWalletModelsFactory(
-            config: Wallet2Config(
-                card: CardDTO(card: CardMock.wallet.card),
-                isDemo: false
-            ),
-            userWalletId: UserWalletId(value: Data())
-        ).makeWalletModels(
+        let card = CardDTO(card: CardMock.wallet.card)
+        let config = Wallet2Config(card: card, isDemo: false)
+        let userWalletId = UserWalletId(value: Data())
+        let keysRepository = CommonKeysRepository(
+            keys: .cardWallet(keys: card.wallets)
+        )
+        let factoryProvider = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysProvider: keysRepository
+        )
+
+        walletModels = factoryProvider.makeWalletModelsFactory().makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,

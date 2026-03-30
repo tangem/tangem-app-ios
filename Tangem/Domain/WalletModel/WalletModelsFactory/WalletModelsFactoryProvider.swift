@@ -1,0 +1,35 @@
+//
+//  WalletModelsFactoryProvider.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import TangemFoundation
+
+struct WalletModelsFactoryProvider {
+    let userWalletId: UserWalletId
+    let userWalletConfig: UserWalletConfig
+    let keysProvider: KeysProvider
+
+    func makeWalletModelsFactory() -> any WalletModelsFactory {
+        let featuresManagerProvider = WalletModelFeaturesManagerProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: userWalletConfig,
+            keysProvider: keysProvider
+        )
+
+        let factory = CommonWalletModelsFactory(
+            config: userWalletConfig,
+            userWalletId: userWalletId,
+            walletModelFeaturesManagerProvider: featuresManagerProvider
+        )
+
+        if userWalletConfig.isDemo {
+            return DemoWalletModelsFactory(innerFactory: factory)
+        }
+
+        return factory
+    }
+}

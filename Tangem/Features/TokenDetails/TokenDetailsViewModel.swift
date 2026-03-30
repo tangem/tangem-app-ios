@@ -58,7 +58,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
     var canManageDynamicAddresses: Bool {
-        FeatureProvider.isAvailable(.dynamicAddresses) && walletModel.tokenItem.blockchain.isUTXO
+        FeatureProvider.isAvailable(.dynamicAddresses) && walletModel.features.contains(where: \.isDynamicAddresses)
     }
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB || canManageDynamicAddresses }
@@ -240,7 +240,11 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagement() {
-        coordinator?.openDynamicAddressesEnterView()
+        guard let dynamicAddressesManager = walletModel.features.dynamicAddressesManager else {
+            return
+        }
+
+        coordinator?.openDynamicAddressesEnterView(dynamicAddressesManager: dynamicAddressesManager)
     }
 
     private func showUnableToHideAlert() {
