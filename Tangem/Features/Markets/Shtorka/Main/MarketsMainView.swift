@@ -72,6 +72,7 @@ struct MarketsMainView: View {
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
+            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
 
             navigationBarBackground
 
