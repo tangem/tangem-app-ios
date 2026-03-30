@@ -103,6 +103,8 @@
 		0A9246142E8EA15600656D69 /* BlockchainAccountInitializationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */; };
 		0A9275D72EA6482E002B56F4 /* YieldModuleAPIKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9275D62EA6482E002B56F4 /* YieldModuleAPIKeyProvider.swift */; };
 		0A92AE942E65BC3200CDB659 /* YieldSupplyServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE932E65BC3200CDB659 /* YieldSupplyServiceProvider.swift */; };
+		0A93AE5B2F6D32A400B7831D /* RateInfoSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A93AE5A2F6D32A400B7831D /* RateInfoSheetView.swift */; };
+		0A93AE5D2F6D32AA00B7831D /* RateInfoSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A93AE5C2F6D32AA00B7831D /* RateInfoSheetViewModel.swift */; };
 		0A941BE52E6B2A0700770474 /* YieldModuleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */; };
 		0A94FAAB2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */; };
 		0A9AB28F2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9AB28E2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift */; };
@@ -5236,6 +5238,8 @@
 		0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountInitializationView.swift; sourceTree = "<group>"; };
 		0A9275D62EA6482E002B56F4 /* YieldModuleAPIKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAPIKeyProvider.swift; sourceTree = "<group>"; };
 		0A92AE932E65BC3200CDB659 /* YieldSupplyServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyServiceProvider.swift; sourceTree = "<group>"; };
+		0A93AE5A2F6D32A400B7831D /* RateInfoSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateInfoSheetView.swift; sourceTree = "<group>"; };
+		0A93AE5C2F6D32AA00B7831D /* RateInfoSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateInfoSheetViewModel.swift; sourceTree = "<group>"; };
 		0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleManager.swift; sourceTree = "<group>"; };
 		0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RentExtemptionRestrictable.swift; sourceTree = "<group>"; };
 		0A9AB28E2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryProvider.swift; sourceTree = "<group>"; };
@@ -10381,6 +10385,15 @@
 				0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */,
 			);
 			path = AccountInitialization;
+			sourceTree = "<group>";
+		};
+		0A93AE592F6D329100B7831D /* RateInfoSheet */ = {
+			isa = PBXGroup;
+			children = (
+				0A93AE5A2F6D32A400B7831D /* RateInfoSheetView.swift */,
+				0A93AE5C2F6D32AA00B7831D /* RateInfoSheetViewModel.swift */,
+			);
+			path = RateInfoSheet;
 			sourceTree = "<group>";
 		};
 		0A941BE32E6B29D200770474 /* YieldModule */ = {
@@ -26593,6 +26606,7 @@
 				EFB5925A2E3FE2AF0099A8E0 /* HighPriceImpactWarningSheet */,
 				DA1D3B6F2B56C7DC00247393 /* QRScanView */,
 				EF79D9202E462ABB0001FBC9 /* NFTAsset */,
+				0A93AE592F6D329100B7831D /* RateInfoSheet */,
 			);
 			path = Auxiliary;
 			sourceTree = "<group>";
@@ -29031,6 +29045,7 @@
 				EFC377E02E7C268400B7B86A /* OnrampAmountBadge.swift in Sources */,
 				DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */,
 				B0BDF9BC2B4D3D9C00EEBE4F /* MainHeaderBalanceFormatter.swift in Sources */,
+				0A93AE5B2F6D32A400B7831D /* RateInfoSheetView.swift in Sources */,
 				2DEA44792F6BFEA0007728CA /* MarketsTooltipScheduler.swift in Sources */,
 				304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */,
 				DC742C312BC863D400BECF09 /* CommonCardInitializer.swift in Sources */,
@@ -29344,6 +29359,7 @@
 				0F84C10D2E1299E900DC7FB1 /* MobileBackupTypesViewModel.swift in Sources */,
 				B00371C22A8A5F8800D77A4B /* FakeDerivationManager.swift in Sources */,
 				DC57CE6E2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift in Sources */,
+				0A93AE5D2F6D32AA00B7831D /* RateInfoSheetViewModel.swift in Sources */,
 				EF066AA62E4C8C2F0026CEF8 /* SendFeeFinishView.swift in Sources */,
 				EF48F7492F466CD100AF698B /* SwapRoutable.swift in Sources */,
 				EFD32AEB29EE7F390026353E /* Feature.swift in Sources */,
