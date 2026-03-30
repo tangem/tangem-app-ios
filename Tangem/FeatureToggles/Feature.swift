@@ -20,6 +20,7 @@ enum Feature: String, Hashable, CaseIterable {
     case expressFixedRates
     case mainQRScan
     case customerIO
+    case surveySparrow
     case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
     case dynamicAddresses
@@ -37,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .expressFixedRates: return "Express Fixed Rates"
         case .mainQRScan: return "Main QR Scan"
         case .customerIO: return "customer.io service integration"
+        case .surveySparrow: return "SurveySparrow service integration"
         case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
@@ -56,6 +58,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .expressFixedRates: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
+        case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .unspecified
         case .gaslessDexAndApprove: return .unspecified
         case .dynamicAddresses: return .unspecified
