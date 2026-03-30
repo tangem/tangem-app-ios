@@ -324,7 +324,12 @@ class CommonUserWalletRepository: UserWalletRepository {
             return LockedUserWalletModel(with: userWalletStorageItem)
         }
 
+        let unlockedUserWalletIds = Set(unlockedModels.map(\.userWalletId))
+        let replacedLockedModels = models.filter { $0.isUserWalletLocked && unlockedUserWalletIds.contains($0.userWalletId) }
+
         models = unlockedModels
+
+        replacedLockedModels.forEach { $0.dispose() }
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
