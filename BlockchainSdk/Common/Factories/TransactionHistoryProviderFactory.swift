@@ -92,7 +92,6 @@ public struct TransactionHistoryProviderFactory {
              .polygonZkEVM,
              .sonic,
              .xdc,
-             .zkSync,
              .bsc:
             // https://docs.etherscan.io/supported-chains
 
@@ -104,6 +103,12 @@ public struct TransactionHistoryProviderFactory {
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey)
+            )
+        case .zkSync:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .zkSync
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
