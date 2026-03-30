@@ -131,10 +131,17 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: tokenItem,
                 addresses: walletManager.wallet.addresses
             )
-            let featureManager = CommonWalletModelFeaturesManager(
+
+            let nftFeatureManager = CommonWalletModelNFTFeatureManager(
                 userWalletId: userWalletId,
                 userWalletConfig: config,
                 tokenItem: tokenItem
+            )
+            let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager()
+
+            let featureManager = CommonWalletModelFeaturesManager(
+                nftFeatureManager: nftFeatureManager,
+                dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
             )
 
             let mainCoinModel = CommonWalletModel(
@@ -171,10 +178,15 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     addresses: walletManager.wallet.addresses
                 )
-                let featureManager = CommonWalletModelFeaturesManager(
+                let nftFeatureManager = CommonWalletModelNFTFeatureManager(
                     userWalletId: userWalletId,
                     userWalletConfig: config,
                     tokenItem: tokenItem
+                )
+                let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager()
+                let featureManager = CommonWalletModelFeaturesManager(
+                    nftFeatureManager: nftFeatureManager,
+                    dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
                 )
 
                 let tokenModel = CommonWalletModel(

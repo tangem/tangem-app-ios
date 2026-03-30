@@ -9,57 +9,10 @@
 import Foundation
 import Combine
 import CombineExt
-import TangemNFT
-import TangemFoundation
 
 final class CommonWalletModelFeaturesManager {
-    @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
-
-    private let userWalletId: UserWalletId
-    private let userWalletConfig: UserWalletConfig
-    private let tokenItem: TokenItem
-
-    // MARK: - NFT
-
-    private lazy var nftFeaturePublisher: some Publisher<[WalletModelFeature], Never> = nftAvailabilityProvider
-        .didChangeNFTAvailabilityPublisher
-        .receiveOnMain()
-        .withWeakCaptureOf(self)
-        .map { featuresManager, _ in
-            guard
-                featuresManager.isNFTAvailable,
-                let networkService = featuresManager.nftNetworkService
-            else {
-                return []
-            }
-
-            return [.nft(networkService: networkService)]
-        }
-
-    /// Can change its value at runtime.
-    private var isNFTEnabledForWallet: Bool {
-        nftAvailabilityProvider.isNFTEnabled(forUserWalletWithId: userWalletId)
-    }
-
-    /// Can't change its value at runtime.
-    private var isNFTAvailable: Bool {
-        let nftAvailabilityUtil = NFTAvailabilityUtil(userWalletConfig: userWalletConfig)
-
-        return nftAvailabilityProvider.isNFTAvailable(for: userWalletConfig) && nftAvailabilityUtil.isNFTAvailable(for: tokenItem)
-    }
-
-    private var _nftNetworkService: NFTNetworkService?
-
-    private var nftNetworkService: NFTNetworkService? {
-        if isNFTEnabledForWallet {
-            let service = _nftNetworkService ?? NFTNetworkServiceFactory().makeNetworkService(for: tokenItem)
-            _nftNetworkService = service
-        } else {
-            _nftNetworkService = nil
-        }
-
-        return _nftNetworkService
-    }
+    private let nftFeatureManager: WalletModelNFTFeatureManager
+    private let dynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager
 
     // MARK: - Staking
 
@@ -72,13 +25,11 @@ final class CommonWalletModelFeaturesManager {
     private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
 
     init(
-        userWalletId: UserWalletId,
-        userWalletConfig: UserWalletConfig,
-        tokenItem: TokenItem
+        nftFeatureManager: WalletModelNFTFeatureManager,
+        dynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager
     ) {
-        self.userWalletId = userWalletId
-        self.userWalletConfig = userWalletConfig
-        self.tokenItem = tokenItem
+        self.nftFeatureManager = nftFeatureManager
+        self.dynamicAddressesFeatureManager = dynamicAddressesFeatureManager
     }
 }
 
@@ -86,12 +37,13 @@ final class CommonWalletModelFeaturesManager {
 
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        return Publishers.CombineLatest3(
-            nftFeaturePublisher,
+        return Publishers.CombineLatest4(
+            nftFeatureManager.nftFeaturePublisher,
+            dynamicAddressesFeatureManager.dynamicAddressesFeaturePublisher,
             stakingFeaturePublisher,
-            transactionHistoryFeaturePublisher,
+            transactionHistoryFeaturePublisher
         )
-        .map { $0.0 + $0.1 + $0.2 }
+        .map { $0.0 + $0.1 + $0.2 + $0.3 }
         .eraseToAnyPublisher()
     }
 }

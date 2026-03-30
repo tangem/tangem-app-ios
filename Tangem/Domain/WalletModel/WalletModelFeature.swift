@@ -12,6 +12,8 @@ import TangemNFT
 enum WalletModelFeature {
     case nft(networkService: NFTNetworkService)
 
+    case dynamicAddresses(addressesManager: DynamicAddressesManager)
+
     @available(*, unavailable, message: "This feature is not implemented yet")
     case staking
 
