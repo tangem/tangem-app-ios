@@ -2991,6 +2991,8 @@
 		C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */ = {isa = PBXBuildFile; productRef = C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */; };
 		C2A12FAF2F23C8D3002FF26E /* AuthViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A12FAE2F23C8CF002FF26E /* AuthViewState.swift */; };
 		C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */; };
+		C2B5B4DA2F59D98D00C89C89 /* SurveySparrowKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B5B4D92F59D98800C89C89 /* SurveySparrowKeys.swift */; };
+		C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */; };
 		C2B885522E1424510086B214 /* ReownWalletConnectDAppSessionExtensionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */; };
 		C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */; };
 		C2C084902ED9AB48007914AE /* CurrencySelectViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C0848F2ED9AB43007914AE /* CurrencySelectViewState.swift */; };
@@ -8079,6 +8081,7 @@
 		C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerAnalyticsEventConverter.swift; sourceTree = "<group>"; };
 		C2A12FAE2F23C8CF002FF26E /* AuthViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewState.swift; sourceTree = "<group>"; };
 		C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSessionsExtender.swift; sourceTree = "<group>"; };
+		C2B5B4D92F59D98800C89C89 /* SurveySparrowKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySparrowKeys.swift; sourceTree = "<group>"; };
 		C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppSessionExtensionService.swift; sourceTree = "<group>"; };
 		C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDappTitleView.swift; sourceTree = "<group>"; };
 		C2C0848F2ED9AB43007914AE /* CurrencySelectViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectViewState.swift; sourceTree = "<group>"; };
@@ -10093,6 +10096,7 @@
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
 				B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */,
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
+				C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */,
 				B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */,
 				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
 				C24285662F55E35B004F0348 /* DataPipelines in Frameworks */,
@@ -19895,7 +19899,6 @@
 			children = (
 				52E11C88F9D65E07BEFAC328 /* PollingServiceTests.swift */,
 			);
-			name = Express;
 			path = Express;
 			sourceTree = "<group>";
 		};
@@ -21195,6 +21198,7 @@
 			isa = PBXGroup;
 			children = (
 				C24656712F57693F00270AA7 /* CustomerIOKeys.swift */,
+				C2B5B4D92F59D98800C89C89 /* SurveySparrowKeys.swift */,
 				2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */,
 				DC0A5805282501530031BECC /* KeysManager.swift */,
 				2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */,
@@ -27755,6 +27759,7 @@
 				A7467FA82F44AEDE0064A4FD /* BitcoinDevKit */,
 				C24285652F55E35B004F0348 /* DataPipelines */,
 				C246566F2F575ACD00270AA7 /* MessagingPushFCM */,
+				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -28137,6 +28142,7 @@
 				A7467FA72F44AEDE0064A4FD /* XCRemoteSwiftPackageReference "bdk-swift" */,
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */,
+				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -29595,6 +29601,7 @@
 				EFBBA4982E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift in Sources */,
 				DCBDC9E92CD14082003E76DD /* StoriesDelegate.swift in Sources */,
 				EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */,
+				C2B5B4DA2F59D98D00C89C89 /* SurveySparrowKeys.swift in Sources */,
 				EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */,
 				0A16965B2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift in Sources */,
 				0F2786472E2BAB7E00742D0F /* MobileOnboardingRevealSeedPhraseFlowBuilder.swift in Sources */,
@@ -39338,6 +39345,14 @@
 				minimumVersion = 6.17.8;
 			};
 		};
+		C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/surveysparrow/surveysparrow-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.2.7;
+			};
+		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -39682,6 +39697,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
 			productName = "AppsFlyerLib-Strict";
+		};
+		C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */;
+			productName = SurveySparrowSdk;
 		};
 		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
 			isa = XCSwiftPackageProductDependency;
