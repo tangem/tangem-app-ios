@@ -322,11 +322,11 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+    var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
-                isSwap ? model.swapModel.receiveRestrictionPublisher : .just(output: nil)
+                isSwap ? model.swapModel.exchangeRestrictionPublisher : .just(output: nil)
             }
             .eraseToAnyPublisher()
     }

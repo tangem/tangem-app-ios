@@ -1384,8 +1384,8 @@
 "swapping_high_price_impact_description" = "Hacer un intercambio de esta cantidad del token seleccionado causará un impacto significativo en el precio y reducirá su resultado.";
 "swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
 "swapping_high_price_impact_title" = "Alto impacto en los precios";
-"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Fondos insuficientes";
+"swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
 "swapping_swap_action_in_progress" = "Intercambiando...";
