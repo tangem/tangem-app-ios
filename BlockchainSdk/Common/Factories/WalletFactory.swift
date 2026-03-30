@@ -8,17 +8,17 @@
 
 import Foundation
 
-struct WalletFactory {
+public struct WalletFactory {
     private let blockchain: Blockchain
     private let addressService: AddressService
 
-    init(blockchain: Blockchain) {
+    public init(blockchain: Blockchain) {
         self.blockchain = blockchain
         addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
     }
 
     /// With one public key
-    func makeWallet(publicKey: Wallet.PublicKey) throws -> Wallet {
+    public func makeWallet(publicKey: Wallet.PublicKey) throws -> Wallet {
         let defaultAddress = try addressService.makeAddress(for: publicKey, with: .default)
         let legacyAddress = try makeLegacyAddressIfNeeded(publicKey: publicKey)
 
@@ -27,7 +27,7 @@ struct WalletFactory {
     }
 
     /// With multisig script public key
-    func makeWallet(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> Wallet {
+    public func makeWallet(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> Wallet {
         guard let addressService = addressService as? BitcoinScriptAddressesProvider else {
             throw WalletFactoryError.bitcoinScriptAddressesProviderNotFound
         }
@@ -53,11 +53,11 @@ struct WalletFactory {
     }
 }
 
-enum WalletFactoryError: LocalizedError {
+public enum WalletFactoryError: LocalizedError {
     case defaultAddressNotFound
     case bitcoinScriptAddressesProviderNotFound
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .defaultAddressNotFound: "Default address not found"
         case .bitcoinScriptAddressesProviderNotFound: "Bitcoin script addresses provider not found"
