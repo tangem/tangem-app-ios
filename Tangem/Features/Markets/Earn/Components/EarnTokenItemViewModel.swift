@@ -32,6 +32,13 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
 
     var isNativeToken: Bool { token.networkId == token.id }
 
+    var earnImageType: ImageType {
+        switch token.earnType {
+        case .staking: Assets.Glyphs.stackDouble
+        case .yieldMode: Assets.Glyphs.scaleStepped
+        }
+    }
+
     private let token: EarnTokenModel
 
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {

@@ -10,6 +10,7 @@ import Foundation
 
 public enum SizeUnit: Sendable {
     case zero
+    case eighth
     case quarter
     case half
     case x1
@@ -41,6 +42,7 @@ public enum SizeUnit: Sendable {
     private var factor: Double {
         switch self {
         case .zero: 0
+        case .eighth: 0.125
         case .quarter: 0.25
         case .half: 0.5
         case .x1: 1

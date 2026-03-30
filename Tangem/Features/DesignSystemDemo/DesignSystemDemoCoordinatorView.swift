@@ -40,6 +40,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.notificationBannerDemoViewModel) {
                 NotificationBannerDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemSegmentedPickerDemoViewModel) {
+                TangemSegmentedPickerDemo(viewModel: $0)
+            }
             .navigation(item: $coordinator.typographyDemoViewModel) {
                 TypographyDemoView(viewModel: $0)
             }
@@ -65,6 +68,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemCallout") {
                 viewModel.openTangemCalloutDemo()
+            }
+
+            MainButton(title: "TangemSegmentedPicker") {
+                viewModel.openTangemSegmentedPickerDemo()
             }
 
             MainButton(title: "MainActionButton") {
