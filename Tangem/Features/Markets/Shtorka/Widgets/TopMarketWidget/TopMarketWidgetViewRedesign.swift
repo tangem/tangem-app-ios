@@ -14,8 +14,6 @@ import TangemUI
 struct TopMarketWidgetViewRedesign: View {
     @ObservedObject var viewModel: TopMarketWidgetViewModel
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
@@ -39,7 +37,6 @@ struct TopMarketWidgetViewRedesign: View {
     @ViewBuilder
     private var promotion: some View {
         PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-            .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
     }
 
     private var list: some View {
@@ -47,22 +44,19 @@ struct TopMarketWidgetViewRedesign: View {
             switch viewModel.tokenViewModelsState {
             case .loading:
                 loadingSkeletons
+
             case .success(let tokenViewModels):
                 VStack(spacing: .zero) {
                     ForEach(tokenViewModels) {
-                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                        MarketTokenRowView(viewModel: $0)
                     }
                 }
+
             case .failure:
                 MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
         }
-        .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level4,
-            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-        )
-        .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
     }
 
     private var loadingSkeletons: some View {
