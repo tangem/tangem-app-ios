@@ -13,10 +13,8 @@ import class TangemSdk.BiometricsUtil
 
 class CommonAppLockController {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private let minimizedAppTimer = MinimizedAppTimer(interval: 5 * 60)
-    private let startupProcessor = StartupProcessor()
 
     init() {}
 }
@@ -41,10 +39,6 @@ extension CommonAppLockController: AppLockController {
     }
 
     func unlockApp() async -> UnlockResult {
-        guard startupProcessor.shouldOpenAuthScreen else {
-            return .openWelcome
-        }
-
         guard BiometricsUtil.isAvailable, await AppSettings.shared.useBiometricAuthentication else {
             return .openAuth
         }
