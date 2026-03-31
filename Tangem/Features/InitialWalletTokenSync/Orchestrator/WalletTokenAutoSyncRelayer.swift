@@ -11,7 +11,7 @@ import TangemSdk
 
 protocol WalletTokenAutoSyncRelayer {
     func resolveTokenStream(
-        blockchain: Blockchain,
+        pair: NetworkAddressPair,
         keyInfos: [KeyInfo]
     ) async throws -> AsyncThrowingStream<TokenItem, Error>
 }
