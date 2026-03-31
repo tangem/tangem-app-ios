@@ -138,13 +138,13 @@ struct ExpressCurrencyView<Content: View>: View {
                 case .info:
                     infoButtonIcon
                         .foregroundColor(Colors.Icon.informative)
-                case .percent(let percent, _):
+                case .percent(let percent, _, let isHighLoss):
                     HStack(spacing: 2) {
                         Text(percent)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+                            .style(Fonts.Regular.footnote, color: isHighLoss ? Colors.Text.warning : Colors.Text.attention)
 
                         infoButtonIcon
-                            .foregroundColor(Colors.Icon.attention)
+                            .foregroundColor(isHighLoss ? Colors.Icon.warning : Colors.Icon.attention)
                     }
                 }
             }
