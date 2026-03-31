@@ -15,6 +15,17 @@ struct MainQRScanFlowCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             content
+
+            if coordinator.isProcessing {
+                Color.black.opacity(0.6)
+                    .ignoresSafeArea()
+                    .overlay {
+                        ProgressView()
+                            .tint(.white)
+                            .scaleEffect(1.5)
+                    }
+            }
+
             NavHolder()
                 .alert(item: $coordinator.alert) { $0.alert }
         }

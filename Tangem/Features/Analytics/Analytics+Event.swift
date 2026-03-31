@@ -168,6 +168,7 @@ extension Analytics {
 
         // MARK: - QR Scan
 
+        case mainScreenButtonQRScan = "[Main Screen] Button - QR Scan"
         case mainScreenNoticeUnrecognizedQR = "[Main Screen] Notice - Unrecognized QR"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
