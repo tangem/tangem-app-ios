@@ -359,6 +359,9 @@
 		2D06399D2EF0271300BE0499 /* MarketsNoResultsStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D06399B2EF0271300BE0499 /* MarketsNoResultsStateView.swift */; };
 		2D06399E2EF0271300BE0499 /* MarketsSearchResultListOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D06399C2EF0271300BE0499 /* MarketsSearchResultListOverlayView.swift */; };
 		2D067EDD2EA243B900983972 /* WCTransactionSendLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D067EDC2EA243B900983972 /* WCTransactionSendLoadingView.swift */; };
+		2D069CDC2F7A9B13003FBB58 /* ConfigurationWalletTokenAutoSyncRelayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D069CDB2F7A9B13003FBB58 /* ConfigurationWalletTokenAutoSyncRelayer.swift */; };
+		2D069CDF2F7A9B21003FBB58 /* CommonInitialWalletTokenSyncConfigurationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D069CDD2F7A9B21003FBB58 /* CommonInitialWalletTokenSyncConfigurationProvider.swift */; };
+		2D069CE12F7A9B30003FBB58 /* InitialWalletTokenSyncConfigurationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D069CE02F7A9B30003FBB58 /* InitialWalletTokenSyncConfigurationProvider.swift */; };
 		2D1366192D036737000AE1C4 /* TONTransactionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366172D036737000AE1C4 /* TONTransactionInput.swift */; };
 		2D13661A2D036737000AE1C4 /* TONError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366162D036737000AE1C4 /* TONError.swift */; };
 		2D173CD42E25A726006584C0 /* SolanaALTLookupTableCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D173CD32E25A726006584C0 /* SolanaALTLookupTableCreator.swift */; };
@@ -672,8 +675,6 @@
 		2D9F4A962F7431DA00AE3A09 /* MoralisWalletTokenAutoSyncRelayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A8A2F7431DA00AE3A09 /* MoralisWalletTokenAutoSyncRelayer.swift */; };
 		2D9F4A972F7431DA00AE3A09 /* WalletTokenAutoSyncStateActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A7F2F7431DA00AE3A09 /* WalletTokenAutoSyncStateActor.swift */; };
 		2D9F4A982F7431DA00AE3A09 /* MoralisTokenBalanceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A732F7431DA00AE3A09 /* MoralisTokenBalanceClient.swift */; };
-		2D9F4A992F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A872F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolving.swift */; };
-		2D9F4A9A2F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A862F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolver.swift */; };
 		2D9F4A9B2F7431DA00AE3A09 /* MoralisTokenBalanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A762F7431DA00AE3A09 /* MoralisTokenBalanceError.swift */; };
 		2D9F4A9C2F7431DA00AE3A09 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A742F7431DA00AE3A09 /* MoralisTokenBalanceClient+InjectedValues.swift */; };
 		2D9F4A9D2F7431DA00AE3A09 /* WalletTokenAutoSyncProgressService+Injected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F4A842F7431DA00AE3A09 /* WalletTokenAutoSyncProgressService+Injected.swift */; };
@@ -5495,6 +5496,9 @@
 		2D06399B2EF0271300BE0499 /* MarketsNoResultsStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNoResultsStateView.swift; sourceTree = "<group>"; };
 		2D06399C2EF0271300BE0499 /* MarketsSearchResultListOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSearchResultListOverlayView.swift; sourceTree = "<group>"; };
 		2D067EDC2EA243B900983972 /* WCTransactionSendLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSendLoadingView.swift; sourceTree = "<group>"; };
+		2D069CDB2F7A9B13003FBB58 /* ConfigurationWalletTokenAutoSyncRelayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationWalletTokenAutoSyncRelayer.swift; sourceTree = "<group>"; };
+		2D069CDD2F7A9B21003FBB58 /* CommonInitialWalletTokenSyncConfigurationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInitialWalletTokenSyncConfigurationProvider.swift; sourceTree = "<group>"; };
+		2D069CE02F7A9B30003FBB58 /* InitialWalletTokenSyncConfigurationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncConfigurationProvider.swift; sourceTree = "<group>"; };
 		2D1366162D036737000AE1C4 /* TONError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONError.swift; sourceTree = "<group>"; };
 		2D1366172D036737000AE1C4 /* TONTransactionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONTransactionInput.swift; sourceTree = "<group>"; };
 		2D173CD32E25A726006584C0 /* SolanaALTLookupTableCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTLookupTableCreator.swift; sourceTree = "<group>"; };
@@ -5829,8 +5833,6 @@
 		2D9F4A822F7431DA00AE3A09 /* WalletTokenAutoSyncProgressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenAutoSyncProgressProvider.swift; sourceTree = "<group>"; };
 		2D9F4A832F7431DA00AE3A09 /* WalletTokenAutoSyncProgressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenAutoSyncProgressService.swift; sourceTree = "<group>"; };
 		2D9F4A842F7431DA00AE3A09 /* WalletTokenAutoSyncProgressService+Injected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletTokenAutoSyncProgressService+Injected.swift"; sourceTree = "<group>"; };
-		2D9F4A862F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolver.swift; sourceTree = "<group>"; };
-		2D9F4A872F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncAddressResolving.swift; sourceTree = "<group>"; };
 		2D9F4A882F7431DA00AE3A09 /* InitialWalletTokenSyncCoinsCatalogProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialWalletTokenSyncCoinsCatalogProvider.swift; sourceTree = "<group>"; };
 		2D9F4A8A2F7431DA00AE3A09 /* MoralisWalletTokenAutoSyncRelayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoralisWalletTokenAutoSyncRelayer.swift; sourceTree = "<group>"; };
 		2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressResolver.swift; sourceTree = "<group>"; };
@@ -11055,6 +11057,14 @@
 			path = TransactionSendLoading;
 			sourceTree = "<group>";
 		};
+		2D069CDE2F7A9B21003FBB58 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				2D069CDD2F7A9B21003FBB58 /* CommonInitialWalletTokenSyncConfigurationProvider.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
 		2D1366182D036737000AE1C4 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -12093,8 +12103,6 @@
 		2D9F4A892F7431DA00AE3A09 /* Providers */ = {
 			isa = PBXGroup;
 			children = (
-				2D9F4A862F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolver.swift */,
-				2D9F4A872F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolving.swift */,
 				2D9F4A882F7431DA00AE3A09 /* InitialWalletTokenSyncCoinsCatalogProvider.swift */,
 			);
 			path = Providers;
@@ -12103,6 +12111,7 @@
 		2D9F4A8D2F7431DA00AE3A09 /* Relayers */ = {
 			isa = PBXGroup;
 			children = (
+				2D069CDB2F7A9B13003FBB58 /* ConfigurationWalletTokenAutoSyncRelayer.swift */,
 				2D9F4A8A2F7431DA00AE3A09 /* MoralisWalletTokenAutoSyncRelayer.swift */,
 			);
 			path = Relayers;
@@ -18054,6 +18063,7 @@
 				B62D3F102CBC79D900C2460E /* TransactionFeeProvider.swift */,
 				B62D3F112CBC79D900C2460E /* WalletManager.swift */,
 				0A92AE932E65BC3200CDB659 /* YieldSupplyServiceProvider.swift */,
+				2D069CE02F7A9B30003FBB58 /* InitialWalletTokenSyncConfigurationProvider.swift */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -18242,6 +18252,7 @@
 				EF86AA112DDCBA0900369392 /* UTXOTransactionBuilder */,
 				EF197B062D8C8C410004B575 /* UTXOTransactionSizeCalculator */,
 				B62D3F4F2CBC79D900C2460E /* WebSocket */,
+				2D069CDE2F7A9B21003FBB58 /* Providers */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -29373,8 +29384,6 @@
 				2D9F4A962F7431DA00AE3A09 /* MoralisWalletTokenAutoSyncRelayer.swift in Sources */,
 				2D9F4A972F7431DA00AE3A09 /* WalletTokenAutoSyncStateActor.swift in Sources */,
 				2D9F4A982F7431DA00AE3A09 /* MoralisTokenBalanceClient.swift in Sources */,
-				2D9F4A992F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolving.swift in Sources */,
-				2D9F4A9A2F7431DA00AE3A09 /* InitialWalletTokenSyncAddressResolver.swift in Sources */,
 				2D9F4A9B2F7431DA00AE3A09 /* MoralisTokenBalanceError.swift in Sources */,
 				2D9F4A9C2F7431DA00AE3A09 /* MoralisTokenBalanceClient+InjectedValues.swift in Sources */,
 				2D9F4A9D2F7431DA00AE3A09 /* WalletTokenAutoSyncProgressService+Injected.swift in Sources */,
@@ -29898,6 +29907,7 @@
 				3027D33D2E82DE89001E15FB /* AccountDetailsViewModel.swift in Sources */,
 				2D1BB3A22C08AC3A008392F7 /* DummyMarketTokenModelFactory.swift in Sources */,
 				EFB7F4452F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift in Sources */,
+				2D069CDC2F7A9B13003FBB58 /* ConfigurationWalletTokenAutoSyncRelayer.swift in Sources */,
 				EF991A362F146486006F93CB /* TokenFeeProviderState.swift in Sources */,
 				B600F4E02C50F7D8008E53FE /* LineChartViewData.swift in Sources */,
 				EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */,
@@ -32674,7 +32684,9 @@
 				B62D42B52CBC79DB00C2460E /* SS58.swift in Sources */,
 				B62D41232CBC79DA00C2460E /* KoinosNetworkParams.swift in Sources */,
 				B62D41D42CBC79DB00C2460E /* TronInventoryItems.pb.swift in Sources */,
+				2D069CDF2F7A9B21003FBB58 /* CommonInitialWalletTokenSyncConfigurationProvider.swift in Sources */,
 				2D1366192D036737000AE1C4 /* TONTransactionInput.swift in Sources */,
+				2D069CE12F7A9B30003FBB58 /* InitialWalletTokenSyncConfigurationProvider.swift in Sources */,
 				2D13661A2D036737000AE1C4 /* TONError.swift in Sources */,
 				B62D40662CBC79DA00C2460E /* TerraV2ExternalLinkProvider.swift in Sources */,
 				B62D42402CBC79DB00C2460E /* PlainAddress.swift in Sources */,
