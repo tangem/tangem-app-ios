@@ -65,6 +65,7 @@ extension Analytics {
         case signIn = "Sign In"
         case receive = "Receive"
         case qr = "QR"
+        case manually = "Manually"
         case stories = "Stories"
         case buy = "Buy"
         case sell = "Sell"
@@ -123,7 +124,6 @@ extension Analytics {
         case new = "New"
 
         case sortTypeByBalance = "By Balance"
-        case sortTypeManual = "Manually"
 
         case balance = "Balance"
 
