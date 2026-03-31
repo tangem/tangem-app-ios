@@ -10,25 +10,21 @@ import BlockchainSdk
 import TangemSdk
 
 struct MoralisWalletTokenAutoSyncRelayer: WalletTokenAutoSyncRelayer {
-    private let addressResolver: WalletAddressResolver
     private let tokenBalanceClient: MoralisTokenBalanceClient
     private let coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider
 
     init(
-        addressResolver: WalletAddressResolver,
         tokenBalanceClient: MoralisTokenBalanceClient,
         coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider
     ) {
-        self.addressResolver = addressResolver
         self.tokenBalanceClient = tokenBalanceClient
         self.coinsCatalogProvider = coinsCatalogProvider
     }
 
     func resolveTokenStream(
-        blockchain: Blockchain,
+        pair: NetworkAddressPair,
         keyInfos: [KeyInfo]
     ) async throws -> AsyncThrowingStream<TokenItem, Error> {
-        let pair = try addressResolver.resolveAddress(for: blockchain, keyInfos: keyInfos)
         let balances = try await tokenBalanceClient.getTokenBalances(
             network: pair.blockchainNetwork.blockchain,
             address: pair.address
