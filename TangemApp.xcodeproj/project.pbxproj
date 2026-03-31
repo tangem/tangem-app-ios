@@ -196,6 +196,11 @@
 		0F0B9E422F21268F005D1F0F /* UserWalletRepositoryMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0B9E412F21268F005D1F0F /* UserWalletRepositoryMode.swift */; };
 		0F0B9E442F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0B9E432F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift */; };
 		0F1DF9E12F766D870046414B /* EarnTokenItemViewRedesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1DF9E02F766D870046414B /* EarnTokenItemViewRedesign.swift */; };
+		0F20A5282F7A5EF700DCF790 /* EarnNetworkFilterBottomSheetViewRedesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A5272F7A5EF700DCF790 /* EarnNetworkFilterBottomSheetViewRedesign.swift */; };
+		0F20A54D2F7A6BC300DCF790 /* EarnNetworkFilterNetworkRowViewRedesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A54C2F7A6BC300DCF790 /* EarnNetworkFilterNetworkRowViewRedesign.swift */; };
+		0F20A54F2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A54E2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift */; };
+		0F20A5742F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A5732F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift */; };
+		0F20A5992F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A5982F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift */; };
 		0F235A3E2F5871C200BBF5E2 /* TangemCalloutDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */; };
 		0F25112F2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */; };
 		0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */; };
@@ -5333,6 +5338,11 @@
 		0F0B9E412F21268F005D1F0F /* UserWalletRepositoryMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryMode.swift; sourceTree = "<group>"; };
 		0F0B9E432F2126C7005D1F0F /* UserWalletRepositoryModeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryModeHelper.swift; sourceTree = "<group>"; };
 		0F1DF9E02F766D870046414B /* EarnTokenItemViewRedesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTokenItemViewRedesign.swift; sourceTree = "<group>"; };
+		0F20A5272F7A5EF700DCF790 /* EarnNetworkFilterBottomSheetViewRedesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetViewRedesign.swift; sourceTree = "<group>"; };
+		0F20A54C2F7A6BC300DCF790 /* EarnNetworkFilterNetworkRowViewRedesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterNetworkRowViewRedesign.swift; sourceTree = "<group>"; };
+		0F20A54E2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+EarnModule.swift"; sourceTree = "<group>"; };
+		0F20A5732F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterSelectedRowView.swift; sourceTree = "<group>"; };
+		0F20A5982F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetViewRedesign.swift; sourceTree = "<group>"; };
 		0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemCalloutDemo.swift; sourceTree = "<group>"; };
 		0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededView.swift; sourceTree = "<group>"; };
 		0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededViewModel.swift; sourceTree = "<group>"; };
@@ -11351,6 +11361,7 @@
 			children = (
 				2D257C2D2F3FB2DF008CB69E /* EarnCoordinator.swift */,
 				2D257C2E2F3FB2DF008CB69E /* EarnDetailCoordinatorView.swift */,
+				0F20A54E2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -11382,9 +11393,13 @@
 			isa = PBXGroup;
 			children = (
 				2D257C3A2F3FB2DF008CB69E /* EarnNetworkFilterBottomSheetView.swift */,
+				0F20A5272F7A5EF700DCF790 /* EarnNetworkFilterBottomSheetViewRedesign.swift */,
 				2D257C3B2F3FB2DF008CB69E /* EarnNetworkFilterBottomSheetViewModel.swift */,
 				2D257C3C2F3FB2DF008CB69E /* EarnNetworkFilterNetworkRowView.swift */,
+				0F20A54C2F7A6BC300DCF790 /* EarnNetworkFilterNetworkRowViewRedesign.swift */,
+				0F20A5732F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift */,
 				2D257C3D2F3FB2DF008CB69E /* EarnTypeFilterBottomSheetView.swift */,
+				0F20A5982F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift */,
 				2D257C3E2F3FB2DF008CB69E /* EarnTypeFilterBottomSheetViewModel.swift */,
 			);
 			path = FilterBottomSheet;
@@ -29249,6 +29264,7 @@
 				2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				B6778CF82F2301740062B927 /* ExpressCurrencyViewType.swift in Sources */,
+				0F20A54F2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift in Sources */,
 				2D9119CA2EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				EF7672E62E0D500800A8900E /* SendSwapProvidersInputOutput.swift in Sources */,
@@ -29465,6 +29481,7 @@
 				DF8DD4362F4DB1FA002FE2D4 /* NotificationBannerDemo.swift in Sources */,
 				DF9FC81E2F4DB1FA002FE2D5 /* TypographyDemo.swift in Sources */,
 				DF8DD4372F4DB1FA002FE2D4 /* DesignSystemDemoCoordinatorView.swift in Sources */,
+				0F20A5992F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift in Sources */,
 				DF8DD4382F4DB1FA002FE2D4 /* DesignSystemDemoCoordinator.swift in Sources */,
 				DF8DD4392F4DB1FA002FE2D4 /* TangemButtonDemo.swift in Sources */,
 				DF8DD43A2F4DB1FA002FE2D4 /* DesignSystemDemoViewModel.swift in Sources */,
@@ -30624,6 +30641,7 @@
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				0A0D889B2E82980A00877140 /* YieldModuleTransactionDispatcher.swift in Sources */,
 				DC28916D2CD4B3E900F57F59 /* TokenSelectorItemBuilder.swift in Sources */,
+				0F20A5282F7A5EF700DCF790 /* EarnNetworkFilterBottomSheetViewRedesign.swift in Sources */,
 				DC2891802CD92CE900F57F59 /* ActionButtonsTokenSelectorItem.swift in Sources */,
 				B00371C02A8A5ECE00D77A4B /* FakeTangemApiService.swift in Sources */,
 				EFD39C932A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift in Sources */,
@@ -30659,6 +30677,7 @@
 				2D8B960B2ED739FD00AA79AF /* MarketTokenItemView.swift in Sources */,
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
+				0F20A5742F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift in Sources */,
 				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
@@ -30803,6 +30822,7 @@
 				EF8EF52F2A0668D6007B52C4 /* ApproveRoutableMock.swift in Sources */,
 				EF8E53082E71A36200C03184 /* OnrampSummaryView.swift in Sources */,
 				B671C9802EE85F1000D9D27B /* OrganizeTokensIndexPath.swift in Sources */,
+				0F20A54D2F7A6BC300DCF790 /* EarnNetworkFilterNetworkRowViewRedesign.swift in Sources */,
 				EF8E53092E71A36200C03184 /* OnrampSummaryStep.swift in Sources */,
 				B6E745222EBC3DB600A1BF81 /* WalletModelResolvable.swift in Sources */,
 				EF2548BD2F4E1D3F00E056A5 /* EmptyApproveViewModelInputDataBuilder.swift in Sources */,
