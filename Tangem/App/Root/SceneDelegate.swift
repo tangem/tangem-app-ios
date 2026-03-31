@@ -99,6 +99,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerTangemPayWalletSelectorSheets()
         sheetRegistry.registerCloreMigrationFloatingSheets()
         sheetRegistry.registerYieldModuleFloatingSheets()
+        sheetRegistry.registerEarnModuleFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
