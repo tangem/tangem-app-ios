@@ -64,6 +64,15 @@ struct BalanceConverter {
         return fiatValue
     }
 
+    /// Converts a crypto amount to USD using the `priceUsd` field from quotes.
+    func convertToUsd(_ value: Decimal, currencyId: String) -> Decimal? {
+        guard let priceUsd = quotesRepository.quotes[currencyId]?.priceUsd else {
+            return nil
+        }
+
+        return value * priceUsd
+    }
+
     /// Converts a fiat value to a crypto amount using the latest available rate.
     /// - Parameters:
     ///   - fiatValue: Amount in fiat currency to convert.

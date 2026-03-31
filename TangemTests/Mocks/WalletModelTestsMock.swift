@@ -35,6 +35,7 @@ final class WalletModelTestsMock: WalletModel {
         return TokenQuote(
             currencyId: "mock",
             price: 1,
+            priceUsd: nil,
             priceChange24h: priceChange24h,
             priceChange7d: nil,
             priceChange30d: nil,
