@@ -231,6 +231,22 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 
     @discardableResult
+    func waitForNetworkFeeLoaded(fiatSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Wait for network fee to load (contains '\(fiatSymbol)')") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+
+            let predicate = NSPredicate(format: "label CONTAINS %@", fiatSymbol)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: networkFeeAmount)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Network fee should contain '\(fiatSymbol)' indicating it has loaded"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func verifyNetworkFeeContains(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Verify network fee contains currency symbol: \(currencySymbol)") { _ in
             waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
