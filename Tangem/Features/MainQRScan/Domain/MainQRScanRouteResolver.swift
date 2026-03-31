@@ -93,6 +93,15 @@ struct MainQRScanRouteResolver {
         )
 
         guard !uniqueMatchingBlockchains.isEmpty else {
+            let globallyCompatibleBlockchains = addressResolver.resolve(
+                address: address,
+                blockchains: Blockchain.allMainnetCases
+            )
+
+            if !globallyCompatibleBlockchains.isEmpty {
+                return .showNoSupportedTokens()
+            }
+
             return .showUnrecognized
         }
 
@@ -103,10 +112,12 @@ struct MainQRScanRouteResolver {
     }
 
     private func orderedUniqueBlockchains(from blockchains: [Blockchain]) -> [Blockchain] {
+        var seen = Set<Blockchain>()
+        seen.reserveCapacity(blockchains.count)
         var uniqueBlockchains: [Blockchain] = []
         uniqueBlockchains.reserveCapacity(blockchains.count)
 
-        for blockchain in blockchains where !uniqueBlockchains.contains(blockchain) {
+        for blockchain in blockchains where seen.insert(blockchain).inserted {
             uniqueBlockchains.append(blockchain)
         }
 
