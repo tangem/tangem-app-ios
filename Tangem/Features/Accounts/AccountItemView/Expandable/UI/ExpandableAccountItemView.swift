@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemAccounts
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
@@ -79,6 +80,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             },
             onExpandedChange: viewModel.onExpandedChange
         )
+        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: viewModel.name))
         .onAppear(perform: viewModel.onViewAppear)
     }
 }
