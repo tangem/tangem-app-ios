@@ -401,13 +401,22 @@ extension SwapModel {
     }
 
     func calculateHighPriceImpact(provider: ExpressProvider, quote: ExpressQuote?) async throws -> HighPriceImpactCalculator.Result? {
-        guard let quote, let source = sourceToken.value?.tokenItem, let destination = receiveToken.value?.tokenItem else {
+        guard let quote,
+              let source = sourceToken.value?.tokenItem,
+              let destination = receiveToken.value?.tokenItem
+        else {
             return nil
         }
 
-        let priceImpactCalculator = HighPriceImpactCalculator(source: source, destination: destination)
-        let result = try await priceImpactCalculator.isHighPriceImpact(provider: provider, quote: quote)
-        return result
+        let input = HighPriceImpactCalculator.Input(
+            provider: provider,
+            sourceToken: source,
+            destinationToken: destination,
+            sourceAmount: quote.fromAmount,
+            destinationAmount: quote.expectAmount
+        )
+
+        return try await HighPriceImpactCalculator().calculate(input: input)
     }
 
     func hasPendingTransaction() -> Bool {
@@ -898,33 +907,6 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         return state.quote?.highPriceImpact
     }
 
-    private func mapToHighPriceImpactCalculatorResult(
-        sourceTokenAmount: SendAmount?,
-        receiveTokenAmount: SendAmount?,
-        provider: ExpressProvider?
-    ) -> HighPriceImpactCalculator.Result? {
-        guard let source = sourceToken.value,
-              let receive = receiveToken.value,
-              let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
-              let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
-              let provider = provider else {
-            return nil
-        }
-
-        let impactCalculator = HighPriceImpactCalculator(
-            source: source.tokenItem,
-            destination: receive.tokenItem
-        )
-
-        let result = impactCalculator.isHighPriceImpact(
-            provider: provider,
-            sourceFiatAmount: sourceTokenFiatAmount,
-            destinationFiatAmount: receiveTokenFiatAmount
-        )
-
-        return result
-    }
-
     func receiveAmountDidChange(amount: SendAmount?) {
         update(receiveAmount: amount)
     }
@@ -1161,8 +1143,12 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     private func mapToIsReadyToSend(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loaded(_, _, state: .previewCEX), .loaded(_, _, state: .readyToSwap): true
-        default: false
+        case .loaded(_, _, state: .previewCEX(let state)):
+            return state.quote.highPriceImpact?.isBlocked != true
+        case .loaded(_, _, state: .readyToSwap(let state)):
+            return state.quote.highPriceImpact?.isBlocked != true
+        default:
+            return false
         }
     }
 
