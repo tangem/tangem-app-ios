@@ -25,7 +25,8 @@ struct XRPAddress {
     }
 
     init(xAddress: String) throws {
-        guard let data = XRPBase58.getData(from: xAddress) else {
+        // X-Address format: prefix(2) + accountId(20) + flags(1) + tag(8) + checksum(4) = 35 bytes
+        guard let data = XRPBase58.getData(from: xAddress), data.count == 35 else {
             throw XRPError.invalidAddress
         }
         let check: [UInt8] = data.suffix(4).bytes
@@ -43,7 +44,12 @@ struct XRPAddress {
         if check == [UInt8](Data(withoutCheksum).sha256().sha256().prefix(through: 3)) {
             let data = Data(tagBytes)
             let _tag: UInt64 = data.withUnsafeBytes { $0.load(as: UInt64.self) }
-            let tag: UInt32? = flags == 0x00 ? nil : UInt32(String(_tag))!
+
+            guard flags == 0x00 || _tag <= UInt32.max else {
+                throw XRPError.invalidAddress
+            }
+
+            let tag: UInt32? = flags == 0x00 ? nil : UInt32(_tag)
 
             if prefix == [0x05, 0x44] { // mainnet
                 try self.init(rAddress: address, tag: tag)
