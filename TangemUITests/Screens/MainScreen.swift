@@ -193,6 +193,52 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyTokenNotVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is not visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            XCTAssertFalse(
+                token.waitForExistence(timeout: .conditional),
+                "Token '\(tokenName)' should not be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            waitAndAssertTrue(token, "Token '\(tokenName)' should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAccountVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func expandAccount(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
+            account.tap()
+            return self
+        }
+    }
+
     func validateTokenNotExists(_ label: String) {
         _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
         XCTContext.runActivity(named: "Validate token with label '\(label)' does not exist") { _ in
@@ -308,10 +354,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func swipeWalletLeft() -> Self {
         XCTContext.runActivity(named: "Swipe wallet card left (next wallet)") { _ in
-            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
-            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
-            start.press(forDuration: 0.1, thenDragTo: end)
-            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            performWalletSwipe(
+                startDx: 0.9,
+                endDx: 0.1
+            )
             return self
         }
     }
@@ -319,10 +365,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func swipeWalletRight() -> Self {
         XCTContext.runActivity(named: "Swipe wallet card right (previous wallet)") { _ in
-            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
-            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
-            start.press(forDuration: 0.1, thenDragTo: end)
-            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            performWalletSwipe(
+                startDx: 0.1,
+                endDx: 0.9
+            )
             return self
         }
     }
@@ -780,6 +826,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
+    }
+
+    private func performWalletSwipe(startDx: CGFloat, endDx: CGFloat, maxAttempts: Int = 3) {
+        let balanceBefore = totalBalance.exists ? totalBalance.label : nil
+
+        for attempt in 1 ... maxAttempts {
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: startDx, dy: 0.18))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: endDx, dy: 0.18))
+            start.press(forDuration: 0.2, thenDragTo: end)
+
+            _ = headerCardImage.waitForExistence(timeout: .quick)
+
+            let balanceAfter = totalBalance.exists ? totalBalance.label : nil
+            if balanceBefore != balanceAfter {
+                return
+            }
+
+            if attempt == maxAttempts {
+                XCTFail("Wallet swipe did not switch wallet after \(maxAttempts) attempts")
+            }
+        }
     }
 }
 
