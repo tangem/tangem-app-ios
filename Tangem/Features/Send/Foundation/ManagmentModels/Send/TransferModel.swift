@@ -83,6 +83,8 @@ final class TransferModel {
 
 private extension TransferModel {
     private func bind() {
+        setupCustomFeeProvidersIfNeeded()
+
         Publishers
             .CombineLatest4(
                 _amount.compactMap { $0?.crypto },
@@ -117,6 +119,12 @@ private extension TransferModel {
             .withWeakCaptureOf(self)
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
+    }
+
+    func setupCustomFeeProvidersIfNeeded() {
+        _sourceToken.tokenFeeProvidersManager.tokenFeeProviders
+            .compactMap { ($0 as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider as? SendCustomFeeService }
+            .forEach { $0.setup(input: self) }
     }
 
     private func makeTransaction(
@@ -560,6 +568,22 @@ extension TransferModel: FeeSelectorOutput {
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         _sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
         _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+    }
+}
+
+// MARK: - CustomFeeServiceInput
+
+extension TransferModel: CustomFeeServiceInput {
+    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
+        _amount
+            .compactMap { $0?.crypto }
+            .eraseToAnyPublisher()
+    }
+
+    var destinationAddressPublisher: AnyPublisher<String, Never> {
+        _destination
+            .compactMap { $0?.value.transactionAddress }
+            .eraseToAnyPublisher()
     }
 }
 
