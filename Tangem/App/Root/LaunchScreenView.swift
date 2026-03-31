@@ -15,6 +15,7 @@ struct LaunchScreenView: View {
         VStack(spacing: 0) {
             TangemIconView()
                 .foregroundColor(Color(UIColor.secondarySystemBackground))
+                .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(UIColor.systemBackground))
