@@ -43,4 +43,26 @@ public enum AccountsAccessibilityIdentifiers {
 
     /// Account name label on the Account Details screen.
     public static let accountDetailsAccountName = "accountDetailsAccountName"
+
+    /// Recover button on archived account row.
+    /// Format: `archivedAccountRecover_<accountName>`
+    public static func archivedAccountRecoverButton(accountName: String) -> String {
+        "archivedAccountRecover_\(accountName)"
+    }
+
+    // MARK: - Expandable Account (Main Screen)
+
+    /// Expandable account item on the main screen.
+    /// Format: `expandableAccount_<accountName>`
+    public static func expandableAccountItem(accountName: String) -> String {
+        "expandableAccount_\(accountName)"
+    }
+
+    // MARK: - Archived Account Row
+
+    /// Token info subtitle in archived account row.
+    /// Format: `archivedAccountTokenInfo_<accountName>`
+    public static func archivedAccountTokenInfo(accountName: String) -> String {
+        "archivedAccountTokenInfo_\(accountName)"
+    }
 }
