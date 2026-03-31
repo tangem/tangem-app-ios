@@ -18,6 +18,7 @@ struct QuotesMapper {
             let quote = Quote(
                 id: key,
                 price: price,
+                priceUsd: value.priceUsd,
                 priceChange: value.priceChange24h,
                 priceChange7d: value.priceChange1w,
                 priceChange30d: value.priceChange30d,
