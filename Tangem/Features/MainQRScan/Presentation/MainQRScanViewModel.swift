@@ -34,6 +34,10 @@ final class MainQRScanViewModel: ObservableObject {
         checkCameraAccess()
     }
 
+    func resetForNextScan() {
+        didProduceResult = false
+    }
+
     func onQRCodeScanned(_ code: String) {
         guard !didProduceResult else {
             return
