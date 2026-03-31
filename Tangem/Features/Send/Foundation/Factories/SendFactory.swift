@@ -18,7 +18,8 @@ struct SendFactory {
         case .send(let sourceToken, let parameters):
             return SendWithSwapFlowFactory(
                 sourceToken: sourceToken,
-                predefinedSendParameters: parameters
+                predefinedSendParameters: parameters,
+                coordinatorSource: options.source
             )
 
         case .swap(.from(let sourceToken, let receiveToken)):
