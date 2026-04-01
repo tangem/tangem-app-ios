@@ -1059,6 +1059,8 @@
 		30D24FF92DA3FA42003B90B5 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */; };
 		30DEC76A2E9FDF6C007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DEC7692E9FDF6A007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift */; };
 		30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */; };
+		30E3C5052F7AD3D10027655D /* TrendingCardNewsSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E3C5042F7AD3D10027655D /* TrendingCardNewsSkeletonView.swift */; };
+		30E3C5072F7AD3DB0027655D /* CarouselNewsCardSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E3C5062F7AD3DB0027655D /* CarouselNewsCardSkeletonView.swift */; };
 		356211E58DC2A4ECCDB34986 /* Tangem/Features/MainQRScan/UI/MainQRScanCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA66DD7B68748907ED61434 /* Tangem/Features/MainQRScan/UI/MainQRScanCoordinatorView.swift */; };
 		3676888EF94DCAE6CCDB8166 /* SingleWalletMainContentRedesignedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42F893542B4804AD0AD82D92 /* SingleWalletMainContentRedesignedView.swift */; };
 		37AB806351FB1B8203934176 /* LockedWalletMainContentRedesignedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C1AF7D2445755666A97A1F /* LockedWalletMainContentRedesignedView.swift */; };
@@ -6196,6 +6198,8 @@
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		30DEC7692E9FDF6A007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAccountsAwarePortfolioContainerViewState.swift; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
+		30E3C5042F7AD3D10027655D /* TrendingCardNewsSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingCardNewsSkeletonView.swift; sourceTree = "<group>"; };
+		30E3C5062F7AD3DB0027655D /* CarouselNewsCardSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselNewsCardSkeletonView.swift; sourceTree = "<group>"; };
 		326A3B901380A8C2B17077BC /* TangemPayAccountId.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TangemPayAccountId.swift; sourceTree = "<group>"; };
 		357247949948C3A3ACDB7833 /* SwapAddMarketsTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwapAddMarketsTokenFlowConfigurationFactory.swift; path = Tangem/Features/Swap/SwapTokenSelector/SwapAddMarketsTokenFlowConfigurationFactory.swift; sourceTree = SOURCE_ROOT; };
 		3F6088142E084F579451871C /* FullPagePagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullPagePagerView.swift; sourceTree = "<group>"; };
@@ -11962,6 +11966,8 @@
 				2D91AD8C2EFEBD8F0022503F /* CarouselNewsView.swift */,
 				2D91AD8D2EFEBD8F0022503F /* TrendingCardNewsView.swift */,
 				304579A22F72D60B00C796E0 /* TrendingCardNewsViewRedesign.swift */,
+				30E3C5042F7AD3D10027655D /* TrendingCardNewsSkeletonView.swift */,
+				30E3C5062F7AD3DB0027655D /* CarouselNewsCardSkeletonView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -30857,6 +30863,7 @@
 				C269F83C2F34BBC700AD84EB /* FloatingSheetRegistry+YieldModule.swift in Sources */,
 				2DE009212EA66BCD00A3C9D0 /* QRCodeReceiveAssetsRoutable.swift in Sources */,
 				2DE009222EA66BCD00A3C9D0 /* QRCodeReceiveAssetsView.swift in Sources */,
+				30E3C5052F7AD3D10027655D /* TrendingCardNewsSkeletonView.swift in Sources */,
 				2DE009232EA66BCD00A3C9D0 /* SelectorReceiveAssetsDomainItemView.swift in Sources */,
 				2DE009242EA66BCD00A3C9D0 /* SelectorReceiveAssetsContentItemViewModel.swift in Sources */,
 				2DE009252EA66BCD00A3C9D0 /* YieldNoticeReceiveView.swift in Sources */,
@@ -30937,6 +30944,7 @@
 				EA5132C12EE2BF08001F11E5 /* TokenItemPromoBubbleVisibilityInteractor.swift in Sources */,
 				DADC9CA02B91C8AC00DA2C27 /* SendAlertBuilder.swift in Sources */,
 				B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */,
+				30E3C5072F7AD3DB0027655D /* CarouselNewsCardSkeletonView.swift in Sources */,
 				0FB934092E4A91DC00DAB673 /* MobileOnboardingSeedPhraseValidationViewModel.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
 				DA1D3B732B56C82C00247393 /* QRScanViewCoordinatorView.swift in Sources */,
