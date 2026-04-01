@@ -12,29 +12,26 @@ import TangemUI
 import TangemLocalization
 
 struct ReceiveMainView: View {
-    // MARK: - ViewModel
-
     @ObservedObject var viewModel: ReceiveMainViewModel
 
     var body: some View {
-        contentView
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    @ViewBuilder
-    private var contentView: some View {
         ZStack {
             switch viewModel.viewState {
             case .selector(let viewModel):
                 SelectorReceiveAssetsView(viewModel: viewModel)
                     .transition(.content)
+
             case .qrCode(let viewModel):
                 QRCodeReceiveAssetsView(viewModel: viewModel)
                     .transition(.content)
+
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
+                    .fixedSize(horizontal: false, vertical: true)
+
             case .yieldTokenAlert(let viewModel):
                 YieldNoticeReceiveView(viewModel: viewModel)
+
             case .none:
                 EmptyView()
             }
@@ -45,7 +42,6 @@ struct ReceiveMainView: View {
             }
         }
         .scrollBounceBehavior(.basedOnSize)
-        .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -96,10 +92,4 @@ private extension AnyTransition {
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
         removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
     )
-}
-
-extension ReceiveMainView {
-    private enum Layout {
-        static let scrollViewCoordinateSpace = "ReceiveAssetsCoordinatorView.ScrollView"
-    }
 }
