@@ -22,9 +22,8 @@ struct CryptoAccountPersistentConfig {
 extension CryptoAccountPersistentConfig {
     struct TokenListAppearance {
         static let `default` = Self(
-            // [REDACTED_TODO_COMMENT]
-            grouping: StoredUserTokenList.empty.grouping,
-            sorting: StoredUserTokenList.empty.sorting,
+            grouping: .none,
+            sorting: .manual,
         )
 
         let grouping: StoredCryptoAccount.Grouping
