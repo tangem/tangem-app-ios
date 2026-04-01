@@ -170,7 +170,7 @@ class VisaOnboardingViewModel: ObservableObject {
 
         UIApplication.shared.endEditing()
 
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
