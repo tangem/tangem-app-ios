@@ -66,7 +66,11 @@ struct NewsWidgetViewRedesign: View {
     }
 
     func makeErrorContent() -> some View {
-        MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+        TangemUnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: viewModel.tryLoadAgain
+        )
+        .infinityFrame(axis: .horizontal, alignment: .center)
     }
 
     func makeLoadingContent() -> some View {

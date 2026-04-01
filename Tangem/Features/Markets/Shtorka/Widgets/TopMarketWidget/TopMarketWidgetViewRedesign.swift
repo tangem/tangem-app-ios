@@ -17,10 +17,23 @@ struct TopMarketWidgetViewRedesign: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
+                .disableAnimations()
 
             list
+                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
+                .id(listStateID)
+                .transition(.opacity)
 
             promotion
+        }
+        .animation(.easeInOut(duration: 0.3), value: listStateID)
+    }
+
+    private var listStateID: Int {
+        switch viewModel.tokenViewModelsState {
+        case .loading: return 0
+        case .success: return 1
+        case .failure: return 2
         }
     }
 
@@ -39,30 +52,34 @@ struct TopMarketWidgetViewRedesign: View {
         PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
     }
 
+    @ViewBuilder
     private var list: some View {
-        Group {
-            switch viewModel.tokenViewModelsState {
-            case .loading:
-                loadingSkeletons
+        switch viewModel.tokenViewModelsState {
+        case .loading:
+            loadingSkeletons
 
-            case .success(let tokenViewModels):
-                VStack(spacing: .zero) {
-                    ForEach(tokenViewModels) {
-                        MarketTokenRowView(viewModel: $0)
-                    }
+        case .success(let tokenViewModels):
+            VStack(spacing: .zero) {
+                ForEach(tokenViewModels) {
+                    MarketTokenRowView(viewModel: $0)
                 }
-
-            case .failure:
-                MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
+
+        case .failure:
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: viewModel.tryLoadAgain
+            )
+            .infinityFrame(axis: .horizontal, alignment: .center)
+            // No ScaledMetric because this padding is huge
+            .padding(.vertical, 142)
         }
-        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
     }
 
     private var loadingSkeletons: some View {
         VStack(spacing: .zero) {
-            ForEach(0 ..< 5) { _ in
-                MarketsSkeletonItemView()
+            ForEach(0 ..< viewModel.itemsOnListWidget, id: \.self) { _ in
+                MarketTokenRowSkeletonView()
             }
         }
     }

@@ -19,6 +19,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
     let isLoadingState: MarketsCommonWidgetHeaderView.LoadingState
 
     @ScaledSize private var chevronSize = CGSize(width: 24, height: 24)
+    @ScaledSize private var headerSkeletonSize = CGSize(width: 120, height: 24)
 
     private var isDisplayButton: Bool {
         return buttonTitle != nil && isLoadingState.isButtonVisibility
@@ -29,7 +30,11 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
             Text(headerTitle)
                 .lineLimit(1)
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                .skeletonable(isShown: isLoadingState.isHeaderSkeletonable)
+                .skeletonable(
+                    isShown: isLoadingState.isHeaderSkeletonable,
+                    size: headerSkeletonSize,
+                    cornerStyle: .capsule
+                )
 
             if let headerImage = headerImage {
                 FixedSpacer(width: SizeUnit.x2.value)
