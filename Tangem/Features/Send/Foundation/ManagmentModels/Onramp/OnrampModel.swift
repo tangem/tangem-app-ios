@@ -41,6 +41,7 @@ class OnrampModel {
     private let analyticsLogger: OnrampSendAnalyticsLogger
 
     private let autoupdatingTimer: AutoupdatingTimer
+    private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
 
     private var bag: Set<AnyCancellable> = []
@@ -71,9 +72,7 @@ class OnrampModel {
         )
 
         bind()
-        autoupdatingTimer.setup { [weak self] in
-            self?.autoupdate()
-        }
+        setupAutoupdatingTimerSubscription()
     }
 
     deinit {
@@ -84,6 +83,24 @@ class OnrampModel {
 // MARK: - Bind
 
 private extension OnrampModel {
+    func setupAutoupdatingTimerSubscription() {
+        autoupdatingTimerSubscription = _selectedOnrampProvider
+            .withWeakCaptureOf(self)
+            .sink { $0.updateAutoupdatingTimer(state: $1) }
+    }
+
+    func updateAutoupdatingTimer(state: LoadingResult<OnrampProvider, Never>?) {
+        switch state {
+        case .success(let provider) where provider.isSuccessfullyLoaded:
+            autoupdatingTimer.setup { [weak self] in
+                self?.autoupdate()
+            }
+
+        case .none, .loading, .success:
+            autoupdatingTimer.setup(refresh: .none)
+        }
+    }
+
     func bind() {
         _amount
             .dropFirst()
