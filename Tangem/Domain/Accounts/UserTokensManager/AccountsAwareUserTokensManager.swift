@@ -238,11 +238,6 @@ final class AccountsAwareUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension AccountsAwareUserTokensManager: UserTokensManager {
-    var initializedPublisher: AnyPublisher<Bool, Never> {
-        // [REDACTED_TODO_COMMENT]
-        preconditionFailure("Not used with accounts")
-    }
-
     var userTokens: [TokenItem] {
         userTokensRepository
             .cryptoAccount

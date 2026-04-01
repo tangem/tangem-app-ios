@@ -147,8 +147,8 @@ extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
 
                 let (marketInfo, promoProviderInput) = output
 
-                let thisUserWalletWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(
-                    for: provider.userWalletModel
+                let thisUserWalletWalletModels = AccountWalletModelsAggregator.walletModels(
+                    from: provider.userWalletModel.accountModelsManager
                 )
 
                 guard !thisUserWalletWalletModels.hasActiveYield() else {

@@ -31,6 +31,7 @@ struct WalletConnectConnectedDAppV2: Hashable {
 }
 
 enum WalletConnectConnectedDApp: Hashable {
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     case v1(WalletConnectConnectedDAppV1)
     case v2(WalletConnectConnectedDAppV2)
 

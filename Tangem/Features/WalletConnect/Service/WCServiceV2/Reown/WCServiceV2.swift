@@ -542,8 +542,8 @@ private extension WCServiceV2 {
             return
         }
 
-        walletModelsCancellables[userWalletId] = AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: userWalletModel)
+        walletModelsCancellables[userWalletId] = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { walletModels in
                 WalletModelsUpdate(
                     blockchains: walletModels.compactMap { walletModel -> Blockchain? in
