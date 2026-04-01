@@ -44,16 +44,4 @@ extension StoredUserTokenList {
 @available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
 extension StoredUserTokenList.Entry {
     var isToken: Bool { contractAddress != nil }
-
-    var isCustom: Bool { id == nil }
-
-    var walletModelId: WalletModelId {
-        let converter = StorageEntryConverter()
-
-        if let token = converter.convertToToken(self) {
-            return WalletModelId(tokenItem: .token(token, blockchainNetwork))
-        }
-
-        return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
-    }
 }
