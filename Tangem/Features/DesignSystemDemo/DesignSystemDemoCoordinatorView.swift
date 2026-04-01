@@ -46,6 +46,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.typographyDemoViewModel) {
                 TypographyDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemTabsDemoViewModel) {
+                TangemTabsDemo(viewModel: $0)
+            }
     }
 
     private var sheets: some View {
@@ -72,6 +75,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemSegmentedPicker") {
                 viewModel.openTangemSegmentedPickerDemo()
+            }
+
+            MainButton(title: "TangemTabs") {
+                viewModel.openTangemTabsDemo()
             }
 
             MainButton(title: "MainActionButton") {
