@@ -83,6 +83,8 @@ extension CombinedExpressProviderManager: ExpressProviderManager {
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
+        _resolvedFlowType.mutate { $0 = nil }
+
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
         _state.mutate { $0 = state }
@@ -119,20 +121,79 @@ private extension CombinedExpressProviderManager {
 
             // 2. Resolve flow type
             let flowType = flowTypeResolver.resolveFlowType(quote: quote, provider: provider)
-            _resolvedFlowType.mutate { $0 = flowType }
 
             // 3. Delegate to the appropriate helper
+            let state: ExpressProviderManagerState
             switch flowType {
             case .send:
-                return await cexHelper.processAfterQuote(quote: quote, request: request)
+                state = await cexHelper.processAfterQuote(quote: quote, request: request)
             case .swap:
-                return await dexHelper.processAfterQuote(quote: quote, request: request)
+                state = await dexHelper.processAfterQuote(quote: quote, request: request)
             }
+
+            // 4. Post-check: the helper may have re-quoted (e.g., CEX fee subtraction),
+            //    and the new quote may indicate a different flow type.
+            if let result = await checkFlowSwitch(state: state, initialFlowType: flowType, request: request) {
+                _resolvedFlowType.mutate { $0 = result.flowType }
+                return result.state
+            }
+
+            _resolvedFlowType.mutate { $0 = flowType }
+            return state
         } catch let error as ExpressAPIError {
             return mapAPIError(error)
         } catch {
             return .error(error, quote: .none)
         }
+    }
+
+    struct FlowSwitchResult {
+        let flowType: ExpressTransactionType
+        let state: ExpressProviderManagerState
+    }
+
+    /// Re-resolves flow type from the helper's resulting state quote.
+    /// Returns a result if the flow type changed, `nil` if no switch is needed.
+    /// Only one switch per `update()` cycle — the switched-to helper runs without further checks.
+    func checkFlowSwitch(
+        state: ExpressProviderManagerState,
+        initialFlowType: ExpressTransactionType,
+        request: ExpressManagerSwappingPairRequest
+    ) async -> FlowSwitchResult? {
+        guard let quote = state.quote else { return nil }
+
+        let newFlowType = flowTypeResolver.resolveFlowType(quote: quote, provider: provider)
+        guard newFlowType != initialFlowType else { return nil }
+
+        // Build adjusted request — only CEX→DEX needs fee-adjusted amount
+        let adjustedRequest: ExpressManagerSwappingPairRequest
+        if case .preview(let preview) = state, preview.subtractFee > 0 {
+            let reducedAmount = request.amount - preview.subtractFee
+            guard reducedAmount > 0 else {
+                return FlowSwitchResult(
+                    flowType: newFlowType,
+                    state: .restriction(.insufficientBalance(request.amount), quote: quote)
+                )
+            }
+            adjustedRequest = ExpressManagerSwappingPairRequest(
+                amountType: .from(reducedAmount),
+                feeOption: request.feeOption,
+                approvePolicy: request.approvePolicy,
+                operationType: request.operationType
+            )
+        } else {
+            adjustedRequest = request
+        }
+
+        let newState: ExpressProviderManagerState
+        switch newFlowType {
+        case .send:
+            newState = await cexHelper.processAfterQuote(quote: quote, request: adjustedRequest)
+        case .swap:
+            newState = await dexHelper.processAfterQuote(quote: quote, request: adjustedRequest)
+        }
+
+        return FlowSwitchResult(flowType: newFlowType, state: newState)
     }
 
     func mapAPIError(_ error: ExpressAPIError) -> ExpressProviderManagerState {
