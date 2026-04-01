@@ -86,6 +86,8 @@ final class TopMarketWidgetViewModel: ObservableObject {
             viewModel.coordinator?.openSeeAllTopMarketWidget()
         }
     }
+
+    var itemsOnListWidget: Int { Constants.itemsOnListWidget }
 }
 
 // MARK: - Private Implementation

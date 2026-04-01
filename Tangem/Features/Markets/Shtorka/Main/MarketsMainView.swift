@@ -12,7 +12,6 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
-import TangemAccessibilityIdentifiers
 
 struct MarketsMainView: View {
     @ObservedObject var viewModel: MarketsMainViewModel
@@ -262,23 +261,11 @@ struct MarketsMainView: View {
     @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
-            redesignErrorStateView(with: tryLoadAgain)
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             MarketsListErrorView(tryLoadAgain: tryLoadAgain)
         }
-    }
-
-    private func redesignErrorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        VStack(spacing: SizeUnit.x2.value) {
-            Text(Localization.marketsLoadingErrorTitle)
-                .style(Font.Tangem.Body14.regular, color: Color.Tangem.Text.Neutral.tertiary)
-
-            TangemButton(content: .text(AttributedString(Localization.tryToLoadDataAgainButtonTitle)), action: tryLoadAgain)
-                .setSize(.x8)
-                .setCornerStyle(.rounded)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
