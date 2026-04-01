@@ -70,7 +70,7 @@ extension CommonOnrampManager: OnrampManager {
         providers.updateAttractiveTypes()
         providers.updateProcessingTimeTypes(preferredProviderId: preferredValues.providerId)
 
-        // `suggestProvider` logic will be remove
+        // [REDACTED_USERNAME] `suggestProvider` logic will be remove
         // [REDACTED_TODO_COMMENT]
         let sorted = providers.sortedByFirstItem(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
