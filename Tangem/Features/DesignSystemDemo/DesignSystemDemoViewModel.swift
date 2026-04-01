@@ -42,4 +42,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemSegmentedPickerDemo() {
         coordinator?.openTangemSegmentedPickerDemo()
     }
+
+    func openTangemTabsDemo() {
+        coordinator?.openTangemTabsDemo()
+    }
 }
