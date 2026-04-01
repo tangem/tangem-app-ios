@@ -164,12 +164,19 @@ private extension TokenDetailsView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
-    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? CommonWalletModel.mockETH
+    let cryptoAccountModel = userWalletModel
+        .accountModelsManager
+        .cryptoAccountModels[0]
+
+    let walletModel = cryptoAccountModel
+        .walletModelsManager
+        .walletModels
+        .first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
-        walletModelsManager: userWalletModel.walletModelsManager,
+        walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
     let apiProviderFactory = ExpressAPIProviderFactory()
@@ -208,7 +215,7 @@ private extension TokenDetailsView {
         walletModel: walletModel,
         notificationManager: notifManager,
         bannerNotificationManager: bannerNotificationManager,
-        userTokensManager: userWalletModel.userTokensManager,
+        userTokensManager: cryptoAccountModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
