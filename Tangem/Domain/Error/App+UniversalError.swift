@@ -144,19 +144,6 @@ extension MultipleAddressTransactionHistoryService.ServiceError: UniversalError 
     }
 }
 
-extension CommonUserTokensManager.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .addressNotFound:
-            100007000
-        case .failedSupportedCurve:
-            100007001
-        case .failedSupportedLongHashesTokens:
-            100007002
-        }
-    }
-}
-
 extension AccountsAwareUserTokensManager.Error: UniversalError {
     var errorCode: Int {
         switch self {
@@ -183,15 +170,6 @@ extension CommonTokenEnricher.Error: UniversalError {
             100008000
         case .unsupportedBlockchain:
             100008001
-        }
-    }
-}
-
-extension OrganizeTokensViewModel.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .sectionOffsetOutOfBound:
-            100009000
         }
     }
 }

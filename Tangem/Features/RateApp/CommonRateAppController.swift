@@ -62,7 +62,7 @@ final class CommonRateAppController {
             .filter { $0.isLoaded }
             .withWeakCaptureOf(self)
             .sink { controller, _ in
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: controller.userWalletModel)
+                let walletModels = AccountWalletModelsAggregator.walletModels(from: controller.userWalletModel.accountModelsManager)
                 controller.rateAppService.registerBalances(of: walletModels)
             }
             .store(in: &bag)

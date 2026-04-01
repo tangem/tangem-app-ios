@@ -32,8 +32,7 @@ struct MarketsPortfolioTokenItemFactory {
         coinId: String,
         walletModels: [any WalletModel],
         entries: [TokenItem],
-        userWalletInfo: UserWalletInfo,
-        namingStyle: NamingStyle = .userWalletName
+        userWalletInfo: UserWalletInfo
     ) -> [MarketsPortfolioTokenItemViewModel] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
@@ -68,7 +67,7 @@ struct MarketsPortfolioTokenItemFactory {
             }
 
         let viewModels = tokenItemTypes.map {
-            makeTokenItemViewModel(from: $0, with: userWalletInfo, namingStyle: namingStyle)
+            makeTokenItemViewModel(from: $0, with: userWalletInfo)
         }
 
         return viewModels
@@ -76,29 +75,16 @@ struct MarketsPortfolioTokenItemFactory {
 
     private func makeTokenItemViewModel(
         from tokenItemType: TokenItemType,
-        with userWalletInfo: UserWalletInfo,
-        namingStyle: NamingStyle
+        with userWalletInfo: UserWalletInfo
     ) -> MarketsPortfolioTokenItemViewModel {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
 
-        let name, description: String
-
-        switch namingStyle {
-        case .tokenItemName:
-            name = tokenItem.name
-            description = tokenItem.networkName
-
-        case .userWalletName:
-            name = userWalletInfo.userWalletName
-            description = tokenItem.name
-        }
-
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
-            name: name,
-            description: description,
+            name: tokenItem.name,
+            description: tokenItem.networkName,
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
@@ -112,10 +98,5 @@ extension MarketsPortfolioTokenItemFactory {
     struct UserWalletInfo {
         let userWalletName: String
         let userWalletId: UserWalletId
-    }
-
-    enum NamingStyle {
-        case userWalletName
-        case tokenItemName
     }
 }
