@@ -65,13 +65,13 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
+                        .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
                 } else {
                     widgetsListView
                 }
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
-            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
 
             navigationBarBackground
 
@@ -237,6 +237,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
+                            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
