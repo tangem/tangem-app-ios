@@ -82,7 +82,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         dAppConnectionTask?.cancel()
     }
 
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     func updateSelectedUserWallet(_ selectedUserWallet: some UserWalletModel) {
         self.selectedUserWallet = selectedUserWallet
         state.walletSection?.selectedUserWalletName = selectedUserWallet.name
@@ -103,7 +103,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     func updateSelectedBlockchainsForWallet(_ selectedBlockchains: [Blockchain]) {
         guard let loadedDAppProposal else { return }
 
@@ -269,9 +269,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
         handleLoadedDAppProposalForWallet(dAppProposal)
     }
 
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     private func handleLoadedDAppProposalForWallet(_ dAppProposal: WalletConnectDAppConnectionProposal) {
-        // No account should be passed here. This method will be deleted when migration is complete ([REDACTED_INFO])
         analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: nil)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
