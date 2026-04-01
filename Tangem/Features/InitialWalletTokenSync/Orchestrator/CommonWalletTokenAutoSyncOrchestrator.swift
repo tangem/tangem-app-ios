@@ -52,20 +52,36 @@ extension CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
 
 private extension CommonWalletTokenAutoSyncOrchestrator {
     func performSync(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
+        // Derivation unsupported
+        guard let derivationStyle = userWalletModel.config.derivationStyle else {
+            return
+        }
+
         let userWalletId = userWalletModel.userWalletId
+        let addressResolver = WalletAddressResolver()
 
         await progressService.add(userWalletId: userWalletId)
 
-        let relayerPairs = resolveRelayerPairs()
+        let relayerPairs = resolveRelayerPairs(
+            supportedBlockchains: userWalletModel.config.supportedBlockchains
+        )
+
         let totalNetworks = relayerPairs.count
         var allTokens: [TokenItem] = []
 
         for (index, (blockchain, relayer)) in relayerPairs.enumerated() {
             if Task.isCancelled { break }
 
+            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
+
+            let networkAddressPair = try addressResolver.resolveAddress(
+                for: blockchainNetwork.blockchain,
+                keyInfos: keyInfos
+            )
+
             do {
                 let stream = try await relayer.resolveTokenStream(
-                    blockchain: blockchain,
+                    pair: networkAddressPair,
                     keyInfos: keyInfos
                 )
 
@@ -91,8 +107,10 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
     }
 
-    func resolveRelayerPairs() -> [(Blockchain, any WalletTokenAutoSyncRelayer)] {
-        SupportedBlockchains.all
+    func resolveRelayerPairs(
+        supportedBlockchains: Set<Blockchain>
+    ) -> [(Blockchain, any WalletTokenAutoSyncRelayer)] {
+        supportedBlockchains
             .compactMap { blockchain -> (Blockchain, any WalletTokenAutoSyncRelayer)? in
                 guard let relayer = relayerFactory(blockchain) else {
                     return nil
