@@ -9,11 +9,15 @@
 import Foundation
 
 struct StoredCryptoAccount: Codable, Equatable {
-    // [REDACTED_TODO_COMMENT]
-    typealias Grouping = StoredUserTokenList.Grouping
+    enum Grouping: Codable, Equatable {
+        case none
+        case byBlockchainNetwork
+    }
 
-    // [REDACTED_TODO_COMMENT]
-    typealias Sorting = StoredUserTokenList.Sorting
+    enum Sorting: Codable, Equatable {
+        case manual
+        case byBalance
+    }
 
     struct Icon: Codable, Equatable {
         let iconName: String
