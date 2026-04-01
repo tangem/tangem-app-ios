@@ -10,14 +10,12 @@ import Combine
 import TangemLocalization
 import TangemSdk
 import BlockchainSdk
-import TangemUIUtils
 
 final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
     @Published var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
     @Published var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
-    @Published var alert: AlertBinder?
 
-    weak var delegate: AddCustomTokenDerivationPathSelectorDelegate?
+    weak var coordinator: AddCustomTokenDerivationPathSelectorRoutable?
 
     private var allItemViewModels: [AddCustomTokenDerivationPathSelectorItemViewModel] {
         var result: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
@@ -26,11 +24,6 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         }
         result.append(contentsOf: blockchainDerivationModels)
         return result
-    }
-
-    private let customDerivationPathValidator = AlertFieldValidator { input in
-        let derivationPath = try? DerivationPath(rawPath: input)
-        return derivationPath != nil
     }
 
     private let context: ManageTokensContext
@@ -76,33 +69,12 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
 
         let currentCustomDerivationPath = derivationPath?.rawPath ?? ""
 
-        let alert = AlertBuilder.makeAlertControllerWithTextField(
-            title: Localization.customTokenCustomDerivationTitle,
-            fieldPlaceholder: Localization.customTokenCustomDerivationPlaceholder,
-            fieldText: currentCustomDerivationPath,
-            autoCapitalize: false,
-            useSpellCheck: false,
-            fieldValidator: customDerivationPathValidator
-        ) { [weak self] enteredDerivationPath in
-            guard let self else { return }
-
-            guard let derivationPath = try? DerivationPath(rawPath: enteredDerivationPath) else {
-                return
-            }
-
-            let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: derivationPath))
-            let destination = context.accountDestination(for: tokenItem)
-
-            switch destination {
-            case .currentAccount, .noAccount:
-                setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
-
-            case .differentAccount(let accountName, _):
-                showAccountMismatchAlert(accountName: accountName, enteredDerivationPath: enteredDerivationPath)
-            }
-        }
-
-        AppPresenter.shared.show(alert)
+        coordinator?.openDerivationPathWriter(
+            currentDerivationPath: currentCustomDerivationPath,
+            context: context,
+            blockchain: blockchain,
+            output: self
+        )
     }
 
     private func selectOption(_ derivationOption: AddCustomTokenDerivationOption) {
@@ -110,22 +82,19 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             model.isSelected = (model.id == derivationOption.id)
         }
 
-        delegate?.didSelectOption(derivationOption)
-    }
-
-    private func showAccountMismatchAlert(accountName: String, enteredDerivationPath: String) {
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.customTokenAnotherAccountDialogTitle,
-            message: Localization.customTokenAnotherAccountDialogDescription(accountName),
-            buttonText: Localization.commonGotIt,
-            buttonAction: { [weak self] in
-                self?.setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
-            }
-        )
+        coordinator?.didSelectOption(derivationOption)
     }
 
     private func setAndSelectDerivation(enteredDerivationPath: String) {
         customDerivationModel.setCustomDerivationPath(enteredDerivationPath)
         selectOption(customDerivationModel.option)
+    }
+}
+
+// MARK: - AddCustomTokenDerivationPathWriterOutput
+
+extension AddCustomTokenDerivationPathSelectorViewModel: AddCustomTokenDerivationPathWriterOutput {
+    func didEnterCustomDerivation(_ derivationPath: String) {
+        setAndSelectDerivation(enteredDerivationPath: derivationPath)
     }
 }
