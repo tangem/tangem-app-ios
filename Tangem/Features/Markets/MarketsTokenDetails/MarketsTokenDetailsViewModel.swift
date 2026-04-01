@@ -44,7 +44,6 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
-    @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
     @Published private(set) var accountsAwarePortfolioViewModel: MarketsAccountsAwarePortfolioContainerViewModel?
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
@@ -605,7 +604,6 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     private func updatePortfolio(networks: [NetworkModel]) {
-        portfolioViewModel?.update(networks: networks)
         accountsAwarePortfolioViewModel?.update(networks: networks)
     }
 }
