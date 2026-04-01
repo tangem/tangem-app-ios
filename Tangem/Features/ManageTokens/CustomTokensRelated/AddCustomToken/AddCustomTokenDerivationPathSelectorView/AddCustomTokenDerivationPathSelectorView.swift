@@ -31,7 +31,6 @@ struct AddCustomTokenDerivationPathSelectorView: View {
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Text(Localization.customTokenDerivationPath))
         .navigationBarTitleDisplayMode(.inline)
-        .bindAlert($viewModel.alert)
     }
 
     @ViewBuilder
