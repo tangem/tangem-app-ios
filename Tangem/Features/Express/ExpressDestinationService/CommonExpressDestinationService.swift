@@ -16,8 +16,7 @@ struct CommonExpressDestinationService {
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
     @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
 
-    /// [REDACTED_TODO_COMMENT]
-    /// [REDACTED_INFO]
+    // [REDACTED_TODO_COMMENT]
     private let userWalletId: UserWalletId?
 
     init(userWalletId: UserWalletId?) {
@@ -54,7 +53,7 @@ private extension CommonExpressDestinationService {
     ) async -> UserWalletInfoWalletModelPair? {
         let walletModels: [UserWalletInfoWalletModelPair] = {
             if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+                let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
                 return walletModels.map { walletModel in
                     UserWalletInfoWalletModelPair(
                         userWalletInfo: userWalletModel.userWalletInfo,
@@ -64,7 +63,7 @@ private extension CommonExpressDestinationService {
             }
 
             return userWalletRepository.models.flatMap { userWalletModel in
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+                let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
                 return walletModels.map { walletModel in
                     UserWalletInfoWalletModelPair(
                         userWalletInfo: userWalletModel.userWalletInfo,
