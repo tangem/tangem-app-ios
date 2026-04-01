@@ -91,39 +91,6 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
-        let target = TangemApiTarget(type: .getUserWalletTokens(key: key))
-
-        return provider
-            .requestPublisher(target)
-            .filterSuccessfulStatusCodes()
-            .map(UserTokenList?.self)
-            .mapTangemAPIError()
-            .catch { error -> AnyPublisher<UserTokenList?, TangemAPIError> in
-                if error.code == .notFound {
-                    return Just(nil)
-                        .setFailureType(to: TangemAPIError.self)
-                        .eraseToAnyPublisher()
-                }
-
-                return Fail(error: error)
-                    .eraseToAnyPublisher()
-            }
-            .retry(3)
-            .eraseToAnyPublisher()
-    }
-
-    func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        let target = TangemApiTarget(type: .saveUserWalletTokensLegacy(key: key, list: list))
-
-        return provider
-            .requestPublisher(target)
-            .filterSuccessfulStatusCodes()
-            .mapTangemAPIError()
-            .mapToVoid()
-            .eraseToAnyPublisher()
-    }
-
     func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
         let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
 
