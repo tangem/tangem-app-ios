@@ -12,6 +12,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
     func openTangemBadgeDemo()
     func openTangemCalloutDemo()
+    func openTangemTabsDemo()
     func openTangemMainActionButtonDemo()
     func openTangemSegmentedPickerDemo()
     func openNotificationBannerDemo()
@@ -26,6 +27,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
+    @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
     @Published var tangemMainActionButtonDemoViewModel: TangemMainActionButtonDemoViewModel?
     @Published var tangemSegmentedPickerDemoViewModel: TangemSegmentedPickerDemoModel?
     @Published var notificationBannerDemoViewModel: NotificationBannerDemoViewModel?
@@ -71,6 +73,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemSegmentedPickerDemo() {
         tangemSegmentedPickerDemoViewModel = .init()
+    }
+
+    func openTangemTabsDemo() {
+        tangemTabsDemoViewModel = .init()
     }
 }
 
