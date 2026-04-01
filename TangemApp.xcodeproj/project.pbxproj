@@ -203,6 +203,7 @@
 		0F20A54F2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A54E2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift */; };
 		0F20A5742F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A5732F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift */; };
 		0F20A5992F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F20A5982F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift */; };
+		0F17C2462F7425BC00B004EB /* TangemTabsDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F17C2452F7425BC00B004EB /* TangemTabsDemo.swift */; };
 		0F235A3E2F5871C200BBF5E2 /* TangemCalloutDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */; };
 		0F25112F2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */; };
 		0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */; };
@@ -5355,6 +5356,7 @@
 		0F20A54E2F7A757B00DCF790 /* FloatingSheetRegistry+EarnModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+EarnModule.swift"; sourceTree = "<group>"; };
 		0F20A5732F7A8F1600DCF790 /* EarnNetworkFilterSelectedRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterSelectedRowView.swift; sourceTree = "<group>"; };
 		0F20A5982F7AB52100DCF790 /* EarnTypeFilterBottomSheetViewRedesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetViewRedesign.swift; sourceTree = "<group>"; };
+		0F17C2452F7425BC00B004EB /* TangemTabsDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTabsDemo.swift; sourceTree = "<group>"; };
 		0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemCalloutDemo.swift; sourceTree = "<group>"; };
 		0F25112E2EA782F4009D78EE /* MobileBackupToUpgradeNeededView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededView.swift; sourceTree = "<group>"; };
 		0F2511302EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupToUpgradeNeededViewModel.swift; sourceTree = "<group>"; };
@@ -23385,6 +23387,7 @@
 				DF8DD4342F4DB1FA002FE2D4 /* TangemButtonDemo.swift */,
 				DF3176012F4E36EC00E77AF1 /* TangemBadgeDemo.swift */,
 				0F235A3D2F5871C200BBF5E2 /* TangemCalloutDemo.swift */,
+				0F17C2452F7425BC00B004EB /* TangemTabsDemo.swift */,
 				DF3176032F4E36F300E77AF1 /* TangemMainActionButtonDemo.swift */,
 				0FC27AD42F730C1800D6877A /* TangemSegmentedPickerDemo.swift */,
 				DF4A2F322F4DB1FA002FE2D5 /* TypographyDemo.swift */,
@@ -30945,6 +30948,7 @@
 				B0D18AC52D37A2D7009357AD /* VisaOnboardingWalletConnectViewModel.swift in Sources */,
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				3074E1D62D943C28008235E6 /* OptionalProtocol.swift in Sources */,
+				0F17C2462F7425BC00B004EB /* TangemTabsDemo.swift in Sources */,
 				DC0568E22E0F5950008A3770 /* WCCustomAllowanceAmountConverter.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
 				EF4194542ED9C19500798992 /* ExpressTransactionValidator.swift in Sources */,
