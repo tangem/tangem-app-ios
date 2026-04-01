@@ -3359,7 +3359,7 @@
 		DAF59CC12ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */; };
 		DAF59CC22ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBC2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */; };
 		DAF59CC32ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBD2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift */; };
-		DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift */; };
+		DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorRoutable.swift */; };
 		DAF59CC52ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */; };
 		DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */; };
 		DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */; };
@@ -4346,6 +4346,10 @@
 		EF584FA82F43160E006CD6D4 /* SwapSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF584FA72F43160E006CD6D4 /* SwapSummaryView.swift */; };
 		EF584FB52F432D7F006CD6D4 /* SwapSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF584FB42F432D7F006CD6D4 /* SwapSummaryViewModel.swift */; };
 		EF584FB72F433458006CD6D4 /* SwapSummaryInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF584FB62F433458006CD6D4 /* SwapSummaryInteractor.swift */; };
+		EF58BCCB2F7C001B002E23FE /* AddCustomTokenDerivationPathWriterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF58BCCA2F7C001B002E23FE /* AddCustomTokenDerivationPathWriterViewModel.swift */; };
+		EF58BCCD2F7C002D002E23FE /* AddCustomTokenDerivationPathWriterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF58BCCC2F7C002D002E23FE /* AddCustomTokenDerivationPathWriterView.swift */; };
+		EF58BCCF2F7C040D002E23FE /* AddCustomTokenDerivationPathSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF58BCCE2F7C040D002E23FE /* AddCustomTokenDerivationPathSelectorCoordinator.swift */; };
+		EF58BCD12F7C0413002E23FE /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF58BCD02F7C0413002E23FE /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
 		EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A729092BC600C527C9 /* FeatureProvider.swift */; };
 		EF5989E32EDDE2900063121D /* TangemPayWithdrawInProgressSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5989E22EDDE2900063121D /* TangemPayWithdrawInProgressSheetViewModel.swift */; };
@@ -8469,7 +8473,7 @@
 		DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationOption.swift; sourceTree = "<group>"; };
 		DAF59CBC2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DAF59CBD2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorView.swift; sourceTree = "<group>"; };
-		DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorDelegate.swift; sourceTree = "<group>"; };
+		DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorRoutable.swift; sourceTree = "<group>"; };
 		DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorViewModel.swift; sourceTree = "<group>"; };
 		DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemView.swift; sourceTree = "<group>"; };
 		DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertFieldValidator.swift; sourceTree = "<group>"; };
@@ -9460,6 +9464,10 @@
 		EF584FA72F43160E006CD6D4 /* SwapSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryView.swift; sourceTree = "<group>"; };
 		EF584FB42F432D7F006CD6D4 /* SwapSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryViewModel.swift; sourceTree = "<group>"; };
 		EF584FB62F433458006CD6D4 /* SwapSummaryInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSummaryInteractor.swift; sourceTree = "<group>"; };
+		EF58BCCA2F7C001B002E23FE /* AddCustomTokenDerivationPathWriterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathWriterViewModel.swift; sourceTree = "<group>"; };
+		EF58BCCC2F7C002D002E23FE /* AddCustomTokenDerivationPathWriterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathWriterView.swift; sourceTree = "<group>"; };
+		EF58BCCE2F7C040D002E23FE /* AddCustomTokenDerivationPathSelectorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorCoordinator.swift; sourceTree = "<group>"; };
+		EF58BCD02F7C0413002E23FE /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorCoordinatorView.swift; sourceTree = "<group>"; };
 		EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupView.swift; sourceTree = "<group>"; };
 		EF5903A729092BC600C527C9 /* FeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureProvider.swift; sourceTree = "<group>"; };
 		EF5989E22EDDE2900063121D /* TangemPayWithdrawInProgressSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawInProgressSheetViewModel.swift; sourceTree = "<group>"; };
@@ -14963,9 +14971,9 @@
 		B07FDD3C2C23135500CBEFDE /* CustomTokensRelated */ = {
 			isa = PBXGroup;
 			children = (
-				DA207C212AB89F89005CC5E3 /* AddCustomToken */,
 				B07FDD3D2C23137400CBEFDE /* CustomTokenItemViewInfo.swift */,
 				B07FDD3F2C23139200CBEFDE /* CustomTokenItemView.swift */,
+				DA207C212AB89F89005CC5E3 /* AddCustomToken */,
 			);
 			path = CustomTokensRelated;
 			sourceTree = "<group>";
@@ -20325,13 +20333,13 @@
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
-				DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */,
-				DAF59CBA2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelector */,
 				DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */,
 				DAB19D462B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift */,
 				DAB19D472B2C72A100DD08C4 /* AddCustomTokenRoutable.swift */,
 				DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */,
 				DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */,
+				DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */,
+				DAF59CBA2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelector */,
 			);
 			path = AddCustomToken;
 			sourceTree = "<group>";
@@ -20739,10 +20747,10 @@
 			children = (
 				DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */,
 				DAF59CBC2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */,
-				DAF59CBD2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift */,
-				DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift */,
-				DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */,
-				DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */,
+				EF58BCCE2F7C040D002E23FE /* AddCustomTokenDerivationPathSelectorCoordinator.swift */,
+				EF58BCD02F7C0413002E23FE /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */,
+				EF58BCD22F7C0586002E23FE /* AddCustomTokenDerivationPathSelectorView */,
+				EF58BCC92F7C000C002E23FE /* AddCustomTokenDerivationPathWriter */,
 			);
 			path = AddCustomTokenDerivationPathSelector;
 			sourceTree = "<group>";
@@ -24960,6 +24968,26 @@
 				EF584FB62F433458006CD6D4 /* SwapSummaryInteractor.swift */,
 			);
 			path = Interactor;
+			sourceTree = "<group>";
+		};
+		EF58BCC92F7C000C002E23FE /* AddCustomTokenDerivationPathWriter */ = {
+			isa = PBXGroup;
+			children = (
+				EF58BCCC2F7C002D002E23FE /* AddCustomTokenDerivationPathWriterView.swift */,
+				EF58BCCA2F7C001B002E23FE /* AddCustomTokenDerivationPathWriterViewModel.swift */,
+			);
+			path = AddCustomTokenDerivationPathWriter;
+			sourceTree = "<group>";
+		};
+		EF58BCD22F7C0586002E23FE /* AddCustomTokenDerivationPathSelectorView */ = {
+			isa = PBXGroup;
+			children = (
+				DAF59CBD2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift */,
+				DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */,
+				DAF59CBE2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorRoutable.swift */,
+				DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */,
+			);
+			path = AddCustomTokenDerivationPathSelectorView;
 			sourceTree = "<group>";
 		};
 		EF59039229091CCE00C527C9 /* EnvironmentSetup */ = {
@@ -30242,6 +30270,7 @@
 				EF5FAE9C2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift in Sources */,
 				0F721C252EE1D5D800C1183B /* TangemShopUrlBuilder.swift in Sources */,
 				EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */,
+				EF58BCCD2F7C002D002E23FE /* AddCustomTokenDerivationPathWriterView.swift in Sources */,
 				2D5DCC2F2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				DC70C01B2B95EEEF002205BA /* KeysDerivingCardInteractor.swift in Sources */,
@@ -30501,6 +30530,7 @@
 				B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */,
 				DC91135E2D6F6DB2002E17C5 /* TokenActionAvailabilityProvider.swift in Sources */,
 				B06C94C92A3B555000D17E85 /* TokenActionType.swift in Sources */,
+				EF58BCCB2F7C001B002E23FE /* AddCustomTokenDerivationPathWriterViewModel.swift in Sources */,
 				C2C084902ED9AB48007914AE /* CurrencySelectViewState.swift in Sources */,
 				C24A196E2DEDB60600B995E6 /* WalletConnectDAppSessionProposalRejectionReason.swift in Sources */,
 				EFB0194F2C4187BB009EE857 /* TokenItem+StakingTokenItem.swift in Sources */,
@@ -30938,6 +30968,7 @@
 				EFEE236C2BFE20860099917E /* StakingDetailsView.swift in Sources */,
 				EFEE236D2BFE20860099917E /* StakingDetailsViewModel.swift in Sources */,
 				0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */,
+				EF58BCD12F7C0413002E23FE /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift in Sources */,
 				EFEE236E2BFE20860099917E /* StakingDetailsRoutable.swift in Sources */,
 				2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */,
 				B0AC1A312BA47D5D00FE6879 /* OnboardingSeedPassphraseInfoBottomSheetView.swift in Sources */,
@@ -30993,7 +31024,7 @@
 				0F84C10F2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift in Sources */,
 				0A71BE082EBF2E9C005111DB /* BalancesView.swift in Sources */,
 				EFE54CD22D09DD1C00D803EB /* FakePendingExpressTransactionsManager.swift in Sources */,
-				DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */,
+				DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorRoutable.swift in Sources */,
 				B0569C6F2CFDDFE300CCD55F /* VisaOnboardingApproveWalletSelectorViewModel.swift in Sources */,
 				EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */,
 				B0BA26702BAD71970055C6C1 /* CustomPasswordTextField.swift in Sources */,
@@ -31236,6 +31267,7 @@
 				B6E706892ED9172F0076F14D /* AccountArchivationError.swift in Sources */,
 				B6E7068A2ED9172F0076F14D /* AccountModelsManagerError.swift in Sources */,
 				B6E7068B2ED9172F0076F14D /* AccountRecoveryError.swift in Sources */,
+				EF58BCCF2F7C040D002E23FE /* AddCustomTokenDerivationPathSelectorCoordinator.swift in Sources */,
 				2DC567692B0DFFAF00B0244F /* MarketsRoutable.swift in Sources */,
 				EAFED5292EAA52310048E6FB /* YieldInfoFooterBuilder.swift in Sources */,
 				0F291C342E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift in Sources */,
