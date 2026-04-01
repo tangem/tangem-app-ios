@@ -84,7 +84,7 @@ final class PromocodeActivationViewModel: ObservableObject {
             throw PromocodeActivationError.noAddress
         }
 
-        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        var walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
         // Prefer main account's wallet model when multiple accounts are present - this is why we sort them here
         walletModels.sort { first, second in
