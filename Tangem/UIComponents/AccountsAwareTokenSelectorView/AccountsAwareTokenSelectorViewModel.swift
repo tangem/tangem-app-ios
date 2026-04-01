@@ -27,14 +27,16 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
 
     init(
         walletsProvider: any AccountsAwareTokenSelectorWalletsProvider,
-        availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
+        availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider,
+        collapsibleAccounts: Bool = false
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
 
         viewModelsMapper = AccountsAwareTokenSelectorViewModelsMapper(
             walletsProvider: walletsProvider,
-            availabilityProvider: availabilityProvider
+            availabilityProvider: availabilityProvider,
+            collapsibleAccounts: collapsibleAccounts
         )
 
         wallets = viewModelsMapper.wallets
