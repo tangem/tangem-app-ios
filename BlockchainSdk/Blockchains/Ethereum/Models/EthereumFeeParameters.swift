@@ -26,6 +26,7 @@ public enum EthereumFeeParametersConstants {
     public static let defaultGasLimitIncreasePercent = BigUInt(12)
     public static let yieldModuleGasLimitIncreasePercent = BigUInt(20)
     public static let gaslessMinTokenAmount = BigUInt(10_000)
+    public static let gaslessMinTokenAmountDecimal = Decimal(stringValue: "10000")!
     public static let gaslessBaseGasBuffer = BigUInt(60_000)
 }
 
