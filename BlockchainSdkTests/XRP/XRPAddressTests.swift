@@ -86,4 +86,49 @@ struct XRPAddressTests {
             #expect(resolved == selfAddress)
         }
     }
+
+    @Test(arguments: [
+        "X",
+        "XVfvix",
+        "",
+    ])
+    func xAddressWithMalformedPayloadThrows(xAddress: String) {
+        #expect(throws: XRPError.self) {
+            try XRPAddress(xAddress: xAddress)
+        }
+    }
+
+    @Test
+    func xAddressWithOversizedTagThrows() {
+        let rAddress = "rU893viamSnsfP3zjzM2KPxjqZjXSXK6VF"
+        let oversizedTag = UInt64(UInt32.max) + 1
+        let xAddress = Self.encodeXAddressWithUInt64Tag(rAddress: rAddress, tag: oversizedTag)
+
+        #expect(throws: XRPError.self) {
+            try XRPAddress(xAddress: xAddress)
+        }
+    }
+
+    @Test
+    func xAddressWithMaxValidTagSucceeds() throws {
+        let rAddress = "rU893viamSnsfP3zjzM2KPxjqZjXSXK6VF"
+        let xAddress = XRPAddress.encodeXAddress(rAddress: rAddress, tag: UInt32.max)
+        let decoded = try XRPAddress(xAddress: xAddress)
+
+        #expect(decoded.tag == UInt32.max)
+        #expect(decoded.rAddress == rAddress)
+    }
+
+    /// Encodes an X-Address with a raw UInt64 tag to produce a malformed address for testing.
+    private static func encodeXAddressWithUInt64Tag(rAddress: String, tag: UInt64) -> String {
+        let accountID = XRPSeedWallet.accountID(for: rAddress)
+        let prefix: [UInt8] = [0x05, 0x44] // mainnet
+        let flags: [UInt8] = [0x01] // has tag
+        var tagValue = tag
+        let tagBytes = withUnsafeBytes(of: &tagValue) { [UInt8]($0) }
+        let concatenated = prefix + accountID + flags + tagBytes
+        let check = [UInt8](Data(concatenated).sha256().sha256().prefix(through: 3))
+        let concatenatedCheck: [UInt8] = concatenated + check
+        return XRPBase58.getString(from: Data(concatenatedCheck))
+    }
 }
