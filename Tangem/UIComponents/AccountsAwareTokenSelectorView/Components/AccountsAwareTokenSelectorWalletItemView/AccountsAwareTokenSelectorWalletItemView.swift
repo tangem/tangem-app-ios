@@ -19,18 +19,14 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
             AccountsAwareTokenSelectorAccountView(viewModel: accountViewModel)
 
         case .accounts(let walletName, let accounts) where viewModel.contentVisibility?.isVisible == true:
-            LazyVStack(spacing: 0.0) {
+            VStack(spacing: Constants.accountsListVerticalSpacing) {
                 header(walletName: walletName)
-                    // This padding is used instead of the spacing in the `LazyVStack` to prevent the content
-                    // (`AccountsAwareTokenSelectorAccountView`) from sliding under the `middle` of the header when the list is expanded
-                    .padding(.bottom, Constants.accountsListVerticalSpacing)
                     .background(Colors.Background.tertiary)
                     .zIndex(100.0) // Keeps the header above the expanding accounts list and other content within the stack
 
                 if viewModel.isOpen {
                     ForEach(indexed: accounts.indexed()) { index, viewModel in
                         AccountsAwareTokenSelectorAccountView(viewModel: viewModel)
-                            .padding(.bottom, index == accounts.count - 1 ? 0.0 : Constants.accountsListVerticalSpacing)
                     }
                     .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
                     .transition(.move(edge: .top))
