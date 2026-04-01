@@ -9,8 +9,7 @@
 import Combine
 import TangemFoundation
 
-/// Will be delete after accounts
-/// [REDACTED_INFO]
+// [REDACTED_TODO_COMMENT]
 struct CommonExpressTokensListAdapter {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
