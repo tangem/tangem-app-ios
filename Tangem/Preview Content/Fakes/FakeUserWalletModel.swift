@@ -69,12 +69,10 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
+        AccountsAwareUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
-            derivationManager: nil,
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
         )
     }
 
@@ -107,11 +105,7 @@ class FakeUserWalletModel: UserWalletModel {
         name = userWalletName
 
         walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
-        let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: walletManagers, isDelayed: isDelayed)
-        userTokensManager = FakeUserTokensManager(
-            derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
-            userTokenListManager: fakeUserTokenListManager
-        )
+        userTokensManager = UserTokensManagerMock()
         totalBalanceProvider = TotalBalanceProviderMock()
         walletImageProvider = CardImageProvider(
             input: .init(
