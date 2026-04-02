@@ -54,11 +54,13 @@ class EthereumWalletManagerMock: WalletManager {
 
     var wallet: BlockchainSdk.Wallet = .init(
         blockchain: .ethereum(testnet: false),
-        addresses: [.default: PlainAddress(
-            value: "0xtestaddress",
-            publicKey: Wallet.PublicKey(seedKey: Data(), derivationType: .none),
-            type: .default
-        )]
+        publicKey: Wallet.PublicKey(seedKey: Data(), derivationType: .none),
+        addressesProvider: CommonAddressesProvider(
+            defaultAddress: PlainAddress(
+                value: "0xtestaddress",
+                type: .default
+            )
+        )
     )
     var state: WalletManagerState { .initial }
     var walletPublisher: AnyPublisher<BlockchainSdk.Wallet, Never> { .just(output: wallet) }
