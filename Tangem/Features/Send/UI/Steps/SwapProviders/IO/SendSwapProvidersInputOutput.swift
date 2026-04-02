@@ -18,6 +18,8 @@ protocol SendSwapProvidersInput: AnyObject {
     var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> { get }
 
     var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> { get }
+
+    var currentRateType: ExpressProviderRateType? { get }
 }
 
 extension SendSwapProvidersInput {

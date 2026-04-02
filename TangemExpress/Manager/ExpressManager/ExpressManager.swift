@@ -13,6 +13,7 @@ import BlockchainSdk
 public protocol ExpressManager: Actor {
     func getPair() -> ExpressManagerSwappingPair?
     func getAmountType() -> ExpressAmountType?
+    func getRateType() -> ExpressProviderRateType?
     func getAllProviders() -> [ExpressAvailableProvider]
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressAvailableProvider?
