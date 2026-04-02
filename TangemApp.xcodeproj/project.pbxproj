@@ -4388,6 +4388,7 @@
 		EF60C8B72E0151AD005D538C /* ExpressWalletCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF60C8B62E0151AD005D538C /* ExpressWalletCurrency.swift */; };
 		EF60C8BD2E015247005D538C /* ExpressSwappableQuoteItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF60C8BC2E015247005D538C /* ExpressSwappableQuoteItem.swift */; };
 		EF60C8BF2E015258005D538C /* ExpressSwappableDataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF60C8BE2E015258005D538C /* ExpressSwappableDataItem.swift */; };
+		E2816071D26F40ADBF35308C /* TransactionHistoryMapperGaslessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B931759EB0343628976DB9C /* TransactionHistoryMapperGaslessTests.swift */; };
 		EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */; };
 		EF6548E62D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */; };
 		EF6589A22F49F34D0068C888 /* TransferModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6589A12F49F34D0068C888 /* TransferModel.swift */; };
@@ -9485,6 +9486,7 @@
 		EF60C8B62E0151AD005D538C /* ExpressWalletCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressWalletCurrency.swift; sourceTree = "<group>"; };
 		EF60C8BC2E015247005D538C /* ExpressSwappableQuoteItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSwappableQuoteItem.swift; sourceTree = "<group>"; };
 		EF60C8BE2E015258005D538C /* ExpressSwappableDataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSwappableDataItem.swift; sourceTree = "<group>"; };
+		4B931759EB0343628976DB9C /* TransactionHistoryMapperGaslessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryMapperGaslessTests.swift; sourceTree = "<group>"; };
 		EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatterTests.swift; sourceTree = "<group>"; };
 		EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceWithButtonsViewModelBalanceProvider.swift; sourceTree = "<group>"; };
 		EF6589A12F49F34D0068C888 /* TransferModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferModel.swift; sourceTree = "<group>"; };
@@ -13443,6 +13445,7 @@
 				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
 				B672633D2C7FB0D400F120E6 /* DecimalExtensionsTests.swift */,
 				EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */,
+				4B931759EB0343628976DB9C /* TransactionHistoryMapperGaslessTests.swift */,
 				B0751ED82C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift */,
 				5D51037A27C53E6E0025EA55 /* EIP712TypedDataTests.swift */,
 				D9A9FD7F393EFEDCA19B69A9 /* HighPriceImpactCalculatorTests.swift */,
@@ -31536,6 +31539,7 @@
 				DC32C2402C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift in Sources */,
 				0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */,
 				EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */,
+				E2816071D26F40ADBF35308C /* TransactionHistoryMapperGaslessTests.swift in Sources */,
 				DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */,
 				DA64DACB2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift in Sources */,
 				B61E80982F6B58AA00C92B97 /* UserTokensRepositoryStub.swift in Sources */,
