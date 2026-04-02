@@ -162,7 +162,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
-                            in: .litecoin,
+                            in: .litecoin(),
                             isCustom: false
                         ),
                         balance: .loading(),
@@ -227,7 +227,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
-                            in: .bitcoinCash,
+                            in: .bitcoinCash(),
                             isCustom: false
                         ),
                         balance: .loading(),
@@ -279,7 +279,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
-                            in: .dogecoin,
+                            in: .dogecoin(),
                             isCustom: false
                         ),
                         balance: .loading(),
