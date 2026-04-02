@@ -51,6 +51,16 @@ extension CommonExpressManager: ExpressManager {
         return _amountType
     }
 
+    func getRateType() -> ExpressProviderRateType? {
+        guard let amountType = _amountType, let selected = selectedProvider else { return nil }
+
+        if selected.supportedRateTypes.contains(amountType.rateType) {
+            return amountType.rateType
+        }
+
+        return selected.supportedRateTypes.first
+    }
+
     func getSelectedProvider() -> ExpressAvailableProvider? {
         return selectedProvider
     }
