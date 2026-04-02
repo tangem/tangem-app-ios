@@ -128,7 +128,7 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
         Analytics.log(
             event: .stakingButtonValidator,
             params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
+                .source: Analytics.ParameterValue.confirmation.rawValue,
                 .token: tokenItem.currencySymbol,
             ]
         )
@@ -206,7 +206,7 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         case (.next, .stake):
             Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
         case (.action, .stake):
-            actionParameters[.source] = Analytics.ParameterValue.stakeSourceConfirmation.rawValue
+            actionParameters[.source] = Analytics.ParameterValue.confirmation.rawValue
             Analytics.log(event: .stakingButtonStake, params: actionParameters)
         case (.action, .unstake):
             Analytics.log(event: .stakingButtonUnstake, params: actionParameters)
