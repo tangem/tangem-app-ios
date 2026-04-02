@@ -49,6 +49,8 @@ class EthereumWalletManagerMock: WalletManager {
     func setNeedsUpdate() {}
     func update() async {}
 
+    func update(wallet: Wallet) throws {}
+
     func removeToken(_ token: BlockchainSdk.Token) {}
     func addToken(_ token: BlockchainSdk.Token) {}
 
