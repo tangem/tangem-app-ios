@@ -4833,7 +4833,6 @@
 		EFD4BFCC2EF74357000DDC69 /* AccountsAwareTokenSelectorItemSellAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD4BFCB2EF74357000DDC69 /* AccountsAwareTokenSelectorItemSellAvailabilityProvider.swift */; };
 		EFD6491D2E337106008468BF /* SendReceiveTokensListNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD6491C2E337106008468BF /* SendReceiveTokensListNotification.swift */; };
 		EFD662D92F7173CB005368E4 /* BitcoinXPUBPublicKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD662D82F7173CB005368E4 /* BitcoinXPUBPublicKeyFactory.swift */; };
-		EFD662DD2F7173CB005368E4 /* XPUBAddressesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD662DC2F7173CB005368E4 /* XPUBAddressesProvider.swift */; };
 		EFD662DF2F7176AA005368E4 /* XPUBUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD662DE2F7176AA005368E4 /* XPUBUtils.swift */; };
 		EFD662E12F717A78005368E4 /* DerivationPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD662E02F717A78005368E4 /* DerivationPath+.swift */; };
 		EFD6782F2E27BF1E0065AD50 /* SendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD6782E2E27BF1E0065AD50 /* SendAnalyticsLogger.swift */; };
@@ -9984,7 +9983,6 @@
 		EFD4BFCB2EF74357000DDC69 /* AccountsAwareTokenSelectorItemSellAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareTokenSelectorItemSellAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EFD6491C2E337106008468BF /* SendReceiveTokensListNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokensListNotification.swift; sourceTree = "<group>"; };
 		EFD662D82F7173CB005368E4 /* BitcoinXPUBPublicKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinXPUBPublicKeyFactory.swift; sourceTree = "<group>"; };
-		EFD662DC2F7173CB005368E4 /* XPUBAddressesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPUBAddressesProvider.swift; sourceTree = "<group>"; };
 		EFD662DE2F7176AA005368E4 /* XPUBUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPUBUtils.swift; sourceTree = "<group>"; };
 		EFD662E02F717A78005368E4 /* DerivationPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DerivationPath+.swift"; sourceTree = "<group>"; };
 		EFD6782E2E27BF1E0065AD50 /* SendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAnalyticsLogger.swift; sourceTree = "<group>"; };
@@ -26705,7 +26703,6 @@
 				EFAFC4EC2F60622300BD42C4 /* CommonAddressesProvider.swift */,
 				EFAFC4EF2F60663600BD42C4 /* EmptyAddressesProvider.swift */,
 				EF6C50162F7D435D00CA8E4B /* DynamicAddressesProvider.swift */,
-				EFD662DC2F7173CB005368E4 /* XPUBAddressesProvider.swift */,
 			);
 			path = AddressesProvider;
 			sourceTree = "<group>";
@@ -32973,7 +32970,6 @@
 				B62D421F2CBC79DB00C2460E /* XrpResponse.swift in Sources */,
 				B62D42D82CBC79DB00C2460E /* Sequence+.swift in Sources */,
 				B62D40262CBC79DA00C2460E /* OpCodeFactory.swift in Sources */,
-				EFD662DD2F7173CB005368E4 /* XPUBAddressesProvider.swift in Sources */,
 				B62D3FBF2CBC79DA00C2460E /* BinanceWalletManager.swift in Sources */,
 				B62D3FCA2CBC79DA00C2460E /* OP_2DIV.swift in Sources */,
 				B62D42542CBC79DB00C2460E /* DerivationConfig.swift in Sources */,
