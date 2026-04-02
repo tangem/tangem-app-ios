@@ -408,7 +408,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token isn't compatible with this address</string>
+        <string>Токен %li не совместим с этим адресом</string>
+        <key>few</key>
+        <string></string>
+        <key>many</key>
+        <string>Токены %li не совместимы с этим адресом</string>
         <key>other</key>
         <string>%li tokens aren't compatible with this address</string>
       </dict>

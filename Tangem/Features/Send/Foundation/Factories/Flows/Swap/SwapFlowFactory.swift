@@ -165,7 +165,8 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     var amountDependencies: SwapAmountStepBuilder.Dependencies {
         SwapAmountStepBuilder.Dependencies(
             sendAmountValidator: CommonSwapAmountValidator(),
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            isFixedRateMode: false
         )
     }
 }

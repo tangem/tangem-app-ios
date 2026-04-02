@@ -51,6 +51,7 @@ enum SwapAmountStepBuilder {
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let isFixedRateMode: Bool
     }
 
     typealias ReturnValue = (viewModel: SwapAmountViewModel, amountUpdater: SendAmountExternalUpdater, finish: SendAmountFinishViewModel)

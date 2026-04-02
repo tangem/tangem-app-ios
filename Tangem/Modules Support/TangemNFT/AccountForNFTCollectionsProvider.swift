@@ -48,7 +48,7 @@ final class AccountForNFTCollectionsProvider {
 
             for walletModel in walletModels {
                 for address in walletModel.addresses {
-                    map[address.value] = account
+                    map[address] = account
                 }
             }
         }

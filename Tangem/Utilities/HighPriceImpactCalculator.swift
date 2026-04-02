@@ -9,61 +9,92 @@
 import Foundation
 import TangemExpress
 import TangemLocalization
+import TangemMacro
 
 struct HighPriceImpactCalculator {
-    private let source: TokenItem
-    private let destination: TokenItem
-
     private let balanceConverter = BalanceConverter()
     private let percentFormatter = PercentFormatter()
 
-    init(source: TokenItem, destination: TokenItem) {
-        self.source = source
-        self.destination = destination
-    }
-
-    /// 10% in the 0..1 range
-    private let highPriceImpactWarningLimit: Decimal = 0.1
-
-    func isHighPriceImpact(provider: ExpressProvider, sourceFiatAmount: Decimal, destinationFiatAmount: Decimal) -> Result? {
-        let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount)
-
-        let isHighPriceImpact = lossesInPercents >= highPriceImpactWarningLimit
-        let formatted = percentFormatter.format(-lossesInPercents, option: .express)
-        let message = makeMessage(provider: provider, isHighPriceImpact: isHighPriceImpact)
-
-        return Result(
-            isHighPriceImpact: isHighPriceImpact,
-            lossesInPercents: lossesInPercents,
-            lossesInPercentsFormatted: formatted,
-            infoMessage: message
-        )
-    }
-
-    func isHighPriceImpact(provider: ExpressProvider, quote: ExpressQuote) async throws -> Result? {
-        guard let sourceCurrencyId = source.currencyId,
-              let destinationCurrencyId = destination.currencyId else {
+    func calculate(input: Input) async throws -> Result? {
+        guard let sourceCurrencyId = input.sourceToken.currencyId,
+              let destinationCurrencyId = input.destinationToken.currencyId
+        else {
             return nil
         }
 
-        let sourceAmount = quote.fromAmount
-        let destinationAmount = quote.expectAmount
+        let sourceFiatAmount = try await balanceConverter.convertToFiat(input.sourceAmount, currencyId: sourceCurrencyId)
+        let destinationFiatAmount = try await balanceConverter.convertToFiat(input.destinationAmount, currencyId: destinationCurrencyId)
 
-        let sourceFiatAmount = try await balanceConverter.convertToFiat(sourceAmount, currencyId: sourceCurrencyId)
-        let destinationFiatAmount = try await balanceConverter.convertToFiat(destinationAmount, currencyId: destinationCurrencyId)
+        guard sourceFiatAmount > 0 else {
+            return nil
+        }
 
-        return isHighPriceImpact(provider: provider, sourceFiatAmount: sourceFiatAmount, destinationFiatAmount: destinationFiatAmount)
+        let sourceAmountUsd = resolveUsdAmount(cryptoAmount: input.sourceAmount, currencyId: sourceCurrencyId, fiatAmount: sourceFiatAmount)
+
+        let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount)
+        let formatted = percentFormatter.format(-lossesInPercents, option: .express)
+
+        let level: Level = if isExempt(sourceAmountUsd: sourceAmountUsd) {
+            .negligible
+        } else {
+            determineLevel(lossesInPercents: lossesInPercents, sourceAmountUsd: sourceAmountUsd)
+        }
+
+        return Result(
+            level: level,
+            lossesInPercents: lossesInPercents,
+            lossesInPercentsFormatted: formatted,
+            infoMessage: makeMessage(input: input, level: level)
+        )
     }
 
-    private func makeMessage(provider: ExpressProvider, isHighPriceImpact: Bool) -> String {
-        let slippageFormatted: String? = provider.slippage.map { slippage in
+    /// Returns the USD equivalent of a crypto amount.
+    /// If the app currency is already USD, the fiat amount is used directly.
+    /// Otherwise falls back to `priceUsd`-based conversion; returns `nil` when unavailable.
+    private func resolveUsdAmount(cryptoAmount: Decimal, currencyId: String, fiatAmount: Decimal) -> Decimal? {
+        if AppSettings.shared.selectedCurrencyCode == AppConstants.usdCurrencyCode {
+            return fiatAmount
+        }
+
+        return balanceConverter.convertToUsd(cryptoAmount, currencyId: currencyId)
+    }
+
+    private func isExempt(sourceAmountUsd: Decimal?) -> Bool {
+        guard let sourceUsd = sourceAmountUsd else {
+            return false
+        }
+
+        return sourceUsd <= Constants.exemptionUsdThreshold
+    }
+
+    /// When `sourceAmountUsd` is `nil` (no USD rate), the blocking level is never returned.
+    private func determineLevel(lossesInPercents: Decimal, sourceAmountUsd: Decimal?) -> Level {
+        if lossesInPercents < Constants.warningLimit {
+            return .negligible
+        }
+
+        if lossesInPercents < Constants.blockLimit {
+            return .warningLoss
+        }
+
+        if let sourceUsd = sourceAmountUsd, sourceUsd > Constants.blockSourceUsdThreshold {
+            return .highLossHighAmount
+        }
+
+        return .highLossLowAmount
+    }
+
+    private func makeMessage(input: Input, level: Level) -> String {
+        let slippageFormatted: String? = input.provider.slippage.map { slippage in
             percentFormatter.format(slippage, option: .slippage)
         }
 
+        let destinationSymbol = input.destinationToken.currencySymbol
+
         let cexDescription: String = if let slippageFormatted {
-            Localization.swappingAlertCexDescriptionWithSlippage(destination.currencySymbol, slippageFormatted)
+            Localization.swappingAlertCexDescriptionWithSlippage(destinationSymbol, slippageFormatted)
         } else {
-            Localization.swappingAlertCexDescription(destination.currencySymbol)
+            Localization.swappingAlertCexDescription(destinationSymbol)
         }
 
         let dexDescription: String = if let slippageFormatted {
@@ -72,26 +103,65 @@ struct HighPriceImpactCalculator {
             Localization.swappingAlertDexDescription
         }
 
-        switch provider.type {
+        switch input.provider.type {
         case .cex:
             return cexDescription
         case .dex, .dexBridge:
-            if isHighPriceImpact {
-                return "\(Localization.swappingHighPriceImpactDescription)\n\n\(dexDescription)"
+            if level == .negligible {
+                return dexDescription
             }
-
-            return dexDescription
+            return "\(Localization.swappingHighPriceImpactDescription)\n\n\(dexDescription)"
         case .onramp, .unknown:
             return Localization.sendErrorUnknown
         }
     }
 }
 
+// MARK: - Input / Result
+
 extension HighPriceImpactCalculator {
+    struct Input {
+        let provider: ExpressProvider
+        let sourceToken: TokenItem
+        let destinationToken: TokenItem
+        let sourceAmount: Decimal
+        let destinationAmount: Decimal
+    }
+
     struct Result: Hashable {
-        let isHighPriceImpact: Bool
+        let level: Level
         let lossesInPercents: Decimal
         let lossesInPercentsFormatted: String
         let infoMessage: String
+
+        var isBlocked: Bool { level.isHighLossHighAmount }
+        var isHighLoss: Bool { level.isHighLossLowAmount || level.isHighLossHighAmount }
+    }
+}
+
+private extension HighPriceImpactCalculator {
+    private enum Constants {
+        /// 10% in the 0..1 range
+        static let warningLimit = Decimal(stringValue: "0.1")!
+        /// 50% in the 0..1 range
+        static let blockLimit = Decimal(stringValue: "0.5")!
+        /// Block swap button when source amount in USD exceeds this
+        static let blockSourceUsdThreshold: Decimal = 5000
+        /// Skip warning/blocking when the relevant USD amount is at or below this
+        static let exemptionUsdThreshold: Decimal = 25
+    }
+}
+
+extension HighPriceImpactCalculator {
+    @CaseFlagable
+    enum Level: Hashable {
+        /// Loss < 10% — no warning needed
+        case negligible
+        /// 10% ≤ loss ≤ 50% — show warning banner
+        case warningLoss
+        /// Loss > 50% but source ≤ $5,000 — show warning banner
+        case highLossLowAmount
+        /// Loss > 50% AND source > $5,000 — show warning banner and block swap
+        case highLossHighAmount
     }
 }

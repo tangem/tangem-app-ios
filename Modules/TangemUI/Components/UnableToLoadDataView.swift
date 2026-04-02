@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
 
+// [REDACTED_TODO_COMMENT]
 public struct UnableToLoadDataView: View {
     private let isButtonBusy: Bool
     private let retryButtonAction: () -> Void
