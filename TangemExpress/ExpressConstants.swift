@@ -8,8 +8,10 @@
 
 import Foundation
 import struct BlockchainSdk.Fee
+import struct BlockchainSdk.ApproveTransactionData
 
 public typealias BSDKFee = BlockchainSdk.Fee
+public typealias BSDKApproveTransactionData = BlockchainSdk.ApproveTransactionData
 
 public enum ExpressConstants {
     public static let coinContractAddress = "0"
