@@ -945,6 +945,7 @@ extension SwapModel: SendSwapProvidersInput {
         case .failure(let error): .failure(error)
         case .loading(.rates): .loading
         case .loading: .none
+        case .loaded(_, _, .idle): .none
         case .loaded(_, let selected, _): selected.map { .success($0) }
         }
     }
