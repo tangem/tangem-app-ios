@@ -245,6 +245,7 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var features: [WalletModelFeature] { featureManager.features }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
@@ -610,6 +611,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
     }
 
     var transactionSender: TransactionSender {
+        walletManager
+    }
+
+    var walletUpdater: WalletUpdater {
         walletManager
     }
 

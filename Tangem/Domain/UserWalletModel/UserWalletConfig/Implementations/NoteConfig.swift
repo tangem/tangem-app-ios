@@ -18,7 +18,7 @@ import SwiftUI
 struct NoteConfig: CardContainer {
     let card: CardDTO
     private let noteData: WalletData
-    private let isDemo: Bool
+    let isDemo: Bool
 
     init(card: CardDTO, noteData: WalletData, isDemo: Bool) {
         self.card = card
@@ -181,14 +181,6 @@ extension NoteConfig: UserWalletConfig {
         case .tangemPay:
             return .hidden
         }
-    }
-
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        if isDemo {
-            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
-        }
-
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
