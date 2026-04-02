@@ -86,12 +86,10 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
+        AccountsAwareUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: _userTokensManager,
-            derivationManager: nil
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
         )
     }
 
