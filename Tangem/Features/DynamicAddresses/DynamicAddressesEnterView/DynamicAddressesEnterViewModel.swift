@@ -13,9 +13,17 @@ import TangemLocalization
 final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published private(set) var mainButtonIsLoading: Bool = false
 
+    private let dynamicAddressesManager: DynamicAddressesManager
+    private let walletModelUpdater: WalletModelUpdater
     private weak var coordinator: DynamicAddressesEnterRoutable?
 
-    init(coordinator: DynamicAddressesEnterRoutable) {
+    init(
+        dynamicAddressesManager: DynamicAddressesManager,
+        walletModelUpdater: WalletModelUpdater,
+        coordinator: DynamicAddressesEnterRoutable
+    ) {
+        self.dynamicAddressesManager = dynamicAddressesManager
+        self.walletModelUpdater = walletModelUpdater
         self.coordinator = coordinator
     }
 
@@ -24,10 +32,13 @@ final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     func userDidTapEnableAction() {
         mainButtonIsLoading = true
         Task {
-            try await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                close()
-                showSuccessToast()
+            do {
+                try await dynamicAddressesManager.enableDynamicAddresses()
+                await walletModelUpdater.startUpdateTask().value
+
+                await MainActor.run { close(); showSuccessToast() }
+            } catch {
+                assertionFailure(error.localizedDescription)
             }
         }
     }
