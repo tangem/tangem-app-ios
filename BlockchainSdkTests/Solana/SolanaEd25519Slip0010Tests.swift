@@ -8,6 +8,7 @@
 
 import Combine
 import Testing
+import TangemNetworkUtils
 @testable import BlockchainSdk
 import class SolanaSwift.Solana
 import enum SolanaSwift.SolanaError
@@ -38,7 +39,8 @@ struct SolanaEd25519Slip0010Tests {
         manager.networkService = SolanaNetworkService(
             providers: [],
             solanaSdk: solanaSdk,
-            blockchain: blockchain
+            blockchain: blockchain,
+            providerConfiguration: .init(logOptions: nil)
         )
     }
 
