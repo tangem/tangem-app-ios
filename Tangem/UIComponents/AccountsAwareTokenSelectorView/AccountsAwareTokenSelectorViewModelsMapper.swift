@@ -19,6 +19,7 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
 
     private let walletsProvider: any AccountsAwareTokenSelectorWalletsProvider
     private let availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
+    private let collapsibleAccounts: Bool
 
     // MARK: - Internal
 
@@ -32,10 +33,12 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
 
     init(
         walletsProvider: any AccountsAwareTokenSelectorWalletsProvider,
-        availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
+        availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider,
+        collapsibleAccounts: Bool = false
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
+        self.collapsibleAccounts = collapsibleAccounts
 
         itemViewModelBuilder = .init(availabilityProvider: availabilityProvider)
     }
@@ -121,17 +124,34 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         header: AccountsAwareTokenSelectorAccountViewModel.HeaderType,
         account: AccountsAwareTokenSelectorAccount
     ) -> AccountsAwareTokenSelectorAccountViewModel {
+        let rawItemsPublisher = itemsPublisher(provider: account.itemsProvider)
+
         let items = items(provider: account.itemsProvider)
             .map { mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
 
-        let itemsPublisher = itemsPublisher(provider: account.itemsProvider)
+        let itemsPublisher = rawItemsPublisher
             .withWeakCaptureOf(self)
             .map { provider, items in
                 items.map { provider.mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
             }
             .eraseToAnyPublisher()
 
-        return AccountsAwareTokenSelectorAccountViewModel(header: header, items: items, itemsPublisher: itemsPublisher)
+        var expandableViewModel: TokenSelectorExpandableAccountItemViewModel?
+
+        if collapsibleAccounts, case .account = header {
+            expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
+                account: account.account,
+                itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
+                searchTextPublisher: searchText.eraseToAnyPublisher()
+            )
+        }
+
+        return AccountsAwareTokenSelectorAccountViewModel(
+            header: header,
+            items: items,
+            itemsPublisher: itemsPublisher,
+            expandableViewModel: expandableViewModel
+        )
     }
 
     func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel {
