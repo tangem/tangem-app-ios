@@ -322,11 +322,11 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
-    var receiveRestrictionPublisher: AnyPublisher<ReceiveAmountRestriction?, Never> {
+    var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
-                isSwap ? model.swapModel.receiveRestrictionPublisher : .just(output: nil)
+                isSwap ? model.swapModel.exchangeRestrictionPublisher : .just(output: nil)
             }
             .eraseToAnyPublisher()
     }
@@ -521,7 +521,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             let highPriceImpactResult = try await swapModel.highPriceImpactPublisher.first().async()
             let source = try swapModel.sourceToken.get()
 
-            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
+            if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
                     tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
