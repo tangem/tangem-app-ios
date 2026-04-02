@@ -32,17 +32,6 @@ enum BlockcypherEndpoint {
         }
         return "\(blockchain)/\(suffix)"
     }
-
-    var blockchain: Blockchain {
-        switch self {
-        case .bitcoin(let testnet):
-            return .bitcoin(testnet: testnet)
-        case .ethereum: return .ethereum(testnet: false)
-        case .litecoin: return .litecoin
-        case .dogecoin: return .dogecoin
-        case .dash: return .dash(testnet: false)
-        }
-    }
 }
 
 struct BlockcypherTarget: TargetType {

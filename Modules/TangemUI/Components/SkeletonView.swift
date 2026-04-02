@@ -52,7 +52,7 @@ public struct SkeletonView: View {
         )
         .animation(isAppeared ? activeAnimation : stopAnimation, value: gradientPoints)
         .opacity(0.8)
-        .onAppear {
+        .task {
             guard !isAppeared else {
                 return
             }

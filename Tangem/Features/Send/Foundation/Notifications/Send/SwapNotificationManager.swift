@@ -207,6 +207,10 @@ private extension CommonSwapNotificationManager {
         case .previewCEX(let previewCEX):
             var events: [SwapNotificationEvent] = []
 
+            if let hpi = previewCEX.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(.highPriceImpactWarning(level: hpi.level))
+            }
+
             if previewCEX.subtractFee.subtractFee > 0 {
                 let feeTokenItem = previewCEX.subtractFee.feeTokenItem
                 let feeFiatValue = BalanceConverter().convertToFiat(previewCEX.subtractFee.subtractFee, currencyId: feeTokenItem.currencyId ?? "")
@@ -232,8 +236,14 @@ private extension CommonSwapNotificationManager {
 
             return events
 
-        case .readyToSwap:
-            return []
+        case .readyToSwap(let readyState):
+            var events: [SwapNotificationEvent] = []
+
+            if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(.highPriceImpactWarning(level: hpi.level))
+            }
+
+            return events
         }
     }
 

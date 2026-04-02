@@ -132,12 +132,11 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             return
         }
 
-        guard highPriceImpact.isHighPriceImpact else {
+        if highPriceImpact.level.isNegligible {
             priceChangeState = .info(message: highPriceImpact.infoMessage)
-            return
+        } else {
+            priceChangeState = .percent(highPriceImpact.lossesInPercentsFormatted, message: highPriceImpact.infoMessage, isHighLoss: highPriceImpact.isHighLoss)
         }
-
-        priceChangeState = .percent(highPriceImpact.lossesInPercentsFormatted, message: highPriceImpact.infoMessage)
     }
 
     func update(errorState: ErrorState?) {
@@ -152,12 +151,12 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 extension ExpressCurrencyViewModel {
     enum PriceChangeState: Hashable {
         case info(message: String)
-        case percent(_ formatted: String, message: String)
+        case percent(_ formatted: String, message: String, isHighLoss: Bool)
 
         var message: String {
             switch self {
             case .info(let message): message
-            case .percent(_, let message): message
+            case .percent(_, let message, _): message
             }
         }
     }

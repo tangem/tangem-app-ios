@@ -22,7 +22,7 @@ extension StellarAddressService: AddressProvider {
         let keyPair = KeyPair(publicKey: stellarPublicKey)
         let address = keyPair.accountId
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 
     private func validateAddress(_ address: String) -> Bool {

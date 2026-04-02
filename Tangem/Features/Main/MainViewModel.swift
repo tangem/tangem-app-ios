@@ -32,12 +32,20 @@ final class MainViewModel: ObservableObject {
     let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
-    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
-        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+    private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
+        settings: .init(
+            stopRefreshingDelay: 1,
+            refreshTaskTimeout: 120, // 2 minutes
+            shouldForceRefreshing: isRedesignEnabled
+        ),
         refreshable: { [weak self] in
             await self?.onPullToRefresh()
         }
     )
+
+    var isRedesignEnabled: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
 
     // MARK: - Dependencies
 
@@ -273,7 +281,7 @@ final class MainViewModel: ObservableObject {
             .map { userWalletRepository.models[$0] }
 
         let walletModelsPublishers = userWalletsWithMissingBodyModel
-            .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+            .map { AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
@@ -428,7 +436,7 @@ final class MainViewModel: ObservableObject {
 
         let userWalletModel = userWalletRepository.selectedModel
 
-        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+        if let userWalletModel {
             mainScreenOpenedAnalyticsSubscription = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher

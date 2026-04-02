@@ -283,9 +283,7 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
+        if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
             MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
         }
     }

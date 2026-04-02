@@ -90,17 +90,19 @@ public extension WalletManagerFactory {
         blockchain: Blockchain,
         dummyPublicKey: Data,
         dummyAddress: String
-    ) throws -> WalletManager { let publicKey = Wallet.PublicKey(seedKey: dummyPublicKey, derivationType: .none)
+    ) throws -> WalletManager {
+        let publicKey = Wallet.PublicKey(seedKey: dummyPublicKey, derivationType: .none)
         let address: Address
 
         if dummyAddress.isEmpty {
             let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
             address = try service.makeAddress(for: publicKey, with: .default)
         } else {
-            address = PlainAddress(value: dummyAddress, publicKey: publicKey, type: .default)
+            address = PlainAddress(value: dummyAddress, type: .default)
         }
 
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let addressesProvider = CommonAddressesProvider(defaultAddress: address)
+        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
 
         let networkInput = NetworkProviderAssembly.Input(
             blockchain: blockchain,

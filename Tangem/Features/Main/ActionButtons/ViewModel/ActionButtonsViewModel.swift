@@ -80,7 +80,7 @@ final class ActionButtonsViewModel: ObservableObject {
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
+            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager),
             updatePublisher: userWalletModel.updatePublisher
         )
 
@@ -110,8 +110,8 @@ private extension ActionButtonsViewModel {
     }
 
     func bindWalletModels() {
-        AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: userWalletModel)
+        AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
                 viewModel.handleWalletModelsCountUpdate(walletModels.count)
