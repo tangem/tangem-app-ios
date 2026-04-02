@@ -40,6 +40,11 @@ struct GenericWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
+        case let blockchain where blockchain.isXPUB:
+            return try BitcoinXPUBPublicKeyFactory().makePublicKey(
+                blockchainNetwork: blockchainNetwork,
+                keys: keys
+            )
         default:
             return try HDWalletPublicKeyFactory().makePublicKey(
                 blockchainNetwork: blockchainNetwork,

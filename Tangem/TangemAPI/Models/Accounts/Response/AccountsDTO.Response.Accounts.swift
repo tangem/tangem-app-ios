@@ -31,6 +31,7 @@ extension AccountsDTO.Response {
             let symbol: String
             let decimals: Int
             let derivationPath: String?
+            let xpubEnabled: Bool?
             let contractAddress: String?
         }
 

@@ -25,15 +25,19 @@ struct BlockchainNetwork: Codable, Hashable, Equatable {
             return []
         }
 
-        // If we use the extended cardano then
-        // we should have two derivations for collect correct PublicKey
-        guard case .cardano(let extended) = blockchain, extended else {
-            return [derivationPath]
-        }
-
         do {
-            let extendedPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
-            return [derivationPath, extendedPath]
+            switch blockchain {
+            case .cardano(extended: true):
+                let extendedPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
+                return [derivationPath, extendedPath]
+
+            case let blockchain where blockchain.isXPUB:
+                let xpubPaths = try XPUBUtils().xpubDerivationPaths(for: derivationPath)
+                return [derivationPath, xpubPaths.child, xpubPaths.parent]
+
+            default:
+                return [derivationPath]
+            }
         } catch {
             AppLogger.error(error: error)
             Analytics.error(error: error)
