@@ -32,6 +32,7 @@ final class SwapModel {
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+    private var _currentRateType: ExpressProviderRateType?
 
     // MARK: - Dependencies
 
@@ -155,8 +156,9 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
+            let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
             let result: ExpressManagerUpdatingResult = try await expressManager.update(
-                amountType: sourceAmount?.crypto.map { .from($0) },
+                amountType: amountType,
                 by: .amountChange
             )
 
@@ -183,7 +185,11 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: receiveAmount?.crypto.map { .to($0) }, by: .amountChange)
+            let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(
+                amountType: amountType,
+                by: .amountChange
+            )
 
             if let self, let quote = result.selected?.getState().quote {
                 _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
@@ -312,19 +318,43 @@ extension SwapModel {
 
                     try Task.checkCancellation()
 
+                    if case .requiredRefresh(let occurredError, _) = state {
+                        input.logSwapError(loadingType: loadingType, error: occurredError)
+                    }
+
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
                         selected: updatingResult.selected,
                         state: state
                     ))
+
+                    await input.updateRateTypeAndLogIfNeeded()
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
                 // Do nothing
             } catch {
+                input.logSwapError(loadingType: loadingType, error: error)
                 input.update(providersState: .failure(error))
             }
         })
+    }
+
+    private func logSwapError(loadingType: LoadingType, error: Error) {
+        analyticsLogger.logSendWithSwapError(
+            screen: loadingType.analyticsScreenName,
+            errorDescription: error.localizedDescription
+        )
+    }
+
+    private func updateRateTypeAndLogIfNeeded() async {
+        let rateType = await expressManager.getRateType()
+        let rateTypeDidChange = rateType != nil && rateType != _currentRateType
+        _currentRateType = rateType
+
+        if rateTypeDidChange {
+            analyticsLogger.logSendWithSwapAmountScreenOpened()
+        }
     }
 
     func update(providersState: ProvidersState) {
@@ -952,6 +982,10 @@ extension SwapModel: SendSwapProvidersInput {
             .eraseToAnyPublisher()
     }
 
+    var currentRateType: ExpressProviderRateType? {
+        _currentRateType
+    }
+
     private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {
         switch providersState {
         case .idle: .none
@@ -1433,6 +1467,15 @@ extension SwapModel {
         case rates
         case autoupdate
         case fee
+
+        var analyticsScreenName: Analytics.ParameterValue {
+            switch self {
+            case .rates, .providers, .provider:
+                return .amount
+            case .autoupdate, .fee:
+                return .confirmation
+            }
+        }
     }
 
     enum LoadedState {
