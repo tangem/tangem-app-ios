@@ -102,7 +102,7 @@ private extension CommonPromotionRepository {
             let request = PromotionsDTO.Load.Request(
                 walletId: walletId,
                 placeholder: .main,
-                lang: Locale.current.localizationCode
+                language: Locale.current.localizationCode
             )
 
             return try await tangemApiService.loadPromotions(request: request).items
@@ -117,7 +117,7 @@ private extension CommonPromotionRepository {
             let request = PromotionsDTO.Load.Request(
                 walletId: walletId,
                 placeholder: .news,
-                lang: Locale.current.localizationCode
+                language: Locale.current.localizationCode
             )
 
             return try await tangemApiService.loadPromotions(request: request).items
