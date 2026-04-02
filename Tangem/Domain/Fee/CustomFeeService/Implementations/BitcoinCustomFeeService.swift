@@ -19,7 +19,7 @@ class BitcoinCustomFeeService {
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0, maximumTextLength: Constants.satoshiPerByteMaxLength)
 
     private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
     private var cachedCustomFee: Fee?
@@ -193,5 +193,13 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
         )
 
         return [customFeeRowViewModel, satoshiPerByteRowViewModel]
+    }
+}
+
+// MARK: - Constants
+
+private extension BitcoinCustomFeeService {
+    enum Constants {
+        static let satoshiPerByteMaxLength: Int = 10
     }
 }
