@@ -25,7 +25,7 @@ extension PromotionsDTO {
         struct Request: Encodable {
             let walletId: String
             let placeholder: PromotionsDTO.Placement
-            let lang: String
+            let language: String
         }
 
         struct Response: Decodable {
