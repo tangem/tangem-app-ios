@@ -10,7 +10,7 @@ import enum BlockchainSdk.Blockchain
 import TangemFoundation
 
 final class WalletConnectResolveAvailableBlockchainsUseCase {
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     func callAsFunction(
         sessionProposal: WalletConnectDAppSessionProposal,
         selectedBlockchains: some Sequence<Blockchain>,
@@ -52,7 +52,7 @@ final class WalletConnectResolveAvailableBlockchainsUseCase {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     private static func resolveAvailableBlockchains(
         from blockchains: Set<Blockchain>?,
         userWallet: some UserWalletModel,
