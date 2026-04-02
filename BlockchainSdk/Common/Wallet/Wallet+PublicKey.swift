@@ -63,6 +63,16 @@ public extension Wallet.PublicKey {
         }
     }
 
+    struct XPUBKey: Codable, Hashable {
+        public let child: HDKey
+        public let parent: HDKey
+
+        public init(child: HDKey, parent: HDKey) {
+            self.child = child
+            self.parent = parent
+        }
+    }
+
     struct HDKey: Codable, Hashable {
         public let path: DerivationPath
         public let extendedPublicKey: ExtendedPublicKey
