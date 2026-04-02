@@ -10,24 +10,26 @@ import SwiftUI
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
+import TangemAssets
 
 struct CardsInfoPagerView<
     Data: RandomAccessCollection,
     Header: View,
-    Body: View,
-    BottomOverlay: View
+    Content: View,
+    BottomOverlay: View,
+    FooterOverlay: View
 >: View where Data.Element: Identifiable, Data.Index == Int {
-    typealias HeaderFactory = (_ element: Data.Element) -> Header
-    typealias ContentFactory = (_ element: Data.Element) -> Body
-    typealias BottomOverlayFactory = (_ element: Data.Element, _ overlayParams: CardsInfoPagerBottomOverlayFactoryParams) -> BottomOverlay
     typealias OnPageChange = (_ pageChangeReason: CardsInfoPageChangeReason) -> Void
 
     // MARK: - Dependencies
 
     private let data: Data
-    private let headerFactory: HeaderFactory
-    private let contentFactory: ContentFactory
-    private let bottomOverlayFactory: BottomOverlayFactory
+
+    private let headerViewBuilder: (Data.Element) -> Header
+    private let contentViewBuilder: (Data.Element) -> Content
+    private let bottomOverlayViewBuilder: (Data.Element) -> BottomOverlay
+    private let footerOverlayViewBuilder: (Data.Element) -> FooterOverlay
+
     private let refreshScrollViewStateObject: RefreshScrollViewStateObject?
 
     // MARK: - Selected index
@@ -120,16 +122,13 @@ struct CardsInfoPagerView<
     // MARK: - Vertical auto scrolling (collapsible/expandable header)
 
     @StateObject private var scrollDetector = ScrollDetector()
-    @StateObject private var scrollState = CardsInfoPagerScrollState()
-
-    private let expandedHeaderScrollTargetIdentifier = UUID()
-    private let collapsedHeaderScrollTargetIdentifier = UUID()
-    private let scrollViewFrameCoordinateSpaceName = UUID()
 
     /// Different headers for different pages are expected to have the same height (otherwise visual glitches may occur).
     @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Replace with native `.safeAreaInset()` ([REDACTED_INFO])")
     @State private var headerHeight: CGFloat = .zero
-    @State private var scrollViewBottomContentInset: CGFloat = .zero
+    @State private var scrollViewSafeAreaInsetBottom: CGFloat = .zero
+    @State private var didScrollToBottom = false
+    @State private var contentOffsetY = CGFloat.zero
 
     // MARK: - Configuration
 
@@ -144,13 +143,16 @@ struct CardsInfoPagerView<
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
+                // [REDACTED_USERNAME], lower zIndex is used because content should always go above footer overlay.
+                // Noticeable during fast scrolls in up direction.
+                footerOverlay
+
                 makeScrollView(with: proxy)
                     .onAppear {
                         scrollDetector.startDetectingScroll()
-                        scrollState.onViewAppear()
                     }
                     .onDisappear(perform: scrollDetector.stopDetectingScroll)
-                    .onChange(of: scrollState.contentOffset) { offset in
+                    .onChange(of: contentOffsetY) { _ in
                         // Vertical scrolling may delay or even cancel horizontal scroll animations,
                         // which in turn may lead to desynchronization between `selectedIndex` and
                         // `contentSelectedIndex` properties.
@@ -172,7 +174,7 @@ struct CardsInfoPagerView<
                     }
                     .layoutPriority(1.0)
 
-                makeBottomOverlay()
+                bottomOverlay
             }
             .onChange(of: proxy.size.width) { newWidth in
                 guard !isDraggingHorizontally else { return }
@@ -217,9 +219,10 @@ struct CardsInfoPagerView<
         selectedIndex: Binding<Int>,
         discoveryAnimationTrigger: CardsInfoPagerSwipeDiscoveryAnimationTrigger = .dummy,
         configStorageKey: AnyHashable = #fileID,
-        @ViewBuilder headerFactory: @escaping HeaderFactory,
-        @ViewBuilder contentFactory: @escaping ContentFactory,
-        @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory
+        @ViewBuilder headerViewBuilder: @escaping (Data.Element) -> Header,
+        @ViewBuilder contentViewBuilder: @escaping (Data.Element) -> Content,
+        @ViewBuilder bottomOverlayViewBuilder: @escaping (Data.Element) -> BottomOverlay,
+        @ViewBuilder footerOverlayViewBuilder: @escaping (Data.Element) -> FooterOverlay
     ) {
         self.data = data
         self.refreshScrollViewStateObject = refreshScrollViewStateObject
@@ -229,9 +232,11 @@ struct CardsInfoPagerView<
         _externalSelectedIndex = selectedIndex
         swipeDiscoveryAnimationTrigger = discoveryAnimationTrigger
         self.configStorageKey = configStorageKey
-        self.headerFactory = headerFactory
-        self.contentFactory = contentFactory
-        self.bottomOverlayFactory = bottomOverlayFactory
+
+        self.headerViewBuilder = headerViewBuilder
+        self.contentViewBuilder = contentViewBuilder
+        self.bottomOverlayViewBuilder = bottomOverlayViewBuilder
+        self.footerOverlayViewBuilder = footerOverlayViewBuilder
     }
 
     // MARK: - View factories
@@ -240,7 +245,7 @@ struct CardsInfoPagerView<
         // [REDACTED_TODO_COMMENT]
         HStack(spacing: Constants.headerInteritemSpacing) {
             ForEach(data) { element in
-                headerFactory(element)
+                headerViewBuilder(element)
                     .frame(width: max(proxy.size.width - Constants.headerItemHorizontalOffset * 2.0, 0.0))
             }
         }
@@ -268,13 +273,16 @@ struct CardsInfoPagerView<
                     }
                 }
             }
+            .safeAreaInset(edge: .bottom, spacing: .zero) {
+                Spacer()
+                    .frame(height: scrollViewSafeAreaInsetBottom)
+            }
             .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
                 if newValue != oldValue, !newValue {
                     performVerticalScrollIfNeeded(with: scrollViewProxy)
                 }
             }
-            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
-            .readGeometry(\.size, bindTo: scrollState.viewportSizeSubject.asWriteOnlyBinding(.zero))
+            .coordinateSpace(name: Constants.scrollViewFrameCoordinateSpaceName)
         }
     }
 
@@ -282,70 +290,79 @@ struct CardsInfoPagerView<
         // ScrollView inserts default spacing between its content views.
         // Wrapping content into `VStack` prevents it.
         VStack(spacing: 0.0) {
-            VStack(spacing: 0.0) {
-                // This spacer acts as an auto scroll target when the header is expanded
-                Spacer(minLength: Constants.headerVerticalPadding)
-                    .fixedSize()
-                    .id(expandedHeaderScrollTargetIdentifier)
+            // This spacer acts as an auto scroll target when contentOffsetY is between header minY and header midY
+            Spacer(minLength: Constants.headerVerticalPadding)
+                .fixedSize()
+                .id(HeaderScrollAnchorIdentifier.top)
 
-                makeHeader(with: geometryProxy)
-                    .highPriorityGesture(
-                        makeDragGesture(with: geometryProxy),
-                        including: isHorizontalScrollDisabled ? .subviews : .all
-                    )
+            makeHeader(with: geometryProxy)
+                .highPriorityGesture(
+                    makeDragGesture(with: geometryProxy),
+                    including: isHorizontalScrollDisabled ? .subviews : .all
+                )
 
-                // This spacer is used to maintain `Constants.headerAdditionalSpacingHeight` (value
-                // derived from mockups) spacing between the bottom edge of the navigation bar and
-                // the top edge of the `content` part of a particular page when the header is collapsed
-                Spacer(minLength: Constants.headerAdditionalSpacingHeight)
-                    .fixedSize()
+            // This spacer is used to maintain `Constants.headerAdditionalSpacingHeight` (value
+            // derived from mockups) spacing between the bottom edge of the navigation bar and
+            // the top edge of the `content` part of a particular page when the header is collapsed
+            Spacer(minLength: Constants.headerAdditionalSpacingHeight)
+                .fixedSize()
 
-                // This spacer acts as an auto scroll target when the header is collapsed
-                Spacer(minLength: Constants.headerVerticalPadding)
-                    .fixedSize()
-                    .id(collapsedHeaderScrollTargetIdentifier)
+            // This spacer acts as an auto scroll target when contentOffsetY is between header midY and header maxY
+            Spacer(minLength: Constants.headerVerticalPadding)
+                .fixedSize()
+                .id(HeaderScrollAnchorIdentifier.bottom)
 
-                if let element = data[safe: clampedContentSelectedIndex] {
-                    contentFactory(element)
-                        .modifier(contentAnimationModifier)
+            if let element = data[safe: clampedContentSelectedIndex] {
+                contentViewBuilder(element)
+                    .modifier(contentAnimationModifier)
+
+                // [REDACTED_USERNAME], hidden footer is used for scrollview content size calculations.
+                footerOverlayViewBuilder(element)
+                    .hidden()
+            }
+        }
+        .onGeometryChange(
+            for: CardsInfoPagerViewContentGeometry.self,
+            of: { proxy in
+                let scrollViewHeight = geometryProxy.size.height + geometryProxy.safeAreaInsets.bottom
+                let contentHeight = proxy.size.height
+                let contentOffsetY = -proxy.frame(in: .named(Constants.scrollViewFrameCoordinateSpaceName)).minY
+
+                let didScrollToBottom = contentOffsetY >= contentHeight
+                    - scrollViewHeight
+                    + scrollViewSafeAreaInsetBottom
+                    - Constants.scrollStateBottomContentInsetDiff
+
+                return CardsInfoPagerViewContentGeometry(didScrollToBottom: didScrollToBottom, contentOffsetY: contentOffsetY)
+            },
+            action: { contentGeometry in
+                didScrollToBottom = contentGeometry.didScrollToBottom
+                contentOffsetY = contentGeometry.contentOffsetY
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var footerOverlay: some View {
+        if let element = data[safe: clampedContentSelectedIndex] {
+            ZStack {
+                if didScrollToBottom, !isDraggingHorizontally {
+                    footerOverlayViewBuilder(element)
+                        .offset(y: -scrollViewSafeAreaInsetBottom + Constants.scrollStateBottomContentInsetDiff)
                 }
             }
-            .readGeometry(\.size, bindTo: scrollState.contentSizeSubject.asWriteOnlyBinding(.zero))
-            .readContentOffset(
-                inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
-            )
-
-            CardsInfoPagerFlexibleFooterView(
-                contentSize: scrollState.contentSize,
-                viewportSize: scrollState.viewportSize,
-                headerTopInset: Constants.headerVerticalPadding,
-                headerHeight: headerHeight + Constants.headerAdditionalSpacingHeight,
-                bottomContentInset: scrollViewBottomContentInset
-            )
+            .animation(.easeIn(duration: 0.1), value: didScrollToBottom && !isDraggingHorizontally)
         }
     }
 
     @ViewBuilder
-    private func makeBottomOverlay() -> some View {
+    private var bottomOverlay: some View {
         if let element = data[safe: clampedContentSelectedIndex] {
-            bottomOverlayFactory(
-                element,
-                CardsInfoPagerBottomOverlayFactoryParams(
-                    isDraggingHorizontally: isDraggingHorizontally,
-                    didScrollToBottom: scrollState.didScrollToBottom,
-                    scrollOffset: scrollState.contentOffsetExceedingContentSize,
-                    viewportSize: scrollState.viewportSize,
-                    contentSize: scrollState.contentSize,
-                    scrollViewBottomContentInset: scrollViewBottomContentInset
-                )
-            )
-            .animation(.linear(duration: 0.1), value: scrollState.didScrollToBottom)
-            .modifier(contentAnimationModifier)
-            .readGeometry(\.size.height) { newValue in
-                scrollViewBottomContentInset = newValue
-                scrollState.bottomContentInsetSubject.send(newValue - Constants.scrollStateBottomContentInsetDiff)
-            }
+            bottomOverlayViewBuilder(element)
+                .animation(.linear(duration: 0.1), value: didScrollToBottom)
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { bottomOverlayHeight in
+                    scrollViewSafeAreaInsetBottom = bottomOverlayHeight
+                }
         }
     }
 
@@ -519,23 +536,18 @@ struct CardsInfoPagerView<
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
     private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
-        let yOffset = scrollState.rawContentOffset.y - Constants.headerVerticalPadding
+        let yOffset = contentOffsetY - Constants.headerVerticalPadding
 
         guard 0.0 <= yOffset, yOffset < headerHeight else { return }
 
-        let headerAutoScrollRatio: CGFloat
-        if scrollState.proposedHeaderState == .collapsed {
-            headerAutoScrollRatio = Constants.headerAutoScrollThresholdRatio
-        } else {
-            headerAutoScrollRatio = 1.0 - Constants.headerAutoScrollThresholdRatio
-        }
+        let contentYOffsetPassedHeaderMiddle = yOffset > headerHeight / 2
 
-        withAnimation(.spring()) {
-            if yOffset > headerHeight * headerAutoScrollRatio {
-                scrollViewProxy.scrollTo(collapsedHeaderScrollTargetIdentifier, anchor: .top)
-            } else {
-                scrollViewProxy.scrollTo(expandedHeaderScrollTargetIdentifier, anchor: .top)
-            }
+        let headerScrollAnchorIdentifier = contentYOffsetPassedHeaderMiddle
+            ? HeaderScrollAnchorIdentifier.bottom
+            : HeaderScrollAnchorIdentifier.top
+
+        withAnimation(.spring) {
+            scrollViewProxy.scrollTo(headerScrollAnchorIdentifier, anchor: .top)
         }
     }
 
@@ -646,11 +658,6 @@ enum CardsInfoPageChangeReason {
 }
 
 private extension CardsInfoPagerView {
-    enum ProposedHeaderState {
-        case collapsed
-        case expanded
-    }
-
     enum PageSwitchMethod {
         case byGesture(DragGesture.Value)
         case programmatically(selectedIndex: Int)
@@ -664,10 +671,21 @@ private extension CardsInfoPagerView {
             }
         }
     }
+
+    enum HeaderScrollAnchorIdentifier: Hashable {
+        case top
+        case bottom
+    }
 }
 
 private extension CardsInfoPagerSwipeDiscoveryAnimationTrigger {
     static let dummy: CardsInfoPagerSwipeDiscoveryAnimationTrigger = .init()
+}
+
+/// [REDACTED_USERNAME], type is required because swift tuples can't yet conform to Equatable protocol.
+private struct CardsInfoPagerViewContentGeometry: Equatable {
+    let didScrollToBottom: Bool
+    let contentOffsetY: CGFloat
 }
 
 // MARK: - Constants
@@ -677,14 +695,15 @@ private extension CardsInfoPagerView {
         static var headerInteritemSpacing: CGFloat { 8.0 }
         static var headerItemHorizontalOffset: CGFloat { headerInteritemSpacing * 2.0 }
         static var headerVerticalPadding: CGFloat { 8.0 }
-        static var headerAdditionalSpacingHeight: CGFloat { max(14.0 - Constants.headerVerticalPadding, 0.0) }
-        static var headerAutoScrollThresholdRatio: CGFloat { 0.25 }
+        static var headerAdditionalSpacingHeight: CGFloat { 6 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimationDuration: TimeInterval { 0.7 }
         static var minRemainingPageSwitchProgress: CGFloat { 1.0 / 3.0 }
         static var scrollStateBottomContentInsetDiff: CGFloat { 14.0 }
         static var swipeDiscoveryOffsetToScreenWidthRatio: CGFloat { 0.175 } // Based on mockups
+
+        static var scrollViewFrameCoordinateSpaceName: String { "scrollViewFrameCoordinateSpaceName" }
     }
 }
 

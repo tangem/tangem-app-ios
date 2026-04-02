@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemExpress
 
@@ -54,20 +55,20 @@ enum SendAmountStepBuilder {
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
-        let isFixedRateMode: Bool
+        let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
 
         init(
             sendAmountValidator: any SendAmountValidator,
             amountModifier: (any SendAmountModifier)?,
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
-            isFixedRateMode: Bool = false
+            providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
             self.notificationService = notificationService
             self.analyticsLogger = analyticsLogger
-            self.isFixedRateMode = isFixedRateMode
+            self.providerRateTypesPublisher = providerRateTypesPublisher
         }
     }
 
@@ -99,7 +100,7 @@ enum SendAmountStepBuilder {
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
-            isFixedRateMode: dependencies.isFixedRateMode
+            providerRateTypesPublisher: dependencies.providerRateTypesPublisher
         )
 
         let step = SendAmountStep(

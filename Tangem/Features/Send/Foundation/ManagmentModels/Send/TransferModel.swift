@@ -473,16 +473,13 @@ extension TransferModel: NotificationTapDelegate {
              .retryKaspaTokenTransaction,
              .stake,
              .openLink,
+             .openDeeplink,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
              .support,
              .openCurrency,
-             .seedSupportYes,
-             .seedSupportNo,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -491,7 +488,8 @@ extension TransferModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             assertionFailure("Notification tap not handled")
         }
     }

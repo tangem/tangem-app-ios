@@ -312,7 +312,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             return false
         }
 
-        return walletModel.addresses.contains { $0.value.caseInsensitiveCompare(destination) == .orderedSame }
+        return walletModel.addresses.contains { $0.caseInsensitiveCompare(destination) == .orderedSame }
     }
 
     private func filterOutSelfAddressMatches(

@@ -10,7 +10,7 @@ import Foundation
 
 /*
  - PuzzleHash Chia documentation - https://docs.chia.net/guides/crash-course/signatures/
- - Сurried and serialized signature.clsp (https://github.com/Chia-Network/chialisp-crash-course)
+ - Curried and serialized signature.clsp (https://github.com/Chia-Network/chialisp-crash-course)
  */
 
 struct ChiaPuzzleUtils {
