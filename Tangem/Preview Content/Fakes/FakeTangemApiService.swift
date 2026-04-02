@@ -62,14 +62,6 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: "Not implemented")
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
-        .anyFail(error: .init(code: .notFound))
-    }
-
-    func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        .anyFail(error: .init(code: .notFound))
-    }
-
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
     }
@@ -83,6 +75,14 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
+        throw "Not implemented"
+    }
+
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        throw "Not implemented"
+    }
+
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
         throw "Not implemented"
     }
 
@@ -123,22 +123,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
-        throw "Not implemented"
-    }
-
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO {
-        throw "Not implemented"
-    }
-
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        throw "Not implemented"
-    }
-
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO {
-        throw "Not implemented"
-    }
-
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
         throw "Not implemented"
     }
 

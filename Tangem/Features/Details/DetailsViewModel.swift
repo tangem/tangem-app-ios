@@ -161,7 +161,7 @@ private extension DetailsViewModel {
         let data = models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
+                walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
             )
         }
 
@@ -205,7 +205,7 @@ private extension DetailsViewModel {
         let data = userWalletRepository.models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
+                walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
             )
         }
 

@@ -20,6 +20,7 @@ struct EtherscanTransactionHistoryTarget {
 extension EtherscanTransactionHistoryTarget {
     enum Configuration {
         case etherscan(chainId: Int, apiKey: String)
+        case zkSync
     }
 
     enum Target {
@@ -35,19 +36,21 @@ extension EtherscanTransactionHistoryTarget: TargetType {
         switch configuration {
         case .etherscan:
             return URL(string: "https://api.etherscan.io/v2")!
+        case .zkSync:
+            return URL(string: "https://block-explorer-api.mainnet.zksync.io")!
         }
     }
 
     var path: String {
         switch configuration {
-        case .etherscan:
+        case .etherscan, .zkSync:
             return "api"
         }
     }
 
     var method: Moya.Method {
         switch configuration {
-        case .etherscan:
+        case .etherscan, .zkSync:
             return .get
         }
     }
@@ -64,6 +67,37 @@ extension EtherscanTransactionHistoryTarget: TargetType {
             ]
 
             parameters["apikey"] = apiKey
+
+            switch target {
+            case .getCoinTransactionHistory(let address, let page, let limit):
+                parameters["action"] = "txlist"
+                parameters["address"] = address
+                parameters["page"] = page
+                parameters["offset"] = limit
+
+                return .requestParameters(
+                    parameters: parameters,
+                    encoding: URLEncoding.queryString
+                )
+            case .getTokenTransactionHistory(let address, let contract, let page, let limit):
+                parameters["action"] = "tokentx"
+                parameters["address"] = address
+                parameters["contractaddress"] = contract
+                parameters["page"] = page
+                parameters["offset"] = limit
+
+                return .requestParameters(
+                    parameters: parameters,
+                    encoding: URLEncoding.queryString
+                )
+            }
+        case .zkSync:
+            var parameters: [String: Any] = [
+                "module": "account",
+                "startblock": 0,
+                "endblock": 99999999,
+                "sort": "desc",
+            ]
 
             switch target {
             case .getCoinTransactionHistory(let address, let page, let limit):
