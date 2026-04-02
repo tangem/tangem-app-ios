@@ -35,14 +35,7 @@ enum TokenAdder {
 
 private extension TokenAdder {
     static func userTokensManager(walletModelResult: WalletModelFinder.Result) throws -> any UserTokensManager {
-        let userTokensManager: (any UserTokensManager)? = if FeatureProvider.isAvailable(.accounts) {
-            walletModelResult.walletModel.account?.userTokensManager
-        } else {
-            // accounts_fixes_needed_none
-            walletModelResult.userWalletModel.userTokensManager
-        }
-
-        guard let userTokensManager else {
+        guard let userTokensManager = walletModelResult.walletModel.account?.userTokensManager else {
             throw Error.userTokensManagerNotFound
         }
 
