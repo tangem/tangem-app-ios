@@ -50,7 +50,7 @@ extension CommonSendDestinationWalletDataProvider: SendDestinationInteractorDepe
             return nil
         }
 
-        let walletAddresses = sourceWalletModel.addresses.map(\.value)
+        let walletAddresses = sourceWalletModel.addresses
 
         return .init(
             walletAddresses: walletAddresses,
@@ -88,11 +88,7 @@ private extension CommonSendDestinationWalletDataProvider {
             .models
             .filter { $0.userWalletId == userWalletInfo.id }
             .flatMap { userWalletModel -> [any WalletModel] in
-                if FeatureProvider.isAvailable(.accounts) {
-                    return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-                } else {
-                    return userWalletModel.walletModelsManager.walletModels
-                }
+                AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             }
             .first { walletModel in
                 walletModel.tokenItem == tokenItem
@@ -100,7 +96,7 @@ private extension CommonSendDestinationWalletDataProvider {
     }
 
     func makeSendWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let walletAddresses = walletModel.addresses.map(\.value)
+        let walletAddresses = walletModel.addresses
 
         return .init(
             walletAddresses: walletAddresses,
