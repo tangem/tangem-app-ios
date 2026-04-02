@@ -476,14 +476,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
-        if FeatureProvider.isAvailable(.accounts) {
-            makeAccountsAwareContext(for: userWalletModel)
-        } else {
-            makeLegacyContext(for: userWalletModel)
-        }
-    }
-
-    private func makeAccountsAwareContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
         guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
             return nil
         }
@@ -492,15 +484,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return AccountsAwareManageTokensContext(
             accountModelsManager: userWalletModel.accountModelsManager,
             currentAccount: mainAccount
-        )
-    }
-
-    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
-        LegacyManageTokensContext(
-            // accounts_fixes_needed_none
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager
         )
     }
 }
@@ -530,7 +513,7 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
@@ -552,7 +535,7 @@ extension OnboardingViewModel {
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
