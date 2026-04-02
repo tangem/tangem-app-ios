@@ -291,8 +291,12 @@ final class CryptoAccountsNetworkMapper {
         token: AccountsDTO.Response.Accounts.Token
     ) throws -> StoredCryptoAccount.Token.BlockchainNetworkContainer {
         // Unknown blockchain
-        guard let blockchain = supportedBlockchains[token.networkId] else {
+        guard var blockchain = supportedBlockchains[token.networkId] else {
             return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
+        }
+
+        if let xpubEnabled = token.xpubEnabled {
+            blockchain = blockchain.updatedIfSupported(xpub: xpubEnabled)
         }
 
         // Known blockchain, but w/o tokens support
