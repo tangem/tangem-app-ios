@@ -15,11 +15,18 @@ struct AccountsAwareTokenSelectorAccountView: View {
     @ObservedObject var viewModel: AccountsAwareTokenSelectorAccountViewModel
 
     var body: some View {
-        GroupedSection(viewModel.items) { item in
-            AccountsAwareTokenSelectorItemView(viewModel: item)
-        } header: {
-            AccountsAwareTokenSelectorAccountHeaderView(header: viewModel.header)
+        if let expandableViewModel = viewModel.expandableViewModel, !viewModel.items.isEmpty {
+            TokenSelectorExpandableAccountSectionView(
+                expandableViewModel: expandableViewModel,
+                accountViewModel: viewModel
+            )
+        } else if viewModel.expandableViewModel == nil {
+            GroupedSection(viewModel.items) { item in
+                AccountsAwareTokenSelectorItemView(viewModel: item)
+            } header: {
+                AccountsAwareTokenSelectorAccountHeaderView(header: viewModel.header)
+            }
+            .backgroundColor(Colors.Background.action)
         }
-        .backgroundColor(Colors.Background.action)
     }
 }
