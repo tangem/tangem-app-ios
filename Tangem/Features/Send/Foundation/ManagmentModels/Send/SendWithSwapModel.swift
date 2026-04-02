@@ -377,6 +377,10 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             }
             .eraseToAnyPublisher()
     }
+
+    var currentRateType: ExpressProviderRateType? {
+        isSwapMode ? swapModel.currentRateType : nil
+    }
 }
 
 // MARK: - SendSwapProvidersOutput
