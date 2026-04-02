@@ -2897,10 +2897,6 @@
 		B6F995F12D91CD1000F83C4D /* WalletModelFeaturesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F995F02D91CD1000F83C4D /* WalletModelFeaturesManager.swift */; };
 		B6F995F32D91CD1A00F83C4D /* CommonWalletModelFeaturesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F995F22D91CD1A00F83C4D /* CommonWalletModelFeaturesManager.swift */; };
 		B6F995F72D91D68F00F83C4D /* WalletModelFeaturesManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F995F62D91D68F00F83C4D /* WalletModelFeaturesManagerMock.swift */; };
-		B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E42B1FEEF6000BB59E /* RootHostingController.swift */; };
-		B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E62B1FEF13000BB59E /* StatusBarStyleConfigurator.swift */; };
-		B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E82B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift */; };
-		B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04EA2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift */; };
 		B6FCEE712C40E14300CA9252 /* UIScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FCEE702C40E14300CA9252 /* UIScrollView+.swift */; };
 		B6FCEE732C40E16100CA9252 /* CGAffineTransform+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FCEE722C40E16100CA9252 /* CGAffineTransform+.swift */; };
 		B6FCEE752C40E28700CA9252 /* CGPoint+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FCEE742C40E28700CA9252 /* CGPoint+.swift */; };
@@ -3448,6 +3444,7 @@
 		DC0568DB2E0E5BDA008A3770 /* WCTransactionSimulationDisplayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0568DA2E0E5BDA008A3770 /* WCTransactionSimulationDisplayService.swift */; };
 		DC0568DD2E0E86DA008A3770 /* WCAssetIconHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0568DC2E0E86DA008A3770 /* WCAssetIconHelper.swift */; };
 		DC0568E22E0F5950008A3770 /* WCCustomAllowanceAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0568E02E0F5950008A3770 /* WCCustomAllowanceAmountConverter.swift */; };
+		DC06F82C2F7D919C0068CE05 /* StatusBarManagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC06F82A2F7D919C0068CE05 /* StatusBarManagingViewController.swift */; };
 		DC075F892DE1A1840092457A /* WCTransactionNetworkRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC075F882DE1A1840092457A /* WCTransactionNetworkRow.swift */; };
 		DC075F912DE1A4600092457A /* WCSolanaDefaultTransactionDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC075F902DE1A4560092457A /* WCSolanaDefaultTransactionDetailsView.swift */; };
 		DC075F962DE1A90F0092457A /* WCSignTransactionDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC075F952DE1A90F0092457A /* WCSignTransactionDetailsModel.swift */; };
@@ -7996,10 +7993,6 @@
 		B6F995F02D91CD1000F83C4D /* WalletModelFeaturesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelFeaturesManager.swift; sourceTree = "<group>"; };
 		B6F995F22D91CD1A00F83C4D /* CommonWalletModelFeaturesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelFeaturesManager.swift; sourceTree = "<group>"; };
 		B6F995F62D91D68F00F83C4D /* WalletModelFeaturesManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelFeaturesManagerMock.swift; sourceTree = "<group>"; };
-		B6FB04E42B1FEEF6000BB59E /* RootHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootHostingController.swift; sourceTree = "<group>"; };
-		B6FB04E62B1FEF13000BB59E /* StatusBarStyleConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarStyleConfigurator.swift; sourceTree = "<group>"; };
-		B6FB04E82B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarStyleConfiguratorWeakifyAdapter.swift; sourceTree = "<group>"; };
-		B6FB04EA2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StatusBarStyleConfigurator+Environment.swift"; sourceTree = "<group>"; };
 		B6FCEE702C40E14300CA9252 /* UIScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScrollView+.swift"; sourceTree = "<group>"; };
 		B6FCEE722C40E16100CA9252 /* CGAffineTransform+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGAffineTransform+.swift"; sourceTree = "<group>"; };
 		B6FCEE742C40E28700CA9252 /* CGPoint+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+.swift"; sourceTree = "<group>"; };
@@ -8540,6 +8533,7 @@
 		DC0568DA2E0E5BDA008A3770 /* WCTransactionSimulationDisplayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSimulationDisplayService.swift; sourceTree = "<group>"; };
 		DC0568DC2E0E86DA008A3770 /* WCAssetIconHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCAssetIconHelper.swift; sourceTree = "<group>"; };
 		DC0568E02E0F5950008A3770 /* WCCustomAllowanceAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCCustomAllowanceAmountConverter.swift; sourceTree = "<group>"; };
+		DC06F82A2F7D919C0068CE05 /* StatusBarManagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarManagingViewController.swift; sourceTree = "<group>"; };
 		DC075F882DE1A1840092457A /* WCTransactionNetworkRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionNetworkRow.swift; sourceTree = "<group>"; };
 		DC075F902DE1A4560092457A /* WCSolanaDefaultTransactionDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaDefaultTransactionDetailsView.swift; sourceTree = "<group>"; };
 		DC075F952DE1A90F0092457A /* WCSignTransactionDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSignTransactionDetailsModel.swift; sourceTree = "<group>"; };
@@ -15002,6 +14996,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				DC06F82B2F7D919C0068CE05 /* StatusBarConfiguration */,
 				F1E4911F2F5097FD0048EED2 /* NorthernLights */,
 				EF3F754C2E324EF400334E51 /* AlertPresenter */,
 				2DCC30182E7176FD004AF17D /* ShareActivitiesPresenter */,
@@ -15050,7 +15045,6 @@
 				B60B9FD72A952B9900A7E905 /* TokenSectionsAdapter */,
 				EF9F907B299CFCB1006F638F /* WebViewContainer */,
 				2D788E7E2ADD657000E0884B /* WalletSelector */,
-				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
 				5D011A222530776A00758010 /* TOS */,
 				DCE61E3F2B5EDDEC005A8D2E /* Safari */,
 				EAFDDCA22E6EFC790079F1C7 /* YieldAccountStatusView */,
@@ -19554,17 +19548,6 @@
 			path = WalletModelFeatures;
 			sourceTree = "<group>";
 		};
-		B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */ = {
-			isa = PBXGroup;
-			children = (
-				B6FB04E42B1FEEF6000BB59E /* RootHostingController.swift */,
-				B6FB04E62B1FEF13000BB59E /* StatusBarStyleConfigurator.swift */,
-				B6FB04EA2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift */,
-				B6FB04E82B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift */,
-			);
-			path = StatusBarConfiguration;
-			sourceTree = "<group>";
-		};
 		B6FCEE6B2C40E09F00CA9252 /* OverlayContentContainer */ = {
 			isa = PBXGroup;
 			children = (
@@ -21203,6 +21186,14 @@
 				DC7D3A0629E06365007BCD23 /* GenericBackupServiceFactory.swift */,
 			);
 			path = BackupService;
+			sourceTree = "<group>";
+		};
+		DC06F82B2F7D919C0068CE05 /* StatusBarConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				DC06F82A2F7D919C0068CE05 /* StatusBarManagingViewController.swift */,
+			);
+			path = StatusBarConfiguration;
 			sourceTree = "<group>";
 		};
 		DC075F8A2DE1A1F00092457A /* NetworkRow */ = {
@@ -29185,7 +29176,6 @@
 				B059190A2F5FBB0100000003 /* RedesignActionButtonsView.swift in Sources */,
 				DC3549E42E2E034700641727 /* WCTransactionValidationService.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */,
-				B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */,
 				0F721C272EE1DED000C1183B /* HardwareCreateWalletSource.swift in Sources */,
 				C2300ED32D66152D00EBEA64 /* StoryAnalyticsService.swift in Sources */,
 				2DA100282E55E7C200EC2257 /* ReceiveTokenWithdrawNoticeInteractor.swift in Sources */,
@@ -29212,6 +29202,7 @@
 				EF2548C32F4E1E4C00E056A5 /* EmptySendFeeCurrencyProviderDataBuilder.swift in Sources */,
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
+				DC06F82C2F7D919C0068CE05 /* StatusBarManagingViewController.swift in Sources */,
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				B06C085E2A73FCB700D982BC /* MainUserWalletPageBuilder.swift in Sources */,
 				DF3265912EE7D8CA00D843E4 /* TangemPayPinCheckViewModel.swift in Sources */,
@@ -30217,7 +30208,6 @@
 				EF313CA32EC36D7C00145849 /* TransactionViewIconViewData.swift in Sources */,
 				DF9FFAB12ED56C3900A992F7 /* FlipAnimationModifier.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
-				B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
 				B66AB8B52BBC682A00C8F3E7 /* UserTokensReorderingSource.swift in Sources */,
 				EFADE79E2E0EF4E300CA7916 /* SendReceiveTokenAmountInput.swift in Sources */,
@@ -31143,7 +31133,7 @@
 				EF440EF92F2384E5005D20C3 /* SendFeeCompactView.swift in Sources */,
 				EA9B03A52E9431B200F4B40D /* YieldModuleTokenInfo.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
-				B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */,
+				3096BFEB2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift in Sources */,
 				B0ED3F042C3D6F0300311DE2 /* DecimalRoundingUtility.swift in Sources */,
 				DCBE4CF82CCA0E2B00855904 /* ActionButtonView.swift in Sources */,
 				B67263402C7FC49C00F120E6 /* TokenItemPriceFormatter.swift in Sources */,
@@ -31389,7 +31379,6 @@
 				EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */,
 				EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */,
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
-				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
 				0A85A1992E7076E600ED535D /* YieldTransactionProvider.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
