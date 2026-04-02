@@ -73,7 +73,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
         fatalError("Not used in tests")
     }
 
-    func transactionFee(txData: Data, toContractAddress: String) async throws -> Fee {
+    func transactionFee(approveData: ApproveTransactionData) async throws -> Fee {
         fatalError("Not used in tests")
     }
 
