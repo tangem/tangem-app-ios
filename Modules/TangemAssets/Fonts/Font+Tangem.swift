@@ -66,6 +66,7 @@ public extension Font.Tangem.Body15 {
 public extension Font.Tangem.Body16 {
     static let regular: Font = .callout.weight(.regular)
     static let semibold: Font = .callout.weight(.semibold)
+    static let medium: Font = .callout.weight(.medium)
 }
 
 // MARK: - Heading17
