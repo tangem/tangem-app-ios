@@ -383,6 +383,7 @@
 "custom_token_creation_error_invalid_contract_address" = "Адреса контракту недійсна";
 "custom_token_creation_error_network_not_selected" = "Будь ласка, оберіть мережу";
 "custom_token_creation_error_wrong_decimals" = "Десяткове число повинно бути дійсним цілим числом, до %li";
+"custom_token_custom_derivation_dynamic_addresses_enabled_error" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
 "custom_token_custom_derivation_placeholder" = "Наприклад, m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Введіть власну деривацію";
 "custom_token_custom_derivation" = "Власна деривація";
@@ -434,6 +435,19 @@
 "domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
 "domain_receive_assets_onboarding_network_name" = "%@ мережа";
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
+"dynamic_addresses_custom_token_error_on_addition" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
+"dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
+"dynamic_addresses_enter_features_privacy_description" = "Use a new address for each transaction to reduce traceability and improve on-chain privacy.";
+"dynamic_addresses_enter_features_privacy_title" = "Enhanced Privacy";
+"dynamic_addresses_enter_features_receving_description" = "Easily receive funds in UTXO-based networks with automatic address generation — no manual address management required.";
+"dynamic_addresses_enter_features_receving_title" = "Seamless receiving";
+"dynamic_addresses_enter_main_button_title" = "Enable Dynamic Addresses";
+"dynamic_addresses_enter_subtitle" = "Dynamic addresses create a new one each time for extra privacy — your total balance stays the same. ";
+"dynamic_addresses_error_has_custom_token_description" = "Dynamic Addresses cannot be enabled because some custom addresses/tokens use a modified derivation path, which doesn’t meet the required criteria.";
+"dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
+"dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
+"dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Найкращі можливості";
 "earn_clear_filter" = "Очистити фільтр";
 "earn_empty" = "Список тимчасово порожній, оскільки триває оновлення. Спробуйте ще раз за мить.";
@@ -701,7 +715,10 @@
 "markets_loading_no_data_title" = "Немає даних";
 "markets_pulse_common_title" = "Пульс ринку";
 "markets_quick_actions" = "Швидкі дії";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Шукати на маркеті";
+"markets_search_hint_header" = "Recent's";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Переглянути токени до 100к USD ринкової капіталізації";
 "markets_search_show_tokens" = "Показати токени";
@@ -1504,7 +1521,7 @@
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
 "tangempay_set_pin_code" = "Встановіть \nPIN-код";
 "tangempay_sync_needed_restore_access" = "Відновити доступ";
-"tangempay_sync_needed" = "Не синхронізовано";
+"tangempay_sync_needed" = "Сесія закінчилася";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
@@ -1584,6 +1601,9 @@
 "universal_error" = "Виникла помилка. Код помилки: %@. Спробуйте, будь ласка, знову. Якщо проблема знову виникає — зверніться до нашої служби підтримки.";
 "unlock_wallet_description_full" = "Використовуйте %@ або відскануйте картку/кільце, щоб отримати доступ до свого гаманця";
 "unsupported_wc_version" = "Не вдалося встановити з'єднання: Цей dApp використовує Wallet Connect версії 1.0, яка не підтримується. Будь ласка, переконайтеся, що dApp підтримує Wallet Connect версії 2.0 для успішного підключення.";
+"update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Оновлення до апаратного гаманця";
 "user_push_notification_agreement_argument_one_subtitle" = "Миттєві сповіщення про транзакції, обміни та важливі оновлення.";
 "user_push_notification_agreement_argument_one_title" = "Сповіщення про транзакції";
