@@ -10,6 +10,7 @@ import Foundation
 
 public enum AllowanceState: Hashable {
     case permissionRequired(ApproveTransactionData)
+    case revokeAndPermissionRequired(revoke: ApproveTransactionData, approve: ApproveTransactionData)
     case approveTransactionInProgress
     case enoughAllowance
 }
