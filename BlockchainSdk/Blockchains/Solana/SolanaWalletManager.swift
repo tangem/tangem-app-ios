@@ -156,17 +156,26 @@ extension SolanaWalletManager: TransactionSender {
             return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
-        let decimalAmount = transaction.amount.value * token.decimalValue
-        let intAmount = (decimalAmount.rounded() as NSDecimalNumber).uint64Value
         let signer = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: wallet.publicKey)
         let tokenProgramIdPublisher = networkService.tokenProgramId(contractAddress: token.contractAddress)
 
         return tokenProgramIdPublisher
-            .flatMap { [weak self] tokenProgramId -> AnyPublisher<TransactionID, Error> in
+            .withWeakCaptureOf(self)
+            .flatMap { manager, tokenProgramId -> AnyPublisher<(UInt64, PublicKey), Error> in
+                manager.makeTokenTransferAmountPublisher(
+                    tokenProgramId: tokenProgramId,
+                    amount: transaction.amount.value,
+                    token: token
+                )
+                .map { ($0, tokenProgramId) }
+                .eraseToAnyPublisher()
+            }
+            .flatMap { [weak self] amountAndProgramId -> AnyPublisher<TransactionID, Error> in
                 guard let self else {
                     return .anyFail(error: BlockchainSdkError.empty)
                 }
 
+                let (intAmount, tokenProgramId) = amountAndProgramId
                 guard
                     let associatedSourceTokenAccountAddress = associatedTokenAddress(accountAddress: transaction.sourceAddress, mintAddress: token.contractAddress, tokenProgramId: tokenProgramId)
                 else {
@@ -185,6 +194,70 @@ extension SolanaWalletManager: TransactionSender {
                 )
             }
             .eraseToAnyPublisher()
+    }
+
+    private func makeTokenTransferAmountPublisher(
+        tokenProgramId: PublicKey,
+        amount: Decimal,
+        token: Token
+    ) -> AnyPublisher<UInt64, Error> {
+        if tokenProgramId != .token2022ProgramId {
+            return makeRawTokenAmount(amount: amount, token: token, multiplier: nil)
+        }
+
+        return networkService.getScaledUiAmountMultiplier(
+            mintAddress: token.contractAddress,
+            transactionDate: Date()
+        )
+        .tryMap { [weak self] multiplier in
+            guard let self else {
+                throw BlockchainSdkError.empty
+            }
+
+            return try makeRawTokenAmount(amount: amount, token: token, multiplier: multiplier)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    private func makeRawTokenAmount(
+        amount: Decimal,
+        token: Token,
+        multiplier: Decimal?
+    ) -> AnyPublisher<UInt64, Error> {
+        Result {
+            try makeRawTokenAmount(amount: amount, token: token, multiplier: multiplier)
+        }
+        .publisher
+        .eraseToAnyPublisher()
+    }
+
+    private func makeRawTokenAmount(
+        amount: Decimal,
+        token: Token,
+        multiplier: Decimal?
+    ) throws -> UInt64 {
+        let normalizedAmount: Decimal
+
+        if let multiplier {
+            guard multiplier > 0 else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            if multiplier == 1 {
+                normalizedAmount = amount
+            } else {
+                normalizedAmount = amount / multiplier
+            }
+        } else {
+            normalizedAmount = amount
+        }
+
+        let rawAmount = (normalizedAmount * token.decimalValue).rounded(scale: 0, roundingMode: .down)
+        guard rawAmount >= 0, rawAmount <= Decimal(UInt64.max) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        return rawAmount.uint64Value
     }
 
     private func associatedTokenAddress(accountAddress: String, mintAddress: String, tokenProgramId: PublicKey) -> String? {
