@@ -11,7 +11,6 @@ import TangemLogger
 
 actor WalletConnectDAppSessionsExtender {
     private let connectedDAppRepository: any WalletConnectConnectedDAppRepository
-    private let savedSessionMigrationService: WalletConnectSavedSessionMigrationService
     private let savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService
     private let dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService
     private let logger: TangemLogger.Logger
@@ -21,14 +20,12 @@ actor WalletConnectDAppSessionsExtender {
 
     init(
         connectedDAppRepository: some WalletConnectConnectedDAppRepository,
-        savedSessionMigrationService: WalletConnectSavedSessionMigrationService,
         savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService,
         logger: TangemLogger.Logger,
         currentDateProvider: @escaping () -> Date = { Date() }
     ) {
         self.connectedDAppRepository = connectedDAppRepository
-        self.savedSessionMigrationService = savedSessionMigrationService
         self.savedSessionToAccountsMigrationService = savedSessionToAccountsMigrationService
         self.dAppSessionExtensionService = dAppSessionExtensionService
         self.logger = logger
@@ -40,22 +37,14 @@ actor WalletConnectDAppSessionsExtender {
             return await extendTask.value
         }
 
-        let task = Task { [connectedDAppRepository, savedSessionMigrationService, savedSessionToAccountsMigrationService, logger, weak self] in
+        let task = Task { [connectedDAppRepository, savedSessionToAccountsMigrationService, logger, weak self] in
             do {
                 let dAppsToExtend: [WalletConnectConnectedDApp]
 
-                if FeatureProvider.isAvailable(.accounts) {
-                    if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
-                        dAppsToExtend = migratedDApps
-                    } else {
-                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
-                    }
+                if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
+                    dAppsToExtend = migratedDApps
                 } else {
-                    if let migratedDApps = try await savedSessionMigrationService.migrateSavedSessions() {
-                        dAppsToExtend = migratedDApps
-                    } else {
-                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
-                    }
+                    dAppsToExtend = try await connectedDAppRepository.getAllDApps()
                 }
 
                 try await self?.extendDAppsWithTimeout(dAppsToExtend)

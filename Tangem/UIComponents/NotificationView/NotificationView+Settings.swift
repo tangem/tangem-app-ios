@@ -140,6 +140,7 @@ extension NotificationView {
     enum LeadingIconType {
         case image(ImageType)
         case icon(TokenIconInfo)
+        case loadableIcon(url: URL)
         case progressView
         case placeholder
         case yieldModuleIcon(tokenId: String?)

@@ -1,7 +1,11 @@
 {
   "env": {
-    "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    "DISABLE_FEEDBACK_COMMAND": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_TELEMETRY": "1",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "0",
+    "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1"
   },
   "permissions": {
     "allow": [
@@ -9,6 +13,9 @@
       "Bash(ls:*)",
       "Bash(find:*)",
       "Bash(xcodebuild:*)",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(xxd:*)",
       "Bash(git add:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
@@ -27,6 +34,8 @@
       "Bash(./bootstrap.sh:*)",
       "Bash(bundle exec fastlane test:*)",
       "Bash(swift package resolve:*)",
+      "Bash(plutil:*)",
+      "Bash(xargs basename:*)",
       "mcp__github__get_me",
       "mcp__github__pull_request_read",
       "mcp__github__create_pull_request",
@@ -60,6 +69,11 @@
       "mcp__github__search_repositories",
       "mcp__github__search_users",
       "mcp__github__sub_issue_write",
+      "mcp__github__get_copilot_job_status",
+      "mcp__github__get_team_members",
+      "mcp__github__get_teams",
+      "mcp__github__list_issue_types",
+      "mcp__github__run_secret_scanning",
       "mcp__github__update_pull_request_branch",
       "mcp__firebase__firebase_read_resources",
       "mcp__firebase__firebase_list_apps",
@@ -80,6 +94,21 @@
       "mcp__firebase__firebase_get_project",
       "mcp__firebase__firebase_get_sdk_config",
       "mcp__firebase__firebase_get_security_rules",
+      "mcp__firebase__auth_get_users",
+      "mcp__firebase__developerknowledge_get_documents",
+      "mcp__firebase__developerknowledge_search_documents",
+      "mcp__firebase__firestore_get_database",
+      "mcp__firebase__firestore_get_document",
+      "mcp__firebase__firestore_get_index",
+      "mcp__firebase__firestore_list_collections",
+      "mcp__firebase__firestore_list_databases",
+      "mcp__firebase__firestore_list_documents",
+      "mcp__firebase__firestore_list_indexes",
+      "mcp__firebase__firestore_query_collection",
+      "mcp__firebase__functions_get_logs",
+      "mcp__firebase__functions_list_functions",
+      "mcp__firebase__realtimedatabase_get_data",
+      "mcp__firebase__remoteconfig_get_template",
       "mcp__xcode__XcodeRead",
       "mcp__xcode__XcodeWrite",
       "mcp__xcode__XcodeUpdate",
@@ -111,7 +140,9 @@
       "mcp__figma-remote-mcp__whoami",
       "mcp__figma-remote-mcp__add_code_connect_map",
       "mcp__figma-remote-mcp__get_code_connect_suggestions",
+      "mcp__figma-remote-mcp__search_design_system",
       "mcp__figma-remote-mcp__send_code_connect_mappings",
+      "mcp__figma-remote-mcp__use_figma",
       "mcp__atlassian__atlassianUserInfo",
       "mcp__atlassian__getAccessibleAtlassianResources",
       "mcp__atlassian__getJiraIssue",
@@ -129,11 +160,51 @@
       "mcp__atlassian__addWorklogToJiraIssue",
       "mcp__atlassian__search",
       "mcp__atlassian__fetch",
-      "mcp__plugin_context7_context7__resolve-library-id",
-      "mcp__plugin_context7_context7__query-docs"
+      "mcp__atlassian__fetchAtlassian",
+      "mcp__atlassian__getConfluenceCommentChildren",
+      "mcp__atlassian__getConfluencePage",
+      "mcp__atlassian__getConfluencePageDescendants",
+      "mcp__atlassian__getConfluencePageFooterComments",
+      "mcp__atlassian__getConfluencePageInlineComments",
+      "mcp__atlassian__getConfluenceSpaces",
+      "mcp__atlassian__getIssueLinkTypes",
+      "mcp__atlassian__getPagesInConfluenceSpace",
+      "mcp__atlassian__searchAtlassian",
+      "mcp__atlassian__searchConfluenceUsingCql",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-get-comments",
+      "mcp__notion__notion-get-teams",
+      "mcp__notion__notion-get-users",
+      "mcp__notion__notion-search",
+      "mcp__Amplitude__get_chart_definition_params",
+      "mcp__Amplitude__get_charts",
+      "mcp__Amplitude__get_cohorts",
+      "mcp__Amplitude__get_context",
+      "mcp__Amplitude__get_dashboard",
+      "mcp__Amplitude__get_deployments",
+      "mcp__Amplitude__get_event_properties",
+      "mcp__Amplitude__get_experiments",
+      "mcp__Amplitude__get_feedback_comments",
+      "mcp__Amplitude__get_feedback_insights",
+      "mcp__Amplitude__get_feedback_mentions",
+      "mcp__Amplitude__get_feedback_sources",
+      "mcp__Amplitude__get_feedback_trends",
+      "mcp__Amplitude__get_from_url",
+      "mcp__Amplitude__get_project_context",
+      "mcp__Amplitude__get_session_replay_events",
+      "mcp__Amplitude__get_session_replays",
+      "mcp__Amplitude__get_users",
+      "mcp__Amplitude__list_session_replays",
+      "mcp__Amplitude__query_chart",
+      "mcp__Amplitude__query_charts",
+      "mcp__Amplitude__query_dataset",
+      "mcp__Amplitude__query_experiment",
+      "mcp__Amplitude__search",
+      "mcp__Amplitude__verify_chart_definition"
     ],
     "deny": [
-      "WebSearch",
       "Read(./tangem-app-config/**)",
       "Read(./BlockchainSdkExample/config/**)",
       "Read(./fastlane/test_output/**)",
@@ -143,6 +214,7 @@
       "Read(./vendor/ios_dependencies/**)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "hooks": {
     "Stop": [
       {
@@ -157,14 +229,7 @@
   },
   "enabledPlugins": {
     "axiom@axiom-marketplace": true,
-    "context7@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "figma-remote-mcp",
-    "firebase",
-    "xcode",
-    "atlassian"
-  ]
+    "swift-lsp@claude-plugins-official": true,
+    "swiftui-expert@swiftui-expert-skill": true
+  }
 }
