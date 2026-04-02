@@ -392,6 +392,13 @@ extension SwapModel {
 
         case .ready(let ready):
             return try await map(provider: selected, ready: ready)
+
+        case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
+        case .revokeAndPermissionRequired(let permissionRequired):
+            return try await map(provider: selected, permissionRequired: permissionRequired)
         }
     }
 
@@ -447,8 +454,12 @@ extension SwapModel {
         }
     }
 
-    func map(provider: ExpressAvailableProvider, permissionRequired: ExpressProviderManagerState.PermissionRequired) async throws -> LoadedState {
+    func map(
+        provider: ExpressAvailableProvider,
+        permissionRequired: ExpressProviderManagerState.PermissionRequired
+    ) async throws -> LoadedState {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
+
         let fee = permissionRequired.fee
 
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
@@ -460,7 +471,8 @@ extension SwapModel {
         let permissionRequiredState = PermissionRequiredState(
             quote: quote,
             policy: permissionRequired.policy,
-            data: permissionRequired.data
+            data: permissionRequired.data,
+            approvalFlow: permissionRequired.approvalFlow
         )
 
         return .permissionRequired(permissionRequiredState)
@@ -855,7 +867,8 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _receiveAmount)
-            .map(mapToAmountResult)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -1241,14 +1254,12 @@ extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
             approveAmount: state.quote.fromAmount,
             selectedPolicy: state.policy,
             approveData: state.data,
+            approvalFlow: state.approvalFlow,
             sourceToken: sourceToken,
             tokenFeeProvidersManager: tokenFeeProvidersManager,
-            localization: ApproveLocalization(
-                subtitle: Localization.givePermissionSwapSubtitle(
-                    selectedProvider.name,
-                    sourceToken.tokenItem.currencySymbol
-                ),
-                feeFooterText: Localization.swapGivePermissionFeeFooter
+            localization: state.approvalFlow.makeLocalization(
+                providerName: selectedProvider.name,
+                currencySymbol: sourceToken.tokenItem.currencySymbol
             )
         )
     }
@@ -1466,6 +1477,7 @@ extension SwapModel {
         let quote: Quote
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
+        let approvalFlow: ExpressProviderManagerState.ApprovalFlow
     }
 
     struct PreviewCEXState {

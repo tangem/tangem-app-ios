@@ -110,11 +110,14 @@ private extension StakingModel {
             switch allowanceState {
             case .permissionRequired(let approveData):
                 stopTimer()
-                // Warm up approve fees in parallel with the staking fee calculation
                 sendSourceToken.tokenFeeProvidersManager.update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
                 sendSourceToken.tokenFeeProvidersManager.updateFees()
                 let stakingFee = try await estimateFee(amount: amount, target: target)
                 return .readyToApprove(approveData: approveData, stakingFee: stakingFee)
+
+            case .revokeAndPermissionRequired:
+                assertionFailure("Revoke+approve is not expected for staking tokens")
+                throw StakingModelError.revokeAndApproveNotSupported
 
             case .approveTransactionInProgress:
                 return try await .approveTransactionInProgress(
@@ -577,9 +580,11 @@ extension StakingModel: ApproveFlowDataProvider, ApproveOutput {
             approveAmount: approveAmount,
             selectedPolicy: selectedPolicy,
             approveData: approveData,
+            approvalFlow: .approve,
             sourceToken: sendSourceToken,
             tokenFeeProvidersManager: sendSourceToken.tokenFeeProvidersManager,
             localization: ApproveLocalization(
+                title: Localization.swappingPermissionHeader,
                 subtitle: Localization.givePermissionStakingSubtitle(tokenItem.currencySymbol),
                 feeFooterText: Localization.stakingGivePermissionFeeFooter
             )
@@ -629,6 +634,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case allowanceServiceNotFound
     case approveDataNotFound
     case accountIsNotInitialized
+    case revokeAndApproveNotSupported
 
     var errorDescription: String? { rawValue }
 }
