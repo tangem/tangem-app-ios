@@ -43,7 +43,7 @@ public class ExpressAvailableProvider {
         }
 
         switch getState() {
-        case .permissionRequired(let state):
+        case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
             return .high(rate: state.quote.rate)
         case .preview(let state):
             return .high(rate: state.quote.rate)

@@ -170,7 +170,7 @@ struct ApproveFlowViewModelTests {
         )
 
         let interactor = ApproveInteractor(
-            approveData: approveData,
+            approveInteractorState: .approve(data: approveData),
             initialPolicy: ApprovePolicy.specified,
             approveAmount: 100,
             allowanceService: allowanceService,
@@ -181,6 +181,7 @@ struct ApproveFlowViewModelTests {
         )
 
         let settings = ApproveViewModel.Settings(
+            title: "Test title",
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
             tokenItem: tokenItem,
