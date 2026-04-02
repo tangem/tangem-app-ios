@@ -35,6 +35,7 @@ final class WalletModelTestsMock: WalletModel {
         return TokenQuote(
             currencyId: "mock",
             price: 1,
+            priceUsd: nil,
             priceChange24h: priceChange24h,
             priceChange7d: nil,
             priceChange30d: nil,
@@ -76,6 +77,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - ReceiveAddressTypesProvider
 
+    var receiveAddressTypes: [ReceiveAddressType] { [] }
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { .just(output: []) }
 
     // MARK: - WalletModelResolvable
@@ -115,18 +117,15 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var addresses: [Address] { [defaultAddress] }
-    var defaultAddress: Address {
-        PlainAddress(value: "mock", publicKey: publicKey, type: .default)
-    }
+    var addresses: [String] { [defaultAddressString] }
+    var defaultAddressString: String { "mock" }
 
-    var addressNames: [String] { [] }
     var isMainToken: Bool { true }
     var tokenItem: TokenItem { .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)) }
     var feeTokenItem: TokenItem { tokenItem }
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { false }
-    var publicKey: Wallet.PublicKey { .init(seedKey: Data(), derivationType: nil) }
+    var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
     var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
