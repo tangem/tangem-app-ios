@@ -141,7 +141,7 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         if collapsibleAccounts, case .account = header {
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
-                itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
+                filteredItemsPublisher: rawItemsPublisher,
                 searchTextPublisher: searchText.eraseToAnyPublisher()
             )
         }

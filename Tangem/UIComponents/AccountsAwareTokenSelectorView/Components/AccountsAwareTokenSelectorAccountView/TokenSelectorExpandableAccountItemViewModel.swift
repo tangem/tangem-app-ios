@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemAccounts
 import TangemLocalization
 import TangemUI
@@ -29,6 +30,8 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
 
     private let accountModel: any BaseAccountModel
     private let priceChangeUtility = PriceChangeUtility()
+    private let balanceCombiner = TokenBalanceTypesCombiner()
+    private let loadableBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
 
     /// User's explicit collapse/expand choice (independent of search override).
     private var userExplicitState: Bool = false
@@ -40,27 +43,26 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
 
     init(
         account: any BaseAccountModel,
-        itemsCountPublisher: AnyPublisher<Int, Never>,
+        filteredItemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never>,
         searchTextPublisher: AnyPublisher<String, Never>
     ) {
         accountModel = account
         name = account.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: account)
         rawTokensCount = 0
+        totalFiatBalance = .loading()
 
-        // Try to get balance/rate from BalanceProvidingAccountModel
         if let balanceProvider = account as? BalanceProvidingAccountModel {
-            totalFiatBalance = balanceProvider.fiatTotalBalanceProvider.totalFiatBalance
             priceChange = Self.mapToPriceChangeState(
                 rate: balanceProvider.rateProvider.accountRate,
                 using: priceChangeUtility
             )
         } else {
-            totalFiatBalance = .empty
             priceChange = .noData
         }
 
-        bindItemsCount(itemsCountPublisher)
+        bindItemsCount(filteredItemsPublisher.map(\.count).eraseToAnyPublisher())
+        bindFilteredBalance(filteredItemsPublisher)
         bindSearchText(searchTextPublisher)
     }
 
@@ -84,6 +86,34 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         publisher
             .receiveOnMain()
             .assign(to: &$rawTokensCount)
+    }
+
+    private func bindFilteredBalance(_ filteredItemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never>) {
+        filteredItemsPublisher
+            .flatMapLatest { items -> AnyPublisher<[TokenBalanceTypesCombiner.Balance], Never> in
+                guard !items.isEmpty else {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                let balancePublishers = items.map(\.fiatBalanceProvider.balanceTypePublisher)
+                return balancePublishers
+                    .combineLatest()
+                    .map { balanceTypes in
+                        zip(items, balanceTypes).map { item, balanceType in
+                            TokenBalanceTypesCombiner.Balance(item: item.tokenItem, balance: balanceType)
+                        }
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .map { viewModel, balances in
+                viewModel.balanceCombiner.mapToTotalBalance(balances: balances)
+            }
+            .map { [loadableBalanceViewStateBuilder] state in
+                loadableBalanceViewStateBuilder.buildTotalBalance(state: state)
+            }
+            .receiveOnMain()
+            .assign(to: &$totalFiatBalance)
     }
 
     private func bindSearchText(_ publisher: AnyPublisher<String, Never>) {
@@ -118,12 +148,6 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
             .store(in: &bag)
 
         guard let balanceProvider = accountModel as? BalanceProvidingAccountModel else { return }
-
-        balanceProvider
-            .fiatTotalBalanceProvider
-            .totalFiatBalancePublisher
-            .receiveOnMain()
-            .assign(to: &$totalFiatBalance)
 
         balanceProvider
             .rateProvider
