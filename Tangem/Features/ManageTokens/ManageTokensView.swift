@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
@@ -47,6 +48,7 @@ struct ManageTokensView: View {
                     title: Localization.commonSave,
                     icon: savingIcon,
                     isLoading: viewModel.isSavingChanges,
+                    accessibilityIdentifier: ManageTokensAccessibilityIdentifiers.saveButton,
                     action: viewModel.saveChanges
                 )
                 .padding(.bottom, 10)
@@ -96,11 +98,10 @@ struct ManageTokensView: View {
 
 #Preview {
     let fakeModel = FakeUserWalletModel.wallet3Cards
-    let fakeAPIService = FakeTangemApiService()
-    InjectedValues[\.tangemApiService] = fakeAPIService
-    let context = LegacyManageTokensContext(
-        userTokensManager: fakeModel.userTokensManager,
-        walletModelsManager: fakeModel.walletModelsManager
+    let accountModelsManager = AccountModelsManagerMock()
+    let context = AccountsAwareManageTokensContext(
+        accountModelsManager: accountModelsManager,
+        currentAccount: accountModelsManager.cryptoAccountModels[0]
     )
 
     let adapter = ManageTokensAdapter(
@@ -113,7 +114,7 @@ struct ManageTokensView: View {
         )
     )
 
-    return NavigationStack {
+    NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,

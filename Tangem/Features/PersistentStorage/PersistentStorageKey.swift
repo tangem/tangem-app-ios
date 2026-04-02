@@ -10,7 +10,7 @@ import Foundation
 
 enum PersistentStorageKey {
     /// - Note: Superseded by `accounts(cid:)`, will be removed in future.
-    case wallets(cid: String)
+    case wallets(cid: String) // [REDACTED_TODO_COMMENT]
     /// - Note: Supersedes `wallets(cid:)`.
     case accounts(cid: String)
     case allWalletConnectSessionsOld
