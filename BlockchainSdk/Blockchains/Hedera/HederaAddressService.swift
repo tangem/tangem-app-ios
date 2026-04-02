@@ -25,7 +25,7 @@ final class HederaAddressService: AddressService {
             Obtain actual address using `Wallet.address`
             """
         )
-        return PlainAddress(value: "", publicKey: publicKey, type: addressType)
+        return PlainAddress(value: "", type: addressType)
     }
 
     func validate(_ address: String) -> Bool {
