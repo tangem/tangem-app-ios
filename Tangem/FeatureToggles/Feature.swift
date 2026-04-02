@@ -22,6 +22,7 @@ enum Feature: String, Hashable, CaseIterable {
     case customerIO
     case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
+    case solanaTxHistoryEnabled
 
     var name: String {
         switch self {
@@ -38,6 +39,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .customerIO: return "customer.io service integration"
         case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
+        case .solanaTxHistoryEnabled: return "Solana Transaction History"
         }
     }
 
@@ -56,6 +58,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .customerIO: return .version("5.35")
         case .mobileWalletTokenAutoSync: return .unspecified
         case .gaslessDexAndApprove: return .unspecified
+        case .solanaTxHistoryEnabled: return .unspecified
         }
     }
 }
