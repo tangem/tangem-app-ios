@@ -209,8 +209,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                     coinId: coinId,
                     walletModels: account.walletModelsManager.walletModels,
                     entries: account.userTokensManager.userTokens,
-                    userWalletInfo: userWalletInfo,
-                    namingStyle: .tokenItemName
+                    userWalletInfo: userWalletInfo
                 )
 
                 if viewModels.isNotEmpty {
@@ -257,8 +256,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                 coinId: coinId,
                 walletModels: walletData.walletModels,
                 entries: walletData.flattenedTokenItems,
-                userWalletInfo: makeUserWalletInfo(from: walletData),
-                namingStyle: .tokenItemName
+                userWalletInfo: makeUserWalletInfo(from: walletData)
             )
 
             if viewModels.isNotEmpty {

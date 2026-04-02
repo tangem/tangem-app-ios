@@ -16,6 +16,19 @@ protocol SendSwapProvidersInput: AnyObject {
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? { get }
     var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> { get }
+
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> { get }
+}
+
+extension SendSwapProvidersInput {
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
+        expressProvidersPublisher
+            .map { providers in
+                providers.reduce(into: Set<ExpressProviderRateType>()) { $0.formUnion($1.supportedRateTypes) }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
 
 protocol SendSwapProvidersOutput: AnyObject {

@@ -383,6 +383,7 @@
 "custom_token_creation_error_invalid_contract_address" = "Contract address is invalid";
 "custom_token_creation_error_network_not_selected" = "Please select the network";
 "custom_token_creation_error_wrong_decimals" = "Decimal must be a valid integer, up to %li";
+"custom_token_custom_derivation_dynamic_addresses_enabled_error" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
 "custom_token_custom_derivation_placeholder" = "E. g. m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Enter custom derivation";
 "custom_token_custom_derivation" = "Custom derivation";
@@ -434,6 +435,19 @@
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
+"dynamic_addresses_custom_token_error_on_addition" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
+"dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
+"dynamic_addresses_enter_features_privacy_description" = "Use a new address for each transaction to reduce traceability and improve on-chain privacy.";
+"dynamic_addresses_enter_features_privacy_title" = "Enhanced Privacy";
+"dynamic_addresses_enter_features_receving_description" = "Easily receive funds in UTXO-based networks with automatic address generation — no manual address management required.";
+"dynamic_addresses_enter_features_receving_title" = "Seamless receiving";
+"dynamic_addresses_enter_main_button_title" = "Enable Dynamic Addresses";
+"dynamic_addresses_enter_subtitle" = "Dynamic addresses create a new one each time for extra privacy — your total balance stays the same. ";
+"dynamic_addresses_error_has_custom_token_description" = "Dynamic Addresses cannot be enabled because some custom addresses/tokens use a modified derivation path, which doesn’t meet the required criteria.";
+"dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
+"dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
+"dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Best opportunities";
 "earn_clear_filter" = "Clear filter";
 "earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
@@ -701,7 +715,10 @@
 "markets_loading_no_data_title" = "No data";
 "markets_pulse_common_title" = "Market Pulse";
 "markets_quick_actions" = "Quick actions";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Search tokens";
+"markets_search_hint_header" = "Recent's";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Result";
 "markets_search_see_tokens_under_100k" = "See tokens under 100k USD market cap";
 "markets_search_show_tokens" = "Show tokens";
@@ -1504,7 +1521,7 @@
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
-"tangempay_sync_needed" = "Sincronizzazione necessaria";
+"tangempay_sync_needed" = "Sessione scaduta";
 "tangempay_tangem_visa_card" = "Usa USDC per i pagamenti quotidiani";
 "tangempay_temporarily_unavailable" = "Tangem Pay è temporaneamente non disponibile";
 "tangempay_title" = "Tangem Pay";
@@ -1584,6 +1601,9 @@
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
+"update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";

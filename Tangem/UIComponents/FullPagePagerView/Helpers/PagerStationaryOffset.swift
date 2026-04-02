@@ -44,8 +44,9 @@ struct PagerStationaryModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .offset(x: stationaryOffset)
+            .transformEffect(.init(translationX: stationaryOffset, y: 0))
             .opacity(stationaryOpacity)
+            .animation(nil, value: stationaryOpacity)
             .allowsHitTesting(stationaryOpacity > 0)
     }
 }

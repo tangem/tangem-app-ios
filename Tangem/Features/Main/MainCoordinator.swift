@@ -68,8 +68,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Child view models
 
     @Published var organizeTokensViewModel: AccountsAwareOrganizeTokensViewModel?
-    @available(iOS, deprecated: 100000.0, message: "Superseded by 'organizeTokensViewModel', will be removed in the future ([REDACTED_INFO])")
-    @Published var legacyOrganizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
@@ -322,62 +320,31 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.tokenDetailsCoordinator = nil
         })
 
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
-                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
-                    walletModel: walletModel
-                )
-            )
+        guard let account = walletModel.account else {
+            let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+            AppLogger.error(error: message)
+            assertionFailure(message)
+            return
         }
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: account.walletModelsManager,
+                userTokensManager: account.userTokensManager,
+                walletModel: walletModel
+            )
+        )
 
         tokenDetailsCoordinator = coordinator
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        if FeatureProvider.isAvailable(.accounts) {
-            organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
-                userWalletModel: userWalletModel,
-                coordinator: self
-            )
-        } else {
-            // accounts_fixes_needed_none
-            let userTokensManager = userWalletModel.userTokensManager
-            let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
-            let tokenSectionsAdapter = TokenSectionsAdapter(
-                userTokensManager: userTokensManager,
-                optionsProviding: optionsManager,
-                preservesLastSortedOrderOnSwitchToDragAndDrop: true
-            )
-            legacyOrganizeTokensViewModel = OrganizeTokensViewModel(
-                userWalletModel: userWalletModel,
-                tokenSectionsAdapter: tokenSectionsAdapter,
-                optionsProviding: optionsManager,
-                optionsEditing: optionsManager,
-                coordinator: self
-            )
-        }
+        organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
+            userWalletModel: userWalletModel,
+            coordinator: self
+        )
     }
 
     func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
@@ -653,12 +620,10 @@ extension MainCoordinator: SendFeeCurrencyNavigating {
 extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
         organizeTokensViewModel = nil
-        legacyOrganizeTokensViewModel = nil
     }
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
-        legacyOrganizeTokensViewModel = nil
     }
 }
 
@@ -732,23 +697,6 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
-    // [REDACTED_TODO_COMMENT]
-    func openBuy(userWalletModel: some UserWalletModel) {
-        let coordinator = coordinatorFactory.makeBuyCoordinator(
-            dismissAction: { [weak self] _ in
-                self?.actionButtonsBuyCoordinator = nil
-            }
-        )
-
-        coordinator.start(with: .default(options: .init(
-            userWalletModel: userWalletModel,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-            tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-        )))
-
-        actionButtonsBuyCoordinator = coordinator
-    }
-
     func openBuy(userWalletModels: [UserWalletModel]) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
@@ -756,11 +704,11 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
+        let options = ActionButtonsBuyCoordinator.Options(
             userWalletModels: userWalletModels
         )
 
-        coordinator.start(with: .new(options: options))
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }
