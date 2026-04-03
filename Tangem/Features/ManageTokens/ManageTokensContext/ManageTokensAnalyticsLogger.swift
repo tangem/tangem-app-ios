@@ -13,10 +13,7 @@ enum ManageTokensAnalyticsLogger {
         tokenItem: TokenItem,
         destination: TokenAccountDestination
     ) {
-        guard
-            FeatureProvider.isAvailable(.accounts),
-            !destination.isMainAccount
-        else {
+        guard !destination.isMainAccount else {
             return
         }
 
