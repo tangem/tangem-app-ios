@@ -132,11 +132,14 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
+    var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
+
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
-    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
-    var tangemPayIsEligibilityAvailable: Bool = false
+    @AppStorageCompat(StorageType.tangemPayEligibleDistributionChannels)
+    var tangemPayEligibleDistributionChannels: [String] = []
 
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
@@ -197,6 +200,14 @@ extension AppSettings: TangemPayPaeraCustomerFlagRepository {
 
     func setIsKYCHidden(_ value: Bool, for customerWalletId: String) {
         tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = value
+    }
+
+    func isTangemPayDisabled(customerWalletId: String) -> Bool {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId, default: false]
+    }
+
+    func setIsTangemPayDisabled(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = value
     }
 
     func setShouldShowGetBanner(_ value: Bool) {

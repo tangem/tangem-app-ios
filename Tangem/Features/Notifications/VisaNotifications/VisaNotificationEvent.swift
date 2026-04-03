@@ -75,11 +75,11 @@ extension VisaNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .error:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .missingValidRefreshToken:
-            return .init(iconType: .image(Assets.lock.image))
+            return .init(iconType: .image(Assets.lock))
         case .onboardingAccountActivationInfo:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 

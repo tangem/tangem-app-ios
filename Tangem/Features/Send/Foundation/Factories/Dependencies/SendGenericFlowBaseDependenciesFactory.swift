@@ -42,7 +42,9 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
-        CommonSwapTransactionSummaryDescriptionBuilder()
+        CommonSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
     }
 
     func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
@@ -51,14 +53,13 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeSendWithSwapTransactionSummaryDescriptionBuilder() -> SendWithSwapTransactionSummaryDescriptionBuilder {
         CommonSendWithSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapTransactionSummaryDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            swapTransactionSummaryDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
         )
     }
 
     // MARK: - Analytics
 
-    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
-        CommonSendAnalyticsLogger(sendType: sendType)
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType, coordinatorSource: SendCoordinator.Source = .main) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: sendType, coordinatorSource: coordinatorSource)
     }
 }

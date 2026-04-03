@@ -18,6 +18,7 @@ class CommonSendAnalyticsLogger {
     private weak var sendSwapProvidersInput: SendSwapProvidersInput?
 
     private let sendType: SendType
+    private let coordinatorSource: SendCoordinator.Source
     private var destinationAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     private var sourceTokenItem: TokenItem? {
@@ -40,8 +41,13 @@ class CommonSendAnalyticsLogger {
         }
     }
 
-    init(sendType: SendType) {
+    private var entryTypeParameterValue: Analytics.ParameterValue {
+        coordinatorSource == .qrScan ? .qr : .manually
+    }
+
+    init(sendType: SendType, coordinatorSource: SendCoordinator.Source = .main) {
         self.sendType = sendType
+        self.coordinatorSource = coordinatorSource
     }
 
     private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
@@ -268,7 +274,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logAmountStepOpened() {
         Analytics.log(
             .sendAmountScreenOpened,
-            params: [.source: sourceFlow],
+            params: [.source: sourceFlow, .type: entryTypeParameterValue],
             analyticsSystems: .all
         )
     }
@@ -340,6 +346,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 .source: sourceFlow.rawValue,
                 .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
                 .blockchain: tokenItem.blockchain.displayName,
+                .type: entryTypeParameterValue.rawValue,
             ]
 
             if let tokenFeeTokenitem = sendFeeInput?.selectedFee?.tokenItem {
