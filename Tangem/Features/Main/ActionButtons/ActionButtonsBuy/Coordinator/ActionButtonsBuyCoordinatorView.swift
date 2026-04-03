@@ -20,7 +20,7 @@ struct ActionButtonsBuyCoordinatorView: View {
                 EmptyView()
             case .newTokenList(let actionButtonsBuyViewModel):
                 NavigationStack {
-                    AccountsAwareActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                    ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                 }
                 .transition(SendTransitions.transition)
             case .onramp(let sendCoordinator):

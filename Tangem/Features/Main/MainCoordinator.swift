@@ -67,7 +67,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Child view models
 
-    @Published var organizeTokensViewModel: AccountsAwareOrganizeTokensViewModel?
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
@@ -341,7 +341,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
+        organizeTokensViewModel = OrganizeTokensViewModel(
             userWalletModel: userWalletModel,
             coordinator: self
         )
@@ -357,7 +357,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        let context = AccountsAwareManageTokensContext(
+        let context = CommonManageTokensContext(
             accountModelsManager: userWalletModel.accountModelsManager,
             currentAccount: account
         )
@@ -716,7 +716,7 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
 // MARK: - Action buttons sell routable
 
 extension MainCoordinator: ActionButtonsSellFlowRoutable {
-    func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+    func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: TokenSelectorViewModel) {
         let coordinator = coordinatorFactory.makeSellCoordinator(
             userWalletModel: userWalletModel,
             dismissAction: { [weak self] model in
@@ -738,7 +738,7 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
     func openSwap(
         userWalletModel: some UserWalletModel,
-        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+        tokenSelectorViewModel: TokenSelectorViewModel
     ) {
         let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
             self?.actionButtonsSwapCoordinator = nil
