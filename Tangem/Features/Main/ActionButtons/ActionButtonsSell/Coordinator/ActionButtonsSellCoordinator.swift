@@ -11,7 +11,7 @@ import Foundation
 final class ActionButtonsSellCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    @Published private(set) var accountsAwareActionButtonsSellViewModel: ActionButtonsSellViewModel?
+    @Published private(set) var actionButtonsSellViewModel: ActionButtonsSellViewModel?
 
     let dismissAction: Action<ActionButtonsSendToSellModel?>
     let popToRootAction: Action<PopToRootOptions>
@@ -31,7 +31,7 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        accountsAwareActionButtonsSellViewModel = ActionButtonsSellViewModel(
+        actionButtonsSellViewModel = ActionButtonsSellViewModel(
             tokenSelectorViewModel: options.tokenSelectorViewModel,
             coordinator: self
         )
