@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-/// One instance per unique account, a proxy for `AccountsAwareDerivationManager`.
+/// One instance per unique account, a proxy for `CommonDerivationManager`.
 final class AccountDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
