@@ -454,7 +454,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             connectionTargetSection = .init(
                 selectionIsAvailable: true,
                 targetName: selectedAccount.name,
-                target: .account(.init(icon: selectedAccount.icon)),
+                target: .account(.init(icon: selectedAccount.icon.erased)),
                 state: .content
             )
         } else {

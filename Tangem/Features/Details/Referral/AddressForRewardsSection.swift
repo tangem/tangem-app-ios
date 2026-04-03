@@ -93,7 +93,7 @@ extension AccountInlineHeaderView {
             ),
             account: ReferralViewModel.SelectedAccountViewData(
                 id: "FFF",
-                iconViewData: AccountIconView.ViewData(backgroundColor: .red, nameMode: .letter("N")),
+                iconViewData: .composite(backgroundColor: .red, nameMode: .letter("N")),
                 name: "Name"
             ),
             openAccountSelector: {}

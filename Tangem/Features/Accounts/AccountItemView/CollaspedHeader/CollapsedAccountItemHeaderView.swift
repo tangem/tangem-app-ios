@@ -85,7 +85,7 @@ private struct CollapsedAccountItemHeaderViewPreview: View {
 
             CollapsedAccountItemHeaderView(
                 name: "Test",
-                iconData: .init(backgroundColor: .red, nameMode: .letter("A")),
+                iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
                 tokensCount: "5 Tokens",
                 totalFiatBalance: .loaded(text: "$1234.56"),
                 priceChange: .loaded(changeType: .positive, text: "+5.67%"),
