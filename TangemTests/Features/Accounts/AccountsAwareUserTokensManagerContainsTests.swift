@@ -211,9 +211,9 @@ struct AccountsAwareUserTokensManagerContainsTests {
         storedTokenItems: [TokenItem]
     ) throws -> AccountsAwareUserTokensManager {
         let storedTokens = StoredEntryConverter.convertToStoredEntries(storedTokenItems)
-        let icon = AccountModel.Icon(
-            name: try #require(AccountModel.Icon.Name.cryptoAccountIcons.randomElement()),
-            color: try #require(AccountModel.Icon.Color.cryptoAccountColors.randomElement())
+        let icon = AccountModel.CompositeIcon(
+            name: try #require(AccountModel.CompositeIcon.Name.allCases.randomElement()),
+            color: try #require(AccountModel.CompositeIcon.Color.allCases.randomElement())
         )
         let config = CryptoAccountPersistentConfig(
             derivationIndex: derivationIndex,
