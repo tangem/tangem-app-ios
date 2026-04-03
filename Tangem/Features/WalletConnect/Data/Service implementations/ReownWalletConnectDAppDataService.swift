@@ -75,49 +75,6 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             requiredBlockchains: requiredBlockchains,
             optionalBlockchains: optionalBlockchains,
             initialVerificationContext: WalletConnectDAppSessionProposalMapper.mapVerificationContext(from: reownVerifyContext),
-            dAppWalletConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet
-                throws(WalletConnectDAppProposalApprovalError) in
-
-                func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
-                    switch domainBlockchain.networkId {
-                    case Self.solanaDomainNetworkID:
-                        specificSolanaCAIPReference
-                    case Self.bitcoinDomainNetworkID:
-                        specificBitcoinCAIPReference
-                    default:
-                        nil
-                    }
-                }
-
-                let reownSessionNamespaces: [String: SessionNamespace]
-                let walletFlowAccounts = selectedBlockchains.flatMap {
-                    WalletConnectAccountsMapper.map(
-                        from: $0,
-                        userWalletModel: selectedUserWallet,
-                        preferredCAIPReference: caipReference(for: $0)
-                    )
-                }
-
-                do {
-                    reownSessionNamespaces = try AutoNamespaces.build(
-                        sessionProposal: reownSessionProposal,
-                        chains: selectedBlockchains.compactMap {
-                            WalletConnectBlockchainMapper.mapFromDomain($0, preferredCAIPReference: caipReference(for: $0))
-                        },
-                        methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
-                        events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: walletFlowAccounts
-                    )
-                } catch {
-                    throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
-                }
-
-                let domainNamespaces = WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
-                return WalletConnectDAppConnectionRequest(
-                    proposalID: reownSessionProposal.id,
-                    namespaces: domainNamespaces
-                )
-            },
             dAppAccountConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedAccount, wcAccountsWalletModelProvider
                 throws(WalletConnectDAppProposalApprovalError) in
 
