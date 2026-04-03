@@ -39,12 +39,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .detentBottomSheet(
-                item: $coordinator.tokenNetworkSelectorCoordinator,
-                detents: [.large],
-            ) {
-                MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
-            }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }

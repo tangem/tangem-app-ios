@@ -23,9 +23,6 @@ final class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
-    var userTokensManager: UserTokensManager { _userTokensManager }
-    private let _userTokensManager = LockedUserTokensManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     var config: UserWalletConfig
@@ -75,10 +72,6 @@ final class LockedUserWalletModel: UserWalletModel {
 
     var analyticsContextData: AnalyticsContextData {
         userWallet.walletInfo.analyticsContextData
-    }
-
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
@@ -266,7 +259,6 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
 
 extension LockedUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

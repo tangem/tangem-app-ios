@@ -397,7 +397,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            walletModelsManager: userWalletModel.walletModelsManager // Not used when accounts are enabled, will be removed in [REDACTED_INFO]
+            walletModelsManager: LockedWalletModelsManager() // Not used when accounts are enabled, will be removed in [REDACTED_INFO]
         )
 
         return NFTEntrypointViewModel(
@@ -915,7 +915,6 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }
