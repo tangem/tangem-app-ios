@@ -12,7 +12,13 @@ import SolanaSwift
 final class SolanaDummyNetworkRouter: NetworkingRouter {
     // MARK: - Override Implementation
 
-    override func request<T>(method: HTTPMethod = .post, bcMethod: String = #function, parameters: [(any Encodable)?] = [], enableСontinuedRetry: Bool = true, onComplete: @escaping (Result<T, any Error>) -> Void) where T: Decodable {
+    override func request<T>(
+        method: HTTPMethod = .post,
+        bcMethod: String = #function,
+        parameters: [(any Encodable)?] = [],
+        enableContinuedRetry: Bool = true,
+        onComplete: @escaping (Result<T, any Error>) -> Void
+    ) where T: Decodable {
         onComplete(.failure(SolanaError.nullValue))
     }
 }

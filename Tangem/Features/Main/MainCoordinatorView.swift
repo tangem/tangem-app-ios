@@ -113,13 +113,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
                 NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    AccountsAwareOrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-            }
-            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
                     OrganizeTokensView(viewModel: viewModel)
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
@@ -148,9 +141,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: AccountSelectorViewModel.self) {
                 AccountSelectorView(viewModel: $0)
-            }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)

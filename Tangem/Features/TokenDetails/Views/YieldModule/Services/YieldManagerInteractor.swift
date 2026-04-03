@@ -23,18 +23,15 @@ actor YieldManagerInteractor {
 
     private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
-    private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     // MARK: - Init
 
     init(
         transactionDispatcher: any TransactionDispatcher,
-        manager: YieldModuleManager,
-        yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
+        manager: YieldModuleManager
     ) {
         self.transactionDispatcher = transactionDispatcher
         self.manager = manager
-        self.yieldModuleNotificationInteractor = yieldModuleNotificationInteractor
     }
 
     // MARK: - Public Implementation
@@ -169,7 +166,6 @@ actor YieldManagerInteractor {
         }
 
         _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
-        await yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
     }
 
     func exit(with token: TokenItem) async throws {
@@ -178,7 +174,6 @@ actor YieldManagerInteractor {
         }
 
         _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
-        await yieldModuleNotificationInteractor.deleteWithdrawalAlert(for: token)
     }
 
     // MARK: - Heplers

@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import enum Moya.MoyaError
 
 class CommonOnrampProviderManager {
     // Dependencies
@@ -54,10 +55,12 @@ private extension CommonOnrampProviderManager {
             return
         }
 
+        let previousState = _state
         do {
             if case .idle = _state {
                 update(state: .loading)
             }
+
             let quote = try await loadQuotes(amount: amount)
             update(state: .loaded(quote))
         } catch is CancellationError {
@@ -78,6 +81,15 @@ private extension CommonOnrampProviderManager {
 
             let formatted = formatAmount(amount: amount)
             update(state: .restriction(.tooBigAmount(amount, formatted: formatted)))
+        } catch let error as MoyaError where error.isTooManyRequests {
+            let restoredState: OnrampProviderManagerState
+            if case .loading = previousState {
+                restoredState = .idle
+            } else {
+                restoredState = previousState
+            }
+            update(state: restoredState)
+            OnrampLogger.info(self, "Rate limited by infrastructure, restoring previous state")
         } catch let error as ExpressAPIError {
             analyticsLogger.logExpressAPIError(error, provider: expressProvider, paymentMethod: paymentMethod)
             update(state: .failed(error: error))

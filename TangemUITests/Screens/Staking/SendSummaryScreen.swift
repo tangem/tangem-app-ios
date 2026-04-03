@@ -210,7 +210,6 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
-            waitAndAssertTrue(networkFeeBlock, "Network fee button should exist")
             networkFeeBlock.waitAndTap()
         }
         return SendFeeSelectorScreen(app)
@@ -226,6 +225,22 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
                 actualAmount,
                 expectedFiatAmount,
                 "Network fee amount should be '\(expectedFiatAmount)' but was '\(actualAmount)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNetworkFeeLoaded(fiatSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Wait for network fee to load (contains '\(fiatSymbol)')") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+
+            let predicate = NSPredicate(format: "label CONTAINS %@", fiatSymbol)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: networkFeeAmount)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Network fee should contain '\(fiatSymbol)' indicating it has loaded"
             )
         }
         return self
