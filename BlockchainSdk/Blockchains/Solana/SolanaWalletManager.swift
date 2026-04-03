@@ -12,7 +12,7 @@ import TangemSdk
 import SolanaSwift
 import TangemFoundation
 
-class SolanaWalletManager: BaseManager, WalletManager {
+class SolanaWalletManager: BaseWalletManager, WalletManager {
     var networkService: SolanaNetworkService!
 
     var currentHost: String { networkService.host }
@@ -27,10 +27,10 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     private let transactionHelper = SolanaTransactionHelper()
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let tokens = cardTokens
-            let info = try await networkService.getInfo(accountId: wallet.address, tokens: tokens).async()
+            let info = try await networkService.getInfo(accountId: address, tokens: tokens).async()
             updateWallet(info: info, tokens: tokens)
         } catch {
             wallet.clearAmounts()
