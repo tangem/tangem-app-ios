@@ -347,7 +347,7 @@ final class CryptoAccountsNetworkMapper {
             let rawName = archivedAccountDTO.icon
             let rawColor = archivedAccountDTO.iconColor
 
-            guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
+            guard let icon = AccountModel.CompositeIcon(rawName: rawName, rawColor: rawColor) else {
                 AccountsLogger.warning(
                     String(
                         format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",
