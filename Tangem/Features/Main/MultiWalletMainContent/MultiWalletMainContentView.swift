@@ -204,7 +204,7 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
+        let sectionsProvider = CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
             manageTokensActionFactory: { _ in {} }
         )
