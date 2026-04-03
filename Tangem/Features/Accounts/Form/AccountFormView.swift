@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -101,6 +102,7 @@ struct AccountFormView: View {
             title: viewModel.buttonTitle,
             isLoading: viewModel.isLoading,
             isDisabled: viewModel.mainButtonDisabled,
+            accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountFormMainButton,
             action: viewModel.onMainButtonTap
         )
         .padding(.bottom, 6)

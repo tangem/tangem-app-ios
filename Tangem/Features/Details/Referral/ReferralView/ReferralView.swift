@@ -369,7 +369,7 @@ struct ReferralView_Previews: PreviewProvider {
                     input: .init(
                         userWalletId: Data(),
                         supportedBlockchains: SupportedBlockchains.all,
-                        workMode: .plainUserTokensManager(UserTokensManagerMock()),
+                        accountModelsManager: AccountModelsManagerMock(),
                         tokenIconInfoBuilder: TokenIconInfoBuilder(),
                         userWalletModel: UserWalletModelMock()
                     ),
@@ -385,7 +385,7 @@ struct ReferralView_Previews: PreviewProvider {
                     input: .init(
                         userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
                         supportedBlockchains: SupportedBlockchains.all,
-                        workMode: .plainUserTokensManager(UserTokensManagerMock()),
+                        accountModelsManager: AccountModelsManagerMock(),
                         tokenIconInfoBuilder: TokenIconInfoBuilder(),
                         userWalletModel: UserWalletModelMock()
                     ),

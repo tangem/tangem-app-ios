@@ -101,9 +101,22 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        MultiWalletTokenItemsEmptyView()
-            .padding(.top, 96)
-            .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        VStack(spacing: .unit(.x2)) {
+            MultiWalletTokenItemsEmptyView()
+                .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
+                .textColor(Color.Tangem.Text.Neutral.tertiary)
+                .spacing(.unit(.x5))
+
+            TangemButton(
+                content: .text(AttributedString(Localization.commonAddTokens)),
+                action: viewModel.onAddTokensTap
+            )
+            .setCornerStyle(.rounded)
+            .setStyleType(.secondary)
+            .setSize(.x10)
+            .setHorizontalLayout(.intrinsic)
+        }
+        .padding(.top, .unit(.x9))
     }
 
     // MARK: - Accounts List
@@ -147,7 +160,11 @@ struct MultiWalletMainContentRedesignedView: View {
             let topEdgeCornerRadius = isFirstVisibleSection ? MultiWalletMainContentConstants.cornerRadius : nil
 
             LazyVStack(spacing: .zero) {
-                TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
+                TokenSectionView(
+                    title: section.model.title,
+                    topEdgeCornerRadius: topEdgeCornerRadius,
+                    backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+                )
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
                     let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
@@ -213,5 +230,5 @@ private struct TokenItemContainerView: View {
 private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
     static let cornerRadius: CGFloat = .unit(.x5)
-    static let tokenListBackgroundColor = Color.Tangem.Surface.level1
+    static let tokenListBackgroundColor = Color.Tangem.Surface.level2
 }

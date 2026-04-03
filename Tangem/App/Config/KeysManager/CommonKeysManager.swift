@@ -27,6 +27,10 @@ extension CommonKeysManager: KeysManager {
         keys.customerIO
     }
 
+    var surveySparrow: SurveySparrowKeys {
+        keys.surveySparrow
+    }
+
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
@@ -174,6 +178,7 @@ extension CommonKeysManager {
         let chiaTangemApiKey: String
         let appsFlyer: AppsFlyerConfig
         let customerIO: CustomerIOKeys
+        let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
