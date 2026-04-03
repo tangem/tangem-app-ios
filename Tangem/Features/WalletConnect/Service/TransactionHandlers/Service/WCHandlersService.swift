@@ -35,7 +35,6 @@ final class CommonWCHandlersService {
         blockchain: BlockchainSdk.Blockchain,
         signer: TangemSigner,
         hardwareLimitationsUtil: HardwareLimitationsUtil,
-        walletModelProvider: WalletConnectWalletModelProvider,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
@@ -51,7 +50,6 @@ final class CommonWCHandlersService {
             blockchainNetworkID: blockchain.networkId,
             signer: signer,
             hardwareLimitationsUtil: hardwareLimitationsUtil,
-            walletModelProvider: walletModelProvider,
             wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
@@ -116,7 +114,6 @@ extension CommonWCHandlersService: WCHandlersService {
             blockchain: validatedRequest.targetBlockchain,
             signer: validatedRequest.userWalletModel.signer,
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: validatedRequest.userWalletModel.config),
-            walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider,
             wcAccountsWalletModelProvider: validatedRequest.userWalletModel.wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
