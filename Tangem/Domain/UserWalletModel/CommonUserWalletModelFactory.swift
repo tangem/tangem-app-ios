@@ -59,8 +59,6 @@ struct CommonUserWalletModelFactory {
             name: name ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: config),
             config: config,
             userWalletId: userWalletId,
-            walletModelsManager: dependencies.walletModelsManager,
-            userTokensManager: dependencies.userTokensManager,
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             totalBalanceProvider: dependencies.totalBalanceProvider,
