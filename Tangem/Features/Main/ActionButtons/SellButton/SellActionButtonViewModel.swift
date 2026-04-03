@@ -158,7 +158,8 @@ private extension SellActionButtonViewModel {
     func scheduledOpenSell() {
         guard isOpeningRequired else { return }
 
-        coordinator?.openSell(userWalletModel: userWalletModel)
+        let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+        coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         isOpeningRequired = false
     }
 
