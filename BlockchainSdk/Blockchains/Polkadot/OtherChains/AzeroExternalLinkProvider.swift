@@ -14,10 +14,10 @@ struct AzeroExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        return URL(string: "https://alephzero.subscan.io/extrinsic/\(hash)")
+        return URL(string: "https://alephzero-lite.subscan.io/sub/extrinsic/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        return URL(string: "https://alephzero.subscan.io/account/\(address)")
+        return URL(string: "https://alephzero-lite.subscan.io/sub/account/\(address)")
     }
 }
