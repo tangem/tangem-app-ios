@@ -651,7 +651,7 @@
 "initial_message_sign_body" = "Zum Signieren, halte die Karte oder Ring wie oben gezeigt an und entfernen sie erst am Ende des Vorgangs.";
 "initial_wallet_sync_banner_description" = "Deine Wallet ist eingerichtet und einsatzbereit!";
 "initial_wallet_sync_banner_title" = "Wallet erfolgreich importiert";
-"initial_wallet_sync_restore_progress" = "Wiederherstellung %li%";
+"initial_wallet_sync_restore_progress" = "Wiederherstellung %li%%";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
 "jailbreak_warning_title" = "Jailbreak erkannt";
 "key_invalidated_warning_description" = "Du hast deine biometrischen Daten aktualisiert, scanne deine Karte oder Ring, um einzutreten";
@@ -769,9 +769,11 @@
 "markets_token_details_market_rating_description" = "Position im Krypto-Rating zwischen allen Coins basierend auf der Marktkapitalisierung";
 "markets_token_details_market_rating_full" = "Marktposition";
 "markets_token_details_market_rating" = "Marktposition";
+"markets_token_details_max_supply_and_circulation_full" = "Circulating and Max Supply";
 "markets_token_details_max_supply_description" = "Die maximale Anzahl von Coins oder Tokens, die jemals für eine bestimmte Kryptowährung existieren können";
 "markets_token_details_max_supply_full" = "Maximale Versorgung";
 "markets_token_details_max_supply" = "Maximale Versorgung";
+"markets_token_details_metrics_no_limited" = "No limited";
 "markets_token_details_metrics" = "Metriken";
 "markets_token_details_official_links" = "Offizielle Links";
 "markets_token_details_price_performance" = "Preisleistung";
@@ -1008,6 +1010,8 @@
 "qr_scanner_error_unrecognized_title" = "Unerkannter QR-Code";
 "qr_scanner_error_unsupported_network_message" = "Dieses Netzwerk wird von keinem der von Ihnen hinzugefügten Token unterstützt. Fügen Sie einen unterstützten Token hinzu, um Krypto zu senden.";
 "qr_scanner_error_unsupported_network_title" = "Keine unterstützten Token gefunden";
+"qr_scanner_warning_unknown_parameters_message" = "This QR code contains parameters that are not recognized: %@. Some payment details may be lost if you continue.";
+"qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "receive_bottom_sheet_no_memo_required_message" = "Kein Memo erforderlich";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ im %2$@ Netzwerk";
 "receive_bottom_sheet_warning_message_description" = "Das Senden einer anderen Währung führt zu deren irreversiblem Verlust.";
@@ -1363,6 +1367,7 @@
 "swapping_fee_estimation_error_text" = "Fehler bei der Gebührenschätzung. Bitte sende dein Feedback an den Support.";
 "swapping_from_title" = "Du wechselst";
 "swapping_high_price_impact_description" = "Der Tausch dieser Menge ausgewählter Token hat erhebliche Auswirkungen auf den Preis und verringert dein Ergebnis.";
+"swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
 "swapping_high_price_impact_title" = "Hoher Einfluss auf den Preis";
 "swapping_insufficient_funds_description" = "Not enough funds to complete this transaction. Reduce the amount to receive or add more funds.";
 "swapping_insufficient_funds" = "Unzureichende Mittel";
@@ -1373,6 +1378,8 @@
 "swapping_to_title" = "Du erhältst";
 "swapping_token_list_title" = "Token auswählen";
 "swapping_token_not_available" = "Nicht verfügbar";
+"swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
+"swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "Wir freuen uns über Ihr Feedback";
 "tangem_pay_beta_notification_title" = "Tangem Pay jetzt in der Beta";
 "tangem_pay_card_frozen" = "Karte eingefroren";
@@ -1533,6 +1540,7 @@
 "token_details_token_type_subtitle" = "%1$@ Token in %%image%% %2$@ Netzwerk";
 "token_details_unable_hide_alert_message" = "Der %1$@ (%2$@) Token ist die Hauptwährung im %3$@ Netzwerk und kann nicht versteckt werden, solange du andere Token dieses Netzwerks in der Liste aktiv hast.";
 "token_details_unable_hide_alert_title" = "%@ kann nicht ausgeblendet werden";
+"token_market_metrics_no_data" = "N/A";
 "token_receive_show_qr_code_title" = "QR-Code anzeigen";
 "token_swap_promotion_button" = "Jetzt tauschen";
 "tokens_list_available_to_buy_header" = "Wähle den Token, den Du kaufen möchtest";

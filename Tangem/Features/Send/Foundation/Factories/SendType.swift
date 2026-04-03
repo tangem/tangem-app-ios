@@ -13,7 +13,7 @@ import TangemExpress
 import BlockchainSdk
 
 enum SendType {
-    case send(SendWithSwapToken)
+    case send(SendWithSwapToken, parameters: PredefinedSendParameters? = nil)
     case sell(SendTransferableToken, parameters: PredefinedSellParameters)
     case nft(SendTransferableToken, parameters: PredefinedNFTParameters)
     case swap(PredefinedSwapParameters)
@@ -30,6 +30,33 @@ enum SendType {
 }
 
 // MARK: - Parameters
+
+struct PredefinedSendParameters {
+    let destination: String
+    let amount: Decimal?
+    let tag: String?
+    let initialStep: InitialStep
+
+    init(
+        destination: String,
+        amount: Decimal? = nil,
+        tag: String? = nil,
+        initialStep: InitialStep = .amount
+    ) {
+        self.destination = destination
+        self.amount = amount
+        self.tag = tag
+        self.initialStep = initialStep
+    }
+}
+
+extension PredefinedSendParameters {
+    enum InitialStep {
+        case amount
+        case amountThenSummary
+        case summary
+    }
+}
 
 enum PredefinedSwapParameters {
     case from(_ source: SendSwapableToken, receive: SendReceiveToken? = nil)

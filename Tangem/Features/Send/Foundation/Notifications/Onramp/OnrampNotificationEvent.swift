@@ -37,7 +37,7 @@ extension OnrampNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .refreshRequired:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         }
     }
 

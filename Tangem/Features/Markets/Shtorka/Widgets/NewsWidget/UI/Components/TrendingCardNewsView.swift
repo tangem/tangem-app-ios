@@ -64,50 +64,92 @@ struct TrendingCardNewsView: View {
 
     // MARK: - Content View
 
+    @ViewBuilder
     private func contentView(for item: TrendingCardNewsItem) -> some View {
-        VStack(spacing: Layout.MainCard.verticalSpacing) {
-            trendingBadge
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.TrendingBadge.cornerRadius)
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignedContentView(for: item)
+        } else {
+            legacyContentView(for: item)
+        }
+    }
 
-            FixedSpacer(height: Layout.Spacing.afterTrendingBadge)
+    // MARK: - Redesigned
+
+    private func redesignedContentView(for item: TrendingCardNewsItem) -> some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            HStack(spacing: .unit(.x2)) {
+                NewsRatingViewRedesign(rating: item.rating, isHighlighted: true)
+                Text(Localization.feedTrendingNow)
+                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+            }
+            .skeletonable(isShown: itemState.isLoading, radius: RedesignLayout.skeletonCornerRadius)
+
+            FixedSpacer(height: .unit(.x2))
+
+            Text(item.title)
+                .multilineTextAlignment(.leading)
+                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .skeletonable(isShown: itemState.isLoading, radius: RedesignLayout.skeletonCornerRadius)
+
+            FixedSpacer(height: .unit(.x4))
+
+            Text(item.timeAgo)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .skeletonable(isShown: itemState.isLoading, radius: RedesignLayout.skeletonCornerRadius)
+
+            FixedSpacer(height: 18.0)
+
+            InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
+                .skeletonable(isShown: itemState.isLoading, radius: RedesignLayout.skeletonCornerRadius)
+        }
+        .infinityFrame(axis: .horizontal, alignment: .center)
+        .padding(.all, .unit(.x4))
+        .background {
+            Assets.Markets
+                .trendingNewsBackground
+                .image
+                .resizable()
+                .scaledToFit()
+                .allowsHitTesting(false)
+        }
+        .cornerRadiusContinuous(.unit(.x5))
+        .opacity(opacity(for: item))
+        .padding(.horizontal, .unit(.x4))
+    }
+
+    // MARK: - Legacy
+
+    private func legacyContentView(for item: TrendingCardNewsItem) -> some View {
+        VStack(spacing: LegacyLayout.MainCard.verticalSpacing) {
+            trendingBadge
+                .skeletonable(isShown: itemState.isLoading, radius: LegacyLayout.TrendingBadge.cornerRadius)
+
+            FixedSpacer(height: LegacyLayout.Spacing.afterTrendingBadge)
 
             Text(item.title)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
+                .skeletonable(isShown: itemState.isLoading, radius: LegacyLayout.Skeleton.cornerRadius)
 
-            FixedSpacer(height: Layout.Spacing.afterTitle)
+            FixedSpacer(height: LegacyLayout.Spacing.afterTitle)
 
             NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
+                .skeletonable(isShown: itemState.isLoading, radius: LegacyLayout.Skeleton.cornerRadius)
 
-            FixedSpacer(height: Layout.Spacing.afterRating)
+            FixedSpacer(height: LegacyLayout.Spacing.afterRating)
 
             InfoChipsRowView(chips: item.tags, alignment: .center)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
+                .skeletonable(isShown: itemState.isLoading, radius: LegacyLayout.Skeleton.cornerRadius)
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
         .defaultRoundedBackground(
             with: Colors.Background.action,
-            verticalPadding: Layout.MainCard.padding,
-            horizontalPadding: Layout.MainCard.padding,
-            cornerRadius: Layout.MainCard.cornerRadius
+            verticalPadding: LegacyLayout.MainCard.padding,
+            horizontalPadding: LegacyLayout.MainCard.padding,
+            cornerRadius: LegacyLayout.MainCard.cornerRadius
         )
-        .overlay(alignment: .topTrailing) {
-            // [REDACTED_TODO_COMMENT]
-            /*
-             Assets.Markets
-                 .trendingNewsBackground
-                 .image
-                 .resizable()
-                 .scaledToFit()
-                 .infinityFrame(axis: .horizontal, alignment: .topTrailing)
-                 .cornerRadius(Layout.MainCard.cornerRadius, corners: [.topRight])
-                 .allowsHitTesting(false)
-              */
-        }
         .opacity(opacity(for: item))
-        .padding(.horizontal, Layout.MainCard.defaultHorizontalInset)
+        .padding(.horizontal, LegacyLayout.MainCard.defaultHorizontalInset)
     }
 
     // MARK: - Components
@@ -117,21 +159,25 @@ struct TrendingCardNewsView: View {
             Text(Localization.feedTrendingNow)
                 .style(Fonts.Bold.caption1, color: Colors.Text.accent)
                 .defaultRoundedBackground(
-                    with: Colors.Text.accent.opacity(Layout.TrendingBadge.opacity),
-                    verticalPadding: Layout.TrendingBadge.verticalPadding,
-                    horizontalPadding: Layout.TrendingBadge.horizontalPadding,
-                    cornerRadius: Layout.TrendingBadge.cornerRadius
+                    with: Colors.Text.accent.opacity(LegacyLayout.TrendingBadge.opacity),
+                    verticalPadding: LegacyLayout.TrendingBadge.verticalPadding,
+                    horizontalPadding: LegacyLayout.TrendingBadge.horizontalPadding,
+                    cornerRadius: LegacyLayout.TrendingBadge.cornerRadius
                 )
         }
     }
 
     private func opacity(for item: TrendingCardNewsItem) -> Double {
-        (item.isRead && !itemState.isLoading) ? Layout.ReadState.opacity : 1.0
+        (item.isRead && !itemState.isLoading) ? LegacyLayout.ReadState.opacity : 1.0
     }
 }
 
 private extension TrendingCardNewsView {
-    enum Layout {
+    enum RedesignLayout {
+        static let skeletonCornerRadius: CGFloat = .unit(.x4)
+    }
+
+    enum LegacyLayout {
         enum MainCard {
             static let verticalSpacing: CGFloat = .zero
             static let defaultHorizontalInset: CGFloat = 16
@@ -143,12 +189,6 @@ private extension TrendingCardNewsView {
             static let afterTrendingBadge: CGFloat = 12
             static let afterTitle: CGFloat = 8
             static let afterRating: CGFloat = 32
-        }
-
-        enum Shadow {
-            static let colorOpacity: Double = 0.12
-            static let radius: CGFloat = 16
-            static let yOffset: CGFloat = 8
         }
 
         enum TrendingBadge {

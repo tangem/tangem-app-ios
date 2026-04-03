@@ -7,6 +7,7 @@
 //
 
 public enum TangemPayEnrollmentState {
+    case disabled
     case kycRequired(productInstanceExists: Bool)
     case kycDeclined
     case issuingCard
