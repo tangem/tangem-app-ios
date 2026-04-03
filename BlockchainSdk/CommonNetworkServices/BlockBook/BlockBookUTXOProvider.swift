@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 import TangemFoundation
 import TangemNetworkUtils
 
@@ -131,6 +132,30 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
     }
 }
 
+// MARK: - XPUB
+
+extension BlockBookUTXOProvider {
+    /// https://github.com/trezor/blockbook/blob/master/docs/api.md#get-xpub
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, Error> {
+        let parameters = BlockBookTarget.XPUBRequestParameters(
+            page: nil,
+            pageSize: nil,
+            details: .tokenBalances,
+            tokens: .used
+        )
+
+        return executeRequest(
+            .xpub(xpub: xpub, parameters: parameters),
+            responseType: BlockBookXPUBResponse.self
+        )
+        .withWeakCaptureOf(self)
+        .tryMap { provider, response in
+            try provider.mapToUTXOXpubInfo(tokens: response.tokens ?? [])
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Private
 
 extension BlockBookUTXOProvider {
@@ -158,5 +183,20 @@ private extension BlockBookUTXOProvider {
     func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, address: String) throws -> TransactionRecord {
         try BlockBookTransactionTransactionRecordMapper(blockchain: blockchain)
             .mapToTransactionRecord(transaction: transaction, address: address)
+    }
+
+    func mapToUTXOXpubInfo(tokens: [BlockBookXPUBResponse.Token]) throws -> UTXOXpubInfo {
+        let addresses = try tokens.map { token in
+            let derivationPath = try DerivationPath(rawPath: token.path)
+
+            return UTXOXpubInfo.Address(
+                address: token.name,
+                derivationPath: derivationPath,
+                transfers: token.transfers,
+                balance: Decimal(stringValue: token.balance) ?? 0
+            )
+        }
+
+        return UTXOXpubInfo(addresses: addresses)
     }
 }
