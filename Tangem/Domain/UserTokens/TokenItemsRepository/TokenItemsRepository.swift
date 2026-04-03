@@ -9,8 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Token
 
-// [REDACTED_TODO_COMMENT]
-@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
 protocol TokenItemsRepository {
     var containsFile: Bool { get }
 

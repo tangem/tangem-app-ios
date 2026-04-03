@@ -24,9 +24,9 @@ extension XDCAddressService: AddressProvider {
         switch addressType {
         case .default:
             let xdcAddress = converter.convertToXDCAddress(ethAddress)
-            return PlainAddress(value: xdcAddress, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: xdcAddress, type: addressType)
         case .legacy:
-            return PlainAddress(value: ethAddress, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: ethAddress, type: addressType)
         }
     }
 }
