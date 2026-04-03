@@ -8,29 +8,46 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 protocol SendApproveViewModelInputDataBuilder {
-    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input
+    func makeApproveFlowFactory() throws -> ApproveFlowFactory
 }
 
 enum SendApproveViewModelInputDataBuilderError: LocalizedError {
     case notSupported
+    case notFound(String)
 
     var errorDescription: String? {
         switch self {
         case .notSupported: "Approve not supported"
+        case .notFound(let item): "\(item) not found"
         }
     }
 }
 
-protocol SendApproveDataBuilderInput {
-    var approveRequestedWithSelectedPolicy: ApprovePolicy? { get }
-    var approveRequestedByExpressProvider: ExpressProvider? { get }
-    var approveViewModelInput: ApproveViewModelInput? { get }
+// MARK: - ApproveFlowDataProvider
+
+/// Thin provider that extracts a snapshot of approve-related data from the model.
+protocol ApproveFlowDataProvider {
+    func approveFlowInput() throws -> ApproveFlowInput
 }
 
-extension SendApproveDataBuilderInput {
-    /// For staking
-    var approveRequestedByExpressProvider: ExpressProvider? { nil }
+// MARK: - ApproveFlowInput
+
+struct ApproveFlowInput {
+    let approveAmount: Decimal
+    let selectedPolicy: BSDKApprovePolicy
+    let approveData: ApproveTransactionData
+    let sourceToken: any SendSourceToken
+    let tokenFeeProvidersManager: any TokenFeeProvidersManager
+    let localization: ApproveLocalization
+}
+
+// MARK: - ApproveLocalization
+
+struct ApproveLocalization {
+    let subtitle: String
+    let feeFooterText: String
 }

@@ -69,11 +69,12 @@ enum SwapAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
+            receiveTokenAmountOutput: io.receiveAmountIO?.output,
             validator: dependencies.sendAmountValidator,
             amountModifier: .none,
             notificationService: .none,
             saver: interactorSaver,
-            type: .crypto
+            sourceType: .crypto
         )
 
         let viewModel = SwapAmountViewModel(

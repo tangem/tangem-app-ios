@@ -69,9 +69,10 @@ struct FeeSelectorRowView: View {
     }
 
     private func feeSubtitleColor() -> Color {
-        if case .available(true) = viewModel.availability {
+        switch viewModel.availability {
+        case .available(true), .unavailable(true):
             return Colors.Text.warning
-        } else {
+        case .available(false), .unavailable(false):
             return Colors.Text.tertiary
         }
     }
