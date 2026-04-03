@@ -481,7 +481,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         }
 
         // Working with accounts in onboarding is equivalent of working with main account
-        return AccountsAwareManageTokensContext(
+        return CommonManageTokensContext(
             accountModelsManager: userWalletModel.accountModelsManager,
             currentAccount: mainAccount
         )
