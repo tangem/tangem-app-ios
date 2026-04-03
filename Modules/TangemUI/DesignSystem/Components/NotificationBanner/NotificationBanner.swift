@@ -14,16 +14,18 @@ public struct NotificationBanner: View, Setupable {
     private let bannerType: BannerType
 
     @ScaledMetric private var padding: CGFloat
-    @ScaledMetric private var iconSize: CGFloat
+    @ScaledMetric private var iconWidth: CGFloat
+    @ScaledMetric private var iconHeight: CGFloat
 
     public init(bannerType: BannerType) {
         self.bannerType = bannerType
+        let iconSize = bannerType.content.iconSize
         _padding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
-        _iconSize = ScaledMetric(wrappedValue: bannerType.content.iconSize)
+        _iconWidth = ScaledMetric(wrappedValue: iconSize.width)
+        _iconHeight = ScaledMetric(wrappedValue: iconSize.height)
     }
 
     private var content: Content { bannerType.content }
-    private var buttons: Buttons { bannerType.buttons }
 
     private var isCentered: Bool {
         switch content {
@@ -33,9 +35,26 @@ public struct NotificationBanner: View, Setupable {
     }
 
     public var body: some View {
+        switch bannerType.bannerAction {
+        case .buttons(let buttons):
+            bannerBody {
+                buttonsView(buttons: buttons)
+            }
+        case .tappable(let tapAction):
+            Button(action: { tapAction() }) {
+                bannerBody()
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func bannerBody<Buttons: View>(
+        @ViewBuilder buttons: () -> Buttons = { EmptyView() }
+    ) -> some View {
         VStack(spacing: SizeUnit.x4.value) {
             contentView
-            buttonsView
+            buttons()
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
@@ -76,18 +95,21 @@ public struct NotificationBanner: View, Setupable {
                 textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
             case .textWithIcon(let data):
-                HStack(spacing: SizeUnit.x2.value) {
+                HStack(
+                    alignment: data.icon.alignment.verticalAlignment,
+                    spacing: SizeUnit.x2.value
+                ) {
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
 
                     Spacer()
 
                     data.icon.imageType.image
+                        .renderingMode(data.icon.renderingMode)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(
-                            width: iconSize,
-                            height: iconSize,
-                            alignment: data.icon.alignment.verticalAlignment
+                            width: iconWidth,
+                            height: iconHeight
                         )
                 }
             }
@@ -118,7 +140,7 @@ public struct NotificationBanner: View, Setupable {
     }
 
     @ViewBuilder
-    private var buttonsView: some View {
+    private func buttonsView(buttons: Buttons) -> some View {
         switch buttons {
         case .none:
             EmptyView()

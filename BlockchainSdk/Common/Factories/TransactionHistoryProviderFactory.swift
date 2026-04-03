@@ -13,17 +13,20 @@ public struct TransactionHistoryProviderFactory {
     private let keysConfig: BlockchainSdkKeysConfig
     private let apiList: APIList
     private let tangemProviderConfig: TangemProviderConfiguration
+    private let isSolanaTransactionHistoryEnabled: Bool
 
     // MARK: - Init
 
     public init(
         keysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
-        apiList: APIList
+        apiList: APIList,
+        isSolanaTransactionHistoryEnabled: Bool
     ) {
         self.keysConfig = keysConfig
         self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
+        self.isSolanaTransactionHistoryEnabled = isSolanaTransactionHistoryEnabled
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -126,6 +129,16 @@ public struct TransactionHistoryProviderFactory {
             return KaspaTransactionHistoryProvider(
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
+            )
+        case .solana:
+            guard isSolanaTransactionHistoryEnabled else {
+                return nil
+            }
+
+            return SolanaTransactionHistoryProvider(
+                configuration: .alchemy(apiKey: keysConfig.alchemyApiKey),
+                networkConfiguration: input.tangemProviderConfig,
+                mapper: SolanaTransactionHistoryMapper(blockchain: input.blockchain)
             )
         default:
             return nil

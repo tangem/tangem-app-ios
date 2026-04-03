@@ -589,7 +589,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .fantom:
             return isTestnet ? "Fantom" + testnetSuffix : "Fantom Opera"
         case .polkadot:
-            return "Polkadot" + testnetSuffix + (isTestnet ? " (Westend)" : "")
+            return "Polkadot Asset Hub" + testnetSuffix + (isTestnet ? " (Westend)" : "")
         case .azero:
             return "Aleph Zero" + testnetSuffix
         case .gnosis:
@@ -1100,6 +1100,16 @@ public extension Blockchain {
             return ["bnb:"]
         case .dogecoin:
             return ["doge:", "dogecoin:"]
+        case .solana:
+            return ["solana:"]
+        case .tron:
+            return ["tron:"]
+        case .ton:
+            return ["ton://transfer/", "ton:"]
+        case .bitcoinCash:
+            return ["bitcoincash:"]
+        case .dash:
+            return ["dash:"]
         default:
             return []
         }

@@ -117,7 +117,7 @@ extension FeeSelectorRowViewModel {
     @CaseFlagable
     enum Availability: Hashable {
         case available(isSubtitleHighlighted: Bool)
-        case unavailable
+        case unavailable(isSubtitleHighlighted: Bool)
     }
 }
 
@@ -147,7 +147,7 @@ extension FeeSelectorRowViewModel {
         title: Localization.commonFeeSelectorOptionMarket,
         subtitle: .fee(.noData),
         accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
-        availability: .unavailable,
+        availability: .unavailable(isSubtitleHighlighted: false),
         expandAction: nil
     )
 }

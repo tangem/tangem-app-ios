@@ -10,15 +10,6 @@ import Foundation
 import Combine
 import CombineExt
 
-extension Publisher where Failure == Swift.Error {
-    func asyncMap<T>(
-        priority: TaskPriority? = nil,
-        _ transform: @escaping (_ input: Self.Output) async throws -> T
-    ) -> some Publisher<T, Self.Failure> {
-        return Publishers.AsyncMap(upstream: self, priority: priority, transform: transform)
-    }
-}
-
 extension Publisher {
     func handleEvents(
         receiveSubscription: ((Subscription) -> Void)? = nil,
@@ -56,8 +47,8 @@ extension Publisher {
             .eraseToAnyPublisher()
     }
 
-    static func sendTxFail(error: Error) -> AnyPublisher<Output, SendTxError> {
-        return Fail(error: SendTxError(error: error.toUniversalError()))
+    static func sendTxFail(error: Error, currentHost: String? = nil) -> AnyPublisher<Output, SendTxError> {
+        return Fail(error: SendTxError(error: error.toUniversalError(), lastRetryHost: currentHost))
             .eraseToAnyPublisher()
     }
 
@@ -83,26 +74,26 @@ extension Publisher where Failure == Error {
      This method is used to override a network error when sending a transaction.
      Use only pair with send method for {{Blockchain}}NetworkService.
      */
-    public func mapAndEraseSendTxError(tx: String? = nil) -> Publishers.MapError<Self, Error> {
+    public func mapAndEraseSendTxError(tx: String? = nil, currentHost: String? = nil) -> Publishers.MapError<Self, Error> {
         mapError { error in
             if let sendTxError = error as? SendTxError {
                 return sendTxError
             }
 
-            return SendTxError(error: error.toUniversalError(), tx: tx)
+            return SendTxError(error: error.toUniversalError(), tx: tx, lastRetryHost: currentHost)
         }
     }
 
     /**
      This method is used to override a network error when sending a transaction after all chains publishers.
      */
-    func mapSendTxError(tx: String? = nil) -> Publishers.MapError<Self, SendTxError> {
+    func mapSendTxError(tx: String? = nil, currentHost: String? = nil) -> Publishers.MapError<Self, SendTxError> {
         mapError { error in
             if let sendTxError = error as? SendTxError {
                 return sendTxError
             }
 
-            return SendTxError(error: error.toUniversalError(), tx: tx)
+            return SendTxError(error: error.toUniversalError(), tx: tx, lastRetryHost: currentHost)
         }
     }
 }
@@ -126,45 +117,5 @@ extension Publisher {
                     .mapToValue(output) // Replace outputs from `otherPublisherFactory` with the original output
                     .replaceError(with: output) // Replace errors from `otherPublisherFactory` with the original output
             }
-    }
-}
-
-// MARK: - Private implementation
-
-private extension Publishers {
-    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Swift.Error {
-        typealias Output = Output
-        typealias Failure = Upstream.Failure
-        typealias Transform = (_ input: Upstream.Output) async throws -> Output
-
-        let upstream: Upstream
-        let priority: TaskPriority?
-        let transform: Transform
-
-        init(upstream: Upstream, priority: TaskPriority?, transform: @escaping Transform) {
-            self.upstream = upstream
-            self.priority = priority
-            self.transform = transform
-        }
-
-        func receive<S>(subscriber: S) where S: Subscriber, Upstream.Failure == S.Failure, Self.Output == S.Input {
-            upstream
-                .flatMap { output in
-                    let subject = PassthroughSubject<Output, Failure>()
-
-                    let task = Task(priority: priority) {
-                        do {
-                            let mapped = try await transform(output)
-                            subject.send(mapped)
-                            subject.send(completion: .finished)
-                        } catch {
-                            subject.send(completion: .failure(error))
-                        }
-                    }
-
-                    return subject.handleEvents(receiveCancel: task.cancel)
-                }
-                .receive(subscriber: subscriber)
-        }
     }
 }

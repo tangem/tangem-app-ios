@@ -63,7 +63,7 @@ extension WithdrawalNotificationEvent: NotificationEvent {
         case .reduceAmountBecauseFeeIsTooHigh,
              .cardanoWillBeSendAlongToken,
              .tronWillBeSendTokenFeeDescription:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         }
     }
 

@@ -14,7 +14,12 @@ actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private var providers: [UserWalletId: any ExpressAPIProvider] = [:]
+    private lazy var expressAPIProviderResolver = ExpressAPIProviderResolver(
+        providerFactory: { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
+    )
+
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
@@ -22,22 +27,6 @@ actor CommonExpressPairsRepository {
             .walletModels(for: userWalletRepository.models)
 
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
-    }
-
-    private func provider(userWalletInfo: UserWalletInfo) -> any ExpressAPIProvider {
-        let key = userWalletInfo.id
-
-        if let provider = providers[key] {
-            return provider
-        }
-
-        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletInfo.id,
-            refcode: userWalletInfo.refcode
-        )
-
-        providers[key] = provider
-        return provider
     }
 }
 
@@ -47,7 +36,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {
         guard !currencies.isEmpty else { return }
 
-        let provider = provider(userWalletInfo: userWalletInfo)
+        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         let pairsTo = try await provider.pairs(from: [wallet], to: currencies.toSet())
         pairs.formUnion(pairsTo.toSet())
     }
@@ -57,7 +46,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
 
         guard !currencies.isEmpty else { return }
 
-        let provider = provider(userWalletInfo: userWalletInfo)
+        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 

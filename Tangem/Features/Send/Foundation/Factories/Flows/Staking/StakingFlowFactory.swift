@@ -118,9 +118,11 @@ extension StakingFlowFactory: SendBaseBuildable {
                 baseDataInput: stakingModel,
                 sourceTokenInput: stakingModel
             ),
-            approveViewModelInputDataBuilder: CommonStakingApproveViewModelInputDataBuilder(
-                sourceToken: stakingableToken,
-                approveDataInput: stakingModel
+            approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
+                dataProvider: stakingModel,
+                analyticsLogger: analyticsLogger,
+                output: stakingModel,
+                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: stakingModel
