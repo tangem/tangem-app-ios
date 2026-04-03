@@ -57,7 +57,8 @@ struct SendSuggestedWalletsFactory {
                 )
             }
 
-            if let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount,
+            if let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel,
+               let tangemPayAccount = tangemPayAccountModel.state?.tangemPayAccount,
                referenceTokenItem.token == tangemPayAccount.paymentTokenItem.token,
                referenceTokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,
                let depositAddress = tangemPayAccount.depositAddress {
@@ -66,7 +67,7 @@ struct SendSuggestedWalletsFactory {
                         name: userWalletModel.name,
                         address: depositAddress,
                         account: SendDestinationSuggestedWallet.Account(
-                            icon: .init(backgroundColor: .clear, nameMode: .imageType(Assets.Visa.accountAvatar)),
+                            icon: AccountModelUtils.UI.iconViewData(accountModel: tangemPayAccountModel),
                             name: Localization.tangempayPaymentAccount
                         ),
                         accountModelAnalyticsProvider: nil
