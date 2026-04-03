@@ -63,7 +63,7 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        AccountsAwareUserTokensPushNotificationsManager(
+        CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()

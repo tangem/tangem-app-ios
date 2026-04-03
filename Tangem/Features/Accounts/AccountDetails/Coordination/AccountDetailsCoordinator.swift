@@ -118,7 +118,7 @@ private extension AccountDetailsCoordinator {
                 popToRootAction: coordinator.popToRootAction
             )
 
-            let context = AccountsAwareManageTokensContext(
+            let context = CommonManageTokensContext(
                 accountModelsManager: options.accountModelsManager,
                 currentAccount: accountModel
             )

@@ -101,7 +101,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
+        let viewModel = AddTokenFlowViewModel(
             userWalletModels: walletDataProvider.userWalletModels,
             configuration: configuration,
             coordinator: self
@@ -336,9 +336,9 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     }
 }
 
-// MARK: - AccountsAwareAddTokenFlowRoutable
+// MARK: - AddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
+extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
     func close() {
         floatingSheetPresenter.removeActiveSheet()
     }

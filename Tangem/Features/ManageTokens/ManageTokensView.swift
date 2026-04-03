@@ -99,7 +99,7 @@ struct ManageTokensView: View {
 #Preview {
     let fakeModel = FakeUserWalletModel.wallet3Cards
     let accountModelsManager = AccountModelsManagerMock()
-    let context = AccountsAwareManageTokensContext(
+    let context = CommonManageTokensContext(
         accountModelsManager: accountModelsManager,
         currentAccount: accountModelsManager.cryptoAccountModels[0]
     )
