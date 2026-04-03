@@ -25,6 +25,7 @@ public extension VisaCustomerInfoResponse {
         case inProgress = "IN_PROGRESS"
         case active = "ACTIVE"
         case blocked = "BLOCKED"
+        case former = "FORMER"
         case unknown = "UNKNOWN"
     }
 

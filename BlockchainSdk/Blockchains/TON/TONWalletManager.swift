@@ -92,7 +92,7 @@ final class TONWalletManager: BaseManager, WalletManager {
 
                 return networkService
                     .send(message: message)
-                    .mapAndEraseSendTxError(tx: message)
+                    .mapAndEraseSendTxError(tx: message, currentHost: currentHost)
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -103,7 +103,7 @@ final class TONWalletManager: BaseManager, WalletManager {
                 manager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hex, currentProviderHost: manager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }

@@ -56,7 +56,9 @@ extension TokenFeeProvider {
 // MARK: - [TokenFeeProvider]+
 
 extension [TokenFeeProvider] {
-    var hasMultipleFeeProviders: Bool { unique(by: \.feeTokenItem).count > 1 }
+    var hasMultipleFeeProviders: Bool {
+        filter { $0.state.isSupported }.unique(by: \.feeTokenItem).count > 1
+    }
 
     subscript(feeTokenItem: TokenItem) -> TokenFeeProvider? {
         first { $0.feeTokenItem == feeTokenItem }

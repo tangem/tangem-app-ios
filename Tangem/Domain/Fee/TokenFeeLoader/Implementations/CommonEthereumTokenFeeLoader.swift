@@ -9,6 +9,7 @@
 import TangemExpress
 import BlockchainSdk
 import BigInt
+import TangemFoundation
 
 struct CommonEthereumTokenFeeLoader {
     let feeBlockchain: Blockchain
