@@ -51,8 +51,6 @@ class CommonWalletModelsManager {
     }
 
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
-        AppLogger.info("🔄 Updating Wallet models")
-
         let existingWalletModelIds = Set(walletModels.map { $0.id })
 
         let newWalletModelIds = Set(walletManagers.flatMap { network, walletManager in
