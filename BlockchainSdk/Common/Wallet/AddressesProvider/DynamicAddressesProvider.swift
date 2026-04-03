@@ -58,9 +58,9 @@ extension DynamicAddressesProvider: Wallet.AddressesProvider {
 // MARK: - Private
 
 private extension DynamicAddressesProvider {
-    func resolveAddress(for chain: DynamicAddressesDerivationHelper.Chain) -> Address {
+    func resolveAddress(for chain: XPUBAddressesDerivationHelper.Chain) -> Address {
         let accountLevelDerivationPath = xpubKey.child.path
-        let helper = DynamicAddressesDerivationHelper(accountDerivationPath: accountLevelDerivationPath, usedDerivations: usedDerivations)
+        let helper = XPUBAddressesDerivationHelper(accountDerivationPath: accountLevelDerivationPath, usedDerivations: usedDerivations)
         let derivationPath = helper.resolveDerivationPath(chain: chain)
 
         do {
