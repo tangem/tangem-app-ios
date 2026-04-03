@@ -26,4 +26,14 @@ final class TransactionDispatcherMock: TransactionDispatcher {
         sendCalls.append(transaction)
         return try sendResult.get()
     }
+
+    /// Sequential override to avoid race conditions in `sendCalls` recording.
+    /// The default protocol implementation uses concurrent `asyncMap` via `TaskGroup`.
+    func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
+        var results: [TransactionDispatcherResult] = []
+        for transaction in transactions {
+            results.append(try await send(transaction: transaction))
+        }
+        return results
+    }
 }
