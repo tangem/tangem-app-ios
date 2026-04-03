@@ -54,12 +54,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
             tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
-            coordinator: self,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: self
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
@@ -247,9 +244,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel,
-            // [REDACTED_TODO_COMMENT]
-            isYieldModuleActive: false
+            addressTypesProvider: walletModel
         )
 
         let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
