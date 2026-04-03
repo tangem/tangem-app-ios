@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 struct SolanaWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner

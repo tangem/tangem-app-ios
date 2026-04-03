@@ -22,28 +22,31 @@ struct ExpressPendingTransactionsFactory {
             tokenEnricher: tokenEnricher
         )
 
-        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletInfo.id,
-            refcode: userWalletInfo.refcode
+        let expressAPIProviderResolver = ExpressAPIProviderResolver(
+            providerFactory: makeExpressAPIProvider(userWalletId:refcode:)
         )
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
             walletModelUpdater: walletModelUpdater,
-            expressAPIProvider: expressAPIProvider,
+            expressAPIProviderResolver: expressAPIProviderResolver,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider
+            expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         )
 
         return CompoundPendingTransactionsManager(
             first: pendingExpressTransactionsManager,
             second: pendingOnrampTransactionsManager
         )
+    }
+
+    private func makeExpressAPIProvider(userWalletId: String, refcode: Refcode?) -> ExpressAPIProvider {
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
 }
