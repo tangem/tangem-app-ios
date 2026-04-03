@@ -46,7 +46,7 @@ final class ReferralViewModel: ObservableObject {
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
     private let userWalletModel: UserWalletModel
-    private let workMode: WorkMode
+    private let accountModelsManager: AccountModelsManager
     private let tokenIconInfoBuilder: TokenIconInfoBuilder
     private var bag = Set<AnyCancellable>()
 
@@ -59,7 +59,7 @@ final class ReferralViewModel: ObservableObject {
         userWalletId = input.userWalletId
         supportedBlockchains = input.supportedBlockchains
         self.coordinator = coordinator
-        workMode = input.workMode
+        accountModelsManager = input.accountModelsManager
         tokenIconInfoBuilder = input.tokenIconInfoBuilder
         userWalletModel = input.userWalletModel
 
@@ -70,25 +70,12 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     func fetchAndMapInitialState() async {
-        switch workMode {
-        case .plainUserTokensManager(let userTokensManager):
-            let referralInfo = await loadReferralInfo()
-            referralProgramInfo = referralInfo
+        let (accountModel, referralInfo) = await fetchInitialData()
+        referralProgramInfo = referralInfo
+        self.accountModel = accountModel
 
-            if referralInfo?.referral != nil {
-                updateViewState(to: .loaded(.alreadyParticipant(.simple(userTokensManager))))
-            } else {
-                updateViewState(to: .loaded(.readyToBecomeParticipant(.simple(userTokensManager))))
-            }
-
-        case .accounts(let accountModelsManager):
-            let (accountModel, referralInfo) = await fetchInitialData(with: accountModelsManager)
-            referralProgramInfo = referralInfo
-            self.accountModel = accountModel
-
-            updateViewState(accountModel: accountModel)
-            bindAccountModelsUpdates(accountModelsManager)
-        }
+        updateViewState(accountModel: accountModel)
+        bindAccountModelsUpdates()
     }
 
     func onAppear() {
@@ -156,13 +143,7 @@ final class ReferralViewModel: ObservableObject {
                 )
 
                 await MainActor.run { self.referralProgramInfo = referralProgramInfo }
-
-                switch workMode {
-                case .plainUserTokensManager:
-                    await updateViewState(to: .loaded(.alreadyParticipant(.simple(userTokensManager))))
-                case .accounts:
-                    await updateViewState(accountModel: accountModel)
-                }
+                await updateViewState(accountModel: accountModel)
 
                 Analytics.log(.referralParticipateSuccessful)
             } catch {
@@ -227,7 +208,7 @@ final class ReferralViewModel: ObservableObject {
         }
     }
 
-    private func loadAccountModel(with accountModelsManager: AccountModelsManager) async -> AccountModel? {
+    private func loadAccountModel() async -> AccountModel? {
         do {
             return try await accountModelsManager.accountModelsPublisher.async().firstStandard()
         } catch {
@@ -239,14 +220,14 @@ final class ReferralViewModel: ObservableObject {
 
     // MARK: - Loading
 
-    private func fetchInitialData(with accountModelsManager: AccountModelsManager) async -> (AccountModel?, ReferralProgramInfo?) {
-        async let accountModel = loadAccountModel(with: accountModelsManager)
+    private func fetchInitialData() async -> (AccountModel?, ReferralProgramInfo?) {
+        async let accountModel = loadAccountModel()
         async let referralInfo = loadReferralInfo()
 
         return await (accountModel, referralInfo)
     }
 
-    private func bindAccountModelsUpdates(_ accountModelsManager: AccountModelsManager) {
+    private func bindAccountModelsUpdates() {
         accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
@@ -448,15 +429,12 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     private var userTokensManager: UserTokensManager? {
-        switch (workMode, viewState) {
-        case (.plainUserTokensManager(let userTokensManager), _):
-            // Plain UI w/o accounts
-            return userTokensManager
-        case (.accounts, .loaded(.alreadyParticipant(.simple(let userTokensManager)))),
-             (.accounts, .loaded(.readyToBecomeParticipant(.simple(let userTokensManager)))):
+        switch viewState {
+        case .loaded(.alreadyParticipant(.simple(let userTokensManager))),
+             .loaded(.readyToBecomeParticipant(.simple(let userTokensManager))):
             // Plain UI with a single main account
             return userTokensManager
-        case (.accounts, _):
+        default:
             // Accounts-aware UI with multiple accounts
             return selectedCryptoAccount?.userTokensManager
         }
@@ -499,12 +477,7 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     private func findAccount(by id: some Hashable) -> (any CryptoAccountModel)? {
-        switch workMode {
-        case .plainUserTokensManager:
-            return nil
-        case .accounts:
-            return accountModel?.cryptoAccount(with: id)
-        }
+        accountModel?.cryptoAccount(with: id)
     }
 }
 
