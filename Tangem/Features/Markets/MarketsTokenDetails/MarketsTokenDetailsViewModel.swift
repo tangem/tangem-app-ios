@@ -44,7 +44,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
-    @Published private(set) var accountsAwarePortfolioViewModel: MarketsAccountsAwarePortfolioContainerViewModel?
+    @Published private(set) var accountsAwarePortfolioViewModel: MarketsPortfolioContainerViewModel?
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -556,7 +556,7 @@ private extension MarketsTokenDetailsViewModel {
             return
         }
 
-        accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
+        accountsAwarePortfolioViewModel = MarketsPortfolioContainerViewModel(
             inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
             walletDataProvider: walletDataProvider,
             coordinator: coordinator,
