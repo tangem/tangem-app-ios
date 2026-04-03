@@ -23,7 +23,7 @@ protocol DetailsRoutable: AnyObject {
     func openShop()
     func openSocialNetwork(url: URL)
 
-    func openGetTangemPay()
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()
