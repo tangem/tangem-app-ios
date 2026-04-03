@@ -33,30 +33,6 @@ struct WalletConnectBitcoinSignMessageHandler {
         request: AnyCodable,
         blockchainId: String,
         signer: BitcoinWalletConnectSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        let castedParams: WalletConnectBtcSignMessageRequest
-        do {
-            castedParams = try request.get(WalletConnectBtcSignMessageRequest.self)
-
-            let targetAddress = castedParams.address
-            walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
-            self.request = request
-        } catch {
-            let stringRepresentation = request.stringRepresentation
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
-        }
-
-        address = castedParams.address
-        message = castedParams.message
-        self.signer = signer
-    }
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
-        signer: BitcoinWalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {
