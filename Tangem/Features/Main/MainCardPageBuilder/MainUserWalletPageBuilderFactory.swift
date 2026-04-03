@@ -101,12 +101,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
-            coordinator: coordinator,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: coordinator
         )
 
         if isMultiWalletPage {

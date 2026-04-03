@@ -42,7 +42,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
     private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
     private var isDeeplinkMode: Bool = false
 
@@ -273,9 +272,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel,
-            // [REDACTED_TODO_COMMENT]
-            isYieldModuleActive: false
+            addressTypesProvider: walletModel
         )
 
         let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
@@ -312,11 +309,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: destination) {
-            openViaYieldNotice(tokenItem: destination, action: action)
-        } else {
-            action()
-        }
+        action()
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
@@ -371,13 +364,6 @@ extension MarketsTokenDetailsCoordinator {
                 try await Task.sleep(for: .seconds(1))
                 await walletModel.update(silent: true, features: .balances)
             }
-        }
-    }
-
-    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
-        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }
