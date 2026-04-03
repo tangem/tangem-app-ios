@@ -29,7 +29,12 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 
     var currentHost: String { networkService.host }
 
-    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, unspentOutputManager: UnspentOutputManager, networkService: UTXONetworkProvider) {
+    init(
+        wallet: Wallet,
+        txBuilder: BitcoinTransactionBuilder,
+        unspentOutputManager: UnspentOutputManager,
+        networkService: UTXONetworkProvider
+    ) {
         self.txBuilder = txBuilder
         self.unspentOutputManager = unspentOutputManager
         self.networkService = networkService
