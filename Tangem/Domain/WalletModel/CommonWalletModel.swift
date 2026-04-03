@@ -378,7 +378,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
-               
+
                 await walletManagerDidUpdate()
                 logger.debug(self, "Update method finished with state '\(walletManager.state)'")
             }
