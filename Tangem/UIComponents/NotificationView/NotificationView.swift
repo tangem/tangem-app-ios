@@ -147,8 +147,9 @@ struct NotificationView: View {
     private var icon: some View {
         Group {
             switch settings.event.icon.iconType {
-            case .image(let image):
-                image
+            case .image(let imageType):
+                imageType.image
+                    .renderingMode(settings.event.icon.renderingMode)
                     .resizable()
                     .foregroundColor(settings.event.icon.color)
             case .icon(let tokenIconInfo):

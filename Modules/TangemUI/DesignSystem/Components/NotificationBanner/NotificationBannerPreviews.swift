@@ -77,10 +77,10 @@ private extension NotificationBannerShowcase {
                         ),
                         icon: .init(imageType: Assets.notificationBell, alignment: .center)
                     )),
-                    .two(
+                    .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[0]),
                         right: button("Got it", style: .primary, itemId: ids[0])
-                    )
+                    ))
                 )
             ),
             ShowcaseItem(
@@ -90,10 +90,10 @@ private extension NotificationBannerShowcase {
                         title: "Finalize wallet setup",
                         subtitle: "To complete setup, back up your wallet and secure thew app with an access code"
                     )),
-                    .two(
+                    .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[1]),
                         right: button("Got it", style: .primary, itemId: ids[1])
-                    )
+                    ))
                 )
             ),
             ShowcaseItem(
@@ -115,10 +115,10 @@ private extension NotificationBannerShowcase {
                         ),
                         icon: .init(imageType: Assets.notificationBell, alignment: .center)
                     )),
-                    .two(
+                    .buttons(.two(
                         left: button("Settings", style: .secondary, itemId: ids[3]),
                         right: button("Enable notifications", style: .primary, itemId: ids[3])
-                    )
+                    ))
                 )
             ),
             ShowcaseItem(
@@ -128,7 +128,7 @@ private extension NotificationBannerShowcase {
                         title: "Tangem Visa Card",
                         subtitle: "Join the waitlist and get a payment card unlike any other"
                     ),
-                    .one(button("Got it", style: .primary, itemId: ids[4])),
+                    .buttons(.one(button("Got it", style: .primary, itemId: ids[4]))),
                     closeAction(itemId: ids[4]),
                     .bannerMagic
                 )
@@ -140,10 +140,10 @@ private extension NotificationBannerShowcase {
                         title: "Backup your wallet",
                         subtitle: "Protect your assets by creating a backup of your wallet seed phrase."
                     ),
-                    .two(
+                    .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[5]),
                         right: button("Got it", style: .primary, itemId: ids[5])
-                    ),
+                    )),
                     closeAction(itemId: ids[5])
                 )
             ),
@@ -154,10 +154,10 @@ private extension NotificationBannerShowcase {
                         title: "Rate your experience",
                         subtitle: "Help us improve by sharing your feedback about the app."
                     ),
-                    .two(
+                    .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[6]),
                         right: button("Got it", style: .primary, itemId: ids[6])
-                    ),
+                    )),
                     closeAction(itemId: ids[6]),
                     .bannerCard
                 )

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 
 struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
@@ -35,6 +36,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             .padding(.horizontal, 14)
             .background(backgroundView)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderSelectorRow(name: data.title))
     }
 
     private var backgroundView: some View {
@@ -96,6 +98,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
                 .padding(.horizontal, 6)
                 .background(Colors.Icon.accent.opacity(0.1))
                 .cornerRadiusContinuous(8)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderBestRateBadge)
         }
     }
 }
