@@ -354,14 +354,6 @@
 				App/AppEnvironmentConfig/Common.xcconfig,
 				App/AppEnvironmentConfig/Info.plist,
 				App/AppEnvironmentConfig/Production.xcconfig,
-				"Features/MobileWallet/MobileWallet+UniversalError.swift",
-			);
-			target = 5D3F77C124BF56D800E8695B /* Tangem */;
-		};
-		C21CCB2B2F7ED0D700CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Blockchains/Ethereum/GaslessTransactions/Utils/EthEip7702Util.swift,
 			);
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 		};
@@ -402,7 +394,7 @@
 		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tangem; sourceTree = "<group>"; };
 		C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2D2F7ED3C500CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdkExample; sourceTree = "<group>"; };
 		C21CAF342F7ED07900CF1555 /* BlockchainSdkTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdkTests; sourceTree = "<group>"; };
-		C21CC6C32F7ED0D600CF1555 /* BlockchainSdk */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2B2F7ED0D700CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, C21CCB2C2F7ED0D700CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdk; sourceTree = "<group>"; };
+		C21CC6C32F7ED0D600CF1555 /* BlockchainSdk */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2C2F7ED0D700CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdk; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
