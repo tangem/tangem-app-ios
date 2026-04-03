@@ -30,8 +30,7 @@ struct CommonSendSourceTokenFactory {
         )
 
         let allowanceService = AllowanceServiceFactory(
-            walletModel: walletModel,
-            transactionDispatcherProvider: transactionDispatcherProvider
+            walletModel: walletModel
         ).makeAllowanceService()
 
         let emailDataCollectorBuilder = CommonEmailDataCollectorBuilder(
