@@ -18,7 +18,6 @@ struct WalletConnectConnectedDAppV1: Hashable {
     let connectionDate: Date
 }
 
-// [REDACTED_TODO_COMMENT]
 /// Wrapper over `WalletConnectConnectedDAppV1` to add `accountId` field for WalletConnect V2.
 @dynamicMemberLookup
 struct WalletConnectConnectedDAppV2: Hashable {
