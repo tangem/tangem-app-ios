@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SolanaSwift
 import TangemFoundation
+import TangemNetworkUtils
 import TangemSdk
 
 @available(iOS 13.0, *)
@@ -22,11 +23,18 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
     private let solanaSdk: Solana
     private let blockchain: Blockchain
+    private let networkProvider: TangemProvider<SolanaScaledUiAmountTarget>
 
-    init(providers: [RPCEndpoint], solanaSdk: Solana, blockchain: Blockchain) {
+    init(
+        providers: [RPCEndpoint],
+        solanaSdk: Solana,
+        blockchain: Blockchain,
+        providerConfiguration: TangemProviderConfiguration
+    ) {
         self.providers = providers
         self.solanaSdk = solanaSdk
         self.blockchain = blockchain
+        networkProvider = .init(configuration: providerConfiguration)
     }
 
     func getInfo(accountId: String, tokens: [Token]) -> AnyPublisher<SolanaAccountInfoResponse, Error> {
@@ -225,6 +233,34 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    func getScaledUiAmountMultiplier(
+        mintAddress: String,
+        transactionDate: Date
+    ) -> AnyPublisher<Decimal?, Error> {
+        providerPublisher { [weak self] provider in
+            guard let self else {
+                return .anyFail(error: BlockchainSdkError.empty)
+            }
+
+            let target = SolanaScaledUiAmountTarget(
+                endpoint: provider,
+                request: .getAccountInfo(mintAddress: mintAddress)
+            )
+
+            return networkProvider.requestPublisher(target)
+                .filterSuccessfulStatusAndRedirectCodes()
+                .map(JSONRPC.Response<SolanaScaledUiAmountDTO.GetAccountInfoResult, JSONRPC.APIError>.self)
+                .tryMap { response in
+                    let accountInfo = try response.result.get()
+                    return self.selectScaledUiAmountMultiplier(
+                        from: accountInfo,
+                        transactionDate: transactionDate
+                    )
+                }
+                .eraseToAnyPublisher()
+        }
+    }
+
     func getAddressLookupTable(accountKey: PublicKey) async throws -> AddressLookupTableAccount {
         let maxAttempts = 15
         let delay: UInt64 = 1_500_000_000 // 1.5 second
@@ -340,7 +376,6 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         let tokenInfoResponses: [SolanaTokenAccountInfoResponse] = tokenAccountsInfo.compactMap {
             guard
                 let info = $0.account.data.value?.parsed.info,
-                let integerAmount = Decimal(stringValue: info.tokenAmount.amount),
                 let token = tokens.first(where: { $0.contractAddress == info.mint })
             else {
                 return nil
@@ -349,8 +384,11 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             let address = $0.pubkey
             let mint = info.mint
 
-            // 1 for NFT
-            let amount = (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
+            let isToken2022 = $0.account.owner == PublicKey.token2022ProgramId.base58EncodedString
+            guard let amount = tokenBalance(from: info.tokenAmount, token: token, useUiAmount: isToken2022) else {
+                return nil
+            }
+
             return SolanaTokenAccountInfoResponse(address: address, mint: mint, balance: amount, space: $0.account.space)
         }
 
@@ -413,5 +451,54 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
         )
+    }
+
+    private func tokenBalance(
+        from tokenAmount: SolanaSwift.TokenAmount,
+        token: Token,
+        useUiAmount: Bool
+    ) -> Decimal? {
+        if useUiAmount {
+            // For Token-2022 (e.g. scaled UI amount), use node-provided UI amount.
+            if let uiAmount = Decimal(stringValue: tokenAmount.uiAmountString) {
+                return uiAmount.rounded(scale: token.decimalCount)
+            }
+
+            return Decimal(tokenAmount.uiAmount).rounded(scale: token.decimalCount)
+        } else {
+            guard let integerAmount = Decimal(stringValue: tokenAmount.amount) else {
+                return nil
+            }
+
+            return (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
+        }
+    }
+
+    private func selectScaledUiAmountMultiplier(
+        from accountInfo: SolanaScaledUiAmountDTO.GetAccountInfoResult,
+        transactionDate: Date
+    ) -> Decimal? {
+        let extensionConfig = accountInfo.value?
+            .data?
+            .parsed?
+            .info?
+            .extensions
+            .first(where: { $0.extension == "scaledUiAmountConfig" })
+
+        guard let state = extensionConfig?.state else {
+            return nil
+        }
+
+        let transactionTimestamp = Int64(transactionDate.timeIntervalSince1970)
+        let multiplierString: String?
+
+        if let effectiveTimestamp = state.newMultiplierEffectiveTimestamp,
+           transactionTimestamp >= effectiveTimestamp {
+            multiplierString = state.newMultiplier
+        } else {
+            multiplierString = state.multiplier
+        }
+
+        return Decimal(stringValue: multiplierString)
     }
 }
