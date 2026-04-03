@@ -186,7 +186,6 @@ class CommonWalletModel {
 
     @MainActor
     private func updateState(_ state: WalletModelState) {
-        AppLogger.info(self, "Updating state. New state is \(state)")
         _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
         _state.value = state
     }
@@ -229,7 +228,6 @@ class CommonWalletModel {
             AppLogger.info(self, "⏰ Starting updating timer")
             try await Task.sleep(for: .seconds(10))
 
-            AppLogger.info(self, "⏰ Updating timer alarm ‼️. WalletModel will be updated")
             self?.walletManager.setNeedsUpdate()
             await self?.update(silent: false, features: .full)
         }
@@ -379,11 +377,8 @@ extension CommonWalletModel: WalletModelUpdater {
                 async let staking: ()? = _stakingManager?.updateState(loadActions: true)
 
                 _ = await (update, quotes, staking)
-                logger.debug(self, "WalletModel was updated to state '\(walletManager.state)'")
-
                 await _receiveAddressService.update(with: wallet.addresses)
-                logger.debug(self, "ReceiveAddressService was updated")
-
+               
                 await walletManagerDidUpdate()
                 logger.debug(self, "Update method finished with state '\(walletManager.state)'")
             }
@@ -392,10 +387,8 @@ extension CommonWalletModel: WalletModelUpdater {
         async let transactionHistoryUpdate: () = {
             if features.contains(.transactionHistory) {
                 _transactionHistoryService?.clearHistory()
-                logger.debug(self, "Transaction history was cleared")
 
                 await updateTransactionsHistory()
-                logger.debug(self, "Transaction history was updated")
             }
         }()
 
@@ -411,7 +404,6 @@ extension CommonWalletModel: WalletModelUpdater {
 
     func updateTransactionsHistory() async {
         guard let _transactionHistoryService else {
-            AppLogger.info(self, "TransactionsHistory not supported")
             return
         }
 
