@@ -33,7 +33,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child Coordinators
 
-    @Published var tokenNetworkSelectorCoordinator: MarketsTokenNetworkSelectorCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
@@ -89,22 +88,8 @@ extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
-    func openTokenSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenNetworkSelectorCoordinator = nil
-        }
-
-        tokenNetworkSelectorCoordinator = MarketsTokenNetworkSelectorCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        tokenNetworkSelectorCoordinator?.start(
-            with: .init(
-                inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-                walletDataProvider: walletDataProvider
-            )
-        )
-    }
-
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
             coinId: model.id,
             coinName: model.name,
             coinSymbol: model.symbol,
