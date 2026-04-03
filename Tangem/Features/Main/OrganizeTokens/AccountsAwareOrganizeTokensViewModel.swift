@@ -354,7 +354,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         let sortTypeParameterValue: Analytics.ParameterValue
         switch sortingOption {
         case .dragAndDrop:
-            sortTypeParameterValue = .sortTypeManual
+            sortTypeParameterValue = .manually
         case .byBalance:
             sortTypeParameterValue = .sortTypeByBalance
         }

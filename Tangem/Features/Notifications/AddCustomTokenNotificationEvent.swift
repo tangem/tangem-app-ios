@@ -44,7 +44,7 @@ extension AddCustomTokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .scamWarning, .alreadyAdded:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         }
     }
 
