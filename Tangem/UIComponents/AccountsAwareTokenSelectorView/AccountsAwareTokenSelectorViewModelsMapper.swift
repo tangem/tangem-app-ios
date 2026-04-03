@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemFoundation
 
 final class AccountsAwareTokenSelectorViewModelsMapper {
     // MARK: - Public
@@ -20,6 +21,7 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
     private let walletsProvider: any AccountsAwareTokenSelectorWalletsProvider
     private let availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider
     private let collapsibleAccounts: Bool
+    private let expandedStateStorage: (any TokenSelectorExpandedStateStorage)?
 
     // MARK: - Internal
 
@@ -34,11 +36,13 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
     init(
         walletsProvider: any AccountsAwareTokenSelectorWalletsProvider,
         availabilityProvider: any AccountsAwareTokenSelectorItemAvailabilityProvider,
-        collapsibleAccounts: Bool = false
+        collapsibleAccounts: Bool = false,
+        expandedStateStorage: (any TokenSelectorExpandedStateStorage)? = nil
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
         self.collapsibleAccounts = collapsibleAccounts
+        self.expandedStateStorage = expandedStateStorage
 
         itemViewModelBuilder = .init(availabilityProvider: availabilityProvider)
     }
@@ -105,24 +109,32 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
 private extension AccountsAwareTokenSelectorViewModelsMapper {
     func mapToAccountsAwareTokenSelectorWalletItemViewModel(wallet: AccountsAwareTokenSelectorWallet) -> AccountsAwareTokenSelectorWalletItemViewModel {
         let walletName = wallet.wallet.name
+        let walletId = wallet.wallet.id
 
         let viewTypePublisher = wallet
             .accountsPublisher
             .withWeakCaptureOf(self)
             .map { mapper, accounts in
-                return mapper.mapToViewType(accountType: accounts, walletName: walletName)
+                return mapper.mapToViewType(accountType: accounts, walletName: walletName, walletId: walletId)
             }
             .eraseToAnyPublisher()
 
+        let isOpen = expandedStateStorage?.isWalletOpen(walletId) ?? true
+
         return AccountsAwareTokenSelectorWalletItemViewModel(
-            viewType: mapToViewType(accountType: wallet.accounts, walletName: walletName),
-            viewTypePublisher: viewTypePublisher
+            isOpen: isOpen,
+            viewType: mapToViewType(accountType: wallet.accounts, walletName: walletName, walletId: walletId),
+            viewTypePublisher: viewTypePublisher,
+            onOpenStateChange: { [expandedStateStorage] open in
+                expandedStateStorage?.setWalletOpen(open, for: walletId)
+            }
         )
     }
 
     func mapToAccountsAwareTokenSelectorAccountViewModel(
         header: AccountsAwareTokenSelectorAccountViewModel.HeaderType,
-        account: AccountsAwareTokenSelectorAccount
+        account: AccountsAwareTokenSelectorAccount,
+        walletId: UserWalletId
     ) -> AccountsAwareTokenSelectorAccountViewModel {
         let rawItemsPublisher = itemsPublisher(provider: account.itemsProvider)
 
@@ -139,8 +151,12 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         var expandableViewModel: TokenSelectorExpandableAccountItemViewModel?
 
         if collapsibleAccounts, case .account = header {
+            let accountStateStorage = expandedStateStorage?.makeAccountStateStorage(for: walletId)
+                ?? ExpandableAccountItemStateStorageStub(isExpanded: false)
+
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
+                stateStorage: accountStateStorage,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
                 searchTextPublisher: searchText.eraseToAnyPublisher()
             )
@@ -162,13 +178,15 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
 
     func mapToViewType(
         accountType: AccountsAwareTokenSelectorWallet.AccountType,
-        walletName: String
+        walletName: String,
+        walletId: UserWalletId
     ) -> AccountsAwareTokenSelectorWalletItemViewModel.ViewType {
         switch accountType {
         case .single(let account):
             let wallet = mapToAccountsAwareTokenSelectorAccountViewModel(
                 header: .wallet(walletName),
-                account: account
+                account: account,
+                walletId: walletId
             )
 
             return .wallet(wallet)
@@ -180,7 +198,7 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
                     name: account.account.name
                 )
 
-                return mapToAccountsAwareTokenSelectorAccountViewModel(header: header, account: account)
+                return mapToAccountsAwareTokenSelectorAccountViewModel(header: header, account: account, walletId: walletId)
             }
 
             return .accounts(walletName: walletName, accounts: accounts)
