@@ -45,15 +45,25 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
     }
 
     var supportFeeSelection: Bool {
-        feeProviders.hasMultipleFeeProviders || selectedFeeProvider.hasMultipleFeeOptions
+        let hasMultipleFeeProviders = feeProviders.hasMultipleFeeProviders
+        let selectedHasMultipleOptions = selectedFeeProvider.hasMultipleFeeOptions
+        let selectedHasTokenBalance = !selectedFeeProvider.state.isUnavailableNoTokenBalance
+
+        return hasMultipleFeeProviders || (selectedHasMultipleOptions && selectedHasTokenBalance)
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
+        let hasMultipleSupportedProviders = Publishers.MergeMany(feeProviders.map { $0.statePublisher })
+            .map { [feeProviders] _ in feeProviders.hasMultipleFeeProviders }
+
+        return Publishers.CombineLatest3(
             selectedFeeProviderPublisher.map(\.hasMultipleFeeOptions),
-            Just(feeProviders.hasMultipleFeeProviders)
+            hasMultipleSupportedProviders,
+            selectedFeeProviderPublisher.flatMapLatest { $0.statePublisher.map(\.isUnavailableNoTokenBalance) }
         )
-        .map { $0 || $1 }
+        .map { hasMultipleOptions, hasMultipleProviders, noTokenBalance in
+            hasMultipleProviders || (hasMultipleOptions && !noTokenBalance)
+        }
         .removeDuplicates()
         .eraseToAnyPublisher()
     }
