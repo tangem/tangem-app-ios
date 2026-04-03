@@ -17,6 +17,12 @@ struct DucatusWalletAssembly: WalletManagerAssembly {
             builderType: .custom
         )
         let networkService = BitcoreNetworkProvider(configuration: input.networkInput.tangemProviderConfig)
-        return DucatusWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+
+        return DucatusWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
