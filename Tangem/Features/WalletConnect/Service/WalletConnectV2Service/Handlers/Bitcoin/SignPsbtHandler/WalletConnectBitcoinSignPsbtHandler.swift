@@ -25,29 +25,6 @@ final class WalletConnectBitcoinSignPsbtHandler {
         blockchainId: String,
         transactionBuilder: WCBtcTransactionBuilder,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        do {
-            parsedRequest = try request.get(WalletConnectBitcoinSignPsbtDTO.Request.self)
-        } catch {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(request.description)
-        }
-
-        guard let model = walletModelProvider.getModel(with: blockchainId) else {
-            throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
-        }
-
-        walletModel = model
-        self.request = request
-        self.signer = signer
-        self.transactionBuilder = transactionBuilder
-    }
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
-        transactionBuilder: WCBtcTransactionBuilder,
-        signer: TangemSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {

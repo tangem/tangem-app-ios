@@ -16,9 +16,7 @@ import TangemPay
 // [REDACTED_TODO_COMMENT]
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
-    let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
-    let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -45,18 +43,7 @@ struct CommonUserWalletModelDependencies {
             hasTokenSynchronization: hasTokenSynchronization,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability
         )
-        self.userTokensManager = userTokensManager
         innerDependencies = legacyInnerDependencies
-
-        walletModelsManager = Self.makeWalletModelsManager(
-            userWalletId: userWalletId,
-            config: config,
-            keysRepository: keysRepository,
-            userTokensManager: userTokensManager,
-            walletManagerFactory: walletManagerFactory
-        )
-        // Initialized immediately after creation since there are no dependencies to inject
-        walletModelsManager.initialize()
 
         derivationManager = Self.makeDerivationManager(
             keysRepository: keysRepository,
@@ -166,16 +153,6 @@ private extension CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: remoteStatusSyncing
         )
-    }
-
-    static func makeWalletModelsManager(
-        userWalletId: UserWalletId,
-        config: UserWalletConfig,
-        keysRepository: KeysRepository,
-        userTokensManager: UserTokensManager,
-        walletManagerFactory: AnyWalletManagerFactory
-    ) -> WalletModelsManager {
-        WalletModelsManagerStub()
     }
 
     static func makeAccountModelsManagerDependencies(
