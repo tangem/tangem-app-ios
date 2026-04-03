@@ -27,29 +27,6 @@ class WalletConnectSendTransferHandler {
         blockchainId: String,
         transactionBuilder: WCBtcTransactionBuilder,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        do {
-            let wcTransaction = try requestParams.get(WalletConnectBtcTransaction.self)
-
-            self.wcTransaction = wcTransaction
-            walletModel = try walletModelProvider.getModel(with: wcTransaction.account, blockchainId: blockchainId)
-        } catch {
-            WCLogger.error("Failed to create Send transfer handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
-        }
-
-        self.transactionBuilder = transactionBuilder
-        transactionDispatcher = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: signer)
-            .makeTransferTransactionDispatcher()
-        request = requestParams
-    }
-
-    init(
-        requestParams: AnyCodable,
-        blockchainId: String,
-        transactionBuilder: WCBtcTransactionBuilder,
-        signer: TangemSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {
