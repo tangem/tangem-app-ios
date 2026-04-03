@@ -8,6 +8,7 @@
 import Testing
 import Combine
 import BlockchainSdk
+import BigInt
 import TangemFoundation
 @testable import Tangem
 
@@ -17,6 +18,7 @@ struct ApproveInteractorTests {
     private let testContractAddress = "0xContractAddress"
     private let testTxData = Data([0xAA, 0xBB, 0xCC, 0xDD])
     private let testApproveAmount: Decimal = 1000
+    private let testRevokeTxData = Data([0x00, 0x00, 0x00, 0x00])
 
     // MARK: - updateApprovePolicy
 
@@ -40,13 +42,13 @@ struct ApproveInteractorTests {
         #expect(env.allowanceService.allowanceStateCalls.first?.amount == testApproveAmount)
         #expect(env.allowanceService.allowanceStateCalls.first?.spender == testSpender)
 
-        #expect(sut.approveData.txData == newTxData)
-        #expect(sut.approveData.toContractAddress == newContractAddress)
+        #expect(sut.testApproveData.txData == newTxData)
+        #expect(sut.testApproveData.toContractAddress == newContractAddress)
 
         #expect(env.feeManager.updateInputCalls.count == 1)
         #expect(env.feeManager.updateFeesCalls == 1)
 
-        if case .approve(let txData, let toContractAddress) = env.feeManager.updateInputCalls.first {
+        if case .approve(let txData, let toContractAddress, _) = env.feeManager.updateInputCalls.first {
             #expect(txData == newTxData)
             #expect(toContractAddress == newContractAddress)
         } else {
@@ -60,12 +62,12 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.enoughAllowance)
 
         let sut = makeSUT(env: env)
-        let originalTxData = sut.approveData.txData
+        let originalTxData = sut.testApproveData.txData
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
 
-        #expect(sut.approveData.txData == originalTxData)
+        #expect(sut.testApproveData.txData == originalTxData)
         #expect(env.feeManager.updateInputCalls.isEmpty)
         #expect(env.feeManager.updateFeesCalls == 0)
     }
@@ -76,14 +78,14 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.approveTransactionInProgress)
 
         let sut = makeSUT(env: env)
-        let originalTxData = sut.approveData.txData
-        let originalContract = sut.approveData.toContractAddress
+        let originalTxData = sut.testApproveData.txData
+        let originalContract = sut.testApproveData.toContractAddress
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
 
-        #expect(sut.approveData.txData == originalTxData)
-        #expect(sut.approveData.toContractAddress == originalContract)
+        #expect(sut.testApproveData.txData == originalTxData)
+        #expect(sut.testApproveData.toContractAddress == originalContract)
         #expect(env.feeManager.updateInputCalls.isEmpty)
         #expect(env.feeManager.updateFeesCalls == 0)
     }
@@ -94,16 +96,16 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .failure(NSError(domain: "test", code: -1))
 
         let sut = makeSUT(env: env)
-        let originalTxData = sut.approveData.txData
-        let originalContract = sut.approveData.toContractAddress
-        let originalSpender = sut.approveData.spender
+        let originalTxData = sut.testApproveData.txData
+        let originalContract = sut.testApproveData.toContractAddress
+        let originalSpender = sut.testApproveData.spender
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
 
-        #expect(sut.approveData.txData == originalTxData, "txData must not change on error")
-        #expect(sut.approveData.toContractAddress == originalContract, "contract must not change on error")
-        #expect(sut.approveData.spender == originalSpender, "spender must not change on error")
+        #expect(sut.testApproveData.txData == originalTxData, "txData must not change on error")
+        #expect(sut.testApproveData.toContractAddress == originalContract, "contract must not change on error")
+        #expect(sut.testApproveData.spender == originalSpender, "spender must not change on error")
         #expect(env.feeManager.updateInputCalls.isEmpty, "Fee input must not be updated on error")
         #expect(env.feeManager.updateFeesCalls == 0, "Fees must not be refreshed on error")
     }
@@ -128,8 +130,8 @@ struct ApproveInteractorTests {
 
         try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
 
-        #expect(sut.approveData.txData == secondData.txData)
-        #expect(sut.approveData.toContractAddress == secondData.toContractAddress)
+        #expect(sut.testApproveData.txData == secondData.txData)
+        #expect(sut.testApproveData.toContractAddress == secondData.toContractAddress)
     }
 
     // MARK: - sendApproveTransaction
@@ -327,8 +329,8 @@ struct ApproveInteractorTests {
         let env = makeEnv()
         let sut = makeSUT(env: env)
 
-        #expect(sut.approveData.spender != userDestination)
-        #expect(sut.approveData.toContractAddress != userDestination)
+        #expect(sut.testApproveData.spender != userDestination)
+        #expect(sut.testApproveData.toContractAddress != userDestination)
     }
 
     @Test("Approve data uses contract address, not user destination — values are independent")
@@ -367,7 +369,7 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
 
         let sut = makeSUT(env: env)
-        let originalSpender = sut.approveData.spender
+        let originalSpender = sut.testApproveData.spender
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
@@ -394,7 +396,7 @@ struct ApproveInteractorTests {
         #expect(env.feeManager.updateInputCalls.count == 1)
 
         guard let firstInput = env.feeManager.updateInputCalls.first,
-              case .approve(let txData, let contractAddress) = firstInput else {
+              case .approve(let txData, let contractAddress, _) = firstInput else {
             Issue.record("Fee input must be .approve, not .common/.dex/.cex — got \(String(describing: env.feeManager.updateInputCalls.first))")
             return
         }
@@ -516,6 +518,181 @@ struct ApproveInteractorTests {
         #expect(env.feeManager.updateFeesCalls == 1)
     }
 
+    // MARK: - ApproveInteractorState.feeInput
+
+    @Test("feeInput uses approve tx data with .single multiplier for single approve")
+    func feeInput_approve() {
+        let data = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
+        let state = ApproveInteractor.ApproveInteractorState.approve(data: data)
+
+        guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
+            Issue.record("Expected .approve fee input")
+            return
+        }
+
+        #expect(txData == testTxData)
+        #expect(toContractAddress == testContractAddress)
+        #expect(feeMultiplier == .single)
+    }
+
+    @Test("feeInput uses revoke tx data with .triple multiplier for revoke+approve")
+    func feeInput_revokeAndApprove() {
+        let revokeTxData = Data([0x01])
+        let revokeContract = "0xRevoke"
+        let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
+        let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(
+            revoke: ApproveTransactionData(txData: revokeTxData, spender: testSpender, toContractAddress: revokeContract),
+            approve: ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: testContractAddress),
+            feeUnit: feeUnit
+        )
+
+        guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
+            Issue.record("Expected .approve fee input")
+            return
+        }
+
+        #expect(txData == revokeTxData, "Fee must be estimated against revoke tx")
+        #expect(toContractAddress == revokeContract, "Fee must use revoke contract address")
+        #expect(feeMultiplier == .triple)
+    }
+
+    // MARK: - Revoke+Approve sendApproveTransaction
+
+    @Test("Revoke+approve dispatches two transactions: revoke then approve")
+    func revokeAndApprove_dispatchesTwoTransactions() async throws {
+        let env = makeEnv()
+        let sut = makeRevokeAndApproveSUT(env: env)
+
+        try await sut.sendApproveTransaction()
+
+        #expect(env.dispatcher.sendCalls.count == 2, "Must dispatch exactly 2 transactions (revoke + approve)")
+
+        // First is revoke
+        if case .approve(let revokeData, _) = env.dispatcher.sendCalls[0] {
+            #expect(revokeData.txData == testRevokeTxData)
+        } else {
+            Issue.record("First transaction must be .approve (revoke)")
+        }
+
+        // Second is approve
+        if case .approve(let approveData, _) = env.dispatcher.sendCalls[1] {
+            #expect(approveData.txData == testTxData)
+        } else {
+            Issue.record("Second transaction must be .approve (approve)")
+        }
+    }
+
+    @Test("Revoke+approve: revoke fee equals feeUnit, approve fee is 2x feeUnit")
+    func revokeAndApprove_feesSplitCorrectly() async throws {
+        let feeValue: Decimal = 0.001
+        let env = makeEnv(feeValue: feeValue)
+        let sut = makeRevokeAndApproveSUT(env: env, feeUnitValue: feeValue)
+
+        try await sut.sendApproveTransaction()
+
+        #expect(env.dispatcher.sendCalls.count == 2)
+
+        // Revoke fee = feeUnit (1x)
+        if case .approve(_, let revokeFee) = env.dispatcher.sendCalls[0] {
+            #expect(revokeFee.amount.value == feeValue, "Revoke fee must equal feeUnit (1x)")
+        }
+
+        // Approve fee = 2x feeUnit
+        if case .approve(_, let approveFee) = env.dispatcher.sendCalls[1] {
+            #expect(approveFee.amount.value == feeValue * 2, "Approve fee must be 2x feeUnit")
+        }
+    }
+
+    @Test("Revoke+approve: approve tx gets doubled gasLimit")
+    func revokeAndApprove_approveGasLimitDoubled() async throws {
+        let gasLimit: BigUInt = 50000
+        let gasPrice: BigUInt = 20_000_000_000
+        let ethParams = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice)
+        let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001), parameters: ethParams)
+
+        let env = makeEnv()
+        let sut = makeRevokeAndApproveSUT(env: env, feeUnit: feeUnit)
+
+        try await sut.sendApproveTransaction()
+
+        // Revoke gasLimit unchanged
+        if case .approve(_, let revokeFee) = env.dispatcher.sendCalls[0],
+           let revokeParams = revokeFee.parameters as? EthereumLegacyFeeParameters {
+            #expect(revokeParams.gasLimit == gasLimit)
+        }
+
+        // Approve gasLimit doubled
+        if case .approve(_, let approveFee) = env.dispatcher.sendCalls[1],
+           let approveParams = approveFee.parameters as? EthereumLegacyFeeParameters {
+            #expect(approveParams.gasLimit == gasLimit * 2, "Approve gasLimit must be 2x revoke gasLimit")
+        }
+    }
+
+    @Test("Revoke+approve: marks spender as sent and notifies output")
+    func revokeAndApprove_marksSentAndNotifiesOutput() async throws {
+        let env = makeEnv()
+        let sut = makeRevokeAndApproveSUT(env: env)
+
+        try await sut.sendApproveTransaction()
+
+        #expect(env.allowanceService.markApproveTransactionSentCalls.count == 1)
+        #expect(env.allowanceService.markApproveTransactionSentCalls.first == testSpender)
+        #expect(env.output.approveDidSendTransactionCallCount == 1)
+    }
+
+    @Test("Revoke+approve: dispatcher failure does not mark sent or notify output")
+    func revokeAndApprove_dispatcherFails() async {
+        let env = makeEnv()
+        env.dispatcher.sendResult = .failure(TransactionDispatcherResult.Error.transactionNotFound)
+        let sut = makeRevokeAndApproveSUT(env: env)
+
+        await #expect(throws: (any Error).self) {
+            try await sut.sendApproveTransaction()
+        }
+
+        #expect(env.allowanceService.markApproveTransactionSentCalls.isEmpty)
+        #expect(env.output.approveDidSendTransactionCallCount == 0)
+    }
+
+    @Test("Revoke+approve: updateApprovePolicy passes feeMultiplier .triple to fee provider")
+    func revokeAndApprove_updateApprovePolicy_passesFeeMultiplier() async throws {
+        let updatedRevoke = ApproveTransactionData(txData: Data([0xAA]), spender: testSpender, toContractAddress: testContractAddress)
+        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let env = makeEnv()
+        env.allowanceService.allowanceStateResult = .success(.revokeAndPermissionRequired(revoke: updatedRevoke, approve: updatedApprove))
+
+        let sut = makeRevokeAndApproveSUT(env: env)
+        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+
+        guard let input = env.feeManager.updateInputCalls.first,
+              case .approve(_, _, let feeMultiplier) = input else {
+            Issue.record("Expected .approve input")
+            return
+        }
+
+        #expect(feeMultiplier == .triple, "Revoke+approve must pass feeMultiplier .triple")
+    }
+
+    @Test("Single approve: updateApprovePolicy passes feeMultiplier 1 to fee provider")
+    func approve_updateApprovePolicy_passesFeeMultiplier() async throws {
+        let updatedData = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let env = makeEnv()
+        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+
+        let sut = makeSUT(env: env)
+        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+
+        guard let input = env.feeManager.updateInputCalls.first,
+              case .approve(_, _, let feeMultiplier) = input else {
+            Issue.record("Expected .approve input")
+            return
+        }
+
+        #expect(feeMultiplier == .single, "Single approve must pass feeMultiplier .single")
+    }
+
     // MARK: - Async Helpers
 
     /// Polls `condition` with cooperative yields until it returns `true`, or throws on timeout.
@@ -576,7 +753,30 @@ struct ApproveInteractorTests {
         }
 
         return ApproveInteractor(
-            approveData: data,
+            approveInteractorState: .approve(data: data),
+            initialPolicy: ApprovePolicy.specified,
+            approveAmount: testApproveAmount,
+            allowanceService: env.allowanceService,
+            approveTransactionDispatcher: env.dispatcher,
+            tokenFeeProvidersManager: env.feeManager,
+            analyticsLogger: env.analyticsLogger,
+            output: env.output
+        )
+    }
+
+    private func makeRevokeAndApproveSUT(
+        env: Env,
+        feeUnitValue: Decimal = 0.001,
+        feeUnit: Fee? = nil
+    ) -> ApproveInteractor {
+        let ethParams = EthereumLegacyFeeParameters(gasLimit: 50000, gasPrice: 20_000_000_000)
+        let unit = feeUnit ?? Fee(Amount(with: .ethereum(testnet: false), value: feeUnitValue), parameters: ethParams)
+
+        let revokeData = ApproveTransactionData(txData: testRevokeTxData, spender: testSpender, toContractAddress: testContractAddress)
+        let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
+
+        return ApproveInteractor(
+            approveInteractorState: .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: unit),
             initialPolicy: ApprovePolicy.specified,
             approveAmount: testApproveAmount,
             allowanceService: env.allowanceService,
@@ -599,4 +799,11 @@ struct ApproveInteractorTests {
             value: feeResult ?? .success(fee)
         )
     }
+}
+
+// MARK: - Test Helpers
+
+private extension ApproveInteractor {
+    /// Exposes approve data for test assertions.
+    var testApproveData: ApproveTransactionData { approveInteractorState.approveData }
 }

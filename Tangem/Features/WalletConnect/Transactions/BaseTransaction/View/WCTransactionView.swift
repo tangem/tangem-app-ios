@@ -359,7 +359,7 @@ private extension WCTransactionView {
             WCSolanaDefaultTransactionDetailsView(
                 connectionTargetKind: viewModel.connectionTargetKind
             )
-        case .sendTransaction, .signTransaction:
+        case .sendTransaction, .signTransaction, .sendTransfer:
             WCEthTransactionDetailsView(viewModel: viewModel)
         default:
             EmptyView()

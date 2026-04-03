@@ -13,6 +13,8 @@ struct Quote: Decodable {
     let id: String
     /// Current coin price
     let price: Decimal
+    /// Current coin/token price in USD
+    let priceUsd: Decimal?
     /// Price change in percent
     let priceChange: Decimal?
     /// Price change in last 7 days

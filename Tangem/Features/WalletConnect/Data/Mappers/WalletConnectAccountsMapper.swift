@@ -28,18 +28,6 @@ enum WalletConnectAccountsMapper {
 
     static func map(
         from blockchain: BlockchainSdk.Blockchain,
-        userWalletModel: some UserWalletModel,
-        preferredCAIPReference: String?
-    ) -> [ReownWalletKit.Account] {
-        map(
-            from: blockchain,
-            walletConnectWalletModelProvider: userWalletModel.wcWalletModelProvider,
-            preferredCAIPReference: preferredCAIPReference
-        )
-    }
-
-    static func map(
-        from blockchain: BlockchainSdk.Blockchain,
         wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,
         accountId: String,
         preferredCAIPReference: String?
@@ -50,33 +38,6 @@ enum WalletConnectAccountsMapper {
             preferredCAIPReference: preferredCAIPReference,
             accountId: accountId
         )
-    }
-
-    static func map(
-        from blockchain: BlockchainSdk.Blockchain,
-        walletConnectWalletModelProvider: some WalletConnectWalletModelProvider,
-        preferredCAIPReference: String?
-    ) -> [ReownWalletKit.Account] {
-        guard let reownBlockchain = WalletConnectBlockchainMapper.mapFromDomain(blockchain, preferredCAIPReference: preferredCAIPReference) else {
-            return []
-        }
-
-        let wallets = walletConnectWalletModelProvider.getModels(with: blockchain.networkId)
-
-        // In legacy wallet flow we should expose only one address per network.
-        // Returning all models may connect multiple addresses for the same wallet.
-        guard let wallet = walletConnectWalletModelProvider.getModel(with: blockchain.networkId) ?? wallets.first else {
-            return []
-        }
-
-        guard let account = ReownWalletKit.Account(
-            chainIdentifier: reownBlockchain.absoluteString,
-            address: wallet.walletConnectAddress
-        ) else {
-            return []
-        }
-
-        return [account]
     }
 
     static func map(

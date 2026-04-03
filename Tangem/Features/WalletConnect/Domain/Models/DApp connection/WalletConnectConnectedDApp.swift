@@ -18,7 +18,6 @@ struct WalletConnectConnectedDAppV1: Hashable {
     let connectionDate: Date
 }
 
-// [REDACTED_TODO_COMMENT]
 /// Wrapper over `WalletConnectConnectedDAppV1` to add `accountId` field for WalletConnect V2.
 @dynamicMemberLookup
 struct WalletConnectConnectedDAppV2: Hashable {
@@ -31,8 +30,16 @@ struct WalletConnectConnectedDAppV2: Hashable {
 }
 
 enum WalletConnectConnectedDApp: Hashable {
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     case v1(WalletConnectConnectedDAppV1)
     case v2(WalletConnectConnectedDAppV2)
+
+    var userWalletID: String {
+        switch self {
+        case .v1(let dApp): return dApp.userWalletID
+        case .v2(let dApp): return dApp.userWalletID
+        }
+    }
 
     var session: WalletConnectDAppSession {
         switch self {

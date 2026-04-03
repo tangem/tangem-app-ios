@@ -28,7 +28,7 @@ struct RedesignedAccountSkeletonCardView: View {
             makeSkeletonsStack(alignment: .trailing)
         }
         .padding(.unit(.x3))
-        .background(Color.Tangem.Surface.level1)
+        .background(Color.Tangem.Surface.level2)
         .cornerRadiusContinuous(.unit(.x5))
     }
 

@@ -37,7 +37,11 @@ class CustomRefreshControlStateObject: ObservableObject {
             isHidden = false
             progress = clamp(-offset.y.rounded() / settings.threshold, min: 0, max: 1)
         case .refreshing:
-            isHidden = offset.y.rounded() > settings.refreshAreaHeight
+            if settings.shouldForceRefreshing {
+                isHidden = false
+            } else {
+                isHidden = offset.y.rounded() > settings.refreshAreaHeight
+            }
         case .stillDragging:
             isHidden = true
         case .willStartRefreshing:
