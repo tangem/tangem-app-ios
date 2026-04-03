@@ -15,7 +15,7 @@ enum WalletModelFinder {
 
     static func findMainWalletModel(defaultAddress: String) throws -> Result {
         for userWalletModel in userWalletRepository.models {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddressString == defaultAddress }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)
             }
@@ -26,7 +26,7 @@ enum WalletModelFinder {
 
     static func findWalletModel(tokenItem: TokenItem) throws -> Result {
         for userWalletModel in userWalletRepository.models {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             if let walletModel = walletModels.first(where: { $0.tokenItem == tokenItem }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)
             }
@@ -40,7 +40,7 @@ enum WalletModelFinder {
             throw Error.userWalletModelNotFound
         }
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         let walletModel = walletModels.first(where: { $0.tokenItem == tokenItem })
 
         guard let walletModel else {
