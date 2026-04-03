@@ -71,11 +71,17 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
             blockchainName: input.wallet.blockchain.displayName,
         )
 
+        let xpubNetworkProvider = MultiXPUBNetworkProvider(
+            providers: providers.compactMap { $0 as? XPUBNetworkProvider },
+            blockchainName: input.wallet.blockchain.displayName,
+        )
+
         return BitcoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,
             unspentOutputManager: unspentOutputManager,
-            networkService: networkService
+            networkService: networkService,
+            xpubNetworkProvider: xpubNetworkProvider
         )
     }
 }
