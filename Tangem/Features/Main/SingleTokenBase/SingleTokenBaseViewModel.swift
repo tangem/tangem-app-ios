@@ -47,8 +47,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?

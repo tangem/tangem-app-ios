@@ -200,10 +200,6 @@ private extension ActionButtonsSwapViewModel {
             source = .token(item, viewModel: viewModel)
             destination = .placeholder(text: Localization.actionButtonsYouWantToReceive)
             tokenSelectorViewModel.triggerScrollToTop()
-
-            if let walletModel = item.kind.walletModel {
-                coordinator?.showYieldNotificationIfNeeded(for: walletModel, completion: nil)
-            }
         }
 
         try? await Task.sleep(for: .seconds(Constants.scrollAnimationDelay))

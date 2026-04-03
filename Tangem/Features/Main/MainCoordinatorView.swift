@@ -142,9 +142,6 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: AccountSelectorViewModel.self) {
                 AccountSelectorView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
