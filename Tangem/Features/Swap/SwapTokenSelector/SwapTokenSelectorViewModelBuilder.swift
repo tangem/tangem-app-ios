@@ -7,6 +7,9 @@
 //
 
 struct SwapTokenSelectorViewModelBuilder {
+    @Injected(\.swapTokenSelectorExpandedStateStorage)
+    private var expandedStateStorage: SwapTokenSelectorExpandedStateStorage
+
     weak var output: SwapTokenSelectorOutput?
 
     func makeSwapTokenSelectorViewModel(
@@ -20,7 +23,8 @@ struct SwapTokenSelectorViewModelBuilder {
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
                 walletsProvider: .common(),
                 availabilityProvider: .swap(),
-                collapsibleAccounts: true
+                collapsibleAccounts: true,
+                expandedStateStorage: expandedStateStorage
             ),
             marketsTokensViewModel: marketsTokensViewModel,
             output: output,

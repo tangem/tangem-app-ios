@@ -79,6 +79,8 @@
 		0A71BE0A2EBF2F30005111DB /* BalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A71BE092EBF2F30005111DB /* BalancesViewModel.swift */; };
 		0A7221842ED6FB190034C025 /* P2PTransactionSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7221832ED6FB190034C025 /* P2PTransactionSender.swift */; };
 		0A7221862ED6FF1C0034C025 /* P2PTransactionSender+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7221852ED6FF1C0034C025 /* P2PTransactionSender+.swift */; };
+		0A72581F2F7D3E5800D5943B /* SwapTokenSelectorExpandedStateStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A72581E2F7D3E5800D5943B /* SwapTokenSelectorExpandedStateStorage.swift */; };
+		0A7258AD2F7E41C700D5943B /* TokenSelectorExpandedStateStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7258AC2F7E41C700D5943B /* TokenSelectorExpandedStateStorage.swift */; };
 		0A74F7382E44D8200069344F /* SettingsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A74F7372E44D8200069344F /* SettingsMigrator.swift */; };
 		0A77DCA12F435E2B0051A9F7 /* SwapSelectTokenAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A77DC9F2F435E2B0051A9F7 /* SwapSelectTokenAnalyticsLogger.swift */; };
 		0A7880762ED45D0B00C9292A /* StakingTransactionDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7880752ED45D0B00C9292A /* StakingTransactionDataProvider.swift */; };
@@ -5239,6 +5241,8 @@
 		0A71BE092EBF2F30005111DB /* BalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalancesViewModel.swift; sourceTree = "<group>"; };
 		0A7221832ED6FB190034C025 /* P2PTransactionSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PTransactionSender.swift; sourceTree = "<group>"; };
 		0A7221852ED6FF1C0034C025 /* P2PTransactionSender+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PTransactionSender+.swift"; sourceTree = "<group>"; };
+		0A72581E2F7D3E5800D5943B /* SwapTokenSelectorExpandedStateStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectorExpandedStateStorage.swift; sourceTree = "<group>"; };
+		0A7258AC2F7E41C700D5943B /* TokenSelectorExpandedStateStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelectorExpandedStateStorage.swift; sourceTree = "<group>"; };
 		0A74F7372E44D8200069344F /* SettingsMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrator.swift; sourceTree = "<group>"; };
 		0A77DC9F2F435E2B0051A9F7 /* SwapSelectTokenAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapSelectTokenAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A7880752ED45D0B00C9292A /* StakingTransactionDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTransactionDataProvider.swift; sourceTree = "<group>"; };
@@ -26360,6 +26364,8 @@
 				EF04236B2E996D0D00D80B0B /* AccountsAwareTokenSelectorWalletsProvider */,
 				EF57D3D22EF45FC600950BD6 /* AccountsAwareTokenSelectorAccountModelItemsProvider */,
 				EFA01B262E968D7D005C91B8 /* AccountsAwareTokenSelectorItemAvailabilityProvider */,
+				0A72581E2F7D3E5800D5943B /* SwapTokenSelectorExpandedStateStorage.swift */,
+				0A7258AC2F7E41C700D5943B /* TokenSelectorExpandedStateStorage.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -29662,6 +29668,7 @@
 				B0BDF9B82B4D267F00EEBE4F /* MainHeaderTotalBalanceProvider.swift in Sources */,
 				B06C08682A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift in Sources */,
 				DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */,
+				0A7258AD2F7E41C700D5943B /* TokenSelectorExpandedStateStorage.swift in Sources */,
 				2D22765E2C0F0A4F006BB6A1 /* MarketsListOrderBottonSheetView.swift in Sources */,
 				EAA7DBFD2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift in Sources */,
 				C24DDCC82E0DAE820027445B /* WalletConnect+FloatingSheetView.swift in Sources */,
@@ -29735,6 +29742,7 @@
 				EF8DBCE82C061A40009072CF /* StakingManagerMock.swift in Sources */,
 				DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */,
 				B645BF3E2C59239700D8A2A5 /* CommonMarketsHistoryChartProvider.swift in Sources */,
+				0A72581F2F7D3E5800D5943B /* SwapTokenSelectorExpandedStateStorage.swift in Sources */,
 				DC8E03192DE180F7008967D8 /* WCRequestDetailsView.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
 				B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */,
