@@ -251,12 +251,10 @@ extension MainCoordinator {
                 return false
             }
 
-            let workMode: ReferralViewModel.WorkMode = .accounts(userWalletModel.accountModelsManager)
-
             let input = ReferralInputModel(
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                workMode: workMode,
+                accountModelsManager: userWalletModel.accountModelsManager,
                 tokenIconInfoBuilder: TokenIconInfoBuilder(),
                 userWalletModel: userWalletModel
             )

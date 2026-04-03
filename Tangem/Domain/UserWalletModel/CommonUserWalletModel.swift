@@ -23,8 +23,6 @@ class CommonUserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    let walletModelsManager: WalletModelsManager
-    let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
@@ -53,8 +51,6 @@ class CommonUserWalletModel {
         name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
@@ -65,8 +61,6 @@ class CommonUserWalletModel {
         self.config = config
         self.userWalletId = userWalletId
         self.name = name
-        self.walletModelsManager = walletModelsManager
-        self.userTokensManager = userTokensManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
@@ -120,10 +114,6 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -438,7 +428,6 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
 
 extension CommonUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }
