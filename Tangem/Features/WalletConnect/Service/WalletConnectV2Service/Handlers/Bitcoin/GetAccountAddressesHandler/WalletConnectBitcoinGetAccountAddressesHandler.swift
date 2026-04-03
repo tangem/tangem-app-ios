@@ -18,29 +18,6 @@ final class WalletConnectBitcoinGetAccountAddressesHandler {
     init(
         request: AnyCodable,
         blockchainId: String,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        self.request = request
-
-        // Parse optional intentions; default to empty (no filtering)
-        let parsedIntentions: [String]
-        do {
-            let params = try request.get(WalletConnectBtcGetAccountAddressesRequest.self)
-            parsedIntentions = params.intentions ?? []
-        } catch {
-            parsedIntentions = []
-        }
-        intentions = parsedIntentions.map { $0.lowercased() }
-
-        guard let model = walletModelProvider.getModel(with: blockchainId) else {
-            throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
-        }
-        walletModel = model
-    }
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {

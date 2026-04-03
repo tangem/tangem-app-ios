@@ -38,6 +38,22 @@ final class AccountDerivationManager {
 // MARK: - DerivationManager protocol conformance
 
 extension AccountDerivationManager: DerivationManager {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
+        innerDerivationManager.shouldDeriveKeys(networksToRemove: networksToRemove, networksToAdd: networksToAdd)
+    }
+
+    var pendingDerivations: [PendingDerivation] {
+        innerDerivationManager.pendingDerivations
+    }
+
+    func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
+        innerDerivationManager.deriveKeys(completion: completion)
+    }
+}
+
+// MARK: - DerivationStatusProvider protocol conformance
+
+extension AccountDerivationManager: DerivationStatusProvider {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
         pendingDerivationsPublisher
             .map { !$0.isEmpty }
@@ -57,17 +73,5 @@ extension AccountDerivationManager: DerivationManager {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
-    }
-
-    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
-        innerDerivationManager.shouldDeriveKeys(networksToRemove: networksToRemove, networksToAdd: networksToAdd)
-    }
-
-    var pendingDerivations: [PendingDerivation] {
-        innerDerivationManager.pendingDerivations
-    }
-
-    func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
-        innerDerivationManager.deriveKeys(completion: completion)
     }
 }
