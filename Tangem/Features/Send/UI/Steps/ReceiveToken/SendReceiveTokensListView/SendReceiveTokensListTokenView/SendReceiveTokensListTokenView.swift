@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SendReceiveTokensListTokenView: View {
     let viewModel: SendReceiveTokensListTokenViewData
@@ -30,5 +31,6 @@ struct SendReceiveTokensListTokenView: View {
             }
             .multilineTextAlignment(.leading)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.receiveTokenListItem(name: viewModel.name))
     }
 }
