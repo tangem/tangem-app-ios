@@ -17,3 +17,14 @@ protocol DerivationManager: AnyObject {
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool
     func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void)
 }
+
+extension DerivationManager {
+    @MainActor
+    func deriveKeys() async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            deriveKeys { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+}
