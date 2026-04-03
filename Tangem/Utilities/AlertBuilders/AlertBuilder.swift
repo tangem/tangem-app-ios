@@ -134,10 +134,11 @@ enum AlertBuilder {
         useSpellCheck: Bool = true,
         fieldValidator: AlertFieldValidator? = nil,
         mapText: @escaping (String) -> String = { value in value },
-        action: @escaping (String) -> Void
+        action: @escaping (String) -> Void,
+        cancelAction: (() -> Void)? = nil
     ) -> UIAlertController {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel) { _ in cancelAction?() }
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
@@ -167,7 +168,8 @@ enum AlertBuilder {
     static func makeWalletRenamingAlert(
         userWalletModel: UserWalletModel,
         userWalletRepository: UserWalletRepository,
-        updateName: ((String) -> Void)? = nil
+        updateName: ((_ newName: String) -> Void)?,
+        onCancel: (() -> Void)? = nil
     ) -> UIAlertController? {
         let otherWalletNames = userWalletRepository.models.compactMap { model -> String? in
             guard model.userWalletId != userWalletModel.userWalletId else { return nil }
@@ -187,7 +189,8 @@ enum AlertBuilder {
                     userWalletModel.update(type: .newName(newName))
                     updateName?(newName)
                 }
-            }
+            },
+            cancelAction: onCancel
         )
     }
 

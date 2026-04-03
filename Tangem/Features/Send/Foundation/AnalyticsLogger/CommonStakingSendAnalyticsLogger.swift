@@ -24,6 +24,34 @@ class CommonStakingSendAnalyticsLogger {
     }
 }
 
+// MARK: - SendApproveAnalyticsLogger
+
+extension CommonStakingSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy) {
+        Analytics.log(event: .swapButtonPermissionApprove, params: [
+            .sendToken: tokenItem.currencySymbol,
+            .sendBlockchain: tokenItem.blockchain.displayName,
+            .type: policy == .unlimited
+                ? Analytics.ParameterValue.unlimitedApprove.rawValue
+                : Analytics.ParameterValue.oneTransactionApprove.rawValue,
+        ])
+    }
+
+    func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
+        let permissionType: Analytics.ParameterValue = policy == .unlimited ? .unlimitedApprove : .oneTransactionApprove
+
+        Analytics.log(event: .transactionSent, params: [
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            .blockchain: tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+            .walletForm: signerType,
+            .selectedHost: currentProviderHost,
+        ], analyticsSystems: .all)
+    }
+}
+
 // MARK: - SendValidatorsAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendTargetsAnalyticsLogger {
