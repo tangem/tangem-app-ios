@@ -60,6 +60,6 @@ extension BlockaidTarget: TargetTypeLogConvertible {
     }
 
     var shouldLogResponseBody: Bool {
-        true
+        false
     }
 }
