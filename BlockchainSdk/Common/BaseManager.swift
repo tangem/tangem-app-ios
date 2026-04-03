@@ -23,8 +23,6 @@ class BaseManager {
     /// Default config. Can be overridden
     var config: Config = .init()
 
-    var cancellable: Cancellable?
-
     init(wallet: Wallet) {
         _wallet = .init(wallet)
     }
@@ -50,7 +48,7 @@ class BaseManager {
 
 // MARK: - WalletProvider
 
-extension BaseManager: WalletUpdater {
+extension BaseManager: WalletManagerUpdater {
     func setNeedsUpdate() {
         latestUpdateTime = nil
     }
@@ -85,6 +83,18 @@ extension BaseManager: WalletUpdater {
             BaseManagerLogger.error(self, "Updating is error", error: error)
             _state.send(.failed(error))
         }
+    }
+}
+
+// MARK: - WalletUpdater
+
+extension BaseManager: WalletUpdater {
+    func update(wallet newWallet: Wallet) throws {
+        guard newWallet.blockchain.networkId == wallet.blockchain.networkId else {
+            throw InternalError.attemptToWalletUpdateWithDifferentNetworkId
+        }
+
+        _wallet.send(newWallet)
     }
 }
 
@@ -135,5 +145,6 @@ extension BaseManager {
 extension BaseManager {
     enum InternalError: LocalizedError {
         case updateMethodHasToBeOverridden
+        case attemptToWalletUpdateWithDifferentNetworkId
     }
 }

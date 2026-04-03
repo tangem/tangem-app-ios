@@ -43,6 +43,7 @@ protocol WalletModel:
 
     var sendingRestrictions: SendingRestrictions? { get }
 
+    var features: [WalletModelFeature] { get }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
     // MARK: - Staking
@@ -161,6 +162,8 @@ protocol WalletModelDependenciesProvider {
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
+
+    var walletUpdater: WalletUpdater { get }
 
     var multipleTransactionsSender: MultipleTransactionsSender? { get }
 

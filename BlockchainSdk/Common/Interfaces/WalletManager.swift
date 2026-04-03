@@ -11,8 +11,9 @@ import TangemSdk
 import Combine
 
 public protocol WalletManager: WalletProvider,
-    TokensWalletProvider,
     WalletUpdater,
+    TokensWalletProvider,
+    WalletManagerUpdater,
     BlockchainDataProvider,
     TransactionSender,
     TransactionCreator,
@@ -42,12 +43,18 @@ public enum WalletManagerState {
     case failed(Error)
 }
 
-// MARK: - WalletUpdater
+// MARK: - WalletManagerUpdater
 
-public protocol WalletUpdater: AnyObject {
+public protocol WalletManagerUpdater: AnyObject {
     /// Reset the last updating time
     func setNeedsUpdate()
     func update() async
+}
+
+// MARK: - WalletUpdater
+
+public protocol WalletUpdater: AnyObject {
+    func update(wallet: Wallet) throws
 }
 
 // MARK: - TokensWalletProvider
