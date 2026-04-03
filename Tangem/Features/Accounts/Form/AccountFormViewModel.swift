@@ -22,8 +22,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     /// - Note: For use in the UI only, for validation and other logic use `trimmedAccountName` property.
     @Published var accountName: String
 
-    @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
-    @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
+    @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
+    @Published var selectedIcon: GridItemImage<AccountModel.CompositeIcon.Name>
     @Published var alert: AlertBinder?
     @Published var isLoading: Bool = false
     @Published private var totalAccountsCount: Int = 0
@@ -42,15 +42,15 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
-    let colors: [GridItemColor] = AccountModel.Icon.Color
-        .cryptoAccountColors
+    let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
+        .allCases
         .map { iconColor in
             let color = AccountModelUtils.UI.iconColor(from: iconColor)
 
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name.cryptoAccountIcons
+    let images: [GridItemImage] = AccountModel.CompositeIcon.Name.allCases
         .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
@@ -83,8 +83,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         accountName.trimmed()
     }
 
-    private var accountIcon: AccountModel.Icon {
-        AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+    private var accountIcon: AccountModel.CompositeIcon {
+        AccountModel.CompositeIcon(name: selectedIcon.id, color: selectedColor.id)
     }
 
     private var activeTask: AnyCancellable?
@@ -104,8 +104,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         closeAction: @escaping (AccountOperationResult, (any CryptoAccountModel)?) -> Void
     ) {
         let accountName: String
-        let iconColor: AccountModel.Icon.Color
-        let iconName: AccountModel.Icon.Name
+        let iconColor: AccountModel.CompositeIcon.Color
+        let iconName: AccountModel.CompositeIcon.Name
 
         switch flowType {
         case .edit(let account):
@@ -150,7 +150,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     var iconViewData: AccountIconView.ViewData {
         // Can't use `AccountModelUtils.UI.iconViewData(icon:accountName:)` here because of
         // slightly different logic of `nameMode` creation, see `nameMode` property implementation
-        AccountIconView.ViewData(
+        .composite(
             backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
             nameMode: nameMode
         )
@@ -393,7 +393,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             .assign(to: &$totalAccountsCount)
     }
 
-    private static func gridItemImageKind(from accountIconName: AccountModel.Icon.Name) -> GridItemImageKind {
+    private static func gridItemImageKind(from accountIconName: AccountModel.CompositeIcon.Name) -> GridItemImageKind {
         switch accountIconName {
         case .letter:
             return .letter(visualImageRepresentation: Assets.Accounts.letter)
@@ -422,7 +422,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
 extension AccountFormViewModel {
     enum FlowType {
-        case edit(account: any BaseAccountModel)
+        case edit(account: any CryptoAccountModel)
         case create(CreatedAccountType)
     }
 }
@@ -442,8 +442,8 @@ extension AccountFormViewModel.FlowType {
 extension AccountFormViewModel {
     struct StateSnapshot: Equatable {
         let name: String
-        let color: GridItemColor<AccountModel.Icon.Color>
-        let image: GridItemImage<AccountModel.Icon.Name>
+        let color: GridItemColor<AccountModel.CompositeIcon.Color>
+        let image: GridItemImage<AccountModel.CompositeIcon.Name>
     }
 }
 
