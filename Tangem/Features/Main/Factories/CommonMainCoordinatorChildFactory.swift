@@ -23,8 +23,7 @@ final class CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
     ) -> ActionButtonsSwapCoordinator {
         ActionButtonsSwapCoordinator(
             userWalletModel: userWalletModel,
-            dismissAction: dismissAction,
-            yieldModuleNotificationInteractor: YieldModuleNoticeInteractor()
+            dismissAction: dismissAction
         )
     }
 
