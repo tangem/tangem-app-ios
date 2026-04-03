@@ -20,11 +20,12 @@ protocol PendingExpressTransactionsManager: AnyObject {
 class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletId: String
     private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater?
-    private let expressAPIProvider: ExpressAPIProvider
+    private let expressAPIProviderResolver: ExpressAPIProviderResolver
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
     private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
@@ -39,13 +40,13 @@ class CommonPendingExpressTransactionsManager {
         userWalletId: String,
         tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater?,
-        expressAPIProvider: ExpressAPIProvider,
+        expressAPIProviderResolver: ExpressAPIProviderResolver,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.walletModelUpdater = walletModelUpdater
-        self.expressAPIProvider = expressAPIProvider
+        self.expressAPIProviderResolver = expressAPIProviderResolver
         self.expressRefundedTokenHandler = expressRefundedTokenHandler
 
         bind()
@@ -211,7 +212,12 @@ class CommonPendingExpressTransactionsManager {
     private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
-            let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
+            let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
+            let refcode = userWalletRepository.models
+                .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
+                .refcodeProvider?.getRefcode()
+            let provider = expressAPIProviderResolver.provider(for: sourceUserWalletId, refcode: refcode)
+            let expressTransaction = try await provider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
                 blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
                 providerType: transactionRecord.provider.type,

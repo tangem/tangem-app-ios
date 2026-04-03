@@ -96,6 +96,7 @@ extension Analytics {
         case feeToken = "Fee Token"
         case availableFee = "Available Fee"
 
+        case qrType = "QR Type"
         case fromSummary = "From Summary"
         case valid = "Valid"
         case screen = "Screen"

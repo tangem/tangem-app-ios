@@ -113,7 +113,8 @@ final class CryptoAccountsNetworkMapper {
         case .known(let blockchainNetwork):
             return blockchainNetwork.blockchain.coinDisplayName
         case .unknown:
-            // [REDACTED_TODO_COMMENT]
+            // No `Blockchain` instance available here since this is an unknown blockchain;
+            // round-trip the existing server-provided name as-is and unchanged
             return token.name
         }
     }
@@ -127,7 +128,8 @@ final class CryptoAccountsNetworkMapper {
         case .known(let blockchainNetwork):
             return blockchainNetwork.blockchain.coinId
         case .unknown:
-            // [REDACTED_TODO_COMMENT]
+            // No `Blockchain` instance available here since this is an unknown blockchain;
+            // round-trip the existing server-provided id as-is and unchanged
             return token.id
         }
     }

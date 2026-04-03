@@ -12,9 +12,6 @@ import TangemUI
 import TangemLocalization
 
 final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
-    @Injected(\.alertPresenterViewModel)
-    private var alertPresenterViewModel: AlertPresenterViewModel
-
     private weak var coordinator: TangemPayWithdrawNoteSheetRoutable?
     private let openWithdrawal: () -> Void
 

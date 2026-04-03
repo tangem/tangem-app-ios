@@ -1,4 +1,5 @@
 import Foundation
+import TangemFoundation
 import BlockchainSdk
 import BigInt
 

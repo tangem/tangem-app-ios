@@ -180,6 +180,11 @@ final class TangemPayManager: TangemPayAccountModel {
         let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
 
         switch enrollmentState {
+        case .disabled:
+            orderStatusPollingService.cancel()
+            paeraCustomerFlagRepository.setIsTangemPayDisabled(true, for: customerWalletId)
+            stateSubject.value = nil
+
         case .issuingCard:
             do {
                 try await issueCardIfNeededAndStartStatusPolling(customerWalletAddress: customerWalletAddress)

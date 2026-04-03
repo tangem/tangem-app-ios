@@ -14,7 +14,7 @@ public extension TaskGroup {
     ///   - items: The items to process.
     ///   - action: The async work to perform for each item.
     /// - Returns: An array of results ordered to match the input items.
-    static func executeKeepingOrder<Item>(items: [Item], action: @escaping (Item) async -> ChildTaskResult) async -> [ChildTaskResult] {
+    static func executeKeepingOrder<Item>(items: [Item], action: @escaping @Sendable (Item) async -> ChildTaskResult) async -> [ChildTaskResult] {
         let count = items.count
 
         return await withTaskGroup(of: (Int, ChildTaskResult).self) { group in
@@ -42,7 +42,7 @@ public extension TaskGroup {
     ///   - action: The async throwing work to perform for each item.
     /// - Returns: An array of results ordered to match the input items.
     /// - Throws: Rethrows any error thrown by `action`.
-    static func tryExecuteKeepingOrder<Item>(items: [Item], action: @escaping (Item) async throws -> ChildTaskResult) async rethrows -> [ChildTaskResult] {
+    static func tryExecuteKeepingOrder<Item>(items: [Item], action: @escaping @Sendable (Item) async throws -> ChildTaskResult) async rethrows -> [ChildTaskResult] {
         let count = items.count
 
         return try await withThrowingTaskGroup(of: (Int, ChildTaskResult).self) { group in
@@ -72,8 +72,8 @@ public extension TaskGroup<Void> {
     /// - Parameters:
     ///   - items: The items to process.
     ///   - action: The async work to perform for each item.
-    static func execute<Item>(items: [Item], action: @escaping (Item) async -> Void) async {
-        _ = await executeKeepingOrder(items: items, action: action)
+    static func executeKeepingOrder<Item>(items: [Item], action: @escaping @Sendable (Item) async -> Void) async {
+        let _: [Void] = await executeKeepingOrder(items: items, action: action)
     }
 
     /// Executes an async throwing action for each item concurrently.
@@ -81,7 +81,7 @@ public extension TaskGroup<Void> {
     ///   - items: The items to process.
     ///   - action: The async throwing work to perform for each item.
     /// - Throws: Rethrows any error thrown by `action`.
-    static func tryExecute<Item>(items: [Item], action: @escaping (Item) async throws -> Void) async throws {
-        _ = try await tryExecuteKeepingOrder(items: items, action: action)
+    static func tryExecuteKeepingOrder<Item>(items: [Item], action: @escaping @Sendable (Item) async throws -> Void) async throws {
+        let _: [Void] = try await tryExecuteKeepingOrder(items: items, action: action)
     }
 }
