@@ -69,23 +69,14 @@ struct UserWalletSettingsView: View {
 
     @ViewBuilder
     private var walletRenameSubsection: some View {
-        if FeatureProvider.isAvailable(.accounts) {
-            Button(action: viewModel.onTapNameField) {
-                InfoRowWithAction(
-                    icon: { walletIcon },
-                    title: Localization.settingsWalletNameTitle,
-                    value: viewModel.name,
-                    actionTitle: Localization.commonRename,
-                    onAction: viewModel.onTapNameField
-                )
-            }
-        } else {
-            DefaultTextFieldRowView(
+        Button(action: viewModel.onTapNameField) {
+            InfoRowWithAction(
+                icon: { walletIcon },
                 title: Localization.settingsWalletNameTitle,
-                text: .constant(viewModel.name),
-                isReadonly: true
+                value: viewModel.name,
+                actionTitle: Localization.commonRename,
+                onAction: viewModel.onTapNameField
             )
-            .onTapGesture(perform: viewModel.onTapNameField)
         }
     }
 

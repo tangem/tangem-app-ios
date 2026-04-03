@@ -283,10 +283,8 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
-            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
+        if let viewModel = viewModel.portfolioViewModel {
+            MarketsPortfolioContainerView(viewModel: viewModel)
         }
     }
 
@@ -309,7 +307,7 @@ struct MarketsTokenDetailsView: View {
 
     private var coinView: some View {
         VStack(spacing: Constants.contentVerticalPadding) {
-            if viewModel.accountsAwarePortfolioViewModel != nil {
+            if viewModel.portfolioViewModel != nil {
                 aboutCoinHeader
             }
 
