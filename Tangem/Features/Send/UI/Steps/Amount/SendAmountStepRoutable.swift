@@ -10,4 +10,5 @@ import Foundation
 
 protocol SendAmountStepRoutable: AnyObject {
     func openReceiveTokensList(onDismiss: (() -> Void)?)
+    func openRateInfoSheet(rateType: RateInfoSheetViewModel.RateType, onDismiss: @escaping () -> Void)
 }

@@ -82,6 +82,7 @@ extension Analytics {
         case tokenChosen = "Token Chosen"
         case availableTokens = "Available tokens"
         case provider = "Provider"
+        case rateType = "Rate Type"
         case commission = "Commission"
         case place = "Place"
         case result = "Result"
@@ -118,6 +119,11 @@ extension Analytics {
         case watched = "Watched"
 
         case selectedCategories = "Selected Categories"
+
+        // MARK: - Promotion
+
+        case displayId = "Display Id"
+        case placeholder = "Placeholder"
 
         // MARK: - Earn
 
