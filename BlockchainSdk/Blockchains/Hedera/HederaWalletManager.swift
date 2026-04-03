@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 import struct Hedera.AccountId
 
 final class HederaWalletManager: BaseManager {
@@ -483,7 +484,7 @@ final class HederaWalletManager: BaseManager {
             return walletManager
                 .networkService
                 .send(transaction: compiledTransaction)
-                .mapAndEraseSendTxError(tx: transactionRawData?.hex())
+                .mapAndEraseSendTxError(tx: transactionRawData?.hex(), currentHost: walletManager.currentHost)
                 .eraseToAnyPublisher()
         }
     }
@@ -526,7 +527,7 @@ extension HederaWalletManager: WalletManager {
         .handleEvents(receiveOutput: { walletManager, sendResult in
             walletManager.updateWalletWithPendingTransferTransaction(transaction, sendResult: sendResult)
         })
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .map(\.1)
         .eraseToAnyPublisher()
     }
