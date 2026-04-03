@@ -155,9 +155,15 @@ private extension DEXExpressProviderManager {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    let fee = try await expressFeeProvider.transactionFee(txData: data.txData, toContractAddress: data.toContractAddress)
+                    let fee = try await expressFeeProvider.transactionFee(approveData: data)
                     return .permissionRequired(
-                        .init(provider: provider, policy: request.approvePolicy, data: data, fee: fee, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: data, approvalFlow: .approve, fee: fee, quote: quote)
+                    )
+                case .revokeAndPermissionRequired(let revoke, let approve):
+                    ExpressLogger.debug("Revoke+approve allowance state for provider: \(provider.id)")
+                    let revokeAndApproveFee = try await expressFeeProvider.revokeAndApproveTransactionFee(revokeData: revoke)
+                    return .revokeAndPermissionRequired(
+                        .init(provider: provider, policy: request.approvePolicy, data: approve, approvalFlow: .revokeAndApprove(revokeData: revoke, feeUnit: revokeAndApproveFee.unit), fee: revokeAndApproveFee.total, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)

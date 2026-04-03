@@ -383,6 +383,7 @@
 "custom_token_creation_error_invalid_contract_address" = "L'adresse du contrat n'est pas valide";
 "custom_token_creation_error_network_not_selected" = "Veuillez sélectionner le réseau";
 "custom_token_creation_error_wrong_decimals" = "Les décimales doivent être un entier valide, jusqu'à %li";
+"custom_token_custom_derivation_dynamic_addresses_enabled_error" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
 "custom_token_custom_derivation_placeholder" = "Par exemple m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Entrez une dérivation personnalisée";
 "custom_token_custom_derivation" = "Dérivation personnalisée";
@@ -434,6 +435,19 @@
 "domain_receive_assets_onboarding_description" = "L’envoi d’actifs sur d’autres réseaux entraînera une perte définitive.";
 "domain_receive_assets_onboarding_network_name" = "%@ réseau";
 "domain_receive_assets_onboarding_title" = "Envoyez des fonds en utilisant uniquement";
+"dynamic_addresses_custom_token_error_on_addition" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
+"dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
+"dynamic_addresses_enter_features_privacy_description" = "Use a new address for each transaction to reduce traceability and improve on-chain privacy.";
+"dynamic_addresses_enter_features_privacy_title" = "Enhanced Privacy";
+"dynamic_addresses_enter_features_receving_description" = "Easily receive funds in UTXO-based networks with automatic address generation — no manual address management required.";
+"dynamic_addresses_enter_features_receving_title" = "Seamless receiving";
+"dynamic_addresses_enter_main_button_title" = "Enable Dynamic Addresses";
+"dynamic_addresses_enter_subtitle" = "Dynamic addresses create a new one each time for extra privacy — your total balance stays the same. ";
+"dynamic_addresses_error_has_custom_token_description" = "Dynamic Addresses cannot be enabled because some custom addresses/tokens use a modified derivation path, which doesn’t meet the required criteria.";
+"dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
+"dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
+"dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Meilleures opportunités";
 "earn_clear_filter" = "Effacer le filtre";
 "earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
@@ -701,7 +715,10 @@
 "markets_loading_no_data_title" = "Aucune donnée";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_quick_actions" = "Actions rapides";
+"markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
+"markets_search_hint_header" = "Recent's";
+"markets_search_portfolio_header" = "In your portfolio";
 "markets_search_result_title" = "Résultat";
 "markets_search_see_tokens_under_100k" = "Voir les jetons de moins de 100 000 $ de capitalisation boursière";
 "markets_search_show_tokens" = "Afficher les jetons";
@@ -1504,7 +1521,7 @@
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
 "tangempay_set_pin_code" = "Définir le \ncode PIN";
 "tangempay_sync_needed_restore_access" = "Restaurer l'accès";
-"tangempay_sync_needed" = "Synchronisation requise";
+"tangempay_sync_needed" = "Session expirée";
 "tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
@@ -1584,6 +1601,9 @@
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
+"update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Passez à un hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
