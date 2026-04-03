@@ -37,10 +37,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var totalBalance: TotalBalanceState { .empty }
 
-    var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
-
-    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
-
     var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
     }
@@ -79,10 +75,6 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -114,7 +106,6 @@ class UserWalletModelMock: UserWalletModel {
     func addAssociatedCard(cardId: String) {}
 
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }
