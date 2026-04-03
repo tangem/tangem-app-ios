@@ -18,11 +18,11 @@ final class SwapMarketsTokenAdditionCoordinator {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let source: SwapSelectTokenAnalyticsLogger.SwapTokenSource
-    private let onTokenAdded: (AccountsAwareTokenSelectorItem) -> Void
+    private let onTokenAdded: (TokenSelectorItem) -> Void
 
     init(
         source: SwapSelectTokenAnalyticsLogger.SwapTokenSource = .markets,
-        onTokenAdded: @escaping (AccountsAwareTokenSelectorItem) -> Void
+        onTokenAdded: @escaping (TokenSelectorItem) -> Void
     ) {
         self.source = source
         self.onTokenAdded = onTokenAdded
@@ -50,7 +50,7 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
         )
 
         // Present add token flow
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
+        let viewModel = AddTokenFlowViewModel(
             userWalletModels: userWalletRepository.models,
             configuration: configuration,
             coordinator: self
@@ -60,7 +60,7 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
     }
 
     @MainActor
-    func didAddMarketToken(item: AccountsAwareTokenSelectorItem) async {
+    func didAddMarketToken(item: TokenSelectorItem) async {
         floatingSheetPresenter.removeActiveSheet()
 
         // Add a small delay to avoid animation glitches
@@ -70,7 +70,7 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
     }
 }
 
-extension SwapMarketsTokenAdditionCoordinator: AccountsAwareAddTokenFlowRoutable {
+extension SwapMarketsTokenAdditionCoordinator: AddTokenFlowRoutable {
     func close() {
         floatingSheetPresenter.removeActiveSheet()
     }
