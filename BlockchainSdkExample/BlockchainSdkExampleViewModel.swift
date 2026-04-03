@@ -165,7 +165,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
     func updateBalance() {
         balance = "--"
-        Task {
+        Task { @MainActor in
             await walletManager?.update()
             sourceAddresses = walletManager?.wallet.addresses ?? []
         }

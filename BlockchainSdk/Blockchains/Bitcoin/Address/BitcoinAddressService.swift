@@ -56,10 +56,10 @@ extension BitcoinAddressService: BitcoinScriptAddressesProvider {
 
         let redeemScript = try BitcoinScriptBuilder().makeMultisig(publicKeys: compressedKeys, signaturesRequired: 1)
         let (legacyAddressValue, legacyScript) = try legacy.makeScriptAddress(redeemScript: redeemScript.data)
-        let legacyAddress = LockingScriptAddress(value: legacyAddressValue, publicKey: publicKey, type: .legacy, lockingScript: legacyScript)
+        let legacyAddress = LockingScriptAddress(value: legacyAddressValue, type: .legacy, lockingScript: legacyScript)
 
         let (bech32AddressValue, bech32Script) = try bech32.makeScriptAddress(redeemScript: redeemScript.data)
-        let bech32Address = LockingScriptAddress(value: bech32AddressValue, publicKey: publicKey, type: .default, lockingScript: bech32Script)
+        let bech32Address = LockingScriptAddress(value: bech32AddressValue, type: .default, lockingScript: bech32Script)
 
         return [bech32Address, legacyAddress]
     }
