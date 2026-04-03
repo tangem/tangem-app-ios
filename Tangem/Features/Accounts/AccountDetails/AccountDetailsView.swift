@@ -53,6 +53,7 @@ struct AccountDetailsView: View {
 
                     Text(viewModel.accountName)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsAccountName)
                 }
             },
             trailingIcon: {
@@ -61,6 +62,7 @@ struct AccountDetailsView: View {
                         title: Localization.commonEdit,
                         action: viewModel.openEditAccount
                     )
+                    .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsEditButton)
                 }
             }
         )
@@ -120,6 +122,7 @@ struct AccountDetailsView: View {
             .frame(minHeight: 20)
         }
         .disabled(state == .archivingInProgress)
+        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsArchiveButton)
         .defaultRoundedBackground(with: Colors.Background.action)
         .animation(.default, value: viewModel.archivingState)
         .confirmationDialog(

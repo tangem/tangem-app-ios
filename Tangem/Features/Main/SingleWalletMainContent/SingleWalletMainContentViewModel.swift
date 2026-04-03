@@ -118,7 +118,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
             ActionButtonsViewModel(
                 coordinator: $0,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                 userWalletModel: userWalletModel
             )
         }
