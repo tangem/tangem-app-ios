@@ -1,5 +1,5 @@
 //
-//  DynamicAddressesDerivationHelper.swift
+//  XPUBAddressesDerivationHelper.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct DynamicAddressesDerivationHelper {
+struct XPUBAddressesDerivationHelper {
     let accountDerivationPath: DerivationPath
     let usedDerivations: [DerivationPath]
 
@@ -30,7 +30,7 @@ struct DynamicAddressesDerivationHelper {
 
 // MARK: - Private
 
-private extension DynamicAddressesDerivationHelper {
+private extension XPUBAddressesDerivationHelper {
     /// Finds the first unused index (starting from 0) not present in the given set.
     func findFirstUnusedIndex(in usedIndices: Set<UInt32>) -> UInt32 {
         var index: UInt32 = 0
@@ -68,7 +68,7 @@ private extension DynamicAddressesDerivationHelper {
 
 // MARK: - Nested Types
 
-extension DynamicAddressesDerivationHelper {
+extension XPUBAddressesDerivationHelper {
     /// BIP-44 chain type
     enum Chain: UInt32 {
         /// External chain (receive addresses): `m/x'/x'/x'/0/<index>`
