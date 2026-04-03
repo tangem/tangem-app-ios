@@ -43,9 +43,6 @@ struct MarketsCoordinatorView: CoordinatorView {
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
             .fullScreenCover(item: $coordinator.mainTokenDetailsCoordinator, content: { item in
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)

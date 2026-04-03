@@ -44,10 +44,6 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            ForEach(viewModel.yieldModuleNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
             ForEach(viewModel.tangemPayNotificationInputs) { input in
                 NotificationView(input: input)
             }
