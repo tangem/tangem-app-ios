@@ -210,7 +210,7 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
         coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
@@ -224,7 +224,7 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
         coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
