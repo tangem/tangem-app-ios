@@ -17,6 +17,8 @@ extension MobileWalletError: UniversalError {
         switch self {
         case .seedKeyNotFound:
             110000000
+        case .encryptionKeyMismatched:
+            110000001
         }
     }
 }
