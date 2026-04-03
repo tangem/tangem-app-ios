@@ -167,7 +167,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
 
         Task { @MainActor in
-            let viewModel = AccountsAwareAddTokenFlowViewModel(
+            let viewModel = AddTokenFlowViewModel(
                 userWalletModels: userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -212,7 +212,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
     }
 }
 
-// MARK: - EarnAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+// MARK: - EarnAddTokenRoutable, AddTokenFlowRoutable
 
 extension MarketsCoordinator: EarnAddTokenRoutable {
     func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {

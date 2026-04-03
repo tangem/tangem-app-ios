@@ -31,21 +31,6 @@ struct CloreMigrationMessageSigner {
         message: String,
         blockchainId: String,
         signer: WalletConnectSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-            throw CloreMigrationSigningError.failedToGetWalletModel(blockchainId: blockchainId)
-        }
-        self.walletModel = walletModel
-
-        self.message = message
-        self.signer = signer
-    }
-
-    init(
-        message: String,
-        blockchainId: String,
-        signer: WalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {
