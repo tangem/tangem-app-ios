@@ -11,9 +11,9 @@ import TangemAssets
 import TangemUI
 
 struct MainQRScanTokenSelectorWalletItemView: View {
-    @ObservedObject var viewModel: AccountsAwareTokenSelectorWalletItemViewModel
+    @ObservedObject var viewModel: TokenSelectorWalletItemViewModel
     let isAccountsMode: Bool
-    let accountsModeSingleWalletHeader: AccountsAwareTokenSelectorAccountViewModel.HeaderType?
+    let accountsModeSingleWalletHeader: TokenSelectorAccountViewModel.HeaderType?
 
     @ViewBuilder
     var body: some View {
@@ -69,8 +69,8 @@ struct MainQRScanTokenSelectorWalletItemView: View {
     @ViewBuilder
     private func accountsModeWalletContent(
         walletName: String,
-        accounts: [AccountsAwareTokenSelectorAccountViewModel],
-        accountHeaderOverride: AccountsAwareTokenSelectorAccountViewModel.HeaderType?
+        accounts: [TokenSelectorAccountViewModel],
+        accountHeaderOverride: TokenSelectorAccountViewModel.HeaderType?
     ) -> some View {
         if !accounts.isEmpty {
             LazyVStack(spacing: 0.0) {

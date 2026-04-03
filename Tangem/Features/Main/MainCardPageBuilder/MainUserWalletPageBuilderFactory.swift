@@ -296,7 +296,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeMultiWalletMainContentViewSectionsProvider(
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
-        return AccountsAwareMultiWalletMainContentViewSectionsProvider(
+        return CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
             manageTokensActionFactory: { [weak coordinator] account in
                 { coordinator?.openManageTokens(for: account, in: userWalletModel) }
