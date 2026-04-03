@@ -77,7 +77,11 @@ class FakeWalletManager: WalletManager {
         state = nextState()
     }
 
-    func update(wallet: Wallet) throws {}
+    func updateWalletManager(address: String) async throws {}
+
+    func update(wallet newWallet: BlockchainSdk.Wallet) throws {
+        wallet = newWallet
+    }
 
     func removeToken(_ token: BlockchainSdk.Token) {
         cardTokens.removeAll(where: { $0 == token })
