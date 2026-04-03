@@ -21,6 +21,8 @@ struct TopMarketWidgetView: View {
             header
 
             list
+
+            promotion
         }
     }
 
@@ -35,19 +37,9 @@ struct TopMarketWidgetView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        switch viewModel.tokenViewModelsState {
-        case .success(let tokenViewModels):
-            VStack(spacing: .zero) {
-                ForEach(tokenViewModels) {
-                    MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-                }
-            }
-        case .failure:
-            MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
-        case .loading:
-            loadingSkeletons
-        }
+    private var promotion: some View {
+        PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+            .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
     }
 
     private var list: some View {
