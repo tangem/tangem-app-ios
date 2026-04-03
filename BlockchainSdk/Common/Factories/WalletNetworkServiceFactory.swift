@@ -306,7 +306,12 @@ private extension WalletNetworkServiceFactory {
         let accountStorage = SolanaDummyAccountStorage()
         let solanaSdk = Solana(router: networkRouter, accountStorage: accountStorage)
 
-        return SolanaNetworkService(providers: endpoints, solanaSdk: solanaSdk, blockchain: blockchain)
+        return SolanaNetworkService(
+            providers: endpoints,
+            solanaSdk: solanaSdk,
+            blockchain: blockchain,
+            providerConfiguration: tangemProviderConfig
+        )
     }
 }
 

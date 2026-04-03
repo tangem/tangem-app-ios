@@ -320,7 +320,8 @@ private extension TransactionHistoryMapper {
             return .unknownOperation
         }
 
-        guard let feeRecipient = gaslessTransactionsNetworkManager.cachedFeeRecipientAddress,
+        guard transactionRecord.isOutgoing,
+              let feeRecipient = gaslessTransactionsNetworkManager.cachedFeeRecipientAddress,
               let transfers = transactionRecord.tokenTransfers,
               transfers.contains(where: { $0.destination.caseInsensitiveCompare(feeRecipient) == .orderedSame })
         else {

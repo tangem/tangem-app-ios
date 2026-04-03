@@ -27,93 +27,12 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5D3F77D724BF56DC00E8695B"
-               BuildableName = "TangemTests.xctest"
-               BlueprintName = "TangemTests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5D3F77E224BF56DC00E8695B"
-               BuildableName = "TangemUITests.xctest"
-               BlueprintName = "TangemUITests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "TangemUITests">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EF9E299B2B4F0C8C00418559"
-               BuildableName = "TangemExpressTests.xctest"
-               BlueprintName = "TangemExpressTests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "TangemExpressTests">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B099337D2B5517E600240CDB"
-               BuildableName = "TangemVisaTests.xctest"
-               BlueprintName = "TangemVisaTests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "TangemVisaTests">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EFEE23902BFF62D60099917E"
-               BuildableName = "TangemStakingTests.xctest"
-               BlueprintName = "TangemStakingTests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "TangemStakingTests">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B68E1F6B2CBC44060043E598"
-               BuildableName = "BlockchainSdkTests.xctest"
-               BlueprintName = "BlockchainSdkTests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:TangemApp.xcodeproj/xcshareddata/xctestplans/TangemAlphaTests.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+      </TestPlans>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug(alpha)"

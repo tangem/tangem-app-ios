@@ -133,6 +133,14 @@ protocol SendAmountAnalyticsLogger {
 
     func logAmountStepOpened()
     func logAmountStepReopened()
+
+    func logSendWithSwapError(screen: Analytics.ParameterValue, errorDescription: String)
+    func logSendWithSwapAmountScreenOpened()
+}
+
+extension SendAmountAnalyticsLogger {
+    func logSendWithSwapError(screen: Analytics.ParameterValue, errorDescription: String) {}
+    func logSendWithSwapAmountScreenOpened() {}
 }
 
 protocol SendReceiveTokensListAnalyticsLogger {

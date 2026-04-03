@@ -106,7 +106,7 @@ actor CommonAccountModelsManager {
                     return nil
                 }
 
-                guard let accountIcon = AccountModel.Icon(
+                guard let accountIcon = AccountModel.CompositeIcon(
                     rawName: storedCryptoAccount.icon.iconName,
                     rawColor: storedCryptoAccount.icon.iconColor
                 ) else {
@@ -141,7 +141,7 @@ actor CommonAccountModelsManager {
                     userTokensManager: dependencies.userTokensManager,
                     accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
                     accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                    derivationManager: dependencies.derivationManager,
+                    derivationManager: dependencies.userTokensManager.derivationManager,
                     delegate: self
                 )
 
@@ -350,7 +350,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
         }
