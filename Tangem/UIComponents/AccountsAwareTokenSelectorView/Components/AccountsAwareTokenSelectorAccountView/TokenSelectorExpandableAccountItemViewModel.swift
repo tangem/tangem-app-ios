@@ -29,6 +29,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
 
     private let accountModel: any BaseAccountModel
     private let priceChangeUtility = PriceChangeUtility()
+    private let stateStorage: ExpandableAccountItemStateStorage
 
     /// User's explicit collapse/expand choice (independent of search override).
     private var userExplicitState: Bool = false
@@ -40,13 +41,19 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
 
     init(
         account: any BaseAccountModel,
+        stateStorage: ExpandableAccountItemStateStorage,
         itemsCountPublisher: AnyPublisher<Int, Never>,
         searchTextPublisher: AnyPublisher<String, Never>
     ) {
         accountModel = account
+        self.stateStorage = stateStorage
         name = account.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: account)
         rawTokensCount = 0
+
+        let initialExpanded = stateStorage.isExpanded(account)
+        isExpanded = initialExpanded
+        userExplicitState = initialExpanded
 
         // Try to get balance/rate from BalanceProvidingAccountModel
         if let balanceProvider = account as? BalanceProvidingAccountModel {
@@ -71,11 +78,11 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     }
 
     func onExpandedChange(_ isExpanded: Bool) {
-        userExplicitState = isExpanded
+        guard !isSearching else { return }
 
-        if !isSearching {
-            self.isExpanded = isExpanded
-        }
+        userExplicitState = isExpanded
+        stateStorage.setIsExpanded(isExpanded, for: accountModel)
+        self.isExpanded = isExpanded
     }
 
     // MARK: - Private

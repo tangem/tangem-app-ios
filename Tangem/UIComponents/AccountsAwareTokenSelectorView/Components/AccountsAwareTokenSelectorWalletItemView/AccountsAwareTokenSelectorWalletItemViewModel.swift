@@ -16,13 +16,17 @@ final class AccountsAwareTokenSelectorWalletItemViewModel: ObservableObject, Ide
     @Published private(set) var viewType: ViewType
     @Published private(set) var contentVisibility: AccountsAwareTokenSelectorViewModel.ContentVisibility?
 
+    private let onOpenStateChange: ((Bool) -> Void)?
+
     init(
         isOpen: Bool = true,
         viewType: ViewType,
-        viewTypePublisher: AnyPublisher<ViewType, Never>
+        viewTypePublisher: AnyPublisher<ViewType, Never>,
+        onOpenStateChange: ((Bool) -> Void)? = nil
     ) {
         self.isOpen = isOpen
         self.viewType = viewType
+        self.onOpenStateChange = onOpenStateChange
 
         viewTypePublisher.receiveOnMain().assign(to: &$viewType)
 
@@ -31,6 +35,7 @@ final class AccountsAwareTokenSelectorWalletItemViewModel: ObservableObject, Ide
 
     func toggleIsOpen() {
         withAnimation(.easeInOut(duration: 0.25)) { isOpen.toggle() }
+        onOpenStateChange?(isOpen)
     }
 
     func update(isOpen: Bool) {
