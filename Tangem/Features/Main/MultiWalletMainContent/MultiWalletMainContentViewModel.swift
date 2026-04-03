@@ -28,7 +28,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var bannerNotificationInputs: [NotificationViewInput] = []
-    @Published private(set) var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
     @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
     @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
