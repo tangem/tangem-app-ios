@@ -88,9 +88,19 @@ final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
     }
 
     @discardableResult
-    func closeStoriesAndReturnToMain() -> SwapTokenSelectorScreen {
-        XCTContext.runActivity(named: "Close Swap Stories Screen and return to main") { _ in
+    func closeStoriesAndReturnToTokenSelector() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Close Swap Stories Screen and return to token selector") { _ in
             closeButton.waitAndTap()
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func closeStoriesIfNeededAndReturnToTokenSelector() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Close Swap Stories Screen if needed and return to token selector") { _ in
+            if closeButton.waitForExistence(timeout: 2.0) {
+                closeButton.waitAndTap()
+            }
             return SwapTokenSelectorScreen(app)
         }
     }

@@ -5,6 +5,7 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 
 import SwiftUI
 import TangemAssets

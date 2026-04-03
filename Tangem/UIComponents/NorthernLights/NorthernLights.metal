@@ -115,8 +115,8 @@ fragment half4 northernLightsFragment(
     constant Uniforms &u [[ buffer(0) ]]
 ) {
     const int MAX_COLORS = 5;
-    const float SCALE = 4.0;
-    const float SPEED = 0.5;
+    const float SCALE = 1.8;
+    const float SPEED = 0.07;
 
     float3 uColor[5] = { u.uColor0, u.uColor1, u.uColor2, u.uColor3, u.uColor4 };
 

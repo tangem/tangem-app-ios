@@ -45,6 +45,10 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     }
 
     func isPaeraCustomer(customerWalletId: String) async -> Bool {
+        if paeraCustomerFlagRepository.isTangemPayDisabled(customerWalletId: customerWalletId) {
+            return false
+        }
+
         if paeraCustomerFlagRepository.isKYCHidden(customerWalletId: customerWalletId) {
             return false
         }

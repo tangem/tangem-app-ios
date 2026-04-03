@@ -9,8 +9,10 @@
 public protocol TangemPayPaeraCustomerFlagRepository {
     func isPaeraCustomer(customerWalletId: String) -> Bool
     func isKYCHidden(customerWalletId: String) -> Bool
+    func isTangemPayDisabled(customerWalletId: String) -> Bool
 
     func setIsPaeraCustomer(_ value: Bool, for customerWalletId: String)
     func setIsKYCHidden(_ value: Bool, for customerWalletId: String)
+    func setIsTangemPayDisabled(_ value: Bool, for customerWalletId: String)
     func setShouldShowGetBanner(_ value: Bool)
 }
