@@ -62,8 +62,7 @@ extension TangemPayAddFundsSheetViewModel {
                 addressTypesProvider: TangemPayReceiveAddressTypesProvider(
                     address: address,
                     colorScheme: .whiteBlack
-                ),
-                isYieldModuleActive: false
+                )
             ),
             receiveTokenWithdrawNoticeInteractor: TangemPayReceiveTokenWithdrawNoticeInteractor()
         )

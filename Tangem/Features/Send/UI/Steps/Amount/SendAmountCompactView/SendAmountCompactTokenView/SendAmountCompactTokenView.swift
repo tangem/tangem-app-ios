@@ -91,14 +91,12 @@ struct SendAmountCompactTokenView: View {
     private var highPriceImpactWarningView: some View {
         if let highPriceImpactWarning = viewModel.highPriceImpactWarning {
             HStack(spacing: 2) {
-                if highPriceImpactWarning.isHighPriceImpact {
-                    Text(highPriceImpactWarning.percent)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
-                        .padding(.leading, 4)
-                }
+                Text(highPriceImpactWarning.percent)
+                    .style(Fonts.Regular.subheadline, color: highPriceImpactWarning.isHighLoss ? Colors.Text.warning : Colors.Text.attention)
+                    .padding(.leading, 4)
 
                 InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
-                    .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
+                    .color(highPriceImpactWarning.isHighLoss ? Colors.Text.warning : Colors.Text.attention)
             }
         }
     }
