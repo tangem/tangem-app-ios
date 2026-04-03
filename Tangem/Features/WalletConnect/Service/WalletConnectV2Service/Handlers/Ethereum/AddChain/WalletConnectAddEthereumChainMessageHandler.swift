@@ -16,7 +16,6 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     @Injected(\.wcService) private var wcService: any WCService
 
     private let connectedDApp: WalletConnectConnectedDApp
-    private let walletModelProvider: any WalletConnectWalletModelProvider
     private let blockchainToAdd: BlockchainSdk.Blockchain
     private let wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider
     private let accountId: String
@@ -28,12 +27,10 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     init(
         requestParams: AnyCodable,
         connectedDApp: WalletConnectConnectedDApp,
-        walletModelProvider: some WalletConnectWalletModelProvider,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws(WalletConnectTransactionRequestProcessingError) {
         self.connectedDApp = connectedDApp
-        self.walletModelProvider = walletModelProvider
         self.wcAccountsWalletModelProvider = wcAccountsWalletModelProvider
         self.accountId = accountId
 

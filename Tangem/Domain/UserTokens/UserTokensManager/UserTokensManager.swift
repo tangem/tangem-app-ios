@@ -15,7 +15,7 @@ protocol UserTokensManager: UserTokensReordering {
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { get }
 
-    var derivationManager: DerivationManager? { get }
+    var derivationManager: (DerivationManager & DerivationStatusProvider)? { get }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
 

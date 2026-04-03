@@ -10,7 +10,6 @@ import Foundation
 
 protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable {
     func openURL(_ url: URL)
-    func openTokenSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     @MainActor
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
