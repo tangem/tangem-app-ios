@@ -28,6 +28,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Demo
     @Published var forcedDemoCardId: String = ""
 
+    // [REDACTED_TODO_COMMENT]
+    @Published var surveySparrowToken: String = "ntt-84iF22PDajmervYneMW4kv"
+
     /// FirebaseMessaging
     @Published private(set) var fcmToken: String = ""
 
@@ -220,5 +223,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     private func updateApplicationUid() {
         applicationUid = AppSettings.shared.applicationUid
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func handleSurveySparrowDemoClassicButtonTapped() {
+        coordinator?.openSparrowSurveyClassicDemo(withToken: surveySparrowToken)
+    }
+
+    func handleSurveySparrowDemoChatButtonTapped() {
+        coordinator?.openSparrowSurveyChatDemo(withToken: surveySparrowToken)
+    }
+
+    func handleSurveySparrowDemoNPSButtonTapped() {
+        coordinator?.openSparrowSurveyNPSDemo(withToken: surveySparrowToken)
     }
 }

@@ -189,9 +189,18 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
 
-        case .approve(let txData, let toContractAddress):
+        case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
-            return try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+            let fees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+
+            guard feeMultiplier != .single else { return fees }
+
+            let multiplier = feeMultiplier.rawValue
+            return fees.map { fee in
+                var scaledAmount = fee.amount
+                scaledAmount.value *= multiplier
+                return BSDKFee(scaledAmount, parameters: fee.parameters)
+            }
         }
     }
 }

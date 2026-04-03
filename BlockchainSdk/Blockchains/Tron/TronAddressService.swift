@@ -28,7 +28,7 @@ extension TronAddressService: AddressProvider {
         let addressData = [prefix] + hash.suffix(addressLength - 1)
         let address = addressData.base58CheckEncodedString
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 
