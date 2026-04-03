@@ -64,16 +64,6 @@ final class AccountsAwareDerivationManager {
 // MARK: - DerivationManager protocol conformance
 
 extension AccountsAwareDerivationManager: DerivationManager {
-    var hasPendingDerivations: AnyPublisher<Bool, Never> {
-        // [REDACTED_TODO_COMMENT]
-        preconditionFailure("Use `AccountDerivationManager.hasPendingDerivations` instead")
-    }
-
-    var pendingDerivationsCount: AnyPublisher<Int, Never> {
-        // [REDACTED_TODO_COMMENT]
-        preconditionFailure("Use `AccountDerivationManager.pendingDerivationsCount` instead")
-    }
-
     /// - Note: The implementation is equivalent to `CommonDerivationManager.shouldDeriveKeys(networksToRemove:networksToAdd:)`,
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
         assert(
