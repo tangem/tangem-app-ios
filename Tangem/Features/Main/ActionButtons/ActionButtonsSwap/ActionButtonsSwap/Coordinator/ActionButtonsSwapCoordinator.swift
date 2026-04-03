@@ -42,7 +42,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
         let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
         viewType = .tokenSelector(
-            AccountsAwareActionButtonsSwapViewModel(
+            ActionButtonsSwapViewModel(
                 tokenSelectorViewModel: options.tokenSelectorViewModel,
                 marketsTokensViewModel: marketsTokensViewModel,
                 coordinator: self
@@ -55,7 +55,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 
 extension ActionButtonsSwapCoordinator {
     struct Options {
-        let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+        let tokenSelectorViewModel: TokenSelectorViewModel
     }
 }
 
@@ -104,7 +104,7 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
 extension ActionButtonsSwapCoordinator {
     @RawCaseName
     enum ViewType: Identifiable {
-        case tokenSelector(AccountsAwareActionButtonsSwapViewModel)
+        case tokenSelector(ActionButtonsSwapViewModel)
         case swap(SendCoordinator)
     }
 }
