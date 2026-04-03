@@ -19,7 +19,7 @@ protocol SwapMarketsTokenAdditionRoutable: AnyObject {
     /// Called when a token has been successfully added via the add-token flow.
     /// - Parameter item: The newly added token item that should be selected
     @MainActor
-    func didAddMarketToken(item: AccountsAwareTokenSelectorItem) async
+    func didAddMarketToken(item: TokenSelectorItem) async
 }
 
 struct ExpressAddTokenInputData {
