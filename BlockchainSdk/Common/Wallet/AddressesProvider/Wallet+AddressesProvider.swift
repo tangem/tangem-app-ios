@@ -8,9 +8,15 @@
 
 public extension Wallet {
     protocol AddressesProvider {
-        var addresses: [Address] { get }
         var defaultAddress: Address { get }
+        var legacyAddress: Address? { get }
 
         mutating func update(address: Address)
+    }
+}
+
+extension Wallet.AddressesProvider {
+    var addresses: [Address] {
+        [defaultAddress, legacyAddress].compactMap { $0 }
     }
 }

@@ -12,7 +12,7 @@ import CombineExt
 import TangemFoundation
 import struct Hedera.AccountId
 
-final class HederaWalletManager: BaseManager {
+final class HederaWalletManager: BaseWalletManager {
     fileprivate typealias AssociatedTokens = Set<String>
 
     private let networkService: HederaNetworkService
@@ -67,7 +67,7 @@ final class HederaWalletManager: BaseManager {
 
     // MARK: - Wallet update
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             try await loadCachedAssociatedTokensIfNeeded().async()
 

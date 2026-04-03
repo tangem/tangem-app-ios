@@ -67,6 +67,8 @@ class EthereumWalletManagerMock: WalletManager {
     var state: WalletManagerState { .initial }
     var walletPublisher: AnyPublisher<BlockchainSdk.Wallet, Never> { .just(output: wallet) }
     var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: state) }
+    func update(wallet: BlockchainSdk.Wallet) throws {}
+
     var currentHost: String { "" }
     var outputsCount: Int? { nil }
 
@@ -77,6 +79,8 @@ class EthereumWalletManagerMock: WalletManager {
     func validate(fee: BlockchainSdk.Fee) throws {}
     func validate(amount: BlockchainSdk.Amount) throws {}
     var allowsFeeSelection: Bool { true }
+
+    func updateWalletManager(address: String) async throws {}
 
     func getFee(amount: BlockchainSdk.Amount, destination: String) -> AnyPublisher<[BlockchainSdk.Fee], Error> {
         .just(output: [])
