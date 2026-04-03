@@ -159,7 +159,8 @@ private extension SwapActionButtonViewModel {
     func scheduledOpenSwap() {
         guard isOpeningRequired else { return }
 
-        coordinator?.openSwap(userWalletModel: userWalletModel)
+        let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+        coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         isOpeningRequired = false
     }
 
