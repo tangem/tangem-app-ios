@@ -20,11 +20,11 @@ enum MarketsAddTokenFlowConfigurationFactory {
 
     static func make(
         inputData: InputData,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration {
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration {
         let analyticsLogger = MarketsAddTokenFlowAnalyticsLogger(coinSymbol: inputData.coinSymbol)
 
-        return AccountsAwareAddTokenFlowConfiguration(
+        return AddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 makeTokenItems(
                     inputData: inputData,
@@ -58,11 +58,11 @@ enum MarketsAddTokenFlowConfigurationFactory {
 private extension MarketsAddTokenFlowConfigurationFactory {
     static func makeGetTokenConfiguration(
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration {
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration.GetTokenConfiguration {
         let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
-        return AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+        return AddTokenFlowConfiguration.GetTokenConfiguration(
             isBuyAvailable: { tokenItem, accountSelectorCell in
                 let config = accountSelectorCell.userWalletModel.config
                 guard config.isFeatureVisible(.exchange) else { return false }
@@ -112,7 +112,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: (MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable)?
+        coordinator: (MarketsPortfolioContainerRoutable & AddTokenFlowRoutable)?
     ) {
         guard let coordinator else { return }
 
@@ -174,7 +174,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         inputData: InputData
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         { context in
             let networkIds = inputData.networks.map(\.networkId)
             let cryptoAccount = context.account

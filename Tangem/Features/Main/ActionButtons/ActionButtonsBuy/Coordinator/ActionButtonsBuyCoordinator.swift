@@ -36,9 +36,9 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let tokenSelectorViewModel = makeAccountsAwareTokenSelectorViewModel()
+        let tokenSelectorViewModel = makeTokenSelectorViewModel()
         viewState = .newTokenList(
-            AccountsAwareActionButtonsBuyViewModel(
+            ActionButtonsBuyViewModel(
                 userWalletModels: options.userWalletModels,
                 tokenSelectorViewModel: tokenSelectorViewModel,
                 coordinator: self
@@ -85,7 +85,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
                 coordinator: self
             )
 
-            let viewModel = AccountsAwareAddTokenFlowViewModel(
+            let viewModel = AddTokenFlowViewModel(
                 userWalletModels: userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -96,9 +96,9 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
     }
 }
 
-// MARK: - HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable
 
-extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable {
+extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable {
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -130,7 +130,7 @@ extension ActionButtonsBuyCoordinator {
     }
 
     enum RootViewState: Equatable {
-        case newTokenList(AccountsAwareActionButtonsBuyViewModel)
+        case newTokenList(ActionButtonsBuyViewModel)
         case onramp(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
@@ -146,8 +146,8 @@ extension ActionButtonsBuyCoordinator {
 // MARK: - Factory method
 
 private extension ActionButtonsBuyCoordinator {
-    func makeAccountsAwareTokenSelectorViewModel() -> AccountsAwareTokenSelectorViewModel {
-        AccountsAwareTokenSelectorViewModel(
+    func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
+        TokenSelectorViewModel(
             walletsProvider: .common(),
             availabilityProvider: .buy()
         )
