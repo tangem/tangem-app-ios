@@ -47,6 +47,12 @@ struct DecimalNumberTextField: View {
             .tint(appearance.textColor)
             .labelsHidden()
             .keyboardType(.decimalPad)
+            .onChange(of: viewModel.textFieldTextBinding.value) { newValue in
+                if let maxTextLength = viewModel.maximumTextLength,
+                   newValue.count > maxTextLength {
+                    viewModel.textFieldTextBinding.value = String(newValue.prefix(maxTextLength))
+                }
+            }
     }
 
     private var prompt: Text {

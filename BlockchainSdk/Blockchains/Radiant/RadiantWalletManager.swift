@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import WalletCore
+import TangemFoundation
 
 final class RadiantWalletManager: BaseManager, DustRestrictable {
     // MARK: - Private Properties
@@ -76,14 +77,14 @@ private extension RadiantWalletManager {
                 .sign(hashes: hashesForSign, walletPublicKey: walletManager.wallet.publicKey)
         }
         .withWeakCaptureOf(self)
-        .tryAsyncMap { walletManager, signatures in
+        .asyncTryMap { walletManager, signatures in
             try await walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, rawTransactionHex in
             walletManager.networkService
                 .send(transaction: rawTransactionHex)
-                .mapAndEraseSendTxError(tx: rawTransactionHex)
+                .mapAndEraseSendTxError(tx: rawTransactionHex, currentHost: walletManager.currentHost)
         }
         .withWeakCaptureOf(self)
         .map { walletManager, result -> TransactionSendResult in
@@ -92,7 +93,7 @@ private extension RadiantWalletManager {
             walletManager.wallet.addPendingTransaction(record)
             return result
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
@@ -130,7 +131,7 @@ extension RadiantWalletManager: WalletManager {
         return networkService
             .getFee()
             .withWeakCaptureOf(self)
-            .tryAsyncMap { walletManager, fee in
+            .asyncTryMap { walletManager, fee in
                 try await [fee.slowSatoshiPerByte, fee.marketSatoshiPerByte, fee.prioritySatoshiPerByte].asyncMap { estimatedFeePerKb in
                     let estimatedFeePerByte = estimatedFeePerKb / Constants.perKbRate
                     let decimalValue = walletManager.wallet.blockchain.decimalValue

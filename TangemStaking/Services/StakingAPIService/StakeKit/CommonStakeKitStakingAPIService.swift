@@ -100,35 +100,26 @@ private extension CommonStakeKitStakingAPIService {
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            let stakeKitError = tryMapError(target: request, response: response)
+            let apiError = try? decoder.decode(StakeKitAPIError.self, from: response.data)
 
-            let error = stakeKitError ?? StakeKitHTTPError.badStatusCode(
-                response: String(data: response.data, encoding: .utf8),
-                code: response.statusCode
+            throw StakeKitHTTPError.badStatusCode(
+                code: response.statusCode,
+                apiError: apiError,
+                response: String(data: response.data, encoding: .utf8)
             )
-
-            throw error
         }
 
         return response
     }
-
-    func tryMapError(target: StakeKitTarget, response: Moya.Response) -> Error? {
-        do {
-            let error = try JSONDecoder().decode(StakeKitAPIError.self, from: response.data)
-            return error
-        } catch {
-            return nil
-        }
-    }
 }
 
 public enum StakeKitHTTPError: Error, LocalizedError {
-    case badStatusCode(response: String?, code: Int)
+    case badStatusCode(code: Int, apiError: StakeKitAPIError?, response: String?)
 
     public var errorDescription: String? {
         switch self {
-        case .badStatusCode(let response, let code): response ?? "HTTP error \(code)"
+        case .badStatusCode(let code, let apiError, let response):
+            apiError?.message ?? response ?? "HTTP error \(code)"
         }
     }
 }
