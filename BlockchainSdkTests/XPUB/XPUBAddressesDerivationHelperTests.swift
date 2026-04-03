@@ -1,5 +1,5 @@
 //
-//  DynamicAddressesDerivationHelperTests.swift
+//  XPUBAddressesDerivationHelperTests.swift
 //  BlockchainSdkTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Testing
 import TangemSdk
 @testable import BlockchainSdk
 
-@Suite("DynamicAddressesDerivationHelper Tests")
-struct DynamicAddressesDerivationHelperTests {
+@Suite("XPUBAddressesDerivationHelper Tests")
+struct XPUBAddressesDerivationHelperTests {
     /// Used derivations:
     ///   m/84'/0'/0'/0/0, m/84'/0'/0'/1/0,
     ///   m/84'/0'/0'/0/1, m/84'/0'/0'/1/1,
@@ -34,7 +34,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/0/7",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -62,7 +62,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/0/7",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -90,7 +90,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/44'/0'/0'/0/4",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -116,7 +116,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/0/0",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -139,7 +139,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/0/1",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -158,7 +158,7 @@ struct DynamicAddressesDerivationHelperTests {
     func resolveWithNoUsedDerivations() throws {
         // Arrange
         let accountPath = try DerivationPath(rawPath: "m/84'/0'/0'")
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: []
         )
@@ -183,7 +183,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/1/1",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -206,7 +206,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/84'/0'/0'/0'/1'", // Hardened nodes - should be ignored
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -228,7 +228,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/0", // Only 1 node — should be ignored
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
@@ -252,7 +252,7 @@ struct DynamicAddressesDerivationHelperTests {
             "m/44'/0'/0'/1/0",
         ].map { try DerivationPath(rawPath: $0) }
 
-        let helper = DynamicAddressesDerivationHelper(
+        let helper = XPUBAddressesDerivationHelper(
             accountDerivationPath: accountPath,
             usedDerivations: usedDerivations
         )
