@@ -7,7 +7,7 @@
 //
 
 struct EmptyApproveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder {
-    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
+    func makeApproveFlowFactory() throws -> ApproveFlowFactory {
         throw SendApproveViewModelInputDataBuilderError.notSupported
     }
 }

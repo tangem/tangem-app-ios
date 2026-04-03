@@ -12,6 +12,7 @@ import TangemNetworkUtils
 public struct BlockchainSdkKeysConfig {
     let blockchairApiKeys: [String]
     let blockcypherTokens: [String]
+    let alchemyApiKey: String
     let infuraProjectId: String
     let nowNodesApiKey: String
     let getBlockCredentials: GetBlockCredentials
@@ -39,6 +40,7 @@ public struct BlockchainSdkKeysConfig {
     public init(
         blockchairApiKeys: [String],
         blockcypherTokens: [String],
+        alchemyApiKey: String,
         infuraProjectId: String,
         nowNodesApiKey: String,
         getBlockCredentials: GetBlockCredentials,
@@ -65,6 +67,7 @@ public struct BlockchainSdkKeysConfig {
     ) {
         self.blockchairApiKeys = blockchairApiKeys
         self.blockcypherTokens = blockcypherTokens
+        self.alchemyApiKey = alchemyApiKey
         self.infuraProjectId = infuraProjectId
         self.nowNodesApiKey = nowNodesApiKey
         self.getBlockCredentials = getBlockCredentials

@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExpress
+import TangemFoundation
 
 final class AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
     @Injected(\.expressPairsRepository)

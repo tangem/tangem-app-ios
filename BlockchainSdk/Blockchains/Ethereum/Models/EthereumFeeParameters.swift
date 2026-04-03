@@ -23,10 +23,11 @@ public protocol EthereumFeeParameters where Self: FeeParameters {
 }
 
 public enum EthereumFeeParametersConstants {
-    public static var defaultGasLimitIncreasePercent = BigUInt(12)
-    public static var yieldModuleGasLimitIncreasePercent = BigUInt(20)
-    public static var gaslessMinTokenAmount = BigUInt(10_000)
-    public static var gaslessBaseGasBuffer = BigUInt(60_000)
+    public static let defaultGasLimitIncreasePercent = BigUInt(12)
+    public static let yieldModuleGasLimitIncreasePercent = BigUInt(20)
+    public static let gaslessMinTokenAmount = BigUInt(10_000)
+    public static let gaslessMinTokenAmountDecimal = Decimal(stringValue: "10000")!
+    public static let gaslessBaseGasBuffer = BigUInt(60_000)
 }
 
 public extension EthereumFeeParameters {
