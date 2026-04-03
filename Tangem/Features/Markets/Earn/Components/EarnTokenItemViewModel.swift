@@ -30,6 +30,8 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
 
     var blockchainIconAsset: ImageType? { token.blockchainIconAsset }
 
+    var isNativeToken: Bool { token.networkId == token.id }
+
     private let token: EarnTokenModel
 
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {

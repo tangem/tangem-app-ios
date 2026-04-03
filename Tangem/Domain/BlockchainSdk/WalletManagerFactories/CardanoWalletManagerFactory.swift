@@ -12,42 +12,10 @@ import BlockchainSdk
 
 struct CardanoWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
-        let seedKeys: [EllipticCurve: Data] = keys.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.publicKey
-        }
-
-        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = keys.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.derivedKeys
-        }
-
-        let blockchain = blockchainNetwork.blockchain
-        let curve = blockchain.curve
-
-        guard let derivationPath = blockchainNetwork.derivationPath else {
-            throw AnyWalletManagerFactoryError.entryHasNotDerivationPath
-        }
-
-        guard let seedKey = seedKeys[curve], let derivedWalletKeys = derivedKeys[curve] else {
-            throw AnyWalletManagerFactoryError.walletWithBlockchainCurveNotFound
-        }
-
-        let extendedDerivationPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
-
-        guard let derivedKey = derivedWalletKeys[derivationPath],
-              let secondDerivedKey = derivedWalletKeys[extendedDerivationPath] else {
-            throw AnyWalletManagerFactoryError.noDerivation
-        }
-
-        let derivationKey = Wallet.PublicKey.HDKey(path: derivationPath, extendedPublicKey: derivedKey)
-        let secondDerivationKey = Wallet.PublicKey.HDKey(path: extendedDerivationPath, extendedPublicKey: secondDerivedKey)
+        let publicKey = try CardanoWalletPublicKeyFactory().makePublicKey(blockchainNetwork: blockchainNetwork, keys: keys)
 
         let factory = WalletManagerFactoryProvider(apiList: apiList).factory
-        let publicKey = Wallet.PublicKey(
-            seedKey: seedKey,
-            derivationType: .double(first: derivationKey, second: secondDerivationKey)
-        )
-
-        let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
+        let walletManager = try factory.makeWalletManager(blockchain: blockchainNetwork.blockchain, publicKey: publicKey)
 
         walletManager.addTokens(tokens)
         return walletManager

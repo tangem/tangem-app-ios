@@ -11,13 +11,10 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-import TangemFoundation
 import TangemAccessibilityIdentifiers
 
 struct QRCodeReceiveAssetsView: View {
     @ObservedObject var viewModel: QRCodeReceiveAssetsViewModel
-
-    @State private var containerWidth: CGFloat = 0
 
     var body: some View {
         mainContent
@@ -25,7 +22,6 @@ struct QRCodeReceiveAssetsView: View {
             .id(viewModel.addressInfo.address)
     }
 
-    @ViewBuilder
     private var mainContent: some View {
         VStack(spacing: 48) {
             VStack(spacing: 0) {

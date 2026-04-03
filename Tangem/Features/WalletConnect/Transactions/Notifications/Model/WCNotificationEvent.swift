@@ -106,9 +106,9 @@ extension WCNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
 

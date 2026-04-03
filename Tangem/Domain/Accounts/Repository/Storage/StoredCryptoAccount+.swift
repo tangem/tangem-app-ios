@@ -60,16 +60,6 @@ extension StoredCryptoAccount {
 extension StoredCryptoAccount.Token {
     var isToken: Bool { contractAddress != nil }
 
-    // [REDACTED_TODO_COMMENT]
-    var coinId: String? {
-        switch blockchainNetwork {
-        case .known(let blockchainNetwork):
-            return contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        case .unknown:
-            return nil
-        }
-    }
-
     var walletModelId: WalletModelId? {
         guard let tokenItem = toTokenItem() else {
             return nil
