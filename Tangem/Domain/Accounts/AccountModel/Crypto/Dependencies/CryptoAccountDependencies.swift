@@ -11,7 +11,7 @@ import Foundation
 struct CryptoAccountDependencies {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager
-    let walletModelsFactoryInput: AccountsAwareWalletModelsFactoryInput
+    let walletModelsFactoryInput: WalletModelsFactoryInput
 
     func makeBalanceProvidingDependencies() -> (
         balanceProvider: AccountBalanceProvider,

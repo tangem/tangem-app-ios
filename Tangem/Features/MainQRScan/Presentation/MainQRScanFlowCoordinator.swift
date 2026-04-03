@@ -176,8 +176,8 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     ) {
         closeScanner()
 
-        let walletsProvider = CommonAccountsAwareTokenSelectorWalletsProvider(accountModelFilter: \.isStandard)
-        let selectorViewModel = AccountsAwareTokenSelectorViewModel(
+        let walletsProvider = CommonTokenSelectorWalletsProvider(accountModelFilter: \.isStandard)
+        let selectorViewModel = TokenSelectorViewModel(
             walletsProvider: walletsProvider,
             availabilityProvider: MainQRScanTokenSelectorAvailabilityProvider(filter: filter)
         )
@@ -410,10 +410,10 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     }
 
     private func makeAccountsModeSingleAccountHeaders(
-        walletItemViewModels: [AccountsAwareTokenSelectorWalletItemViewModel],
-        wallets: [AccountsAwareTokenSelectorWallet]
-    ) -> [ObjectIdentifier: AccountsAwareTokenSelectorAccountViewModel.HeaderType] {
-        var result: [ObjectIdentifier: AccountsAwareTokenSelectorAccountViewModel.HeaderType] = [:]
+        walletItemViewModels: [TokenSelectorWalletItemViewModel],
+        wallets: [TokenSelectorWallet]
+    ) -> [ObjectIdentifier: TokenSelectorAccountViewModel.HeaderType] {
+        var result: [ObjectIdentifier: TokenSelectorAccountViewModel.HeaderType] = [:]
 
         for (walletItemViewModel, wallet) in zip(walletItemViewModels, wallets) {
             guard case .single(let account) = wallet.accounts else {
