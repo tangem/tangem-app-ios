@@ -20,7 +20,7 @@ struct ActionButtonsSwapCoordinatorView: View {
                 EmptyView()
             case .tokenSelector(let viewModel):
                 NavigationStack {
-                    AccountsAwareActionButtonsSwapView(viewModel: viewModel)
+                    ActionButtonsSwapView(viewModel: viewModel)
                 }
                 .transition(SendTransitions.transition)
             case .swap(let sendCoordinator):

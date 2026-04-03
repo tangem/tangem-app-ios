@@ -284,7 +284,7 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var portfolioView: some View {
         if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
-            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
+            MarketsPortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
         }
     }
 
