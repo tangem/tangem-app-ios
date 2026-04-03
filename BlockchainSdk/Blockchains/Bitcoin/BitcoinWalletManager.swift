@@ -15,6 +15,7 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
     let txBuilder: BitcoinTransactionBuilder
     let unspentOutputManager: UnspentOutputManager
     let networkService: UTXONetworkProvider
+    let xpubNetworkProvider: XPUBNetworkProvider
 
     /*
      The current default minimum relay fee is 1 sat/vbyte.
@@ -29,10 +30,17 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
 
     var currentHost: String { networkService.host }
 
-    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, unspentOutputManager: UnspentOutputManager, networkService: UTXONetworkProvider) {
+    init(
+        wallet: Wallet,
+        txBuilder: BitcoinTransactionBuilder,
+        unspentOutputManager: UnspentOutputManager,
+        networkService: UTXONetworkProvider,
+        xpubNetworkProvider: XPUBNetworkProvider
+    ) {
         self.txBuilder = txBuilder
         self.unspentOutputManager = unspentOutputManager
         self.networkService = networkService
+        self.xpubNetworkProvider = xpubNetworkProvider
 
         super.init(wallet: wallet)
     }
@@ -108,6 +116,20 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
                 parameters: BitcoinFeeParameters(rate: maxFee.rate)
             ),
         ]
+    }
+}
+
+// MARK: - XPUBWalletManagerUpdater
+
+extension BitcoinWalletManager: XPUBWalletManagerUpdater {
+    func updateWalletManager(xpub: String) async throws {
+        do {
+            let responses = try await xpubNetworkProvider.getInfo(xpub: xpub)
+            print("->> responses", responses)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 }
 
