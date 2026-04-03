@@ -60,10 +60,15 @@ struct KeyframeTrack {
     let keyframes: [RGB] // 4 keyframes
     let offsetSeconds: Float // stagger offset in seconds
 
+    init(hexColors: [UInt32], offsetSeconds: Float) {
+        keyframes = hexColors.map { rgb(hex: $0) }
+        self.offsetSeconds = offsetSeconds
+    }
+
     /// Evaluate the track color at a given absolute time (seconds).
     func evaluate(at time: Float) -> RGB {
-        let cycleDuration: Float = 16.0
-        let segmentDuration: Float = 4.0
+        let cycleDuration: Float = 40.0
+        let segmentDuration: Float = 10.0
 
         // Apply offset: the track's own phase is delayed by offsetSeconds
         let trackTime = fmod(time + cycleDuration - offsetSeconds, cycleDuration)
@@ -82,29 +87,17 @@ struct KeyframeTrack {
 // MARK: - Color Keyframes
 
 enum NorthernLightsColors {
-    /// Track 1: indigo → bright blue → lavender → hot violet
-    static let track1 = KeyframeTrack(
-        keyframes: [rgb(hex: 0x2A1480), rgb(hex: 0x4477EE), rgb(hex: 0xBBAAEE), rgb(hex: 0x8833EE)],
-        offsetSeconds: 0
-    )
+    static let track1Dark = KeyframeTrack(hexColors: [0xFF0D0D3A, 0xFF141455, 0xFF1C1C6E, 0xFF111148], offsetSeconds: 0)
+    static let track1Light = KeyframeTrack(hexColors: [0xFFCCB8EE, 0xFFBBA0E8, 0xFFCCB0F0, 0xFFC4AAEC], offsetSeconds: 0)
 
-    /// Track 2: dark blue → cyan-blue → sky → teal
-    static let track2 = KeyframeTrack(
-        keyframes: [rgb(hex: 0x1444AA), rgb(hex: 0x22AADD), rgb(hex: 0x99BBDD), rgb(hex: 0x44DDCC)],
-        offsetSeconds: 4
-    )
+    static let track2Dark = KeyframeTrack(hexColors: [0xFF0A1238, 0xFF0D1D55, 0xFF112266, 0xFF0E1A4A], offsetSeconds: 10)
+    static let track2Light = KeyframeTrack(hexColors: [0xFFB8C8F0, 0xFF9AAEE8, 0xFFAABEF0, 0xFFA0B8EE], offsetSeconds: 10)
 
-    /// Track 3: dark purple → medium purple → rose pink → magenta
-    static let track3 = KeyframeTrack(
-        keyframes: [rgb(hex: 0x4422BB), rgb(hex: 0x7733CC), rgb(hex: 0xDD88BB), rgb(hex: 0xEE44AA)],
-        offsetSeconds: 8
-    )
+    static let track3Dark = KeyframeTrack(hexColors: [0xFF110A38, 0xFF1C1050, 0xFF2A1666, 0xFF180E48], offsetSeconds: 20)
+    static let track3Light = KeyframeTrack(hexColors: [0xFFDDC8F5, 0xFFCCB0EE, 0xFFD8BEF5, 0xFFD0B8F2], offsetSeconds: 20)
 
-    /// Track 4: dark violet → medium violet → light pink → hot pink
-    static let track4 = KeyframeTrack(
-        keyframes: [rgb(hex: 0x331199), rgb(hex: 0x6644CC), rgb(hex: 0xCC77DD), rgb(hex: 0xFF66CC)],
-        offsetSeconds: 2
-    )
+    static let track4Dark = KeyframeTrack(hexColors: [0xFF081A30, 0xFF0D2844, 0xFF113355, 0xFF0D2240], offsetSeconds: 5)
+    static let track4Light = KeyframeTrack(hexColors: [0xFFB8C4EE, 0xFFA8B4E8, 0xFFB4C0EE, 0xFFAABCEC], offsetSeconds: 5)
 }
 
 // MARK: - Uniforms struct

@@ -121,10 +121,10 @@ class StellarWalletManager: BaseManager, WalletManager {
                     self.wallet.addPendingTransaction(record)
                     return TransactionSendResult(hash: hash, currentProviderHost: self.currentHost)
                 }
-                .mapAndEraseSendTxError(tx: rawTransactionHash)
+                .mapAndEraseSendTxError(tx: rawTransactionHash, currentHost: self?.currentHost)
                 .eraseToAnyPublisher() ?? .emptyFail
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 
@@ -236,7 +236,7 @@ extension StellarWalletManager: TransactionSender {
             return result
         }
         .withWeakCaptureOf(self)
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .flatMap { manager, txBuiltForSign in
             let (hash, transactionXDR) = txBuiltForSign
             return manager.signAndSend(transaction: transaction, signer: signer, hash: hash, transactionXDR: transactionXDR)

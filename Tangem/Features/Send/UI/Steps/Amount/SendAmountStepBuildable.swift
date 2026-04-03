@@ -54,6 +54,21 @@ enum SendAmountStepBuilder {
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let isFixedRateMode: Bool
+
+        init(
+            sendAmountValidator: any SendAmountValidator,
+            amountModifier: (any SendAmountModifier)?,
+            notificationService: (any SendAmountNotificationService)?,
+            analyticsLogger: any SendAmountAnalyticsLogger,
+            isFixedRateMode: Bool = false
+        ) {
+            self.sendAmountValidator = sendAmountValidator
+            self.amountModifier = amountModifier
+            self.notificationService = notificationService
+            self.analyticsLogger = analyticsLogger
+            self.isFixedRateMode = isFixedRateMode
+        }
     }
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
@@ -72,18 +87,19 @@ enum SendAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
+            receiveTokenAmountOutput: io.receiveAmountIO?.output,
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
             notificationService: dependencies.notificationService,
-            saver: interactorSaver,
-            type: .crypto
+            saver: interactorSaver
         )
 
         let viewModel = SendAmountViewModel(
             sourceToken: types.initialSourceToken,
             flowActionType: types.flowActionType,
             interactor: interactor,
-            analyticsLogger: dependencies.analyticsLogger
+            analyticsLogger: dependencies.analyticsLogger,
+            isFixedRateMode: dependencies.isFixedRateMode
         )
 
         let step = SendAmountStep(
@@ -100,7 +116,8 @@ enum SendAmountStepBuilder {
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
-            swapProvidersInput: io.swapProvidersInput
+            swapProvidersInput: io.swapProvidersInput,
+            isReceiveAmountApproximatePublisher: viewModel.isReceiveAmountApproximatePublisher
         )
 
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)

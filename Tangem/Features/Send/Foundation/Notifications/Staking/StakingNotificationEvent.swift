@@ -149,16 +149,16 @@ extension StakingNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkUnreachable, .feeWillBeSubtractFromSendingAmount, .lowStakedBalance:
-            .init(iconType: .image(Assets.attention.image))
+            .init(iconType: .image(Assets.attention))
         case .approveTransactionInProgress:
             .init(iconType: .progressView)
         case .unstake, .withdraw, .claimRewards, .restakeRewards, .restake,
              .unlock, .stakesWillMoveToNewValidator, .revote,
              .maxAmountStaking, .cardanoAdditionalDeposit, .tonUnstaking,
              .tonExtraReserveInfo, .tonAccountInitialization:
-            .init(iconType: .image(Assets.blueCircleWarning.image))
+            .init(iconType: .image(Assets.blueCircleWarning))
         case .amountRequirementError:
-            .init(iconType: .image(Assets.redCircleWarning.image))
+            .init(iconType: .image(Assets.redCircleWarning))
         case .validationErrorEvent(let event):
             event.icon
         }

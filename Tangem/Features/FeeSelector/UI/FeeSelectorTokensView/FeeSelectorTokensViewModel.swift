@@ -96,7 +96,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
         var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
             switch tokenFeeProvider.state {
             case .unavailable(let reason) where reason.isNoTokenBalance:
-                .unavailable
+                .unavailable(isSubtitleHighlighted: false)
             case .available, .idle, .loading, .unavailable, .error:
                 .available(isSubtitleHighlighted: false)
             }

@@ -63,6 +63,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
+    @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
     // MARK: - Child view models
 
@@ -222,6 +223,22 @@ extension MainCoordinator: MainRoutable {
         detailsCoordinator = coordinator
     }
 
+    func openQRScan() {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainQRScanFlowCoordinator = nil
+            self?.mainBottomSheetUIManager.show()
+        }
+
+        let coordinator = MainQRScanFlowCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        mainQRScanFlowCoordinator = coordinator
+    }
+
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
@@ -270,13 +287,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openGetTangemPay() {
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
             self?.tangemPayOnboardingCoordinator = nil
         }
 
         let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(source: .other))
+        coordinator.start(with: .init(source: .other, availableSelection: availableSelection))
         tangemPayOnboardingCoordinator = coordinator
     }
 
