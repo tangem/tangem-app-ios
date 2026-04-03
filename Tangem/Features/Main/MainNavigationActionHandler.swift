@@ -251,15 +251,10 @@ extension MainCoordinator {
                 return false
             }
 
-            // accounts_fixes_needed_none
-            let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-                .accounts(userWalletModel.accountModelsManager) :
-                .plainUserTokensManager(userWalletModel.userTokensManager)
-
             let input = ReferralInputModel(
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                workMode: workMode,
+                accountModelsManager: userWalletModel.accountModelsManager,
                 tokenIconInfoBuilder: TokenIconInfoBuilder(),
                 userWalletModel: userWalletModel
             )
@@ -334,15 +329,13 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
-        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        var walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
-        if FeatureProvider.isAvailable(.accounts) {
-            // If derivation is missing, prefer main account's wallet model - this is why we sort them here
-            walletModels.sort { first, second in
-                let isFirstMainAccount = first.account?.isMainAccount ?? false
-                let isSecondMainAccount = second.account?.isMainAccount ?? false
-                return isFirstMainAccount && !isSecondMainAccount
-            }
+        // If derivation is missing, prefer main account's wallet model - this is why we sort them here
+        walletModels.sort { first, second in
+            let isFirstMainAccount = first.account?.isMainAccount ?? false
+            let isSecondMainAccount = second.account?.isMainAccount ?? false
+            return isFirstMainAccount && !isSecondMainAccount
         }
 
         return findWalletModel(
