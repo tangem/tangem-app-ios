@@ -14,7 +14,7 @@ struct ActionButtonsSellCoordinatorView: View {
     var body: some View {
         if let viewModel = coordinator.accountsAwareActionButtonsSellViewModel {
             NavigationStack {
-                AccountsAwareActionButtonsSellView(viewModel: viewModel)
+                ActionButtonsSellView(viewModel: viewModel)
             }
         }
     }
