@@ -143,8 +143,8 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         return fee
     }
 
-    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee {
-        update(input: .approve(txData: txData, toContractAddress: toContractAddress))
+    func transactionFee(approveData: ApproveTransactionData) async throws -> BSDKFee {
+        update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
         await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
