@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import Foundation
 import TangemExpress
@@ -44,15 +45,25 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
     }
 
     var supportFeeSelection: Bool {
-        feeProviders.hasMultipleFeeProviders || selectedFeeProvider.hasMultipleFeeOptions
+        let hasMultipleFeeProviders = feeProviders.hasMultipleFeeProviders
+        let selectedHasMultipleOptions = selectedFeeProvider.hasMultipleFeeOptions
+        let selectedHasTokenBalance = !selectedFeeProvider.state.isUnavailableNoTokenBalance
+
+        return hasMultipleFeeProviders || (selectedHasMultipleOptions && selectedHasTokenBalance)
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
+        let hasMultipleSupportedProviders = Publishers.MergeMany(feeProviders.map { $0.statePublisher })
+            .map { [feeProviders] _ in feeProviders.hasMultipleFeeProviders }
+
+        return Publishers.CombineLatest3(
             selectedFeeProviderPublisher.map(\.hasMultipleFeeOptions),
-            Just(feeProviders.hasMultipleFeeProviders)
+            hasMultipleSupportedProviders,
+            selectedFeeProviderPublisher.flatMapLatest { $0.statePublisher.map(\.isUnavailableNoTokenBalance) }
         )
-        .map { $0 || $1 }
+        .map { hasMultipleOptions, hasMultipleProviders, noTokenBalance in
+            hasMultipleProviders || (hasMultipleOptions && !noTokenBalance)
+        }
         .removeDuplicates()
         .eraseToAnyPublisher()
     }
@@ -129,6 +140,13 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
+        return fee
+    }
+
+    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee {
+        update(input: .approve(txData: txData, toContractAddress: toContractAddress))
+        await updateFees().value
+        let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
     }
 
