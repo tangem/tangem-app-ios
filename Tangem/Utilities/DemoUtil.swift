@@ -30,7 +30,7 @@ struct DemoUtil {
         [
             Blockchain.bitcoin(testnet: isTestnet),
             Blockchain.ethereum(testnet: isTestnet),
-            Blockchain.dogecoin,
+            Blockchain.dogecoin(),
             Blockchain.solana(curve: .ed25519, testnet: isTestnet),
         ]
     }

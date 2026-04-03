@@ -125,6 +125,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
+    var features: [WalletModelFeature] { [] }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         // No additional features for NFT
         .just(output: [])
@@ -269,6 +271,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var transactionSender: TransactionSender {
         mainTokenWalletModel.transactionSender
+    }
+
+    var walletUpdater: WalletUpdater {
+        mainTokenWalletModel.walletUpdater
     }
 
     var multipleTransactionsSender: (any MultipleTransactionsSender)? {
