@@ -97,7 +97,7 @@ extension ALPH {
             totalTokens = newTotalTokens
             totalOutputLength += outputLength
 
-            let outputLengthSender = totalTokens.count // +1 не используется, как указано в комментарии в Kotlin-коде
+            let outputLengthSender = totalTokens.count // +1 is not used here, as noted in the comment in the Kotlin code
             let alphAmountSender = dustUtxoAmount.mulUnsafe(U256.unsafe(outputLengthSender))
             let finalAlphAmount = totalAlphAmount.add(alphAmountSender) ?? U256.zero
 

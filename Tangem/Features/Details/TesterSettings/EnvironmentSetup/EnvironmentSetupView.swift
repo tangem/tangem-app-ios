@@ -40,6 +40,8 @@ struct EnvironmentSetupView: View {
                     FeatureStateRowView(viewModel: viewModel)
                 }
 
+                surveySparrowControls
+
                 demoCardIdControls
 
                 appUidControls
@@ -51,6 +53,34 @@ struct EnvironmentSetupView: View {
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var surveySparrowControls: some View {
+        VStack {
+            Text("SurveySparrow demo token:")
+                .font(.headline)
+
+            TextField("survey token", text: $viewModel.surveySparrowToken)
+                .padding()
+                .border(.gray, width: 1)
+
+            MainButton(
+                title: "SurveySparrow demo classic",
+                action: viewModel.handleSurveySparrowDemoClassicButtonTapped
+            )
+
+            MainButton(
+                title: "SurveySparrow demo chat",
+                action: viewModel.handleSurveySparrowDemoClassicButtonTapped
+            )
+
+            MainButton(
+                title: "SurveySparrow demo NPS",
+                action: viewModel.handleSurveySparrowDemoClassicButtonTapped
+            )
+        }
+        .padding(.horizontal)
     }
 
     private var demoCardIdControls: some View {
