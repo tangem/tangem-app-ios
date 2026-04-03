@@ -16,7 +16,7 @@ struct SwapTokenSelectorView: View {
 
     var body: some View {
         NavigationStack {
-            AccountsAwareTokenSelectorView(
+            TokenSelectorView(
                 viewModel: viewModel.tokenSelectorViewModel,
                 emptyContentView: {
                     SwapTokenSelectorEmptyContentView(

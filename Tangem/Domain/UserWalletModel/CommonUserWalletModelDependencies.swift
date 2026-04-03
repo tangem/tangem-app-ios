@@ -119,7 +119,7 @@ private extension CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager
         )
 
-        return AccountsAwareTotalBalanceProvider(
+        return CommonTotalBalanceProvider(
             accountModelsManager: accountModelsManager,
             analyticsLogger: analyticsLogger
         )
@@ -148,7 +148,7 @@ private extension CommonUserWalletModelDependencies {
         accountModelsManager: AccountModelsManager,
         remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
-        AccountsAwareUserTokensPushNotificationsManager(
+        CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: remoteStatusSyncing
@@ -237,7 +237,7 @@ private extension CommonUserWalletModelDependencies {
         )
 
         // If accounts are enabled, we have to use a special set of dependencies, overriding the existing `innerDependencies`
-        let accountsAwareInnerDependencies = AccountsAwareInnerDependencies(
+        let accountsAwareInnerDependencies = InnerDependencies(
             cryptoAccountsRepository: cryptoAccountsRepository,
             cryptoAccountsNetworkMapper: cryptoAccountsNetworkMapper,
             keysRepository: keysRepository
@@ -265,7 +265,7 @@ private extension CommonUserWalletModelDependencies {
             return nil
         }
 
-        return AccountsAwareDerivationManager(keysRepository: keysRepository)
+        return CommonDerivationManager(keysRepository: keysRepository)
     }
 }
 
@@ -281,7 +281,7 @@ private extension CommonUserWalletModelDependencies {
         func configure(with model: UserWalletModel)
     }
 
-    struct AccountsAwareInnerDependencies: InnerDependenciesConfigurable {
+    struct InnerDependencies: InnerDependenciesConfigurable {
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper
         let keysRepository: CommonKeysRepository

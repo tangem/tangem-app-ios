@@ -20,7 +20,7 @@ struct SwapTokenSelectorViewModelBuilder {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: direction,
-            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
+            tokenSelectorViewModel: TokenSelectorViewModel(
                 walletsProvider: .common(),
                 availabilityProvider: .swap(),
                 collapsibleAccounts: true,
