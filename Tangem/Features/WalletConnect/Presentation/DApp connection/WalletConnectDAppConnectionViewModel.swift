@@ -19,7 +19,6 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
     private var selectedAccount: (any CryptoAccountModel)?
 
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
-    private lazy var walletSelectorViewModel: WalletConnectWalletSelectorViewModel = makeWalletSelectorViewModel()
     private lazy var networksSelectorViewModel: WalletConnectNetworksSelectorViewModel = makeNetworksSelectorViewModel()
     private lazy var accountSelectorViewModel: AccountSelectorViewModel = makeAccountSelectorViewModel()
 
@@ -123,11 +122,6 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
         state = .verifiedDomain(viewModel)
     }
 
-    func openWalletSelector() {
-        walletSelectorViewModel.updateSelectedUserWallet(selectedUserWallet)
-        state = .walletSelector(walletSelectorViewModel)
-    }
-
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
         networksSelectorViewModel.update(with: blockchainsAvailabilityResult)
         state = .networkSelector(networksSelectorViewModel)
@@ -187,22 +181,6 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
 // MARK: - Factory methods
 
 extension WalletConnectDAppConnectionViewModel {
-    private func makeWalletSelectorViewModel() -> WalletConnectWalletSelectorViewModel {
-        WalletConnectWalletSelectorViewModel(
-            userWallets: userWallets,
-            selectedUserWallet: selectedUserWallet,
-            hapticFeedbackGenerator: hapticFeedbackGenerator,
-            backAction: { [weak self] in
-                self?.openConnectionRequest()
-            },
-            userWalletSelectedAction: { [weak self] selectedUserWallet in
-                guard case .walletSelector = self?.state else { return }
-                self?.selectedUserWallet = selectedUserWallet
-                self?.openConnectionRequest()
-            }
-        )
-    }
-
     private func makeNetworksSelectorViewModel() -> WalletConnectNetworksSelectorViewModel {
         let viewModel = WalletConnectNetworksSelectorViewModel(
             backAction: { [weak self] in

@@ -32,9 +32,7 @@ class FakeUserWalletModel: UserWalletModel {
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
-    let walletModelsManager: WalletModelsManager
     var nftManager: NFTManager { NFTManagerStub() }
-    let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
     let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
@@ -60,10 +58,6 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -84,7 +78,7 @@ class FakeUserWalletModel: UserWalletModel {
         return nil
     }
 
-    var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
+    var tokensCount: Int? { 0 }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
@@ -104,8 +98,6 @@ class FakeUserWalletModel: UserWalletModel {
         self.config = config
         name = userWalletName
 
-        walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
-        userTokensManager = UserTokensManagerMock()
         totalBalanceProvider = TotalBalanceProviderMock()
         walletImageProvider = CardImageProvider(
             input: .init(
@@ -158,7 +150,6 @@ extension FakeUserWalletModel: AnalyticsContextDataProvider {
 
 extension FakeUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

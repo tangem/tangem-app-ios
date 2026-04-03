@@ -57,7 +57,7 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
         let destination = context.accountDestination(for: tokenItem)
 
         switch destination {
-        case .currentAccount, .noAccount:
+        case .currentAccount:
             output?.didEnterCustomDerivation(derivationPathText)
             coordinator?.closeDerivationPathWriter()
 

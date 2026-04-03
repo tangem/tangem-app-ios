@@ -18,7 +18,7 @@ final class AccountsAwareUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     weak var walletModelsManager: WalletModelsManager?
-    weak var derivationManager: DerivationManager?
+    weak var derivationManager: (DerivationManager & DerivationStatusProvider)?
 
     private let userWalletId: UserWalletId
     private let userTokensRepository: UserTokensRepository

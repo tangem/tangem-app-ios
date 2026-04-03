@@ -44,7 +44,7 @@ private extension CommonExpressDependenciesFactory {
     }
 
     func makeExpressDestinationService() -> ExpressDestinationService {
-        CommonExpressDestinationService(userWalletId: nil)
+        CommonExpressDestinationService()
     }
 
     func makeExpressRepository() -> ExpressRepository {
