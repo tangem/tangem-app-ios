@@ -200,9 +200,10 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func assertNetworkFeeChanged(from previousFee: String) -> Self {
         XCTContext.runActivity(named: "Assert network fee changed from '\(previousFee)'") { _ in
-            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
-            let currentFee = networkFeeAmount.label.trimmingCharacters(in: .whitespacesAndNewlines)
-            XCTAssertNotEqual(currentFee, previousFee, "Network fee should have changed")
+            let predicate = NSPredicate(format: "label != %@", previousFee)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: networkFeeAmount)
+            let result = XCTWaiter.wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Network fee should have changed from '\(previousFee)'")
         }
         return self
     }
