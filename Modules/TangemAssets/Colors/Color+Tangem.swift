@@ -86,7 +86,7 @@ public extension Color.Tangem.Button {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
     static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
-    static let backgroundPrimaryInverted: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
+    static let backgroundPrimaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundAccent: Color = Primitives.Blue.azure
     static let backgroundPositive: Color = Primitives.Green.eucalyptus
     static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
