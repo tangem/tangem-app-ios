@@ -101,7 +101,6 @@ extension WalletNetworkServiceFactory {
              .plasma,
              .decimal,
              .xdc,
-             .energyWebX,
              .rsk:
             return makeEthereumNetworkService(for: blockchain)
         case .bitcoinCash:
@@ -113,17 +112,17 @@ extension WalletNetworkServiceFactory {
         case .xrp:
             return makeXRPNetworkService(for: blockchain)
         case .tezos:
-            throw Error.notImplemeneted
+            return makeTezosNetworkService(for: blockchain)
         case .dogecoin:
             throw Error.notImplemeneted
         case .solana:
             return makeSolanaNetworkService(for: blockchain)
         case .polkadot:
-            throw Error.notImplemeneted
+            return makeSubstrateNetworkService(for: blockchain)
         case .kusama:
-            throw Error.notImplemeneted
+            return makeSubstrateNetworkService(for: blockchain)
         case .azero:
-            throw Error.notImplemeneted
+            return makeSubstrateNetworkService(for: blockchain)
         case .tron:
             return makeTronNetworkService(for: blockchain)
         case .dash:
@@ -137,9 +136,10 @@ extension WalletNetworkServiceFactory {
         case .cosmos,
              .terraV1,
              .terraV2,
-             .sei,
-             .ton:
-            throw Error.notImplemeneted
+             .sei:
+            return makeCosmosNetworkService(for: blockchain)
+        case .ton:
+            return makeTONNetworkService(for: blockchain)
         case .internetComputer:
             return makeICPNetworkService(for: blockchain)
         case .veChain:
@@ -157,9 +157,11 @@ extension WalletNetworkServiceFactory {
         case .radiant:
             throw Error.notImplemeneted
         case .joystream:
-            throw Error.notImplemeneted
+            return makeSubstrateNetworkService(for: blockchain)
         case .bittensor:
-            throw Error.notImplemeneted
+            return makeSubstrateNetworkService(for: blockchain)
+        case .energyWebX:
+            return makeSubstrateNetworkService(for: blockchain)
         case .koinos:
             return makeKoinosNetworkService(for: blockchain)
         case .sui:
@@ -263,6 +265,16 @@ private extension WalletNetworkServiceFactory {
             }
 
         return StellarNetworkService(providers: providers)
+    }
+
+    /// Tezos
+    func makeTezosNetworkService(for blockchain: Blockchain) -> TezosNetworkService {
+        let providers: [TezosJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                TezosJsonRpcProvider(nodeInfo: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return TezosNetworkService(providers: providers)
     }
 
     /// Solana
@@ -427,6 +439,63 @@ private extension WalletNetworkServiceFactory {
             providers: providers,
             blockchainDecimalValue: blockchain.decimalValue
         )
+    }
+
+    /// Cosmos Hub, Terra, Sei (Cosmos SDK REST)
+    func makeCosmosNetworkService(for blockchain: Blockchain) -> CosmosNetworkService {
+        let cosmosChain: CosmosChain
+        switch blockchain {
+        case .cosmos(let testnet):
+            cosmosChain = .cosmos(testnet: testnet)
+        case .terraV1:
+            cosmosChain = .terraV1
+        case .terraV2:
+            cosmosChain = .terraV2
+        case .sei(let isTestnet):
+            cosmosChain = .sei(testnet: isTestnet)
+        default:
+            preconditionFailure("makeCosmosNetworkService called for unsupported blockchain: \(blockchain)")
+        }
+
+        let providers: [CosmosRestProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                CosmosRestProvider(nodeInfo: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return CosmosNetworkService(cosmosChain: cosmosChain, providers: providers)
+    }
+
+    /// The Open Network (TON)
+    func makeTONNetworkService(for blockchain: Blockchain) -> TONNetworkService {
+        guard case .ton = blockchain else {
+            preconditionFailure("makeTONNetworkService called for unsupported blockchain: \(blockchain)")
+        }
+
+        let providers: [TONProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                TONProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
+            }
+
+        return TONNetworkService(providers: providers, blockchain: blockchain)
+    }
+
+    /// Substrate chains (Polkadot, Kusama, Aleph Zero, Joystream, Bittensor, Energy Web X)
+    func makeSubstrateNetworkService(for blockchain: Blockchain) -> PolkadotNetworkService {
+        guard let network = PolkadotNetwork(blockchain: blockchain) else {
+            preconditionFailure("makeSubstrateNetworkService called for unsupported blockchain: \(blockchain)")
+        }
+
+        var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                PolkadotJsonRpcProvider(node: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        let dwellirResolver = DwellirAPIResolver(keysConfig: blockchainSdkKeysConfig)
+        if let dwellirNodeInfo = dwellirResolver.resolve(for: blockchain) {
+            providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: tangemProviderConfig))
+        }
+
+        return PolkadotNetworkService(providers: providers, network: network)
     }
 }
 
