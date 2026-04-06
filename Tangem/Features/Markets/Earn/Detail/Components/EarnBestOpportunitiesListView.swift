@@ -21,10 +21,18 @@ struct EarnBestOpportunitiesListView: View {
     let hasActiveFilters: Bool
     let clearFilterAction: (() -> Void)?
 
+    private var backgroundColor: Color {
+        isRedesignEnabled ? .Tangem.Surface.level3 : .Tangem.Surface.level4
+    }
+
+    private var isRedesignEnabled: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
+
     var body: some View {
         rootView
             .defaultRoundedBackground(
-                with: Color.Tangem.Surface.level4,
+                with: backgroundColor,
                 verticalPadding: Layout.innerContentPadding,
                 horizontalPadding: Layout.innerContentPadding
             )
@@ -45,7 +53,24 @@ struct EarnBestOpportunitiesListView: View {
         }
     }
 
+    @ViewBuilder
     private var loadingSkeletons: some View {
+        if isRedesignEnabled {
+            loadingSkeletonsRedesign
+        } else {
+            loadingSkeletonsLegacy
+        }
+    }
+
+    private var loadingSkeletonsRedesign: some View {
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 8) { _ in
+                MarketTokenRowSkeletonView()
+            }
+        }
+    }
+
+    private var loadingSkeletonsLegacy: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< 5) { _ in
                 MarketsSkeletonItemView()
@@ -56,7 +81,11 @@ struct EarnBestOpportunitiesListView: View {
     private var opportunitiesList: some View {
         LazyVStack(spacing: Layout.itemSpacing) {
             ForEach(tokenViewModels) { viewModel in
-                EarnTokenItemView(viewModel: viewModel)
+                if FeatureProvider.isAvailable(.redesign) {
+                    EarnTokenItemViewRedesign(viewModel: viewModel)
+                } else {
+                    EarnTokenItemView(viewModel: viewModel)
+                }
             }
 
             paginationFooter
@@ -125,10 +154,19 @@ struct EarnBestOpportunitiesListView: View {
     }
 
     private var errorView: some View {
-        UnableToLoadDataView(
-            isButtonBusy: false,
-            retryButtonAction: retryAction
-        )
+        Group {
+            if isRedesignEnabled {
+                TangemUnableToLoadDataView(
+                    isButtonBusy: false,
+                    retryButtonAction: retryAction
+                )
+            } else {
+                UnableToLoadDataView(
+                    isButtonBusy: false,
+                    retryButtonAction: retryAction
+                )
+            }
+        }
         .infinityFrame(axis: .horizontal, alignment: .center)
         .frame(height: Layout.defaultMaxHeight)
     }
