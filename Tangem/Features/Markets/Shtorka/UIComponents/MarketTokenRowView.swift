@@ -134,7 +134,7 @@ struct MarketTokenRowView: View {
         let colors = rankColors(for: rank)
 
         return HStack(alignment: .center, spacing: .zero) {
-            Assets.Markets.oliveLeft.image
+            Assets.DesignSystem.oliveLeft.image
                 .resizable()
                 .renderingMode(.template)
                 .frame(size: oliveSize)
@@ -143,7 +143,7 @@ struct MarketTokenRowView: View {
             Text(rating)
                 .style(.Tangem.Caption12.semibold, color: colors.textColor)
 
-            Assets.Markets.oliveRight.image
+            Assets.DesignSystem.oliveRight.image
                 .resizable()
                 .renderingMode(.template)
                 .frame(size: oliveSize)
