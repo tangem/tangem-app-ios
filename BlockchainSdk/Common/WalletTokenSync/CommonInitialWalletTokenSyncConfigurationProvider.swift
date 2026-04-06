@@ -21,7 +21,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
         switch blockchain {
         case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper,
              .cosmos, .terraV1, .terraV2, .sei, .ton,
-             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp:
+             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron:
             return true
         default:
             return false
@@ -95,6 +95,10 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
             ).configuration(for: blockchain, address: address)
         case .xrp:
             return try await XRPInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .tron:
+            return try await TronInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
             ).configuration(for: blockchain, address: address)
         default:

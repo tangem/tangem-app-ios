@@ -99,6 +99,32 @@ class TronNetworkService: MultiNetworkProvider {
         }
     }
 
+    func getAccountInfoByAddress(_ address: String) -> AnyPublisher<TronAccountInfoByAddress, Error> {
+        providerPublisher {
+            $0.getAccountInfoByAddress(address)
+        }
+        .map { [blockchain] response in
+            let account = response.data.first
+            let balance = Decimal(account?.balance ?? 0) / blockchain.decimalValue
+
+            let tokenBalances = account?.trc20?.reduce(into: [String: Decimal]()) { result, balancesByContract in
+                for (contractAddress, rawBalance) in balancesByContract {
+                    guard let balance = Decimal(string: rawBalance) else {
+                        continue
+                    }
+
+                    result[contractAddress, default: .zero] += balance
+                }
+            } ?? [:]
+
+            return TronAccountInfoByAddress(
+                balance: balance,
+                tokenBalances: tokenBalances
+            )
+        }
+        .eraseToAnyPublisher()
+    }
+
     func accountExists(address: String) -> AnyPublisher<Bool, Error> {
         providerPublisher {
             $0.getAccount(for: address)
