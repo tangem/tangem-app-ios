@@ -19,7 +19,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
 
     public func canHandle(_ blockchain: Blockchain) -> Bool {
         switch blockchain {
-        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper:
+        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper, .xrp:
             return true
         default:
             return false
@@ -77,6 +77,10 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
             ).configuration(for: blockchain, address: address)
         case .casper:
             return try await CasperInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .xrp:
+            return try await XRPInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
             ).configuration(for: blockchain, address: address)
         default:
