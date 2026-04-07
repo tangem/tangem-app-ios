@@ -29,7 +29,17 @@ struct HighPriceImpactCalculator {
             return nil
         }
 
-        let sourceAmountUsd = resolveUsdAmount(cryptoAmount: input.sourceAmount, currencyId: sourceCurrencyId, fiatAmount: sourceFiatAmount)
+        let sourceAmountUsd = resolveUsdAmount(
+            cryptoAmount: input.sourceAmount,
+            currencyId: sourceCurrencyId,
+            fiatAmount: sourceFiatAmount
+        )
+
+        let destinationAmountUsd = resolveUsdAmount(
+            cryptoAmount: input.destinationAmount,
+            currencyId: destinationCurrencyId,
+            fiatAmount: destinationFiatAmount
+        )
 
         let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount)
         let formatted = percentFormatter.format(-lossesInPercents, option: .express)
@@ -37,7 +47,7 @@ struct HighPriceImpactCalculator {
         let level: Level = if isExempt(sourceAmountUsd: sourceAmountUsd) {
             .negligible
         } else {
-            determineLevel(lossesInPercents: lossesInPercents, sourceAmountUsd: sourceAmountUsd)
+            determineLevel(lossesInPercents: lossesInPercents, sourceAmountUsd: sourceAmountUsd, destinationAmountUsd: destinationAmountUsd)
         }
 
         return Result(
@@ -67,9 +77,14 @@ struct HighPriceImpactCalculator {
         return sourceUsd <= Constants.exemptionUsdThreshold
     }
 
-    /// When `sourceAmountUsd` is `nil` (no USD rate), the blocking level is never returned.
-    private func determineLevel(lossesInPercents: Decimal, sourceAmountUsd: Decimal?) -> Level {
+    private func determineLevel(lossesInPercents: Decimal, sourceAmountUsd: Decimal?, destinationAmountUsd: Decimal?) -> Level {
         if lossesInPercents < Constants.warningLimit {
+            // Even below 10%, treat as warning when the absolute USD difference exceeds the threshold
+            if let sourceUsd = sourceAmountUsd,
+               let destUsd = destinationAmountUsd,
+               (sourceUsd - destUsd) >= Constants.highAbsoluteLossUsdThreshold {
+                return .warningLoss
+            }
             return .negligible
         }
 
@@ -149,6 +164,8 @@ private extension HighPriceImpactCalculator {
         static let blockSourceUsdThreshold: Decimal = 5000
         /// Skip warning/blocking when the relevant USD amount is at or below this
         static let exemptionUsdThreshold: Decimal = 25
+        /// Show warning when absolute USD loss exceeds this, even if percentage is below warningLimit
+        static let highAbsoluteLossUsdThreshold: Decimal = 100_000
     }
 }
 
