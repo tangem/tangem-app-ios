@@ -44,10 +44,20 @@ extension WalletNetworkServiceFactory {
 
     func makeService(for blockchain: Blockchain) throws -> any MultiNetworkProvider {
         switch blockchain {
-        case .bitcoin:
-            throw Error.notImplemeneted
-        case .litecoin:
-            throw Error.notImplemeneted
+        case .bitcoin,
+             .litecoin,
+             .bitcoinCash,
+             .dogecoin,
+             .dash,
+             .ravencoin,
+             .ducatus,
+             .radiant,
+             .clore,
+             .fact0rn,
+             .pepecoin:
+            return try makeUTXONetworkService(for: blockchain)
+        case .kaspa:
+            return try makeKaspaNetworkService(for: blockchain)
         case .stellar:
             return makeStellarNetworkService(for: blockchain)
         case .ethereum,
@@ -103,8 +113,6 @@ extension WalletNetworkServiceFactory {
              .xdc,
              .rsk:
             return makeEthereumNetworkService(for: blockchain)
-        case .bitcoinCash:
-            throw Error.notImplemeneted
         case .binance:
             throw Error.notImplemeneted
         case .cardano:
@@ -113,31 +121,23 @@ extension WalletNetworkServiceFactory {
             return makeXRPNetworkService(for: blockchain)
         case .tezos:
             return makeTezosNetworkService(for: blockchain)
-        case .dogecoin:
-            throw Error.notImplemeneted
         case .solana:
             return makeSolanaNetworkService(for: blockchain)
         case .polkadot:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .kusama:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .azero:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .tron:
             return makeTronNetworkService(for: blockchain)
-        case .dash:
-            throw Error.notImplemeneted
-        case .kaspa:
-            throw Error.notImplemeneted
-        case .ravencoin:
-            throw Error.notImplemeneted
         case .algorand:
             return makeAlgorandNetworkService(for: blockchain)
         case .cosmos,
              .terraV1,
              .terraV2,
              .sei:
-            return makeCosmosNetworkService(for: blockchain)
+            return try makeCosmosNetworkService(for: blockchain)
         case .ton:
             return makeTONNetworkService(for: blockchain)
         case .internetComputer:
@@ -146,22 +146,18 @@ extension WalletNetworkServiceFactory {
             return makeVeChainNetworkService(for: blockchain)
         case .aptos:
             return makeAptosNetworkService(for: blockchain)
-        case .ducatus:
-            throw Error.notImplemeneted
         case .chia:
             throw Error.notImplemeneted
         case .near:
             return makeNEARNetworkService(for: blockchain)
         case .hedera:
             throw Error.notImplemeneted
-        case .radiant:
-            throw Error.notImplemeneted
         case .joystream:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .bittensor:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .energyWebX:
-            return makeSubstrateNetworkService(for: blockchain)
+            return try makeSubstrateNetworkService(for: blockchain)
         case .koinos:
             return makeKoinosNetworkService(for: blockchain)
         case .sui:
@@ -170,14 +166,8 @@ extension WalletNetworkServiceFactory {
             return makeFilecoinNetworkService(for: blockchain)
         case .casper:
             return makeCasperNetworkService(for: blockchain)
-        case .clore:
-            throw Error.notImplemeneted
-        case .fact0rn:
-            throw Error.notImplemeneted
         case .alephium:
-            throw Error.notImplemeneted
-        case .pepecoin:
-            throw Error.notImplemeneted
+            return makeAlephiumNetworkService(for: blockchain)
         }
     }
 
@@ -425,6 +415,19 @@ private extension WalletNetworkServiceFactory {
         return FilecoinNetworkService(providers: providers)
     }
 
+    /// Alephium
+    func makeAlephiumNetworkService(for blockchain: Blockchain) -> AlephiumNetworkService {
+        let providers: [AlephiumNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                AlephiumNetworkProvider(
+                    node: nodeInfo,
+                    networkConfig: tangemProviderConfig
+                )
+            }
+
+        return AlephiumNetworkService(providers: providers)
+    }
+
     /// Casper
     func makeCasperNetworkService(for blockchain: Blockchain) -> CasperNetworkService {
         let providers: [CasperNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
@@ -442,7 +445,7 @@ private extension WalletNetworkServiceFactory {
     }
 
     /// Cosmos Hub, Terra, Sei (Cosmos SDK REST)
-    func makeCosmosNetworkService(for blockchain: Blockchain) -> CosmosNetworkService {
+    func makeCosmosNetworkService(for blockchain: Blockchain) throws -> CosmosNetworkService {
         let cosmosChain: CosmosChain
         switch blockchain {
         case .cosmos(let testnet):
@@ -454,7 +457,7 @@ private extension WalletNetworkServiceFactory {
         case .sei(let isTestnet):
             cosmosChain = .sei(testnet: isTestnet)
         default:
-            preconditionFailure("makeCosmosNetworkService called for unsupported blockchain: \(blockchain)")
+            throw BlockchainSdkError.notImplemented
         }
 
         let providers: [CosmosRestProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
@@ -467,10 +470,6 @@ private extension WalletNetworkServiceFactory {
 
     /// The Open Network (TON)
     func makeTONNetworkService(for blockchain: Blockchain) -> TONNetworkService {
-        guard case .ton = blockchain else {
-            preconditionFailure("makeTONNetworkService called for unsupported blockchain: \(blockchain)")
-        }
-
         let providers: [TONProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
             .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
                 TONProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
@@ -480,9 +479,9 @@ private extension WalletNetworkServiceFactory {
     }
 
     /// Substrate chains (Polkadot, Kusama, Aleph Zero, Joystream, Bittensor, Energy Web X)
-    func makeSubstrateNetworkService(for blockchain: Blockchain) -> PolkadotNetworkService {
+    func makeSubstrateNetworkService(for blockchain: Blockchain) throws -> PolkadotNetworkService {
         guard let network = PolkadotNetwork(blockchain: blockchain) else {
-            preconditionFailure("makeSubstrateNetworkService called for unsupported blockchain: \(blockchain)")
+            throw BlockchainSdkError.notImplemented
         }
 
         var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
@@ -496,6 +495,93 @@ private extension WalletNetworkServiceFactory {
         }
 
         return PolkadotNetworkService(providers: providers, network: network)
+    }
+
+    func makeUTXONetworkService(for blockchain: Blockchain) throws -> any MultiNetworkProvider {
+        let input = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        )
+
+        let utxoFactory = UTXONetworkProvidersFactory()
+
+        switch blockchain {
+        case .bitcoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return BitcoinNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .litecoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return LitecoinNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .bitcoinCash:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return BitcoinCashNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .dogecoin,
+             .dash,
+             .ravencoin,
+             .ducatus,
+             .radiant,
+             .clore,
+             .fact0rn,
+             .pepecoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return MultiUTXONetworkProvider(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        default:
+            throw BlockchainSdkError.notImplemented
+        }
+    }
+
+    func makeKaspaNetworkService(for blockchain: Blockchain) throws -> KaspaNetworkService {
+        let input = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        )
+
+        let providers = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+                KaspaNetworkProvider(
+                    url: nodeInfo.url,
+                    isTestnet: blockchain.isTestnet,
+                    networkConfiguration: tangemProviderConfig
+                )
+            }
+
+        guard !providers.isEmpty else {
+            throw BlockchainSdkError.noAPIInfo
+        }
+
+        return KaspaNetworkService(providers: providers)
     }
 }
 
