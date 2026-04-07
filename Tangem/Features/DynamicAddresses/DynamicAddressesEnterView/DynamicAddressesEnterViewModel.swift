@@ -62,7 +62,8 @@ private extension DynamicAddressesEnterViewModel {
     func enableDynamicAddresses() async {
         do {
             try await dynamicAddressesManager.enableDynamicAddresses()
-            walletModelUpdater.startUpdateTask(silent: true)
+            walletModelUpdater.setNeedsUpdate()
+            walletModelUpdater.startUpdateTask(silent: false)
 
             await MainActor.run {
                 mainButtonIsLoading = false
@@ -76,11 +77,7 @@ private extension DynamicAddressesEnterViewModel {
     }
 
     private func setupView() {
-        guard case .disabled(let derivationIsNeeded) = dynamicAddressesManager.state else {
-            return
-        }
-
-        mainButtonIcon = derivationIsNeeded ? .trailing(Assets.tangemIcon) : nil
+        mainButtonIcon = dynamicAddressesManager.derivationIsNeededToEnabled ? .trailing(Assets.tangemIcon) : nil
     }
 
     func dismiss(isSuccess: Bool) {

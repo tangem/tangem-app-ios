@@ -48,4 +48,5 @@ struct DynamicAddressesWalletUpdater {
 
 enum DynamicAddressesWalletUpdaterError: LocalizedError {
     case plainHDKeyNotFound
+    case xpubHDKeyNotFound
 }

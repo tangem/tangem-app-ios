@@ -18,4 +18,5 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory)
     func openDynamicAddressesEnterView(dynamicAddressesManager: DynamicAddressesManager, walletModelUpdater: WalletModelUpdater)
     func openDynamicAddressesUnavailableSheet()
+    func openDynamicAddressesDisableSheet(dynamicAddressesManager: DynamicAddressesManager, walletModelUpdater: WalletModelUpdater)
 }

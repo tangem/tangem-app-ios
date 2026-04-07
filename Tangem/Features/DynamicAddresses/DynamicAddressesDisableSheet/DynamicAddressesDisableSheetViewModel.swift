@@ -47,6 +47,7 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     private func confirm() {
         do {
             try dynamicAddressesManager.disableDynamicAddresses()
+            walletModelUpdater.setNeedsUpdate()
             walletModelUpdater.startUpdateTask(silent: false)
             close()
         } catch {
