@@ -61,6 +61,8 @@ final class ApproveFlowViewModel: ObservableObject, FloatingSheetContentViewMode
 
         self.approveViewModel.setCoordinator(self)
         bind()
+
+        interactor.logPermissionScreenOpened()
     }
 }
 

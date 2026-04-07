@@ -441,6 +441,27 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
 // MARK: - SendApproveAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logPermissionScreenOpened(isRevoke: Bool) {
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            params[.receiveToken] = receive.tokenItem.currencySymbol
+            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+            params[.provider] = provider.provider.name
+        }
+
+        let event: Analytics.Event = isRevoke ? .swapPermissionUpdateScreenOpened : .swapPermissionScreenOpened
+        Analytics.log(event: event, params: params)
+    }
+
     func logSwapButtonPermissionApprove(policy: ApprovePolicy) {
         guard let sourceTokenItem else {
             return
