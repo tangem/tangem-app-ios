@@ -47,7 +47,7 @@ enum SwapNotificationEvent: Hashable {
     case longTimeAverageDuration
 
     /// High price impact warning/block banner
-    case highPriceImpactWarning(level: HighPriceImpactCalculator.Level)
+    case highPriceImpactWarning(level: HighPriceImpactCalculator.Level, analyticsParams: [Analytics.ParameterKey: String])
 }
 
 extension SwapNotificationEvent: NotificationEvent {
@@ -89,11 +89,11 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.swappingInsufficientFunds)
         case .longTimeAverageDuration:
             return .string(Localization.expressExchangeNotificationLongTransactionTimeTitle)
-        case .highPriceImpactWarning(.negligible):
+        case .highPriceImpactWarning(.negligible, _):
             return nil // Filtered out in SwapNotificationManager, kept for exhaustiveness
-        case .highPriceImpactWarning(.warningLoss):
+        case .highPriceImpactWarning(.warningLoss, _):
             return .string(Localization.swappingHighPriceImpactTitle)
-        case .highPriceImpactWarning(.highLossLowAmount), .highPriceImpactWarning(.highLossHighAmount):
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .string(Localization.swappingTradeTooLargeTitle)
         }
     }
@@ -139,11 +139,11 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.swappingInsufficientFundsDescription
         case .longTimeAverageDuration:
             return Localization.expressExchangeNotificationLongTransactionTimeText
-        case .highPriceImpactWarning(.negligible):
+        case .highPriceImpactWarning(.negligible, _):
             return nil // Filtered out in SwapNotificationManager, kept for exhaustiveness
-        case .highPriceImpactWarning(.warningLoss):
+        case .highPriceImpactWarning(.warningLoss, _):
             return Localization.swappingHighPriceImpactText
-        case .highPriceImpactWarning(.highLossLowAmount), .highPriceImpactWarning(.highLossHighAmount):
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return Localization.swappingTradeTooLargeText
         }
     }
@@ -158,10 +158,10 @@ extension SwapNotificationEvent: NotificationEvent {
              .unsupportedPair,
              .feeWillBeSubtractFromSendingAmount,
              .notEnoughBalanceForSwapping,
-             .highPriceImpactWarning(.negligible), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss):
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .secondary
-        case .highPriceImpactWarning(.highLossLowAmount), .highPriceImpactWarning(.highLossHighAmount):
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .action
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
@@ -189,11 +189,10 @@ extension SwapNotificationEvent: NotificationEvent {
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
              .longTimeAverageDuration,
-             .highPriceImpactWarning(.negligible), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss):
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .init(iconType: .image(Assets.attention))
-        case .highPriceImpactWarning(.highLossLowAmount),
-             .highPriceImpactWarning(.highLossHighAmount):
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .init(iconType: .image(Assets.redCircleWarning))
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
@@ -233,11 +232,11 @@ extension SwapNotificationEvent: NotificationEvent {
              .unsupportedPair,
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping,
-             .highPriceImpactWarning(.negligible), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss):
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .warning
-        case .highPriceImpactWarning(.highLossLowAmount),
-             .highPriceImpactWarning(.highLossHighAmount):
+        case .highPriceImpactWarning(.highLossLowAmount, _),
+             .highPriceImpactWarning(.highLossHighAmount, _):
             return .critical
         case .refreshRequired,
              .cexOperationFailed:
@@ -304,6 +303,10 @@ extension SwapNotificationEvent {
             .swapNoticeExpressError
         case .permissionNeeded:
             .swapNoticePermissionNeeded
+        case .highPriceImpactWarning(.warningLoss, _):
+            .swapNoticeHighPriceImpact
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            .swapNoticeTradeTooLarge
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -318,6 +321,8 @@ extension SwapNotificationEvent {
             params
         case .permissionNeeded(_, _, let params):
             params
+        case .highPriceImpactWarning(_, let params):
+            params
         default:
             [:]
         }
@@ -325,7 +330,7 @@ extension SwapNotificationEvent {
 
     var isOneShotAnalyticsEvent: Bool {
         switch self {
-        case .permissionNeeded:
+        case .permissionNeeded, .highPriceImpactWarning:
             return true
         default:
             return false

@@ -215,7 +215,8 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
             input: swapModel,
             output: swapModel,
             sourceTokenInput: swapModel,
-            receiveTokenInput: swapModel
+            receiveTokenInput: swapModel,
+            receiveTokenAmountInput: swapModel
         )
     }
 
