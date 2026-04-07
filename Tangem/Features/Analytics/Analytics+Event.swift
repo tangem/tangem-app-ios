@@ -316,6 +316,8 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+        case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
+        case swapNoticeTradeTooLarge = "[Swap] Notice - Trade Too Large"
         case swapPermissionScreenOpened = "[Swap] Permission Screen Opened"
         case swapPermissionUpdateScreenOpened = "[Swap] Permission Update Screen Opened"
 
