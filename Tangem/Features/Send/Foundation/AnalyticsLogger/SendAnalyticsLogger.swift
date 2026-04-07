@@ -93,6 +93,7 @@ extension SendManagementModelAnalyticsLogger {
 // MARK: - SendApproveAnalyticsLogger
 
 protocol SendApproveAnalyticsLogger {
+    func logPermissionScreenOpened(isRevoke: Bool)
     func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy)
     func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String)
 }

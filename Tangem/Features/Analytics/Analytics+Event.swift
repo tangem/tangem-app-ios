@@ -316,6 +316,8 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+        case swapPermissionScreenOpened = "[Swap] Permission Screen Opened"
+        case swapPermissionUpdateScreenOpened = "[Swap] Permission Update Screen Opened"
 
         case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
@@ -466,6 +468,7 @@ extension Analytics {
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
+        case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
 
         // MARK: - Markets
 
