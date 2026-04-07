@@ -151,6 +151,97 @@ struct HighPriceImpactCalculatorTests {
         #expect(result?.level == .warningLoss)
     }
 
+    // MARK: - $100K absolute loss threshold
+
+    @Test("Loss below 10% but absolute USD diff > $100K triggers warningLoss")
+    func lowPercentHighAbsoluteLossTriggersWarning() async throws {
+        // 5% loss, source = $2,100,000, dest = $1,995,000 → diff = $105,000 > $100K
+        let (sut, input, teardown) = makeSUT(sourceAmount: 2_100_000, destinationAmount: 1_995_000)
+        defer { teardown() }
+
+        let result = try await sut.calculate(input: input)
+
+        #expect(result != nil)
+        #expect(result?.level == .warningLoss)
+    }
+
+    @Test("Loss below 10% and absolute USD diff < $100K stays negligible")
+    func lowPercentLowAbsoluteLossStaysNegligible() async throws {
+        // ~8.6% loss, source = $1,100,000, dest = $1,005,000 → diff = $95,000 < $100K
+        let (sut, input, teardown) = makeSUT(sourceAmount: 1_100_000, destinationAmount: 1_005_000)
+        defer { teardown() }
+
+        let result = try await sut.calculate(input: input)
+
+        #expect(result != nil)
+        #expect(result?.level == .negligible)
+    }
+
+    @Test("Loss below 10%, absolute USD diff exactly $100K triggers warningLoss (threshold is inclusive)")
+    func exactThresholdBoundaryTriggersWarning() async throws {
+        // ~4.76% loss, source = $2,100,000, dest = $2,000,000 → diff = exactly $100,000
+        let (sut, input, teardown) = makeSUT(sourceAmount: 2_100_000, destinationAmount: 2_000_000)
+        defer { teardown() }
+
+        let result = try await sut.calculate(input: input)
+
+        #expect(result != nil)
+        #expect(result?.level == .warningLoss)
+    }
+
+    @Test("Loss below 10%, absolute USD diff > $100K, but no priceUsd — stays negligible")
+    func lowPercentHighAbsoluteLossNoPriceUsdStaysNegligible() async throws {
+        let sourceCurrencyId = "source-token"
+        let destCurrencyId = "dest-token"
+
+        let previousCurrency = AppSettings.shared.selectedCurrencyCode
+        AppSettings.shared.selectedCurrencyCode = "EUR"
+
+        let quotes: Quotes = [
+            sourceCurrencyId: TokenQuote(
+                currencyId: sourceCurrencyId,
+                price: 0.92,
+                priceUsd: nil,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: "EUR"
+            ),
+            destCurrencyId: TokenQuote(
+                currencyId: destCurrencyId,
+                price: 0.92,
+                priceUsd: nil,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: "EUR"
+            ),
+        ]
+
+        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
+        defer {
+            AppSettings.shared.selectedCurrencyCode = previousCurrency
+            InjectedValues.setTokenQuotesRepository(previousRepo)
+        }
+
+        // 5% loss, source = 2,100,000 EUR, dest = 1,995,000 EUR → diff > $100K equivalent
+        // but no priceUsd → can't determine USD amounts → stays negligible
+        let input = HighPriceImpactCalculator.Input(
+            provider: makeDexProvider(),
+            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
+            destinationToken: makeTokenItem(currencyId: destCurrencyId),
+            sourceAmount: 2_100_000,
+            destinationAmount: 1_995_000
+        )
+
+        let result = try await HighPriceImpactCalculator().calculate(input: input)
+
+        #expect(result != nil)
+        #expect(result?.level == .negligible)
+    }
+
+    // MARK: - Non-USD currency tests
+
     @Test("Non-USD currency with priceUsd present still blocks on highLossHighAmount")
     func nonUsdCurrencyWithPriceUsdBlocksHighLoss() async throws {
         let sourceCurrencyId = "source-token"
