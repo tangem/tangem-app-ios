@@ -63,8 +63,11 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { reader in
             GroupedScrollView(contentType: .lazy(spacing: 8)) {
-                Color.clear.frame(height: 0).id(Constants.scrollToTopAnchorID)
-                content().animation(.contentFrameUpdate, value: viewModel.contentVisibility)
+                Color.clear.frame(height: 0)
+                    .id(Constants.scrollToTopAnchorID)
+
+                content()
+                    .animation(.contentFrameUpdate, value: viewModel.contentVisibility)
             }
             .onChange(of: viewModel.scrollToTopTrigger) { _ in
                 withAnimation {
