@@ -27,6 +27,13 @@ class CommonStakingSendAnalyticsLogger {
 // MARK: - SendApproveAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logPermissionScreenOpened(isRevoke: Bool) {
+        Analytics.log(event: .stakingPermissionScreenOpened, params: [
+            .sendToken: tokenItem.currencySymbol,
+            .sendBlockchain: tokenItem.blockchain.displayName,
+        ])
+    }
+
     func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy) {
         Analytics.log(event: .swapButtonPermissionApprove, params: [
             .sendToken: tokenItem.currencySymbol,
