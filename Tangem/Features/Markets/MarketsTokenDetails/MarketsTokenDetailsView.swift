@@ -88,6 +88,11 @@ struct MarketsTokenDetailsView: View {
                 navigationBar
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            if viewModel.isRedesignEnabled {
+                MarketsTokenDetailsPortfolioBannerView(viewModel: viewModel.portfolioBannerViewModel)
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
     }
 

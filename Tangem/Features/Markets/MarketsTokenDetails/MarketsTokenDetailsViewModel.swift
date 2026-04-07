@@ -67,6 +67,11 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private(set) var tokenNewsItems: [CarouselNewsItem] = []
 
+    lazy var portfolioBannerViewModel = MarketsTokenDetailsPortfolioBannerViewModel(
+        tokenInfo: tokenInfo,
+        walletDataProvider: walletDataProvider
+    )
+
     private var loadedNewsIds: [Int] = []
 
     var isAvailableNews: Bool {
