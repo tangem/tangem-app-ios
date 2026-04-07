@@ -38,7 +38,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
-            portfolioView
+            portfolioView // remove
                 .padding(.horizontal, Constants.contentHorizontalPadding)
                 .padding(.top, hasShortDescription ? 0 : Constants.contentVerticalSpacing)
 
