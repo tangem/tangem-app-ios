@@ -17,6 +17,7 @@ public struct TangemSegmentedPickerShowcase: View {
 
     @State private var style: TangemSegmentedPickerStyle = .fixed
     @State private var showSeparators: Bool = true
+    @State private var isDisabled: Bool = false
 
     struct Item: TangemSegmentedPickerTextProvider {
         let id = UUID()
@@ -74,6 +75,7 @@ public struct TangemSegmentedPickerShowcase: View {
             }
 
             Toggle("Show separators", isOn: $showSeparators)
+            Toggle("Disabled", isOn: $isDisabled)
 
             HStack {
                 Text("Color scheme")
@@ -109,6 +111,7 @@ public struct TangemSegmentedPickerShowcase: View {
             TangemSegmentedPicker(data: items, selection: $selectedItem)
                 .showSeparators(showSeparators)
                 .style(style)
+                .disabled(isDisabled)
         }
     }
 }

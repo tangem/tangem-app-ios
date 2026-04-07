@@ -192,6 +192,26 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var header: some View {
+        if viewModel.isRedesignEnabled {
+            headerRedesign
+        } else {
+            headerLegacy
+        }
+    }
+
+    private var headerRedesign: some View {
+        MarketsTokenDetailsHeaderView(
+            tokenName: viewModel.tokenName,
+            tokenSymbol: viewModel.tokenSymbol,
+            price: viewModel.attributedPrice,
+            priceDate: viewModel.priceDate,
+            priceChangeState: viewModel.priceChangeState,
+            priceChangeAnimation: viewModel.$priceChangeAnimation,
+            iconURL: viewModel.iconURL
+        )
+    }
+
+    private var headerLegacy: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
                 if let price = viewModel.price {
@@ -238,10 +258,10 @@ struct MarketsTokenDetailsView: View {
             marketPriceIntervalType: $viewModel.selectedPriceChangeIntervalType,
             options: viewModel.priceChangeIntervalOptions,
             shouldStretchToFill: true,
-            isDisabled: viewModel.isLoading && !viewModel.allDataLoadFailed,
             style: .init(textVerticalPadding: 4),
             titleFactory: { $0.tokenDetailsNameLocalized }
         )
+        .disabled(viewModel.isLoading && !viewModel.allDataLoadFailed)
     }
 
     @ViewBuilder
