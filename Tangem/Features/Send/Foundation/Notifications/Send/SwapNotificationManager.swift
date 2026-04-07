@@ -208,7 +208,7 @@ private extension CommonSwapNotificationManager {
             var events: [SwapNotificationEvent] = []
 
             if let hpi = previewCEX.quote.highPriceImpact, !hpi.level.isNegligible {
-                events.append(.highPriceImpactWarning(level: hpi.level))
+                events.append(.highPriceImpactWarning(level: hpi.level, analyticsParams: analyticsParams))
             }
 
             if previewCEX.subtractFee.subtractFee > 0 {
@@ -240,7 +240,7 @@ private extension CommonSwapNotificationManager {
             var events: [SwapNotificationEvent] = []
 
             if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
-                events.append(.highPriceImpactWarning(level: hpi.level))
+                events.append(.highPriceImpactWarning(level: hpi.level, analyticsParams: analyticsParams))
             }
 
             return events
