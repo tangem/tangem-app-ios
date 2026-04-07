@@ -854,7 +854,8 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
 
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _sourceAmount)
-            .map(mapToAmountResult)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
