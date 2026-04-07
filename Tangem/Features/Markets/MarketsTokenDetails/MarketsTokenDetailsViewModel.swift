@@ -23,7 +23,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     /// Using a static set ensures the event is only logged once per app session per token.
     private static var loggedNewsCarouselScrolledTokenIds: Set<String> = []
 
-    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var isLoading = true
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
@@ -75,11 +75,17 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var price: String? { priceInfo?.price }
 
+    var attributedPrice: AttributedString? {
+        price.map { priceHelper.makeAttributedPrice(price: $0) }
+    }
+
     var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
     var descriptionCanBeShowed: Bool { !ukGeoDefiner.isUK }
+
+    var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -105,6 +111,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     var tokenName: String
+    var tokenSymbol: String
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -167,6 +174,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
+        tokenSymbol = tokenInfo.symbol
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -360,6 +368,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if tokenName.isEmpty {
             tokenName = model.name
+            tokenSymbol = model.symbol
         }
 
         state = .loaded(model: model)
@@ -400,7 +409,7 @@ private extension MarketsTokenDetailsViewModel {
             }
             .map(\.1)
             .withPrevious()
-            .map(ForegroundBlinkAnimationModifier.Change.calculateChange(from:to:))
+            .map(ForegroundBlinkAnimationChange.calculateChange(from:to:))
             .assign(to: \.priceChangeAnimation, on: self, ownership: .weak)
             .store(in: &bag)
 
