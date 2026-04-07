@@ -399,6 +399,8 @@
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
 "dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses_disable_description" = "You are turning off Dynamic Addresses. Funds will now be received on your fixed address.";
+"dynamic_addresses_disable_title" = "Disable dynamic addresses";
 "dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Best opportunities";
 "earn_clear_filter" = "Clear filter";
