@@ -106,15 +106,7 @@ extension SwapModel {
 
             if let self, let quote = result.selected?.getState().quote {
                 let amountType = await manager.getAmountType()
-
-                switch amountType {
-                case .from:
-                    _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
-                case .to:
-                    _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
-                case .none:
-                    break
-                }
+                sendComplementaryAmount(for: amountType, quote: quote)
             }
 
             return result
@@ -276,28 +268,34 @@ extension SwapModel {
         )
 
         if let quote = result.selected?.getState().quote {
-            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId))
+            sendComplementaryAmount(for: amountType, quote: quote)
         }
 
         return result
     }
 
     /// Determines whether to use forward (FROM→TO) or reverse (TO→FROM) calculation after a pair change.
-    /// Falls back to forward if the selected provider doesn't support the current fixed rate mode.
+    /// Preserves the current direction. Falls back to forward if the selected provider
+    /// doesn't support the current fixed rate mode.
     private func resolveAmountTypeAfterPairChange(
         pairResult: ExpressManagerUpdatingResult,
         receiveAmount: Decimal
     ) async -> ExpressAmountType {
-        let isFixedRateSupported = pairResult.selected?.supportedRateTypes.contains(.fixed) ?? false
+        switch await expressManager.getAmountType() {
+        case .from(let sourceAmount):
+            return .from(sourceAmount)
 
-        if !isFixedRateSupported,
-           let currentAmountType = await expressManager.getAmountType(),
-           currentAmountType.rateType == .fixed,
-           let sourceAmount = _sourceAmount.value?.crypto {
+        case .to where pairResult.selected?.supportedRateTypes.contains(.fixed) == true:
+            return .to(receiveAmount)
+
+        case .to, .none:
+            // Fixed not supported by new provider, or no previous amount type — fall back to float
+            guard let sourceAmount = _sourceAmount.value?.crypto else {
+                assertionFailure("Source amount should exist when receive amount exists")
+                return .to(receiveAmount)
+            }
             return .from(sourceAmount)
         }
-
-        return .to(receiveAmount)
     }
 
     func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
@@ -601,6 +599,17 @@ extension SwapModel {
             return .validationError(error: .destinationMemoRequired)
         default:
             return nil
+        }
+    }
+
+    func sendComplementaryAmount(for amountType: ExpressAmountType?, quote: ExpressQuote) {
+        switch amountType {
+        case .from:
+            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
+        case .to:
+            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
+        case .none:
+            break
         }
     }
 
