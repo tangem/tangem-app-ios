@@ -10,7 +10,9 @@ import SwiftUI
 import TangemAssets
 
 struct ForegroundBlinkAnimationModifier: ViewModifier {
-    let publisher: Published<Change>.Publisher
+    typealias ChangePublisher = Published<ForegroundBlinkAnimationChange>.Publisher
+
+    let publisher: ChangePublisher
     let positiveColor: Color
     let negativeColor: Color
     let originalColor: Color
@@ -18,7 +20,13 @@ struct ForegroundBlinkAnimationModifier: ViewModifier {
 
     @State private var targetColor: Color
 
-    init(publisher: Published<Change>.Publisher, positiveColor: Color, negativeColor: Color, originalColor: Color, duration: Double) {
+    init(
+        publisher: ChangePublisher,
+        positiveColor: Color,
+        negativeColor: Color,
+        originalColor: Color,
+        duration: Double
+    ) {
         self.publisher = publisher
         self.positiveColor = positiveColor
         self.negativeColor = negativeColor
@@ -49,7 +57,7 @@ struct ForegroundBlinkAnimationModifier: ViewModifier {
 
 extension View {
     func blinkForegroundColor(
-        publisher: Published<ForegroundBlinkAnimationModifier.Change>.Publisher,
+        publisher: Published<ForegroundBlinkAnimationChange>.Publisher,
         positiveColor: Color,
         negativeColor: Color,
         originalColor: Color,
@@ -67,23 +75,21 @@ extension View {
     }
 }
 
-extension ForegroundBlinkAnimationModifier {
-    enum Change {
-        case neutral
-        case positive
-        case negative
+enum ForegroundBlinkAnimationChange {
+    case neutral
+    case positive
+    case negative
 
-        static func calculateChange<Value: Comparable & Equatable>(from: Value?, to: Value) -> Change {
-            guard let from else {
-                return .neutral
-            }
-
-            return to == from ? .neutral : to > from ? .positive : .negative
+    static func calculateChange<Value: Comparable & Equatable>(from: Value?, to: Value) -> Self {
+        guard let from else {
+            return .neutral
         }
+
+        return to == from ? .neutral : to > from ? .positive : .negative
     }
 }
 
-private extension ForegroundBlinkAnimationModifier.Change {
+private extension ForegroundBlinkAnimationChange {
     var next: Self {
         switch self {
         case .neutral:
@@ -98,7 +104,7 @@ private extension ForegroundBlinkAnimationModifier.Change {
 
 #Preview {
     class Blinker: ObservableObject {
-        @Published var blink: ForegroundBlinkAnimationModifier.Change = .neutral
+        @Published var blink: ForegroundBlinkAnimationChange = .neutral
     }
 
     let blinker = Blinker()
