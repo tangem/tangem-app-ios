@@ -21,7 +21,9 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
         switch blockchain {
         case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper,
              .cosmos, .terraV1, .terraV2, .sei, .ton,
-             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron:
+             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
+             .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash, .kaspa, .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant,
+             .alephium:
             return true
         default:
             return false
@@ -95,6 +97,18 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
             ).configuration(for: blockchain, address: address)
         case .xrp:
             return try await XRPInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .kaspa:
+            return try await KaspaInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash, .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant:
+            return try await UTXOInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .alephium:
+            return try await AlephiumInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
             ).configuration(for: blockchain, address: address)
         case .tron:
