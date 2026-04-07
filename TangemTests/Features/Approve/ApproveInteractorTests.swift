@@ -693,6 +693,30 @@ struct ApproveInteractorTests {
         #expect(feeMultiplier == .single, "Single approve must pass feeMultiplier .single")
     }
 
+    // MARK: - logPermissionScreenOpened
+
+    @Test("logPermissionScreenOpened with .approve state logs isRevoke = false")
+    func logPermissionScreenOpened_approveState_logsIsRevokeFalse() {
+        let env = makeEnv()
+        let sut = makeSUT(env: env)
+
+        sut.logPermissionScreenOpened()
+
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.count == 1)
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.first == false)
+    }
+
+    @Test("logPermissionScreenOpened with .revokeAndApprove state logs isRevoke = true")
+    func logPermissionScreenOpened_revokeAndApproveState_logsIsRevokeTrue() {
+        let env = makeEnv()
+        let sut = makeRevokeAndApproveSUT(env: env)
+
+        sut.logPermissionScreenOpened()
+
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.count == 1)
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.first == true)
+    }
+
     // MARK: - Async Helpers
 
     /// Polls `condition` with cooperative yields until it returns `true`, or throws on timeout.
