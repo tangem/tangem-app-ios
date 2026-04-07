@@ -25,11 +25,11 @@ struct TokenSelectorWalletItemView: View {
                     .zIndex(100.0) // Keeps the header above the expanding accounts list and other content within the stack
 
                 if viewModel.isOpen {
-                    ForEach(indexed: accounts.indexed()) { index, viewModel in
+                    ForEach(indexed: accounts.indexed()) { _, viewModel in
                         TokenSelectorAccountView(viewModel: viewModel)
                     }
                     .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
-                    .transition(.move(edge: .top))
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 } else {
                     Separator(color: Colors.Stroke.primary)
                         .transition(.opacity)
@@ -58,27 +58,11 @@ struct TokenSelectorWalletItemView: View {
     }
 
     private var isOpenButton: some View {
-        Group {
-            if #available(iOS 26, *) {
-                Button(action: {}) {
-                    Image(systemName: "chevron.down")
-                        .foregroundStyle(Colors.Text.primary1)
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .frame(size: .init(bothDimensions: 20.0))
-                        .padding(12)
-                }
-                // [REDACTED_USERNAME], important to place transform effect before glass effect.
-                // Animation will cause scaling glitch otherwise.
-                .rotationEffect(.degrees(viewModel.isOpen ? 0 : 180))
-                .glassEffect(.regular, in: .circle)
-            } else {
-                NavigationBarButton.back(action: {})
-                    .rotationEffect(.degrees(viewModel.isOpen ? -90 : 90))
-            }
-        }
-        .allowsHitTesting(false)
-        .animation(.spring(duration: 0.2), value: viewModel.isOpen)
+        CircleButton.back(action: {})
+            .allowsHitTesting(false)
+            .rotationEffect(.degrees(180))
+            .rotationEffect(.degrees(viewModel.isOpen ? 90 : -90))
+            .animation(.spring(duration: 0.2), value: viewModel.isOpen)
     }
 }
 
