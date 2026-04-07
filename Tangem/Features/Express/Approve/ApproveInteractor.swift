@@ -10,6 +10,7 @@ import Combine
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemMacro
 
 final class ApproveInteractor {
     // MARK: - Publishers
@@ -60,6 +61,10 @@ final class ApproveInteractor {
     }
 
     // MARK: - Public
+
+    func logPermissionScreenOpened() {
+        analyticsLogger.logPermissionScreenOpened(isRevoke: approveInteractorState.isRevokeAndApprove)
+    }
 
     func updateApprovePolicy(policy: BSDKApprovePolicy) {
         currentPolicy = policy
@@ -192,6 +197,7 @@ private extension ApproveInteractor {
 // MARK: - ApproveInteractorState
 
 extension ApproveInteractor {
+    @CaseFlagable
     enum ApproveInteractorState {
         case approve(data: ApproveTransactionData)
         /// - `feeUnit`: 1x revoke fee estimate, used to build individual tx fees at send time
