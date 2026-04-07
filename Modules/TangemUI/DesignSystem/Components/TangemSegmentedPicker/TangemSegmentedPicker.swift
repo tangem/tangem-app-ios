@@ -13,6 +13,8 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
     where Data: RandomAccessCollection, Data.Element: TangemSegmentedPickerTextProvider {
     fileprivate typealias Item = Data.Element
 
+    @Environment(\.isEnabled) private var isEnabled
+
     @ScaledMetric private var spacing: CGFloat
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var separatorWidth: CGFloat
@@ -25,8 +27,8 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
     private let data: Data
     @Binding private var selection: Data.Element
 
-    private var showSeparators: Bool = true
     private var style: TangemSegmentedPickerStyle = .fixed
+    private var showSeparators: Bool = true
 
     @State private var frameHeight: CGFloat?
     @State private var segmentsPreference: [SegmentPreference] = []
@@ -40,6 +42,17 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
         case .fixed: nil
         case .flexible: .infinity
         }
+    }
+
+    private var segmentHorizontalPadding: CGFloat? {
+        switch style {
+        case .fixed: contentHorizontalPadding
+        case .flexible: .zero
+        }
+    }
+
+    private var segmentVerticalPadding: CGFloat {
+        contentVerticalPadding
     }
 
     private let animation: Animation = .spring
@@ -73,6 +86,7 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
             .background(separators, alignment: .leading)
             .background(Color.Tangem.Tabs.backgroundSecondary, in: .capsule)
             .onPreferenceChange(SegmentPreferenceKey.self) { segmentsPreference = $0 }
+            .disabled(!isEnabled)
             .animation(animation, value: selection)
     }
 }
@@ -100,6 +114,8 @@ private extension TangemSegmentedPicker {
 
     func segment(_ item: Item) -> some View {
         itemContent(item)
+            .padding(.horizontal, segmentHorizontalPadding)
+            .padding(.vertical, segmentVerticalPadding)
             .frame(maxWidth: segmentMaxWidth, alignment: .center)
             .background(
                 ZStack {
@@ -124,8 +140,6 @@ private extension TangemSegmentedPicker {
     func itemContent(_ item: Item) -> some View {
         Text(item.text)
             .style(.Tangem.Body15.semibold, color: .Tangem.Tabs.textSecondary)
-            .padding(.horizontal, contentHorizontalPadding)
-            .padding(.vertical, contentVerticalPadding)
     }
 
     var separators: some View {
