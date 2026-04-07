@@ -113,7 +113,7 @@ private extension CommonPromotionRepository {
 
     func loadNewsPromotions(for userWalletId: UserWalletId) async -> [Promotion] {
         do {
-            let walletId = userWalletId.hashedStringValue
+            let walletId = userWalletId.stringValue
             let request = PromotionsDTO.Load.Request(
                 walletId: walletId,
                 placeholder: .news,
