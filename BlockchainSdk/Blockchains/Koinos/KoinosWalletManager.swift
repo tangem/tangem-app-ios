@@ -11,7 +11,7 @@ import BigInt
 import Combine
 import TangemSdk
 
-class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
+class KoinosWalletManager: BaseWalletManager, WalletManager, FeeResourceRestrictable {
     var currentHost: String {
         networkService.host
     }
@@ -39,7 +39,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             // Build existingTransactionIDs equivalent
             async let existingTransactionIDs: Set<String> = {
@@ -54,7 +54,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
 
             // Fetch account info
             async let accountInfo = networkService
-                .getInfo(address: wallet.address, koinContractId: koinContractId)
+                .getInfo(address: address, koinContractId: koinContractId)
                 .async()
 
             // Update state
