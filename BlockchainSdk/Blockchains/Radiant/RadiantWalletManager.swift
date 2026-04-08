@@ -11,7 +11,7 @@ import Combine
 import WalletCore
 import TangemFoundation
 
-final class RadiantWalletManager: BaseManager, DustRestrictable {
+final class RadiantWalletManager: BaseWalletManager, DustRestrictable {
     // MARK: - Private Properties
 
     private let transactionBuilder: RadiantTransactionBuilder
@@ -34,9 +34,9 @@ final class RadiantWalletManager: BaseManager, DustRestrictable {
 
     // MARK: - Implementation
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let response = try await networkService.getInfo(address: wallet.address).async()
+            let response = try await networkService.getInfo(address: address).async()
             updateWallet(with: response)
         } catch {
             wallet.clearAmounts()
