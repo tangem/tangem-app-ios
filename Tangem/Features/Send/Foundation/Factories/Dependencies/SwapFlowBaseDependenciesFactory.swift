@@ -20,6 +20,7 @@ extension SwapFlowBaseDependenciesFactory {
         receiveToken: SendReceiveToken?,
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
+        pairUpdateHandler: SwapPairUpdateHandler,
         shouldStartInitialLoading: Bool
     ) -> SwapModel {
         SwapModel(
@@ -33,6 +34,7 @@ extension SwapFlowBaseDependenciesFactory {
             expressUserWalletId: expressDependenciesFactory.userWalletInfo.id,
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
+            pairUpdateHandler: pairUpdateHandler,
             shouldStartInitialLoading: shouldStartInitialLoading
         )
     }
