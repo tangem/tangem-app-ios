@@ -39,6 +39,9 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
+        pairUpdateHandler: SendWithSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager
+        ),
         shouldStartInitialLoading: false
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
