@@ -19,7 +19,8 @@ class WalletManagerFactoryProvider {
         blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
         dependencies: BlockchainSdkDependencies(
             accountCreator: BlockchainAccountCreator(),
-            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName),
+            isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
         ),
         apiList: apiList
     )
