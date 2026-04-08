@@ -22,7 +22,7 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ApprovePolicy = .unlimited
+    private var _approvePolicy: ApprovePolicy = .specified
     private var _feeOption: ExpressFee.Option = .market
     private var _amountType: ExpressAmountType?
 
