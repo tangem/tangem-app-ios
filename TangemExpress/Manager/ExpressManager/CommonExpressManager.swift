@@ -207,11 +207,7 @@ private extension CommonExpressManager {
         let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
         let bestRate = bestByRateProvider(from: candidates)
 
-        let enabledProvidersMoreThanOne = candidates.compactMap { provider -> ExpressQuote? in
-            let state = provider.getState()
-            return state.quote
-        }
-        .count > 1
+        let enabledProvidersMoreThanOne = eligibleProviders(from: candidates).count > 1
 
         availableProviders.forEach { provider in
             // We set the `isBest` flag only if we have more than one enabled provider
@@ -242,11 +238,13 @@ private extension CommonExpressManager {
         let providers = candidates ?? availableProviders.filteredByRateType(_amountType?.rateType)
         let isFixedRate = _amountType?.rateType == .fixed
 
-        guard providers.contains(where: { $0.getState().quote != nil }) else {
+        let eligible = eligibleProviders(from: providers)
+
+        guard !eligible.isEmpty else {
             return nil
         }
 
-        return providers.sorted(by: { lhsProvider, rhsProvider in
+        return eligible.sorted(by: { lhsProvider, rhsProvider in
             let lhsQuote = lhsProvider.getState().quote
             let rhsQuote = rhsProvider.getState().quote
 
@@ -260,6 +258,19 @@ private extension CommonExpressManager {
                 return lhs > rhs
             }
         }).first
+    }
+
+    /// Providers that have a usable quote and are not restricted by amount limits.
+    func eligibleProviders(from providers: [ExpressAvailableProvider]) -> [ExpressAvailableProvider] {
+        providers.filter { provider in
+            let state = provider.getState()
+            switch state {
+            case .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
+                return false
+            default:
+                return state.quote != nil
+            }
+        }
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
