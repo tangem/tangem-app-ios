@@ -51,6 +51,7 @@ final class SwapModel {
     private let expressUserWalletId: UserWalletId
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
+    private let pairUpdateHandler: SwapPairUpdateHandler
 
     private let balanceConverter = BalanceConverter()
     private var autoupdatingTimerSubscription: AnyCancellable?
@@ -67,6 +68,7 @@ final class SwapModel {
         expressUserWalletId: UserWalletId,
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
+        pairUpdateHandler: SwapPairUpdateHandler,
         shouldStartInitialLoading: Bool
     ) {
         self.expressManager = expressManager
@@ -77,6 +79,7 @@ final class SwapModel {
         self.expressUserWalletId = expressUserWalletId
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
+        self.pairUpdateHandler = pairUpdateHandler
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         _sourceAmount = .init(.none)
@@ -213,92 +216,34 @@ extension SwapModel {
         let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
 
         updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
-            guard let self, let source = _sourceToken.value.value, let destination = _receiveToken.value.value else {
+            guard let self, let source = _sourceToken.value.value,
+                  let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 return try await expressManager.update(pair: .none)
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-            return try await updatePair(pair: pair, source: source, destination: destination)
-        }
-    }
 
-    private func updatePair(
-        pair: ExpressManagerSwappingPair,
-        source: SendSwapableToken,
-        destination: SendReceiveToken
-    ) async throws -> ExpressManagerUpdatingResult {
-        let existingReceiveAmount = _receiveAmount.value?.crypto
-
-        // Phase 1: Pre-pair — compute local TO estimate for first selection
-        // Uses local quotes to fill TO field immediately, avoiding empty display
-        var estimatedTo: Decimal?
-        if existingReceiveAmount == nil,
-           let sourceAmount = _sourceAmount.value?.crypto,
-           let sourceCurrencyId = source.tokenItem.currencyId,
-           let destCurrencyId = destination.tokenItem.currencyId {
-            estimatedTo = try? await balanceConverter.convertCryptoToCrypto(
-                sourceId: sourceCurrencyId,
-                sourceAmount: sourceAmount,
-                targetId: destCurrencyId
+            let result = try await pairUpdateHandler.handlePairChange(
+                pair: pair,
+                source: source,
+                destination: destination,
+                sourceAmount: _sourceAmount.value?.crypto,
+                receiveAmount: _receiveAmount.value?.crypto
             )
-        }
 
-        // Phase 2: Pair update — populates availableProviders in CommonExpressManager
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
-
-        // Phase 3: Post-pair — either send estimate or fetch quote
-        guard let existingReceiveAmount else {
-            // First selection — send estimated amount now that providers are populated,
-            // deferring prevents a race where pendingReverseRecalculation cancels this task
-            if let estimatedTo, let destCurrencyId = destination.tokenItem.currencyId {
-                _receiveAmount.send(makeSendAmount(crypto: estimatedTo, currencyId: destCurrencyId))
+            if let amountUpdate = result.amountUpdate {
+                applyAmountUpdate(amountUpdate)
             }
-            return pairResult
-        }
 
-        // Existing amount — fetch quote with appropriate direction
-        let amountType = await resolveAmountTypeAfterPairChange(
-            pairResult: pairResult,
-            receiveAmount: existingReceiveAmount
-        )
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(
-            amountType: amountType,
-            by: .pairChange
-        )
-
-        if let quote = result.selected?.getState().quote {
-            sendComplementaryAmount(for: amountType, quote: quote)
-        }
-
-        return result
-    }
-
-    /// Determines whether to use forward (FROM→TO) or reverse (TO→FROM) calculation after a pair change.
-    /// Preserves the current direction. Falls back to forward if the selected provider
-    /// doesn't support the current fixed rate mode.
-    private func resolveAmountTypeAfterPairChange(
-        pairResult: ExpressManagerUpdatingResult,
-        receiveAmount: Decimal
-    ) async -> ExpressAmountType {
-        switch await expressManager.getAmountType() {
-        case .from(let sourceAmount):
-            return .from(sourceAmount)
-
-        case .to where pairResult.selected?.supportedRateTypes.contains(.fixed) == true:
-            return .to(receiveAmount)
-
-        case .to, .none:
-            // Fixed not supported by new provider, or no previous amount type — fall back to float
-            guard let sourceAmount = _sourceAmount.value?.crypto else {
-                assertionFailure("Source amount should exist when receive amount exists")
-                return .to(receiveAmount)
-            }
-            return .from(sourceAmount)
+            return result.expressResult
         }
     }
 
-    func updateTask(loadingType: LoadingType, block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?) {
+    func updateTask(
+        loadingType: LoadingType,
+        block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?
+    ) {
         updateTask?.cancel()
         updateTask = runTask(in: self, code: { @MainActor input in
             do {
@@ -338,6 +283,12 @@ extension SwapModel {
         })
     }
 
+    func update(providersState: ProvidersState) {
+        ExpressLogger.debug(self, "ProvidersState will update to: \(providersState)")
+
+        _providersState.send(providersState)
+    }
+
     private func logSwapError(loadingType: LoadingType, error: Error) {
         analyticsLogger.logSendWithSwapError(
             screen: loadingType.analyticsScreenName,
@@ -355,10 +306,15 @@ extension SwapModel {
         }
     }
 
-    func update(providersState: ProvidersState) {
-        ExpressLogger.debug(self, "ProvidersState will update to: \(providersState)")
-
-        _providersState.send(providersState)
+    private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
+        switch update {
+        case .setReceiveAmount(let crypto, let currencyId):
+            _receiveAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
+        case .setSourceAmount(let crypto, let currencyId):
+            _sourceAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
+        case .clearReceiveAmount:
+            _receiveAmount.send(nil)
+        }
     }
 }
 
