@@ -59,7 +59,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
-        case .expressFixedRates: return .unspecified
+        case .expressFixedRates: return .version("5.37")
         case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
         case .surveySparrow: return .unspecified
