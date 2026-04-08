@@ -122,7 +122,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             }
 
             if !viewModel.linksSections.isEmpty {
-                MarketsTokenDetailsLinksView(viewWidth: blocksWidth, sections: viewModel.linksSections)
+                MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)
             }
         }
         .padding(.bottom, 46.0)
