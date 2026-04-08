@@ -24,6 +24,7 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
     case solanaTxHistoryEnabled
+    case solanaScaledUIEnabled
     case dynamicAddresses
 
     var name: String {
@@ -43,6 +44,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
+        case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         }
     }
@@ -64,6 +66,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletTokenAutoSync: return .unspecified
         case .gaslessDexAndApprove: return .unspecified
         case .solanaTxHistoryEnabled: return .unspecified
+        case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
         }
     }
