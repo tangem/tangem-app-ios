@@ -64,6 +64,10 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "You only have 1 token added to your portfolio. To use the exchange feature, you need to add at least 2 tokens.";
 "action_buttons_you_want_to_receive" = "Choose the token you want to receive";
 "action_buttons_you_want_to_swap" = "Choose the token you want to swap";
+"add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
+"add_and_manage_sheet_manage_title" = "Add tokens";
+"add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
+"add_and_manage_sheet_organize_title" = "Organize tokens";
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
@@ -474,6 +478,8 @@
 "fee_selector_choose_token_description" = "Choose which token to use to pay\nthe network fee. %@";
 "fee_selector_choose_token_title" = "Choose token";
 "feed_market_and_news" = "Market & News";
+"feed_search_show_all_user_assets" = "Show All";
+"feed_search_show_less_user_assets" = "Show less";
 "feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
@@ -595,6 +601,7 @@
 "koinos_mana_level_title" = "Mana level";
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
+"main_add_and_manage_tokens" = "Add & Manage";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "管理代幣";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -1299,6 +1306,7 @@
 "swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "我們期待聆聽您的寶貴意見";
 "tangem_pay_beta_notification_title" = "Tangem Pay現已開放測試版";
+"tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "卡片已凍結";
 "tangem_pay_card_payment" = "信用卡支付";
 "tangem_pay_deposit" = "充值";
@@ -1332,7 +1340,9 @@
 "tangem_pay_unfreeze_card_success" = "您的卡片已解凍。";
 "tangem_pay_withdrawal" = "提現";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_available_balance" = "Available balance";
 "tangempay_cancel_kyc" = "在主畫面隱藏身份驗證";
+"tangempay_card_default_name" = "Tangem Pay Card 1";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
 "tangempay_card_details_add_funds" = "添加资金";
 "tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
@@ -1365,10 +1375,13 @@
 "tangempay_card_details_receive_description" = "分享您的地址或显示二维码";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "暫時無法接收";
+"tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
+"tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "显示";
 "tangempay_card_details_show_details" = "顯示詳情";
 "tangempay_card_details_swap_description" = "將您投資組合中的任何資產兌換成卡片";
 "tangempay_card_details_title" = "卡片详情";
+"tangempay_card_details_unable_to_rename_card_description" = "Please try again later.";
 "tangempay_card_details_unfreeze_card" = "解凍卡片";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
 "tangempay_card_details_view_pin_code_title" = "Your PIN code";
@@ -1376,12 +1389,16 @@
 "tangempay_card_details_withdraw_in_progress_description" = "在当前操作完成之前，您无法启动兑换或新的提款。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
 "tangempay_card_details_withdraw" = "提现";
+"tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "修改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用查看。";
+"tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "tangempay_failed_to_issue_card_retry_description" = "出现技术错误，请点击下方按钮重试";
 "tangempay_failed_to_issue_card_support_description" = "出现技术错误，请联系客服";
 "tangempay_failed_to_issue_card" = "无法发行卡片";
+"tangempay_feature_will_be_available_soon_description" = "You will be available to issue additional cards for your payment account";
+"tangempay_feature_will_be_available_soon" = "Feature will be availible soon";
 "tangempay_get_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
 "tangempay_get_tangem_pay" = "获取Tangem Pay";
 "tangempay_go_to_support" = "前往客服中心";
@@ -1413,6 +1430,7 @@
 "tangempay_onboarding_security_description" = "將創建單獨的支付帳戶，且不會透露您的地址和資產";
 "tangempay_onboarding_security_title" = "無與倫比的隱私";
 "tangempay_onboarding_title" = "在幾分鐘內獲得免費的 Tangem Pay 卡";
+"tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "付款帳戶未同步";
 "tangempay_payment_account" = "付款帳戶";
 "tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
@@ -1425,6 +1443,7 @@
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
+"tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "點擊下方按鈕以恢復存取權限";
 "tangempay_withdrawal_note_description" = "您的 USDC Polygon 鏈上餘額與卡片餘額不同，並在購買後 2 個工作日內更新。退款交易的資金不會返回到您的鏈上餘額或可供提現，但會保留在您的卡片餘額中用於購買。";
 "tangempay_withdrawal_note_title" = "請注意";
@@ -1455,6 +1474,10 @@
 "token_details_staking_block_title" = "Staking Service";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ network";
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
+"token_details_toolbar_subtitle_network" = "%@ network";
+"token_details_toolbar_subtitle_standard" = "%1$@ in %2$@ network";
+"token_details_toolbar_title_token_in_account" = "%1$@ in %%image%% %2$@";
+"token_details_toolbar_title_token_in_wallet" = "%1$@ in %2$@ %%image%%";
 "token_details_unable_hide_alert_message" = "%1$@ (%2$@) 代幣是 %3$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_market_metrics_no_data" = "N/A";
