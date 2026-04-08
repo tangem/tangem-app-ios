@@ -64,6 +64,10 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "У вас добавлен всего 1 токен. Для использования функции обмена необходимо добавить минимум 2 токена.";
 "action_buttons_you_want_to_receive" = "Выберите токен для получения";
 "action_buttons_you_want_to_swap" = "Выберите токен для обмена";
+"add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
+"add_and_manage_sheet_manage_title" = "Add tokens";
+"add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
+"add_and_manage_sheet_organize_title" = "Organize tokens";
 "add_custom_token_choose_network" = "Выберите сеть";
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
@@ -474,6 +478,8 @@
 "fee_selector_choose_token_description" = "Выберите какой токен будет использоваться для оплаты комиссии сети. %@";
 "fee_selector_choose_token_title" = "Выбрать токен";
 "feed_market_and_news" = "Рынок и Новости";
+"feed_search_show_all_user_assets" = "Show All";
+"feed_search_show_less_user_assets" = "Show less";
 "feed_trending_now" = "В тренде";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта или кольцо?";
@@ -595,6 +601,7 @@
 "koinos_mana_level_title" = "Уровень маны";
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
+"main_add_and_manage_tokens" = "Add & Manage";
 "main_empty_tokens_list_message" = "Чтобы начать отслеживать свои криптоактивы и транзакции, добавьте токены";
 "main_manage_tokens" = "Управление токенами";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -1299,6 +1306,7 @@
 "swapping_trade_too_large_title" = "Сумма сделки слишком велика";
 "tangem_pay_beta_notification_subtitle" = "Будем рады вашей обратной связи";
 "tangem_pay_beta_notification_title" = "Tangem Pay в режиме beta";
+"tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Карта заморожена";
 "tangem_pay_card_payment" = "Оплата картой";
 "tangem_pay_deposit" = "Пополнение";
@@ -1332,7 +1340,9 @@
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
 "tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
+"tangempay_available_balance" = "Available balance";
 "tangempay_cancel_kyc" = "Скрыть KYC с главной";
+"tangempay_card_default_name" = "Tangem Pay Card 1";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
 "tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
@@ -1365,10 +1375,13 @@
 "tangempay_card_details_receive_description" = "Скопируйте свой адрес или покажите QR";
 "tangempay_card_details_receive_error_description" = "Техническая ошибка. Попробуйте позже или обратитесь в поддержку.";
 "tangempay_card_details_receive_error_title" = "Пополнение недоступно";
+"tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
+"tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Показать";
 "tangempay_card_details_show_details" = "Реквизиты";
 "tangempay_card_details_swap_description" = "Пополните карту любым активом через обмен ";
 "tangempay_card_details_title" = "Реквизиты";
+"tangempay_card_details_unable_to_rename_card_description" = "Please try again later.";
 "tangempay_card_details_unfreeze_card" = "Разморозить карту";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
 "tangempay_card_details_view_pin_code_title" = "Ваш ПИН";
@@ -1376,12 +1389,16 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Вы не можете начать обмен или новый вывод, пока не завершится текущий.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вывод выполняется";
 "tangempay_card_details_withdraw" = "Вывести";
+"tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можно посмотреть здесь, если забудете его.";
+"tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "Я понимаю, что полностью потеряю доступ к своей карте Tangem Pay и ко всем средствам на ней без возможности восстановления.";
 "tangempay_failed_to_issue_card_retry_description" = "Техническая ошибка, попробуйте ещё раз, нажав кнопку ниже";
 "tangempay_failed_to_issue_card_support_description" = "Техническая ошибка, свяжитесь с поддержкой";
 "tangempay_failed_to_issue_card" = "Не удалось выпустить карту";
+"tangempay_feature_will_be_available_soon_description" = "You will be available to issue additional cards for your payment account";
+"tangempay_feature_will_be_available_soon" = "Feature will be availible soon";
 "tangempay_get_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_get_tangem_pay" = "Получить Tangem Pay";
 "tangempay_go_to_support" = "Написать в поддержку";
@@ -1413,6 +1430,7 @@
 "tangempay_onboarding_security_description" = "Мы создадим отдельный платежный счет без раскрытия ваших активов \nи их адресов";
 "tangempay_onboarding_security_title" = "Абсолютная приватность";
 "tangempay_onboarding_title" = "Откройте виртуальную \nTangem Pay Card";
+"tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "Платежный аккаунт не синхронизирован";
 "tangempay_payment_account" = "Платежный аккаунт";
 "tangempay_pin_validation_error_message" = "Слабый ПИН: не используйте повторы или последовательности.";
@@ -1425,6 +1443,7 @@
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
 "tangempay_title" = "Tangem Pay";
+"tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Нажмите на кнопку ниже, чтобы восстановить доступ";
 "tangempay_withdrawal_note_description" = "Баланс ончейн-адреса (USDC Polygon) обновляется в течение 2 рабочих дней после покупки. При возвратах покупок средства не возвращаются на ончейн-баланс и недоступны для вывода, но отображаются на карте и могут быть использованы для покупок.";
 "tangempay_withdrawal_note_title" = "Обратите внимание";
@@ -1455,6 +1474,10 @@
 "token_details_staking_block_title" = "Сервис стейкинга";
 "token_details_token_type_subtitle_no_standard" = "Токен в сети %%image%% %1$@";
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
+"token_details_toolbar_subtitle_network" = "%@ network";
+"token_details_toolbar_subtitle_standard" = "%1$@ in %2$@ network";
+"token_details_toolbar_title_token_in_account" = "%1$@ in %%image%% %2$@";
+"token_details_toolbar_title_token_in_wallet" = "%1$@ in %2$@ %%image%%";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) является основной валютой в сети %3$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_market_metrics_no_data" = "N/A";

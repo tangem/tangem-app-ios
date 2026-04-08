@@ -64,6 +64,10 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "Vous n'avez qu'un seul token ajouté à votre portefeuille. Pour utiliser la fonction d'échange, vous devez ajouter au moins 2 tokens.";
 "action_buttons_you_want_to_receive" = "Sélectionnez le jeton que vous souhaitez recevoir";
 "action_buttons_you_want_to_swap" = "Sélectionnez le jeton que vous souhaitez échanger";
+"add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
+"add_and_manage_sheet_manage_title" = "Add tokens";
+"add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
+"add_and_manage_sheet_organize_title" = "Organize tokens";
 "add_custom_token_choose_network" = "Choisissez le réseau";
 "add_custom_token_title" = "Ajouter un jeton personnalisé";
 "add_tokens_title" = "Gérer les jetons";
@@ -474,6 +478,8 @@
 "fee_selector_choose_token_description" = "Choisissez le token à utiliser pour payer les frais de réseau. %@";
 "fee_selector_choose_token_title" = "Choisissez un token";
 "feed_market_and_news" = "Marché et actualités";
+"feed_search_show_all_user_assets" = "Show All";
+"feed_search_show_less_user_assets" = "Show less";
 "feed_trending_now" = "Tendances actuelles";
 "feedback_preface_rate_negative" = "Dites-nous quelles fonctions vous manquent, et nous essaierons de vous aider.";
 "feedback_preface_scan_failed" = "Veuillez nous dire quelle carte vous avez";
@@ -595,6 +601,7 @@
 "koinos_mana_level_title" = "Quantité de Mana";
 "mail_error_no_accounts_body" = "Veuillez configurer un compte pour envoyer un e-mail";
 "mail_error_no_accounts_title" = "Aucun compte Mail";
+"main_add_and_manage_tokens" = "Add & Manage";
 "main_empty_tokens_list_message" = "Pour commencer à suivre vos actifs et transactions crypto, ajoutez des jetons";
 "main_manage_tokens" = "Gérer les jetons";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -1299,6 +1306,7 @@
 "swapping_trade_too_large_title" = "Trade too large";
 "tangem_pay_beta_notification_subtitle" = "Nous serions ravis de recevoir vos retours";
 "tangem_pay_beta_notification_title" = "Tangem Pay en version bêta";
+"tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Carte gelée";
 "tangem_pay_card_payment" = "Paiement par carte";
 "tangem_pay_deposit" = "Dépôt";
@@ -1332,7 +1340,9 @@
 "tangem_pay_unfreeze_card_success" = "Votre carte est dégelée.";
 "tangem_pay_withdrawal" = "Retrait";
 "tangempay_account_unable_to_use_rooted" = "Impossible à utiliser sur un appareil rooté";
+"tangempay_available_balance" = "Available balance";
 "tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
+"tangempay_card_default_name" = "Tangem Pay Card 1";
 "tangempay_card_details_add_funds_subtitle" = "Options de recharge";
 "tangempay_card_details_add_funds" = "Ajouter des fonds";
 "tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
@@ -1365,10 +1375,13 @@
 "tangempay_card_details_receive_description" = "Partagez votre adresse ou montrez le QR code";
 "tangempay_card_details_receive_error_description" = "Problèmes techniques détectés. Veuillez réessayer plus tard ou contacter le service d'assistance.";
 "tangempay_card_details_receive_error_title" = "Réception indisponible pour le moment";
+"tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
+"tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Révéler";
 "tangempay_card_details_show_details" = "Afficher les détails";
 "tangempay_card_details_swap_description" = "Échangez n'importe quel actif de votre portefeuille contre une carte";
 "tangempay_card_details_title" = "Détails de la carte";
+"tangempay_card_details_unable_to_rename_card_description" = "Please try again later.";
 "tangempay_card_details_unfreeze_card" = "Dégeler la carte";
 "tangempay_card_details_view_pin_code_description" = "Revenez à l'application si vous l'oubliez.";
 "tangempay_card_details_view_pin_code_title" = "Votre code PIN";
@@ -1376,12 +1389,16 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Vous ne pouvez pas lancer d'échange ou de nouveau retrait tant que le retrait actuel n'est pas terminé.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retrait en cours";
 "tangempay_card_details_withdraw" = "Retirer";
+"tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "Modifier le code PIN";
 "tangempay_come_back_if_forget_pin" = "Revenez dans l'application si vous l'oubliez.";
+"tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "Je comprends que je perdrai complètement l'accès à ma carte Tangem Pay et à tous les fonds qui s'y trouvent, sans possibilité de récupération.";
 "tangempay_failed_to_issue_card_retry_description" = "Une erreur technique s'est produite, veuillez réessayer en cliquant sur le bouton ci-dessous";
 "tangempay_failed_to_issue_card_support_description" = "Une erreur technique s'est produite, veuillez contacter le support";
 "tangempay_failed_to_issue_card" = "Échec de l'émission de la carte";
+"tangempay_feature_will_be_available_soon_description" = "You will be available to issue additional cards for your payment account";
+"tangempay_feature_will_be_available_soon" = "Feature will be availible soon";
 "tangempay_get_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_get_tangem_pay" = "Obtenir Tangem Pay";
 "tangempay_go_to_support" = "Contacter le support";
@@ -1413,6 +1430,7 @@
 "tangempay_onboarding_security_description" = "Un compte de paiement séparé sera créé sans divulguer vos adresses et actifs";
 "tangempay_onboarding_security_title" = "Confidentialité inégalée";
 "tangempay_onboarding_title" = "Obtenez votre carte Tangem Pay gratuite en quelques minutes";
+"tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "Le compte de paiement n'est pas synchronisé";
 "tangempay_payment_account" = "Compte de paiement";
 "tangempay_pin_validation_error_message" = "Code PIN invalide : évitez les séquences ou les répétitions";
@@ -1425,6 +1443,7 @@
 "tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
+"tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Cliquez sur le bouton ci-dessous pour restaurer l'accès";
 "tangempay_withdrawal_note_description" = "Votre solde USDC Polygon on-chain diffère de votre solde de carte et se met à jour dans les 2 jours ouvrables suivant un achat. Les fonds des achats remboursés ne seront pas retournés à votre solde on-chain ni disponibles pour un retrait, mais resteront sur votre solde de carte pour vos achats.";
 "tangempay_withdrawal_note_title" = "Veuillez noter";
@@ -1455,6 +1474,10 @@
 "token_details_staking_block_title" = "Service de Staking";
 "token_details_token_type_subtitle_no_standard" = "Jeton dans le %%image%% %1$@ réseau";
 "token_details_token_type_subtitle" = "%1$@ jeton dans %%image%% %2$@ le réseau";
+"token_details_toolbar_subtitle_network" = "%@ network";
+"token_details_toolbar_subtitle_standard" = "%1$@ in %2$@ network";
+"token_details_toolbar_title_token_in_account" = "%1$@ in %%image%% %2$@";
+"token_details_toolbar_title_token_in_wallet" = "%1$@ in %2$@ %%image%%";
 "token_details_unable_hide_alert_message" = "Le jeton %1$@ (%2$@) est la principale devise du réseau %3$@ et ne peut pas être masqué tant que vous avez d'autres jetons de ce réseau dans la liste";
 "token_details_unable_hide_alert_title" = "Impossible de masquer %@";
 "token_market_metrics_no_data" = "N/A";
