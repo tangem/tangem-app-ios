@@ -22,7 +22,7 @@ final class NEARTransactionBuilder {
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let output = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard output.error == .ok else {
             throw BlockchainSdkError.failedToBuildTx
@@ -49,7 +49,7 @@ final class NEARTransactionBuilder {
             signatures: signature.asDataVector(),
             publicKeys: transactionParams.publicKey.blockchainKey.asDataVector()
         )
-        let output = try NEARSigningOutput(serializedData: compiledTransaction)
+        let output = try NEARSigningOutput(serializedBytes: compiledTransaction)
 
         guard output.error == .ok else {
             throw BlockchainSdkError.failedToBuildTx
