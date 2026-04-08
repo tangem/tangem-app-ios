@@ -56,6 +56,10 @@ final class TokenSelectorViewModelsMapper {
             .assign(to: \.searchText.value, on: self, ownership: .weak)
     }
 
+    func setInitialSelectedItem(_ item: TokenItem?) {
+        selectedItem.value = item
+    }
+
     func setupSelectedItemFilter(selectedItemPublisher: some Publisher<TokenItem?, Never>) {
         selectedItemCancellable = selectedItemPublisher
             .assign(to: \.selectedItem.value, on: self, ownership: .weak)
@@ -111,20 +115,13 @@ private extension TokenSelectorViewModelsMapper {
         let walletName = wallet.wallet.name
         let walletId = wallet.wallet.id
 
-        let viewTypePublisher = wallet
-            .accountsPublisher
-            .withWeakCaptureOf(self)
-            .map { mapper, accounts in
-                return mapper.mapToViewType(accountType: accounts, walletName: walletName, walletId: walletId)
-            }
-            .eraseToAnyPublisher()
-
         let isOpen = expandedStateStorage?.isWalletOpen(walletId) ?? true
 
         return TokenSelectorWalletItemViewModel(
+            walletId: walletId,
+            walletName: walletName,
             isOpen: isOpen,
             viewType: mapToViewType(accountType: wallet.accounts, walletName: walletName, walletId: walletId),
-            viewTypePublisher: viewTypePublisher,
             onOpenStateChange: { [expandedStateStorage] open in
                 expandedStateStorage?.setWalletOpen(open, for: walletId)
             }
@@ -157,6 +154,7 @@ private extension TokenSelectorViewModelsMapper {
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
                 stateStorage: accountStateStorage,
+                initialItemsCount: items.count,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
                 searchTextPublisher: searchText.eraseToAnyPublisher()
             )

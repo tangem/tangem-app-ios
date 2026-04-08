@@ -42,6 +42,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     init(
         account: any BaseAccountModel,
         stateStorage: ExpandableAccountItemStateStorage,
+        initialItemsCount: Int = 0,
         itemsCountPublisher: AnyPublisher<Int, Never>,
         searchTextPublisher: AnyPublisher<String, Never>
     ) {
@@ -49,7 +50,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         self.stateStorage = stateStorage
         name = account.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: account)
-        rawTokensCount = 0
+        rawTokensCount = initialItemsCount
 
         let initialExpanded = stateStorage.isExpanded(account)
         isExpanded = initialExpanded

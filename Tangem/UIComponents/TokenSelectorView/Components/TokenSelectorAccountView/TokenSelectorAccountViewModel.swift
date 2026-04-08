@@ -29,7 +29,7 @@ final class TokenSelectorAccountViewModel: ObservableObject, Identifiable {
         self.expandableViewModel = expandableViewModel
         self.items = items
 
-        itemsPublisher.receiveOnMain().assign(to: &$items)
+        itemsPublisher.dropFirst().receiveOnMain().assign(to: &$items)
     }
 }
 
