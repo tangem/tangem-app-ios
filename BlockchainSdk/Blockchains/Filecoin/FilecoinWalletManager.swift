@@ -9,7 +9,7 @@
 import BigInt
 import Combine
 
-class FilecoinWalletManager: BaseManager, WalletManager {
+class FilecoinWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String {
         networkService.host
     }
@@ -33,10 +33,10 @@ class FilecoinWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let accountInfo = try await networkService
-                .getAccountInfo(address: wallet.address)
+                .getAccountInfo(address: address)
                 .async()
 
             update(accountInfo: accountInfo)
