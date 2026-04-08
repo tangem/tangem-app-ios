@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Hedera
+import Hiero
 
 final class HederaAddressService: AddressService {
     private let isTestnet: Bool
