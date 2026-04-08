@@ -64,7 +64,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .customerIO: return .version("5.35")
         case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .unspecified
-        case .gaslessDexAndApprove: return .unspecified
+        case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .unspecified
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
