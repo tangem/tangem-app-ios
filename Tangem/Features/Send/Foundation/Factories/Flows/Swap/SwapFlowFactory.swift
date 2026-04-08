@@ -23,6 +23,9 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         receiveToken: receiveToken,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
+        pairUpdateHandler: RegularSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager
+        ),
         shouldStartInitialLoading: true
     )
     lazy var notificationManager = makeSwapNotificationManager()
