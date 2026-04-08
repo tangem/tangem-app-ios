@@ -55,7 +55,7 @@ struct PulseMarketWidgetViewRedesign: View {
             case .success(let tokenViewModels):
                 VStack(spacing: .zero) {
                     ForEach(tokenViewModels) {
-                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                        MarketTokenRowView(viewModel: $0)
                     }
                 }
                 .transition(.opacity.animation(.easeInOut))
@@ -64,11 +64,7 @@ struct PulseMarketWidgetViewRedesign: View {
                     .transition(.opacity.animation(.easeInOut))
             }
         }
-        .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level4,
-            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-        )
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
     }
 
     private var filter: some View {
