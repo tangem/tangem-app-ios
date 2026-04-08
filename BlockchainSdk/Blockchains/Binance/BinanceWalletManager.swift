@@ -12,16 +12,16 @@ import BinanceChain
 import struct TangemSdk.SignResponse
 import TangemFoundation
 
-class BinanceWalletManager: BaseManager, WalletManager {
+class BinanceWalletManager: BaseWalletManager, WalletManager {
     var txBuilder: BinanceTransactionBuilder!
     var networkService: BinanceNetworkService!
     private var latestTxDate: Date?
 
     var currentHost: String { networkService.host }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let response = try await networkService.getInfo(address: wallet.address).async()
+            let response = try await networkService.getInfo(address: address).async()
             updateWallet(with: response)
         } catch {
             wallet.clearAmounts()

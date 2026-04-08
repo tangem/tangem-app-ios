@@ -11,7 +11,7 @@ import TangemSdk
 import Combine
 import TangemFoundation
 
-class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
+class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, MultiAddressesWalletManagerUpdater {
     let txBuilder: BitcoinTransactionBuilder
     let unspentOutputManager: UnspentOutputManager
     let networkService: UTXONetworkProvider
@@ -42,9 +42,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(addresses: [any Address]) async throws {
         do {
-            let responses = try await networkService.getInfo(addresses: wallet.addresses).async()
+            let responses = try await networkService.getInfo(addresses: addresses).async()
             updateWallet(with: responses)
         } catch {
             wallet.clearAmounts()
