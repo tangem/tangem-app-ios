@@ -14,28 +14,46 @@ struct TokenSelectorWalletItemView: View {
     @ObservedObject var viewModel: TokenSelectorWalletItemViewModel
 
     var body: some View {
+        content
+            .opacity(viewModel.isFilteredOut ? 0 : 1)
+            .frame(height: viewModel.isFilteredOut ? 0 : nil)
+            .clipped()
+            .allowsHitTesting(!viewModel.isFilteredOut)
+            .animation(nil, value: viewModel.isFilteredOut)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch viewModel.viewType {
         case .wallet(let accountViewModel) where viewModel.contentVisibility?.isVisible == true:
             TokenSelectorAccountView(viewModel: accountViewModel)
 
         case .accounts(let walletName, let accounts) where viewModel.contentVisibility?.isVisible == true:
-            VStack(spacing: Constants.accountsListVerticalSpacing) {
-                header(walletName: walletName)
-                    .background(Colors.Background.tertiary)
-                    .zIndex(100.0) // Keeps the header above the expanding accounts list and other content within the stack
-
-                if viewModel.isOpen {
+            if viewModel.hideWalletHeader {
+                VStack(spacing: Constants.accountsListVerticalSpacing) {
                     ForEach(indexed: accounts.indexed()) { _, viewModel in
                         TokenSelectorAccountView(viewModel: viewModel)
                     }
-                    .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                } else {
-                    Separator(color: Colors.Stroke.primary)
-                        .transition(.opacity)
                 }
+            } else {
+                VStack(spacing: Constants.accountsListVerticalSpacing) {
+                    header(walletName: walletName)
+                        .background(Colors.Background.tertiary)
+                        .zIndex(100.0) // Keeps the header above the expanding accounts list and other content within the stack
+
+                    if viewModel.isOpen {
+                        ForEach(indexed: accounts.indexed()) { _, viewModel in
+                            TokenSelectorAccountView(viewModel: viewModel)
+                        }
+                        .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    } else {
+                        Separator(color: Colors.Stroke.primary)
+                            .transition(.opacity)
+                    }
+                }
+                .clipped() // Clips the content (`TokenSelectorAccountView`) when the list is expanded
             }
-            .clipped() // Clips the content (`TokenSelectorAccountView`) when the list is expanded
 
         case .wallet, .accounts:
             EmptyView()

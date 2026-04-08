@@ -16,11 +16,19 @@ final class SwapTokenSelectorExpandedStateStorage: TokenSelectorExpandedStateSto
     private var userWalletRepository: UserWalletRepository
 
     @AppStorageCompat(StorageKeys.accountStates) private var accountStates: [String: Bool] = [:]
+    @AppStorageCompat(StorageKeys.selectedWalletId) private var storedSelectedWalletId: Data? = nil
 
     private var walletOpenStates: [UserWalletId: Bool] = [:]
 
     private var userWalletRepositorySubscription: AnyCancellable?
     private var userWalletModelsSubscriptions: [UserWalletId: AnyCancellable] = [:]
+
+    // MARK: - Selected Wallet
+
+    var selectedWalletId: UserWalletId? {
+        get { storedSelectedWalletId.map { UserWalletId(value: $0) } }
+        set { storedSelectedWalletId = newValue?.value }
+    }
 
     // MARK: - Wallet State
 
@@ -101,6 +109,10 @@ final class SwapTokenSelectorExpandedStateStorage: TokenSelectorExpandedStateSto
             accountStates.removeAll { $0.key.hasPrefix(storageKeyPrefix) }
             walletOpenStates.removeValue(forKey: userWalletId)
             userWalletModelsSubscriptions.removeValue(forKey: userWalletId)
+
+            if selectedWalletId == userWalletId {
+                selectedWalletId = nil
+            }
         }
     }
 
@@ -182,6 +194,7 @@ private extension SwapTokenSelectorExpandedStateStorage {
 
     enum StorageKeys: String, RawRepresentable {
         case accountStates = "tangem_expandable_swap_wallet_account_item_state_storage"
+        case selectedWalletId = "tangem_swap_token_selector_selected_wallet_id"
     }
 }
 

@@ -113,7 +113,39 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
             sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
         }
 
+        walletsSection
+    }
+
+    @ViewBuilder
+    private var walletsSection: some View {
+        if viewModel.walletChips.count > 1 {
+            walletChipsView
+
+            // Zero spacing prevents hidden (filtered-out) wallets from adding gaps between chips and the visible wallet
+            VStack(spacing: 0) {
+                walletsListView
+            }
+            .padding(.top, Constants.chipsToListExtraSpacing)
+        } else {
+            walletsListView
+        }
+    }
+
+    private var walletsListView: some View {
         ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
+    }
+
+    private var walletChipsView: some View {
+        HorizontalChipsView(
+            chips: viewModel.walletChips.map { Chip(id: $0.id.stringValue, title: $0.name) },
+            selectedId: Binding(
+                get: { viewModel.selectedWalletId?.stringValue },
+                set: { newValue in
+                    viewModel.selectedWalletId = viewModel.walletChips.first { $0.id.stringValue == newValue }?.id
+                }
+            ),
+            horizontalInset: 8
+        )
     }
 
     private func sectionHeader(
@@ -158,6 +190,7 @@ extension TokenSelectorView {
 
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
+        static var chipsToListExtraSpacing: CGFloat { 8 }
     }
 }
 

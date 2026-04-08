@@ -12,4 +12,13 @@ protocol TokenSelectorExpandedStateStorage: AnyObject {
     func isWalletOpen(_ walletId: UserWalletId) -> Bool
     func setWalletOpen(_ open: Bool, for walletId: UserWalletId)
     func makeAccountStateStorage(for userWalletId: UserWalletId) -> ExpandableAccountItemStateStorage
+
+    var selectedWalletId: UserWalletId? { get set }
+}
+
+extension TokenSelectorExpandedStateStorage {
+    var selectedWalletId: UserWalletId? {
+        get { nil }
+        set {}
+    }
 }
