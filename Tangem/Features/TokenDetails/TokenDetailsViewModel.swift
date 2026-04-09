@@ -251,10 +251,21 @@ extension TokenDetailsViewModel {
                 walletModelUpdater: walletModel
             )
         case .enabled:
-            coordinator?.openDynamicAddressesDisableSheet(
-                dynamicAddressesManager: dynamicAddressesManager,
-                walletModelUpdater: walletModel
-            )
+            switch dynamicAddressesManager.disablingRequirements {
+            case .compoundTransaction(let amount, let destination):
+                let input = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                coordinator?.openDynamicAddressesCompoundTransaction(
+                    input: input,
+                    amount: amount,
+                    destination: destination
+                )
+
+            case .none:
+                coordinator?.openDynamicAddressesDisableSheet(
+                    dynamicAddressesManager: dynamicAddressesManager,
+                    walletModelUpdater: walletModel
+                )
+            }
         }
     }
 
