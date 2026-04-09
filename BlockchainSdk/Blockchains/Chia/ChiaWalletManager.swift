@@ -12,7 +12,7 @@ import TangemSdk
 import WalletCore
 import TangemLocalization
 
-final class ChiaWalletManager: BaseManager, WalletManager {
+final class ChiaWalletManager: BaseWalletManager, WalletManager {
     // MARK: - Properties
 
     var currentHost: String { networkService.host }
@@ -35,7 +35,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address _: String) async throws {
         let coins = try await networkService.getUnspents(puzzleHash: puzzleHash).async()
         await update(with: coins)
     }

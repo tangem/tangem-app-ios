@@ -10,9 +10,9 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
-import struct Hedera.AccountId
+import struct Hiero.AccountId
 
-final class HederaWalletManager: BaseManager {
+final class HederaWalletManager: BaseWalletManager {
     fileprivate typealias AssociatedTokens = Set<String>
 
     private let networkService: HederaNetworkService
@@ -67,7 +67,7 @@ final class HederaWalletManager: BaseManager {
 
     // MARK: - Wallet update
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address _: String) async throws {
         do {
             try await loadCachedAssociatedTokensIfNeeded().async()
 
@@ -165,7 +165,7 @@ final class HederaWalletManager: BaseManager {
     private func doesAccountExist(destination: String) -> some Publisher<Bool, Error> {
         return Deferred {
             return Future { promise in
-                let result = Result { try Hedera.AccountId(parsing: destination) }
+                let result = Result { try Hiero.AccountId(parsing: destination) }
                 promise(result)
             }
         }
@@ -438,7 +438,7 @@ final class HederaWalletManager: BaseManager {
 
     private static func makeTransactionValidStartDate() -> UnixTimestamp? {
         // Subtracting `validStartDateDiff` from the `Date.now` to make sure that the tx valid start date has already passed
-        // The logic is the same as in the `Hedera.TransactionId.generateFrom(_:)` factory method
+        // The logic is the same as in the `Hiero.TransactionId.generateFrom(_:)` factory method
         let validStartDateDiff = Int.random(in: 5_000_000_000 ..< 8_000_000_000)
         let validStartDate = Calendar.current.date(byAdding: .nanosecond, value: -validStartDateDiff, to: Date())
 
