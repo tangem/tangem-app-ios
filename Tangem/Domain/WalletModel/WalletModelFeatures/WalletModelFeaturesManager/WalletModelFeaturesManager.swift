@@ -10,5 +10,6 @@ import Foundation
 import Combine
 
 protocol WalletModelFeaturesManager {
+    var features: [WalletModelFeature] { get }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 }
