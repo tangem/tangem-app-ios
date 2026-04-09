@@ -89,6 +89,7 @@ final class CryptoAccountsNetworkMapper {
                 let name = mapTokenName(token: storedToken)
                 let derivationPath = mapTokenDerivationPath(token: storedToken)
                 let addresses = storedToken.walletModelId.flatMap { walletModelAddresses?[$0] }
+                let dynamicAddressesEnabled = mapDynamicAddressesEnabled(token: storedToken)
 
                 return AccountsDTO.Request.Token(
                     id: tokenIdentifier,
@@ -99,7 +100,8 @@ final class CryptoAccountsNetworkMapper {
                     decimals: storedToken.decimalCount,
                     derivationPath: derivationPath,
                     contractAddress: storedToken.contractAddress,
-                    addresses: addresses
+                    addresses: addresses,
+                    dynamicAddressesEnabled: dynamicAddressesEnabled
                 )
             }
     }
@@ -150,6 +152,15 @@ final class CryptoAccountsNetworkMapper {
             return blockchainNetwork.derivationPath?.rawPath
         case .unknown(_, let rawDerivationPath):
             return rawDerivationPath
+        }
+    }
+
+    private func mapDynamicAddressesEnabled(token: StoredCryptoAccount.Token) -> Bool? {
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork) where blockchainNetwork.blockchain.isDynamicAddressesSupported:
+            return blockchainNetwork.derivationLevel == .xpub ? true : false
+        case .known, .unknown:
+            return nil
         }
     }
 
@@ -302,7 +313,8 @@ final class CryptoAccountsNetworkMapper {
 
         // Mapping must fail here if the derivation path does exist but invalid
         let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        let derivationLevel: BlockchainNetwork.DerivationLevel = token.dynamicAddressesEnabled == true ? .xpub : .plain
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath, derivationLevel: derivationLevel)
 
         return .known(blockchainNetwork: blockchainNetwork)
     }
