@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemUI
 
 final class TokenSelectorViewModelsMapper {
     // MARK: - Public
@@ -151,12 +152,37 @@ private extension TokenSelectorViewModelsMapper {
             let accountStateStorage = expandedStateStorage?.makeAccountStateStorage(for: walletId)
                 ?? ExpandableAccountItemStateStorageStub(isExpanded: false)
 
+            let initialFilteredItems = self.items(provider: account.itemsProvider)
+            let initialFilteredBalance = Self.filteredBalance(from: initialFilteredItems)
+
+            let filteredBalancePublisher = rawItemsPublisher
+                .flatMapLatest { items -> AnyPublisher<LoadableBalanceView.State, Never> in
+                    guard !items.isEmpty else {
+                        return Just(.empty).eraseToAnyPublisher()
+                    }
+
+                    return items
+                        .map { item in
+                            item.fiatBalanceProvider.balanceTypePublisher
+                                .map { TokenBalanceTypesCombiner.Balance(item: item.tokenItem, balance: $0) }
+                        }
+                        .combineLatest()
+                        .map { balances in
+                            let state = TokenBalanceTypesCombiner().mapToTotalBalance(balances: balances)
+                            return LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
+                        }
+                        .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
                 stateStorage: accountStateStorage,
                 initialItemsCount: items.count,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
-                searchTextPublisher: searchText.eraseToAnyPublisher()
+                searchTextPublisher: searchText.eraseToAnyPublisher(),
+                initialFilteredBalance: initialFilteredBalance,
+                filteredBalancePublisher: filteredBalancePublisher
             )
         }
 
@@ -201,5 +227,13 @@ private extension TokenSelectorViewModelsMapper {
 
             return .accounts(walletName: walletName, accounts: accounts)
         }
+    }
+
+    static func filteredBalance(from items: [TokenSelectorItem]) -> LoadableBalanceView.State {
+        let balances = items.map {
+            TokenBalanceTypesCombiner.Balance(item: $0.tokenItem, balance: $0.fiatBalanceProvider.balanceType)
+        }
+        let state = TokenBalanceTypesCombiner().mapToTotalBalance(balances: balances)
+        return LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
     }
 }

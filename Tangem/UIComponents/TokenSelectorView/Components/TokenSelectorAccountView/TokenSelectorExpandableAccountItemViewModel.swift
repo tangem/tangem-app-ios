@@ -30,6 +30,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     private let accountModel: any BaseAccountModel
     private let priceChangeUtility = PriceChangeUtility()
     private let stateStorage: ExpandableAccountItemStateStorage
+    private let filteredBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never>?
 
     /// User's explicit collapse/expand choice (independent of search override).
     private var userExplicitState: Bool = false
@@ -44,10 +45,13 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         stateStorage: ExpandableAccountItemStateStorage,
         initialItemsCount: Int = 0,
         itemsCountPublisher: AnyPublisher<Int, Never>,
-        searchTextPublisher: AnyPublisher<String, Never>
+        searchTextPublisher: AnyPublisher<String, Never>,
+        initialFilteredBalance: LoadableBalanceView.State? = nil,
+        filteredBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never>? = nil
     ) {
         accountModel = account
         self.stateStorage = stateStorage
+        self.filteredBalancePublisher = filteredBalancePublisher
         name = account.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: account)
         rawTokensCount = initialItemsCount
@@ -56,15 +60,20 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         isExpanded = initialExpanded
         userExplicitState = initialExpanded
 
-        // Try to get balance/rate from BalanceProvidingAccountModel
-        if let balanceProvider = account as? BalanceProvidingAccountModel {
+        if let initialFilteredBalance {
+            totalFiatBalance = initialFilteredBalance
+        } else if let balanceProvider = account as? BalanceProvidingAccountModel {
             totalFiatBalance = balanceProvider.fiatTotalBalanceProvider.totalFiatBalance
+        } else {
+            totalFiatBalance = .empty
+        }
+
+        if let balanceProvider = account as? BalanceProvidingAccountModel {
             priceChange = Self.mapToPriceChangeState(
                 rate: balanceProvider.rateProvider.accountRate,
                 using: priceChangeUtility
             )
         } else {
-            totalFiatBalance = .empty
             priceChange = .noData
         }
 
@@ -127,11 +136,17 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
 
         guard let balanceProvider = accountModel as? BalanceProvidingAccountModel else { return }
 
-        balanceProvider
-            .fiatTotalBalanceProvider
-            .totalFiatBalancePublisher
-            .receiveOnMain()
-            .assign(to: &$totalFiatBalance)
+        if let filteredBalancePublisher {
+            filteredBalancePublisher
+                .receiveOnMain()
+                .assign(to: &$totalFiatBalance)
+        } else {
+            balanceProvider
+                .fiatTotalBalanceProvider
+                .totalFiatBalancePublisher
+                .receiveOnMain()
+                .assign(to: &$totalFiatBalance)
+        }
 
         balanceProvider
             .rateProvider
