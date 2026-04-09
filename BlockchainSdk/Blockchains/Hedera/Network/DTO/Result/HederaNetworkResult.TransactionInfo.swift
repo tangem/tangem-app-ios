@@ -7,12 +7,12 @@
 //
 
 import Foundation
-import enum Hedera.Status
+import enum Hiero.Status
 
 extension HederaNetworkResult {
     /// Used by the Consensus network layer.
     struct TransactionInfo {
-        let status: Hedera.Status
+        let status: Hiero.Status
         let hash: String
     }
 }
