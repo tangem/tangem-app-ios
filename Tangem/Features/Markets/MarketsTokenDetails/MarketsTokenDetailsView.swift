@@ -171,15 +171,18 @@ struct MarketsTokenDetailsView: View {
         .opacity(viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .bindAlert($viewModel.alert)
-        .descriptionBottomSheet(
-            info: $viewModel.descriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action
-        )
-        .tokenDescriptionBottomSheet(
-            info: $viewModel.fullDescriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action,
-            onGeneratedAITapAction: viewModel.onGenerateAITapAction
-        )
+        .if(!viewModel.isRedesignEnabled) { view in
+            view
+                .descriptionBottomSheet(
+                    info: $viewModel.descriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action
+                )
+                .tokenDescriptionBottomSheet(
+                    info: $viewModel.fullDescriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action,
+                    onGeneratedAITapAction: viewModel.onGenerateAITapAction
+                )
+        }
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
             MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
                 .adaptivePresentationDetents()

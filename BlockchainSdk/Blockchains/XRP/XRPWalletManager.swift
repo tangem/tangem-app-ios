@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 import TangemLocalization
 
-class XRPWalletManager: BaseManager, WalletManager {
+class XRPWalletManager: BaseWalletManager, WalletManager {
     var txBuilder: XRPTransactionBuilder!
     var networkService: XRPNetworkService!
 
@@ -29,9 +29,9 @@ class XRPWalletManager: BaseManager, WalletManager {
     /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
     private var lastTrustlineOpenAttemptDate: Date?
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let response = try await networkService.getInfo(account: wallet.address).async()
+            let response = try await networkService.getInfo(account: address).async()
             updateWallet(with: response, tokens: cardTokens)
         } catch {
             wallet.clearAmounts()

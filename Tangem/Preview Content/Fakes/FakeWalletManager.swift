@@ -39,13 +39,19 @@ class FakeWalletManager: WalletManager {
             derivationPath: wallet.publicKey.derivationPath
         )
 
-        walletModels = CommonWalletModelsFactory(
-            config: Wallet2Config(
-                card: CardDTO(card: CardMock.wallet.card),
-                isDemo: false
-            ),
-            userWalletId: UserWalletId(value: Data())
-        ).makeWalletModels(
+        let config = Wallet2Config(
+            card: CardDTO(card: CardMock.wallet.card),
+            isDemo: false
+        )
+        let userWalletId = UserWalletId(value: Data())
+        let keysProvider = CommonKeysRepository(keys: .cardWallet(keys: []))
+
+        walletModels = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysProvider: keysProvider,
+            keysDerivingInteractor: KeysDerivingMock()
+        ).makeWalletModelsFactory().makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,
@@ -68,6 +74,12 @@ class FakeWalletManager: WalletManager {
         AppLogger.debug("Receive update request")
         try? await Task.sleep(for: .seconds(5))
         state = nextState()
+    }
+
+    func updateWalletManager(address: String) async throws {}
+
+    func update(wallet newWallet: BlockchainSdk.Wallet) throws {
+        wallet = newWallet
     }
 
     func removeToken(_ token: BlockchainSdk.Token) {

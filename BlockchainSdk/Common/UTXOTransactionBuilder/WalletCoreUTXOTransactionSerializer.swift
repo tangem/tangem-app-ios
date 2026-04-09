@@ -27,7 +27,7 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
         let txInputData = try input.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedBytes: preImageHashes)
 
         if preSigningOutput.error != .ok {
             BSDKLogger.error("BitcoinPreSigningOutput has a error", error: preSigningOutput.errorMessage)
@@ -57,7 +57,7 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
             publicKeys: publicKeysVector
         )
 
-        let output = try BitcoinSigningOutput(serializedData: compileWithSignatures)
+        let output = try BitcoinSigningOutput(serializedBytes: compileWithSignatures)
 
         if output.error != .ok {
             BSDKLogger.error("BitcoinSigningOutput has a error", error: output.errorMessage)

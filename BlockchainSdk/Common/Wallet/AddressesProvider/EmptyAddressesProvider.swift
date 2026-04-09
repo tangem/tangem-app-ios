@@ -11,8 +11,8 @@ public struct EmptyAddressesProvider: Wallet.AddressesProvider {
 
     public init() {}
 
-    public var addresses: [any Address] { [emptyAddress] }
     public var defaultAddress: any Address { emptyAddress }
+    public var legacyAddress: (any Address)? { nil }
 
     public mutating func update(address: any Address) {}
 }
