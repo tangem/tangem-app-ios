@@ -13,7 +13,6 @@ import BlockchainSdk
 
 struct CommonCryptoAccountDependenciesFactory {
     typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
-    typealias WalletModelsFactoryProvider = (_ userWalletId: UserWalletId) -> WalletModelsFactory
 
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
@@ -59,7 +58,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
+        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory()
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
