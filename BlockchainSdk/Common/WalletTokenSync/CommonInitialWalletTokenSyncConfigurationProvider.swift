@@ -19,13 +19,33 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
 
     public func canHandle(_ blockchain: Blockchain) -> Bool {
         switch blockchain {
-        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper,
-             .cosmos, .terraV1, .terraV2, .sei, .ton,
-             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
-             .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash, .kaspa, .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant,
-             .alephium:
+        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar,
+             .koinos, .sui, .internetComputer, .filecoin, .casper,
+             .cosmos, .terraV1, .terraV2, .sei, .ton, .polkadot, .kusama,
+             .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
+             .alephium, .kaspa, .cardano, .chia:
             return true
-        default:
+
+        // Bitcoin UTXO - Like
+        case .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash,
+             .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant:
+            return true
+
+        // EVM blockchains supported by this provider.
+        case .ethereum, .polygon, .bsc, .arbitrum, .optimism, .avalanche, .fantom, .base, .linea,
+             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad,
+             .ethereumPoW, .disChain, .ethereumClassic, .rsk, .kava, .telos, .octa, .decimal, .xdc,
+             .shibarium, .areon, .playa3ullGames, .aurora, .manta, .zkSync, .polygonZkEVM,
+             .mantle, .flare, .taraxa, .cyber, .blast, .energyWebEVM, .core, .canxium, .xodex,
+             .odysseyChain, .bitrock, .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
+             .quai, .scroll, .arbitrumNova, .plasma:
+            return true
+
+        case .solana:
+            return false
+
+        // Unsupported obtain provider
+        case .hedera:
             return false
         }
     }
@@ -115,7 +135,21 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
             return try await TronInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
             ).configuration(for: blockchain, address: address)
+        case .cardano:
+            return try await CardanoInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .chia:
+            return try await ChiaInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
         default:
+            if blockchain.isEvm {
+                return try await EVMInitialWalletTokenSyncConfigurationProvider(
+                    networkServiceFactory: networkServiceFactory
+                ).configuration(for: blockchain, address: address)
+            }
+
             throw BlockchainSdkError.notImplemented
         }
     }
