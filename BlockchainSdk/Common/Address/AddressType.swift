@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemMacro
 
 public indirect enum AddressType: Hashable {
     case `default`
@@ -22,6 +23,15 @@ public indirect enum AddressType: Hashable {
             return "Used #\(index)"
         case .legacy:
             return Localization.addressTypeLegacy
+        }
+    }
+
+    public func isUsed() -> Bool {
+        switch self {
+        case .default, .legacy:
+            return false
+        case .used:
+            return true
         }
     }
 }

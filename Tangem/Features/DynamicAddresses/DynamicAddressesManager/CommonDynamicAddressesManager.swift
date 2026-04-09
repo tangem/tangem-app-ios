@@ -43,13 +43,29 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
         _state.eraseToAnyPublisher()
     }
 
-    var derivationIsNeededToEnabled: Bool {
-        xpubKeyGenerator.derivationIsNeeded()
+    var enablingRequirements: DynamicAddressesEnablingRequirements? {
+        if xpubKeyGenerator.derivationIsNeeded() {
+            return .xpubDerivationIsNeeded
+        }
+
+        return .none
+    }
+
+    var disablingRequirements: DynamicAddressesDisablingRequirements? {
+        if let (amount, destination) = dynamicAddressesWalletUpdater.compoundTransactionIfNeeded() {
+            return .compoundTransaction(amount, destination: destination)
+        }
+
+        return .none
     }
 
     func enableDynamicAddresses() async throws {
         guard _state.value.isDisabled else {
             throw DynamicAddressesManagerError.attemptToEnableDynamicAddressesWhileAlreadyEnabled
+        }
+
+        guard enablingRequirements == .none else {
+            throw DynamicAddressesManagerError.enablingRequirementsNotMet
         }
 
         let xpubKey = try await xpubKeyGenerator.generateXPUBKey()
@@ -68,6 +84,10 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
     func disableDynamicAddresses() throws {
         guard _state.value.isEnabled else {
             throw DynamicAddressesManagerError.attemptToDisableDynamicAddressesWhileAlreadyDisabled
+        }
+
+        guard disablingRequirements == .none else {
+            throw DynamicAddressesManagerError.disablingRequirementsNotMet
         }
 
         try dynamicAddressesWalletUpdater.updateToPlainKey()

@@ -192,6 +192,23 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openDynamicAddressesCompoundTransaction(input: SendInput, amount: BSDKAmount, destination: String) {
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
+        let sellParameters = PredefinedSellParameters(amount: amount.value, destination: destination, tag: nil)
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .sell(sourceToken, parameters: sellParameters),
+            source: .tokenDetails
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
     func openURLInSystemBrowser(url: URL) {
         UIApplication.shared.open(url)
     }
