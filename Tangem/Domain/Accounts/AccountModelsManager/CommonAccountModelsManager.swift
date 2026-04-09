@@ -141,7 +141,7 @@ actor CommonAccountModelsManager {
                     userTokensManager: dependencies.userTokensManager,
                     accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
                     accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                    derivationManager: dependencies.userTokensManager.derivationManager,
+                    derivationManager: dependencies.derivationManager,
                     delegate: self
                 )
 
