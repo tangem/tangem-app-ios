@@ -52,7 +52,7 @@ final class AptosTransactionBuilder {
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error("AptosPreSigningOutput has a error", error: preSigningOutput.errorMessage)
@@ -77,7 +77,7 @@ final class AptosTransactionBuilder {
             publicKeys: publicKey.asDataVector()
         )
 
-        let signingOutput = try AptosSigningOutput(serializedData: compiledTransaction)
+        let signingOutput = try AptosSigningOutput(serializedBytes: compiledTransaction)
 
         guard signingOutput.error == .ok, signingOutput.hasAuthenticator else {
             BSDKLogger.error(error: "AptosSigningOutput has a error")

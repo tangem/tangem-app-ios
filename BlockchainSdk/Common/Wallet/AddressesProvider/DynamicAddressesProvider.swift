@@ -37,15 +37,13 @@ public struct DynamicAddressesProvider {
 // MARK: - Wallet.AddressesProvider
 
 extension DynamicAddressesProvider: Wallet.AddressesProvider {
-    public var addresses: [any Address] {
-        [defaultAddress]
-    }
-
     /// Computes first unused receive address every call.
     /// Returns base address (0/0) when usedDerivations is empty or on error.
     public var defaultAddress: any Address {
         resolveAddress(for: .external)
     }
+
+    public var legacyAddress: (any Address)? { nil }
 
     /// Computes first unused change address every call.
     public var changeAddress: any Address {
