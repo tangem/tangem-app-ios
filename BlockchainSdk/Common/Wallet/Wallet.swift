@@ -23,6 +23,7 @@ public struct Wallet {
 
     public var addresses: [Address] { addressesProvider.addresses }
     public var defaultAddress: Address { addressesProvider.defaultAddress }
+    public var legacyAddress: Address? { addressesProvider.legacyAddress }
 
     /// Default address string
     public var address: String { defaultAddress.value }
