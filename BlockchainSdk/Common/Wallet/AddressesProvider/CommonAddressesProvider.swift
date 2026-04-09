@@ -19,12 +19,12 @@ public struct CommonAddressesProvider {
 // MARK: - Wallet.AddressesProvider
 
 extension CommonAddressesProvider: Wallet.AddressesProvider {
-    public var addresses: [any Address] {
-        [_defaultAddress, _legacyAddress].compactMap(\.self)
-    }
-
     public var defaultAddress: any Address {
         _defaultAddress
+    }
+
+    public var legacyAddress: (any Address)? {
+        _legacyAddress
     }
 
     public mutating func update(address: any Address) {
