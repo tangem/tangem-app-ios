@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
 import TangemAccounts
 import TangemLocalization
 import TangemPay
@@ -27,7 +26,6 @@ extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsP
 struct TokenSelectorWallet {
     let wallet: UserWalletInfo
     let accounts: AccountType
-    let accountsPublisher: AnyPublisher<AccountType, Never>
 }
 
 extension TokenSelectorWallet {
