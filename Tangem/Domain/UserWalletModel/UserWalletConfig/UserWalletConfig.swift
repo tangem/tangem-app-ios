@@ -23,6 +23,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var defaultName: String { get }
 
+    var isDemo: Bool { get }
+
     /// Actual state of current card's curves or main card's curves in case of biometrics
     var existingCurves: [EllipticCurve] { get }
 
@@ -70,14 +72,16 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
 }
 
 extension UserWalletConfig {
+    var isDemo: Bool {
+        false
+    }
+
     var cardSetLabel: String {
         Localization.cardLabelCardCount(cardsCount)
     }
