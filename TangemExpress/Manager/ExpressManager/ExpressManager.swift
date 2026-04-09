@@ -71,7 +71,7 @@ public extension ExpressManager {
 
 private extension ExpressManager {
     func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders().filteredByRateType(getAmountType()?.rateType)
+        let providers = getAllProviders()
         return ExpressManagerUpdatingResult(providers: providers, selected: selected)
     }
 }
