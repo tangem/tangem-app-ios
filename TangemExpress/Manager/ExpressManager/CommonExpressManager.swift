@@ -172,7 +172,8 @@ private extension CommonExpressManager {
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
         async let allIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: nil)
         async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
-        let (allSet, fixedSet) = await (Set(allIds), Set(fixedIds))
+        async let floatIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .float)
+        let (allSet, fixedSet, floatSet) = await (Set(allIds), Set(fixedIds), Set(floatIds))
 
         let providers = try await expressRepository.providers()
 
@@ -186,7 +187,8 @@ private extension CommonExpressManager {
                 throw ExpressManagerError.unsupportedProviderType
             }
 
-            var rateTypes: Set<ExpressProviderRateType> = [.float]
+            var rateTypes: Set<ExpressProviderRateType> = []
+            if floatSet.contains(provider.id) { rateTypes.insert(.float) }
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
             return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: rateTypes, isBest: false)
