@@ -12,10 +12,10 @@ import TangemFoundation
 import TangemSdk
 
 struct DemoWalletModelsFactory {
-    private let factory: CommonWalletModelsFactory
+    private let innerFactory: any WalletModelsFactory
 
-    init(config: UserWalletConfig, userWalletId: UserWalletId) {
-        factory = CommonWalletModelsFactory(config: config, userWalletId: userWalletId)
+    init(innerFactory: any WalletModelsFactory) {
+        self.innerFactory = innerFactory
     }
 }
 
@@ -30,7 +30,7 @@ extension DemoWalletModelsFactory: WalletModelsFactory {
         let derivationPath = walletManager.wallet.publicKey.derivationPath
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
 
-        let models = factory.makeWalletModels(
+        let models = innerFactory.makeWalletModels(
             for: types,
             walletManager: walletManager,
             blockchainNetwork: blockchainNetwork,
