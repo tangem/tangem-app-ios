@@ -161,7 +161,7 @@ final class TokenSelectorViewModel: ObservableObject {
 
         // Collect items count from all wallets and compute visibility
         wallets
-            .map { $0.$viewType.flatMapLatest { $0.itemsCount } }
+            .map { $0.viewType.itemsCount }
             .combineLatest()
             .map { counts -> ContentVisibility in
                 let totalCount = counts.sum()
