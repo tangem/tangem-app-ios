@@ -16,7 +16,9 @@ final class CommonDerivationManager {
     private let keysRepository: KeysRepository
     private var accountModelsManagerSubscription: AnyCancellable?
     private weak var keysDerivingProvider: KeysDerivingProvider?
-    private(set) var pendingDerivations: [PendingDerivation] = []
+    private(set) var pendingDerivations: [PendingDerivation] = [] {
+        didSet { print("->> \(pendingDerivations.count)") }
+    }
 
     private lazy var debouncer = Debouncer(interval: Constants.deriveKeysDebounceInterval) { [weak self] in
         self?.deriveKeysInternal(completion: $0)

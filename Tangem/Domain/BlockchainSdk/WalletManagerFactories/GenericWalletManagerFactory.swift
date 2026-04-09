@@ -39,6 +39,13 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
                     keys: keys,
                     apiList: apiList
                 )
+        case let blockchain where blockchain.isDynamicAddressesSupported && blockchainNetwork.derivationLevel == .xpub:
+            return try BitcoinXPUBWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         default:
             return try HDWalletManagerFactory().makeWalletManager(
                 blockchainNetwork: blockchainNetwork,

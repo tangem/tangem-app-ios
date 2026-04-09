@@ -51,7 +51,7 @@ class FakeWalletManager: WalletManager {
             userWalletConfig: config,
             keysProvider: keysProvider,
             keysDerivingInteractor: KeysDerivingMock()
-        ).makeWalletModelsFactory().makeWalletModels(
+        ).makeWalletModelsFactory(derivationLevelUpdater: FakeDerivationLevelUpdater()).makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,
@@ -185,4 +185,8 @@ extension FakeWalletManager {
         wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
+}
+
+private struct FakeDerivationLevelUpdater: DerivationLevelUpdater {
+    func update(blockchainNetwork: BlockchainNetwork, for tokenItem: TokenItem) {}
 }

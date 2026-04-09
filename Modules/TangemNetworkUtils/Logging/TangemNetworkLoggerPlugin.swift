@@ -92,7 +92,7 @@ extension TangemNetworkLoggerPlugin {
         }
 
         if logOptions.contains(.successResponseBody),
-           target.shouldLogResponseBody,
+           // target.shouldLogResponseBody,
            let bodyString = String(data: response.data, encoding: .utf8) {
             output.append("Body: \(bodyString)")
         }
