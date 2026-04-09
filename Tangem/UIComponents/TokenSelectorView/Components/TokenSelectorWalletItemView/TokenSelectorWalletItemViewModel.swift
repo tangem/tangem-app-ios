@@ -14,7 +14,7 @@ import TangemFoundation
 final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     let walletId: UserWalletId
     let walletName: String
-    
+
     let viewType: ViewType
     var hideWalletHeader: Bool = false
 
