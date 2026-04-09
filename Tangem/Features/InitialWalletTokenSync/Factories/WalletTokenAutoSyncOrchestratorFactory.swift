@@ -38,16 +38,17 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         tokenBalanceClient: MoralisTokenBalanceClient
     ) -> (Blockchain) -> (any WalletTokenAutoSyncRelayer)? {
         { blockchain in
-            if configurationProvider.canHandle(blockchain) {
-                return makeConfigurationRelayer(
-                    configurationProvider: configurationProvider,
+            // Use Moralis first to obtain blockchain balances
+            if MoralisSupportedBlockchains.all.contains(blockchain) {
+                return makeMoralisRelayer(
+                    tokenBalanceClient: tokenBalanceClient,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }
 
-            if MoralisSupportedBlockchains.all.contains(blockchain) {
-                return makeMoralisRelayer(
-                    tokenBalanceClient: tokenBalanceClient,
+            if configurationProvider.canHandle(blockchain) {
+                return makeConfigurationRelayer(
+                    configurationProvider: configurationProvider,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }
