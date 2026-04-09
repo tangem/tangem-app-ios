@@ -134,6 +134,7 @@ final class WalletModelTestsMock: WalletModel {
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
+    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
