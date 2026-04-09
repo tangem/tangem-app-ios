@@ -403,7 +403,7 @@ final class UserWalletNotificationManager {
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
             .flatMapLatest { derivationManagers in
                 return derivationManagers
-                    .compactMap(\.pendingDerivationsCount)
+                    .map(\.pendingDerivationsCount)
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
