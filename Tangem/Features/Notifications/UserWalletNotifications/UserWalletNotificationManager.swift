@@ -407,6 +407,7 @@ final class UserWalletNotificationManager {
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
+            .print("->>")
 
         let tangemPay = userWalletModel.accountModelsManager
             .tangemPayAccountModelPublisher

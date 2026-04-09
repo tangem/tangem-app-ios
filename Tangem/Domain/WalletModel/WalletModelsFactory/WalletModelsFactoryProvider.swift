@@ -11,15 +11,20 @@ import TangemFoundation
 struct WalletModelsFactoryProvider {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
-    let keysProvider: KeysProvider
+    let keysProvider: KeysRepository
     let keysDerivingInteractor: KeysDeriving
 
-    func makeWalletModelsFactory() -> any WalletModelsFactory {
+    func makeWalletModelsFactory(derivationLevelUpdater: DerivationLevelUpdater) -> any WalletModelsFactory {
+        let dynamicAddressesManagerProvider = DynamicAddressesManagerProvider(
+            keysProvider: keysProvider,
+            keysDerivingInteractor: keysDerivingInteractor,
+            derivationLevelUpdater: derivationLevelUpdater
+        )
+
         let featuresManagerProvider = WalletModelFeaturesManagerProvider(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
-            keysProvider: keysProvider,
-            keysDerivingInteractor: keysDerivingInteractor
+            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider
         )
 
         let factory = CommonWalletModelsFactory(
