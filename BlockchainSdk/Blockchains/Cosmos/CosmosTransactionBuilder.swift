@@ -48,7 +48,7 @@ class CosmosTransactionBuilder {
 
     func buildForSignRaw(txInputData: Data) throws -> Data {
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: cosmosChain.coin, txInputData: txInputData)
-        let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let output = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         if output.error != .ok {
             throw BlockchainSdkError.failedToBuildTx
@@ -72,7 +72,7 @@ class CosmosTransactionBuilder {
             publicKeys: publicKeys
         )
 
-        let output = try CosmosSigningOutput(serializedData: transactionData)
+        let output = try CosmosSigningOutput(serializedBytes: transactionData)
 
         if output.error != .ok {
             throw BlockchainSdkError.failedToBuildTx
@@ -243,7 +243,7 @@ extension CosmosMessage {
         switch type {
         case let string where string.contains(Constants.delegateMessage.rawValue):
             let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
-                serializedData: delegateData
+                serializedBytes: delegateData
             )
             let stakeMessage = CosmosMessage.Delegate.with { delegate in
                 delegate.amount = CosmosAmount.with { amount in
@@ -258,7 +258,7 @@ extension CosmosMessage {
             }
         case let string where string.contains(Constants.withdrawMessage.rawValue):
             let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
-                serializedData: delegateData
+                serializedBytes: delegateData
             )
             let withdrawMessage = CosmosMessage.WithdrawDelegationReward.with { reward in
                 reward.delegatorAddress = delegateData.delegatorAddress
@@ -269,7 +269,7 @@ extension CosmosMessage {
             }
         case let string where string.contains(Constants.undelegateMessage.rawValue):
             let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
-                serializedData: delegateData
+                serializedBytes: delegateData
             )
             let delegateAmount = delegateData.delegateAmount
             let unstakeMessage = CosmosMessage.Undelegate.with { delegate in
@@ -285,7 +285,7 @@ extension CosmosMessage {
             }
         case let string where string.contains(Constants.redelegate.rawValue):
             let redelegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.RedelegateData(
-                serializedData: delegateData
+                serializedBytes: delegateData
             )
             let redelegateAmount = redelegateData.delegateAmount
             let restakeMessage = CosmosMessage.BeginRedelegate.with { redelegate in
