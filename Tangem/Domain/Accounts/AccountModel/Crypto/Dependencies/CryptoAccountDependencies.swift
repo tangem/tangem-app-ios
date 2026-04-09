@@ -12,6 +12,7 @@ struct CryptoAccountDependencies {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager
     let walletModelsFactoryInput: WalletModelsFactoryInput
+    let derivationManager: (DerivationManager & DerivationStatusProvider)?
 
     func makeBalanceProvidingDependencies() -> (
         balanceProvider: AccountBalanceProvider,
@@ -20,7 +21,7 @@ struct CryptoAccountDependencies {
         let totalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
-            derivationStatusProvider: userTokensManager.derivationManager
+            derivationStatusProvider: derivationManager
         )
 
         let commonBalanceProvider = CommonAccountBalanceProvider(
