@@ -14,13 +14,12 @@ import TangemFoundation
 final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     let walletId: UserWalletId
     let walletName: String
+    
+    let viewType: ViewType
+    var hideWalletHeader: Bool = false
 
     @Published private(set) var isOpen: Bool = true
-
-    @Published private(set) var viewType: ViewType
     @Published private(set) var contentVisibility: TokenSelectorViewModel.ContentVisibility?
-
-    var hideWalletHeader: Bool = false
     @Published var isFilteredOut: Bool = false
 
     private let onOpenStateChange: ((Bool) -> Void)?
@@ -30,7 +29,6 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
         walletName: String,
         isOpen: Bool = true,
         viewType: ViewType,
-        viewTypePublisher: AnyPublisher<ViewType, Never>? = nil,
         onOpenStateChange: ((Bool) -> Void)? = nil
     ) {
         self.walletId = walletId
@@ -41,8 +39,6 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
 
         // Set initial contentVisibility synchronously so it's available before any view renders
         contentVisibility = viewType.initialContentVisibility
-
-        viewTypePublisher?.receiveOnMain().assign(to: &$viewType)
 
         bind()
     }
@@ -57,8 +53,7 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        $viewType
-            .flatMapLatest { $0.itemsCount }
+        viewType.itemsCount
             .removeDuplicates()
             .map { $0 == .zero ? .empty : .visible(itemsCount: $0) }
             .removeDuplicates()

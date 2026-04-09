@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
-
 final class CommonTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
@@ -46,23 +44,9 @@ private extension CommonTokenSelectorWalletsProvider {
             userWalletInfo: userWalletInfo,
             isUserWalletLocked: isUserWalletLocked
         )
-        let accountsPublisher = userWalletModel
-            .accountModelsManager
-            .accountModelsPublisher
-            .withWeakCaptureOf(self)
-            .map { mapper, accountModels in
-                mapper.mapToAccountType(
-                    accountModels: accountModels,
-                    userWalletInfo: userWalletInfo,
-                    isUserWalletLocked: isUserWalletLocked
-                )
-            }
-            .eraseToAnyPublisher()
-
         return TokenSelectorWallet(
             wallet: userWalletInfo,
-            accounts: accounts,
-            accountsPublisher: accountsPublisher
+            accounts: accounts
         )
     }
 
