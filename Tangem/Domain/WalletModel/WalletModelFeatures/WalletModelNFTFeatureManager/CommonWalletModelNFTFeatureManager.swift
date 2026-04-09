@@ -1,5 +1,5 @@
 //
-//  CommonWalletModelFeaturesManager.swift
+//  CommonWalletModelNFTFeatureManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,16 +12,14 @@ import CombineExt
 import TangemNFT
 import TangemFoundation
 
-final class CommonWalletModelFeaturesManager {
+final class CommonWalletModelNFTFeatureManager {
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
 
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
 
-    // MARK: - NFT
-
-    private lazy var nftFeaturePublisher: some Publisher<[WalletModelFeature], Never> = nftAvailabilityProvider
+    private lazy var _nftFeaturePublisher: some Publisher<WalletModelFeature?, Never> = nftAvailabilityProvider
         .didChangeNFTAvailabilityPublisher
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -30,10 +28,10 @@ final class CommonWalletModelFeaturesManager {
                 featuresManager.isNFTAvailable,
                 let networkService = featuresManager.nftNetworkService
             else {
-                return []
+                return nil
             }
 
-            return [.nft(networkService: networkService)]
+            return .nft(networkService: networkService)
         }
 
     /// Can change its value at runtime.
@@ -61,16 +59,6 @@ final class CommonWalletModelFeaturesManager {
         return _nftNetworkService
     }
 
-    // MARK: - Staking
-
-    // [REDACTED_TODO_COMMENT]
-    private lazy var stakingFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
-
-    // MARK: - Transaction history
-
-    // [REDACTED_TODO_COMMENT]
-    private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
-
     init(
         userWalletId: UserWalletId,
         userWalletConfig: UserWalletConfig,
@@ -82,16 +70,17 @@ final class CommonWalletModelFeaturesManager {
     }
 }
 
-// MARK: - WalletModelFeaturesManager protocol conformance
+// MARK: - WalletModelNFTFeatureManager protocol conformance
 
-extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
-    var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        return Publishers.CombineLatest3(
-            nftFeaturePublisher,
-            stakingFeaturePublisher,
-            transactionHistoryFeaturePublisher,
-        )
-        .map { $0.0 + $0.1 + $0.2 }
-        .eraseToAnyPublisher()
+extension CommonWalletModelNFTFeatureManager: WalletModelNFTFeatureManager {
+    var nftFeature: WalletModelFeature? {
+        guard isNFTAvailable, let networkService = nftNetworkService else {
+            return nil
+        }
+        return .nft(networkService: networkService)
+    }
+
+    var nftFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
+        _nftFeaturePublisher.eraseToAnyPublisher()
     }
 }

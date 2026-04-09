@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import Hedera
+import Hiero
 import TangemFoundation
 
 /// Provider for Hedera Consensus Nodes (GRPC) https://docs.hedera.com/hedera/networks/mainnet/mainnet-nodes
