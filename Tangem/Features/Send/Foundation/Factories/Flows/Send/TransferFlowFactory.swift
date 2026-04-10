@@ -12,7 +12,7 @@ class TransferNFTFlowFactory: SendFlowBaseDependenciesFactory {
     let transferableToken: SendTransferableToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .nft)
     lazy var sendModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
         predefinedValues: .init(
