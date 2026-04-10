@@ -124,7 +124,7 @@ final class HederaWalletManager: BaseManager {
     }
 
     private func updateWalletAddress(accountId: String) {
-        let address = PlainAddress(value: accountId, publicKey: wallet.publicKey, type: .default)
+        let address = PlainAddress(value: accountId, type: .default)
         wallet.set(address: address)
     }
 

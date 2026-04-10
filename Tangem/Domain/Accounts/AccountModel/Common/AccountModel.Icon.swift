@@ -9,16 +9,29 @@
 import Foundation
 import TangemFoundation
 
+protocol AccountModelIconConvertible {
+    var erased: AccountModel.Icon { get }
+}
+
 extension AccountModel {
-    struct Icon: Hashable {
+    enum Icon: Hashable {
+        case composite(CompositeIcon)
+        case standalone(StandaloneIcon)
+    }
+
+    struct CompositeIcon: Hashable {
         let name: Name
         let color: Color
+    }
+
+    enum StandaloneIcon: Hashable {
+        case tangemPay
     }
 }
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/main/kotlin/com/tangem/domain/models/account/CryptoPortfolioIcon.kt
-extension AccountModel.Icon {
+extension AccountModel.CompositeIcon {
     enum Color: String, CaseIterable, Hashable {
         case azure = "Azure"
         case caribbeanBlue = "CaribbeanBlue"
@@ -32,29 +45,6 @@ extension AccountModel.Icon {
         case pattypan = "Pattypan"
         case ufoGreen = "UFOGreen"
         case vitalGreen = "VitalGreen"
-
-        // Workaround for correctly displaying TangemPay account icon
-        // [REDACTED_TODO_COMMENT]
-        case clear
-
-        /// User-selectable colors for crypto accounts.
-        /// Excludes `.clear` which is a non-selectable workaround for TangemPay ([REDACTED_INFO]).
-        static var cryptoAccountColors: [Color] {
-            [
-                .azure,
-                .caribbeanBlue,
-                .dullLavender,
-                .candyGrapeFizz,
-                .sweetDesire,
-                .palatinateBlue,
-                .fuchsiaNebula,
-                .mexicanPink,
-                .pelati,
-                .pattypan,
-                .ufoGreen,
-                .vitalGreen,
-            ]
-        }
     }
 
     enum Name: String, CaseIterable, Hashable {
@@ -76,7 +66,6 @@ extension AccountModel.Icon {
         case clock = "Clock"
         case package = "Package"
         case gift = "Gift"
-        case tangemPay = "TangemPay"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
@@ -100,40 +89,24 @@ extension AccountModel.Icon {
             case .clock: 15
             case .package: 16
             case .gift: 17
-            case .tangemPay: 18
             }
-        }
-
-        /// User-selectable icon names for crypto accounts.
-        /// Excludes `.tangemPay` which is a fixed, non-selectable icon.
-        static var cryptoAccountIcons: [Name] {
-            [
-                .letter,
-                .star,
-                .user,
-                .family,
-                .wallet,
-                .money,
-                .home,
-                .safe,
-                .beach,
-                .airplaneMode,
-                .shirt,
-                .shoppingBasket,
-                .favorite,
-                .bookmark,
-                .startUp,
-                .clock,
-                .package,
-                .gift,
-            ]
         }
     }
 }
 
+// MARK: - AccountModelIconConvertible protocol conformance
+
+extension AccountModel.CompositeIcon: AccountModelIconConvertible {
+    var erased: AccountModel.Icon { .composite(self) }
+}
+
+extension AccountModel.StandaloneIcon: AccountModelIconConvertible {
+    var erased: AccountModel.Icon { .standalone(self) }
+}
+
 // MARK: - Convenience extensions
 
-extension AccountModel.Icon {
+extension AccountModel.CompositeIcon {
     init?(rawName: String, rawColor: String) {
         guard
             let color = Color(rawValue: rawColor),
@@ -148,8 +121,8 @@ extension AccountModel.Icon {
 
 // MARK: - Comparable protocol conformance
 
-extension AccountModel.Icon.Name: Comparable {
-    static func < (lhs: AccountModel.Icon.Name, rhs: AccountModel.Icon.Name) -> Bool {
+extension AccountModel.CompositeIcon.Name: Comparable {
+    static func < (lhs: AccountModel.CompositeIcon.Name, rhs: AccountModel.CompositeIcon.Name) -> Bool {
         lhs.sortOrder < rhs.sortOrder
     }
 }
@@ -158,12 +131,22 @@ extension AccountModel.Icon.Name: Comparable {
 
 extension AccountModel.Icon: CustomStringConvertible {
     var description: String {
-        objectDescription(
-            .empty,
-            userInfo: [
-                "name": name.rawValue,
-                "color": color.rawValue,
-            ]
-        )
+        switch self {
+        case .composite(let compositeIcon):
+            objectDescription(
+                .empty,
+                userInfo: [
+                    "name": compositeIcon.name.rawValue,
+                    "color": compositeIcon.color.rawValue,
+                ]
+            )
+        case .standalone(let standaloneIcon):
+            objectDescription(
+                .empty,
+                userInfo: [
+                    "standalone": "\(standaloneIcon)",
+                ]
+            )
+        }
     }
 }

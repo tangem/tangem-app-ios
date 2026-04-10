@@ -27,59 +27,50 @@ final class TokenEntriesDerivator {
     func derive() {
         onStart()
 
-        if FeatureProvider.isAvailable(.accounts) {
-            let group = DispatchGroup()
-            var subscription: AnyCancellable?
+        let group = DispatchGroup()
+        var subscription: AnyCancellable?
 
-            let accountModelsManager = userWalletModel.accountModelsManager
-            let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
+        let accountModelsManager = userWalletModel.accountModelsManager
+        let tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
 
-            // One-time subscription to get the latest list of crypto accounts
-            subscription = accountModelsManager
-                .cryptoAccountModelsPublisher
-                .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
-                .prefix(1)
-                .sink { cryptoAccounts, tangemPayAccount in
-                    guard let tangemPayAccount, tangemPayAccount.state?.isSyncNeeded == true else {
-                        for account in cryptoAccounts {
-                            group.enter()
-                            account.userTokensManager.deriveIfNeeded { _ in
-                                group.leave()
-                            }
+        // One-time subscription to get the latest list of crypto accounts
+        subscription = accountModelsManager
+            .cryptoAccountModelsPublisher
+            .combineLatest(accountModelsManager.tangemPayAccountModelPublisher)
+            .prefix(1)
+            .sink { cryptoAccounts, tangemPayAccount in
+                guard let tangemPayAccount, tangemPayAccount.state?.isSyncNeeded == true else {
+                    for account in cryptoAccounts {
+                        group.enter()
+                        account.userTokensManager.deriveIfNeeded { _ in
+                            group.leave()
                         }
-                        withExtendedLifetime(subscription) {}
-                        return
                     }
-
-                    let pendingDerivations = cryptoAccounts.flatMap {
-                        $0.userTokensManager.derivationManager?.pendingDerivations ?? []
-                    }
-
-                    // Batch all pending derivations into the TangemPay card session,
-                    // so that crypto account derivations and TangemPay authorization
-                    // happen in a single user interaction
-                    // [REDACTED_TODO_COMMENT]
-                    group.enter()
-                    tangemPayAccount.syncTokens(
-                        authorizingInteractor: tangemPayAuthorizingInteractor,
-                        pendingDerivations: pendingDerivations
-                    ) {
-                        group.leave()
-                    }
-
                     withExtendedLifetime(subscription) {}
+                    return
                 }
 
-            group.notify(queue: .main) { [weak self] in
-                self?.onFinish()
-            }
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.onFinish()
+                let pendingDerivations = cryptoAccounts.flatMap {
+                    $0.userTokensManager.derivationManager?.pendingDerivations ?? []
                 }
+
+                // Batch all pending derivations into the TangemPay card session,
+                // so that crypto account derivations and TangemPay authorization
+                // happen in a single user interaction
+                // [REDACTED_TODO_COMMENT]
+                group.enter()
+                tangemPayAccount.syncTokens(
+                    authorizingInteractor: tangemPayAuthorizingInteractor,
+                    pendingDerivations: pendingDerivations
+                ) {
+                    group.leave()
+                }
+
+                withExtendedLifetime(subscription) {}
             }
+
+        group.notify(queue: .main) { [weak self] in
+            self?.onFinish()
         }
     }
 }

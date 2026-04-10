@@ -7,10 +7,10 @@
 //
 
 protocol BaseAccountDetailsRoutable: AnyObject {
-    func editAccount()
     func close()
 }
 
 protocol CryptoAccountDetailsRoutable: AnyObject {
+    func editAccount()
     func manageTokens()
 }
