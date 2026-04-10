@@ -41,7 +41,7 @@ extension CasperAddressService: AddressProvider {
         }
 
         let address = try CasperAddressUtils().checksum(input: addressBytes)
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 

@@ -10,7 +10,6 @@ import Foundation
 
 struct DecimalPlainAddress: Address {
     let value: String
-    let publicKey: Wallet.PublicKey
     let type: AddressType
 
     var localizedName: String {
@@ -22,9 +21,8 @@ struct DecimalPlainAddress: Address {
         }
     }
 
-    init(value: String, publicKey: Wallet.PublicKey, type: AddressType) {
+    init(value: String, type: AddressType) {
         self.value = value
-        self.publicKey = publicKey
         self.type = type
     }
 }

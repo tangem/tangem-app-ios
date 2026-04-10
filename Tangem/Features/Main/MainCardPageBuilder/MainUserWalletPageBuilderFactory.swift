@@ -101,12 +101,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
-            coordinator: coordinator,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: coordinator
         )
 
         if isMultiWalletPage {
@@ -127,6 +124,15 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
+            let promotionNotificationsViewModel: PromotionNotificationsViewModel? = {
+                guard model.config.hasFeature(.multiCurrency) else {
+                    return nil
+                }
+
+                let manager = CommonPromotionNotificationsManager(placement: .main)
+                return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
+            }()
+
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -143,6 +149,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                promotionNotificationsViewModel: promotionNotificationsViewModel,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
@@ -286,48 +293,21 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeMultiWalletMainContentViewSectionsProvider(
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
-        if FeatureProvider.isAvailable(.accounts) {
-            return AccountsAwareMultiWalletMainContentViewSectionsProvider(
-                userWalletModel: userWalletModel,
-                manageTokensActionFactory: { [weak coordinator] account in
-                    { coordinator?.openManageTokens(for: account, in: userWalletModel) }
-                }
-            )
-        }
-
-        // accounts_fixes_needed_none
-        let optionsManager = OrganizeTokensOptionsManager(
-            userTokensReorderer: userWalletModel.userTokensManager
-        )
-
-        // accounts_fixes_needed_none
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
-
-        return LegacyMultiWalletMainContentViewSectionsProvider(
+        return CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
-            optionsEditing: optionsManager,
-            tokenSectionsAdapter: tokenSectionsAdapter
+            manageTokensActionFactory: { [weak coordinator] account in
+                { coordinator?.openManageTokens(for: account, in: userWalletModel) }
+            }
         )
     }
 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        let walletModelsManager: WalletModelsManager
-
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
-                return nil
-            }
-            walletModelsManager = mainAccount.walletModelsManager
-        } else {
-            // accounts_fixes_needed_none
-            walletModelsManager = userWalletModel.walletModelsManager
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return nil
         }
+        let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager
 
         guard let walletModel = walletModelsManager.walletModels.first else {
             return nil

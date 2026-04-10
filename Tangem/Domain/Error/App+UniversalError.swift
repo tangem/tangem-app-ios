@@ -21,7 +21,7 @@ import TangemFoundation
 // `008` - CommonTokenEnricher.Error
 // `009` - OrganizeTokensViewModel.Error
 // `010` - WalletModelError
-// `011` - AccountsAwareUserTokensManager.Error
+// `011` - CommonUserTokensManager.Error
 // `012` - CloreMigrationSigningError
 
 extension CommonError: UniversalError {
@@ -148,19 +148,6 @@ extension CommonUserTokensManager.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .addressNotFound:
-            100007000
-        case .failedSupportedCurve:
-            100007001
-        case .failedSupportedLongHashesTokens:
-            100007002
-        }
-    }
-}
-
-extension AccountsAwareUserTokensManager.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .addressNotFound:
             100011000
         case .failedSupportedCurve:
             100011001
@@ -188,15 +175,6 @@ extension CommonTokenEnricher.Error: UniversalError {
 }
 
 extension OrganizeTokensViewModel.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .sectionOffsetOutOfBound:
-            100009000
-        }
-    }
-}
-
-extension AccountsAwareOrganizeTokensViewModel.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .sectionOffsetOutOfBound:

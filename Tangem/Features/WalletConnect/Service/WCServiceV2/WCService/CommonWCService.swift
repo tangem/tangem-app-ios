@@ -91,6 +91,10 @@ extension CommonWCService: WCService {
         try await v2Service.updateSession(withTopic: topic, namespaces: namespaces)
     }
 
+    func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain) {
+        v2Service.emitEvent(event, on: blockchain)
+    }
+
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
         v2Service.disconnectAllSessionsForUserWallet(with: userWalletId)
     }

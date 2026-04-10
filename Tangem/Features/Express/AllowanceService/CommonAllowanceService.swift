@@ -23,19 +23,26 @@ actor CommonAllowanceService {
 
 extension CommonAllowanceService: AllowanceService {
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState {
-        let isPermissionRequired = try await allowanceChecker.isPermissionRequired(amount: amount, spender: spender)
+        let result = try await allowanceChecker.allowanceState(amount: amount, spender: spender, policy: approvePolicy)
 
-        guard isPermissionRequired else {
+        switch result {
+        case .enoughAllowance:
             spendersAwaitingApprove.remove(spender)
             return .enoughAllowance
-        }
 
-        if spendersAwaitingApprove.contains(spender) {
-            return .approveTransactionInProgress
-        }
+        case .approveRequired(let data):
+            if spendersAwaitingApprove.contains(spender) {
+                return .approveTransactionInProgress
+            }
+            return .permissionRequired(data)
 
-        let approveData = try allowanceChecker.makeApproveData(spender: spender, amount: amount, policy: approvePolicy)
-        return .permissionRequired(approveData)
+        case .revokeAndApproveRequired(let revoke, let approve):
+            if spendersAwaitingApprove.contains(spender) {
+                return .approveTransactionInProgress
+            }
+            ExpressLogger.debug("Revoke+approve required for spender: \(spender)")
+            return .revokeAndPermissionRequired(revoke: revoke, approve: approve)
+        }
     }
 
     func markApproveTransactionSent(spender: String) {

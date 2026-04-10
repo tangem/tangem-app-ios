@@ -11,9 +11,7 @@ import TangemUIUtils
 import TangemUI
 import TangemFoundation
 
-final class OverlayContentContainerViewController: UIViewController {
-    // MARK: - Dependencies
-
+final class OverlayContentContainerViewController: StatusBarManagingViewController {
     let overlayCornerRadius: CGFloat
 
     private let contentViewController: UIViewController
@@ -123,12 +121,18 @@ final class OverlayContentContainerViewController: UIViewController {
         setupAppLifecycleHelper()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateStatusBarStyleIfNeeded()
+    }
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
             updateBackgroundShadowViewBackgroundColor()
             updateBackgroundShadowViewAlpha()
+            updateStatusBarStyleIfNeeded()
         }
     }
 
@@ -455,6 +459,7 @@ final class OverlayContentContainerViewController: UIViewController {
         updateContentScale()
         updateCornerRadius()
         updateBackgroundShadowViewAlpha()
+        updateStatusBarStyleIfNeeded()
         notifyStateObserversIfNeeded(isCollapsedState: isCollapsedState, isExpandedState: isExpandedState)
         notifyProgressObservers(progressValue: newValue.value)
 
@@ -824,6 +829,9 @@ private extension OverlayContentContainerViewController {
         static let minAnimationsDuration = 0.25
         static let maxAnimationsDuration = 0.5
         static let failedGestureAnimationsDuration = 0.4
+        /// Progress threshold at which the status bar style switches between
+        /// `.darkContent` (below) and `.lightContent` (at or above).
+        static let statusBarStyleChangeThreshold = 0.25
 
         static let defaultAnimationContext = OverlayContentContainerProgress.AnimationContext(
             duration: 0.5,
@@ -831,5 +839,23 @@ private extension OverlayContentContainerViewController {
             springDampingRatio: 0.85, // Natural damping for smooth bounce
             initialSpringVelocity: 0.3 // Smooth entry velocity, not too fast
         )
+    }
+}
+
+// MARK: - Status Bar
+
+private extension OverlayContentContainerViewController {
+    func updateStatusBarStyleIfNeeded() {
+        let desiredStyle = calculateStatusBarStyle()
+        setSelectedStatusBarStyle(desiredStyle, animated: isFinalState)
+    }
+
+    func calculateStatusBarStyle() -> UIStatusBarStyle {
+        if progress.value > Constants.statusBarStyleChangeThreshold {
+            return .lightContent
+        }
+        // Never return `.default` — it would make RootHostingController fall through
+        // to super, re-enabling UIHostingController's auto-detection.
+        return traitCollection.userInterfaceStyle == .dark ? .lightContent : .darkContent
     }
 }

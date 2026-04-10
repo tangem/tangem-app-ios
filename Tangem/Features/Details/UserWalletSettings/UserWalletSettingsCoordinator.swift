@@ -410,7 +410,7 @@ private extension UserWalletSettingsCoordinator {
                 targetAccountName: targetAccountName
             )
         case .manageTokens(let accountModelsManager, let cryptoAccountModel, let userWalletConfig):
-            let manageTokensContext = AccountsAwareManageTokensContext(
+            let manageTokensContext = CommonManageTokensContext(
                 accountModelsManager: accountModelsManager,
                 currentAccount: cryptoAccountModel
             )

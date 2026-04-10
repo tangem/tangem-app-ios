@@ -140,6 +140,7 @@ final class SendViaSwapUITests: BaseTestCase {
         summaryScreen
             .assertProviderName(selectedProviderName)
             .assertBestRateBadgeNotOnProvider()
+            .waitForNetworkFeeLoaded(fiatSymbol: "$")
 
         // Change network fee to Fast, verify fee value changed
         let feeBefore = summaryScreen.getNetworkFeeValue()

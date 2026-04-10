@@ -29,6 +29,8 @@ struct BlockBookTarget: TargetType {
         switch request {
         case .address(let address, _):
             return basePath + "/address/\(address)"
+        case .xpub(let xpub, _):
+            return basePath + "/xpub/\(xpub)"
         case .sendBlockBook:
             return basePath + "/sendtx/"
         case .txDetails(let txHash):
@@ -44,7 +46,7 @@ struct BlockBookTarget: TargetType {
 
     var method: Moya.Method {
         switch request {
-        case .address, .utxo, .getFees, .txDetails:
+        case .address, .utxo, .getFees, .txDetails, .xpub:
             return .get
         case .sendBlockBook, .rpc:
             return .post
@@ -53,15 +55,18 @@ struct BlockBookTarget: TargetType {
 
     var task: Moya.Task {
         switch request {
+        case .address(_, let parameters):
+            let parameters = try? parameters.asDictionary()
+            return .requestParameters(parameters: parameters ?? [:], encoding: URLEncoding.default)
+        case .xpub(_, let parameters):
+            let parameters = try? parameters.asDictionary()
+            return .requestParameters(parameters: parameters ?? [:], encoding: URLEncoding.default)
         case .txDetails, .utxo, .getFees:
             return .requestPlain
         case .sendBlockBook(let tx):
             return .requestData(tx)
         case .rpc(let request):
             return .requestJSONEncodable(request)
-        case .address(_, let parameters):
-            let parameters = try? parameters.asDictionary()
-            return .requestParameters(parameters: parameters ?? [:], encoding: URLEncoding.default)
         }
     }
 
@@ -89,6 +94,7 @@ struct BlockBookTarget: TargetType {
 extension BlockBookTarget {
     enum Request {
         case address(address: String, parameters: AddressRequestParameters)
+        case xpub(xpub: String, parameters: XPUBRequestParameters)
         case sendBlockBook(tx: Data)
         case rpc(_ request: JSONRPC.Request<AnyEncodable>)
         case txDetails(txHash: String)
@@ -171,6 +177,24 @@ extension BlockBookTarget {
             case .contract(let contract):
                 try container.encode(contract, forKey: .contract)
             }
+        }
+    }
+
+    struct XPUBRequestParameters: Encodable {
+        /// Specifies page of returned transactions, starting from 1.
+        let page: Int?
+        /// The number of transactions returned by call (default and maximum 1000)
+        let pageSize: Int?
+        let details: AddressRequestParameters.Details?
+        let tokens: TokensFilter?
+
+        enum TokensFilter: String, Encodable {
+            /// Return only addresses with non-zero balance
+            case nonzero
+            /// Return only addresses that have been used (have transfers)
+            case used
+            /// Return all derived addresses
+            case derived
         }
     }
 }
