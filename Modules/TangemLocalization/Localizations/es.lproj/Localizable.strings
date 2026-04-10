@@ -383,6 +383,11 @@
 "domain_receive_assets_onboarding_network_name" = "Red de %@";
 "domain_receive_assets_onboarding_title" = "Envíe fondos utilizando solo";
 "dynamic_addresses_custom_token_error_on_addition" = "La opción Direcciones dinámicas está habilitada. Las opciones personalizadas \"cambiar\" e \"índice\" no están disponibles.";
+"dynamic_addresses_disable_description" = "You are turning off Dynamic Addresses. Funds will now be received on your fixed address.";
+"dynamic_addresses_disable_fee_description" = "A network fee applies to consolidate funds into the fixed address.";
+"dynamic_addresses_disable_main_button_title" = "Disable Dynamic Addresses";
+"dynamic_addresses_disable_title" = "Disable dynamic addresses";
+"dynamic_addresses_disabled_popup_title" = "Dynamic addresses disabled";
 "dynamic_addresses_enabled_toast_title" = "Direcciones dinámicas habilitadas";
 "dynamic_addresses_enter_features_privacy_description" = "Utilice una nueva dirección para cada transacción para reducir la trazabilidad y mejorar la privacidad on-chain.";
 "dynamic_addresses_enter_features_privacy_title" = "Privacidad mejorada";
