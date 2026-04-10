@@ -61,16 +61,26 @@ struct SingleWalletMainContentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct SingleWalletContentView_Preview: PreviewProvider {
     static let viewModel: SingleWalletMainContentViewModel = {
-        let mainCoordinator = MainCoordinator()
         let userWalletModel = FakeUserWalletModel.xrpNote
-        let walletModel = userWalletModel.walletModelsManager.walletModels.first!
+
+        let accountModel = userWalletModel
+            .accountModelsManager
+            .cryptoAccountModels[0]
+
+        let walletModel = accountModel
+            .walletModelsManager
+            .walletModels[0]
+
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
 
         return SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
-            walletModel: userWalletModel.walletModelsManager.walletModels.first!,
+            walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
@@ -78,7 +88,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             tokenRouter: SingleTokenRoutableMock(),
             delegate: nil,
             coordinator: nil,
-            accountModel: nil
+            accountModel: accountModel
         )
     }()
 
@@ -87,3 +97,4 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             .background(Colors.Background.secondary)
     }
 }
+#endif // DEBUG

@@ -57,7 +57,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
-    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
+    var canManageDynamicAddresses: Bool {
+        FeatureProvider.isAvailable(.dynamicAddresses) && walletModel.tokenItem.blockchain.isUTXO
+    }
+
+    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB || canManageDynamicAddresses }
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
@@ -153,15 +157,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
              .support,
              .openCurrency,
-             .seedSupportNo,
-             .seedSupportYes,
-             .seedSupport2No,
-             .seedSupport2Yes,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -169,7 +170,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openManageTokensAfterWalletSuccessImport:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -235,6 +237,10 @@ extension TokenDetailsViewModel {
                 }
             }
         }
+    }
+
+    func openDynamicAddressesManagement() {
+        coordinator?.openDynamicAddressesEnterView()
     }
 
     private func showUnableToHideAlert() {

@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol EarnAddTokenRoutable: AnyObject, AccountsAwareAddTokenFlowRoutable {
+protocol EarnAddTokenRoutable: AnyObject, AddTokenFlowRoutable {
     func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: UserWalletModel)
 }
