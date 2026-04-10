@@ -19,7 +19,7 @@ struct CloreTransactionTests {
         let pubKey = Data(hexString: "03a08920b8940d992d58f2ac6f285a97f126634d709e31e28fb5892614e6494e5c")
         let addressService = BitcoinLegacyAddressService(networkParams: CloreMainNetworkParams())
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .clore(address: address)
+        let unspentOutputManager: UnspentOutputManager = .clore()
 
         unspentOutputManager.update(
             outputs: [
@@ -54,7 +54,7 @@ struct CloreTransactionTests {
 
         // then
         #expect(address.value == "AVWee1FwY3nJTcANjbj9QktHirkzUrGefm")
-        #expect(hashes == signatures.map(\.hash))
+        #expect(hashes.map(\.hashToSign) == signatures.map(\.hash))
         #expect(encoded == Data(hexString: "010000000115c0b036c24b812477a051f6d559a69df0aa74de4c0ea6520db424939878f7e6010000006a47304402206dba2937a8f947fd8933f8a0495d48b7c04b875c2d96cb916114226911554f3202206eded623f6eba821de9f8ae7905f4081cc7cd9861aa1e50e638a338eb76c086d012103a08920b8940d992d58f2ac6f285a97f126634d709e31e28fb5892614e6494e5cfdffffff012eeceb05000000001976a914938b658da3c1bbabf91f3a3d8fec26e489396f2588ac00000000"))
     }
 }

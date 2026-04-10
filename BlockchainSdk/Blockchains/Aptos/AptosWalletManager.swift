@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-final class AptosWalletManager: BaseManager {
+final class AptosWalletManager: BaseWalletManager {
     // MARK: - Private Properties
 
     private let transactionBuilder: AptosTransactionBuilder
@@ -23,9 +23,9 @@ final class AptosWalletManager: BaseManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let accountInfo = try await networkService.getAccount(address: wallet.address).async()
+            let accountInfo = try await networkService.getAccount(address: address).async()
             update(with: accountInfo)
         } catch {
             wallet.clearAmounts()
