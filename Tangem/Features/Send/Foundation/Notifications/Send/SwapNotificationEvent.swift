@@ -330,7 +330,7 @@ extension SwapNotificationEvent {
 
     var isOneShotAnalyticsEvent: Bool {
         switch self {
-        case .permissionNeeded, .highPriceImpactWarning:
+        case .permissionNeeded:
             return true
         default:
             return false
