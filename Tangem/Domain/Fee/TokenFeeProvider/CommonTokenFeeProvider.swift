@@ -54,7 +54,12 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { feeTokenItemBalanceProvider.formattedBalanceType }
-    var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
+    var hasMultipleFeeOptions: Bool {
+        if case .available(let fees) = state {
+            return fees.count > 1
+        }
+        return tokenFeeLoader.supportingFeeOptions.count > 1
+    }
 
     var state: TokenFeeProviderState {
         guard let customFee = customFeeProvider?.customFee else {
@@ -191,16 +196,19 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
-            let fees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+            let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
 
-            guard feeMultiplier != .single else { return fees }
-
-            let multiplier = feeMultiplier.rawValue
-            return fees.map { fee in
-                var scaledAmount = fee.amount
-                scaledAmount.value *= multiplier
-                return BSDKFee(scaledAmount, parameters: fee.parameters)
+            // Approve flow never shows a speed selector — only market fee is needed.
+            // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee (gasless).
+            guard let marketFee = allFees[safe: 1] ?? allFees[safe: 0] else {
+                throw TokenFeeProviderError.feeNotFound
             }
+
+            guard feeMultiplier != .single else { return [marketFee] }
+
+            var scaledAmount = marketFee.amount
+            scaledAmount.value *= feeMultiplier.rawValue
+            return [BSDKFee(scaledAmount, parameters: marketFee.parameters)]
         }
     }
 }
@@ -248,6 +256,8 @@ private extension CommonTokenFeeProvider {
             break
         case .dex:
             // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            updateState(state: .unavailable(.notSupported))
+        case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))
         case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
             // ERC-20 approve — available for Ethereum loaders (includes gasless)
