@@ -8,6 +8,7 @@
 
 import Combine
 import Testing
+import TangemNetworkUtils
 @testable import BlockchainSdk
 import class SolanaSwift.Solana
 import enum SolanaSwift.SolanaError
@@ -30,14 +31,16 @@ struct SolanaEd25519Slip0010Tests {
         let solanaSdk = Solana(router: networkingRouter, accountStorage: SolanaDummyAccountStorage())
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
+        let publicKey = Wallet.PublicKey(seedKey: walletPubKey, derivationType: .none)
         let address = try! service.makeAddress(from: walletPubKey)
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         manager = .init(wallet: wallet)
         manager.networkService = SolanaNetworkService(
             providers: [],
             solanaSdk: solanaSdk,
-            blockchain: blockchain
+            blockchain: blockchain,
+            providerConfiguration: .init(logOptions: nil)
         )
     }
 

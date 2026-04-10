@@ -21,6 +21,7 @@ private final class WalletConnectEnvironment {
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
         ethTransactionBuilder: CommonWCEthTransactionBuilder(),
+        btcTransactionBuilder: CommonWCBtcTransactionBuilder(),
         walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 
@@ -42,15 +43,20 @@ private final class WalletConnectEnvironment {
 
     lazy var dAppSessionsExtender = WalletConnectDAppSessionsExtender(
         connectedDAppRepository: connectedDAppRepository,
-        savedSessionMigrationService: savedSessionMigrationService,
         savedSessionToAccountsMigrationService: savedSessionToAccountsMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient),
         logger: WCLogger
     )
 
     lazy var wcService: CommonWCService = {
-        let v2Service = WCServiceV2(walletKitClient: walletKitClient, wcHandlersService: handlersService)
-        return CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
+        let v2Service = WCServiceV2(
+            walletKitClient: walletKitClient,
+            wcHandlersService: handlersService
+        )
+        let commonService = CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
+        let eventsService = WalletConnectEventsService(walletConnectService: commonService)
+        v2Service.setWalletConnectEventsService(eventsService)
+        return commonService
     }()
 
     lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(

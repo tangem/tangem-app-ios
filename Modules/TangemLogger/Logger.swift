@@ -15,7 +15,6 @@ public struct Logger {
     public typealias Level = OSLogLevel
 
     public static var configuration: Configuration = DefaultConfiguration()
-    public static var logFile: URL { OSLogFileWriter.shared.logFile }
 
     private let category: Category
 
@@ -110,9 +109,7 @@ private extension Logger {
         }()
 
         writeToConsole(level, message: message)
-
-        // We should only redact logs that are written to file
-        writeToFile(level, message: LogsSanitizer.sanitize(message))
+        writeToFile(level, message: message)
     }
 
     func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
@@ -128,11 +125,7 @@ private extension Logger {
             return
         }
 
-        do {
-            try OSLogFileWriter.shared.write(message(), category: category, level: level)
-        } catch {
-            OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
-        }
+        OSLogFileWriter.shared.write(message(), category: category, level: level)
     }
 
     func checkIfConsoleLogAllowed() -> Bool {

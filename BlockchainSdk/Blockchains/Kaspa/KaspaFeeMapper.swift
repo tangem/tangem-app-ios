@@ -21,7 +21,7 @@ struct KaspaFeeMapper {
                 + feeEstimate.normalBuckets
                 + [feeEstimate.priorityBucket]
         )
-        .sorted { $0.feerate > $1.feerate } // just in case, because it's not described in the documentation.
+        .sorted { $0.feerate < $1.feerate } // just in case, because it's not described in the documentation.
         .suffix(3) // select the 3 largest baskets
     }
 

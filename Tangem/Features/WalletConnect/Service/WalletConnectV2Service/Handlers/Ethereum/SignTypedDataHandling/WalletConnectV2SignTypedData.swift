@@ -23,34 +23,6 @@ struct WalletConnectV2SignTypedDataHandler {
         requestParams: AnyCodable,
         blockchainId: String,
         signer: WalletConnectSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        let params = try requestParams.get([String].self)
-
-        guard params.count >= 2 else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
-        }
-
-        message = params[1]
-
-        let targetAddress = params[0]
-        walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
-        guard
-            let messageData = message.data(using: .utf8),
-            let typedData = try? JSONDecoder().decode(EIP712TypedData.self, from: messageData)
-        else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
-        }
-
-        self.typedData = typedData
-        self.signer = signer
-        request = requestParams
-    }
-
-    init(
-        requestParams: AnyCodable,
-        blockchainId: String,
-        signer: WalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {

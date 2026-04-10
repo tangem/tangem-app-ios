@@ -41,7 +41,12 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
             blockchainName: Blockchain.pepecoin(testnet: false).displayName
         )
 
-        return PepecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return PepecoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
 

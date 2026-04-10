@@ -34,6 +34,7 @@ enum NotificationButtonActionType: Identifiable {
     case reduceAmountBy(amount: Decimal, amountFormatted: String, needsAttention: Bool = false)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case openLink(promotionLink: URL, buttonTitle: String)
+    case openDeeplink(url: URL, buttonTitle: String)
     case swap
     case addHederaTokenAssociation
     case addTokenTrustline
@@ -48,10 +49,6 @@ enum NotificationButtonActionType: Identifiable {
     case empty
     case support
     case openCurrency
-    case seedSupportYes
-    case seedSupportNo
-    case seedSupport2Yes
-    case seedSupport2No
     case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
@@ -60,6 +57,7 @@ enum NotificationButtonActionType: Identifiable {
     case postponePushPermissionRequest
     case activate
     case givePermission
+    case openManageTokensAfterWalletSuccessImport
 
     var id: Int {
         switch self {
@@ -73,6 +71,7 @@ enum NotificationButtonActionType: Identifiable {
         case .reduceAmountBy(let amount, let amountFormatted, _): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
         case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
         case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
+        case .openDeeplink(let url, let buttonTitle): "openDeeplink\(url)\(buttonTitle)".hashValue
         case .swap: "swap".hashValue
         case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
         case .addTokenTrustline: "addTokenTrustline".hashValue
@@ -84,10 +83,6 @@ enum NotificationButtonActionType: Identifiable {
         case .empty: "empty".hashValue
         case .support: "support".hashValue
         case .openCurrency: "openCurrency".hashValue
-        case .seedSupportYes: "seedSupportYes".hashValue
-        case .seedSupportNo: "seedSupportNo".hashValue
-        case .seedSupport2Yes: "seedSupport2Yes".hashValue
-        case .seedSupport2No: "seedSupport2No".hashValue
         case .unlock: "unlock".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
@@ -96,6 +91,7 @@ enum NotificationButtonActionType: Identifiable {
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
         case .givePermission: "givePermission".hashValue
+        case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         }
     }
 
@@ -117,6 +113,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.sendNotificationLeaveButton(amountFormatted)
         case .openLink(_, let buttonTitle):
             return buttonTitle
+        case .openDeeplink(_, let buttonTitle):
+            return buttonTitle
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
         case .retryKaspaTokenTransaction:
@@ -135,14 +133,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
-        case .seedSupportYes:
-            return Localization.commonYes
-        case .seedSupportNo:
-            return Localization.commonNo
-        case .seedSupport2Yes:
-            return Localization.seedWarningYes
-        case .seedSupport2No:
-            return Localization.seedWarningNo
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .addTokenTrustline:
@@ -163,6 +153,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.givePermissionTitle
         case .openCloreMigration:
             return Localization.warningCloreMigrationButton
+        case .openManageTokensAfterWalletSuccessImport:
+            return Localization.mainManageTokens
         }
     }
 
@@ -184,16 +176,13 @@ enum NotificationButtonActionType: Identifiable {
              .leaveAmount,
              .addHederaTokenAssociation,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
              .support,
              .openCurrency,
-             .seedSupportYes,
-             .seedSupportNo,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -202,7 +191,8 @@ enum NotificationButtonActionType: Identifiable {
              .postponePushPermissionRequest,
              .activate,
              .givePermission,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             return nil
         }
     }
@@ -227,20 +217,18 @@ enum NotificationButtonActionType: Identifiable {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .support,
              .stake,
              .openFeedbackMail,
              .openCurrency,
              .swap,
-             .seedSupportNo,
-             .seedSupportYes,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .addTokenTrustline,
              .postponePushPermissionRequest,
              .givePermission,
              .openCloreMigration,
-             .closeMobileUpgrade:
+             .closeMobileUpgrade,
+             .openManageTokensAfterWalletSuccessImport:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
