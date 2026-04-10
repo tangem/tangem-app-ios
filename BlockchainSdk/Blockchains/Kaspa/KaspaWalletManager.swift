@@ -12,7 +12,7 @@ import CombineExt
 import TangemFoundation
 import TangemLocalization
 
-final class KaspaWalletManager: BaseManager, WalletManager {
+final class KaspaWalletManager: BaseWalletManager, WalletManager {
     private typealias IncompleteTokenTransactionsInMemoryStorage = ThreadSafeContainer<
         [KaspaIncompleteTokenTransactionStorageID: KaspaKRC20.IncompleteTokenTransactionParams]
     >
@@ -48,12 +48,12 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             try await loadCachedIncompleteTokenTransactionsIfNeeded().async()
 
-            async let kaspaAddressInfo = networkService.getInfo(address: wallet.address).async()
-            async let kaspaTokensInfo = networkServiceKRC20.balance(address: wallet.address, tokens: cardTokens).async()
+            async let kaspaAddressInfo = networkService.getInfo(address: address).async()
+            async let kaspaTokensInfo = networkServiceKRC20.balance(address: address, tokens: cardTokens).async()
 
             try await updateWallet(kaspaAddressInfo, tokensInfo: kaspaTokensInfo)
         } catch {
@@ -364,7 +364,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
-                        destination: destination
+                        destination: destination,
+                        changeAddress: manager.wallet.changeAddress.value
                     )
                     return (transactionData, feeEstimate: feeEstimate)
                 }
@@ -389,7 +390,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
-                        destination: destination
+                        destination: destination,
+                        changeAddress: manager.wallet.changeAddress.value
                     )
                     return (transactionData, feeEstimate: feeEstimate)
                 }

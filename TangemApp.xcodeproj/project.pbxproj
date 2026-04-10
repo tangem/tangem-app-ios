@@ -27,14 +27,12 @@
 		B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0B11A072C787FE70018A2A6 /* MarkdownUI */; };
 		B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = B0D70D472CE5FB6800A8A0F1 /* JWTDecode */; };
 		B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
+		B6136BE32F83A5A9008F984A /* Hiero in Frameworks */ = {isa = PBXBuildFile; productRef = B6136BE22F83A5A9008F984A /* Hiero */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
 		B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167C2CBE0A3D00522683 /* Alamofire */; };
 		B62C167F2CBE0B7900522683 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167E2CBE0B7900522683 /* Moya */; };
 		B62C16812CBE0BA000522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16802CBE0BA000522683 /* Alamofire */; };
-		B62C24872CF48327003377F1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B62C24862CF48327003377F1 /* FirebaseAnalytics */; };
-		B62C24892CF48327003377F1 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B62C24882CF48327003377F1 /* FirebaseCrashlytics */; };
-		B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B62C248A2CF48327003377F1 /* FirebaseMessaging */; };
 		B62D34102CBC4C5800C2460E /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B62D34152CBC4C6F00C2460E /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B62D343D2CBC4FD000C2460E /* Clibsodium in Frameworks */ = {isa = PBXBuildFile; productRef = B62D343C2CBC4FD000C2460E /* Clibsodium */; };
@@ -49,7 +47,6 @@
 		B63DFC4A2CD4DBED00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC492CD4DBED00720D9F /* TangemModules */; };
 		B63DFC4C2CD4EA1C00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4B2CD4EA1C00720D9F /* TangemModules */; };
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
-		B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B64404402D3FE77300195004 /* FirebasePerformance */; };
 		B655F57C2CBC872E002391AF /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = B655F57B2CBC872E002391AF /* TweetNacl */; };
 		B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = B660E23C2E1431060069A5E8 /* ZIPFoundation */; };
 		B67E38B92CC7147600D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38B82CC7147600D660EB /* TangemSdk */; };
@@ -63,11 +60,14 @@
 		B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B68E1F792CBC44060043E598 /* BlockchainSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B68E1F8A2CBC44910043E598 /* Hedera in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F892CBC44910043E598 /* Hedera */; };
 		B68E1F902CBC44E30043E598 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */; };
 		B68E1F962CBC451D0043E598 /* ScaleCodec in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F952CBC451D0043E598 /* ScaleCodec */; };
 		B68E1F992CBC453E0043E598 /* IcpKit in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F982CBC453E0043E598 /* IcpKit */; };
 		B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */; };
+		B6C02EAC2F856B000003ADBE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */; };
+		B6C02EAE2F856B000003ADBE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */; };
+		B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAF2F856B000003ADBE /* FirebaseMessaging */; };
+		B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EB12F856B000003ADBE /* FirebasePerformance */; };
 		B6C0D3F42CBDC543001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3F32CBDC543001113ED /* Moya */; };
 		B6C0D3F62CBDC552001113ED /* BinanceChain in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3F52CBDC552001113ED /* BinanceChain */; };
 		B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FA2CBDC6DD001113ED /* Moya */; };
@@ -75,13 +75,6 @@
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
 		B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = B6C144062DFD1BF8008E9478 /* DGCharts */; };
 		B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6CAC1CB2CC336220001A427 /* SolanaSwift */; };
-		B6CFB9102F8917E000A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB90F2F8917E000A7C280 /* NumberKit */; };
-		B6CFB9122F8917F100A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9112F8917F100A7C280 /* NumberKit */; };
-		B6CFB9142F8917FB00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9132F8917FB00A7C280 /* NumberKit */; };
-		B6CFB9162F89180300A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9152F89180300A7C280 /* NumberKit */; };
-		B6CFB9182F89180A00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9172F89180A00A7C280 /* NumberKit */; };
-		B6CFB91A2F89181000A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9192F89181000A7C280 /* NumberKit */; };
-		B6CFB91C2F89184C00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB91B2F89184C00A7C280 /* NumberKit */; };
 		B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE742CF39079008DEA94 /* BlockiesSwift */; };
 		B6DDDE782CF39158008DEA94 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE772CF39158008DEA94 /* CombineExt */; };
 		B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */; };
@@ -108,7 +101,6 @@
 		C2A96C052F7EE114001D0602 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C2A96BF72F7EE114001D0602 /* Intents.intentdefinition */; };
 		C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */; };
 		C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = C2FC44062F3E66F900A61EAB /* TangemTestKit */; };
-		DA065D322F88F4B7002E27DD /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA065D312F88F4B7002E27DD /* NumberKit */; };
 		DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC2CA0DC2EF069BC00C10344 /* CryptoSwift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
@@ -412,6 +404,8 @@
 			files = (
 				DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */,
 				B62C167F2CBE0B7900522683 /* Moya in Frameworks */,
+				B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */,
+				B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */,
 				B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */,
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
@@ -423,16 +417,15 @@
 				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
 				EFEE239D2BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
-				B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */,
+				B6C02EAE2F856B000003ADBE /* FirebaseCrashlytics in Frameworks */,
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
 				C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */,
 				B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */,
+				B6C02EAC2F856B000003ADBE /* FirebaseAnalytics in Frameworks */,
 				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
 				C24285662F55E35B004F0348 /* DataPipelines in Frameworks */,
 				B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */,
-				B62C24892CF48327003377F1 /* FirebaseCrashlytics in Frameworks */,
 				B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */,
-				B62C24872CF48327003377F1 /* FirebaseAnalytics in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				B099338A2B5517EC00240CDB /* TangemVisa.framework in Frameworks */,
 				3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */,
@@ -442,9 +435,7 @@
 				0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */,
 				B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 				A7467FA92F44AEDE0064A4FD /* BitcoinDevKit in Frameworks */,
-				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
-				DA065D322F88F4B7002E27DD /* NumberKit in Frameworks */,
 				B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -455,7 +446,6 @@
 			files = (
 				B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */,
 				C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */,
-				B6CFB91C2F89184C00A7C280 /* NumberKit in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
 				DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */,
 			);
@@ -508,7 +498,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B68E1F992CBC453E0043E598 /* IcpKit in Frameworks */,
-				B68E1F8A2CBC44910043E598 /* Hedera in Frameworks */,
 				308501872E0DA20700AB58B3 /* TonSwift in Frameworks */,
 				A7122B1B2F44D0D4004B5C3F /* BitcoinDevKit in Frameworks */,
 				B62D34472CBC51D400C2460E /* SwiftCBOR in Frameworks */,
@@ -519,11 +508,11 @@
 				B67E38B92CC7147600D660EB /* TangemSdk in Frameworks */,
 				B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */,
 				0AE2C9802E58838000D3B9EB /* OrderedCollections in Frameworks */,
-				B6CFB9102F8917E000A7C280 /* NumberKit in Frameworks */,
 				B62D34502CBC67D500C2460E /* AnyCodable in Frameworks */,
 				B6C0D3F42CBDC543001113ED /* Moya in Frameworks */,
 				DCED46572EF0502B0021AC0D /* CryptoSwift in Frameworks */,
 				B62D343D2CBC4FD000C2460E /* Clibsodium in Frameworks */,
+				B6136BE32F83A5A9008F984A /* Hiero in Frameworks */,
 				B6E352732CC0B06B002636BC /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				B68E1F902CBC44E30043E598 /* SwiftProtobuf in Frameworks */,
 				B62D344D2CBC675600C2460E /* stellarsdk in Frameworks */,
@@ -538,7 +527,6 @@
 			files = (
 				A7122B1F2F45AFA6004B5C3F /* BitcoinDevKit in Frameworks */,
 				B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
-				B6CFB9122F8917F100A7C280 /* NumberKit in Frameworks */,
 				B63DFC4C2CD4EA1C00720D9F /* TangemModules in Frameworks */,
 				B67E38C52CC7252900D660EB /* TangemSdk in Frameworks */,
 			);
@@ -552,7 +540,6 @@
 				B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */,
 				B62D34152CBC4C6F00C2460E /* BlockchainSdk.framework in Frameworks */,
 				B67E38BD2CC7179600D660EB /* TangemSdk in Frameworks */,
-				B6CFB9182F89180A00A7C280 /* NumberKit in Frameworks */,
 				B6C0D4092CBDCD34001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -561,7 +548,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6CFB91A2F89181000A7C280 /* NumberKit in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -574,7 +560,6 @@
 				F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */,
 				B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */,
 				B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */,
-				B6CFB9142F8917FB00A7C280 /* NumberKit in Frameworks */,
 				B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -583,7 +568,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6CFB9162F89180300A7C280 /* NumberKit in Frameworks */,
 				EFEE23922BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -755,11 +739,7 @@
 				B6DDDE772CF39158008DEA94 /* CombineExt */,
 				B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */,
 				B6DDDE802CF39C69008DEA94 /* AnalyticsConnector */,
-				B62C24862CF48327003377F1 /* FirebaseAnalytics */,
-				B62C24882CF48327003377F1 /* FirebaseCrashlytics */,
-				B62C248A2CF48327003377F1 /* FirebaseMessaging */,
 				B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */,
-				B64404402D3FE77300195004 /* FirebasePerformance */,
 				B0776C362DA69090004A8765 /* Lottie */,
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
 				B6C144062DFD1BF8008E9478 /* DGCharts */,
@@ -773,7 +753,10 @@
 				C24285652F55E35B004F0348 /* DataPipelines */,
 				C246566F2F575ACD00270AA7 /* MessagingPushFCM */,
 				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
-				DA065D312F88F4B7002E27DD /* NumberKit */,
+				B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */,
+				B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */,
+				B6C02EAF2F856B000003ADBE /* FirebaseMessaging */,
+				B6C02EB12F856B000003ADBE /* FirebasePerformance */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -801,7 +784,6 @@
 				B63DFC4D2CD4EABB00720D9F /* TangemModules */,
 				DC2CA0DC2EF069BC00C10344 /* CryptoSwift */,
 				C2FC44062F3E66F900A61EAB /* TangemTestKit */,
-				B6CFB91B2F89184C00A7C280 /* NumberKit */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -925,7 +907,6 @@
 			);
 			name = BlockchainSdk;
 			packageProductDependencies = (
-				B68E1F892CBC44910043E598 /* Hedera */,
 				B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */,
 				B68E1F952CBC451D0043E598 /* ScaleCodec */,
 				B68E1F982CBC453E0043E598 /* IcpKit */,
@@ -946,7 +927,7 @@
 				0AE2C97F2E58838000D3B9EB /* OrderedCollections */,
 				DCED46562EF0502B0021AC0D /* CryptoSwift */,
 				A7122B1A2F44D0D4004B5C3F /* BitcoinDevKit */,
-				B6CFB90F2F8917E000A7C280 /* NumberKit */,
+				B6136BE22F83A5A9008F984A /* Hiero */,
 			);
 			productName = BlockchainSdk;
 			productReference = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */;
@@ -974,7 +955,6 @@
 				B67E38C42CC7252900D660EB /* TangemSdk */,
 				B63DFC4B2CD4EA1C00720D9F /* TangemModules */,
 				A7122B1E2F45AFA6004B5C3F /* BitcoinDevKit */,
-				B6CFB9112F8917F100A7C280 /* NumberKit */,
 			);
 			productName = BlockchainSdkTests;
 			productReference = B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */;
@@ -1003,7 +983,6 @@
 				B62C167C2CBE0A3D00522683 /* Alamofire */,
 				B67E38BC2CC7179600D660EB /* TangemSdk */,
 				F92DB9CC2CD4C3D200C16530 /* TangemModules */,
-				B6CFB9172F89180A00A7C280 /* NumberKit */,
 			);
 			productName = TangemExpress;
 			productReference = EF9E29932B4F0C8800418559 /* TangemExpress.framework */;
@@ -1053,7 +1032,6 @@
 				B62C167A2CBE0A1E00522683 /* Alamofire */,
 				B67E38BE2CC717A300D660EB /* TangemSdk */,
 				F92DB9CA2CD4C36100C16530 /* TangemModules */,
-				B6CFB9132F8917FB00A7C280 /* NumberKit */,
 			);
 			productName = TangemStaking;
 			productReference = EFEE23882BFF62D50099917E /* TangemStaking.framework */;
@@ -1161,7 +1139,6 @@
 				B0B11A062C787FE70018A2A6 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */,
 				DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */,
-				B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */,
 				B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */,
 				B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */,
 				B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */,
@@ -1180,7 +1157,6 @@
 				B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */,
 				B6DDDE7C2CF39729008DEA94 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */,
 				B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */,
-				B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */,
 				B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */,
@@ -1195,7 +1171,8 @@
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */,
 				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
-				DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */,
+				B6136BE12F83A5A9008F984A /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
+				B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -7269,8 +7246,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bitcoindevkit/bdk-swift";
 			requirement = {
-				kind = exactVersion;
-				version = 2.3.1;
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.1;
 			};
 		};
 		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
@@ -7297,20 +7274,20 @@
 				minimumVersion = 2.4.1;
 			};
 		};
+		B6136BE12F83A5A9008F984A /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/hiero-sdk-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "0.49.0-tangem1";
+			};
+		};
 		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.11.1;
-			};
-		};
-		B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/firebase-ios-sdk.git";
-			requirement = {
-				kind = exactVersion;
-				version = "11.7.0-tangem2";
 			};
 		};
 		B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */ = {
@@ -7353,20 +7330,12 @@
 				version = 4.0.20;
 			};
 		};
-		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/hedera-sdk-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.26.0-tangem6";
-			};
-		};
 		B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/swift-protobuf-binaries.git";
 			requirement = {
 				kind = exactVersion;
-				version = "1.25.2-tangem4";
+				version = "1.29.0-tangem1";
 			};
 		};
 		B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */ = {
@@ -7393,12 +7362,20 @@
 				minimumVersion = 2.1.1;
 			};
 		};
+		B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.12.0;
+			};
+		};
 		B6C0D3EA2CBDC3E0001113ED /* XCRemoteSwiftPackageReference "SwiftBinanceChain" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/SwiftBinanceChain.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.0.17;
+				version = 0.0.18;
 			};
 		};
 		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
@@ -7422,7 +7399,7 @@
 			repositoryURL = "git@github.com:tangem-developments/grpc-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "1.21.0-tangem3";
+				version = "1.26.2-tangem1";
 			};
 		};
 		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
@@ -7470,7 +7447,7 @@
 			repositoryURL = "git@github.com:tangem-developments/wallet-core-binaries-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = "4.1.20-tangem7";
+				version = "4.3.9-tangem5";
 			};
 		};
 		B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */ = {
@@ -7485,8 +7462,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/customerio/customerio-ios.git";
 			requirement = {
-				kind = exactVersion;
-				version = 4.2.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.0;
 			};
 		};
 		C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
@@ -7501,16 +7478,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/surveysparrow/surveysparrow-ios-sdk.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.2.7;
-			};
-		};
-		DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
-			requirement = {
-				kind = exactVersion;
-				version = 2.4.2;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.7;
 			};
 		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
@@ -7607,6 +7576,11 @@
 			package = B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */;
 			productName = AnyCodable;
 		};
+		B6136BE22F83A5A9008F984A /* Hiero */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6136BE12F83A5A9008F984A /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */;
+			productName = Hiero;
+		};
 		B62C16782CBE095A00522683 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */;
@@ -7631,21 +7605,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		B62C24862CF48327003377F1 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		B62C24882CF48327003377F1 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		B62C248A2CF48327003377F1 /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
 		};
 		B62D343C2CBC4FD000C2460E /* Clibsodium */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -7693,10 +7652,6 @@
 		B63DFC4D2CD4EABB00720D9F /* TangemModules */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemModules;
-		};
-		B64404402D3FE77300195004 /* FirebasePerformance */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebasePerformance;
 		};
 		B655F57B2CBC872E002391AF /* TweetNacl */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -7748,11 +7703,6 @@
 			package = B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */;
 			productName = TangemSdk;
 		};
-		B68E1F892CBC44910043E598 /* Hedera */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */;
-			productName = Hedera;
-		};
 		B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */;
@@ -7772,6 +7722,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */;
 			productName = "GDPerformanceView-Swift";
+		};
+		B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		B6C02EAF2F856B000003ADBE /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B6C02EB12F856B000003ADBE /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebasePerformance;
 		};
 		B6C0D3F32CBDC543001113ED /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -7807,41 +7777,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */;
 			productName = SolanaSwift;
-		};
-		B6CFB90F2F8917E000A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB9112F8917F100A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB9132F8917FB00A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB9152F89180300A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB9172F89180A00A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB9192F89181000A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
-		};
-		B6CFB91B2F89184C00A7C280 /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
 		};
 		B6DDDE742CF39079008DEA94 /* BlockiesSwift */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -7901,11 +7836,6 @@
 		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemTestKit;
-		};
-		DA065D312F88F4B7002E27DD /* NumberKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
-			productName = NumberKit;
 		};
 		DC2CA0DC2EF069BC00C10344 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
