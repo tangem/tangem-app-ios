@@ -46,12 +46,18 @@ extension LockingScriptBuilder where Self == MultiLockingScriptBuilder {
 
     static func litecoin() -> Self {
         let network: UTXONetworkParams = LitecoinNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [SegWitLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [
+            SegWitLockingScriptBuilder(network: network),
+            Base58LockingScriptBuilder(network: network),
+        ])
     }
 
     static func bitcoinCash(isTestnet: Bool) -> Self {
         let network: UTXONetworkParams = isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [CashAddrLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [
+            CashAddrLockingScriptBuilder(network: network),
+            Base58LockingScriptBuilder(network: network),
+        ])
     }
 }
 
