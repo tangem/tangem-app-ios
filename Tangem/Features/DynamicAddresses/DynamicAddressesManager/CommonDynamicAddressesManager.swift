@@ -8,7 +8,7 @@
 
 import Combine
 
-class CommonDynamicAddressesManager {
+final class CommonDynamicAddressesManager {
     private let tokenItem: TokenItem
     private let dynamicAddressesWalletUpdater: DynamicAddressesWalletUpdater
     private let xpubKeyGenerator: XPUBKeyGenerator

@@ -28,25 +28,14 @@ struct DynamicAddressesWalletUpdater {
         let newWallet = try factory.makeWallet(publicKey: xpubPublicKey)
         try walletUpdater.update(wallet: newWallet)
     }
-
-    func updateToPlainKey() throws {
-        let wallet = walletProvider.wallet
-
-        guard case .xpub(let plainKey, _) = wallet.publicKey.derivationType else {
-            throw DynamicAddressesWalletUpdaterError.xpubHDKeyNotFound
-        }
-
-        let plainPublicKey = Wallet.PublicKey(
-            seedKey: wallet.publicKey.seedKey,
-            derivationType: .plain(plainKey)
-        )
-        let factory = WalletFactory(blockchain: wallet.blockchain)
-        let newWallet = try factory.makeWallet(publicKey: plainPublicKey)
-        try walletUpdater.update(wallet: newWallet)
-    }
 }
 
 enum DynamicAddressesWalletUpdaterError: LocalizedError {
     case plainHDKeyNotFound
-    case xpubHDKeyNotFound
+
+    var errorDescription: String? {
+        switch self {
+        case .plainHDKeyNotFound: "Plain HD key not found."
+        }
+    }
 }
