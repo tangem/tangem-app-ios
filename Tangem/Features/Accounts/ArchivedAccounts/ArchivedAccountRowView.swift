@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemAccounts
+import TangemAccessibilityIdentifiers
 
 struct ArchivedAccountRowView: View {
     let viewData: ViewData
@@ -19,12 +20,16 @@ struct ArchivedAccountRowView: View {
         AccountIconWithContentView(
             iconData: viewData.iconData,
             name: viewData.name,
-            subtitle: { Text(viewData.subtitle) },
+            subtitle: {
+                Text(viewData.subtitle)
+                    .accessibilityIdentifier(AccountsAccessibilityIdentifiers.archivedAccountTokenInfo(accountName: viewData.name))
+            },
             trailing: {
                 CapsuleButton(title: Localization.accountArchivedRecover, action: viewData.onRecover)
                     .loading(viewData.isRecovering)
                     .disabled(viewData.isRecoverDisabled)
                     .lineLimit(1)
+                    .accessibilityIdentifier(AccountsAccessibilityIdentifiers.archivedAccountRecoverButton(accountName: viewData.name))
             }
         )
     }

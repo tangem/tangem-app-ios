@@ -38,6 +38,6 @@ extension PepecoinAddressService: AddressProvider {
         let compressed = try Secp256k1Key(with: publicKey.blockchainKey).compress()
 
         let (address, lockingScript) = try builder.encode(publicKey: compressed, type: .p2pkh)
-        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
+        return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
     }
 }
