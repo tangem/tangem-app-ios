@@ -26,6 +26,7 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
     case dynamicAddresses
+    case usdtRevokeGaslessFee
 
     var name: String {
         switch self {
@@ -46,6 +47,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
+        case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         }
     }
 
@@ -68,6 +70,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaTxHistoryEnabled: return .unspecified
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
+        case .usdtRevokeGaslessFee: return .unspecified
         }
     }
 }
