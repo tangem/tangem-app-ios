@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public struct UTXOLockingScript: Hashable {
     /// `Locking Script Data` Will be use in output
@@ -23,12 +24,12 @@ public struct UTXOLockingScript: Hashable {
 public extension UTXOLockingScript {
     /// The value which allow us to spend the utxo
     enum SpendableType: Hashable {
-        case publicKey(Data)
+        case publicKey(DerivationPublicKey)
         case redeemScript(Data)
 
         var data: Data {
             switch self {
-            case .publicKey(let data): data
+            case .publicKey(let key): key.publicKey
             case .redeemScript(let data): data
             }
         }
