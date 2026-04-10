@@ -55,10 +55,11 @@ extension BaseWalletManager: WalletProvider {
 
 extension BaseWalletManager: WalletReplaceable {
     func update(wallet newWallet: Wallet) throws {
-        guard newWallet.blockchain.networkId == wallet.blockchain.networkId else {
-            throw InternalError.attemptToWalletUpdateWithDifferentNetworkId
+        guard newWallet.blockchain == wallet.blockchain else {
+            throw InternalError.attemptToWalletUpdateWithDifferentBlockchain
         }
 
+        setNeedsUpdate()
         _wallet.send(newWallet)
     }
 }
@@ -98,12 +99,12 @@ extension BaseWalletManager: WalletManagerUpdater {
                 try await updater.updateWalletManager(addresses: [address])
 
             // Bitcoin, Cardano, etc.
-            case (.addresses(let `default`, let legacy), let updater as MultiAddressesWalletManagerUpdater):
-                try await updater.updateWalletManager(addresses: [`default`, legacy])
+            case (.addresses(let addresses), let updater as MultiAddressesWalletManagerUpdater):
+                try await updater.updateWalletManager(addresses: addresses)
 
             // Ignore `legacy` address here. XDC, Decimal blockchains
-            case (.addresses(let `default`, _), let updater as BaseWalletManagerUpdater):
-                try await updater.updateWalletManager(address: `default`)
+            case (.addresses(let addresses), let updater as BaseWalletManagerUpdater):
+                try await updater.updateWalletManager(address: addresses[0])
 
             case (.xpub(let xpub), let updater as XPUBWalletManagerUpdater):
                 try await updater.updateWalletManager(xpub: xpub)
@@ -164,12 +165,12 @@ extension BaseWalletManager {
 extension BaseWalletManager {
     enum InternalError: LocalizedError {
         case walletManagerUpdaterNotSetup
-        case attemptToWalletUpdateWithDifferentNetworkId
+        case attemptToWalletUpdateWithDifferentBlockchain
 
         var errorDescription: String? {
             switch self {
             case .walletManagerUpdaterNotSetup: "WalletManagerUpdater is not set"
-            case .attemptToWalletUpdateWithDifferentNetworkId: "Attempt to update wallet with different network ID"
+            case .attemptToWalletUpdateWithDifferentBlockchain: "Attempt to update wallet with different Blockchain"
             }
         }
     }
