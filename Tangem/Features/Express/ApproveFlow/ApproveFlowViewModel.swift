@@ -61,6 +61,8 @@ final class ApproveFlowViewModel: ObservableObject, FloatingSheetContentViewMode
 
         self.approveViewModel.setCoordinator(self)
         bind()
+
+        interactor.logPermissionScreenOpened()
     }
 }
 
@@ -147,8 +149,8 @@ extension ApproveFlowViewModel {
 
         var title: String {
             switch self {
-            case .approve:
-                return Localization.swappingPermissionHeader
+            case .approve(let viewModel):
+                return viewModel.title
             case .feeTokenSelection:
                 return Localization.feeSelectorChooseTokenTitle
             }

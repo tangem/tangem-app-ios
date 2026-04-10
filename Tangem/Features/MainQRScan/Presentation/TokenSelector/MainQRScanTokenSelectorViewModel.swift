@@ -11,16 +11,16 @@ import Foundation
 // MARK: - MainQRScanTokenSelectorViewModel
 
 final class MainQRScanTokenSelectorViewModel: ObservableObject, Identifiable {
-    let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let tokenSelectorViewModel: TokenSelectorViewModel
 
     private let sendParameters: PredefinedSendParameters
-    private let accountsModeSingleAccountHeaders: [ObjectIdentifier: AccountsAwareTokenSelectorAccountViewModel.HeaderType]
+    private let accountsModeSingleAccountHeaders: [ObjectIdentifier: TokenSelectorAccountViewModel.HeaderType]
     private weak var coordinator: MainQRScanTokenSelectorRoutable?
 
     init(
-        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        tokenSelectorViewModel: TokenSelectorViewModel,
         sendParameters: PredefinedSendParameters,
-        accountsModeSingleAccountHeaders: [ObjectIdentifier: AccountsAwareTokenSelectorAccountViewModel.HeaderType],
+        accountsModeSingleAccountHeaders: [ObjectIdentifier: TokenSelectorAccountViewModel.HeaderType],
         coordinator: MainQRScanTokenSelectorRoutable
     ) {
         self.tokenSelectorViewModel = tokenSelectorViewModel
@@ -37,16 +37,16 @@ final class MainQRScanTokenSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func accountsModeHeader(
-        for wallet: AccountsAwareTokenSelectorWalletItemViewModel
-    ) -> AccountsAwareTokenSelectorAccountViewModel.HeaderType? {
+        for wallet: TokenSelectorWalletItemViewModel
+    ) -> TokenSelectorAccountViewModel.HeaderType? {
         accountsModeSingleAccountHeaders[wallet.id]
     }
 }
 
-// MARK: - AccountsAwareTokenSelectorViewModelOutput
+// MARK: - TokenSelectorViewModelOutput
 
-extension MainQRScanTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+extension MainQRScanTokenSelectorViewModel: TokenSelectorViewModelOutput {
+    func userDidSelect(item: TokenSelectorItem) {
         guard let walletModel = item.kind.walletModel else {
             return
         }

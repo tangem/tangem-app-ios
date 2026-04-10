@@ -47,8 +47,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -78,7 +76,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        walletAddresses: walletModel.addresses.map { $0.value },
+        walletAddresses: walletModel.addresses,
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )
@@ -118,7 +116,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         if addresses.count == 1 {
             openAddressExplorer(at: 0)
         } else {
-            openAddressSelector(addresses) { [weak self] index in
+            openAddressSelector { [weak self] index in
                 self?.openAddressExplorer(at: index)
             }
         }
@@ -592,13 +590,14 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    private func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
-        if addresses.isEmpty {
+    private func openAddressSelector(callback: @escaping (Int) -> Void) {
+        let addressTypes = walletModel.receiveAddressTypes
+        if addressTypes.isEmpty {
             return
         }
 
-        let addressButtons = addresses.enumerated().map { index, address in
-            ConfirmationDialogViewModel.Button(title: address.localizedName) {
+        let addressButtons = addressTypes.enumerated().map { index, addressType in
+            ConfirmationDialogViewModel.Button(title: addressType.info.localizedName) {
                 callback(index)
             }
         }
