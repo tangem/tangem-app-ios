@@ -381,8 +381,11 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch sendType {
-        case .send where sourceFlow == .sendAndSwap:
-            var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+        case .send where isSendWithSwapFlow:
+            var analyticsParameters: [Analytics.ParameterKey: String] = [
+                .source: sourceFlow.rawValue,
+                .type: entryTypeParameterValue.rawValue,
+            ]
 
             if let tokenItem = sourceTokenItem {
                 analyticsParameters[.sendToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem)
@@ -404,7 +407,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
 
             Analytics.log(event: .sendSendWithSwapConfirmScreenOpened, params: analyticsParameters, analyticsSystems: .all)
 
-        case .send where sourceFlow == .send:
+        case .send:
             var params: [Analytics.ParameterKey: String] = [
                 .source: sourceFlow.rawValue,
                 .type: entryTypeParameterValue.rawValue,
@@ -420,6 +423,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
             }
 
             Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
+
         case .swap:
             var params: [Analytics.ParameterKey: String] = [:]
 
