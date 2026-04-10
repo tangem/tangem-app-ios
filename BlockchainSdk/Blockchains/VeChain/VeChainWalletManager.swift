@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class VeChainWalletManager: BaseManager {
+final class VeChainWalletManager: BaseWalletManager {
     private let networkService: VeChainNetworkService
     private let transactionBuilder: VeChainTransactionBuilder
 
@@ -33,10 +33,10 @@ final class VeChainWalletManager: BaseManager {
         fatalError("\(#function) has not been implemented")
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let accountInfo = try await networkService
-                .getAccountInfo(address: wallet.address)
+                .getAccountInfo(address: address)
                 .async()
 
             async let transactionsInfo = TaskGroup.tryExecuteKeepingOrder(items: wallet.pendingTransactions) { [weak self] transaction in
@@ -49,7 +49,7 @@ final class VeChainWalletManager: BaseManager {
             async let tokenBalanceAmounts = TaskGroup.tryExecuteKeepingOrder(items: nonEnergyTokens) { [weak self] token in
                 guard let self else { throw BlockchainSdkError.empty }
 
-                return try await networkService.getBalance(of: token, for: wallet.address).async()
+                return try await networkService.getBalance(of: token, for: address).async()
             }
 
             try await updateWallet(
