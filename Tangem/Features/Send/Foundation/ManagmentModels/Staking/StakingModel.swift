@@ -24,7 +24,7 @@ final class StakingModel {
     private let _amount = CurrentValueSubject<SendAmount?, Never>(nil)
     private let _selectedTarget = CurrentValueSubject<LoadingResult<StakingTargetInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State?, Never>(.none)
-    private let _approvePolicy = CurrentValueSubject<ApprovePolicy, Never>(.unlimited)
+    private let _approvePolicy = CurrentValueSubject<ApprovePolicy, Never>(.specified)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
@@ -110,11 +110,14 @@ private extension StakingModel {
             switch allowanceState {
             case .permissionRequired(let approveData):
                 stopTimer()
-                // Warm up approve fees in parallel with the staking fee calculation
                 sendSourceToken.tokenFeeProvidersManager.update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
                 sendSourceToken.tokenFeeProvidersManager.updateFees()
                 let stakingFee = try await estimateFee(amount: amount, target: target)
                 return .readyToApprove(approveData: approveData, stakingFee: stakingFee)
+
+            case .revokeAndPermissionRequired:
+                assertionFailure("Revoke+approve is not expected for staking tokens")
+                throw StakingModelError.revokeAndApproveNotSupported
 
             case .approveTransactionInProgress:
                 return try await .approveTransactionInProgress(
@@ -577,9 +580,11 @@ extension StakingModel: ApproveFlowDataProvider, ApproveOutput {
             approveAmount: approveAmount,
             selectedPolicy: selectedPolicy,
             approveData: approveData,
+            approvalFlow: .approve,
             sourceToken: sendSourceToken,
             tokenFeeProvidersManager: sendSourceToken.tokenFeeProvidersManager,
             localization: ApproveLocalization(
+                title: Localization.swappingPermissionHeader,
                 subtitle: Localization.givePermissionStakingSubtitle(tokenItem.currencySymbol),
                 feeFooterText: Localization.stakingGivePermissionFeeFooter
             )
@@ -629,6 +634,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case allowanceServiceNotFound
     case approveDataNotFound
     case accountIsNotInitialized
+    case revokeAndApproveNotSupported
 
     var errorDescription: String? { rawValue }
 }

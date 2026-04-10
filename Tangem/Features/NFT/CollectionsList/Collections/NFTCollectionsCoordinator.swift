@@ -144,14 +144,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             return
         }
 
-        if FeatureProvider.isAvailable(.accounts) {
-            openAccountSelector(options: options, navigationInput: input)
-        } else {
-            openReceive(
-                navigationInput: input,
-                options: options
-            )
-        }
+        openAccountSelector(options: options, navigationInput: input)
     }
 
     func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext?) {
