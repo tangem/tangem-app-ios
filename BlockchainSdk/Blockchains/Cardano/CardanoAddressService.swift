@@ -86,12 +86,14 @@ extension CardanoAddressService: AddressProvider {
         try publicKey.blockchainKey.validateAsEdKey()
 
         switch addressType {
-        case .default:
+        case .default, .used(.default, _):
             let shelley = try makeShelleyAddress(from: publicKey.blockchainKey)
             return PlainAddress(value: shelley, type: addressType)
-        case .legacy:
+        case .legacy, .used(.legacy, _):
             let byron = makeByronAddress(from: publicKey.blockchainKey)
             return PlainAddress(value: byron, type: addressType)
+        case .used:
+            throw AddressTypeError.notSupported
         }
     }
 }
