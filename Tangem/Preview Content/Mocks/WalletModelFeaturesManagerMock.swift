@@ -14,5 +14,6 @@ struct WalletModelFeaturesManagerMock {}
 // MARK: - WalletModelFeaturesManager protocol conformance
 
 extension WalletModelFeaturesManagerMock: WalletModelFeaturesManager {
+    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .just(output: []) }
 }
