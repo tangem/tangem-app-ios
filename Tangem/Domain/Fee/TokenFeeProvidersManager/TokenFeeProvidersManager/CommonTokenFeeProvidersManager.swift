@@ -57,7 +57,7 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
             .map { [feeProviders] _ in feeProviders.hasMultipleFeeProviders }
 
         return Publishers.CombineLatest3(
-            selectedFeeProviderPublisher.map(\.hasMultipleFeeOptions),
+            selectedFeeProviderPublisher.flatMapLatest { provider in provider.statePublisher.map { _ in provider.hasMultipleFeeOptions } },
             hasMultipleSupportedProviders,
             selectedFeeProviderPublisher.flatMapLatest { $0.statePublisher.map(\.isUnavailableNoTokenBalance) }
         )
@@ -148,6 +148,18 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
+    }
+
+    func revokeAndApproveTransactionFee(revokeData: ApproveTransactionData) async throws -> RevokeAndApproveFee {
+        update(input: .approve(txData: revokeData.txData, toContractAddress: revokeData.toContractAddress, feeMultiplier: .triple))
+        await updateFees().value
+        let total = try selectedFeeProvider.selectedTokenFee.value.get()
+
+        var unitAmount = total.amount
+        unitAmount.value /= FeeMultiplier.triple.rawValue
+        let unit = BSDKFee(unitAmount, parameters: total.parameters)
+
+        return RevokeAndApproveFee(unit: unit, total: total)
     }
 
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee {
