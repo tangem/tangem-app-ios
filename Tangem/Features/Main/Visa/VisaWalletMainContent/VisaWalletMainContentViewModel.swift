@@ -352,7 +352,6 @@ private extension VisaWalletMainContentViewModel {
         // Dummy address to use with `ReceiveBottomSheetUtils`
         let visaAddress = PlainAddress(
             value: info.accountAddress,
-            publicKey: .init(seedKey: Data(), derivationType: nil),
             type: .default
         )
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: [visaAddress])

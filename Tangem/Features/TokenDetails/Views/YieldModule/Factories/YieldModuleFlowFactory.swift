@@ -36,7 +36,6 @@ final class CommonYieldModuleFlowFactory {
 
     private let walletModel: any WalletModel
     private let transactionDispatcher: any TransactionDispatcher
-    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
     private let yieldModuleManager: any YieldModuleManager
 
     // MARK: - Init
@@ -112,8 +111,7 @@ final class CommonYieldModuleFlowFactory {
     private func makeInteractor() -> YieldManagerInteractor {
         YieldManagerInteractor(
             transactionDispatcher: transactionDispatcher,
-            manager: yieldModuleManager,
-            yieldModuleNotificationInteractor: yieldModuleNotificationInteractor
+            manager: yieldModuleManager
         )
     }
 }
