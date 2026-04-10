@@ -27,7 +27,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     private var pendingTokenTransactionHashes: [Token: Set<String>] = [:]
 
     var currentHost: String { networkService.host }
-    var allowsFeeSelection: Bool { false }
+    var allowsFeeSelection: Bool { true }
 
     // MARK: - Initialization/Deinitialization
 

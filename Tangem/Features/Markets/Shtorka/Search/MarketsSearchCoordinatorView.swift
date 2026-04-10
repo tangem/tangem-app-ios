@@ -38,9 +38,6 @@ struct MarketsSearchCoordinatorView: CoordinatorView {
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
     }
 
     private var links: some View {

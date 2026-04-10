@@ -17,6 +17,7 @@ extension QuotesDTO {
 
         struct Fields: Decodable {
             let price: Decimal?
+            let priceUsd: Decimal?
             let priceChange24h: Decimal?
             let priceChange1w: Decimal?
             let priceChange30d: Decimal?
@@ -36,6 +37,7 @@ extension QuotesDTO {
             case priceChange7d = "priceChange1w"
             case priceChange30d
             case price
+            case priceUsd
             case lastUpdatedAt
         }
 

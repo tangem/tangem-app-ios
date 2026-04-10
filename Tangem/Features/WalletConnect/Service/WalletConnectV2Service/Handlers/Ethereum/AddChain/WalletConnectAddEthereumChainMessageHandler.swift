@@ -16,7 +16,6 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     @Injected(\.wcService) private var wcService: any WCService
 
     private let connectedDApp: WalletConnectConnectedDApp
-    private let walletModelProvider: any WalletConnectWalletModelProvider
     private let blockchainToAdd: BlockchainSdk.Blockchain
     private let wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider
     private let accountId: String
@@ -28,12 +27,10 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     init(
         requestParams: AnyCodable,
         connectedDApp: WalletConnectConnectedDApp,
-        walletModelProvider: some WalletConnectWalletModelProvider,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws(WalletConnectTransactionRequestProcessingError) {
         self.connectedDApp = connectedDApp
-        self.walletModelProvider = walletModelProvider
         self.wcAccountsWalletModelProvider = wcAccountsWalletModelProvider
         self.accountId = accountId
 
@@ -55,20 +52,12 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         let reownAccountsToAdd: [ReownWalletKit.Account]
 
-        if FeatureProvider.isAvailable(.accounts) {
-            reownAccountsToAdd = WalletConnectAccountsMapper.map(
-                from: blockchainToAdd,
-                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                preferredCAIPReference: nil,
-                accountId: accountId
-            )
-        } else {
-            reownAccountsToAdd = WalletConnectAccountsMapper.map(
-                from: blockchainToAdd,
-                walletConnectWalletModelProvider: walletModelProvider,
-                preferredCAIPReference: nil
-            )
-        }
+        reownAccountsToAdd = WalletConnectAccountsMapper.map(
+            from: blockchainToAdd,
+            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+            preferredCAIPReference: nil,
+            accountId: accountId
+        )
 
         var reownNamespacesToUpdate = WalletConnectSessionNamespaceMapper.mapFromDomain(connectedDApp.session.namespaces)
         var reownNamespaceToUpdate = reownNamespacesToUpdate[WalletConnectSupportedNamespace.eip155.rawValue]

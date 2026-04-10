@@ -10,8 +10,12 @@ import Combine
 import Foundation
 
 class VisaReceiveAssetInfoProvider: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        addressInfos.map { .address($0) }
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
-        .just(output: addressInfos.map { .address($0) })
+        .just(output: receiveAddressTypes)
     }
 
     // MARK: - Private Properties

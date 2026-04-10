@@ -20,7 +20,6 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var connectionRequestSection: ConnectionRequestSection
     var dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
 
-    var walletSection: WalletSection?
     var connectionTargetSection: ConnectionTargetSection?
     var networksSection: NetworksSection
     var networksWarningSection: WalletConnectWarningNotificationViewModel?
@@ -123,22 +122,6 @@ extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
     private enum SFSymbol {
         static let checkmark = "checkmark"
         static let multiply = "multiply"
-    }
-}
-
-// MARK: - Wallet section
-
-extension WalletConnectDAppConnectionRequestViewState {
-    struct WalletSection: Equatable {
-        let iconAsset = Assets.Glyphs.walletNew
-        let label = Localization.wcCommonWallet
-        let selectionIsAvailable: Bool
-        var selectedUserWalletName: String
-
-        init(selectedUserWalletName: String, selectionIsAvailable: Bool) {
-            self.selectedUserWalletName = selectedUserWalletName
-            self.selectionIsAvailable = selectionIsAvailable
-        }
     }
 }
 

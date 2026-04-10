@@ -56,9 +56,9 @@ public struct TangemButtonShowcase: View {
 
     private let contents: [TangemButton.Content] = [
         .text("Button"),
-        .icon(Assets.crossedEyeIcon),
-        .combined(text: "Button", icon: Assets.crossedEyeIcon, iconPosition: .left),
-        .combined(text: "Button", icon: Assets.crossedEyeIcon, iconPosition: .right),
+        .icon(Assets.DesignSystem.eyeClose),
+        .combined(text: "Button", icon: Assets.DesignSystem.eyeClose, iconPosition: .left),
+        .combined(text: "Button", icon: Assets.DesignSystem.eyeClose, iconPosition: .right),
         .text("Button alskjdhlkaujshdlagsdhaiusjcklsxcbvhjksfdskagfgasjkhdfajksdfhjkasfasdfkasdfl;a"),
     ]
 

@@ -53,7 +53,7 @@ final class MobileFinishActivationManager {
         }
 
         if isSubscriptionNeeded {
-            let walletModelsPublisher = AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            let walletModelsPublisher = AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager)
             bind(with: walletModelsPublisher)
         }
 

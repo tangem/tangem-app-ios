@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "scale-stepped.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

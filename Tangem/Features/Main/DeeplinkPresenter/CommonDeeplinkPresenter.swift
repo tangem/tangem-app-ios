@@ -157,37 +157,23 @@ private extension CommonDeeplinkPresenter {
     ) -> UIViewController? {
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
 
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return nil
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel,
-                    pendingTransactionDetails: pendingTransactionDetails
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
-                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
-                    walletModel: walletModel,
-                    pendingTransactionDetails: pendingTransactionDetails
-                )
-            )
+        guard let account = walletModel.account else {
+            let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+            AppLogger.error(error: message)
+            assertionFailure(message)
+            return nil
         }
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: account.walletModelsManager,
+                userTokensManager: account.userTokensManager,
+                walletModel: walletModel,
+                pendingTransactionDetails: pendingTransactionDetails
+            )
+        )
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
@@ -209,13 +195,7 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { UIApplication.dismissTop() })
 
         coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
+            with: .init(userWalletModels: [userWalletModel])
         )
 
         return makeDeeplinkViewController(
@@ -230,7 +210,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
@@ -243,7 +224,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false

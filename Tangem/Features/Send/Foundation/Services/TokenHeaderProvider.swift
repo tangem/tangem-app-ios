@@ -25,10 +25,6 @@ struct TokenHeaderProvider {
     }
 
     func makeHeader() -> TokenHeader {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            return .wallet(name: userWalletName, hasOnlyOneWallet: userWalletRepository.hasOnlyOneWallet)
-        }
-
         let hasMultipleCryptoAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
         let hasMultipleAccounts = hasMultipleCryptoAccounts || tangemPayAccountGlobalStateProvider.hasTangemPayAccount
 
