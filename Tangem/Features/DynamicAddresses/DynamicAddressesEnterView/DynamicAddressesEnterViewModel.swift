@@ -14,7 +14,9 @@ import TangemLocalization
 
 final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published private(set) var mainButtonIsLoading: Bool = false
+    @Published private(set) var mainButtonIsDisabled: Bool = false
     @Published private(set) var mainButtonIcon: MainButton.Icon?
+
     @Published var alert: AlertBinder?
 
     private let dynamicAddressesManager: DynamicAddressesManager
@@ -75,11 +77,18 @@ private extension DynamicAddressesEnterViewModel {
     }
 
     private func setupView() {
-        guard case .disabled(let derivationIsNeeded) = dynamicAddressesManager.state else {
-            return
-        }
+        switch dynamicAddressesManager.enablingRequirements {
+        case .none:
+            mainButtonIcon = nil
+            mainButtonIsDisabled = false
 
-        mainButtonIcon = derivationIsNeeded ? .trailing(Assets.tangemIcon) : nil
+        case .xpubDerivationIsNeeded:
+            mainButtonIcon = .trailing(Assets.tangemIcon)
+            mainButtonIsDisabled = false
+
+        case .customTokensRemoveIsNeeded:
+            mainButtonIsDisabled = true
+        }
     }
 
     func dismiss(isSuccess: Bool) {
