@@ -208,7 +208,12 @@ private extension CommonSwapNotificationManager {
             var events: [SwapNotificationEvent] = []
 
             if let hpi = previewCEX.quote.highPriceImpact, !hpi.level.isNegligible {
-                events.append(.highPriceImpactWarning(level: hpi.level, analyticsParams: analyticsParams))
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
             }
 
             if previewCEX.subtractFee.subtractFee > 0 {
@@ -240,11 +245,27 @@ private extension CommonSwapNotificationManager {
             var events: [SwapNotificationEvent] = []
 
             if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
-                events.append(.highPriceImpactWarning(level: hpi.level, analyticsParams: analyticsParams))
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
             }
 
             return events
         }
+    }
+
+    private func hpiAnalyticsParams(
+        base analyticsParams: [Analytics.ParameterKey: String],
+        source: any SendSourceToken,
+        receive: any SendReceiveToken
+    ) -> [Analytics.ParameterKey: String] {
+        var params = analyticsParams
+        params[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        return params
     }
 
     func mapValidationError(source: any SendSourceToken, validationError: ValidationError) -> SwapNotificationEvent? {
