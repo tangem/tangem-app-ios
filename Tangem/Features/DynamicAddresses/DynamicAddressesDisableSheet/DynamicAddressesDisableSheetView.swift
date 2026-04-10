@@ -20,7 +20,6 @@ struct DynamicAddressesDisableSheetView: View {
             closeAction: viewModel.close,
             primaryButton: viewModel.primaryButtonSettings
         )
-        .alert(item: $viewModel.alert) { $0.alert }
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

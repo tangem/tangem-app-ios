@@ -16,7 +16,7 @@ protocol DynamicAddressesDisableSheetRoutable: AnyObject {
 }
 
 final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published var alert: AlertBinder?
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     var icon: BottomSheetErrorContentView.Icon { .attention }
     var title: String { Localization.dynamicAddressesDisableTitle }
@@ -46,7 +46,7 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
             try dynamicAddressesManager.disableDynamicAddresses()
             close()
         } catch {
-            alert = error.alertBinder
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 }
