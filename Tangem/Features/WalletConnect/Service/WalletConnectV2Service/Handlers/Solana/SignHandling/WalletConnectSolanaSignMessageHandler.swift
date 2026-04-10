@@ -21,34 +21,6 @@ struct WalletConnectSolanaSignMessageHandler {
         request: AnyCodable,
         signer: some WalletConnectSigner,
         blockchainId: String,
-        walletModelProvider: some WalletConnectWalletModelProvider
-    ) throws {
-        let parameters = try request.get(WalletConnectSolanaSignMessageDTO.Response.self)
-
-        do {
-            guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
-            }
-
-            message = parameters.message
-            self.walletModel = walletModel
-        } catch let error as WalletConnectTransactionRequestProcessingError {
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw error
-        } catch {
-            let stringRepresentation = request.stringRepresentation
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
-        }
-
-        self.signer = signer
-        self.request = request
-    }
-
-    init(
-        request: AnyCodable,
-        signer: some WalletConnectSigner,
-        blockchainId: String,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {
