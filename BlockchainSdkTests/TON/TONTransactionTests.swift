@@ -26,7 +26,8 @@ struct TONTransactionTests {
             with: .default
         )
 
-        let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+        let publicKey = Wallet.PublicKey(seedKey: walletPubKey, derivationType: .none)
+        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: CommonAddressesProvider(defaultAddress: address))
 
         return try .init(
             wallet: wallet,

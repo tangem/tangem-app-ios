@@ -90,7 +90,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
             }
         }
 
-        return transactionData.method == .sendTransaction ? Localization.commonSend : Localization.commonSign
+        return transactionData.method.isSendTransaction ? Localization.commonSend : Localization.commonSign
     }
 
     var isActionButtonBlocked: Bool {

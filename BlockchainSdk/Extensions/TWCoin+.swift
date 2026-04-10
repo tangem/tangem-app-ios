@@ -10,7 +10,7 @@ import Foundation
 import WalletCore
 
 extension CoinType {
-    /// Сonstructor that maps the sdk blockchain type into the TrustWallet coin type
+    /// Constructor that maps the SDK blockchain type into the TrustWallet coin type
     init?(_ blockchain: Blockchain) {
         switch blockchain {
         case .bitcoin:
