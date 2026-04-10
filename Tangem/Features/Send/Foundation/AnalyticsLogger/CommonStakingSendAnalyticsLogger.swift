@@ -27,6 +27,13 @@ class CommonStakingSendAnalyticsLogger {
 // MARK: - SendApproveAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendApproveAnalyticsLogger {
+    func logPermissionScreenOpened(isRevoke: Bool) {
+        Analytics.log(event: .stakingPermissionScreenOpened, params: [
+            .sendToken: tokenItem.currencySymbol,
+            .sendBlockchain: tokenItem.blockchain.displayName,
+        ])
+    }
+
     func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy) {
         Analytics.log(event: .swapButtonPermissionApprove, params: [
             .sendToken: tokenItem.currencySymbol,
@@ -128,7 +135,7 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
         Analytics.log(
             event: .stakingButtonValidator,
             params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
+                .source: Analytics.ParameterValue.confirmation.rawValue,
                 .token: tokenItem.currencySymbol,
             ]
         )
@@ -206,7 +213,7 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         case (.next, .stake):
             Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
         case (.action, .stake):
-            actionParameters[.source] = Analytics.ParameterValue.stakeSourceConfirmation.rawValue
+            actionParameters[.source] = Analytics.ParameterValue.confirmation.rawValue
             Analytics.log(event: .stakingButtonStake, params: actionParameters)
         case (.action, .unstake):
             Analytics.log(event: .stakingButtonUnstake, params: actionParameters)

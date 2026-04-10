@@ -36,7 +36,7 @@ extension AptosCoreAddressService: AddressProvider {
             return address
         } else {
             let nonsignificantAddress = insertNonsignificantZero(for: address.value)
-            return PlainAddress(value: nonsignificantAddress, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: nonsignificantAddress, type: addressType)
         }
     }
 }
