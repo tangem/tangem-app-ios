@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol UTXONetworkProvider: UTXONetworkAddressInfoProvider {
+protocol UTXONetworkProvider: UTXONetworkAddressInfoProvider, UTXOXpubNetworkAddressInfoProvider {
     func getFee() -> AnyPublisher<UTXOFee, Error>
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, Error>
 }

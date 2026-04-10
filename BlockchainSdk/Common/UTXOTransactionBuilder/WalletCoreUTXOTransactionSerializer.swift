@@ -22,7 +22,7 @@ struct WalletCoreUTXOTransactionSerializer {
 // MARK: - UTXOTransactionSerializer
 
 extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
-    func preImageHashes(transaction: Transaction) throws -> [Data] {
+    func preImageHashes(transaction: Transaction) throws -> [UTXOTransactionSerializerPreImageHash] {
         let input = try buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
@@ -34,8 +34,13 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
             throw UTXOTransactionSerializerError.walletCoreError(preSigningOutput.errorMessage)
         }
 
-        let hashes = preSigningOutput.hashPublicKeys.map { $0.dataHash }
-        return hashes
+        return try zip(transaction.preImage.inputs, preSigningOutput.hashPublicKeys).map { input, hashPublicKey in
+            guard let spendableType = input.script.spendable else {
+                throw UTXOTransactionSerializerError.spendableScriptNotFound
+            }
+
+            return UTXOTransactionSerializerPreImageHash(spendableType: spendableType, hashToSign: hashPublicKey.dataHash)
+        }
     }
 
     func compile(transaction: Transaction, signatures: [SignatureInfo]) throws -> Data {
