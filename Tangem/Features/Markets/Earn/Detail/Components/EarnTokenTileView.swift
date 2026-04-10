@@ -61,7 +61,7 @@ struct EarnTokenTileView: View {
             .clipShape(RoundedRectangle(cornerRadius: RedesignLayout.cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: RedesignLayout.cornerRadius)
-                    .stroke(Color.Tangem.Border.Neutral.tertiary.opacity(0.1), lineWidth: 1.0)
+                    .stroke(Color.Tangem.Border.Neutral.tertiary, lineWidth: 1.0)
             )
         }
         .buttonStyle(.plain)

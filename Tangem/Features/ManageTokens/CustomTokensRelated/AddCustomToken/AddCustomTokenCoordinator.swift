@@ -22,7 +22,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var networkSelectorModel: AddCustomTokenNetworksListViewModel?
-    @Published var derivationSelectorModel: AddCustomTokenDerivationPathSelectorViewModel?
+    @Published var derivationSelectorCoordinator: AddCustomTokenDerivationPathSelectorCoordinator?
     @Published var walletSelectorViewModel: WalletSelectorViewModel?
 
     required init(
@@ -92,15 +92,24 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable, WalletSelectorRouta
         context: ManageTokensContext,
         blockchain: Blockchain
     ) {
-        let derivationSelectorModel = AddCustomTokenDerivationPathSelectorViewModel(
+        let coordinator = AddCustomTokenDerivationPathSelectorCoordinator(
+            dismissAction: { [weak self] derivationOption in
+                self?.derivationSelectorCoordinator = nil
+
+                if let derivationOption {
+                    self?.rootViewModel?.setSelectedDerivationOption(derivationOption: derivationOption)
+                }
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
             selectedDerivationOption: selectedDerivationOption,
             defaultDerivationPath: defaultDerivationPath,
             blockchainDerivationOptions: blockchainDerivationOptions,
             context: context,
             blockchain: blockchain
-        )
-        derivationSelectorModel.delegate = self
-        self.derivationSelectorModel = derivationSelectorModel
+        ))
+        derivationSelectorCoordinator = coordinator
     }
 
     func dissmisWalletSelectorModule() {
@@ -112,12 +121,5 @@ extension AddCustomTokenCoordinator: AddCustomTokenNetworkSelectorDelegate {
     func didSelectNetwork(networkId: String) {
         networkSelectorModel = nil
         rootViewModel?.setSelectedNetwork(networkId: networkId)
-    }
-}
-
-extension AddCustomTokenCoordinator: AddCustomTokenDerivationPathSelectorDelegate {
-    func didSelectOption(_ derivationOption: AddCustomTokenDerivationOption) {
-        derivationSelectorModel = nil
-        rootViewModel?.setSelectedDerivationOption(derivationOption: derivationOption)
     }
 }

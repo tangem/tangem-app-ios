@@ -38,7 +38,7 @@ extension XRPAddressService: AddressProvider {
         let checkSum = Data(buffer.getDoubleSHA256()[0 ..< 4])
         let address = XRPBase58.getString(from: buffer + checkSum)
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 

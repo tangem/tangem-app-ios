@@ -76,26 +76,16 @@ final class CloreMigrationViewModel: ObservableObject {
                     throw CloreMigrationSigningError.userWalletNotFound
                 }
 
-                let signer: CloreMigrationMessageSigner
-                if FeatureProvider.isAvailable(.accounts) {
-                    guard let accountId else {
-                        throw CloreMigrationSigningError.accountNotFound
-                    }
-                    signer = try CloreMigrationMessageSigner(
-                        message: messageToSign,
-                        blockchainId: tokenItem.blockchain.networkId,
-                        signer: CommonWalletConnectSigner(signer: userWalletModel.signer),
-                        wcAccountsWalletModelProvider: userWalletModel.wcAccountsWalletModelProvider,
-                        accountId: accountId
-                    )
-                } else {
-                    signer = try CloreMigrationMessageSigner(
-                        message: messageToSign,
-                        blockchainId: tokenItem.blockchain.networkId,
-                        signer: CommonWalletConnectSigner(signer: userWalletModel.signer),
-                        walletModelProvider: userWalletModel.wcWalletModelProvider
-                    )
+                guard let accountId else {
+                    throw CloreMigrationSigningError.accountNotFound
                 }
+                let signer = try CloreMigrationMessageSigner(
+                    message: messageToSign,
+                    blockchainId: tokenItem.blockchain.networkId,
+                    signer: CommonWalletConnectSigner(signer: userWalletModel.signer),
+                    wcAccountsWalletModelProvider: userWalletModel.wcAccountsWalletModelProvider,
+                    accountId: accountId
+                )
 
                 let signature = try await signer.handle()
 
