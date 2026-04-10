@@ -18,18 +18,31 @@ final class MailComposePresenter: NSObject {
     override fileprivate nonisolated init() {}
 
     func present(viewModel: MailViewModel, completion: (() -> Void)? = nil) {
-        let viewController: UIViewController
-
-        if MFMailComposeViewController.canSendMail() {
-            viewController = makeMailViewController(using: viewModel)
-            emailInProcess = viewModel.emailType
-            completionInProcess = completion
-        } else {
-            viewController = UIHostingController(rootView: NoMailAccountPlaceholderView())
+        guard MFMailComposeViewController.canSendMail() else {
             emailInProcess = nil
             completionInProcess = nil
+            let viewController = UIHostingController(rootView: NoMailAccountPlaceholderView())
+            present(viewController: viewController)
+            return
         }
 
+        emailInProcess = viewModel.emailType
+        completionInProcess = completion
+
+        viewModel.logsComposer.getZipLogsData { [weak self] attachment in
+            Task { @MainActor in
+                guard let self else { return }
+                let viewController = self.makeMailViewController(using: viewModel, attachment: attachment)
+                self.present(viewController: viewController)
+            }
+        }
+    }
+}
+
+// MARK: - Presentation
+
+extension MailComposePresenter {
+    private func present(viewController: UIViewController) {
         let presentingViewController: UIViewController?
 
         // [REDACTED_USERNAME]: topViewController may be in the process of being dismissed
@@ -49,7 +62,10 @@ final class MailComposePresenter: NSObject {
 // MARK: - Factory methods
 
 extension MailComposePresenter {
-    private func makeMailViewController(using viewModel: MailViewModel) -> MFMailComposeViewController {
+    private func makeMailViewController(
+        using viewModel: MailViewModel,
+        attachment: (data: Data, file: URL)?
+    ) -> MFMailComposeViewController {
         let viewController = MFMailComposeViewController()
         viewController.mailComposeDelegate = self
 
@@ -69,7 +85,7 @@ extension MailComposePresenter {
 
         viewController.setMessageBody(messageBody, isHTML: false)
 
-        if let (data, file) = viewModel.logsComposer.getZipLogsData() {
+        if let (data, file) = attachment {
             viewController.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
         }
 
