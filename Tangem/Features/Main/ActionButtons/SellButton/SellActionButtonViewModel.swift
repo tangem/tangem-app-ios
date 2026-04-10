@@ -62,11 +62,9 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
             break
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
-        case .idle where FeatureProvider.isAvailable(.accounts):
-            let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
-            coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         case .idle:
-            coordinator?.openSell(userWalletModel: userWalletModel)
+            let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+            coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         }
     }
 
@@ -160,7 +158,8 @@ private extension SellActionButtonViewModel {
     func scheduledOpenSell() {
         guard isOpeningRequired else { return }
 
-        coordinator?.openSell(userWalletModel: userWalletModel)
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+        coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         isOpeningRequired = false
     }
 
