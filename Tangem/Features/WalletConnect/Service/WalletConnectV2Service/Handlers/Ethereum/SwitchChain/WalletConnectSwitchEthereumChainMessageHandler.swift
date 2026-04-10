@@ -81,8 +81,12 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
+        guard let accountId = connectedDApp.accountId else {
+            throw WalletConnectTransactionRequestProcessingError.accountNotFound
+        }
+
         let walletModels = try WCWalletModelsResolver.resolveWalletModels(
-            for: connectedDApp.accountId ?? "", userWalletModel: userWallet
+            for: accountId, userWalletModel: userWallet
         )
 
         guard walletModels.contains(where: { $0.tokenItem.networkId == blockchain.networkId }) else {

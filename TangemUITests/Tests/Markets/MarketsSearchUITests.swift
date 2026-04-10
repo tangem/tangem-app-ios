@@ -89,31 +89,15 @@ final class MarketsSearchUITests: BaseTestCase {
 
     func testMarketsSearch_BySmartContractAddress() {
         setAllureId(38)
-        let network = "ETHEREUM"
-        let managedToken = "Tether  USDT"
+        let contractAddress = "0xdac17f958d2ee523a2206206994597c13d831ec7"
         let expectedMarketsToken = "Tether"
 
-        launchApp()
+        launchApp(tangemApiType: .mock)
 
-        let manageTokens = CreateWalletSelectorScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openDetails()
-            .openWalletSettings(for: "Wallet")
-            .selectAccount("Main аccount")
-            .openManageTokens()
-
-        let mainScreen = manageTokens
-            .expandTokenIfNeeded(managedToken)
-            .ensureNetworkSelected(network)
-            .longPressNetworkToCopy(network, duration: 1.0)
-            .goBackToAccountSettings()
-            .goBackToWalletSettings()
-            .goBackToDetails()
-            .goBackToMain()
-
-        mainScreen
             .openMarketsSheetWithSwipe()
-            .pasteIntoSearchField()
+            .searchForToken(contractAddress)
             .verifyTokenInSearchResults(expectedMarketsToken)
     }
 

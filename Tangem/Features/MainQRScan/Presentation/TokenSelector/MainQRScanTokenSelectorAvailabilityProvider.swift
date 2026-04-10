@@ -9,18 +9,18 @@
 import Combine
 import BlockchainSdk
 
-struct MainQRScanTokenSelectorAvailabilityProvider: AccountsAwareTokenSelectorItemAvailabilityProvider {
+struct MainQRScanTokenSelectorAvailabilityProvider: TokenSelectorItemAvailabilityProvider {
     let filter: MainQRScanTokenSelectorAvailabilityFilter
 
     func availabilityTypePublisher(
         userWalletInfo _: UserWalletInfo,
         walletModel: any WalletModel
-    ) -> AnyPublisher<AccountsAwareTokenSelectorItem.AvailabilityType, Never> {
+    ) -> AnyPublisher<TokenSelectorItem.AvailabilityType, Never> {
         Just(availabilityType(for: walletModel))
             .eraseToAnyPublisher()
     }
 
-    private func availabilityType(for walletModel: any WalletModel) -> AccountsAwareTokenSelectorItem.AvailabilityType {
+    private func availabilityType(for walletModel: any WalletModel) -> TokenSelectorItem.AvailabilityType {
         let tokenItem = walletModel.tokenItem
 
         let isAvailable: Bool
