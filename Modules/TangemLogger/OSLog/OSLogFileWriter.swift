@@ -8,15 +8,10 @@
 
 import Foundation
 import OSLog
+import ZIPFoundation
 import TangemFoundation
 
-extension OSLogCategory {
-    static let logFileWriter = OSLogCategory(name: "LogFileWriter")
-}
-
-class OSLogFileWriter {
-    static let shared = OSLogFileWriter()
-
+public final class OSLogFileWriter {
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.OSLogFileWriter.queue")
 
     private lazy var fileManager: FileManager = .default
@@ -43,13 +38,64 @@ class OSLogFileWriter {
     }
 }
 
+// MARK: - Public members
+
+public extension OSLogFileWriter {
+    static let shared = OSLogFileWriter()
+
+    var logFile: URL { logFileURL }
+
+    func readEntries(completion: @escaping (Result<[OSLogEntry], Error>) -> Void) {
+        loggerSerialQueue.async { [weak self] in
+            guard let self else { return }
+            completion(Result { try self.readEntriesSynchronously() })
+        }
+    }
+
+    func zipLogFile(completion: @escaping (Result<URL, Error>) -> Void) {
+        loggerSerialQueue.async { [weak self] in
+            guard let self else { return }
+            completion(Result { try self.zipLogFileSynchronously() })
+        }
+    }
+
+    func deleteLogFile(completion: @escaping () -> Void) {
+        loggerSerialQueue.async { [weak self] in
+            guard let self else { return }
+
+            do {
+                try deleteLogFileSynchronously()
+            } catch {
+                OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
+            }
+
+            completion()
+        }
+    }
+}
+
 // MARK: - Internal
 
 extension OSLogFileWriter {
-    var logFile: URL { logFileURL }
+    func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) {
+        loggerSerialQueue.async { [weak self] in
+            guard let self else { return }
 
-    func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
-        var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
+            do {
+                try writeSynchronously(message, category: category, level: level, date: date)
+            } catch {
+                OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+// MARK: - Private synchronous methods
+
+private extension OSLogFileWriter {
+    func writeSynchronously(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date) throws {
+        var message = LogSanitizer.sanitize(message, policy: .production)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
             // Message can not be empty
@@ -71,29 +117,72 @@ extension OSLogFileWriter {
         )
 
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
-        try write(row: row)
+        try appendRowToLogFile(row)
     }
 
-    func clear() throws {
-        try fileManager.removeItem(at: logFileURL)
-    }
-}
+    func readEntriesSynchronously() throws -> [OSLogEntry] {
+        let content = try String(contentsOf: logFileURL)
+        let rows: [String] = content.components(separatedBy: "\n")
 
-// MARK: - Private
+        return rows
+            .dropFirst() // Drop Header
+            .compactMap { row in
+                let components = row.components(separatedBy: OSLogConstants.separator)
+                guard components.count == 5 else {
+                    assertionFailure("Wrong OSLogEntry format")
+                    return nil
+                }
 
-private extension OSLogFileWriter {
-    func write(row: String) throws {
-        try createLogFileIfNeeded()
-        try loggerSerialQueue.sync {
-            guard let data = row.data(using: .utf8) else {
-                throw Errors.wrongRow
+                return OSLogEntry(
+                    date: components[0],
+                    time: components[1],
+                    category: components[2],
+                    level: components[3],
+                    message: components[4]
+                )
             }
+    }
 
-            let handler = try FileHandle(forWritingTo: logFileURL)
-            try handler.seekToEnd()
-            try handler.write(contentsOf: data)
-            try handler.close()
+    func zipLogFileSynchronously() throws -> URL {
+        let zipFile = logFileURL
+            .deletingLastPathComponent()
+            .appendingPathComponent(OSLogConstants.zipFileName)
+
+        if fileManager.fileExists(atPath: zipFile.path) {
+            try fileManager.removeItem(at: zipFile)
         }
+
+        try fileManager.zipItem(at: logFileURL, to: zipFile)
+        return zipFile
+    }
+
+    func deleteLogFileSynchronously() throws {
+        if fileManager.fileExists(atPath: logFileURL.path) {
+            try fileManager.removeItem(at: logFileURL)
+        }
+
+        let logZipFileURL = logFile
+            .deletingLastPathComponent()
+            .appendingPathComponent(OSLogConstants.zipFileName)
+
+        if fileManager.fileExists(atPath: logZipFileURL.path) {
+            try fileManager.removeItem(at: logZipFileURL)
+        }
+
+        try createLogFileIfNeeded()
+    }
+
+    func appendRowToLogFile(_ row: String) throws {
+        try createLogFileIfNeeded()
+
+        guard let data = row.data(using: .utf8) else {
+            throw Errors.wrongRow
+        }
+
+        let handler = try FileHandle(forWritingTo: logFileURL)
+        try handler.seekToEnd()
+        try handler.write(contentsOf: data)
+        try handler.close()
     }
 
     func createLogFileIfNeeded() throws {
@@ -105,7 +194,7 @@ private extension OSLogFileWriter {
 
         // OSLogEntry property names
         let header = OSLogEntry.encodedHeader(separator: OSLogConstants.separator)
-        try write(row: header)
+        try appendRowToLogFile(header)
     }
 
     func removeLogFileIfNeeded() throws {
@@ -133,4 +222,8 @@ extension OSLogFileWriter {
             }
         }
     }
+}
+
+private extension OSLogCategory {
+    static let logFileWriter = OSLogCategory(name: "LogFileWriter")
 }
