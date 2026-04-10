@@ -364,7 +364,8 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
-                        destination: destination
+                        destination: destination,
+                        changeAddress: manager.wallet.changeAddress.value
                     )
                     return (transactionData, feeEstimate: feeEstimate)
                 }
@@ -389,7 +390,8 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
-                        destination: destination
+                        destination: destination,
+                        changeAddress: manager.wallet.changeAddress.value
                     )
                     return (transactionData, feeEstimate: feeEstimate)
                 }
