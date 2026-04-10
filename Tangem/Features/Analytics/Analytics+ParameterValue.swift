@@ -75,11 +75,13 @@ extension Analytics {
         case backup = "Backup"
         case sign = "Sign"
 
+        case fixed = "Fixed"
+        case float = "Float"
+
         case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceStaking = "Staking"
 
-        case transactionFeeFixed = "Fixed"
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
         case transactionFeeMax = "Max"
@@ -207,7 +209,7 @@ extension Analytics {
         // MARK: - Stake
 
         case stakeSourceStakeInfo = "Stake Info"
-        case stakeSourceConfirmation = "Confirmation"
+        case confirmation = "Confirmation"
         case stakeSourceValidators = "Validators"
 
         case stakeActionStake = "Stake"

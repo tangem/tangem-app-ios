@@ -12,9 +12,10 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 enum AccountModelUtils {
     static var maxAccountNameLength: Int { Constants.maxAccountNameLength }
+
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
 
-    @available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+    @available(iOS, deprecated: 100000.0, message: "Accessing raw derivation indices is discouraged and should be used only if absolutely necessary")
     static var mainAccountDerivationIndex: Int { Constants.mainAccountDerivationIndex }
 
     static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
@@ -49,8 +50,8 @@ enum AccountModelUtils {
     }
 
     /// A standard Java hash function.
-    private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.Icon.Color {
-        let colors = AccountModel.Icon.Color.cryptoAccountColors
+    private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.CompositeIcon.Color {
+        let colors = AccountModel.CompositeIcon.Color.allCases
         // Using `Int32.max` instead of `Int.max` (`Int64.max` in fact)
         // to mimic Kotlin/Java 32-bit signed integer overflow behavior
         let maxInt = Int(Int32.max)
@@ -81,7 +82,7 @@ extension AccountModelUtils {
 private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
-        static let mainAccountIconName: AccountModel.Icon.Name = .star
+        static let mainAccountIconName: AccountModel.CompositeIcon.Name = .star
         static let maxAccountNameLength = 20
         static let maxNumberOfAccounts = 20
         static let hashMultiplier = 31

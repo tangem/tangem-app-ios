@@ -9,11 +9,15 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
+    private lazy var saveButton = button(.saveButton)
+
     @discardableResult
-    func expandTokenIfNeeded(_ tokenName: String) -> Self {
-        XCTContext.runActivity(named: "Expand token if needed: \(tokenName)") { _ in
-            let tokenLabel = app.staticTexts[tokenName]
-            tokenLabel.waitAndTap()
+    func expandTokenIfNeeded(coinId: String) -> Self {
+        XCTContext.runActivity(named: "Expand token if needed: \(coinId)") { _ in
+            let identifier = ManageTokensAccessibilityIdentifiers.coinRow(coinId)
+            let coinRow = app.staticTexts[identifier]
+            waitAndAssertTrue(coinRow, "Coin row should exist: \(coinId)")
+            coinRow.waitAndTap()
             return self
         }
     }
@@ -46,14 +50,61 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
         }
     }
 
+    @discardableResult
+    func toggleOffNetwork(_ networkName: String) -> Self {
+        XCTContext.runActivity(named: "Toggle off network: \(networkName)") { _ in
+            let toggleIdentifier = ManageTokensAccessibilityIdentifiers.networkToggle(networkName)
+            let toggle = app.switches[toggleIdentifier]
+            waitAndAssertTrue(toggle, "Network toggle \(toggleIdentifier) should exist")
+
+            XCTAssertEqual(toggle.value as? String, "1", "Network toggle '\(networkName)' should be ON before toggling off")
+            toggle.waitAndTap()
+
+            return self
+        }
+    }
+
+    @discardableResult
+    func confirmHideTokenAlert(tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Confirm hide token alert for: \(tokenName)") { _ in
+            let alert = app.alerts["Hide \(tokenName)"]
+            waitAndAssertTrue(alert, "Hide token alert should appear for '\(tokenName)'")
+            alert.buttons["Hide"].waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapSaveButton() -> Self {
+        XCTContext.runActivity(named: "Tap Save button") { _ in
+            waitAndAssertTrue(saveButton, "Save button should exist")
+            saveButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            return self
+        }
+    }
+
     func goBackToAccountSettings() -> AccountSettingsScreen {
         XCTContext.runActivity(named: "Go back to Account settings") { _ in
             app.navigationBars.buttons["Account"].waitAndTap()
             return AccountSettingsScreen(app)
         }
     }
+
+    func goBackToWalletSettings() -> CardSettingsScreen {
+        XCTContext.runActivity(named: "Go back to Wallet settings") { _ in
+            app.navigationBars.buttons["Wallet settings"].waitAndTap()
+            return CardSettingsScreen(app)
+        }
+    }
 }
 
 enum ManageTokensScreenElement: String, UIElement {
-    case none = ""
+    case saveButton
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .saveButton:
+            return ManageTokensAccessibilityIdentifiers.saveButton
+        }
+    }
 }
