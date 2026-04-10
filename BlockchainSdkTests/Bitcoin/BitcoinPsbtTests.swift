@@ -80,7 +80,7 @@ struct BitcoinPsbtTests {
         let inputScript = UTXOLockingScript(
             data: OpCodeUtils.p2wpkh(version: 0, data: fixture.pubKeyHash),
             type: .p2wpkh,
-            spendable: .publicKey(fixture.publicKey)
+            spendable: .publicKey(.init(publicKey: fixture.publicKey, derivationPath: nil))
         )
         let input = ScriptUnspentOutput(
             output: UnspentOutput(
