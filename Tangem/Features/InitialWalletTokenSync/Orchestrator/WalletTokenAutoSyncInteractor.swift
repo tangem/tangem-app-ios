@@ -8,5 +8,5 @@
 import Foundation
 
 protocol WalletTokenAutoSyncInteractor {
-    func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws
+    func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async
 }

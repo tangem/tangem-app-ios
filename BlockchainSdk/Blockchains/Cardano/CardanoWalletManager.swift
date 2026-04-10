@@ -11,15 +11,15 @@ import Combine
 import TangemSdk
 import TangemFoundation
 
-class CardanoWalletManager: BaseManager, WalletManager {
+class CardanoWalletManager: BaseWalletManager, WalletManager, MultiAddressesWalletManagerUpdater {
     var transactionBuilder: CardanoTransactionBuilder!
     var networkService: CardanoNetworkProvider!
     var currentHost: String { networkService.host }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(addresses: [any Address]) async throws {
         do {
             let response = try await networkService
-                .getInfo(addresses: wallet.addresses.map { $0.value }, tokens: cardTokens)
+                .getInfo(addresses: addresses.map { $0.value }, tokens: cardTokens)
                 .async()
             updateWallet(with: response)
         } catch {
