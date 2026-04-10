@@ -19,7 +19,7 @@ extension SolanaAddressService: AddressProvider {
         try publicKey.blockchainKey.validateAsEdKey()
         let address = Base58.encode(publicKey.blockchainKey)
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 

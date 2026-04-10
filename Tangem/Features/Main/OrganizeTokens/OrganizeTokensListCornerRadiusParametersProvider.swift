@@ -3,71 +3,108 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import struct UIKit.UIRectCorner
 
-@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensListCornerRadiusParametersProvider {
-    private let sections: [OrganizeTokensListInnerSection]
+    private let sections: [OrganizeTokensListOuterSection]
     private let cornerRadius: CGFloat
 
     init(
-        sections: [OrganizeTokensListInnerSection],
+        sections: [OrganizeTokensListOuterSection],
         cornerRadius: CGFloat
     ) {
         self.sections = sections
         self.cornerRadius = cornerRadius
     }
 
-    func cornerRadius(forSectionAtIndex sectionIndex: Int) -> CGFloat {
+    // MARK: - Outer sections
+
+    func cornerRadius(forOuterSectionAtIndex sectionIndex: Int) -> CGFloat {
         switch sections[sectionIndex].model.style {
         case .invisible:
             return 0.0
-        case .draggable, .fixed:
+        case .default:
             return cornerRadius
         }
     }
 
-    func rectCorners(forSectionAtIndex sectionIndex: Int) -> UIRectCorner {
+    func rectCorners(forOuterSectionAtIndex sectionIndex: Int) -> UIRectCorner {
         switch sections[sectionIndex].model.style {
         case .invisible:
             return []
-        case .draggable, .fixed:
+        case .default:
             return [.topLeft, .topRight]
         }
     }
 
+    // MARK: - Inner sections
+
+    func cornerRadius(forInnerSectionAt indexPath: OrganizeTokensIndexPath) -> CGFloat {
+        let outerSectionStyle = sections[indexPath.outerSection].model.style
+        let innerSectionStyle = sections[indexPath.outerSection].items[indexPath.innerSection].model.style
+
+        switch (outerSectionStyle, innerSectionStyle) {
+        case (.invisible, .draggable),
+             (.invisible, .fixed):
+            return cornerRadius
+        default:
+            return 0.0
+        }
+    }
+
+    func rectCorners(forInnerSectionAt indexPath: OrganizeTokensIndexPath) -> UIRectCorner {
+        let outerSectionStyle = sections[indexPath.outerSection].model.style
+        let innerSectionStyle = sections[indexPath.outerSection].items[indexPath.innerSection].model.style
+
+        switch (outerSectionStyle, innerSectionStyle) {
+        case (.invisible, .draggable),
+             (.invisible, .fixed):
+            return [.topLeft, .topRight]
+        default:
+            return []
+        }
+    }
+
+    // MARK: - Cells
+
     func cornerRadius(
-        forItemAt indexPath: IndexPath
+        forItemAt indexPath: OrganizeTokensIndexPath
     ) -> CGFloat {
-        switch sections[indexPath.section].model.style {
-        case .invisible:
-            return (isFirstItemInSection(at: indexPath) || isLastItemInSection(at: indexPath)) ? cornerRadius : 0.0
-        case .draggable, .fixed:
-            return isLastItemInSection(at: indexPath) ? cornerRadius : 0.0
+        let outerSectionStyle = sections[indexPath.outerSection].model.style
+        let innerSectionStyle = sections[indexPath.outerSection].items[indexPath.innerSection].model.style
+
+        switch (outerSectionStyle, innerSectionStyle) {
+        case (.invisible, .invisible):
+            let hasCornerRadius = isFirstItemInSection(at: indexPath) || isLastItemInSection(at: indexPath, outerSectionStyle: outerSectionStyle)
+            return hasCornerRadius ? cornerRadius : 0.0
+        default:
+            return isLastItemInSection(at: indexPath, outerSectionStyle: outerSectionStyle) ? cornerRadius : 0.0
         }
     }
 
     func rectCorners(
-        forItemAt indexPath: IndexPath
+        forItemAt indexPath: OrganizeTokensIndexPath
     ) -> UIRectCorner {
         var rectCorners = UIRectCorner()
+        let outerSectionStyle = sections[indexPath.outerSection].model.style
+        let innerSectionStyle = sections[indexPath.outerSection].items[indexPath.innerSection].model.style
 
-        switch sections[indexPath.section].model.style {
-        case .invisible:
+        switch (outerSectionStyle, innerSectionStyle) {
+        case (.invisible, .invisible):
             if isFirstItemInSection(at: indexPath) {
                 rectCorners.insert(.topLeft)
                 rectCorners.insert(.topRight)
             }
-            if isLastItemInSection(at: indexPath) {
+            if isLastItemInSection(at: indexPath, outerSectionStyle: outerSectionStyle) {
                 rectCorners.insert(.bottomLeft)
                 rectCorners.insert(.bottomRight)
             }
-        case .draggable, .fixed:
-            if isLastItemInSection(at: indexPath) {
+        default:
+            if isLastItemInSection(at: indexPath, outerSectionStyle: outerSectionStyle) {
                 rectCorners.insert(.bottomLeft)
                 rectCorners.insert(.bottomRight)
             }
@@ -76,11 +113,21 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
         return rectCorners
     }
 
-    private func isFirstItemInSection(at indexPath: IndexPath) -> Bool {
-        return indexPath.item == 0
+    private func isFirstItemInSection(at indexPath: OrganizeTokensIndexPath) -> Bool {
+        return indexPath.innerSection == 0 && indexPath.item == 0
     }
 
-    private func isLastItemInSection(at indexPath: IndexPath) -> Bool {
-        return indexPath.item == sections[indexPath.section].items.count - 1
+    private func isLastItemInSection(
+        at indexPath: OrganizeTokensIndexPath,
+        outerSectionStyle: OrganizeTokensListOuterSectionViewModel.SectionStyle
+    ) -> Bool {
+        let isLastItemInInnerSection = indexPath.item == sections[indexPath.outerSection].items[indexPath.innerSection].items.count - 1
+
+        switch outerSectionStyle {
+        case .invisible:
+            return isLastItemInInnerSection
+        case .default:
+            return isLastItemInInnerSection && indexPath.innerSection == sections[indexPath.outerSection].items.count - 1
+        }
     }
 }

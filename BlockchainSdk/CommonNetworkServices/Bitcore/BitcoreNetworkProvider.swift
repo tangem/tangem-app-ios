@@ -22,6 +22,10 @@ class BitcoreNetworkProvider {
 // MARK: - UTXONetworkProvider
 
 extension BitcoreNetworkProvider: UTXONetworkProvider {
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
+    }
+
     var host: String {
         BitcoreTarget.balance(address: "").baseURL.hostOrUnknown
     }

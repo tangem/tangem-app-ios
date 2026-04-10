@@ -23,8 +23,6 @@ struct MainHeaderView: View {
     @ScaledMetric private var subtitleStubWidthScaled = Size.subtitleStub.width
     @ScaledMetric private var subtitleStubHeightScaled = Size.subtitleStub.height
 
-    @State private var requestIconIsRotating = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(viewModel.userWalletName)
@@ -48,7 +46,15 @@ struct MainHeaderView: View {
 
             Spacer(minLength: 10)
 
-            subtitleView
+            MainHeaderSubtitleView(
+                subtitleViewState: viewModel.subtitleViewState,
+                subtitleInfo: viewModel.subtitleInfo,
+                subtitleContainsSensitiveInfo: viewModel.subtitleContainsSensitiveInfo,
+                isUserWalletLocked: viewModel.isUserWalletLocked,
+                isLoadingSubtitle: viewModel.isLoadingSubtitle,
+                subtitleStubWidthScaled: subtitleStubWidthScaled,
+                subtitleStubHeightScaled: subtitleStubHeightScaled
+            )
         }
         .lineLimit(1)
         .padding(.vertical, 12)
@@ -73,77 +79,6 @@ struct MainHeaderView: View {
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(Size.cornerRadius)
         .previewContentShape(cornerRadius: Size.cornerRadius)
-        .onAppear {
-            requestIconIsRotating = true
-        }
-    }
-
-    private var subtitleText: some View {
-        HStack(spacing: 6) {
-            ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
-                if viewModel.subtitleContainsSensitiveInfo {
-                    SensitiveText(message)
-                } else {
-                    Text(message)
-                }
-
-                if message != viewModel.subtitleInfo.messages.last {
-                    SubtitleSeparator()
-                }
-            }
-        }
-        .style(
-            viewModel.subtitleInfo.formattingOption.font,
-            color: viewModel.subtitleInfo.formattingOption.textColor
-        )
-        .truncationMode(.middle)
-        .if(!viewModel.isUserWalletLocked) {
-            $0.skeletonable(
-                isShown: viewModel.isLoadingSubtitle,
-                size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
-                radius: 3
-            )
-        }
-    }
-
-    @ViewBuilder
-    private var subtitleView: some View {
-        if let progress = viewModel.tokenSyncProgress {
-            tokenSyncView(progress: progress)
-        } else {
-            HStack {
-                subtitleText
-
-                Spacer()
-            }
-        }
-    }
-
-    private func tokenSyncView(progress: Int) -> some View {
-        HStack(spacing: 4) {
-            Text(Localization.initialWalletSyncRestoreProgress(progress))
-                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-
-            Assets.Glyphs.load.image
-                .resizable()
-                .frame(width: 8, height: 8)
-                .foregroundStyle(Colors.Icon.accent)
-                .frame(width: 12, height: 12)
-                .rotationEffect(.degrees(requestIconIsRotating ? 360 : 0))
-                .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: requestIconIsRotating)
-
-            Spacer()
-        }
-    }
-}
-
-private extension MainHeaderView {
-    struct SubtitleSeparator: View {
-        var body: some View {
-            Colors.Icon.informative
-                .clipShape(Circle())
-                .frame(size: .init(bothDimensions: 2.5))
-        }
     }
 }
 

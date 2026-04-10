@@ -1,0 +1,78 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "codeCoverageTargets" : [
+      {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "5D3F77C124BF56D800E8695B",
+        "name" : "Tangem"
+      },
+      {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "B68E1F642CBC44050043E598",
+        "name" : "BlockchainSdk"
+      }
+    ]
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "5D3F77D724BF56DC00E8695B",
+        "name" : "TangemTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "TangemExpressTests"
+      ],
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "EF9E299B2B4F0C8C00418559",
+        "name" : "TangemExpressTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "TangemVisaTests"
+      ],
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "B099337D2B5517E600240CDB",
+        "name" : "TangemVisaTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "TangemStakingTests"
+      ],
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "EFEE23902BFF62D60099917E",
+        "name" : "TangemStakingTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "B68E1F6B2CBC44060043E598",
+        "name" : "BlockchainSdkTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -20,8 +20,17 @@ struct EarnFilterHeaderView: View {
     let onNetworksTap: () -> Void
     let onTypesTap: () -> Void
 
+    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x2)
+    @ScaledMetric private var filtersSpacing: CGFloat = .unit(.x2)
+    @ScaledMetric private var buttonContentSpacing: CGFloat = .unit(.x1)
+    @ScaledMetric private var buttonHorizontalPadding: CGFloat = .unit(.x3)
+    @ScaledMetric private var buttonVerticalPadding: CGFloat = .unit(.x2)
+    @ScaledMetric private var buttonCornerRadius: CGFloat = .unit(.x2)
+    @ScaledSize private var buttonIconSize: CGSize = .init(bothDimensions: .unit(.x5))
+
     var body: some View {
-        HStack(spacing: Layout.filterSpacing) {
+        HStack(spacing: .zero) {
             filterButton(
                 title: networkFilterTitle,
                 action: onNetworksTap,
@@ -29,7 +38,7 @@ struct EarnFilterHeaderView: View {
                 isEnabled: isNetworksFilterEnabled
             )
 
-            Spacer()
+            Spacer(minLength: filtersSpacing)
 
             filterButton(
                 title: typesFilterTitle,
@@ -38,11 +47,35 @@ struct EarnFilterHeaderView: View {
                 isEnabled: isTypesFilterEnabled
             )
         }
-        .padding(.horizontal, Layout.horizontalPadding)
-        .padding(.vertical, Layout.verticalPadding)
+        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, verticalPadding)
     }
 
+    @ViewBuilder
     private func filterButton(
+        title: String,
+        action: @escaping () -> Void,
+        isLoading: Bool,
+        isEnabled: Bool
+    ) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            filterButtonRedesign(
+                title: title,
+                action: action,
+                isLoading: isLoading,
+                isEnabled: isEnabled
+            )
+        } else {
+            filterButtonLegacy(
+                title: title,
+                action: action,
+                isLoading: isLoading,
+                isEnabled: isEnabled
+            )
+        }
+    }
+
+    private func filterButtonLegacy(
         title: String,
         action: @escaping () -> Void,
         isLoading: Bool,
@@ -69,13 +102,46 @@ struct EarnFilterHeaderView: View {
         .buttonStyle(.plain)
         .allowsHitTesting(isEnabled)
     }
+
+    @ViewBuilder
+    private func filterButtonRedesign(
+        title: String,
+        action: @escaping () -> Void,
+        isLoading: Bool,
+        isEnabled: Bool
+    ) -> some View {
+        if isLoading {
+            ButtonSkeleton()
+        } else {
+            TangemButton(
+                content: .combined(
+                    text: AttributedString(title),
+                    icon: Assets.chevronDown24,
+                    iconPosition: .right
+                ),
+                action: action
+            )
+            .setStyleType(.primaryInverse)
+            .setCornerStyle(.rounded)
+            .setSize(.x9)
+            .setButtonState(isLoading: isLoading, isDisabled: !isEnabled)
+        }
+    }
+}
+
+private struct ButtonSkeleton: View {
+    @ScaledMetric private var height: CGFloat = 36
+    @ScaledMetric private var width: CGFloat = 142
+
+    var body: some View {
+        SkeletonView()
+            .frame(width: width, height: height)
+            .clipShape(.capsule)
+    }
 }
 
 private extension EarnFilterHeaderView {
     enum Layout {
-        static let filterSpacing: CGFloat = 8.0
-        static let horizontalPadding: CGFloat = 16.0
-        static let verticalPadding: CGFloat = 8.0
         static let buttonContentSpacing: CGFloat = 6.0
         static let buttonHorizontalPadding: CGFloat = 10.0
         static let buttonVerticalPadding: CGFloat = 6.0
