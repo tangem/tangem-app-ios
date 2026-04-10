@@ -67,7 +67,10 @@ private extension DynamicAddressesEnterViewModel {
         } catch is CancellationError {
             // Do nothing
         } catch {
-            await MainActor.run { alert = error.alertBinder }
+            await MainActor.run {
+                mainButtonIsLoading = false
+                alert = error.alertBinder
+            }
         }
     }
 
