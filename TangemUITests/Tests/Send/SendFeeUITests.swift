@@ -106,6 +106,9 @@ final class SendFeeUITests: BaseTestCase {
         let maxFeeFiatValue = feeSelectorScreen.getMaxFeeFiatValue()
         XCTAssertFalse(maxFeeFiatValue.isEmpty, "Max Fee fiat value should not be empty after entering Satoshi per vbyte")
 
+        feeSelectorScreen
+            .tapFeeSelectorDone()
+
         sendSummaryScreen
             .waitForNetworkFeeAmount(maxFeeFiatValue)
     }

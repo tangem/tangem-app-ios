@@ -16,11 +16,11 @@ enum EarnAddTokenFlowConfigurationFactory {
         earnToken: EarnTokenModel,
         coordinator: EarnAddTokenRoutable,
         analyticsProvider: EarnAnalyticsProvider
-    ) -> AccountsAwareAddTokenFlowConfiguration {
+    ) -> AddTokenFlowConfiguration {
         let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool = { tokenItem, account in
             account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
         }
-        return AccountsAwareAddTokenFlowConfiguration(
+        return AddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 let networkModel = NetworkModel(
                     networkId: earnToken.networkId,
@@ -65,7 +65,7 @@ private extension EarnAddTokenFlowConfigurationFactory {
     static func makeCustomExecuteActionBehavior(
         coordinator: EarnAddTokenRoutable,
         isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool
-    ) -> AccountsAwareAddTokenFlowConfiguration.AccountSelectionBehavior {
+    ) -> AddTokenFlowConfiguration.AccountSelectionBehavior {
         .customExecuteAction { [weak coordinator] tokenItem, accountSelectorCell, continueToNetworkSelection in
             if isTokenAdded(tokenItem, accountSelectorCell.cryptoAccountModel) {
                 navigateToToken(
@@ -116,7 +116,7 @@ private extension EarnAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         earnToken: EarnTokenModel
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         let networkId = earnToken.networkId
         return { context in
             AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: context.account, in: context.supportedBlockchains)

@@ -94,17 +94,19 @@ private extension SendAmountCompactViewModel {
             .receiveOnMain()
             .assign(to: &$sendReceiveTokenCompactViewModel)
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             receiveTokenInput.receiveTokenPublisher,
             swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
-            swapProvidersInput.expressProvidersPublisher
+            swapProvidersInput.expressProvidersPublisher,
+            receiveTokenAmountInput.highPriceImpactPublisher
         )
         .withWeakCaptureOf(self)
         .map {
             $0.mapToSendSwapProviderCompactViewData(
                 receiveToken: $1.0.value,
                 availableProvider: $1.1,
-                providers: $1.2
+                providers: $1.2,
+                hasHighPriceImpactWarning: $1.3.map { !$0.level.isNegligible } ?? false
             )
         }
         .receiveOnMain()
@@ -134,7 +136,8 @@ private extension SendAmountCompactViewModel {
     private func mapToSendSwapProviderCompactViewData(
         receiveToken: SendReceiveToken?,
         availableProvider: ExpressAvailableProvider?,
-        providers: [ExpressAvailableProvider]
+        providers: [ExpressAvailableProvider],
+        hasHighPriceImpactWarning: Bool
     ) -> SendSwapProviderCompactViewData? {
         switch (receiveToken, availableProvider) {
         case (.none, _):
@@ -144,7 +147,7 @@ private extension SendAmountCompactViewModel {
         case (.some, .some(let selectedProvider)):
             let canSelectAnother = providers.count > 1
 
-            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
                 canSelectAnother: canSelectAnother,
