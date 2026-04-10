@@ -36,7 +36,8 @@ extension RadiantAddressService: AddressValidator {
 extension RadiantAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressed = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-        let (address, script) = try builder.encode(publicKey: compressed, type: .p2pkh)
+        let derivationPublicKey = DerivationPublicKey(publicKey: compressed, derivationPath: publicKey.derivationPath)
+        let (address, script) = try builder.encode(publicKey: derivationPublicKey, type: .p2pkh)
 
         return LockingScriptAddress(
             value: address,
