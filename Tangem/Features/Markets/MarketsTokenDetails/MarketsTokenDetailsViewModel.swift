@@ -69,9 +69,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private var loadedNewsIds: [Int] = []
 
-    var isAvailableNews: Bool {
-        !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
-    }
+    var isAvailableNews: Bool { !tokenNewsItems.isEmpty }
 
     var price: String? { priceInfo?.price }
 
