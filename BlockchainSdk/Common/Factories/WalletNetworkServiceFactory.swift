@@ -9,6 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 import SolanaSwift
+import IcpKit
 
 public struct WalletNetworkServiceFactory {
     // MARK: - Private Properties
@@ -43,10 +44,20 @@ extension WalletNetworkServiceFactory {
 
     func makeService(for blockchain: Blockchain) throws -> any MultiNetworkProvider {
         switch blockchain {
-        case .bitcoin:
-            throw Error.notImplemeneted
-        case .litecoin:
-            throw Error.notImplemeneted
+        case .bitcoin,
+             .litecoin,
+             .bitcoinCash,
+             .dogecoin,
+             .dash,
+             .ravencoin,
+             .ducatus,
+             .radiant,
+             .clore,
+             .fact0rn,
+             .pepecoin:
+            return try makeUTXONetworkService(for: blockchain)
+        case .kaspa:
+            return try makeKaspaNetworkService(for: blockchain)
         case .stellar:
             return makeStellarNetworkService(for: blockchain)
         case .ethereum,
@@ -100,11 +111,8 @@ extension WalletNetworkServiceFactory {
              .plasma,
              .decimal,
              .xdc,
-             .energyWebX,
              .rsk:
             return makeEthereumNetworkService(for: blockchain)
-        case .bitcoinCash:
-            throw Error.notImplemeneted
         case .binance:
             throw Error.notImplemeneted
         case .cardano:
@@ -112,66 +120,54 @@ extension WalletNetworkServiceFactory {
         case .xrp:
             return makeXRPNetworkService(for: blockchain)
         case .tezos:
-            throw Error.notImplemeneted
-        case .dogecoin:
-            throw Error.notImplemeneted
+            return makeTezosNetworkService(for: blockchain)
         case .solana:
             return makeSolanaNetworkService(for: blockchain)
         case .polkadot:
-            throw Error.notImplemeneted
+            return try makeSubstrateNetworkService(for: blockchain)
         case .kusama:
-            throw Error.notImplemeneted
+            return try makeSubstrateNetworkService(for: blockchain)
         case .azero:
-            throw Error.notImplemeneted
+            return try makeSubstrateNetworkService(for: blockchain)
         case .tron:
-            throw Error.notImplemeneted
-        case .dash:
-            throw Error.notImplemeneted
-        case .kaspa:
-            throw Error.notImplemeneted
-        case .ravencoin:
-            throw Error.notImplemeneted
+            return makeTronNetworkService(for: blockchain)
+        case .algorand:
+            return makeAlgorandNetworkService(for: blockchain)
         case .cosmos,
              .terraV1,
              .terraV2,
-             .veChain,
-             .internetComputer,
-             .algorand,
-             .sei,
-             .ton:
-            throw Error.notImplemeneted
+             .sei:
+            return try makeCosmosNetworkService(for: blockchain)
+        case .ton:
+            return makeTONNetworkService(for: blockchain)
+        case .internetComputer:
+            return makeICPNetworkService(for: blockchain)
+        case .veChain:
+            return makeVeChainNetworkService(for: blockchain)
         case .aptos:
-            throw Error.notImplemeneted
-        case .ducatus:
-            throw Error.notImplemeneted
+            return makeAptosNetworkService(for: blockchain)
         case .chia:
             throw Error.notImplemeneted
         case .near:
             return makeNEARNetworkService(for: blockchain)
         case .hedera:
             throw Error.notImplemeneted
-        case .radiant:
-            throw Error.notImplemeneted
         case .joystream:
-            throw Error.notImplemeneted
+            return try makeSubstrateNetworkService(for: blockchain)
         case .bittensor:
-            throw Error.notImplemeneted
+            return try makeSubstrateNetworkService(for: blockchain)
+        case .energyWebX:
+            return try makeSubstrateNetworkService(for: blockchain)
         case .koinos:
-            throw Error.notImplemeneted
+            return makeKoinosNetworkService(for: blockchain)
         case .sui:
-            throw Error.notImplemeneted
+            return makeSuiNetworkService(for: blockchain)
         case .filecoin:
-            throw Error.notImplemeneted
+            return makeFilecoinNetworkService(for: blockchain)
         case .casper:
-            throw Error.notImplemeneted
-        case .clore:
-            throw Error.notImplemeneted
-        case .fact0rn:
-            throw Error.notImplemeneted
+            return makeCasperNetworkService(for: blockchain)
         case .alephium:
-            throw Error.notImplemeneted
-        case .pepecoin:
-            throw Error.notImplemeneted
+            return makeAlephiumNetworkService(for: blockchain)
         }
     }
 
@@ -261,6 +257,16 @@ private extension WalletNetworkServiceFactory {
         return StellarNetworkService(providers: providers)
     }
 
+    /// Tezos
+    func makeTezosNetworkService(for blockchain: Blockchain) -> TezosNetworkService {
+        let providers: [TezosJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                TezosJsonRpcProvider(nodeInfo: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return TezosNetworkService(providers: providers)
+    }
+
     /// Solana
     func makeSolanaNetworkService(for blockchain: Blockchain) -> SolanaNetworkService {
         let endpoints: [RPCEndpoint] = if blockchain.isTestnet {
@@ -306,7 +312,276 @@ private extension WalletNetworkServiceFactory {
         let accountStorage = SolanaDummyAccountStorage()
         let solanaSdk = Solana(router: networkRouter, accountStorage: accountStorage)
 
-        return SolanaNetworkService(providers: endpoints, solanaSdk: solanaSdk, blockchain: blockchain)
+        return SolanaNetworkService(
+            providers: endpoints,
+            solanaSdk: solanaSdk,
+            blockchain: blockchain,
+            providerConfiguration: tangemProviderConfig
+        )
+    }
+
+    /// Algorand
+    func makeAlgorandNetworkService(for blockchain: Blockchain) -> AlgorandNetworkService {
+        let providers: [AlgorandNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                AlgorandNetworkProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
+            }
+
+        return AlgorandNetworkService(blockchain: blockchain, providers: providers)
+    }
+
+    /// Aptos
+    func makeAptosNetworkService(for blockchain: Blockchain) -> AptosNetworkService {
+        let providers: [AptosNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                AptosNetworkProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
+            }
+
+        return AptosNetworkService(providers: providers)
+    }
+
+    /// VeChain
+    func makeVeChainNetworkService(for blockchain: Blockchain) -> VeChainNetworkService {
+        let providers: [VeChainNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                VeChainNetworkProvider(nodeInfo: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return VeChainNetworkService(blockchain: blockchain, providers: providers)
+    }
+
+    /// Tron
+    func makeTronNetworkService(for blockchain: Blockchain) -> TronNetworkService {
+        let providers: [TronJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                TronJsonRpcProvider(node: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return TronNetworkService(isTestnet: blockchain.isTestnet, providers: providers)
+    }
+
+    /// Koinos
+    func makeKoinosNetworkService(for blockchain: Blockchain) -> KoinosNetworkService {
+        let koinosNetworkParams = KoinosNetworkParams(isTestnet: blockchain.isTestnet)
+        let providers: [KoinosNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                KoinosNetworkProvider(
+                    node: nodeInfo,
+                    koinosNetworkParams: koinosNetworkParams,
+                    configuration: tangemProviderConfig
+                )
+            }
+
+        return KoinosNetworkService(providers: providers)
+    }
+
+    /// Sui
+    func makeSuiNetworkService(for blockchain: Blockchain) -> SuiNetworkService {
+        let providers: [SuiNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                SuiNetworkProvider(
+                    node: nodeInfo,
+                    networkConfiguration: tangemProviderConfig
+                )
+            }
+
+        return SuiNetworkService(providers: providers)
+    }
+
+    /// ICP
+    func makeICPNetworkService(for blockchain: Blockchain) -> ICPNetworkService {
+        let providers: [ICPNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                ICPNetworkProvider(
+                    node: nodeInfo,
+                    networkConfig: tangemProviderConfig,
+                    responseParser: ICPResponseParser()
+                )
+            }
+
+        return ICPNetworkService(providers: providers, blockchain: blockchain)
+    }
+
+    /// Filecoin
+    func makeFilecoinNetworkService(for blockchain: Blockchain) -> FilecoinNetworkService {
+        let providers: [FilecoinNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                FilecoinNetworkProvider(
+                    node: nodeInfo,
+                    configuration: tangemProviderConfig
+                )
+            }
+
+        return FilecoinNetworkService(providers: providers)
+    }
+
+    /// Alephium
+    func makeAlephiumNetworkService(for blockchain: Blockchain) -> AlephiumNetworkService {
+        let providers: [AlephiumNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                AlephiumNetworkProvider(
+                    node: nodeInfo,
+                    networkConfig: tangemProviderConfig
+                )
+            }
+
+        return AlephiumNetworkService(providers: providers)
+    }
+
+    /// Casper
+    func makeCasperNetworkService(for blockchain: Blockchain) -> CasperNetworkService {
+        let providers: [CasperNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                CasperNetworkProvider(
+                    node: nodeInfo,
+                    configuration: tangemProviderConfig
+                )
+            }
+
+        return CasperNetworkService(
+            providers: providers,
+            blockchainDecimalValue: blockchain.decimalValue
+        )
+    }
+
+    /// Cosmos Hub, Terra, Sei (Cosmos SDK REST)
+    func makeCosmosNetworkService(for blockchain: Blockchain) throws -> CosmosNetworkService {
+        let cosmosChain: CosmosChain
+        switch blockchain {
+        case .cosmos(let testnet):
+            cosmosChain = .cosmos(testnet: testnet)
+        case .terraV1:
+            cosmosChain = .terraV1
+        case .terraV2:
+            cosmosChain = .terraV2
+        case .sei(let isTestnet):
+            cosmosChain = .sei(testnet: isTestnet)
+        default:
+            throw BlockchainSdkError.notImplemented
+        }
+
+        let providers: [CosmosRestProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                CosmosRestProvider(nodeInfo: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        return CosmosNetworkService(cosmosChain: cosmosChain, providers: providers)
+    }
+
+    /// The Open Network (TON)
+    func makeTONNetworkService(for blockchain: Blockchain) -> TONNetworkService {
+        let providers: [TONProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                TONProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
+            }
+
+        return TONNetworkService(providers: providers, blockchain: blockchain)
+    }
+
+    /// Substrate chains (Polkadot, Kusama, Aleph Zero, Joystream, Bittensor, Energy Web X)
+    func makeSubstrateNetworkService(for blockchain: Blockchain) throws -> PolkadotNetworkService {
+        guard let network = PolkadotNetwork(blockchain: blockchain) else {
+            throw BlockchainSdkError.notImplemented
+        }
+
+        var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                PolkadotJsonRpcProvider(node: nodeInfo, configuration: tangemProviderConfig)
+            }
+
+        let dwellirResolver = DwellirAPIResolver(keysConfig: blockchainSdkKeysConfig)
+        if let dwellirNodeInfo = dwellirResolver.resolve(for: blockchain) {
+            providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: tangemProviderConfig))
+        }
+
+        return PolkadotNetworkService(providers: providers, network: network)
+    }
+
+    func makeUTXONetworkService(for blockchain: Blockchain) throws -> any MultiNetworkProvider {
+        let input = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        )
+
+        let utxoFactory = UTXONetworkProvidersFactory()
+
+        switch blockchain {
+        case .bitcoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return BitcoinNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .litecoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return LitecoinNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .bitcoinCash:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return BitcoinCashNetworkService(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        case .dogecoin,
+             .dash,
+             .ravencoin,
+             .ducatus,
+             .radiant,
+             .clore,
+             .fact0rn,
+             .pepecoin:
+            let providers = utxoFactory.makeUTXOProviders(blockchain: blockchain, input: input)
+            guard !providers.isEmpty else {
+                throw BlockchainSdkError.noAPIInfo
+            }
+
+            return MultiUTXONetworkProvider(
+                providers: providers,
+                blockchainName: blockchain.displayName
+            )
+        default:
+            throw BlockchainSdkError.notImplemented
+        }
+    }
+
+    func makeKaspaNetworkService(for blockchain: Blockchain) throws -> KaspaNetworkService {
+        let input = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        )
+
+        let providers = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+                KaspaNetworkProvider(
+                    url: nodeInfo.url,
+                    isTestnet: blockchain.isTestnet,
+                    networkConfiguration: tangemProviderConfig
+                )
+            }
+
+        guard !providers.isEmpty else {
+            throw BlockchainSdkError.noAPIInfo
+        }
+
+        return KaspaNetworkService(providers: providers)
     }
 }
 

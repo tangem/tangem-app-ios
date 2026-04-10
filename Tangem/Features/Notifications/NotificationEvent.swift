@@ -42,10 +42,10 @@ extension NotificationEvent {
             switch generalEvent {
             case .devCard:
                 return MainAccessibilityIdentifiers.developerCardBanner
-            case .seedSupport:
-                return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
             case .missingDerivation:
                 return MainAccessibilityIdentifiers.missingDerivationNotification
+            case .walletLocked:
+                return MainAccessibilityIdentifiers.walletLockedNotification
             default:
                 return nil
             }

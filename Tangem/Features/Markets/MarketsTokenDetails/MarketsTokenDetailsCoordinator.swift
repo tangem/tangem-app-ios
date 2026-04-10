@@ -33,7 +33,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child Coordinators
 
-    @Published var tokenNetworkSelectorCoordinator: MarketsTokenNetworkSelectorCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
@@ -43,7 +42,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
     private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
     private var isDeeplinkMode: Bool = false
 
@@ -89,22 +87,8 @@ extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
-    func openTokenSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenNetworkSelectorCoordinator = nil
-        }
-
-        tokenNetworkSelectorCoordinator = MarketsTokenNetworkSelectorCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        tokenNetworkSelectorCoordinator?.start(
-            with: .init(
-                inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-                walletDataProvider: walletDataProvider
-            )
-        )
-    }
-
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
             coinId: model.id,
             coinName: model.name,
             coinSymbol: model.symbol,
@@ -116,7 +100,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        let viewModel = AccountsAwareAddTokenFlowViewModel(
+        let viewModel = AddTokenFlowViewModel(
             userWalletModels: walletDataProvider.userWalletModels,
             configuration: configuration,
             coordinator: self
@@ -288,9 +272,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel,
-            // [REDACTED_TODO_COMMENT]
-            isYieldModuleActive: false
+            addressTypesProvider: walletModel
         )
 
         let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
@@ -327,11 +309,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             )
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: destination) {
-            openViaYieldNotice(tokenItem: destination, action: action)
-        } else {
-            action()
-        }
+        action()
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
@@ -351,9 +329,9 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     }
 }
 
-// MARK: - AccountsAwareAddTokenFlowRoutable
+// MARK: - AddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
+extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
     func close() {
         floatingSheetPresenter.removeActiveSheet()
     }
@@ -386,13 +364,6 @@ extension MarketsTokenDetailsCoordinator {
                 try await Task.sleep(for: .seconds(1))
                 await walletModel.update(silent: true, features: .balances)
             }
-        }
-    }
-
-    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
-        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

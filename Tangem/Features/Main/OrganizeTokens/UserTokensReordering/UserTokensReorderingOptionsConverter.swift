@@ -10,7 +10,7 @@ import Foundation
 
 struct UserTokensReorderingOptionsConverter {
     func convert(
-        _ groupType: StoredUserTokenList.Grouping
+        _ groupType: StoredCryptoAccount.Grouping
     ) -> UserTokensReorderingOptions.Grouping {
         switch groupType {
         case .none:
@@ -21,7 +21,7 @@ struct UserTokensReorderingOptionsConverter {
     }
 
     func convert(
-        _ sortType: StoredUserTokenList.Sorting
+        _ sortType: StoredCryptoAccount.Sorting
     ) -> UserTokensReorderingOptions.Sorting {
         switch sortType {
         case .manual:
@@ -33,7 +33,7 @@ struct UserTokensReorderingOptionsConverter {
 
     func convert(
         _ groupType: UserTokensReorderingOptions.Grouping
-    ) -> StoredUserTokenList.Grouping {
+    ) -> StoredCryptoAccount.Grouping {
         switch groupType {
         case .none:
             return .none
@@ -44,7 +44,7 @@ struct UserTokensReorderingOptionsConverter {
 
     func convert(
         _ sortType: UserTokensReorderingOptions.Sorting
-    ) -> StoredUserTokenList.Sorting {
+    ) -> StoredCryptoAccount.Sorting {
         switch sortType {
         case .dragAndDrop:
             return .manual
