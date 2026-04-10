@@ -80,4 +80,8 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     func transactionFee(data: ExpressTransactionDataType) async throws -> Fee {
         fatalError("Not used in tests")
     }
+
+    func revokeAndApproveTransactionFee(revokeData: ApproveTransactionData) async throws -> RevokeAndApproveFee {
+        fatalError("Not used in tests")
+    }
 }
