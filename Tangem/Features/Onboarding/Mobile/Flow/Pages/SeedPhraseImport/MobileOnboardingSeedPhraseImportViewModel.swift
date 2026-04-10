@@ -119,7 +119,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
 
                 if FeatureProvider.isAvailable(.mobileWalletTokenAutoSync) {
-                    try? await viewModel.autoSyncInteractor.startIfPossible(
+                    await viewModel.autoSyncInteractor.startIfPossible(
                         userWalletModel: userWalletModel,
                         keyInfos: walletInfo.keys
                     )
