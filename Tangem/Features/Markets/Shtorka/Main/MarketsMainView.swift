@@ -28,7 +28,13 @@ struct MarketsMainView: View {
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
     @State private var isListContentObscured = false
 
-    private var defaultBackgroundColor: Color { Colors.Background.tertiary }
+    private var defaultBackgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            .Tangem.Surface.level2
+        } else {
+            Colors.Background.tertiary
+        }
+    }
 
     private let scrollTopAnchorId = UUID()
     private let scrollViewFrameCoordinateSpaceName = UUID()
@@ -59,6 +65,7 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
+                        .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
                 } else {
                     widgetsListView
                 }
@@ -127,14 +134,10 @@ struct MarketsMainView: View {
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(alignment: .center, spacing: .zero) {
-                VStack(alignment: .leading, spacing: .zero) {
-                    Text(viewModel.headerTitle)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                        .opacity(listOverlayTitleOpacity)
-
-                    Text(viewModel.headerDate)
-                        .style(Fonts.Bold.title1, color: Colors.Text.tertiary)
-                        .opacity(listOverlayTitleOpacity)
+                if FeatureProvider.isAvailable(.redesign) {
+                    redesignTitleView
+                } else {
+                    legacyTitleView
                 }
 
                 Spacer()
@@ -146,6 +149,32 @@ struct MarketsMainView: View {
         .padding(.horizontal, Layout.defaultHorizontalInset)
         .padding(.horizontal, Layout.Header.defaultHorizontalInset)
         .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
+    }
+
+    private func titleView(titleFont: Font, titleColor: Color, dateFont: Font, dateColor: Color) -> some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            Text(viewModel.headerTitle)
+                .style(titleFont, color: titleColor)
+                .opacity(listOverlayTitleOpacity)
+
+            Text(viewModel.headerDate)
+                .style(dateFont, color: dateColor)
+                .opacity(listOverlayTitleOpacity)
+        }
+    }
+
+    private var legacyTitleView: some View {
+        titleView(
+            titleFont: Fonts.Bold.title1, titleColor: Colors.Text.primary1,
+            dateFont: Fonts.Bold.title1, dateColor: Colors.Text.tertiary
+        )
+    }
+
+    private var redesignTitleView: some View {
+        titleView(
+            titleFont: Font.Tangem.Heading28.regular, titleColor: Color.Tangem.Text.Neutral.primary,
+            dateFont: Font.Tangem.Heading28.regular, dateColor: Color.Tangem.Text.Neutral.tertiary
+        )
     }
 
     // MARK: - Helpers
@@ -208,6 +237,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
+                            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
@@ -229,12 +259,27 @@ struct MarketsMainView: View {
         MarketsNoResultsStateView()
     }
 
+    @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        MarketsListErrorView(tryLoadAgain: tryLoadAgain)
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            MarketsListErrorView(tryLoadAgain: tryLoadAgain)
+        }
     }
 
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            makeRedesignContentView(with: item)
+        } else {
+            makeLegacyContentView(with: item)
+        }
+    }
+
+    @ViewBuilder
+    private func makeLegacyContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
         case .top(let viewModel):
             TopMarketWidgetView(viewModel: viewModel)
@@ -244,6 +289,20 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private func makeRedesignContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        switch item {
+        case .top(let viewModel):
+            TopMarketWidgetViewRedesign(viewModel: viewModel)
+        case .pulse(let viewModel):
+            PulseMarketWidgetViewRedesign(viewModel: viewModel)
+        case .news(let viewModel):
+            NewsWidgetViewRedesign(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnWidgetViewRedesign(viewModel: viewModel)
         }
     }
 }

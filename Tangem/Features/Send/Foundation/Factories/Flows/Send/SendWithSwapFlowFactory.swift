@@ -34,15 +34,15 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         predefinedValues: predefinedTransferValues
     )
-    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
-
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        shouldStartInitialLoading: false,
-        isFixedRatesEnabled: isFixedRateMode
+        pairUpdateHandler: SendWithSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager
+        ),
+        shouldStartInitialLoading: false
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
@@ -264,7 +264,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            isFixedRateMode: isFixedRateMode
+            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil
         )
     }
 }
@@ -315,7 +315,7 @@ extension SendWithSwapFlowFactory: SendFeeStepBuildable {
 
 extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {

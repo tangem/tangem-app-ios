@@ -9,7 +9,6 @@
 enum WalletConnectDAppConnectionViewState {
     case connectionRequest(WalletConnectDAppConnectionRequestViewModel)
     case verifiedDomain(WalletConnectDAppDomainVerificationViewModel)
-    case walletSelector(WalletConnectWalletSelectorViewModel)
     case networkSelector(WalletConnectNetworksSelectorViewModel)
     case connectionTarget(AccountSelectorViewModel)
     case error(WalletConnectErrorViewModel)
