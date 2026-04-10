@@ -22,7 +22,7 @@ extension Secp256k1Key {
         }
     }
 
-    static func isCompressed(publicKey: Data) -> Bool {
+    public static func isCompressed(publicKey: Data) -> Bool {
         publicKey.count == KeyType.compressed.size
     }
 

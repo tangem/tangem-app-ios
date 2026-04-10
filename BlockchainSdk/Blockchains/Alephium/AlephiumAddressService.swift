@@ -24,7 +24,7 @@ extension AlephiumAddressService: AddressProvider, AddressValidator {
         let hashData = Data(hexString: Constants.prefixAddressValue.addHexPrefix()) + blake2bHash
         let address = hashData.base58EncodedString
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 
     func validate(_ address: String) -> Bool {
