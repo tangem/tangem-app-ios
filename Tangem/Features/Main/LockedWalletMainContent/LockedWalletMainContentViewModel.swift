@@ -46,8 +46,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
             )
         }
 
-    var footerViewModel: MainFooterViewModel?
-
     @Published
     private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
@@ -260,7 +258,6 @@ private extension LockedWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }
