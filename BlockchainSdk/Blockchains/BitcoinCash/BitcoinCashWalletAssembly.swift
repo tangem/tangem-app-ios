@@ -13,7 +13,6 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
         let networkParams: UTXONetworkParams = input.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
 
         let unspentOutputManager: UnspentOutputManager = .bitcoinCash(
-            address: input.wallet.defaultAddress,
             isTestnet: input.isTestnet
         )
 

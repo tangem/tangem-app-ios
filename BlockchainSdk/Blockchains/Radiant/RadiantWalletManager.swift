@@ -136,7 +136,7 @@ extension RadiantWalletManager: WalletManager {
                     let estimatedFeePerByte = estimatedFeePerKb / Constants.perKbRate
                     let decimalValue = walletManager.wallet.blockchain.decimalValue
                     let perByte = estimatedFeePerByte * decimalValue
-                    let fee = try await walletManager.transactionBuilder.estimateFee(amount: amount, destination: destination, feeRate: perByte.intValue())
+                    let fee = try await walletManager.transactionBuilder.estimateFee(amount: amount, destination: destination, feeRate: perByte.intValue(), changeAddress: walletManager.wallet.changeAddress.value)
                     let value = Decimal(fee) / decimalValue
                     return Fee(.init(with: walletManager.wallet.blockchain, value: value))
                 }

@@ -41,15 +41,18 @@ extension BitcoinCashAddressService: AddressValidator {
 
 extension BitcoinCashAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
+        let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
+        let derivationPublicKey = DerivationPublicKey(publicKey: compressedKey, derivationPath: publicKey.derivationPath)
+
         switch addressType {
-        case .default:
-            let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-            let (address, script) = try cashAddrLockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
+        case .default, .used(.default, _):
+            let (address, script) = try cashAddrLockingScriptBuilder.encode(publicKey: derivationPublicKey, type: .p2pkh)
             return LockingScriptAddress(value: address, type: addressType, lockingScript: script)
-        case .legacy:
-            let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-            let (address, script) = try base58LockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
+        case .legacy, .used(.legacy, _):
+            let (address, script) = try base58LockingScriptBuilder.encode(publicKey: derivationPublicKey, type: .p2pkh)
             return LockingScriptAddress(value: address, type: addressType, lockingScript: script)
+        case .used:
+            throw AddressTypeError.notSupported
         }
     }
 }

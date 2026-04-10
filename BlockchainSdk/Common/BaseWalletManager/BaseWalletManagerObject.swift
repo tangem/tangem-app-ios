@@ -20,7 +20,6 @@ public protocol WalletProvider: AnyObject {
 
 extension WalletProvider {
     var defaultSourceAddress: String { wallet.address }
-    var defaultChangeAddress: String { wallet.address }
 }
 
 // MARK: - WalletReplaceable
