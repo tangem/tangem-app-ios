@@ -23,6 +23,7 @@ struct ApproveFlowView: View {
         FeeSelectorBottomSheetContainerView(
             state: viewModel.state.hashValue,
             showsButton: viewModel.state.showsButton,
+            verticalSwipeBehavior: .init(target: .sheet, threshold: 100),
             button: { approveButton },
             headerContent: { headerView },
             descriptionContent: { descriptionView },
