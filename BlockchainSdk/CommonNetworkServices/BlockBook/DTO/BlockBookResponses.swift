@@ -219,6 +219,10 @@ struct BlockBookUnspentTxResponse: Decodable {
     let height: Int?
     let coinbase: Bool?
     let scriptPubKey: String?
+    /// Derived address, present only in xpub responses
+    let address: String?
+    /// Derivation path, present only in xpub responses
+    let path: String?
 }
 
 struct BlockBookFeeRateResponse: Decodable {
