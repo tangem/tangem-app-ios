@@ -158,6 +158,11 @@ extension Analytics {
         case sendProviderClicked = "[Token / Send] Provider Clicked"
         case sendProviderChosen = "[Token / Send] Provider Chosen"
         case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
+        case sendSendWithSwapConfirmScreenOpened = "[Token / Send] Send With Swap Confirm Screen Opened"
+        case sendNoticeFixedRate = "[Token / Send] Notice - Fixed Rate"
+        case sendNoticeFloatRate = "[Token / Send] Notice - Float Rate"
+        case sendSendWithSwapError = "[Token / Send] Send With Swap Error"
+        case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
@@ -311,6 +316,10 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+        case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
+        case swapNoticeTradeTooLarge = "[Swap] Notice - Trade Too Large"
+        case swapPermissionScreenOpened = "[Swap] Permission Screen Opened"
+        case swapPermissionUpdateScreenOpened = "[Swap] Permission Update Screen Opened"
 
         case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
@@ -377,12 +386,6 @@ extension Analytics {
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
-        case mainNoticeSeedSupport = "[Main Screen] Notice - Seed Phrase Support"
-        case mainNoticeSeedSupportButtonYes = "[Main Screen] Button - Support Yes"
-        case mainNoticeSeedSupportButtonNo = "[Main Screen] Button - Support No"
-        case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
-        case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
-        case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions
@@ -405,6 +408,13 @@ extension Analytics {
         case promotionVisaWaitlist = "[Promotion] Visa Waitlist"
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
+
+        // MARK: - Promotion Banner
+
+        case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
+        case promotionBannerCarouselScrolled = "[Promo Banner] Banner Carousel Scrolled"
+        case promotionBannerButtonClicked = "[Promo Banner] Banner Button Clicked"
+        case promotionBannerDismissed = "[Promo Banner] Banner Dismissed"
 
         // MARK: - Errors
 
@@ -460,6 +470,7 @@ extension Analytics {
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
+        case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
 
         // MARK: - Markets
 

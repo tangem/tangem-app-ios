@@ -61,10 +61,6 @@ struct WalletConnectDAppConnectionView: View {
                 WalletConnectDAppDomainVerificationView(viewModel: viewModel)
                     .transition(.content)
 
-            case .walletSelector(let viewModel):
-                WalletConnectWalletSelectorView(viewModel: viewModel, scrollProxy: scrollProxy)
-                    .transition(.content)
-
             case .connectionTarget(let viewModel):
                 AccountSelectorView(viewModel: viewModel)
                     .transition(.content)
@@ -98,12 +94,6 @@ struct WalletConnectDAppConnectionView: View {
             backgroundColor = Color.clear
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
-
-        case .walletSelector(let viewModel):
-            title = viewModel.state.navigationTitle
-            backgroundColor = Colors.Background.tertiary
-            backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
-            closeButtonAction = nil
 
         case .networkSelector(let viewModel):
             title = viewModel.state.navigationBarTitle
@@ -150,7 +140,7 @@ struct WalletConnectDAppConnectionView: View {
                 domainVerificationFooter(viewModel)
                     .transition(.footer)
 
-            case .walletSelector, .connectionTarget:
+            case .connectionTarget:
                 EmptyView()
 
             case .networkSelector(let viewModel):
@@ -270,8 +260,6 @@ private extension WalletConnectDAppConnectionViewState {
             "connectionRequest"
         case .verifiedDomain:
             "verifiedDomain"
-        case .walletSelector:
-            "walletSelector"
         case .networkSelector:
             "networkSelector"
         case .connectionTarget:
