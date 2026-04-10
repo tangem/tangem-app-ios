@@ -22,11 +22,6 @@ final class WalletConnectToAccountsMigrationUseCase {
     }
 
     func migrateIfNeeded() async throws(WalletConnectDAppPersistenceError) {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            logger.debug("WalletConnect: Accounts feature disabled, skipping sessions migration")
-            return
-        }
-
         logger.info("WalletConnect: Starting saved sessions migration to account scope")
 
         if let migratedDApps = try await migrationService.migrateSavedSessionsToAccounts() {

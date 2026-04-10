@@ -13,7 +13,7 @@ import TangemAssets
 
 struct MainQRScanTokenSelectorView: View {
     @ObservedObject var viewModel: MainQRScanTokenSelectorViewModel
-    @ObservedObject private var tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    @ObservedObject private var tokenSelectorViewModel: TokenSelectorViewModel
 
     init(viewModel: MainQRScanTokenSelectorViewModel) {
         self.viewModel = viewModel

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -59,6 +60,7 @@ struct ManageTokensListItemView: View {
             .padding(.vertical, 16)
             .zIndex(20)
             .contentShape(Rectangle())
+            .accessibilityIdentifier(ManageTokensAccessibilityIdentifiers.coinRow(viewModel.coinId))
             .onTapGesture {
                 withAnimation {
                     viewModel.isExpanded.toggle()

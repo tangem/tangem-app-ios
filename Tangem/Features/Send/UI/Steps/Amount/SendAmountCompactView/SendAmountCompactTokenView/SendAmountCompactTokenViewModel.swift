@@ -101,11 +101,11 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     func bind(highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never>) {
         highPriceImpactPublisher.map { result in
-            result.map { result in
-                HighPriceImpactWarning(
+            result.flatMap { result in
+                return HighPriceImpactWarning(
                     percent: result.lossesInPercentsFormatted,
                     infoMessage: result.infoMessage,
-                    isHighPriceImpact: result.isHighPriceImpact
+                    isHighLoss: result.isHighLoss
                 )
             }
         }
@@ -149,6 +149,6 @@ extension SendAmountCompactTokenViewModel {
     struct HighPriceImpactWarning {
         let percent: String
         let infoMessage: String
-        let isHighPriceImpact: Bool
+        let isHighLoss: Bool
     }
 }

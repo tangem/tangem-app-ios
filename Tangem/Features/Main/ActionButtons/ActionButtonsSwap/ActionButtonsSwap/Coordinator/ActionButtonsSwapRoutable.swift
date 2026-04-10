@@ -9,5 +9,4 @@
 protocol ActionButtonsSwapRoutable: AnyObject {
     func openSwap(input: PredefinedSwapParameters)
     func dismiss()
-    func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?)
 }

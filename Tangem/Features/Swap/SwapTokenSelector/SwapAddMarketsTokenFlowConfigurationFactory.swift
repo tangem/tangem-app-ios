@@ -19,7 +19,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         source: SwapSelectTokenAnalyticsLogger.SwapTokenSource,
         userHasSearchedDuringThisSession: Bool,
         additionRoutable: SwapMarketsTokenAdditionRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration {
+    ) -> AddTokenFlowConfiguration {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             source: source,
             userHasSearchedDuringThisSession: userHasSearchedDuringThisSession
@@ -27,7 +27,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
 
         analyticsLogger.logTokenSelected(coinSymbol: coinSymbol)
 
-        return AccountsAwareAddTokenFlowConfiguration(
+        return AddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 MarketsTokenItemsProvider.calculateTokenItems(
                     coinId: coinId,
@@ -80,7 +80,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         }
 
         if let walletModel {
-            let item = AccountsAwareTokenSelectorItem(
+            let item = TokenSelectorItem(
                 userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
                 kind: .crypto(walletModel, accountSelectorCell.cryptoAccountModel)
             )
@@ -108,7 +108,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel]
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         { context in
             let networkIds = networks.map(\.networkId)
             let cryptoAccount = context.account
