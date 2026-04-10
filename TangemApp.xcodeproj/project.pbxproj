@@ -75,6 +75,13 @@
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
 		B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = B6C144062DFD1BF8008E9478 /* DGCharts */; };
 		B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6CAC1CB2CC336220001A427 /* SolanaSwift */; };
+		B6CFB9102F8917E000A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB90F2F8917E000A7C280 /* NumberKit */; };
+		B6CFB9122F8917F100A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9112F8917F100A7C280 /* NumberKit */; };
+		B6CFB9142F8917FB00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9132F8917FB00A7C280 /* NumberKit */; };
+		B6CFB9162F89180300A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9152F89180300A7C280 /* NumberKit */; };
+		B6CFB9182F89180A00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9172F89180A00A7C280 /* NumberKit */; };
+		B6CFB91A2F89181000A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB9192F89181000A7C280 /* NumberKit */; };
+		B6CFB91C2F89184C00A7C280 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6CFB91B2F89184C00A7C280 /* NumberKit */; };
 		B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE742CF39079008DEA94 /* BlockiesSwift */; };
 		B6DDDE782CF39158008DEA94 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE772CF39158008DEA94 /* CombineExt */; };
 		B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */; };
@@ -101,6 +108,7 @@
 		C2A96C052F7EE114001D0602 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C2A96BF72F7EE114001D0602 /* Intents.intentdefinition */; };
 		C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */; };
 		C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = C2FC44062F3E66F900A61EAB /* TangemTestKit */; };
+		DA065D322F88F4B7002E27DD /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA065D312F88F4B7002E27DD /* NumberKit */; };
 		DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC2CA0DC2EF069BC00C10344 /* CryptoSwift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
@@ -436,6 +444,7 @@
 				A7467FA92F44AEDE0064A4FD /* BitcoinDevKit in Frameworks */,
 				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
+				DA065D322F88F4B7002E27DD /* NumberKit in Frameworks */,
 				B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -446,6 +455,7 @@
 			files = (
 				B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */,
 				C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */,
+				B6CFB91C2F89184C00A7C280 /* NumberKit in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
 				DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */,
 			);
@@ -509,6 +519,7 @@
 				B67E38B92CC7147600D660EB /* TangemSdk in Frameworks */,
 				B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */,
 				0AE2C9802E58838000D3B9EB /* OrderedCollections in Frameworks */,
+				B6CFB9102F8917E000A7C280 /* NumberKit in Frameworks */,
 				B62D34502CBC67D500C2460E /* AnyCodable in Frameworks */,
 				B6C0D3F42CBDC543001113ED /* Moya in Frameworks */,
 				DCED46572EF0502B0021AC0D /* CryptoSwift in Frameworks */,
@@ -527,6 +538,7 @@
 			files = (
 				A7122B1F2F45AFA6004B5C3F /* BitcoinDevKit in Frameworks */,
 				B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
+				B6CFB9122F8917F100A7C280 /* NumberKit in Frameworks */,
 				B63DFC4C2CD4EA1C00720D9F /* TangemModules in Frameworks */,
 				B67E38C52CC7252900D660EB /* TangemSdk in Frameworks */,
 			);
@@ -540,6 +552,7 @@
 				B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */,
 				B62D34152CBC4C6F00C2460E /* BlockchainSdk.framework in Frameworks */,
 				B67E38BD2CC7179600D660EB /* TangemSdk in Frameworks */,
+				B6CFB9182F89180A00A7C280 /* NumberKit in Frameworks */,
 				B6C0D4092CBDCD34001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -548,6 +561,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6CFB91A2F89181000A7C280 /* NumberKit in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -560,6 +574,7 @@
 				F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */,
 				B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */,
 				B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */,
+				B6CFB9142F8917FB00A7C280 /* NumberKit in Frameworks */,
 				B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -568,6 +583,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6CFB9162F89180300A7C280 /* NumberKit in Frameworks */,
 				EFEE23922BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -757,6 +773,7 @@
 				C24285652F55E35B004F0348 /* DataPipelines */,
 				C246566F2F575ACD00270AA7 /* MessagingPushFCM */,
 				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
+				DA065D312F88F4B7002E27DD /* NumberKit */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -784,6 +801,7 @@
 				B63DFC4D2CD4EABB00720D9F /* TangemModules */,
 				DC2CA0DC2EF069BC00C10344 /* CryptoSwift */,
 				C2FC44062F3E66F900A61EAB /* TangemTestKit */,
+				B6CFB91B2F89184C00A7C280 /* NumberKit */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -928,6 +946,7 @@
 				0AE2C97F2E58838000D3B9EB /* OrderedCollections */,
 				DCED46562EF0502B0021AC0D /* CryptoSwift */,
 				A7122B1A2F44D0D4004B5C3F /* BitcoinDevKit */,
+				B6CFB90F2F8917E000A7C280 /* NumberKit */,
 			);
 			productName = BlockchainSdk;
 			productReference = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */;
@@ -955,6 +974,7 @@
 				B67E38C42CC7252900D660EB /* TangemSdk */,
 				B63DFC4B2CD4EA1C00720D9F /* TangemModules */,
 				A7122B1E2F45AFA6004B5C3F /* BitcoinDevKit */,
+				B6CFB9112F8917F100A7C280 /* NumberKit */,
 			);
 			productName = BlockchainSdkTests;
 			productReference = B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */;
@@ -983,6 +1003,7 @@
 				B62C167C2CBE0A3D00522683 /* Alamofire */,
 				B67E38BC2CC7179600D660EB /* TangemSdk */,
 				F92DB9CC2CD4C3D200C16530 /* TangemModules */,
+				B6CFB9172F89180A00A7C280 /* NumberKit */,
 			);
 			productName = TangemExpress;
 			productReference = EF9E29932B4F0C8800418559 /* TangemExpress.framework */;
@@ -1032,6 +1053,7 @@
 				B62C167A2CBE0A1E00522683 /* Alamofire */,
 				B67E38BE2CC717A300D660EB /* TangemSdk */,
 				F92DB9CA2CD4C36100C16530 /* TangemModules */,
+				B6CFB9132F8917FB00A7C280 /* NumberKit */,
 			);
 			productName = TangemStaking;
 			productReference = EFEE23882BFF62D50099917E /* TangemStaking.framework */;
@@ -1173,6 +1195,7 @@
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */,
 				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
+				DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -7482,6 +7505,14 @@
 				version = 1.2.7;
 			};
 		};
+		DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.4.2;
+			};
+		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -7777,6 +7808,41 @@
 			package = B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */;
 			productName = SolanaSwift;
 		};
+		B6CFB90F2F8917E000A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB9112F8917F100A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB9132F8917FB00A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB9152F89180300A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB9172F89180A00A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB9192F89181000A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		B6CFB91B2F89184C00A7C280 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
 		B6DDDE742CF39079008DEA94 /* BlockiesSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */;
@@ -7835,6 +7901,11 @@
 		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemTestKit;
+		};
+		DA065D312F88F4B7002E27DD /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA065D302F88F4B7002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
 		};
 		DC2CA0DC2EF069BC00C10344 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
