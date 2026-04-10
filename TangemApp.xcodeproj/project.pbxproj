@@ -101,6 +101,7 @@
 		C2A96C052F7EE114001D0602 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C2A96BF72F7EE114001D0602 /* Intents.intentdefinition */; };
 		C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */; };
 		C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = C2FC44062F3E66F900A61EAB /* TangemTestKit */; };
+		DA0604402F88EA0F002E27DD /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA06043F2F88EA0F002E27DD /* NumberKit */; };
 		DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC2CA0DC2EF069BC00C10344 /* CryptoSwift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
@@ -436,6 +437,7 @@
 				A7467FA92F44AEDE0064A4FD /* BitcoinDevKit in Frameworks */,
 				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
+				DA0604402F88EA0F002E27DD /* NumberKit in Frameworks */,
 				B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -757,6 +759,7 @@
 				C24285652F55E35B004F0348 /* DataPipelines */,
 				C246566F2F575ACD00270AA7 /* MessagingPushFCM */,
 				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
+				DA06043F2F88EA0F002E27DD /* NumberKit */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -1173,6 +1176,7 @@
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */,
 				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
+				DA06043E2F88EA0F002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -7482,6 +7486,14 @@
 				version = 1.2.7;
 			};
 		};
+		DA06043E2F88EA0F002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-numberkit";
+			requirement = {
+				kind = exactVersion;
+				version = 2.5.1;
+			};
+		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -7835,6 +7847,11 @@
 		C2FC44062F3E66F900A61EAB /* TangemTestKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemTestKit;
+		};
+		DA06043F2F88EA0F002E27DD /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA06043E2F88EA0F002E27DD /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
 		};
 		DC2CA0DC2EF069BC00C10344 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;

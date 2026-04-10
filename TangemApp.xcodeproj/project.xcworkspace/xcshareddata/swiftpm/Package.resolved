@@ -1,5 +1,5 @@
 {
-  "originHash" : "ce103935063ad9ddbff28ef68bd3844672946e932012e544a3d2ee1f63c4f715",
+  "originHash" : "67973e6e854900b136b42e42f9378ceb17c66b4419c25f44b4ed8ea219ef4a68",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -636,8 +636,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
-        "version" : "2.4.2"
+        "revision" : "38c649a58989ae80f8b0694b0b9826130df5c18f",
+        "version" : "2.5.1"
       }
     },
     {
