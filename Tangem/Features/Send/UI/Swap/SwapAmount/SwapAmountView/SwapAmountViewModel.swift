@@ -138,6 +138,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
+        Analytics.log(.swapButtonSwipe)
         router?.userDidTapSwapSourceAndReceiveTokensButton()
     }
 
