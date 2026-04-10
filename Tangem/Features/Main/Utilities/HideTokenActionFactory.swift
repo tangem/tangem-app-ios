@@ -22,11 +22,6 @@ struct HideTokenActionFactory {
     }
 
     private func getUserTokensManager(for tokenItem: TokenItem) throws(Error) -> UserTokensManager {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            // accounts_fixes_needed_none
-            return userWalletModel.userTokensManager
-        }
-
         guard let cryptoAccountModel = userWalletModel
             .accountModelsManager
             .cryptoAccountModels
