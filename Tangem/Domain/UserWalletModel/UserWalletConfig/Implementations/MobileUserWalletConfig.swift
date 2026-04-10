@@ -175,11 +175,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         fatalError("Implementation not required")
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> any WalletModelsFactory {
-        CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> any AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> any AnyWalletManagerFactory {
         GenericWalletManagerFactory()
     }
 

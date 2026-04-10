@@ -20,15 +20,19 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         networkServiceFactory: WalletNetworkServiceFactoryProvider().factory
     )
 
+    private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
+
     func makeOrchestrator() -> CommonWalletTokenAutoSyncOrchestrator {
         CommonWalletTokenAutoSyncOrchestrator(
             syncStateActor: sharedSyncStateActor,
             progressService: InjectedValues[\.walletTokenSyncProgressService],
+            persister: persister,
             relayerFactory: makeRelayerFactory(
                 configurationProvider: configurationProvider,
                 coinsCatalogProvider: coinsCatalogProvider,
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
-            )
+            ),
+            userWalletRepository: InjectedValues[\.userWalletRepository]
         )
     }
 
@@ -38,16 +42,17 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         tokenBalanceClient: MoralisTokenBalanceClient
     ) -> (Blockchain) -> (any WalletTokenAutoSyncRelayer)? {
         { blockchain in
-            if configurationProvider.canHandle(blockchain) {
-                return makeConfigurationRelayer(
-                    configurationProvider: configurationProvider,
+            // Use Moralis first to obtain blockchain balances
+            if MoralisSupportedBlockchains.all.contains(blockchain) {
+                return makeMoralisRelayer(
+                    tokenBalanceClient: tokenBalanceClient,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }
 
-            if MoralisSupportedBlockchains.all.contains(blockchain) {
-                return makeMoralisRelayer(
-                    tokenBalanceClient: tokenBalanceClient,
+            if configurationProvider.canHandle(blockchain) {
+                return makeConfigurationRelayer(
+                    configurationProvider: configurationProvider,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }

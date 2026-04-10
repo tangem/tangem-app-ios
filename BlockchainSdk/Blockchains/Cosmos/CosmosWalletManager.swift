@@ -11,7 +11,7 @@ import Combine
 import WalletCore
 import TangemSdk
 
-class CosmosWalletManager: BaseManager, WalletManager {
+class CosmosWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String { networkService.host }
     var allowsFeeSelection: Bool { cosmosChain.allowsFeeSelection }
 
@@ -26,11 +26,11 @@ class CosmosWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let transactionHashes = wallet.pendingTransactions.map { $0.hash }
             let info = try await networkService
-                .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
+                .accountInfo(for: address, tokens: cardTokens, transactionHashes: transactionHashes)
                 .async()
             updateWallet(accountInfo: info)
         } catch {

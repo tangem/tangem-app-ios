@@ -20,7 +20,7 @@ final class LitecoinTransactionTests {
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
-        let unspentOutputManager: UnspentOutputManager = .litecoin(address: defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .litecoin()
         unspentOutputManager.update(
             outputs: [.init(blockId: 2876580, txId: "b530464567f64eea2566fcda6d5953f567474c05cae13dd3dbba9dcf8d990310", index: 3, amount: 5000000)],
             for: defaultAddress
@@ -60,7 +60,7 @@ final class LitecoinTransactionTests {
         // then
         #expect(defaultAddress.value == "ltc1qxj6zrp9ea8kvlcq58qzw09a74rxlsecgu29nu0")
         #expect(legacyAddress.value == "LQ2dBuRmPSgNJXBd9Vgqn2chzeGoeQMAnA")
-        #expect(hashes == signatures.map(\.hash))
+        #expect(hashes.map(\.hashToSign) == signatures.map(\.hash))
         #expect(encoded == Data(hexString: "010000000001021003998dcf9dbadbd33de1ca054c4767f553596ddafc6625ea4ef667454630b50300000000fffffffff6d29e65a3ca882d5c9a52d041a02130c6c1b1274c9783d967f9419d965c2ef2030000006a47304402205e280d8344f5b7ea98bf95349cdb9a5eaed409ea746ab91084db5b0894012b38022075d68fc21717f266b9369ff3c81f3a84d13c1c368aedb5c08d1f26516ff37d7001210252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aaffffffff028096980000000000160014c75a89f9a522c5c8015f308c74b5275800d2c02190a53b000000000016001434b42184b9e9eccfe0143804e797bea8cdf8670802483045022100dd70ea19dba2dae8e975d96d9451f3b1902e3cd84dd5729ade62ff29b16112af02201148330585572d6b2e44ea4b9b2c694d6c9153d6ab1552f9f19092f13ac1fa5901210252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa0000000000"))
     }
 }
