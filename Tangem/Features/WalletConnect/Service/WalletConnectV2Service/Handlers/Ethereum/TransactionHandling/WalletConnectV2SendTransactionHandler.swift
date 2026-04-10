@@ -28,33 +28,6 @@ class WalletConnectV2SendTransactionHandler {
         blockchainId: String,
         transactionBuilder: WCEthTransactionBuilder,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider,
-    ) throws {
-        do {
-            let params = try requestParams.get([WalletConnectEthTransaction].self)
-
-            guard let wcTransaction = params.first else {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
-            }
-
-            self.wcTransaction = wcTransaction
-            walletModel = try walletModelProvider.getModel(with: wcTransaction.from, blockchainId: blockchainId)
-        } catch {
-            WCLogger.error("Failed to create Send transaction handler", error: error)
-            throw error
-        }
-
-        self.transactionBuilder = transactionBuilder
-        transactionDispatcher = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: signer)
-            .makeTransferTransactionDispatcher()
-        request = requestParams
-    }
-
-    init(
-        requestParams: AnyCodable,
-        blockchainId: String,
-        transactionBuilder: WCEthTransactionBuilder,
-        signer: TangemSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {

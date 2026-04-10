@@ -12,13 +12,15 @@ import TangemFoundation
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
     public let manager: ExpressProviderManager
+    public let supportedRateTypes: Set<ExpressProviderRateType>
     public var isBest: Bool { _isBest.read() }
 
     private let _isBest: ThreadSafeContainer<Bool>
 
-    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool) {
+    init(provider: ExpressProvider, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>, isBest: Bool) {
         self.provider = provider
         self.manager = manager
+        self.supportedRateTypes = supportedRateTypes
 
         _isBest = .init(isBest)
     }
@@ -41,7 +43,7 @@ public class ExpressAvailableProvider {
         }
 
         switch getState() {
-        case .permissionRequired(let state):
+        case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
             return .high(rate: state.quote.rate)
         case .preview(let state):
             return .high(rate: state.quote.rate)
@@ -98,6 +100,14 @@ public extension [ExpressAvailableProvider] {
 
             return lhsPriority > rhsPriority
         }
+    }
+
+    func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
+        guard let rateType else {
+            return self
+        }
+
+        return filter { $0.supportedRateTypes.contains(rateType) }
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {
