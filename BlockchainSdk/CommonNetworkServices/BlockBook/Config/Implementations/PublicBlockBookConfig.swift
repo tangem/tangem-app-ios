@@ -27,7 +27,7 @@ extension PublicBlockBookConfig {
     func node(for blockchain: Blockchain) -> BlockBookNode {
         return BlockBookNode(
             rpcNode: urlNode,
-            restNode: ""
+            restNode: urlNode
         )
     }
 
