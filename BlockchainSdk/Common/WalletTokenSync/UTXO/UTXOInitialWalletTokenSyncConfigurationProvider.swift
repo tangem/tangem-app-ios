@@ -24,7 +24,7 @@ struct UTXOInitialWalletTokenSyncConfigurationProvider {
         let lockingScriptBuilder = try makeLockingScriptBuilder(for: blockchain)
         let lockingScript = try lockingScriptBuilder.lockingScript(for: address)
         let lockingScriptAddress = LockingScriptAddress(value: address, type: .default, lockingScript: lockingScript)
-        let unspentOutputManager = try makeUnspentOutputManager(blockchain: blockchain, address: lockingScriptAddress)
+        let unspentOutputManager = try makeUnspentOutputManager(blockchain: blockchain)
 
         let responses = try await infoService.getInfo(addresses: [lockingScriptAddress]).async()
 
@@ -95,30 +95,30 @@ struct UTXOInitialWalletTokenSyncConfigurationProvider {
         }
     }
 
-    private func makeUnspentOutputManager(blockchain: Blockchain, address: any Address) throws -> UnspentOutputManager {
+    private func makeUnspentOutputManager(blockchain: Blockchain) throws -> UnspentOutputManager {
         switch blockchain {
         case .bitcoin:
-            return .bitcoin(address: address, isTestnet: blockchain.isTestnet)
+            return .bitcoin(isTestnet: blockchain.isTestnet)
         case .litecoin:
-            return .litecoin(address: address)
+            return .litecoin()
         case .bitcoinCash:
-            return .bitcoinCash(address: address, isTestnet: blockchain.isTestnet)
+            return .bitcoinCash(isTestnet: blockchain.isTestnet)
         case .dogecoin:
-            return .dogecoin(address: address)
+            return .dogecoin()
         case .dash:
-            return .dash(address: address, isTestnet: blockchain.isTestnet)
+            return .dash(isTestnet: blockchain.isTestnet)
         case .ravencoin:
-            return .ravencoin(address: address, isTestnet: blockchain.isTestnet)
+            return .ravencoin(isTestnet: blockchain.isTestnet)
         case .ducatus:
-            return .ducatus(address: address)
+            return .ducatus()
         case .clore:
-            return .clore(address: address)
+            return .clore()
         case .pepecoin:
-            return .pepecoin(address: address, isTestnet: blockchain.isTestnet)
+            return .pepecoin(isTestnet: blockchain.isTestnet)
         case .radiant:
-            return .radiant(address: address)
+            return .radiant()
         case .fact0rn:
-            return .fact0rn(address: address)
+            return .fact0rn()
         default:
             throw BlockchainSdkError.notImplemented
         }

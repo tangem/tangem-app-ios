@@ -6,15 +6,19 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemSdk
+
 public struct EmptyAddressesProvider: Wallet.AddressesProvider {
     private let emptyAddress = EmptyAddress()
 
     public init() {}
 
+    public var addresses: [any Address] { [emptyAddress] }
     public var defaultAddress: any Address { emptyAddress }
-    public var legacyAddress: (any Address)? { nil }
+    public var changeAddress: any Address { emptyAddress }
 
     public mutating func update(address: any Address) {}
+    public mutating func update(userDerivations: [DerivationPath]) {}
 }
 
 public struct EmptyAddress: Address {
