@@ -65,7 +65,7 @@ extension StellarWalletManager {
     }
 }
 
-class StellarWalletManager: BaseManager, WalletManager {
+class StellarWalletManager: BaseWalletManager, WalletManager {
     typealias Asset = Amount.AmountType
     typealias StellarAsset = Asset
 
@@ -85,11 +85,11 @@ class StellarWalletManager: BaseManager, WalletManager {
     /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
     private var lastTrustlineOpenAttemptDate: Date?
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let tokens = cardTokens
             let response = try await networkService
-                .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
+                .getInfo(accountId: address, isAsset: !tokens.isEmpty)
                 .async()
             updateWallet(with: response, tokens: tokens)
         } catch {
