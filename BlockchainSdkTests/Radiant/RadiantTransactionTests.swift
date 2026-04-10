@@ -57,7 +57,7 @@ final class RadiantTests {
             ),
         ]
 
-        let unspentOutputManager: UnspentOutputManager = .radiant(address: address)
+        let unspentOutputManager: UnspentOutputManager = .radiant()
         unspentOutputManager.update(outputs: utxo, for: address)
         let txBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey,
