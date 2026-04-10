@@ -8,35 +8,85 @@
 
 import Foundation
 import TangemUI
+import TangemUIUtils
+import TangemAssets
 import TangemLocalization
 
 final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published private(set) var mainButtonIsLoading: Bool = false
+    @Published private(set) var mainButtonIcon: MainButton.Icon?
+    @Published var alert: AlertBinder?
 
+    private let dynamicAddressesManager: DynamicAddressesManager
     private weak var coordinator: DynamicAddressesEnterRoutable?
 
-    init(coordinator: DynamicAddressesEnterRoutable) {
+    private var enablingTask: Task<Void, Never>?
+
+    init(
+        dynamicAddressesManager: DynamicAddressesManager,
+        coordinator: DynamicAddressesEnterRoutable
+    ) {
+        self.dynamicAddressesManager = dynamicAddressesManager
         self.coordinator = coordinator
+
+        assert(
+            dynamicAddressesManager.state.isDisabled,
+            "DynamicAddressesEnterView should be used only in disabled state"
+        )
+
+        setupView()
     }
 
     // MARK: - Actions
 
     func userDidTapEnableAction() {
         mainButtonIsLoading = true
-        Task {
-            try await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                close()
-                showSuccessToast()
-            }
+        enablingTask?.cancel()
+        enablingTask = Task { [weak self] in
+            await self?.enableDynamicAddresses()
         }
     }
 
     func close() {
-        coordinator?.closeDynamicAddressesEnterView()
+        enablingTask?.cancel()
+        dismiss(isSuccess: false)
+    }
+}
+
+// MARK: - Private
+
+private extension DynamicAddressesEnterViewModel {
+    func enableDynamicAddresses() async {
+        do {
+            try await dynamicAddressesManager.enableDynamicAddresses()
+
+            await MainActor.run {
+                mainButtonIsLoading = false
+                dismiss(isSuccess: true)
+            }
+        } catch is CancellationError {
+            // Do nothing
+        } catch {
+            await MainActor.run { alert = error.alertBinder }
+        }
     }
 
-    func showSuccessToast() {
+    private func setupView() {
+        guard case .disabled(let derivationIsNeeded) = dynamicAddressesManager.state else {
+            return
+        }
+
+        mainButtonIcon = derivationIsNeeded ? .trailing(Assets.tangemIcon) : nil
+    }
+
+    func dismiss(isSuccess: Bool) {
+        coordinator?.closeDynamicAddressesEnterView()
+        if isSuccess {
+            showSuccessToast()
+        }
+    }
+
+    private func showSuccessToast() {
         Toast(view: SuccessToast(text: Localization.dynamicAddressesEnabledToastTitle))
             .present(
                 layout: .top(),

@@ -44,14 +44,19 @@ class FakeWalletManager: WalletManager {
             isDemo: false
         )
         let userWalletId = UserWalletId(value: Data())
-        let keysProvider = CommonKeysRepository(keys: .cardWallet(keys: []))
+        let keysRepository = CommonKeysRepository(keys: .cardWallet(keys: []))
 
-        walletModels = WalletModelsFactoryProvider(
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
-            keysProvider: keysProvider,
+            keysRepository: keysRepository,
             keysDerivingInteractor: KeysDerivingMock()
-        ).makeWalletModelsFactory().makeWalletModels(
+        )
+
+        let walletModelsFactory = walletModelsFactoryProvider
+            .makeWalletModelsFactory(derivationLevelUpdater: FakeDerivationLevelUpdater())
+
+        walletModels = walletModelsFactory.makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,
@@ -185,4 +190,8 @@ extension FakeWalletManager {
         wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
+}
+
+private struct FakeDerivationLevelUpdater: DerivationLevelUpdater {
+    func update(blockchainNetwork: BlockchainNetwork, for tokenItem: TokenItem) {}
 }
