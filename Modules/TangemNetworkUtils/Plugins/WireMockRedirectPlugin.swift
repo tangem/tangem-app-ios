@@ -17,7 +17,10 @@ public struct WireMockRedirectPlugin: PluginType {
     private let overrideComponents: URLComponents?
 
     public init() {
-        if let url = ProcessInfo.processInfo.environment["WIREMOCK_BASE_URL"] {
+        // Maestro passes launch arguments via UserDefaults, not ProcessInfo environment
+        let url = ProcessInfo.processInfo.environment["WIREMOCK_BASE_URL"]
+            ?? UserDefaults.standard.string(forKey: "WIREMOCK_BASE_URL")
+        if let url {
             overrideComponents = URLComponents(string: url)
         } else {
             overrideComponents = nil

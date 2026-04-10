@@ -21,7 +21,6 @@ protocol AppLockController {
 
 enum UnlockResult {
     case openAuth
-    case openWelcome
     case openMain(UserWalletModel)
 }
 
