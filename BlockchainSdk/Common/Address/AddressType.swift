@@ -9,27 +9,41 @@
 import Foundation
 import TangemLocalization
 
-public enum AddressType: String, Equatable {
+public indirect enum AddressType: Hashable {
     case `default`
     case legacy
+    case used(AddressType, index: String)
 
     public var defaultLocalizedName: String {
         switch self {
         case .default:
             return Localization.addressTypeDefault
+        case .used(_, let index):
+            return "Used #\(index)"
         case .legacy:
             return Localization.addressTypeLegacy
         }
     }
 }
 
+// MARK: - Comparable
+
 extension AddressType: Comparable {
     public static func < (lhs: AddressType, rhs: AddressType) -> Bool {
-        switch (lhs, rhs) {
-        case (.default, legacy):
-            return true
-        default:
-            return false
+        lhs.sortOrder < rhs.sortOrder
+    }
+
+    private var sortOrder: Int {
+        switch self {
+        case .default: 0
+        case .used: 1
+        case .legacy: 2
         }
     }
+}
+
+// MARK: - AddressTypeError
+
+public enum AddressTypeError: Error {
+    case notSupported
 }
