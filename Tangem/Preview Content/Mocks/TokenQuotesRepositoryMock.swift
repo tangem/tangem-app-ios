@@ -15,6 +15,7 @@ class TokenQuotesRepositoryMock: TokenQuotesRepository, TokenQuotesRepositoryUpd
         TokenQuote(
             currencyId: currencyId,
             price: 1,
+            priceUsd: nil,
             priceChange24h: 0.3,
             priceChange7d: 3.3,
             priceChange30d: 9.3,
@@ -29,6 +30,7 @@ class TokenQuotesRepositoryMock: TokenQuotesRepository, TokenQuotesRepositoryUpd
         TokenQuote(
             currencyId: currencyId,
             price: 1,
+            priceUsd: nil,
             priceChange24h: 0.3,
             priceChange7d: 3.3,
             priceChange30d: 9.3,
