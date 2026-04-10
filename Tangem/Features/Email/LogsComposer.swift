@@ -9,7 +9,7 @@
 import Foundation
 import TangemLogger
 
-class LogsComposer {
+final class LogsComposer {
     private let infoProvider: LogFileProvider
     private let includeZipLogs: Bool
 
@@ -23,19 +23,26 @@ class LogsComposer {
         infoProvider.logData
     }
 
-    func getZipLogsData() -> (data: Data, file: URL)? {
+    func getZipLogsData(completion: @escaping ((data: Data, file: URL)?) -> Void) {
         guard includeZipLogs else {
-            return nil
+            completion(nil)
+            return
         }
 
-        do {
-            let file = try OSLogZipFileBuilder.zipFile()
-            let data = try Data(contentsOf: file)
-
-            return (data: data, file: file)
-        } catch {
-            AppLogger.error("LogsComposer zip file preparing", error: error)
-            return nil
+        OSLogFileWriter.shared.zipLogFile { result in
+            switch result {
+            case .success(let file):
+                do {
+                    let data = try Data(contentsOf: file)
+                    completion((data: data, file: file))
+                } catch {
+                    AppLogger.error("LogsComposer zip file reading", error: error)
+                    completion(nil)
+                }
+            case .failure(let error):
+                AppLogger.error("LogsComposer zip file preparing", error: error)
+                completion(nil)
+            }
         }
     }
 }
