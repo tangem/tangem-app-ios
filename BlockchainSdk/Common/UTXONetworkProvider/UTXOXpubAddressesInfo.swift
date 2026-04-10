@@ -1,5 +1,5 @@
 //
-//  UTXOXpubInfo.swift
+//  UTXOXpubAddressesInfo.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,17 +9,21 @@
 import Foundation
 import TangemSdk
 
-struct UTXOXpubInfo {
+struct UTXOXpubAddressesInfo {
     let addresses: [Address]
 }
 
-extension UTXOXpubInfo {
+extension UTXOXpubAddressesInfo {
     struct Address {
-        let address: String
-        let derivationPath: DerivationPath
+        let usedAddress: UTXOUsedAddress
         let transfers: Int
         let balance: Decimal
 
         var isUsed: Bool { transfers > 0 }
     }
+}
+
+struct UTXOUsedAddress: Hashable {
+    let address: String
+    let derivationPath: DerivationPath
 }
