@@ -2,26 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>auth_wallet_hardware_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li карта</string>
-        <key>few</key>
-        <string>%li карты</string>
-        <key>many</key>
-        <string>%li карт</string>
-        <key>other</key>
-        <string>%li карты</string>
-      </dict>
-    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -40,26 +20,6 @@
         <string>%li устройств</string>
         <key>other</key>
         <string>%li устройств</string>
-      </dict>
-    </dict>
-    <key>card_label_token_count</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li токен</string>
-        <key>few</key>
-        <string>%li токена</string>
-        <key>many</key>
-        <string>%li токенов</string>
-        <key>other</key>
-        <string>%li токены</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -408,7 +368,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token isn't compatible with this address</string>
+        <string>Токен %li не совместим с этим адресом</string>
+        <key>few</key>
+        <string></string>
+        <key>many</key>
+        <string>Токены %li не совместимы с этим адресом</string>
         <key>other</key>
         <string>%li tokens aren't compatible with this address</string>
       </dict>

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUIUtils
 
@@ -59,6 +60,7 @@ public struct TokenIcon: View {
                         .frame(size: customTokenIndicatorBorderSize)
                 )
                 .offset(x: 1, y: 1)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenCustomIndicator(for: tokenIconInfo.name))
         }
     }
 
