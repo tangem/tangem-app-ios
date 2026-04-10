@@ -106,15 +106,19 @@ cat Marathondevices
   echo 'debug: false'
 } > Marathonfile.generated
 
-# Add filtering config if test class specified
-if [ -n "$TEST_CLASS" ]; then
+# Add filtering config: Allure test plan filter takes priority over TEST_CLASS
+if [ -n "$ALLURE_TESTPLAN_FILTER" ] && [ -f "$ALLURE_TESTPLAN_FILTER" ]; then
+  echo "" >> Marathonfile.generated
+  cat "$ALLURE_TESTPLAN_FILTER" >> Marathonfile.generated
+  echo "Applied Allure test plan filter from $ALLURE_TESTPLAN_FILTER"
+elif [ -n "$TEST_CLASS" ]; then
   {
     echo ""
     echo "filteringConfiguration:"
     echo "  allowlist:"
     echo "    - type: \"simple-class-name\""
     echo "      values:"
-    
+
     IFS=',' read -ra CLASSES <<< "$TEST_CLASS"
     for CLASS in "${CLASSES[@]}"; do
       # Trim whitespace and strip module prefix (e.g. "TangemUITests.ClassName" -> "ClassName")
