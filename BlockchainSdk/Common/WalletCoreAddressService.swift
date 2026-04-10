@@ -45,11 +45,11 @@ extension WalletCoreAddressService: AddressProvider {
             }
 
             let address = AnyAddress(publicKey: walletCorePublicKey, coin: coin).description
-            return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: address, type: addressType)
         case .legacy:
             if coin == .cardano {
                 let address = try makeByronAddress(publicKey: publicKey)
-                return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+                return PlainAddress(value: address, type: addressType)
             }
 
             fatalError("WalletCoreAddressService don't support legacy address for \(coin)")
