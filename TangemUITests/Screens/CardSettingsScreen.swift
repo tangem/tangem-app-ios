@@ -13,7 +13,7 @@ import TangemAccessibilityIdentifiers
 final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var referralButton = button(.referralButton)
     private lazy var deviceSettingsButton = button(.deviceSettings)
-    private lazy var manageTokensButton = button(.manageTokens)
+    private lazy var addAccountButton = button(.addAccount)
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -37,10 +37,84 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
         }
     }
 
-    func openManageTokens() -> ManageTokensScreen {
-        XCTContext.runActivity(named: "Open Manage tokens") { _ in
-            manageTokensButton.waitAndTap()
-            return ManageTokensScreen(app)
+    func openArchivedAccounts() -> ArchivedAccountsScreen {
+        XCTContext.runActivity(named: "Open archived accounts") { _ in
+            let archivedButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsArchivedAccountsButton]
+            archivedButton.waitAndTap()
+            return ArchivedAccountsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyAccountExists(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' exists in wallet settings") { _ in
+            let accountButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: accountName)]
+            waitAndAssertTrue(accountButton, "Account '\(accountName)' should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAccountNotExists(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' does not exist in wallet settings") { _ in
+            let accountButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: accountName)]
+            XCTAssertFalse(
+                accountButton.waitForExistence(timeout: .conditional),
+                "Account '\(accountName)' should not be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyArchivedAccountsButtonExists() -> Self {
+        XCTContext.runActivity(named: "Verify archived accounts button exists") { _ in
+            let archivedButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsArchivedAccountsButton]
+            waitAndAssertTrue(archivedButton, "Archived accounts button should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyArchivedAccountsButtonNotExists() -> Self {
+        XCTContext.runActivity(named: "Verify archived accounts button does not exist") { _ in
+            let archivedButton = app.buttons[AccountsAccessibilityIdentifiers.walletSettingsArchivedAccountsButton]
+            XCTAssertTrue(
+                archivedButton.waitForNonExistence(timeout: .robustUIUpdate),
+                "Archived accounts button should not be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMigrationDialogVisible() -> Self {
+        XCTContext.runActivity(named: "Verify migration dialog is visible") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Migration dialog should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMigrationDialogContains(text: String) -> Self {
+        XCTContext.runActivity(named: "Verify migration dialog contains '\(text)'") { _ in
+            let alert = app.alerts.firstMatch
+            let textElement = alert.staticTexts.element(
+                matching: NSPredicate(format: "label CONTAINS[c] %@", text)
+            ).firstMatch
+            XCTAssertTrue(textElement.exists, "Migration dialog should contain '\(text)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func confirmMigrationDialog() -> Self {
+        XCTContext.runActivity(named: "Confirm migration dialog") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Migration dialog should be displayed")
+            alert.buttons["Got it"].waitAndTap()
+            return self
         }
     }
 
@@ -50,12 +124,32 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
             return DetailsScreen(app)
         }
     }
+
+    // MARK: - Account Management
+
+    func tapAddAccount() -> AccountFormScreen {
+        XCTContext.runActivity(named: "Tap 'Add account' button") { _ in
+            scrollToElement(addAccountButton)
+            addAccountButton.waitAndTap()
+            return AccountFormScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyAddAccountButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add account' button is enabled") { _ in
+            scrollToElement(addAccountButton)
+            waitAndAssertTrue(addAccountButton, "Add account button should exist")
+            XCTAssertTrue(addAccountButton.isEnabled, "Add account button should be enabled")
+            return self
+        }
+    }
 }
 
 enum CardSettingsScreenElement: String, UIElement {
     case referralButton
     case deviceSettings
-    case manageTokens
+    case addAccount
 
     var accessibilityIdentifier: String {
         switch self {
@@ -63,8 +157,8 @@ enum CardSettingsScreenElement: String, UIElement {
             return CardSettingsAccessibilityIdentifiers.referralProgramButton
         case .deviceSettings:
             return CardSettingsAccessibilityIdentifiers.deviceSettingsButton
-        case .manageTokens:
-            return CardSettingsAccessibilityIdentifiers.manageTokensButton
+        case .addAccount:
+            return AccountsAccessibilityIdentifiers.walletSettingsAddAccountButton
         }
     }
 }

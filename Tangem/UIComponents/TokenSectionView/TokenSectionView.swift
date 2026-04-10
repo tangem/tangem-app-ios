@@ -12,6 +12,7 @@ import TangemAssets
 struct TokenSectionView: View {
     let title: String?
     let topEdgeCornerRadius: CGFloat?
+    var backgroundColor: Color = Colors.Background.primary
 
     var body: some View {
         if let title = title {
@@ -23,12 +24,12 @@ struct TokenSectionView: View {
     @ViewBuilder
     private var background: some View {
         if let topEdgeCornerRadius = topEdgeCornerRadius {
-            Colors.Background.primary.cornerRadiusContinuous(
+            backgroundColor.cornerRadiusContinuous(
                 topLeadingRadius: topEdgeCornerRadius,
                 topTrailingRadius: topEdgeCornerRadius
             )
         } else {
-            Colors.Background.primary
+            backgroundColor
         }
     }
 }
