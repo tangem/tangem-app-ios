@@ -42,6 +42,10 @@ class BlockcypherNetworkProvider {
 // MARK: - UTXONetworkProvider
 
 extension BlockcypherNetworkProvider: UTXONetworkProvider {
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
+    }
+
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         execute(
             type: .address(address: address, unspentsOnly: true, limit: 1000, isFull: false),
