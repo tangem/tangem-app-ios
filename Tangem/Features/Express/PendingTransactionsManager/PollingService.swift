@@ -31,6 +31,7 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
     private let shouldStopPolling: (ResponseData) -> Bool
     private let hasChanges: (ResponseData, ResponseData) -> Bool
     private let pollingInterval: TimeInterval
+    private let maxConcurrentRequests: Int?
 
     private var resultContinuations: [UUID: AsyncStream<[Response]>.Continuation] = [:]
     private var latestResult: [Response] = []
@@ -41,12 +42,18 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
         request: @escaping (RequestData) async -> ResponseData?,
         shouldStopPolling: @escaping (ResponseData) -> Bool,
         hasChanges: @escaping (ResponseData, ResponseData) -> Bool,
-        pollingInterval: TimeInterval
+        pollingInterval: TimeInterval,
+        maxConcurrentRequests: Int? = nil
     ) {
+        if let maxConcurrentRequests {
+            precondition(maxConcurrentRequests > 0, "maxConcurrentRequests must be greater than 0")
+        }
+
         self.request = request
         self.shouldStopPolling = shouldStopPolling
         self.hasChanges = hasChanges
         self.pollingInterval = pollingInterval
+        self.maxConcurrentRequests = maxConcurrentRequests
     }
 
     deinit {
@@ -67,8 +74,10 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
         cancelTask()
 
         updateTask = runTask { [weak self] in
-            await self?.poll(for: requests)
-            await self?.cancelTask()
+            guard let self else { return }
+            let chunkSize = maxConcurrentRequests ?? requests.count
+            await pollChunked(for: requests, chunkSize: max(chunkSize, 1))
+            await cancelTask()
         }
     }
 
@@ -77,33 +86,39 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
         updateTask = nil
     }
 
-    private func poll(for requests: [RequestData]) async {
-        if requests.isEmpty {
-            return
-        }
+    private func pollChunked(for requests: [RequestData], chunkSize: Int) async {
+        guard !requests.isEmpty else { return }
 
-        // We have to remove result which is not contains in requests
-        // Because we don't need it anymore
+        // Remove results which are not contained in requests
         latestResult = latestResult.filter { result in
             requests.contains(where: { $0.id == result.data.id })
         }
         sendValue(latestResult)
 
         while !Task.isCancelled {
-            let responses = await withTaskGroup(of: Response?.self) { [weak self] taskGroup in
-                for requestData in requests {
-                    taskGroup.addTask {
-                        await self?.getResponse(for: requestData)
+            var responses = [Response]()
+
+            for chunkStart in stride(from: requests.startIndex, to: requests.endIndex, by: chunkSize) {
+                let chunk = requests[chunkStart ..< min(chunkStart + chunkSize, requests.endIndex)]
+                guard !Task.isCancelled else { break }
+
+                let chunkResponses = await withTaskGroup(of: Response?.self) { taskGroup in
+                    for requestData in chunk {
+                        taskGroup.addTask { [weak self] in
+                            await self?.getResponse(for: requestData)
+                        }
                     }
+
+                    var results = [Response]()
+                    for await response in taskGroup {
+                        if let response {
+                            results.append(response)
+                        }
+                    }
+                    return results
                 }
 
-                var responses = [Response]()
-                for await response in taskGroup {
-                    if let response {
-                        responses.append(response)
-                    }
-                }
-                return responses
+                responses.append(contentsOf: chunkResponses)
             }
 
             latestResult = responses

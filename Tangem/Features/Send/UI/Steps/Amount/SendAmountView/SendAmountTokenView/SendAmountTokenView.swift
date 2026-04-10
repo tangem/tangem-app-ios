@@ -83,6 +83,7 @@ struct SendAmountTokenView: View {
                 )
             }
         }
+        .lineLimit(1)
         .contentTransition(.identity)
     }
 
