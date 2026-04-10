@@ -32,6 +32,10 @@ class TronJsonRpcProvider: HostProvider {
         requestPublisher(for: .getAccount(address: address))
     }
 
+    func getAccountInfoByAddress(_ address: String) -> AnyPublisher<TronGetAccountInfoByAddressResponse, Error> {
+        requestPublisher(for: .getAccountInfoByAddress(address: address))
+    }
+
     func getAccountResource(for address: String) -> AnyPublisher<TronGetAccountResourceResponse, Error> {
         requestPublisher(for: .getAccountResource(address: address))
     }

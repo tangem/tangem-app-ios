@@ -20,8 +20,8 @@ extension SwapFlowBaseDependenciesFactory {
         receiveToken: SendReceiveToken?,
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
-        shouldStartInitialLoading: Bool,
-        isFixedRatesEnabled: Bool = false
+        pairUpdateHandler: SwapPairUpdateHandler,
+        shouldStartInitialLoading: Bool
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -34,8 +34,8 @@ extension SwapFlowBaseDependenciesFactory {
             expressUserWalletId: expressDependenciesFactory.userWalletInfo.id,
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
-            shouldStartInitialLoading: shouldStartInitialLoading,
-            isFixedRatesEnabled: isFixedRatesEnabled
+            pairUpdateHandler: pairUpdateHandler,
+            shouldStartInitialLoading: shouldStartInitialLoading
         )
     }
 
