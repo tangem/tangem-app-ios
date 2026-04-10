@@ -214,6 +214,7 @@ public extension TangemButton {
     enum Size: Sendable {
         case x15
         case x12
+        case x11
         case x10
         case x9
         case x8
@@ -223,6 +224,7 @@ public extension TangemButton {
             switch self {
             case .x15: return .x15
             case .x12: return .x12
+            case .x11: return .x11
             case .x10: return .x10
             case .x9: return .x9
             case .x8: return .x8
@@ -235,21 +237,21 @@ public extension TangemButton {
         var font: Font {
             switch self {
             case .x7: Fonts.Regular.footnote
-            case .x8, .x9, .x10, .x12, .x15: Fonts.Bold.body
+            case .x8, .x9, .x10, .x11, .x12, .x15: Fonts.Bold.body
             }
         }
 
         var textStyle: Font.TextStyle {
             switch self {
             case .x7: .footnote
-            case .x8, .x9, .x10, .x12, .x15: .body
+            case .x8, .x9, .x10, .x11, .x12, .x15: .body
             }
         }
 
         var horizontalInsets: CGFloat {
             switch self {
             case .x15, .x12: SizeUnit.x6.value
-            case .x10, .x9, .x8: SizeUnit.x3.value
+            case .x11, .x10, .x9, .x8: SizeUnit.x3.value
             case .x7: SizeUnit.x2.value
             }
         }
@@ -258,14 +260,14 @@ public extension TangemButton {
             switch self {
             case .x15: SizeUnit.x4.value
             case .x12: SizeUnit.x3.value
-            case .x10, .x9, .x8, .x7: SizeUnit.x2.value
+            case .x11, .x10, .x9, .x8, .x7: SizeUnit.x2.value
             }
         }
 
         var iconSize: CGFloat {
             switch self {
             case .x15, .x12: SizeUnit.x7.value
-            case .x10, .x9, .x8, .x7: SizeUnit.x5.value
+            case .x11, .x10, .x9, .x8, .x7: SizeUnit.x5.value
             }
         }
     }

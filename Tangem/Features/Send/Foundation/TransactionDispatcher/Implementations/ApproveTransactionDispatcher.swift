@@ -43,8 +43,60 @@ extension ApproveTransactionDispatcher: TransactionDispatcher {
         }
 
         let transaction = try await buildTransaction(data: data, fee: fee)
-        let result = try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
-        return result
+        return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
+    }
+
+    /// Sends multiple approve transactions in a single signing session (e.g. revoke+approve for USDT).
+    func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
+        guard !transactions.isEmpty else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        guard transactions.count > 1 else {
+            return [try await send(transaction: transactions[0])]
+        }
+
+        let approveTransactions = transactions.compactMap { transactionType -> (data: ApproveTransactionData, fee: BSDKFee)? in
+            guard case .approve(let data, let fee) = transactionType else { return nil }
+            return (data, fee)
+        }
+
+        guard approveTransactions.count == transactions.count else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        var builtTransactions = [BSDKTransaction]()
+        for tx in approveTransactions {
+            let built = try await buildTransaction(data: tx.data, fee: tx.fee)
+            builtTransactions.append(built)
+        }
+
+        guard let multipleTransactionsSender = walletModel.multipleTransactionsSender else {
+            throw TransactionDispatcherProviderError.transactionNotSupported(reason: "MultipleTransactionsSender is not available")
+        }
+
+        let mapper = TransactionDispatcherResultMapper()
+
+        do {
+            let hashes = try await multipleTransactionsSender.send(
+                builtTransactions,
+                signer: transactionSigner
+            ).async()
+
+            return hashes.map { hash in
+                mapper.mapResult(
+                    hash,
+                    blockchain: feeTokenItem.blockchain,
+                    signer: transactionSigner.latestSignerType,
+                    isToken: feeTokenItem.isToken
+                )
+            }
+        } catch {
+            throw mapper.mapError(
+                error.toUniversalError(),
+                transaction: transactions.last ?? transactions[0]
+            )
+        }
     }
 }
 

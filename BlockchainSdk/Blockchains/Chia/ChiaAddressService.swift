@@ -25,7 +25,7 @@ struct ChiaAddressService: AddressService {
         let hrp = HRP.part(isTestnet: isTestnet)
         let encodeValue = try Bech32(variant: .bech32m).encode(hrp, values: puzzleHash)
 
-        return PlainAddress(value: encodeValue, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: encodeValue, type: addressType)
     }
 
     func validate(_ address: String) -> Bool {

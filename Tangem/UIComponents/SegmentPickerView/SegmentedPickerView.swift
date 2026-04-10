@@ -20,12 +20,13 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
     @Environment(\.segmentedControlSlidingAnimation) var slidingAnimation
     @Environment(\.segmentedControlContentStyle) var contentStyle
 
+    @Environment(\.isEnabled) private var isEnabled
+
     @Binding private var selection: Option
     private let options: [Option]
     private let selectionView: () -> SelectionView
     private let segmentContent: (Option, Bool) -> SegmentContent
     private let shouldStretchToFill: Bool
-    private let isDisabled: Bool
     private let segmentAccessibilityIdentifier: ((Option) -> String)?
 
     @State private var optionIsPressed: [Option.ID: Bool] = [:]
@@ -51,7 +52,6 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
         selection: Binding<Option>,
         options: [Option],
         shouldStretchToFill: Bool,
-        isDisabled: Bool,
         selectionView: @escaping () -> SelectionView,
         segmentAccessibilityIdentifier: ((Option) -> String)? = nil,
         @ViewBuilder segmentContent: @escaping (Option, Bool) -> SegmentContent
@@ -61,7 +61,6 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
         self.selectionView = selectionView
         self.segmentContent = segmentContent
         self.shouldStretchToFill = shouldStretchToFill
-        self.isDisabled = isDisabled
         self.segmentAccessibilityIdentifier = segmentAccessibilityIdentifier
         optionIsPressed = Dictionary(uniqueKeysWithValues: options.lazy.map { ($0.id, false) })
         selectedIndex = options.firstIndex(of: selection.wrappedValue) ?? 0
@@ -96,7 +95,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
                     targetWidth: targetWidth,
                     accessibilityIdentifier: segmentAccessibilityIdentifier?(option),
                     action: {
-                        if selection == option || isDisabled {
+                        if selection == option || !isEnabled {
                             return
                         }
 
@@ -204,7 +203,6 @@ public extension SegmentedPickerView {
         selection: Binding<Option>,
         options: [Option],
         shouldStretchToFill: Bool,
-        isDisabled: Bool,
         selectionView: SelectionView,
         segmentAccessibilityIdentifier: ((Option) -> String)? = nil,
         @ViewBuilder segmentContent: @escaping (Option, Bool) -> SegmentContent
@@ -213,7 +211,6 @@ public extension SegmentedPickerView {
             selection: selection,
             options: options,
             shouldStretchToFill: shouldStretchToFill,
-            isDisabled: isDisabled,
             selectionView: { selectionView },
             segmentAccessibilityIdentifier: segmentAccessibilityIdentifier,
             segmentContent: segmentContent
