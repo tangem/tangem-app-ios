@@ -70,18 +70,11 @@ private extension CommonApproveViewModelInputDataBuilder {
         )
 
         let feeFormatter = CommonFeeFormatter()
-
-        let supportsFeeSelection = if FeatureProvider.isAvailable(.gaslessDexAndApprove) {
-            flowInput.tokenFeeProvidersManager.supportFeeSelection
-        } else {
-            false
-        }
-
         return ApproveViewModel.Input(
             settings: settings,
             feeFormatter: feeFormatter,
             interactor: interactor,
-            supportFeeSelection: supportsFeeSelection
+            supportFeeSelection: flowInput.tokenFeeProvidersManager.supportFeeSelection
         )
     }
 }
