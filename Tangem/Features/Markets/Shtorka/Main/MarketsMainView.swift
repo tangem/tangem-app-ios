@@ -113,6 +113,15 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private var searchResultView: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            TokenSearchView(viewModel: viewModel.tokenSearchViewModel)
+        } else {
+            legacySearchResultView
+        }
+    }
+
+    @ViewBuilder
+    private var legacySearchResultView: some View {
         switch viewModel.tokenListViewModel.tokenListLoadingState {
         case .noResults:
             noResultsStateView
