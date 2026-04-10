@@ -26,12 +26,18 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Published var sendCoordinator: SendCoordinator?
 
-    // MARK: - Child view models
+    // MARK: - Child view models (push navigation)
+
+    @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
+
+    // MARK: - Child view models (sheets)
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
+
+    private var options: Options?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -42,6 +48,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        self.options = options
         rootViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
@@ -89,28 +96,31 @@ extension TangemPayMainCoordinator {
 // MARK: - TangemPayMainRoutable
 
 extension TangemPayMainCoordinator: TangemPayMainRoutable {
+    func openCardManagement() {
+        guard let options else {
+            assertionFailure("TangemPayMainCoordinator.Options not found")
+            return
+        }
+
+        cardManagementViewModel = TangemPayCardManagementViewModel(
+            userWalletInfo: options.userWalletInfo,
+            tangemPayAccount: options.tangemPayAccount,
+            coordinator: self
+        )
+    }
+
+    func openFakedoorSheet() {
+        Task { @MainActor in
+            let viewModel = TangemPayFakedoorSheetViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel) {
         addToApplePayGuideViewModel = TangemPayAddToAppPayGuideViewModel(
             tangemPayCardDetailsViewModel: viewModel,
             coordinator: self
         )
-    }
-
-    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
-        tangemPayPinViewModel = TangemPayPinViewModel(
-            tangemPayAccount: tangemPayAccount,
-            coordinator: self
-        )
-    }
-
-    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
-        let viewModel = TangemPayPinCheckViewModel(
-            account: tangemPayAccount,
-            coordinator: self
-        )
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -146,17 +156,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
 
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void) {
-        Task { @MainActor in
-            let viewModel = TangemPayFreezeSheetViewModel(
-                userWalletId: userWalletId,
-                coordinator: self,
-                freezeAction: freezeAction
-            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -333,6 +332,48 @@ extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
     func closePinCheck() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayFakedoorSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayFakedoorSheetRoutable {
+    func closeFakedoorSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayCardManagementRoutable
+
+extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
+    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
+        tangemPayPinViewModel = TangemPayPinViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
+    }
+
+    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayPinCheckViewModel(
+            account: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void) {
+        Task { @MainActor in
+            let viewModel = TangemPayFreezeSheetViewModel(
+                userWalletId: userWalletId,
+                coordinator: self,
+                freezeAction: freezeAction
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

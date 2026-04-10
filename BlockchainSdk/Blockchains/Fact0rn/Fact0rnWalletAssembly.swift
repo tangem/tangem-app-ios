@@ -10,7 +10,7 @@ import Foundation
 
 struct Fact0rnWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .fact0rn(address: input.wallet.defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .fact0rn()
         let txBuilder = BitcoinTransactionBuilder(
             network: Fact0rnMainNetworkParams(),
             unspentOutputManager: unspentOutputManager,
