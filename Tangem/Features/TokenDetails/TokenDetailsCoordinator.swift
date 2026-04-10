@@ -180,6 +180,16 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openDynamicAddressesDisableSheet(dynamicAddressesManager: DynamicAddressesManager) {
+        let viewModel = DynamicAddressesDisableSheetViewModel(
+            dynamicAddressesManager: dynamicAddressesManager,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openURLInSystemBrowser(url: URL) {
         UIApplication.shared.open(url)
     }
@@ -197,6 +207,16 @@ extension TokenDetailsCoordinator: DynamicAddressesEnterRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
     func closeDynamicAddressesUnavailableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - DynamicAddressesDisableSheetRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
+    func closeDynamicAddressesDisableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }

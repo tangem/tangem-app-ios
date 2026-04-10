@@ -244,7 +244,16 @@ extension TokenDetailsViewModel {
             return
         }
 
-        coordinator?.openDynamicAddressesEnterView(dynamicAddressesManager: dynamicAddressesManager)
+        switch dynamicAddressesManager.state {
+        case .disabled:
+            coordinator?.openDynamicAddressesEnterView(
+                dynamicAddressesManager: dynamicAddressesManager
+            )
+        case .enabled:
+            coordinator?.openDynamicAddressesDisableSheet(
+                dynamicAddressesManager: dynamicAddressesManager
+            )
+        }
     }
 
     private func showUnableToHideAlert() {

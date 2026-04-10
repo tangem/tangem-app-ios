@@ -30,11 +30,7 @@ final class CommonDynamicAddressesManager {
         self.derivationLevelUpdater = derivationLevelUpdater
 
         let isEnabled = tokenItem.blockchainNetwork.derivationLevel == .xpub
-        let derivationIsNeeded = xpubKeyGenerator.derivationIsNeeded()
-
-        _state = .init(
-            isEnabled ? .enabled : .disabled(derivationIsNeeded: derivationIsNeeded)
-        )
+        _state = .init(isEnabled ? .enabled : .disabled)
     }
 }
 
@@ -49,6 +45,22 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
         _state.eraseToAnyPublisher()
     }
 
+    var enablingRequirements: DynamicAddressesEnablingRequirements? {
+        if xpubKeyGenerator.derivationIsNeeded() {
+            return .xpubDerivationIsNeeded
+        }
+
+        return .none
+    }
+
+    var disablingRequirements: DynamicAddressesDisablingRequirements? {
+        if let (amount, destination) = dynamicAddressesWalletUpdater.compoundTransactionIfNeeded() {
+            return .compoundTransaction(amount, destination: destination)
+        }
+
+        return .none
+    }
+
     func configure(walletModelUpdater: any WalletModelUpdater) {
         self.walletModelUpdater = walletModelUpdater
     }
@@ -56,6 +68,10 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
     func enableDynamicAddresses() async throws {
         guard _state.value.isDisabled else {
             throw DynamicAddressesManagerError.attemptToEnableDynamicAddressesWhileAlreadyEnabled
+        }
+
+        guard enablingRequirements == .none else {
+            throw DynamicAddressesManagerError.enablingRequirementsNotMet
         }
 
         let xpubKey = try await xpubKeyGenerator.generateXPUBKey()
@@ -70,5 +86,26 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
         walletModelUpdater?.startUpdateTask()
 
         _state.send(.enabled)
+    }
+
+    func disableDynamicAddresses() throws {
+        guard _state.value.isEnabled else {
+            throw DynamicAddressesManagerError.attemptToDisableDynamicAddressesWhileAlreadyDisabled
+        }
+
+        guard disablingRequirements == .none else {
+            throw DynamicAddressesManagerError.disablingRequirementsNotMet
+        }
+
+        try dynamicAddressesWalletUpdater.updateToPlainKey()
+
+        let updatedBlockchainNetwork = BlockchainNetwork(
+            tokenItem.blockchain,
+            derivationPath: tokenItem.blockchainNetwork.derivationPath,
+            derivationLevel: .plain
+        )
+        derivationLevelUpdater.update(blockchainNetwork: updatedBlockchainNetwork, for: tokenItem)
+
+        _state.send(.disabled)
     }
 }
