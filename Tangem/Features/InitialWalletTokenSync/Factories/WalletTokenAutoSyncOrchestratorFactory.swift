@@ -20,15 +20,19 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         networkServiceFactory: WalletNetworkServiceFactoryProvider().factory
     )
 
+    private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
+
     func makeOrchestrator() -> CommonWalletTokenAutoSyncOrchestrator {
         CommonWalletTokenAutoSyncOrchestrator(
             syncStateActor: sharedSyncStateActor,
             progressService: InjectedValues[\.walletTokenSyncProgressService],
+            persister: persister,
             relayerFactory: makeRelayerFactory(
                 configurationProvider: configurationProvider,
                 coinsCatalogProvider: coinsCatalogProvider,
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
-            )
+            ),
+            userWalletRepository: InjectedValues[\.userWalletRepository]
         )
     }
 
