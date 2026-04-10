@@ -47,8 +47,8 @@ struct CashAddrLockingScriptBuilder {
         return try encode(keyHash: scriptHash, type: type, spendable: .redeemScript(redeemScript))
     }
 
-    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
-        let keyHash = publicKey.sha256Ripemd160
+    func encode(publicKey: DerivationPublicKey, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let keyHash = publicKey.publicKey.sha256Ripemd160
         return try encode(keyHash: keyHash, type: type, spendable: .publicKey(publicKey))
     }
 
