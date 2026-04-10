@@ -116,7 +116,7 @@ extension WalletNetworkServiceFactory {
         case .binance:
             throw Error.notImplemeneted
         case .cardano:
-            throw Error.notImplemeneted
+            return makeCardanoNetworkService(for: blockchain)
         case .xrp:
             return makeXRPNetworkService(for: blockchain)
         case .tezos:
@@ -147,7 +147,7 @@ extension WalletNetworkServiceFactory {
         case .aptos:
             return makeAptosNetworkService(for: blockchain)
         case .chia:
-            throw Error.notImplemeneted
+            return makeChiaNetworkService(for: blockchain)
         case .near:
             return makeNEARNetworkService(for: blockchain)
         case .hedera:
@@ -495,6 +495,47 @@ private extension WalletNetworkServiceFactory {
         }
 
         return PolkadotNetworkService(providers: providers, network: network)
+    }
+
+    /// Cardano
+    func makeCardanoNetworkService(for blockchain: Blockchain) -> CardanoNetworkService {
+        let cardanoResponseMapper = CardanoResponseMapper()
+        let linkResolver = APINodeInfoResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+
+        let providers: [AnyCardanoNetworkProvider] = (apiList[blockchain.networkId] ?? []).compactMap { providerType in
+            guard let nodeInfo = linkResolver.resolve(for: providerType) else {
+                return nil
+            }
+
+            switch providerType {
+            case .getBlock, .tangemRosetta, .nowNodes, .mock:
+                return RosettaNetworkProvider(
+                    url: nodeInfo.url,
+                    configuration: tangemProviderConfig,
+                    cardanoResponseMapper: cardanoResponseMapper
+                ).eraseToAnyCardanoNetworkProvider()
+            case .adalite:
+                return AdaliteNetworkProvider(
+                    url: nodeInfo.url,
+                    configuration: tangemProviderConfig,
+                    cardanoResponseMapper: cardanoResponseMapper
+                ).eraseToAnyCardanoNetworkProvider()
+            default:
+                return nil
+            }
+        }
+
+        return CardanoNetworkService(providers: providers)
+    }
+
+    /// Chia
+    func makeChiaNetworkService(for blockchain: Blockchain) -> ChiaNetworkService {
+        let providers: [ChiaNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                ChiaNetworkProvider(node: nodeInfo, networkConfig: tangemProviderConfig)
+            }
+
+        return ChiaNetworkService(providers: providers, blockchain: blockchain)
     }
 
     func makeUTXONetworkService(for blockchain: Blockchain) throws -> any MultiNetworkProvider {

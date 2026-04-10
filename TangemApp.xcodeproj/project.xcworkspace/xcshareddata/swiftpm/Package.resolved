@@ -1,13 +1,13 @@
 {
-  "originHash" : "0bc027f2ffd96db9d2a91326060fe93eda90b9f923668da6c198c7354c2844ea",
+  "originHash" : "db72e71340472d913d8fb11f5db1288ddd4a2ff0c179dd555c0618a32ff89a26",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/abseil-cpp-binary.git",
       "state" : {
-        "revision" : "194a6706acbd25e4ef639bcaddea16e8758a3e27",
-        "version" : "1.2024011602.0"
+        "revision" : "bbe8b69694d7873315fd3a4ad41efe043e1c07c5",
+        "version" : "1.2024072200.0"
       }
     },
     {
@@ -184,10 +184,10 @@
     {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/firebase-ios-sdk.git",
+      "location" : "https://github.com/firebase/firebase-ios-sdk.git",
       "state" : {
-        "revision" : "3c8b191212cfa10750f281bb245b3583f3cebc06",
-        "version" : "11.7.0-tangem2"
+        "revision" : "d47760f97a853808be6a045d278fbd12abf546b6",
+        "version" : "12.12.0"
       }
     },
     {
@@ -209,12 +209,21 @@
       }
     },
     {
+      "identity" : "google-ads-on-device-conversion-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/google-ads-on-device-conversion-ios-sdk",
+      "state" : {
+        "revision" : "7b722132d1f2ab421c88a2e5c384c984cebd0d00",
+        "version" : "3.4.0"
+      }
+    },
+    {
       "identity" : "googleappmeasurement",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleAppMeasurement.git",
       "state" : {
-        "revision" : "be0881ff728eca210ccb628092af400c086abda3",
-        "version" : "11.7.0"
+        "revision" : "1657f705bc70255ff9d66dfcc697a85db164998f",
+        "version" : "12.11.0"
       }
     },
     {
@@ -240,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/grpc-binary.git",
       "state" : {
-        "revision" : "f56d8fc3162de9a498377c7b6cea43431f4f5083",
-        "version" : "1.65.1"
+        "revision" : "75b31c842f664a0f46a2e590a570e370249fd8f6",
+        "version" : "1.69.1"
       }
     },
     {
@@ -249,8 +258,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/grpc-swift.git",
       "state" : {
-        "revision" : "85b7e023993d535e1936f40e5a0e5909d3af8ad6",
-        "version" : "1.21.0-tangem3"
+        "revision" : "b41279777cb92390307013139184bda9dfc2cddb",
+        "version" : "1.26.2-tangem1"
       }
     },
     {
@@ -258,17 +267,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/gtm-session-fetcher.git",
       "state" : {
-        "revision" : "c756a29784521063b6a1202907e2cc47f41b667c",
-        "version" : "4.5.0"
+        "revision" : "0be208810d2e8b90fcd2464d1816723b47819fe7",
+        "version" : "5.2.0"
       }
     },
     {
-      "identity" : "hedera-sdk-swift",
+      "identity" : "hiero-sdk-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
+      "location" : "git@github.com:tangem-developments/hiero-sdk-swift.git",
       "state" : {
-        "revision" : "d552f683bb1446ec99df3d12f7fdf5403c51a508",
-        "version" : "0.26.0-tangem6"
+        "revision" : "6c51a6c8f3772dcbf69eeeff385581ecb9f7f42c",
+        "version" : "0.49.0-tangem1"
       }
     },
     {
@@ -294,8 +303,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/interop-ios-for-google-sdks.git",
       "state" : {
-        "revision" : "2d12673670417654f08f5f90fdd62926dc3a2648",
-        "version" : "100.0.0"
+        "revision" : "040d087ac2267d2ddd4cca36c757d1c6a05fdbfe",
+        "version" : "101.0.0"
       }
     },
     {
@@ -542,6 +551,15 @@
       }
     },
     {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "ffca28be3c9c6a86a579949d23f68818a4b9b5d8",
+        "version" : "3.8.0"
+      }
+    },
+    {
       "identity" : "swift-eventsource",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LaunchDarkly/swift-eventsource.git",
@@ -636,8 +654,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
-        "version" : "2.4.2"
+        "revision" : "33af3f9011e45dcd8ee696492d30dbcd5a8a67f3",
+        "version" : "2.6.0"
       }
     },
     {
@@ -654,8 +672,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/swift-protobuf-binaries.git",
       "state" : {
-        "revision" : "2e9fbb639e4c70334d48b9bfcc2a343e731bf208",
-        "version" : "1.25.2-tangem4"
+        "revision" : "f4a97af3392c3d8f7e757f6819c29f9dc4fc138e",
+        "version" : "1.29.0-tangem1"
       }
     },
     {
@@ -699,8 +717,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "724dab97d8987a906e52e22f38a7004e9028c38d",
-        "version" : "0.0.17"
+        "revision" : "ec4036f747c16d0ece87d8ff1bcc024319138da4",
+        "version" : "0.0.18"
       }
     },
     {
@@ -780,8 +798,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/wallet-core-binaries-ios.git",
       "state" : {
-        "revision" : "d882a521e9951f38d525f1656f584a59e8d077ab",
-        "version" : "4.1.20-tangem7"
+        "revision" : "20072ba22dc05f034d7a684ad9c24b51e5fdb6c0",
+        "version" : "4.3.9-tangem5"
       }
     },
     {
