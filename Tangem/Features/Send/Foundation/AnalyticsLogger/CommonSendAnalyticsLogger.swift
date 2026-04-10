@@ -380,56 +380,72 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
-        guard let tokenItem = sourceTokenItem else {
-            return
-        }
-
-        switch (sourceFlow, tokenItem.token?.metadata.kind) {
-        case (.sendAndSwap, _):
-            logSendWithSwapConfirmScreenOpened(sourceTokenItem: tokenItem)
-
-        case (_, .nonFungible):
-            Analytics.log(
-                event: .nftConfirmScreenOpened,
-                params: [.blockchain: tokenItem.blockchain.displayName]
-            )
-
-        default:
-            var params: [Analytics.ParameterKey: String] = [
+        switch sendType {
+        case .send where isSendWithSwapFlow:
+            var analyticsParameters: [Analytics.ParameterKey: String] = [
                 .source: sourceFlow.rawValue,
-                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
-                .blockchain: tokenItem.blockchain.displayName,
                 .type: entryTypeParameterValue.rawValue,
             ]
 
-            if let tokenFeeTokenitem = sendFeeInput?.selectedFee?.tokenItem {
-                params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenitem)
+            if let tokenItem = sourceTokenItem {
+                analyticsParameters[.sendToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem)
+                analyticsParameters[.sendBlockchain] = tokenItem.blockchain.displayName
+            }
+
+            if let receive = sendReceiveTokenInput?.receiveToken.value {
+                analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+                analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+            }
+
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+                analyticsParameters[.provider] = provider.provider.name
+            }
+
+            if let rateType = rateTypeAnalyticsValue {
+                analyticsParameters[.rateType] = rateType
+            }
+
+            Analytics.log(event: .sendSendWithSwapConfirmScreenOpened, params: analyticsParameters, analyticsSystems: .all)
+
+        case .send:
+            var params: [Analytics.ParameterKey: String] = [
+                .source: sourceFlow.rawValue,
+                .type: entryTypeParameterValue.rawValue,
+            ]
+
+            if let tokenItem = sourceTokenItem {
+                params[.token] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem)
+                params[.blockchain] = tokenItem.blockchain.displayName
+            }
+
+            if let tokenFeeTokenItem = sendFeeInput?.selectedFee?.tokenItem {
+                params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenItem)
             }
 
             Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
+
+        case .swap:
+            var params: [Analytics.ParameterKey: String] = [:]
+
+            if let tokenItem = sourceTokenItem ?? sendReceiveTokenInput?.receiveToken.value?.tokenItem {
+                params[.token] = tokenItem.currencySymbol
+                params[.blockchain] = tokenItem.blockchain.displayName
+            }
+
+            Analytics.log(event: .swapScreenOpenedSwap, params: params)
+
+        case .nft:
+            var params: [Analytics.ParameterKey: String] = [:]
+
+            if let tokenItem = sourceTokenItem {
+                params[.blockchain] = tokenItem.blockchain.displayName
+            }
+
+            Analytics.log(event: .nftConfirmScreenOpened, params: params)
+
+        default:
+            break
         }
-    }
-
-    private func logSendWithSwapConfirmScreenOpened(sourceTokenItem: TokenItem) {
-        var analyticsParameters: [Analytics.ParameterKey: String] = [
-            .sendToken: sourceTokenItem.currencySymbol,
-            .sendBlockchain: sourceTokenItem.blockchain.displayName,
-        ]
-
-        if let receive = sendReceiveTokenInput?.receiveToken.value {
-            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
-            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-        }
-
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
-            analyticsParameters[.provider] = provider.provider.name
-        }
-
-        if let rateType = rateTypeAnalyticsValue {
-            analyticsParameters[.rateType] = rateType
-        }
-
-        Analytics.log(event: .sendSendWithSwapConfirmScreenOpened, params: analyticsParameters, analyticsSystems: .all)
     }
 
     func logUserDidTapOnValidator() {}
