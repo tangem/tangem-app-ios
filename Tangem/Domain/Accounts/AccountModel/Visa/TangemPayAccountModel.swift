@@ -10,7 +10,7 @@ import Combine
 import TangemPay
 import TangemLocalization
 
-protocol TangemPayAccountModel: BaseAccountModel {
+protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.StandaloneIcon {
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
@@ -39,8 +39,8 @@ extension TangemPayAccountModel {
         resolver.resolve(accountModel: self)
     }
 
-    var icon: AccountModel.Icon {
-        AccountModel.Icon(name: .tangemPay, color: .clear)
+    var icon: AccountModel.StandaloneIcon {
+        .tangemPay
     }
 
     var name: String {

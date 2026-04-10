@@ -41,4 +41,8 @@ final class MarketsTokenDetailsPriceInfoHelper {
 
         return (price, priceChangeState)
     }
+
+    func makeAttributedPrice(price: String) -> AttributedString {
+        priceFormatter.formatPrice(price)
+    }
 }

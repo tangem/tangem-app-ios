@@ -8,9 +8,7 @@
 
 import Foundation
 
-final class CommonMainCoordinatorChildFactory {}
-
-extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
+final class CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
     func makeTokenDetailsCoordinator(dismissAction: @escaping Action<Void>) -> TokenDetailsCoordinator {
         TokenDetailsCoordinator(dismissAction: dismissAction)
     }
@@ -24,11 +22,8 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
     ) -> ActionButtonsSwapCoordinator {
         ActionButtonsSwapCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel,
-            dismissAction: dismissAction,
-            tokenSorter: SwapSourceTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config),
-            yieldModuleNotificationInteractor: YieldModuleNoticeInteractor()
+            dismissAction: dismissAction
         )
     }
 
@@ -37,7 +32,6 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>
     ) -> ActionButtonsSellCoordinator {
         ActionButtonsSellCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             dismissAction: dismissAction,
             userWalletModel: userWalletModel
         )

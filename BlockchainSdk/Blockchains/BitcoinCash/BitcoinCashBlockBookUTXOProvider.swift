@@ -31,6 +31,10 @@ final class BitcoinCashBlockBookUTXOProvider {
 // MARK: - UTXONetworkProvider
 
 extension BitcoinCashBlockBookUTXOProvider: UTXONetworkProvider {
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        blockBookUTXOProvider.getInfo(xpub: xpub)
+    }
+
     var host: String {
         blockBookUTXOProvider.host
     }

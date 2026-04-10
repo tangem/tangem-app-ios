@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUIUtils
 import TangemLocalization
@@ -77,6 +78,7 @@ public struct AccountFormHeaderView: View {
             .onChange(of: accountName) { newValue in
                 accountName = String(newValue.prefix(maxCharacters))
             }
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormNameInput)
     }
 }
 
@@ -93,7 +95,7 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                accountIconViewData: AccountIconView.ViewData(
+                accountIconViewData: .composite(
                     backgroundColor: Colors.Accounts.vitalGreen,
                     nameMode: .letter("N")
                 ),
@@ -104,7 +106,7 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                accountIconViewData: AccountIconView.ViewData(
+                accountIconViewData: .composite(
                     backgroundColor: Colors.Accounts.ufoGreen,
                     nameMode: .imageType(Assets.Accounts.airplane)
                 ),
