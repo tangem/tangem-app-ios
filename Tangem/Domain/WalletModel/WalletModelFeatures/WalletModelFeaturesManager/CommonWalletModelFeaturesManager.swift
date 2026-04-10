@@ -54,4 +54,10 @@ extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
         .map { $0.compactMap(\.self) }
         .eraseToAnyPublisher()
     }
+
+    func configure(with walletModel: any WalletModel) {
+        if case .dynamicAddresses(let manager) = dynamicAddressesFeatureManager.dynamicAddressesFeature {
+            manager.configure(walletModelUpdater: walletModel)
+        }
+    }
 }

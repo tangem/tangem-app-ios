@@ -12,11 +12,8 @@ public struct DynamicAddressesProvider {
     private let seedKey: Data
     private let xpubKey: Wallet.PublicKey.XPUBKey
     private let addressProvider: AddressProvider
-
     private var _defaultAddress: Address
-    private var _changeAddress: Address {
-        didSet { print("->> \(_changeAddress)") } // DFmga5nmNZrwHaekZ5CBoLwdGERgBznERq
-    }
+    private var _changeAddress: Address
 
     private var userAddresses: [DerivationPath: any Address] = [:]
 
