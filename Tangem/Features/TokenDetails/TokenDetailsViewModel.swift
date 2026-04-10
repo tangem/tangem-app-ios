@@ -240,7 +240,11 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagement() {
-        coordinator?.openDynamicAddressesEnterView()
+        guard let dynamicAddressesManager = walletModel.features.dynamicAddressesManager else {
+            return
+        }
+
+        coordinator?.openDynamicAddressesEnterView(dynamicAddressesManager: dynamicAddressesManager)
     }
 
     private func showUnableToHideAlert() {

@@ -97,7 +97,7 @@ extension WalletModel {
 
 // MARK: - WalletModelUpdater
 
-protocol WalletModelUpdater {
+protocol WalletModelUpdater: AnyObject {
     func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async
 
     func updateTransactionsHistory() async
