@@ -56,6 +56,11 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let earnDataProvider = CommonMarketsWidgetEarnService()
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
+    /// [STUB] Delete this comment when implemented.
+    /// tokenSearchViewModel owns the search flow when redesign is enabled.
+    /// MarketsMainViewModel reads its isSearching to drive showSearchResult in the View.
+    private(set) lazy var tokenSearchViewModel = TokenSearchViewModel(headerViewModel: headerViewModel)
+
     private var bag = Set<AnyCancellable>()
 
     private var currentSearchValue: String = ""
@@ -96,7 +101,12 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         headerViewModel.delegate = self
 
-        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        if FeatureProvider.isAvailable(.redesign) {
+            bindToTokenSearch()
+        } else {
+            searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        }
+
         bindToSearchFocus()
 
         bindChildViewModels()
@@ -145,6 +155,15 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
+    /// [STUB] Delete this comment when implemented.
+    /// When redesign is ON, TokenSearchViewModel owns the search subscription.
+    /// We just observe its isSearching state to drive the View's showSearchResult.
+    private func bindToTokenSearch() {
+        tokenSearchViewModel.$isSearching
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$isSearching)
+    }
+
     private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
         publisher
             .dropFirst()

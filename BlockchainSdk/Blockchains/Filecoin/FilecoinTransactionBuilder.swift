@@ -26,7 +26,7 @@ final class FilecoinTransactionBuilder {
         let txInputData = try input.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: .filecoin, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         return preSigningOutput.dataHash
     }
@@ -62,7 +62,7 @@ final class FilecoinTransactionBuilder {
             publicKeys: publicKeys
         )
 
-        let signingOutput = try FilecoinSigningOutput(serializedData: compiledWithSignatures)
+        let signingOutput = try FilecoinSigningOutput(serializedBytes: compiledWithSignatures)
 
         guard let jsonData = signingOutput.json.data(using: .utf8) else {
             throw FilecoinError.failedToGetDataFromJSON
