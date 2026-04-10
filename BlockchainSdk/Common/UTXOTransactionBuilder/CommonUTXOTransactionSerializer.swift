@@ -27,13 +27,19 @@ struct CommonUTXOTransactionSerializer {
 // MARK: - UTXOTransactionSerializer
 
 extension CommonUTXOTransactionSerializer: UTXOTransactionSerializer {
-    func preImageHashes(transaction: Transaction) throws -> [Data] {
+    func preImageHashes(transaction: Transaction) throws -> [UTXOTransactionSerializerPreImageHash] {
         let hashes = try transaction.inputs.indexed().map { index, input in
-            if input.script.type.isWitness || signHashType == .bitcoinCashAll {
-                return try bip143PreImageHash(transaction: transaction, inputIndex: index)
+            let hashToSign: Data = if input.script.type.isWitness || signHashType == .bitcoinCashAll {
+                try bip143PreImageHash(transaction: transaction, inputIndex: index)
+            } else {
+                try preImageHash(transaction: transaction, inputIndex: index)
             }
 
-            return try preImageHash(transaction: transaction, inputIndex: index)
+            guard let spendableType = input.script.spendable else {
+                throw UTXOTransactionSerializerError.spendableScriptNotFound
+            }
+
+            return UTXOTransactionSerializerPreImageHash(spendableType: spendableType, hashToSign: hashToSign)
         }
 
         return hashes
@@ -230,7 +236,7 @@ private extension CommonUTXOTransactionSerializer {
             bytes += redeemScript
 
         case (.p2wpkh, .publicKey(let publicKey)), (.p2pkh, .publicKey(let publicKey)):
-            let scriptcode = OpCodeUtils.p2pkh(data: publicKey.sha256Ripemd160)
+            let scriptcode = OpCodeUtils.p2pkh(data: publicKey.publicKey.sha256Ripemd160)
             bytes += scriptcode.count.byte
             bytes += scriptcode
 

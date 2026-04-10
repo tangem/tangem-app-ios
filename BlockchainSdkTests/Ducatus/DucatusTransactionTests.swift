@@ -17,7 +17,7 @@ struct DucatusTransactionTests {
         let pubKey = Data(hexString: "02b4a38ad5f363f91b9285a8c28040d87eb70bb63fee172f62aad261021d44e051")
         let addressService = AddressServiceFactory(blockchain: .ducatus).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .ducatus(address: address)
+        let unspentOutputManager: UnspentOutputManager = .ducatus()
 
         unspentOutputManager.update(
             outputs: [
@@ -52,7 +52,7 @@ struct DucatusTransactionTests {
 
         // then
         #expect(address.value == "LjENuNAaDSVjJeRBJKi4doAC8Zpwuz1E3V")
-        #expect(hashes == signatures.map(\.hash))
+        #expect(hashes.map(\.hashToSign) == signatures.map(\.hash))
         #expect(encoded == Data(hexString: "0100000001780eb22d362fe6cd372988fd9ddbc270625f31843bd9501b4a508791a57872bc000000006b483045022100880e13c9d4efe8e75ada2cc86bacf5d6d40f6e9baff471ba9ecbf7a56cf1555a02203c5ca4d05f2d9cb16c996bf1d6ce973556ec964c06e4f495ce7e2338b5a075a3012102b4a38ad5f363f91b9285a8c28040d87eb70bb63fee172f62aad261021d44e051fdffffff01e0c20c00000000001976a914d2f8712a2ccc5903e7862a1eb57416ee6bc3fb7088ac00000000"))
     }
 }
