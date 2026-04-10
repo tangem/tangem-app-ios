@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import TangemAccounts
 
 // [REDACTED_TODO_COMMENT]
 struct ReferralInputModel {
     let userWalletId: Data
     let supportedBlockchains: SupportedBlockchainsSet
-    let workMode: ReferralViewModel.WorkMode
+    let accountModelsManager: AccountModelsManager
     let tokenIconInfoBuilder: TokenIconInfoBuilder
     let userWalletModel: UserWalletModel
 }

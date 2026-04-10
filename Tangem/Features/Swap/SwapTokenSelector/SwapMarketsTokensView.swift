@@ -149,7 +149,7 @@ struct SwapTokenSelectorEmptyContentView: View {
             )
         } else {
             // No markets view model - always show empty message
-            AccountsAwareTokenSelectorEmptyContentView(message: message)
+            TokenSelectorEmptyContentView(message: message)
         }
     }
 }
@@ -162,7 +162,7 @@ private struct SwapTokenSelectorEmptyContentViewObserver: View {
     var body: some View {
         // Don't show empty message if markets are loading or have results
         if !marketsTokensViewModel.hasVisibleContent {
-            AccountsAwareTokenSelectorEmptyContentView(message: message)
+            TokenSelectorEmptyContentView(message: message)
         }
     }
 }

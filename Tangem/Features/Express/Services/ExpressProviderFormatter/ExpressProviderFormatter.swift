@@ -20,7 +20,7 @@ struct ExpressProviderFormatter {
         self.balanceFormatter = balanceFormatter
     }
 
-    func mapToBadge(availableProvider: ExpressAvailableProvider) -> ProviderBadge? {
+    func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
         let state: ExpressProviderManagerState = availableProvider.getState()
 
         if ukGeoDefiner.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
@@ -31,7 +31,7 @@ struct ExpressProviderFormatter {
             return .permissionNeeded
         }
 
-        let canShowBest = !ukGeoDefiner.isUK
+        let canShowBest = !ukGeoDefiner.isUK && !hasHighPriceImpactWarning
         let isBest = availableProvider.isBest
 
         return canShowBest && isBest ? .bestRate : .none
