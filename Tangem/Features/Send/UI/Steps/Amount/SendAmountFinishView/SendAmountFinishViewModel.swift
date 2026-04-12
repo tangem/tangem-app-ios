@@ -28,6 +28,8 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private var bag: Set<AnyCancellable> = []
 
+    private var isReceiveAmountApproximate = false
+
     init(
         flowActionType: SendFlowActionType,
         sourceTokenInput: SendSourceTokenInput,
@@ -35,7 +37,13 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
+        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil,
     ) {
+        isReceiveAmountApproximatePublisher?
+            .removeDuplicates()
+            .sink { [weak self] in self?.isReceiveAmountApproximate = $0 }
+            .store(in: &bag)
+
         bind(
             flowActionType: flowActionType,
             sourceTokenInput: sourceTokenInput,
@@ -169,12 +177,16 @@ private extension SendAmountFinishViewModel {
             }
 
             let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
+            let currencyCode = isReceiveAmountApproximate
+                ? "\(AppConstants.tildeSign) \(token.tokenItem.currencySymbol)"
+                : token.tokenItem.currencySymbol
+
             receiveSmallAmountViewModel = .init(
                 tokenHeader: header,
                 tokenIconInfo: tokenIconInfo,
                 amountDecimalNumberTextFieldViewModel: textField,
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
-                    cryptoCurrencyCode: token.tokenItem.currencySymbol
+                    cryptoCurrencyCode: currencyCode
                 ),
                 alternativeAmount: receiveAmount.formatAlternative(
                     currencySymbol: token.tokenItem.currencySymbol,
