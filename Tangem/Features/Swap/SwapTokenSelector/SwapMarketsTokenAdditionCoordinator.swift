@@ -56,7 +56,11 @@ extension SwapMarketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable 
             coordinator: self
         )
 
-        floatingSheetPresenter.enqueue(sheet: viewModel)
+        // Defer sheet presentation to the next run loop iteration to avoid
+        // AttributeGraph conflicts during the initial layout pass
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     @MainActor
