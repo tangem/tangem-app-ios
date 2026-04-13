@@ -92,6 +92,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         tokenSearchViewModel = TokenSearchViewModel(
             headerViewModel: headerViewModel,
             storage: tokenSearchStorage,
+            chartsHistoryProvider: chartsHistoryProvider,
+            filterProvider: filterProvider,
             coordinator: coordinator
         )
 
@@ -164,8 +166,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
 private extension MarketsMainViewModel {
     private func bindToTokenSearch() {
+        // `tokenSearchViewModel.$isSearching` is already delivered on the main queue by its
+        // own pipeline (`receiveOnMain()` before `assign(to: &$isSearching)`), so no extra
+        // hop is needed here.
         tokenSearchViewModel.$isSearching
-            .receiveOnMain()
             .assign(to: &$isSearching)
     }
 
