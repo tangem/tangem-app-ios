@@ -56,10 +56,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let earnDataProvider = CommonMarketsWidgetEarnService()
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
-    /// [STUB] Delete this comment when implemented.
-    /// tokenSearchViewModel owns the search flow when redesign is enabled.
-    /// MarketsMainViewModel reads its isSearching to drive showSearchResult in the View.
-    private(set) lazy var tokenSearchViewModel = TokenSearchViewModel(headerViewModel: headerViewModel)
+    let tokenSearchViewModel: TokenSearchViewModel
 
     private var bag = Set<AnyCancellable>()
 
@@ -81,11 +78,22 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Init
 
-    init(quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper, coordinator: MarketsMainRoutable) {
+    init(
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        tokenSearchStorage: some TokenSearchStorage,
+        coordinator: MarketsMainRoutable
+    ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
-        headerViewModel = MainBottomSheetHeaderViewModel()
+        let headerViewModel = MainBottomSheetHeaderViewModel()
+        self.headerViewModel = headerViewModel
+
+        tokenSearchViewModel = TokenSearchViewModel(
+            headerViewModel: headerViewModel,
+            storage: tokenSearchStorage,
+            coordinator: coordinator
+        )
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
@@ -155,12 +163,9 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
-    /// [STUB] Delete this comment when implemented.
-    /// When redesign is ON, TokenSearchViewModel owns the search subscription.
-    /// We just observe its isSearching state to drive the View's showSearchResult.
     private func bindToTokenSearch() {
         tokenSearchViewModel.$isSearching
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .assign(to: &$isSearching)
     }
 
