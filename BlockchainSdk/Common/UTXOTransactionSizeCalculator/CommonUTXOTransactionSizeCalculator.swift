@@ -57,7 +57,7 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         case (.p2pk, .some): 114
 
         // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + PubKey(33) + pushByte(1) + sequence(4)
-        case (.p2pkh, .publicKey(let publicKey)): 115 + publicKey.count
+        case (.p2pkh, .publicKey(let publicKey)): 115 + publicKey.publicKey.count
 
         // OP_0(1) + RedeemScript(71) + sigLength(1) + signature(72)
         // Applicable for Twin Cards
@@ -79,7 +79,11 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
             return 0
 
         // StackItem(1) + sigLength(1) + signature(72) + signHashByte(1) + pushByte(1) + PubKey(33)
-        case (.p2wpkh, .publicKey(let data)), (.p2wsh, .redeemScript(let data)), (.p2tr, .publicKey(let data)):
+        case (.p2wpkh, .publicKey(let key)), (.p2tr, .publicKey(let key)):
+            return 1 + 1 + 72 + 1 + OpCode.push(key.publicKey).count
+
+        // StackItem(1) + sigLength(1) + signature(72) + signHashByte(1) + pushByte(1) + redeemScript(33)
+        case (.p2wsh, .redeemScript(let data)):
             return 1 + 1 + 72 + 1 + OpCode.push(data).count
 
         // Error cases

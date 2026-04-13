@@ -22,12 +22,12 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
-        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
+        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
+        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 1, "Selected only one input")
@@ -37,10 +37,12 @@ class UnspentOutputManagerTests {
         #expect(preImage.outputs.count == 2)
         #expect(preImage.fee == 429)
 
+        let expectedChangeScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: address.value)
+
         preImage.outputs.forEach { output in
             switch output {
             case .change(let script, let value):
-                #expect(script.type == .p2wpkh)
+                #expect(script == expectedChangeScript)
                 #expect(value == 571)
             case .destination(let script, let value):
                 #expect(script.type == .p2wpkh)
@@ -49,6 +51,34 @@ class UnspentOutputManagerTests {
         }
 
         #expect(preImage == preImageExactlyFee)
+    }
+
+    @Test
+    func changeAddressUsedInOutput() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let sourceAddress = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+        let changeAddress = "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh"
+
+        let outputs = [
+            UnspentOutput(blockId: 1, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000),
+        ]
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: sourceAddress)
+
+        // when — use a different change address than the source
+        let preImage = try await manager.preImage(amount: 2000, fee: 429, destination: sourceAddress.value, changeAddress: changeAddress, opReturn: nil)
+
+        // then — change output script must match the specified changeAddress
+        let expectedChangeScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: changeAddress)
+        let changeOutput = try #require(preImage.outputs.first(where: { $0.isChange }))
+        #expect(changeOutput.script == expectedChangeScript)
+
+        // destination script must match the source address (not the change address)
+        let expectedDestinationScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: sourceAddress.value)
+        let destinationOutput = try #require(preImage.outputs.first(where: { $0.isDestination }))
+        #expect(destinationOutput.script == expectedDestinationScript)
     }
 
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
@@ -63,11 +93,11 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
+        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 2)
@@ -89,11 +119,11 @@ class UnspentOutputManagerTests {
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
         ]
 
-        let manager: UnspentOutputManager = .bitcoin(address: address, isTestnet: false)
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", opReturn: nil)
+        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
 
         // then
         #expect(preImage.inputs.count == 2)
