@@ -8,12 +8,15 @@
 
 import Foundation
 import Combine
+import TangemFoundation
+
+let PromotionsLogger = AppLogger.tag("Promotions")
 
 protocol PromotionRepository {
-    func promotionsPublisher(placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never>
+    func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never>
 
-    func loadPromotions() async
-    func hidePromotion(displayId: Int) async throws
+    func loadPromotions(userWalletId: UserWalletId) async
+    func hidePromotion(userWalletId: UserWalletId, displayId: Int) async
 }
 
 private struct PromotionRepositoryKey: InjectionKey {
