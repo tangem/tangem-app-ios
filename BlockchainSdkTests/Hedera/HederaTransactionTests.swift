@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import enum WalletCore.Curve
 import class WalletCore.PrivateKey
-import struct Hedera.AccountId
+import struct Hiero.AccountId
 @testable import BlockchainSdk
 import Testing
 
@@ -610,7 +610,10 @@ final class HederaTests {
         let converter = HederaTokenContractAddressConverter()
 
         #expect(throws: (any Error).self) {
-            try converter.convertFromHederaToEVM("00000000000000000000000000000000000c01f3") // Valid EVM address
+            try converter.convertFromHederaToEVM("00000000000000000000000000000000000c01f3") // Valid EVM address w/o prefix
+        }
+        #expect(throws: (any Error).self) {
+            try converter.convertFromHederaToEVM("0x00000000000000000000000000000000000c01f3") // Valid EVM address with prefix
         }
         #expect(throws: (any Error).self) {
             try converter.convertFromHederaToEVM("0.786931") // Invalid Hedera address

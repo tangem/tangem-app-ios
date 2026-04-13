@@ -9,21 +9,8 @@
 import Combine
 
 protocol UTXONetworkAddressInfoProvider: AnyObject, HostProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, Error>
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], Error>
     func getTransactionInfo(hash: String, address: String) -> AnyPublisher<TransactionRecord, Error>
-}
-
-// MARK: - UTXONetworkAddressInfoProviderError
-
-enum UTXONetworkAddressInfoProviderError: LocalizedError {
-    case xpubNotSupported
-
-    var errorDescription: String? {
-        switch self {
-        case .xpubNotSupported: "XPUB is not supported"
-        }
-    }
 }
 
 extension UTXONetworkAddressInfoProvider {

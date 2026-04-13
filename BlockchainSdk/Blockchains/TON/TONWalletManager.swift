@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 import WalletCore
 
-final class TONWalletManager: BaseManager, WalletManager {
+final class TONWalletManager: BaseWalletManager, WalletManager {
     // MARK: - Properties
 
     var currentHost: String { networkService.host }
@@ -32,9 +32,9 @@ final class TONWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let info = try await networkService.getInfo(address: wallet.address, tokens: cardTokens).async()
+            let info = try await networkService.getInfo(address: address, tokens: cardTokens).async()
             await update(with: info)
         } catch {
             wallet.clearAmounts()

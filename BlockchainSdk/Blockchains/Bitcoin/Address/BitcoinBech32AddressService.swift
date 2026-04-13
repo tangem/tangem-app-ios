@@ -41,7 +41,8 @@ extension BitcoinBech32AddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
 
-        let (address, lockingScript) = try segWitBuilder.encode(publicKey: compressedKey, type: .p2wpkh)
+        let derivationPublicKey = DerivationPublicKey(publicKey: compressedKey, derivationPath: publicKey.derivationPath)
+        let (address, lockingScript) = try segWitBuilder.encode(publicKey: derivationPublicKey, type: .p2wpkh)
         return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
     }
 }

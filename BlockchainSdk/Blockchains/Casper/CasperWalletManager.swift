@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class CasperWalletManager: BaseManager, WalletManager {
+class CasperWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String {
         networkService.host
     }
@@ -37,9 +37,9 @@ class CasperWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let balanceInfo = try await networkService.getBalance(address: wallet.address).async()
+            let balanceInfo = try await networkService.getBalance(address: address).async()
             updateWallet(balanceInfo: balanceInfo)
         } catch {
             wallet.clearAmounts()
