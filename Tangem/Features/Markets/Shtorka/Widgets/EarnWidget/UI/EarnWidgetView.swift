@@ -51,7 +51,7 @@ struct EarnWidgetView: View {
                     }
                 }
                 .defaultRoundedBackground(
-                    with: Color.Tangem.Surface.level4,
+                    with: Colors.Background.action,
                     verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
                     horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
                 )
