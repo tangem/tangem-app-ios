@@ -101,11 +101,3 @@ extension MarketsPriceIntervalType {
         rawValue
     }
 }
-
-// MARK: - TangemSegmentedPickerTextProvider
-
-extension MarketsPriceIntervalType: TangemSegmentedPickerTextProvider {
-    public var text: String {
-        tokenDetailsNameLocalized
-    }
-}
