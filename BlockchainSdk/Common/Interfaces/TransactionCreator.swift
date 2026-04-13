@@ -37,7 +37,7 @@ public extension TransactionCreator {
             fee: fee,
             sourceAddress: defaultSourceAddress,
             destinationAddress: destinationAddress,
-            changeAddress: changeAddress ?? defaultChangeAddress,
+            changeAddress: changeAddress ?? wallet.changeAddress.value,
             contractAddress: contractAddress ?? amount.type.token?.contractAddress,
             params: params
         )
