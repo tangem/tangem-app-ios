@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 import TangemLocalization
 
-final class AlgorandWalletManager: BaseManager {
+final class AlgorandWalletManager: BaseWalletManager {
     // MARK: - Private Properties
 
     private let transactionBuilder: AlgorandTransactionBuilder
@@ -27,7 +27,7 @@ final class AlgorandWalletManager: BaseManager {
 
     // MARK: - Implementation
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             async let transactionsInfo: [AlgorandTransactionInfo] = {
                 guard !wallet.pendingTransactions.isEmpty else {
@@ -42,7 +42,7 @@ final class AlgorandWalletManager: BaseManager {
             }()
 
             // Fetch account info
-            async let accountInfo = networkService.getAccount(address: wallet.address).async()
+            async let accountInfo = networkService.getAccount(address: address).async()
 
             // Validate and update state
             try await validateMinimalBalanceAccount(with: accountInfo)

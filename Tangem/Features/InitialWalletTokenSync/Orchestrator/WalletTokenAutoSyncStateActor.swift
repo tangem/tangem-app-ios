@@ -9,19 +9,32 @@ import Foundation
 import TangemFoundation
 
 actor WalletTokenAutoSyncStateActor {
-    private var syncInProgress: Set<String> = []
+    private var syncTasks: [String: Task<Void, Never>] = [:]
 
-    func tryRegister(userWalletId: UserWalletId) throws {
+    func executeIfPossible(
+        userWalletId: UserWalletId,
+        priority: TaskPriority = .utility,
+        operation: @escaping @Sendable () async -> Void
+    ) throws {
         let key = userWalletId.stringValue
 
-        guard !syncInProgress.contains(key) else {
+        guard syncTasks[key] == nil else {
             throw WalletTokenAutoSyncError.syncAlreadyInProgress
         }
 
-        syncInProgress.insert(key)
+        syncTasks[key] = Task(priority: priority) { [weak self] in
+            await operation()
+            await self?.unregister(userWalletId: userWalletId)
+        }
     }
 
     func unregister(userWalletId: UserWalletId) {
-        syncInProgress.remove(userWalletId.stringValue)
+        syncTasks.removeValue(forKey: userWalletId.stringValue)
+    }
+
+    func cancelAndUnregister(userWalletId: UserWalletId) {
+        let key = userWalletId.stringValue
+        syncTasks[key]?.cancel()
+        syncTasks.removeValue(forKey: key)
     }
 }

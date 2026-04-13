@@ -14,7 +14,7 @@ import BigInt
 import TangemFoundation
 import TangemLocalization
 
-class PolkadotWalletManager: BaseManager, WalletManager {
+class PolkadotWalletManager: BaseWalletManager, WalletManager {
     private let network: PolkadotNetwork
     var txBuilder: PolkadotTransactionBuilder!
     var networkService: PolkadotNetworkService!
@@ -26,8 +26,8 @@ class PolkadotWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        let balance = try await networkService.getInfo(for: wallet.address).async()
+    func updateWalletManager(address: String) async throws {
+        let balance = try await networkService.getInfo(for: address).async()
         updateInfo(balance)
     }
 
