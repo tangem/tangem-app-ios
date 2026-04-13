@@ -47,6 +47,8 @@ struct ExpressAPITarget: Moya.TargetType {
             return URL(string: "https://express-stage.tangem.com/v1/")!
         case .stage2:
             return URL(string: "https://express.tests-s1.com/v1/")!
+        case .stage3:
+            return URL(string: "https://express.tests-s2.com/v1/")!
         case .mock:
             return URL(string: "\(WireMockEnvironment.baseURL)/v1/")!
         }
