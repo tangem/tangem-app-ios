@@ -17,6 +17,7 @@ struct TokenItemPromoBubbleView: View {
         Button(action: { viewModel.onTap() }) {
             label
         }
+        .onFirstAppear { viewModel.onAppear?() }
     }
 
     private var label: some View {
@@ -65,4 +66,5 @@ struct TokenItemPromoBubbleViewModel {
     let message: String
     let onDismiss: () -> Void
     let onTap: () -> Void
+    let onAppear: (() -> Void)?
 }
