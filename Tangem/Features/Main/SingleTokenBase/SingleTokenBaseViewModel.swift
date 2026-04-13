@@ -142,7 +142,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     @MainActor
-    final func onPullToRefresh() async {
+    func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
