@@ -293,11 +293,13 @@ private extension DetailsViewModel {
 
     func bindWalletRowsReorder() {
         $userWalletRows
-            .removeDuplicates { $0.map(\.id) == $1.map(\.id) }
-            .dropFirst()
+            .map { $0.map(\.userWalletId) }
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in Set(previous) == Set(current) }
+            .map(\.1)
             .withWeakCaptureOf(self)
-            .sink { viewModel, newRows in
-                let orderedIds = newRows.map(\.userWalletId)
+            .sink { viewModel, orderedIds in
                 viewModel.userWalletRepository.reorder(orderedUserWalletIds: orderedIds)
                 Analytics.log(.settingsLongtapWalletsOrder)
             }
