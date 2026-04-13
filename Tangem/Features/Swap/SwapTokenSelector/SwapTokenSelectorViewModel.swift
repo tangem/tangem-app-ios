@@ -120,7 +120,12 @@ private extension SwapTokenSelectorViewModel {
         }
 
         selectedTokenItem = item.tokenItem
-        tokenSelectorCoordinator?.closeSwapTokenSelector()
+
+        // Defer dismissal to the next run loop iteration to avoid
+        // destroying the sheet while SwiftUI's AttributeGraph is mid-update
+        Task { @MainActor in
+            tokenSelectorCoordinator?.closeSwapTokenSelector()
+        }
     }
 }
 
