@@ -19,6 +19,7 @@ struct ExpressManagerMapper {
             source: pair.source.currency,
             destination: pair.destination.currency,
             amountType: request.amountType,
+            rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType)
         )
     }
@@ -54,6 +55,7 @@ struct ExpressManagerMapper {
             source: source,
             destination: destination,
             amountType: request.amountType,
+            rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType),
             operationType: request.operationType,
             quoteId: quoteId
