@@ -16,6 +16,8 @@ struct DecimalPlainAddress: Address {
         switch type {
         case .default:
             return Constants.mainLocalizedName
+        case .used(let type, _):
+            return type.defaultLocalizedName
         case .legacy:
             return Constants.dscLocalizedName
         }

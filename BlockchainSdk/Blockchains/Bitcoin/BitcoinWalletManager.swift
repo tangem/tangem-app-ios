@@ -11,7 +11,7 @@ import TangemSdk
 import Combine
 import TangemFoundation
 
-class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
+class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, MultiAddressesWalletManagerUpdater {
     let txBuilder: BitcoinTransactionBuilder
     let unspentOutputManager: UnspentOutputManager
     let networkService: UTXONetworkProvider
@@ -42,9 +42,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(addresses: [any Address]) async throws {
         do {
-            let responses = try await networkService.getInfo(addresses: wallet.addresses).async()
+            let responses = try await networkService.getInfo(addresses: addresses).async()
             updateWallet(with: responses)
         } catch {
             wallet.clearAmounts()
@@ -53,6 +53,8 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 
     func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) {
+        unspentOutputManager.clearOutputs()
+
         responses.forEach { response in
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
@@ -77,23 +79,25 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 
     func processFee(_ response: UTXOFee, amount: Amount, destination: String) async throws -> [Fee] {
-        typealias FeeWithFeeRate = (_ fee: Int, _ rate: Int)
+        typealias FeeWithFeeRate = (fee: Int, rate: Int)
+
+        let changeAddress = wallet.changeAddress.value
 
         async let minFee: FeeWithFeeRate = {
             let rate = max(response.slowSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate, changeAddress: changeAddress)
             return (fee: fee, rate: rate)
         }()
 
         async let normalFee: FeeWithFeeRate = {
             let rate = max(response.marketSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate, changeAddress: changeAddress)
             return (fee: fee, rate: rate)
         }()
 
         async let maxFee: FeeWithFeeRate = {
             let rate = max(response.prioritySatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate, changeAddress: changeAddress)
             return (fee: fee, rate: rate)
         }()
 
@@ -116,12 +120,51 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 }
 
+// MARK: - XPUBWalletManagerUpdater
+
+extension BitcoinWalletManager: XPUBWalletManagerUpdater {
+    func updateWalletManager(xpub: String) async throws {
+        do {
+            let response: UTXOXpubNetworkProviderUpdatingResponse = try await networkService.getInfo(xpub: xpub).async()
+            try updateWallet(with: response)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
+    }
+
+    private func updateWallet(with response: UTXOXpubNetworkProviderUpdatingResponse) throws {
+        let userDerivations = response.info.addresses.map(\.usedAddress.derivationPath)
+
+        wallet.update(userDerivations: userDerivations)
+        unspentOutputManager.clearOutputs()
+        try response.outputs.forEach { address, outputs in
+            if let address = wallet.addresses.first(where: { $0.value == address.address }) {
+                unspentOutputManager.update(outputs: outputs, for: address)
+            } else {
+                BSDKLogger.error(error: "Don't expect to be called. Address not found in wallet")
+                try unspentOutputManager.update(outputs: outputs, for: address.address)
+            }
+        }
+
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        wallet.add(coinValue: balance)
+
+        let mapper = PendingTransactionRecordMapper()
+        let pending = response.pending.map {
+            mapper.mapToPendingTransactionRecord(record: $0, blockchain: wallet.blockchain, address: wallet.address)
+        }
+
+        wallet.updatePendingTransaction(pending)
+    }
+}
+
 // MARK: - BitcoinTransactionFeeCalculator
 
 extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
     func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) async throws -> Fee {
         let decimalValue = wallet.blockchain.decimalValue
-        let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: satoshiPerByte)
+        let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: satoshiPerByte, changeAddress: wallet.changeAddress.value)
         let amount = Amount(with: wallet.blockchain, value: Decimal(fee) / decimalValue)
 
         return Fee(amount, parameters: BitcoinFeeParameters(rate: satoshiPerByte))
@@ -136,9 +179,10 @@ extension BitcoinWalletManager: TransactionSender {
             try await self.txBuilder.buildForSign(transaction: transaction)
         }
         .withWeakCaptureOf(self)
-        .flatMap { manager, hashes in
-            signer
-                .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
+        .flatMap { manager, preImageHashes in
+            let dataToSign = manager.mapToSignData(preImageHashes: preImageHashes)
+            return signer
+                .sign(dataToSign: dataToSign, walletPublicKey: manager.wallet.publicKey)
         }
         .withWeakCaptureOf(self)
         .asyncTryMap { manager, signatures -> String in
@@ -160,5 +204,31 @@ extension BitcoinWalletManager: TransactionSender {
         }
         .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension BitcoinWalletManager {
+    func mapToSignData(preImageHashes: [UTXOTransactionSerializerPreImageHash]) -> [SignData] {
+        let grouped = Dictionary(grouping: preImageHashes) { preImageHash -> DerivationPublicKey in
+            switch preImageHash.spendableType {
+            case .publicKey(let key):
+                return key
+            case .redeemScript:
+                return DerivationPublicKey(
+                    publicKey: wallet.publicKey.blockchainKey,
+                    derivationPath: wallet.publicKey.derivationPath
+                )
+            }
+        }
+
+        return grouped.map { key, hashes in
+            SignData(
+                derivationPath: key.derivationPath,
+                hashes: hashes.map(\.hashToSign),
+                publicKey: key.publicKey
+            )
+        }
     }
 }

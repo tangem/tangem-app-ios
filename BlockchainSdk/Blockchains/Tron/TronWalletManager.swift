@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-class TronWalletManager: BaseManager, WalletManager {
+class TronWalletManager: BaseWalletManager, WalletManager {
     var networkService: TronNetworkService!
     var txBuilder: TronTransactionBuilder!
 
@@ -24,10 +24,10 @@ class TronWalletManager: BaseManager, WalletManager {
 
     private let feeSigner = DummySigner()
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
             let accountInfo = try await networkService.accountInfo(
-                for: wallet.address,
+                for: address,
                 tokens: cardTokens,
                 transactionIDs: wallet.pendingTransactions.map { $0.hash }
             ).async()
