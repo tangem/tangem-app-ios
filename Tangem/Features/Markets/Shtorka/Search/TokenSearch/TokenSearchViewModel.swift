@@ -28,17 +28,13 @@ import TangemFoundation
 /// isSearching ownership:
 ///   TokenSearchViewModel publishes its own isSearching state.
 ///   MarketsMainViewModel reads it to drive showSearchResult in the View.
-///   When redesign is ON, MarketsMainViewModel should NOT run its own searchTextBind() —
-///   TokenSearchViewModel fully owns the search subscription to avoid duplicate API calls.
 ///
 /// Key constraint: search text must NEVER be logged to analytics or console (privacy, see NFR spec)
 final class TokenSearchViewModel: ObservableObject {
     // MARK: - Published State
 
-    @Published private(set) var screenState: TokenSearchScreenState = .idle
+    @Published private(set) var screenState: TokenSearchScreenState = .empty
     @Published private(set) var isSearching: Bool = false
-    @Published private(set) var recentItems: [TokenSearchRecentItem] = []
-    @Published private(set) var result: TokenSearchResult?
 
     // MARK: - Dependencies
 
@@ -46,6 +42,9 @@ final class TokenSearchViewModel: ObservableObject {
 
     private let storage: any TokenSearchStorage
     private let userAssetsProvider: any UserAssetsSearchProviding
+    private let chartsHistoryProvider: MarketsListChartsHistoryProvider
+    private let filterProvider: MarketsListDataFilterProvider
+    private let marketCapFormatter: MarketCapFormatter
     private weak var coordinator: MarketsRoutable?
 
     // MARK: - Private
@@ -58,17 +57,33 @@ final class TokenSearchViewModel: ObservableObject {
         headerViewModel: MainBottomSheetHeaderViewModel,
         storage: some TokenSearchStorage = StubTokenSearchStorage(),
         userAssetsProvider: some UserAssetsSearchProviding = StubUserAssetsSearchProvider(),
+        chartsHistoryProvider: MarketsListChartsHistoryProvider,
+        filterProvider: MarketsListDataFilterProvider,
         coordinator: MarketsRoutable? = nil
     ) {
         self.headerViewModel = headerViewModel
         self.storage = storage
         self.userAssetsProvider = userAssetsProvider
+        self.chartsHistoryProvider = chartsHistoryProvider
+        self.filterProvider = filterProvider
         self.coordinator = coordinator
+
+        marketCapFormatter = MarketCapFormatter(
+            divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
+            baseCurrencyCode: AppSettings.shared.selectedCurrencyCode,
+            notationFormatter: DefaultAmountNotationFormatter()
+        )
 
         bind()
     }
 
     // MARK: - Actions
+
+    /// User tapped a query hint in the Recents block.
+    /// Fills the search field with the query text and triggers search (BF-09).
+    func onQueryHintTapped(_ query: String) {
+        headerViewModel.enteredSearchText = query
+    }
 
     /// User tapped a market asset in search results or in the Recents block.
     /// Saves the search query + asset to recents, then navigates to Market Token Details.
@@ -108,25 +123,116 @@ final class TokenSearchViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private func bind() {
-        bindRecentItems()
-
-        // [STUB] Delete the comment below when implemented.
-        // Subscribe to headerViewModel.enteredSearchInputPublisher:
-        //   .textInput(value) → run local search instantly, debounce(300ms) API search
-        //   .clearInput / .cancelInput → reset to .idle
-        //
-        // Race condition handling:
-        //   Use switchToLatest or request ID tracking to ignore stale API responses
+    private enum Activity: Equatable {
+        case inactive
+        case idle
+        case typing(String)
     }
 
-    private func bindRecentItems() {
-        storage.recentItemsPublisher
+    private func bind() {
+        let screenStatePublisher = Publishers.CombineLatest(
+            makeActivityPublisher(),
+            makeIdleContentPublisher()
+        )
+        .map(resolveScreenState(activity:idleContent:))
+        .share(replay: 1)
+
+        screenStatePublisher
+            .map { $0 != nil }
+            .removeDuplicates()
             .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, items in
-                viewModel.recentItems = items
+            .assign(to: &$isSearching)
+
+        screenStatePublisher
+            .compactMap { $0 }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$screenState)
+    }
+
+    private func resolveScreenState(
+        activity: Activity,
+        idleContent: TokenSearchScreenState.IdleContent?
+    ) -> TokenSearchScreenState? {
+        switch activity {
+        case .inactive:
+            return nil
+
+        case .idle:
+            return idleContent.map(TokenSearchScreenState.idle)
+
+        case .typing:
+            return .searching
+        }
+    }
+
+    private func makeIdleContent(from items: [TokenSearchRecentItem]) -> TokenSearchScreenState.IdleContent? {
+        var queries: [String] = []
+        var marketAssetViewModels: [MarketTokenItemViewModel] = []
+
+        for item in items {
+            switch item {
+            case .query(let text):
+                queries.append(text)
+
+            case .marketAsset(let tokenModel):
+                marketAssetViewModels.append(makeMarketTokenItemViewModel(for: tokenModel))
             }
-            .store(in: &bag)
+        }
+
+        guard queries.isNotEmpty || marketAssetViewModels.isNotEmpty else { return nil }
+
+        return TokenSearchScreenState.IdleContent(
+            queries: queries,
+            marketAssetViewModels: marketAssetViewModels
+        )
+    }
+
+    private func makeMarketTokenItemViewModel(for tokenModel: MarketsTokenModel) -> MarketTokenItemViewModel {
+        MarketTokenItemViewModel(
+            tokenModel: tokenModel,
+            marketCapFormatter: marketCapFormatter,
+            chartsProvider: chartsHistoryProvider,
+            filterProvider: filterProvider,
+            onTapAction: { [weak self] in
+                self?.onMarketAssetTapped(tokenModel: tokenModel)
+            }
+        )
+    }
+
+    private func makeActivityPublisher() -> AnyPublisher<Activity, Never> {
+        let inputActivity = headerViewModel.enteredSearchInputPublisher
+            .dropFirst()
+            .map { input -> Activity in
+                switch input {
+                case .textInput(let value):
+                    return value.isEmpty ? .idle : .typing(value)
+
+                case .clearInput, .cancelInput:
+                    return .inactive
+                }
+            }
+
+        // On focus gain: derive activity from current text — don't blindly force .idle
+        // (re-focusing while text exists should keep .typing).
+        let focusActivity = headerViewModel.$inputShouldBecomeFocused
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ -> Activity in
+                let text = viewModel.headerViewModel.enteredSearchText
+                return text.isEmpty ? .idle : .typing(text)
+            }
+
+        return Publishers.Merge(inputActivity, focusActivity)
+            .prepend(.inactive)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private func makeIdleContentPublisher() -> AnyPublisher<TokenSearchScreenState.IdleContent?, Never> {
+        storage.recentItemsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, items in viewModel.makeIdleContent(from: items) }
+            .eraseToAnyPublisher()
     }
 }
