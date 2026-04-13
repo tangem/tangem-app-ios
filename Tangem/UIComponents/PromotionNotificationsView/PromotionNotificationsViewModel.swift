@@ -20,10 +20,6 @@ final class PromotionNotificationsViewModel: ObservableObject {
         bind()
     }
 
-    func loadPromotions() async {
-        await promotionNotificationsManager.loadPromotions()
-    }
-
     func carouselIndexHasChanged(index: Int) {
         guard !carouselIndexHasChangedTracked else {
             return
