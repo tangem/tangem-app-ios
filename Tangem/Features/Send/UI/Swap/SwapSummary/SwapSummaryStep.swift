@@ -46,6 +46,11 @@ extension SwapSummaryStep: SendStep {
         interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }
 
+    func initialAppear() {
+        analyticsLogger.logSummaryStepOpened()
+        autoupdatingTimer.resumeTimer()
+    }
+
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
         autoupdatingTimer.resumeTimer()

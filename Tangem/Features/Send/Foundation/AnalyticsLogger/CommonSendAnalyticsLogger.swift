@@ -336,29 +336,44 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
-        guard let tokenItem = sourceTokenItem else {
-            return
-        }
+        switch sendType {
+        case .swap:
+            var params: [Analytics.ParameterKey: String] = [:]
 
-        switch tokenItem.token?.metadata.kind {
-        case .fungible, .none:
-            var params: [Analytics.ParameterKey: String] = [
-                .source: sourceFlow.rawValue,
-                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
-                .blockchain: tokenItem.blockchain.displayName,
-                .type: entryTypeParameterValue.rawValue,
-            ]
-
-            if let tokenFeeTokenitem = sendFeeInput?.selectedFee?.tokenItem {
-                params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenitem)
+            if let tokenItem = sourceTokenItem ?? sendReceiveTokenInput?.receiveToken.value?.tokenItem {
+                params[.token] = tokenItem.currencySymbol
+                params[.blockchain] = tokenItem.blockchain.displayName
             }
 
-            Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
-        case .nonFungible:
-            Analytics.log(
-                event: .nftConfirmScreenOpened,
-                params: [.blockchain: tokenItem.blockchain.displayName]
-            )
+            Analytics.log(event: .swapScreenOpenedSwap, params: params)
+
+        default:
+            switch sourceTokenItem?.token?.metadata.kind {
+            case .fungible, .none:
+                var params: [Analytics.ParameterKey: String] = [
+                    .source: sourceFlow.rawValue,
+                    .type: entryTypeParameterValue.rawValue,
+                ]
+
+                if let tokenItem = sourceTokenItem {
+                    params[.token] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem)
+                    params[.blockchain] = tokenItem.blockchain.displayName
+                }
+
+                if let tokenFeeTokenItem = sendFeeInput?.selectedFee?.tokenItem {
+                    params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenItem)
+                }
+
+                Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
+            case .nonFungible:
+                var params: [Analytics.ParameterKey: String] = [:]
+
+                if let tokenItem = sourceTokenItem {
+                    params[.blockchain] = tokenItem.blockchain.displayName
+                }
+
+                Analytics.log(event: .nftConfirmScreenOpened, params: params)
+            }
         }
     }
 
