@@ -723,7 +723,9 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+            let isFloatingRate = providerRateTypes.contains(.float) && lastUpdateSource == .send
+            let displayFormatted = isFloatingRate ? "\(AppConstants.tildeSign) \(formatted)" : formatted
+            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(displayFormatted)))
         case .failure:
             return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
