@@ -283,14 +283,17 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level2
+        }
+
         let uiColor = overlayContentHidingBackgroundColor.mix(
             with: defaultBackgroundColor,
             by: viewModel.overlayContentHidingProgress
         )
 
-        Color(uiColor: uiColor)
+        return Color(uiColor: uiColor)
     }
 }
 
