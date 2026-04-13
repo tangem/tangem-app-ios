@@ -11,8 +11,13 @@ import Foundation
 protocol UTXOTransactionSerializer {
     associatedtype Transaction
 
-    func preImageHashes(transaction: Transaction) throws -> [Data]
+    func preImageHashes(transaction: Transaction) throws -> [UTXOTransactionSerializerPreImageHash]
     func compile(transaction: Transaction, signatures: [SignatureInfo]) throws -> Data
+}
+
+struct UTXOTransactionSerializerPreImageHash {
+    let spendableType: UTXOLockingScript.SpendableType
+    let hashToSign: Data
 }
 
 enum UTXOTransactionSerializerError: LocalizedError {
