@@ -8,13 +8,14 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class FakePromotionRepository: PromotionRepository {
     private let promotions: [PromotionPlacement: [Promotion]]
 
     init(promotions: [PromotionPlacement: [Promotion]] = [
         .main: [
-            PromotionsDTO.Load.Item(
+            Promotion(
                 id: 1,
                 placeholder: .main,
                 priority: "high",
@@ -26,7 +27,7 @@ class FakePromotionRepository: PromotionRepository {
                 buttonText: "Buy Now",
                 dismissable: true
             ),
-            PromotionsDTO.Load.Item(
+            Promotion(
                 id: 2,
                 placeholder: .main,
                 priority: "medium",
@@ -40,7 +41,7 @@ class FakePromotionRepository: PromotionRepository {
             ),
         ],
         .news: [
-            PromotionsDTO.Load.Item(
+            Promotion(
                 id: 3,
                 placeholder: .news,
                 priority: "low",
@@ -57,11 +58,11 @@ class FakePromotionRepository: PromotionRepository {
         self.promotions = promotions
     }
 
-    func promotionsPublisher(placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
+    func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
         Just(promotions[placeholder, default: []]).eraseToAnyPublisher()
     }
 
-    func loadPromotions() async {}
+    func loadPromotions(userWalletId: UserWalletId) async {}
 
-    func hidePromotion(displayId: Int) async throws {}
+    func hidePromotion(userWalletId: UserWalletId, displayId: Int) async {}
 }

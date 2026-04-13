@@ -98,6 +98,7 @@ class CommonWalletModel {
     }
 
     deinit {
+        assetRequirementsTaskCancellable?.cancel()
         AppLogger.debug(self)
     }
 
