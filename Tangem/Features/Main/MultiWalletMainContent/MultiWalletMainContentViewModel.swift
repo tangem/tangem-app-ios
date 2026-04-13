@@ -275,18 +275,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tokenItemPromoProvider
             .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
             .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] output in
-                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
-                    return
-                }
-
-                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
-                logger.logYieldNoticeShown()
-            })
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, output in
-                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
+                output.map(viewModel.makeTokenItemPromoViewModel(from:))
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -580,7 +572,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel {
         TokenItemPromoBubbleViewModel(
             id: output.walletModelId,
             leadingImage: output.icon,
@@ -602,6 +594,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 logger.logYieldNoticeClicked()
                 let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
                 navAction?(walletModel.tokenItem)
+            },
+            onAppear: { [weak self] in
+                guard let userWalletId = self?.userWalletModel.userWalletId else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: output.tokenItem, userWalletId: userWalletId)
+                logger.logYieldNoticeShown()
             }
         )
     }
