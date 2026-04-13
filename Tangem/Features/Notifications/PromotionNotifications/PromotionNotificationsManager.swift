@@ -22,15 +22,12 @@ class CommonPromotionNotificationsManager {
 
     private let userWalletId: UserWalletId
     private let placement: PromotionPlacement
-    private let analyticsService: NotificationsAnalyticsService
 
-    private var analyticsSubscription: AnyCancellable?
     private var activePromotionSubscription: AnyCancellable?
 
     init(userWalletId: UserWalletId, placement: PromotionPlacement) {
         self.userWalletId = userWalletId
         self.placement = placement
-        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
 
         bind()
     }
@@ -40,14 +37,6 @@ class CommonPromotionNotificationsManager {
 
 private extension CommonPromotionNotificationsManager {
     func bind() {
-        analyticsSubscription = notificationPublisher
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { manager, notifications in
-                manager.analyticsService.sendEventsIfNeeded(for: notifications)
-            })
-
         activePromotionSubscription = promotionRepository
             .promotionsPublisher(userWalletId: userWalletId, placeholder: placement)
             .withWeakCaptureOf(self)
