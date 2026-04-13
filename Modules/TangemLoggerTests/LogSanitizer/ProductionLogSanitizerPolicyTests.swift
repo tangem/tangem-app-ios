@@ -22,13 +22,41 @@ struct ProductionLogSanitizerPolicyTests {
     }
 
     @Test
+    func shouldPreserveAllValuesInSwapLog() {
+        let input = """
+        "txId": "23b0ba60-8f61-4917-83e7-0464f97f1d55",
+        "providerId": "okx-cross-chain",
+        "fromAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
+        "payinAddress": "0x89f423567c2648BB828c3997f60c47b54f57Fa6e",
+        "payoutAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
+        "refundAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
+        "rateType": "float",
+        "status": "finished",
+        "externalTxStatus": "finished",
+        "txHash": "0x7cebe3ac2dbfc308da75bd0645274972b021edca82f164f69370d21fad17eb0d",
+        "fromContractAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+        "fromNetwork": "polygon-pos",
+        "fromDecimals": 6,
+        "fromAmount": "9000000",
+        "toContractAddress": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+        "toNetwork": "arbitrum-one",
+        "toDecimals": 8,
+        "toAmount": "14428",
+        "createdAt": "2024-09-19T06:35:22.312Z"
+        """
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == input)
+    }
+
+    @Test
     func shouldRedactSensitiveValuesWithoutAffectingPreservedValues() {
         let input = #"response: <NSHTTPURLResponse: 0x106f3a120>; timestamp="2026-12-24T00:00:00.000Z"; "#
-            + #"headers: ["api-key": "secret123", "token": "abc/def=="]"#
+            + #"headers: ["api-key": "secret123", "access-token": "abc/def=="]"#
 
         let expected = #"response: <NSHTTPURLResponse: 0x106f3a120>; timestamp="2026-12-24T00:00:00.000Z"; "#
             + #"headers: ["api-key": "\#(Self.sensitiveKeyRedactPlaceholder)", "#
-            + #""token": "\#(Self.sensitiveKeyRedactPlaceholder)"]"#
+            + #""access-token": "\#(Self.sensitiveKeyRedactPlaceholder)"]"#
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
@@ -57,8 +85,8 @@ struct ProductionLogSanitizerPolicyTests {
 
     @Test
     func shouldRedactMultipleSensitiveKeysInSingleLog() {
-        let input = "token=abcd1234abcd5678abcd&auth=1234abcd1234abcd1234"
-        let expected = "token=\(Self.sensitiveKeyRedactPlaceholder)&auth=\(Self.sensitiveKeyRedactPlaceholder)"
+        let input = "key=abcd1234abcd5678abcd&auth=1234abcd1234abcd1234"
+        let expected = "key=\(Self.sensitiveKeyRedactPlaceholder)&auth=\(Self.sensitiveKeyRedactPlaceholder)"
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
@@ -77,8 +105,8 @@ struct ProductionLogSanitizerPolicyTests {
 
     @Test
     func shouldRedactSensitiveKeyAndBroadHexInSingleLog() {
-        let input = "token=abcd1234abcd5678abcd hex=deadbeefcafebabe"
-        let expected = "token=\(Self.sensitiveKeyRedactPlaceholder) hex=\(Self.broadHexRedactPlaceholder)"
+        let input = "x-api-key=abcd1234abcd5678abcd hex=deadbeefcafebabe"
+        let expected = "x-api-key=\(Self.sensitiveKeyRedactPlaceholder) hex=\(Self.broadHexRedactPlaceholder)"
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
