@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Hedera
+import Hiero
 import CryptoSwift
 import TangemSdk
 import TangemFoundation
@@ -93,7 +93,7 @@ final class HederaTransactionBuilder {
 
         logTransferTransaction(transferTransaction)
 
-        // Capturing an existing `Hedera.Client` instance here is not required but may come in handy
+        // Capturing an existing `Hiero.Client` instance here is not required but may come in handy
         // because the client may already have some useful internal state at this point
         // (like the list of ready-to-use GRCP nodes with health checks already performed)
         return CompiledTransaction(curve: curve, timeout: timeout, client: client, innerTransaction: transferTransaction)
@@ -106,7 +106,7 @@ final class HederaTransactionBuilder {
         return transaction
     }
 
-    private func getPublicKey() throws -> Hedera.PublicKey {
+    private func getPublicKey() throws -> Hiero.PublicKey {
         switch curve {
         case .ed25519, .ed25519_slip0010:
             return try .fromBytesEd25519(publicKey)
@@ -118,7 +118,7 @@ final class HederaTransactionBuilder {
         }
     }
 
-    private func makeTransactionId(accountId: Hedera.AccountId, validStartDate: UnixTimestamp) throws -> Hedera.TransactionId {
+    private func makeTransactionId(accountId: Hiero.AccountId, validStartDate: UnixTimestamp) throws -> Hiero.TransactionId {
         let (validStartDateNSec, multiplicationOverflow) = UInt64(validStartDate.seconds).multipliedReportingOverflow(by: NSEC_PER_SEC)
         if multiplicationOverflow {
             BSDKLogger.error(error: "Unable to create tx id due to multiplication overflow of '\(validStartDate)'")
@@ -181,14 +181,14 @@ extension HederaTransactionBuilder {
     struct CompiledTransaction {
         private let curve: EllipticCurve
         private let timeout: TimeInterval
-        private let client: Hedera.Client
-        private let innerTransaction: Hedera.Transaction
+        private let client: Hiero.Client
+        private let innerTransaction: Hiero.Transaction
 
         fileprivate init(
             curve: EllipticCurve,
             timeout: TimeInterval,
-            client: Hedera.Client,
-            innerTransaction: Hedera.Transaction
+            client: Hiero.Client,
+            innerTransaction: Hiero.Transaction
         ) {
             self.curve = curve
             self.timeout = timeout
@@ -224,8 +224,8 @@ extension HederaTransactionBuilder {
 
 // MARK: - Convenience extensions
 
-private extension Hedera.Transaction {
-    /// Same as `Hedera.Transaction.nodeAccountIds(_:)`, but with empty list checking.
+private extension Hiero.Transaction {
+    /// Same as `Hiero.Transaction.nodeAccountIds(_:)`, but with empty list checking.
     @discardableResult
     func nodeAccountIdsIfNotEmpty(_ nodeAccountIds: [AccountId]?) -> Self {
         if let nodeAccountIds = nodeAccountIds?.nilIfEmpty {
@@ -236,7 +236,7 @@ private extension Hedera.Transaction {
     }
 }
 
-extension Hedera.EntityId {
+extension Hiero.EntityId {
     /// A dumb convenience factory method for parsing entity IDs in both `<shard>.<realm>.<last>` (Hedera native)
     /// and `[0x]40*HEXDIG` (Solidity/EVM) forms.
     static func fromSolidityAddressOrString<S: StringProtocol>(_ input: S) throws -> Self {

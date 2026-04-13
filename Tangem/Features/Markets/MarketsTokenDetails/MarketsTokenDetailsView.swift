@@ -171,15 +171,18 @@ struct MarketsTokenDetailsView: View {
         .opacity(viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .bindAlert($viewModel.alert)
-        .descriptionBottomSheet(
-            info: $viewModel.descriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action
-        )
-        .tokenDescriptionBottomSheet(
-            info: $viewModel.fullDescriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action,
-            onGeneratedAITapAction: viewModel.onGenerateAITapAction
-        )
+        .if(!viewModel.isRedesignEnabled) { view in
+            view
+                .descriptionBottomSheet(
+                    info: $viewModel.descriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action
+                )
+                .tokenDescriptionBottomSheet(
+                    info: $viewModel.fullDescriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action,
+                    onGeneratedAITapAction: viewModel.onGenerateAITapAction
+                )
+        }
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
             MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
                 .adaptivePresentationDetents()
@@ -267,7 +270,11 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            MarketsHistoryChartView(viewModel: viewModel)
+            if FeatureProvider.isAvailable(.redesign) {
+                MarketsHistoryChartViewRedesign(viewModel: viewModel)
+            } else {
+                MarketsHistoryChartView(viewModel: viewModel)
+            }
         }
     }
 
@@ -280,14 +287,17 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level2
+        }
+
         let uiColor = overlayContentHidingBackgroundColor.mix(
             with: defaultBackgroundColor,
             by: viewModel.overlayContentHidingProgress
         )
 
-        Color(uiColor: uiColor)
+        return Color(uiColor: uiColor)
     }
 }
 
