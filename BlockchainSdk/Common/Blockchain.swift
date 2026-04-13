@@ -609,7 +609,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .octa:
             return "OctaSpace"
         case .chia:
-            return "Chia Network"
+            return "Chia"
         case .near:
             return "NEAR Protocol" + testnetSuffix
         case .decimal:

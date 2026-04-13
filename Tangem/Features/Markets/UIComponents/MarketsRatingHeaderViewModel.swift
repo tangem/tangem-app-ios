@@ -19,6 +19,7 @@ class MarketsRatingHeaderViewModel: ObservableObject {
     @Published var marketListOrderType: MarketsListOrderType
     @Published var marketPriceIntervalType: MarketsPriceIntervalType
 
+    var marketListOrderTypeOptions: [MarketsListOrderType] = []
     var marketPriceIntervalTypeOptions: [MarketsPriceIntervalType] = []
 
     weak var delegate: MarketsOrderHeaderViewModelOrderDelegate?
@@ -36,12 +37,22 @@ class MarketsRatingHeaderViewModel: ObservableObject {
 
         marketListOrderType = provider.currentFilterValue.order
         marketPriceIntervalType = provider.currentFilterValue.interval
+        marketListOrderTypeOptions = provider.supportedOrderTypes
         marketPriceIntervalTypeOptions = provider.supportedPriceIntervalTypes
 
         bind(with: provider.filterPublisher)
     }
 
     func bind(with filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
+        $marketListOrderType
+            .dropFirst()
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, value in
+                viewModel.provider.didSelectMarketOrder(value)
+            }
+            .store(in: &bag)
+
         $marketPriceIntervalType
             .dropFirst()
             .removeDuplicates()

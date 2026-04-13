@@ -10,7 +10,7 @@ import Foundation
 
 struct DogecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .dogecoin(address: input.wallet.defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .dogecoin()
         let txBuilder = BitcoinTransactionBuilder(
             network: DogecoinNetworkParams(),
             unspentOutputManager: unspentOutputManager,
@@ -66,7 +66,7 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
 
         let networkService = MultiUTXONetworkProvider(
             providers: providers,
-            blockchainName: Blockchain.dogecoin.displayName
+            blockchainName: input.wallet.blockchain.displayName
         )
 
         return DogecoinWalletManager(

@@ -13,8 +13,6 @@ import TangemSdk
 
 @Suite("XPUBUtils Tests")
 struct XPUBUtilsTests {
-    let sut = XPUBUtils()
-
     // MARK: - generateXPUB
 
     /// Test vector from https://iancoleman.io/bip39/
@@ -37,7 +35,7 @@ struct XPUBUtilsTests {
             )
         )
 
-        let xpub = try sut.generateXPUB(key: key, isTestnet: false)
+        let xpub = try XPUBUtils.generateXPUB(key: key, isTestnet: false)
 
         #expect(xpub == "xpub6E8jCqdYZcAaj9ZovPA1xiTRSu7brzzamw4yD8PsQjxYZS1sj4GfiGvhXyzBbqXiyh9MX2UhzY8X3M2CWPMmENccMbVvbrySE6EbE9ieHWJ")
     }
@@ -62,7 +60,7 @@ struct XPUBUtilsTests {
             )
         )
 
-        let xpub = try sut.generateXPUB(key: key, isTestnet: false)
+        let xpub = try XPUBUtils.generateXPUB(key: key, isTestnet: false)
 
         #expect(xpub == "xpub6FAqNyRZorqRKQyQCJqsCd264fh1Wiv4d42Myic4Tu5HfgGyhn4CH1MxjTZUQFoUv5UKAAkRdrWHGZWyaYDrjjycN1jxsycC7J7cBe7G2tx")
     }
@@ -73,7 +71,7 @@ struct XPUBUtilsTests {
     func xpubDerivationPathsBIP84() throws {
         let path = try DerivationPath(rawPath: "m/84'/0'/0'/0/0")
 
-        let result = try sut.xpubDerivationPaths(for: path)
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
 
         let expectedChild = try DerivationPath(rawPath: "m/84'/0'/0'")
         let expectedParent = try DerivationPath(rawPath: "m/84'/0'")
@@ -85,7 +83,7 @@ struct XPUBUtilsTests {
     func xpubDerivationPathsBIP44() throws {
         let path = try DerivationPath(rawPath: "m/44'/0'/0'/0/0")
 
-        let result = try sut.xpubDerivationPaths(for: path)
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
 
         let expectedChild = try DerivationPath(rawPath: "m/44'/0'/0'")
         let expectedParent = try DerivationPath(rawPath: "m/44'/0'")
@@ -97,7 +95,7 @@ struct XPUBUtilsTests {
     func xpubDerivationPathsBIP49() throws {
         let path = try DerivationPath(rawPath: "m/49'/0'/0'/0/0")
 
-        let result = try sut.xpubDerivationPaths(for: path)
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
 
         let expectedChild = try DerivationPath(rawPath: "m/49'/0'/0'")
         let expectedParent = try DerivationPath(rawPath: "m/49'/0'")
@@ -109,7 +107,7 @@ struct XPUBUtilsTests {
     func xpubDerivationPathsNonZeroIndex() throws {
         let path = try DerivationPath(rawPath: "m/84'/0'/0'/0/5")
 
-        let result = try sut.xpubDerivationPaths(for: path)
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
 
         let expectedChild = try DerivationPath(rawPath: "m/84'/0'/0'")
         let expectedParent = try DerivationPath(rawPath: "m/84'/0'")
@@ -121,7 +119,31 @@ struct XPUBUtilsTests {
     func xpubDerivationPathsChangeChain() throws {
         let path = try DerivationPath(rawPath: "m/84'/0'/0'/1/0")
 
-        let result = try sut.xpubDerivationPaths(for: path)
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
+
+        let expectedChild = try DerivationPath(rawPath: "m/84'/0'/0'")
+        let expectedParent = try DerivationPath(rawPath: "m/84'/0'")
+        #expect(result.child == expectedChild)
+        #expect(result.parent == expectedParent)
+    }
+
+    @Test("3-node path m/84'/0'/0' returns child=self, parent=drop 1")
+    func xpubDerivationPathsThreeNodes() throws {
+        let path = try DerivationPath(rawPath: "m/84'/0'/0'")
+
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
+
+        let expectedChild = try DerivationPath(rawPath: "m/84'/0'/0'")
+        let expectedParent = try DerivationPath(rawPath: "m/84'/0'")
+        #expect(result.child == expectedChild)
+        #expect(result.parent == expectedParent)
+    }
+
+    @Test("4-node path m/84'/0'/0'/0 returns child=drop 1, parent=drop 2")
+    func xpubDerivationPathsFourNodes() throws {
+        let path = try DerivationPath(rawPath: "m/84'/0'/0'/0")
+
+        let result = try XPUBUtils.xpubDerivationPaths(for: path)
 
         let expectedChild = try DerivationPath(rawPath: "m/84'/0'/0'")
         let expectedParent = try DerivationPath(rawPath: "m/84'/0'")
@@ -131,21 +153,12 @@ struct XPUBUtilsTests {
 
     // MARK: - xpubDerivationPaths errors
 
-    @Test("Path with 3 nodes throws wrongDerivationPath")
+    @Test("Path with 2 nodes throws wrongDerivationPath")
     func xpubDerivationPathsTooShort() throws {
-        let path = try DerivationPath(rawPath: "m/84'/0'/0'")
+        let path = try DerivationPath(rawPath: "m/84'/0'")
 
         #expect(throws: XPUBUtils.Error.wrongDerivationPath) {
-            try sut.xpubDerivationPaths(for: path)
-        }
-    }
-
-    @Test("Path with 4 nodes throws wrongDerivationPath")
-    func xpubDerivationPathsFourNodes() throws {
-        let path = try DerivationPath(rawPath: "m/84'/0'/0'/0")
-
-        #expect(throws: XPUBUtils.Error.wrongDerivationPath) {
-            try sut.xpubDerivationPaths(for: path)
+            try XPUBUtils.xpubDerivationPaths(for: path)
         }
     }
 
@@ -154,7 +167,7 @@ struct XPUBUtilsTests {
         let path = try DerivationPath(rawPath: "m/84'/0'/0'/0/0/0")
 
         #expect(throws: XPUBUtils.Error.wrongDerivationPath) {
-            try sut.xpubDerivationPaths(for: path)
+            try XPUBUtils.xpubDerivationPaths(for: path)
         }
     }
 }

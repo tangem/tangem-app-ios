@@ -22,20 +22,25 @@ struct WalletCoreUTXOTransactionSerializer {
 // MARK: - UTXOTransactionSerializer
 
 extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
-    func preImageHashes(transaction: Transaction) throws -> [Data] {
+    func preImageHashes(transaction: Transaction) throws -> [UTXOTransactionSerializerPreImageHash] {
         let input = try buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedBytes: preImageHashes)
 
         if preSigningOutput.error != .ok {
             BSDKLogger.error("BitcoinPreSigningOutput has a error", error: preSigningOutput.errorMessage)
             throw UTXOTransactionSerializerError.walletCoreError(preSigningOutput.errorMessage)
         }
 
-        let hashes = preSigningOutput.hashPublicKeys.map { $0.dataHash }
-        return hashes
+        return try zip(transaction.preImage.inputs, preSigningOutput.hashPublicKeys).map { input, hashPublicKey in
+            guard let spendableType = input.script.spendable else {
+                throw UTXOTransactionSerializerError.spendableScriptNotFound
+            }
+
+            return UTXOTransactionSerializerPreImageHash(spendableType: spendableType, hashToSign: hashPublicKey.dataHash)
+        }
     }
 
     func compile(transaction: Transaction, signatures: [SignatureInfo]) throws -> Data {
@@ -57,7 +62,7 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
             publicKeys: publicKeysVector
         )
 
-        let output = try BitcoinSigningOutput(serializedData: compileWithSignatures)
+        let output = try BitcoinSigningOutput(serializedBytes: compileWithSignatures)
 
         if output.error != .ok {
             BSDKLogger.error("BitcoinSigningOutput has a error", error: output.errorMessage)
