@@ -383,6 +383,11 @@
 "domain_receive_assets_onboarding_network_name" = "%@ сеть";
 "domain_receive_assets_onboarding_title" = "Отправляйте средства, используя только";
 "dynamic_addresses_custom_token_error_on_addition" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
+"dynamic_addresses_disable_description" = "You are turning off Dynamic Addresses. Funds will now be received on your fixed address.";
+"dynamic_addresses_disable_fee_description" = "A network fee applies to consolidate funds into the fixed address.";
+"dynamic_addresses_disable_main_button_title" = "Disable Dynamic Addresses";
+"dynamic_addresses_disable_title" = "Disable dynamic addresses";
+"dynamic_addresses_disabled_popup_title" = "Dynamic addresses disabled";
 "dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
 "dynamic_addresses_enter_features_privacy_description" = "Используйте новый адрес для каждой транзакции, чтобы снизить отслеживаемость и повысить конфиденциальность в блокчейне.";
 "dynamic_addresses_enter_features_privacy_title" = "Повышенная конфиденциальность";
@@ -1898,7 +1903,7 @@
 "welcome_interrupted_backup_discard_title" = "Это необратимое действие";
 "welcome_unlock_card" = "Сканировать карту или кольцо";
 "welcome_unlock_description" = "Используйте %@ или отсканируйте карту либо кольцо для входа в приложение";
-"welcome_unlock_title" = "C возвращением!";
+"welcome_unlock_title" = "С возвращением!";
 "welcome_unlock" = "Войти с %@";
 "xtz_withdrawal_message_ignore" = "Нет, отправить все";
 "xtz_withdrawal_message_reduce" = "Уменьшить на %@ XTZ";
