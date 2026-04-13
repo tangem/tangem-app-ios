@@ -24,11 +24,11 @@ struct ProductionLogSanitizerPolicyTests {
     @Test
     func shouldRedactSensitiveValuesWithoutAffectingPreservedValues() {
         let input = #"response: <NSHTTPURLResponse: 0x106f3a120>; timestamp="2026-12-24T00:00:00.000Z"; "#
-            + #"headers: ["api-key": "secret123", "token": "abc/def=="]"#
+            + #"headers: ["api-key": "secret123", "access-token": "abc/def=="]"#
 
         let expected = #"response: <NSHTTPURLResponse: 0x106f3a120>; timestamp="2026-12-24T00:00:00.000Z"; "#
             + #"headers: ["api-key": "\#(Self.sensitiveKeyRedactPlaceholder)", "#
-            + #""token": "\#(Self.sensitiveKeyRedactPlaceholder)"]"#
+            + #""access-token": "\#(Self.sensitiveKeyRedactPlaceholder)"]"#
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
@@ -57,8 +57,8 @@ struct ProductionLogSanitizerPolicyTests {
 
     @Test
     func shouldRedactMultipleSensitiveKeysInSingleLog() {
-        let input = "token=abcd1234abcd5678abcd&auth=1234abcd1234abcd1234"
-        let expected = "token=\(Self.sensitiveKeyRedactPlaceholder)&auth=\(Self.sensitiveKeyRedactPlaceholder)"
+        let input = "key=abcd1234abcd5678abcd&auth=1234abcd1234abcd1234"
+        let expected = "key=\(Self.sensitiveKeyRedactPlaceholder)&auth=\(Self.sensitiveKeyRedactPlaceholder)"
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
@@ -77,8 +77,8 @@ struct ProductionLogSanitizerPolicyTests {
 
     @Test
     func shouldRedactSensitiveKeyAndBroadHexInSingleLog() {
-        let input = "token=abcd1234abcd5678abcd hex=deadbeefcafebabe"
-        let expected = "token=\(Self.sensitiveKeyRedactPlaceholder) hex=\(Self.broadHexRedactPlaceholder)"
+        let input = "x-api-key=abcd1234abcd5678abcd hex=deadbeefcafebabe"
+        let expected = "x-api-key=\(Self.sensitiveKeyRedactPlaceholder) hex=\(Self.broadHexRedactPlaceholder)"
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
 
