@@ -11,6 +11,7 @@ import struct SwiftUI.Image
 
 struct TokenItemPromoProviderOutput: Equatable {
     let walletModelId: WalletModelId
+    let tokenItem: TokenItem
     let message: String
     let icon: Image
     let appStorageKey: String
