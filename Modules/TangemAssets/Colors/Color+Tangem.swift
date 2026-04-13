@@ -77,6 +77,7 @@ public extension Color.Tangem.Graphic {
         public static let accent: Color = Primitives.Blue.azure
         public static let warning: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
         public static let attention: Color = .dynamic(light: Primitives.Yellow.tangerine, dark: Primitives.Yellow.mustard)
+        public static let positive: Color = Primitives.Green.eucalyptus
     }
 }
 
