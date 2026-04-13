@@ -16,7 +16,7 @@ struct Fact0rnTransactionTests {
         let pubKey = Data(hexString: "03f605d4a94e07ae7ddc1dafea08ade5f6db0fb9f0d40c0409007b1e47e4ac3bed")
         let addressService = AddressServiceFactory(blockchain: .fact0rn).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
-        let unspentOutputManager: UnspentOutputManager = .fact0rn(address: address)
+        let unspentOutputManager: UnspentOutputManager = .fact0rn()
 
         unspentOutputManager.update(
             outputs: [
@@ -51,7 +51,7 @@ struct Fact0rnTransactionTests {
 
         // then
         #expect(address.value == "fact1qn7085dmevapmgkf5ztj4t3jz6rwwcjttt0rpt2")
-        #expect(hashes == signatures.map(\.hash))
+        #expect(hashes.map(\.hashToSign) == signatures.map(\.hash))
         #expect(encoded == Data(hexString: "0100000000010133941cdd46f0fc7accd6c269f8ab012fc281a832577093718514d38a109791790000000000fdffffff012772010000000000160014fae5f1c164a968f798972b73daf9e84c3c2350770247304402202f5c626793589c02acdb08a89a209278b38876aa508ef94c08b38d95ea9ddcf202200319d472856158981b364f01f0e292df1121baa8788a7faec416714bfd565695012103f605d4a94e07ae7ddc1dafea08ade5f6db0fb9f0d40c0409007b1e47e4ac3bed00000000"))
     }
 }
