@@ -15,7 +15,7 @@ import Foundation
 ///   - marketAssets: sorted by market cap DESC (from existing MarketsListDataProvider API)
 ///   - isUserAssetsCollapsed: true when > 3 results, "Show more" button visible
 ///   - isHiddenBalancesMode: if true, all user asset balances show placeholder
-struct TokenSearchResult {
+struct TokenSearchResult: Equatable {
     let userAssets: [UserAssetSearchResult]
     let groupedUserAssets: [GroupedUserAssetResult]
     let isUserAssetsCollapsed: Bool
