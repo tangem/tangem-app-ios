@@ -129,7 +129,6 @@ enum SendAmountStepBuilder {
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
             swapProvidersInput: io.swapProvidersInput,
-            isReceiveAmountApproximatePublisher: viewModel.isReceiveAmountApproximatePublisher
         )
 
         interactorSaver.updater = amountUpdater
