@@ -104,7 +104,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             }
 
             if let insightsViewModel = viewModel.insightsViewModel {
-                MarketsTokenDetailsInsightsView(viewModel: insightsViewModel, viewWidth: blocksWidth)
+                MarketsTokenDetailsInsightsViewRedesign(viewModel: insightsViewModel)
             }
 
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
