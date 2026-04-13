@@ -16,7 +16,7 @@ import Foundation
 //
 // Future: grouping by id (system tokens) or name+ticker (custom tokens).
 // See: BF-03 for grouping logic and balance status display matrix.
-struct UserAssetSearchResult: Identifiable {
+struct UserAssetSearchResult: Identifiable, Equatable {
     // [STUB] Delete this property when implemented — replace with real WalletModel reference.
     let id: String
     let tokenName: String
