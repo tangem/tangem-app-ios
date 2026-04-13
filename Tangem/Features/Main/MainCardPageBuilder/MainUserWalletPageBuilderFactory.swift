@@ -124,15 +124,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let promotionNotificationsViewModel: PromotionNotificationsViewModel? = {
-                guard model.config.hasFeature(.multiCurrency) else {
-                    return nil
-                }
-
-                let manager = CommonPromotionNotificationsManager(placement: .main)
-                return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
-            }()
-
+            let promotionNotificationsManager = CommonPromotionNotificationsManager(placement: .main)
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -149,7 +141,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
-                promotionNotificationsViewModel: promotionNotificationsViewModel,
+                promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
@@ -185,6 +177,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
+        let promotionNotificationsManager = CommonPromotionNotificationsManager(placement: .main)
+
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
@@ -203,6 +197,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletModel: model,
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
+            promotionNotificationsManager: promotionNotificationsManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
