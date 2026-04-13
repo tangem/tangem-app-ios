@@ -45,7 +45,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
 
     @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
-    @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel?
+    @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
 
@@ -82,6 +82,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let sectionsProvider: any MultiWalletMainContentViewSectionsProvider
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
+    private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
@@ -106,7 +107,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        promotionNotificationsViewModel: PromotionNotificationsViewModel?,
+        promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
@@ -119,7 +120,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.sectionsProvider = sectionsProvider
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.promotionNotificationsViewModel = promotionNotificationsViewModel
+        self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
@@ -138,6 +139,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletConfig: userWalletModel.config,
             walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager),
             updatePublisher: userWalletModel.updatePublisher
+        )
+
+        promotionNotificationsViewModel = PromotionNotificationsViewModel(
+            promotionNotificationsManager: promotionNotificationsManager
         )
 
         sectionsProvider.configure(with: self)
@@ -172,7 +177,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         await setIsUpdating(true)
-        await promotionNotificationsViewModel?.loadPromotions()
+        await promotionNotificationsManager.loadPromotions()
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
