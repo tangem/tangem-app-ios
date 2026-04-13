@@ -34,10 +34,6 @@ class KaspaNetworkService: MultiNetworkProvider {
 // MARK: - UTXONetworkAddressInfoProvider
 
 extension KaspaNetworkService: UTXONetworkAddressInfoProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
-        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
-    }
-
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         providerPublisher { $0.getUnspentOutputs(address: address) }
     }
