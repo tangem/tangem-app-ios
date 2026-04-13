@@ -270,7 +270,11 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            MarketsHistoryChartView(viewModel: viewModel)
+            if FeatureProvider.isAvailable(.redesign) {
+                MarketsHistoryChartViewRedesign(viewModel: viewModel)
+            } else {
+                MarketsHistoryChartView(viewModel: viewModel)
+            }
         }
     }
 
