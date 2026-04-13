@@ -66,10 +66,13 @@ struct MarketsMainView: View {
                 if showSearchResult {
                     searchResultView
                         .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
+                        .transition(.opacity)
                 } else {
                     widgetsListView
+                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showSearchResult)
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
 
@@ -96,12 +99,14 @@ struct MarketsMainView: View {
             isListContentObscured: isListContentObscured
         ) {
             Group {
-                if showSearchResult {
+                if showSearchResult, !FeatureProvider.isAvailable(.redesign) {
+                    // Redesigned search UI draws its own header inside `searchResultView`,
+                    // so no overlay is needed in that branch.
                     MarketsSearchResultListOverlayView(
                         titleOpacity: $listOverlayTitleOpacity,
                         totalHeight: $searchResultListOverlayTotalHeight
                     )
-                } else {
+                } else if !showSearchResult {
                     defaultListOverlay
                 }
             }
@@ -114,7 +119,7 @@ struct MarketsMainView: View {
     @ViewBuilder
     private var searchResultView: some View {
         if FeatureProvider.isAvailable(.redesign) {
-            TokenSearchView(viewModel: viewModel.tokenSearchViewModel)
+            TokenSearchView(viewModel: viewModel.tokenSearchViewModel, headerHeight: headerHeight)
         } else {
             legacySearchResultView
         }
