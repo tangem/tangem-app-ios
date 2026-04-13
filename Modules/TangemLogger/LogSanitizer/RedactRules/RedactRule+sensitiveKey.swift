@@ -79,8 +79,8 @@ private extension RedactRule {
             "apikey"
             "access-token"
             "access_token"
+            "accesstoken"
             "auth"
-            "token"
             "key"
         }
     }
