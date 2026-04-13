@@ -21,6 +21,8 @@ struct SingleWalletMainContentView: View {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
 
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -82,6 +84,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
