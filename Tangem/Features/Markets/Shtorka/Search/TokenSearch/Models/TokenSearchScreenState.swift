@@ -8,18 +8,20 @@
 
 import Foundation
 
-/// [STUB] Delete this comment when implemented.
-///
-/// TokenSearchScreenState drives the View's layout:
-///   .idle        — search bar is empty, show hints + recents
-///   .searching   — user typed something, local results ready, API still loading
-///   .results     — both local and API results available
-///   .empty       — both sources returned zero results
-///   .error       — API failed (local results may still be shown above the error block)
-enum TokenSearchScreenState: Hashable {
-    case idle
+enum TokenSearchScreenState: Equatable {
+    case idle(IdleContent)
     case searching
-    case results
+    case results(TokenSearchResult)
     case empty
     case error
+
+    struct IdleContent: Equatable {
+        let queries: [String]
+        let marketAssetViewModels: [MarketTokenItemViewModel]
+
+        static func == (lhs: IdleContent, rhs: IdleContent) -> Bool {
+            lhs.queries == rhs.queries
+                && lhs.marketAssetViewModels.map(\.tokenId) == rhs.marketAssetViewModels.map(\.tokenId)
+        }
+    }
 }

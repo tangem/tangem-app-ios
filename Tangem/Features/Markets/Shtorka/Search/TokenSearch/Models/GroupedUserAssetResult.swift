@@ -14,7 +14,7 @@ import Foundation
 ///   - iconStackCount: min(assets.count, 3) — drives stacked icon layers (see BF-03)
 ///   - Tap action: opens a Bottom Sheet with Wallet → Account → Network → Asset hierarchy (BF-04)
 ///   - totalBalance: sum of all loaded balances in the group
-struct GroupedUserAssetResult: Identifiable {
+struct GroupedUserAssetResult: Identifiable, Equatable {
     let id: String
     let displayName: String
     let ticker: String
