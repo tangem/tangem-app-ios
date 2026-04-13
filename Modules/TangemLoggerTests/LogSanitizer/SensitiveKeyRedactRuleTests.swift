@@ -66,7 +66,12 @@ private extension RuleTestCases.Redacted {
         redactedLog: "apikey=\(Self.placeholder)"
     )
 
-    private static let accessToken = RedactLogTestCase(
+    private static let accessTokenAsOneWord = RedactLogTestCase(
+        originalLog: "accesstoken: token123",
+        redactedLog: "accesstoken: \(Self.placeholder)"
+    )
+
+    private static let accessTokenDash = RedactLogTestCase(
         originalLog: "access-token: token123",
         redactedLog: "access-token: \(Self.placeholder)"
     )
@@ -81,19 +86,14 @@ private extension RuleTestCases.Redacted {
         redactedLog: "auth: \(Self.placeholder)"
     )
 
-    private static let tokenKey = RedactLogTestCase(
-        originalLog: "token=abc.def-123",
-        redactedLog: "token=\(Self.placeholder)"
-    )
-
     private static let genericKey = RedactLogTestCase(
         originalLog: "key=value123",
         redactedLog: "key=\(Self.placeholder)"
     )
 
     private static let multipleSensitiveKeys = RedactLogTestCase(
-        originalLog: #"api-key=secret123 token=abc123 auth: xyz777"#,
-        redactedLog: #"api-key=\#(Self.placeholder) token=\#(Self.placeholder) auth: \#(Self.placeholder)"#
+        originalLog: #"api-key=secret123 access-token=abc123 auth: xyz777"#,
+        redactedLog: #"api-key=\#(Self.placeholder) access-token=\#(Self.placeholder) auth: \#(Self.placeholder)"#
     )
 
     static let sensitiveKeys = [
@@ -102,10 +102,10 @@ private extension RuleTestCases.Redacted {
         xApiKeyHeader,
         apiKeyUnderscore,
         apiKeyCompact,
-        accessToken,
+        accessTokenAsOneWord,
+        accessTokenDash,
         accessTokenUnderscore,
         authKey,
-        tokenKey,
         genericKey,
         multipleSensitiveKeys,
     ]
@@ -114,11 +114,6 @@ private extension RuleTestCases.Redacted {
 // MARK: - Redacted edge test cases
 
 private extension RuleTestCases.Redacted {
-    private static let bearerLikeTokenWithSlash = RedactLogTestCase(
-        originalLog: #"token="abc/def==""#,
-        redactedLog: #"token="\#(Self.placeholder)""#
-    )
-
     private static let uppercaseKeyName = RedactLogTestCase(
         originalLog: "API-KEY=secret123",
         redactedLog: "API-KEY=\(Self.placeholder)"
@@ -150,7 +145,6 @@ private extension RuleTestCases.Redacted {
     )
 
     static let edgeSensitiveKeys = [
-        bearerLikeTokenWithSlash,
         uppercaseKeyName,
         noWhitespaceAroundSeparator,
         excessiveWhitespaceAroundSeparator,
@@ -187,6 +181,21 @@ private extension RuleTestCases.Ignored {
     static let valueWithoutExplicitSeparator = "token expired"
     static let emptyString = ""
     static let randomJson = #"{"name":"visa-waitlist"}"#
+    static let analyticsEventWithTokenWord = """
+    Analytics event: [Token / Send] Send With Swap Confirm Screen Opened.
+    Params: {
+    "Batch":"GG42"
+    "Currency": "Multicurrency",
+    "Firmware": "1.337",
+    "Product Type": "Wallet 5.0",
+    "Provider": "BestProvider01",
+    "Rate Type": "Float",
+    "Receive Blockchain": "Ethereum",
+    "Receive Token": "USDC",
+    "Send Blockchain": "Ethereum",
+    "Send Token": "USDT"
+    }
+    """
 
     static let nonSensitiveKeys = [
         unrelatedHeader,
@@ -195,6 +204,7 @@ private extension RuleTestCases.Ignored {
         valueWithoutExplicitSeparator,
         emptyString,
         randomJson,
+        analyticsEventWithTokenWord,
     ]
 }
 
