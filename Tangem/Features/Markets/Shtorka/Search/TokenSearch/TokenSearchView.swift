@@ -48,47 +48,51 @@ import TangemAssets
 struct TokenSearchView: View {
     @ObservedObject var viewModel: TokenSearchViewModel
 
+    let headerHeight: CGFloat
+
     var body: some View {
-        // [STUB] Delete this body when implemented — replace with real search UI.
         ScrollView {
-            VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
+            VStack(alignment: .leading, spacing: .unit(.x4)) {
+                // Spacer to clear the overlaid search bar header
+                Color.clear
+                    .frame(height: headerHeight)
+
                 switch viewModel.screenState {
-                case .idle:
-                    idleContent
+                case .idle(let content):
+                    idleContent(content)
+
                 case .searching:
                     searchingContent
-                case .results:
-                    resultsContent
+
+                case .results(let result):
+                    resultsContent(result: result)
+
                 case .empty:
                     emptyContent
+
                 case .error:
                     errorContent
                 }
             }
-            .padding(.horizontal, SizeUnit.x4.value)
-            .padding(.top, SizeUnit.x4.value)
         }
         .scrollDismissesKeyboard(.immediately)
     }
 
     // MARK: - Idle State
 
-    private var idleContent: some View {
-        VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
-            // [STUB] Hints block — last 3 search queries
-            Text("Hints")
-                .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.secondary)
-
-            // [STUB] Recent block — last 3 market asset transitions
-            Text("Recent")
-                .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.secondary)
-        }
+    private func idleContent(_ content: TokenSearchScreenState.IdleContent) -> some View {
+        TokenSearchRecentsView(
+            queries: content.queries,
+            marketAssetViewModels: content.marketAssetViewModels,
+            onQueryTap: viewModel.onQueryHintTapped,
+            onClearAll: viewModel.onClearAllHistory
+        )
     }
 
     // MARK: - Searching State
 
     private var searchingContent: some View {
-        VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
+        VStack(alignment: .leading, spacing: .unit(.x4)) {
             // [STUB] User Assets block — instant local results
             Text("User Assets (loading...)")
                 .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
@@ -101,14 +105,14 @@ struct TokenSearchView: View {
 
     // MARK: - Results State
 
-    private var resultsContent: some View {
-        VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
+    private func resultsContent(result: TokenSearchResult) -> some View {
+        VStack(alignment: .leading, spacing: .unit(.x4)) {
             // [STUB] User Assets block — sorted by balance DESC, collapsed to 3 with "Show more"
-            Text("User Assets (\(viewModel.result?.userAssets.count ?? 0))")
+            Text("User Assets (\(result.userAssets.count))")
                 .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
 
             // [STUB] Market Assets block — sorted by market cap DESC
-            Text("Market Assets (\(viewModel.result?.marketAssets.count ?? 0))")
+            Text("Market Assets (\(result.marketAssets.count))")
                 .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
         }
     }
@@ -117,7 +121,7 @@ struct TokenSearchView: View {
 
     private var emptyContent: some View {
         // [STUB] Centered: "No results found" icon + subtitle
-        VStack(spacing: SizeUnit.x3.value) {
+        VStack(spacing: .unit(.x3)) {
             Text("No results found")
                 .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.secondary)
         }
@@ -128,7 +132,7 @@ struct TokenSearchView: View {
 
     private var errorContent: some View {
         // [STUB] Inline error with "Try again" button (for Market Assets API failure only)
-        VStack(spacing: SizeUnit.x3.value) {
+        VStack(spacing: .unit(.x3)) {
             Text("Unable to load data")
                 .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.secondary)
 
