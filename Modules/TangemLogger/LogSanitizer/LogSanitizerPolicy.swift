@@ -23,6 +23,7 @@ extension LogSanitizerPolicy {
         preserveRules: [
             .objectAddress,
             .iso8601Timestamp,
+            .swapPayload,
         ],
         redactRules: [
             .sensitiveKey,
