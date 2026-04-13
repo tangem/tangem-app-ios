@@ -27,9 +27,7 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            if let promotionNotificationsViewModel = viewModel.promotionNotificationsViewModel {
-                PromotionNotificationsView(viewModel: promotionNotificationsViewModel)
-            }
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             if let viewModel = viewModel.tangemPayBannerViewModel {
                 GetTangemPayBannerView(viewModel: viewModel)
@@ -217,7 +215,7 @@ struct MultiWalletMainContentView: View {
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            promotionNotificationsViewModel: nil,
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
