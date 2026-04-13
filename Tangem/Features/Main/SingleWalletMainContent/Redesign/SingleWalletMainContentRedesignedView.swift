@@ -20,6 +20,8 @@ struct SingleWalletMainContentRedesignedView: View {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
 
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             NotificationBannerContainer(
                 items: viewModel.notificationBannerItems,
                 stackingType: .carousel
@@ -79,6 +81,7 @@ private extension SingleWalletMainContentRedesignedView {
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
