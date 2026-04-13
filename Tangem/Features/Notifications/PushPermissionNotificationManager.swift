@@ -45,6 +45,10 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
         self.notificationTapDelegate = notificationTapDelegate
     }
 
+    deinit {
+        prepareNotificationTask?.cancel()
+    }
+
     // MARK: - Public Implementation
 
     func showPushPermissionNotificationIfNeeded() {
