@@ -22,7 +22,7 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ApprovePolicy = .unlimited
+    private var _approvePolicy: ApprovePolicy = .specified
     private var _feeOption: ExpressFee.Option = .market
     private var _amountType: ExpressAmountType?
 
@@ -49,6 +49,16 @@ extension CommonExpressManager: ExpressManager {
 
     func getAmountType() -> ExpressAmountType? {
         return _amountType
+    }
+
+    func getRateType() -> ExpressProviderRateType? {
+        guard let amountType = _amountType, let selected = selectedProvider else { return nil }
+
+        if selected.supportedRateTypes.contains(amountType.rateType) {
+            return amountType.rateType
+        }
+
+        return selected.supportedRateTypes.first
     }
 
     func getSelectedProvider() -> ExpressAvailableProvider? {
@@ -93,7 +103,7 @@ extension CommonExpressManager: ExpressManager {
 
         _approvePolicy = approvePolicy
 
-        let request = try makeRequest()
+        let request = try makeRequest(for: selectedProvider)
         await selectedProvider?.manager.update(request: request)
         return selectedProvider
     }
@@ -106,7 +116,7 @@ extension CommonExpressManager: ExpressManager {
 
         _feeOption = feeOption
 
-        let request = try makeRequest()
+        let request = try makeRequest(for: selectedProvider)
         await selectedProvider?.manager.update(request: request)
         return selectedProvider
     }
@@ -120,7 +130,7 @@ extension CommonExpressManager: ExpressManager {
             throw ExpressManagerError.selectedProviderNotFound
         }
 
-        let request = try makeRequest()
+        let request = try makeRequest(for: selectedProvider)
         return try await selectedProvider.manager.sendData(request: request)
     }
 }
@@ -162,7 +172,8 @@ private extension CommonExpressManager {
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
         async let allIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: nil)
         async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
-        let (allSet, fixedSet) = await (Set(allIds), Set(fixedIds))
+        async let floatIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .float)
+        let (allSet, fixedSet, floatSet) = await (Set(allIds), Set(fixedIds), Set(floatIds))
 
         let providers = try await expressRepository.providers()
 
@@ -176,7 +187,8 @@ private extension CommonExpressManager {
                 throw ExpressManagerError.unsupportedProviderType
             }
 
-            var rateTypes: Set<ExpressProviderRateType> = [.float]
+            var rateTypes: Set<ExpressProviderRateType> = []
+            if floatSet.contains(provider.id) { rateTypes.insert(.float) }
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
             return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: rateTypes, isBest: false)
@@ -193,15 +205,16 @@ private extension CommonExpressManager {
         }
     }
 
+    var candidateProviders: [ExpressAvailableProvider] {
+        let filtered = availableProviders.filteredByRateType(_amountType?.rateType)
+        return filtered.isEmpty ? availableProviders : filtered
+    }
+
     func updateIsBestFlag() {
-        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+        let candidates = candidateProviders
         let bestRate = bestByRateProvider(from: candidates)
 
-        let enabledProvidersMoreThanOne = candidates.compactMap { provider -> ExpressQuote? in
-            let state = provider.getState()
-            return state.quote
-        }
-        .count > 1
+        let enabledProvidersMoreThanOne = eligibleProviders(from: candidates).count > 1
 
         availableProviders.forEach { provider in
             // We set the `isBest` flag only if we have more than one enabled provider
@@ -213,7 +226,7 @@ private extension CommonExpressManager {
     }
 
     func bestProvider() async -> ExpressAvailableProvider? {
-        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+        let candidates = candidateProviders
 
         // If we have more than one provider then select the best
         if candidates.count > 1 {
@@ -229,14 +242,16 @@ private extension CommonExpressManager {
     }
 
     func bestByRateProvider(from candidates: [ExpressAvailableProvider]? = nil) -> ExpressAvailableProvider? {
-        let providers = candidates ?? availableProviders.filteredByRateType(_amountType?.rateType)
+        let providers = candidates ?? candidateProviders
         let isFixedRate = _amountType?.rateType == .fixed
 
-        guard providers.contains(where: { $0.getState().quote != nil }) else {
+        let eligible = eligibleProviders(from: providers)
+
+        guard !eligible.isEmpty else {
             return nil
         }
 
-        return providers.sorted(by: { lhsProvider, rhsProvider in
+        return eligible.sorted(by: { lhsProvider, rhsProvider in
             let lhsQuote = lhsProvider.getState().quote
             let rhsQuote = rhsProvider.getState().quote
 
@@ -252,16 +267,31 @@ private extension CommonExpressManager {
         }).first
     }
 
+    /// Providers that have a usable quote and are not restricted by amount limits.
+    func eligibleProviders(from providers: [ExpressAvailableProvider]) -> [ExpressAvailableProvider] {
+        providers.filter { provider in
+            let state = provider.getState()
+            switch state {
+            case .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
+                return false
+            default:
+                return state.quote != nil
+            }
+        }
+    }
+
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
-        let candidates = availableProviders.filteredByRateType(_amountType?.rateType)
+        let candidates = candidateProviders
+
         let providers = candidates.map { $0.provider.name }.joined(separator: ", ")
         ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
 
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { taskGroup in
             candidates.forEach { provider in
+                let providerRequest = request.with(rateType: resolveRateType(for: provider))
                 taskGroup.addTask {
-                    await provider.manager.update(request: request)
+                    await provider.manager.update(request: providerRequest)
                 }
             }
         }
@@ -270,7 +300,7 @@ private extension CommonExpressManager {
         updateIsBestFlag()
     }
 
-    func makeRequest() throws -> ExpressManagerSwappingPairRequest {
+    func makeRequest(for provider: ExpressAvailableProvider? = nil) throws -> ExpressManagerSwappingPairRequest {
         guard let pair = _pair else {
             throw ExpressManagerError.pairNotFound
         }
@@ -279,12 +309,27 @@ private extension CommonExpressManager {
             throw ExpressManagerError.amountNotFound
         }
 
+        let rateType: ExpressProviderRateType
+        if let provider {
+            rateType = resolveRateType(for: provider)
+        } else {
+            rateType = amountType.rateType
+        }
+
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
+            rateType: rateType,
             feeOption: _feeOption,
             approvePolicy: _approvePolicy,
             operationType: pair.source.operationType
         )
+    }
+
+    func resolveRateType(for provider: ExpressAvailableProvider) -> ExpressProviderRateType {
+        if let preferred = _amountType?.rateType, provider.supportedRateTypes.contains(preferred) {
+            return preferred
+        }
+        return provider.supportedRateTypes.first ?? .float
     }
 
     func clearCache() {

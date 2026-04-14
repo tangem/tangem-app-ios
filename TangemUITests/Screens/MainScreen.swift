@@ -193,6 +193,52 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyTokenNotVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is not visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            XCTAssertFalse(
+                token.waitForExistence(timeout: .conditional),
+                "Token '\(tokenName)' should not be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            waitAndAssertTrue(token, "Token '\(tokenName)' should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAccountVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func expandAccount(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
+            account.tap()
+            return self
+        }
+    }
+
     func validateTokenNotExists(_ label: String) {
         _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
         XCTContext.runActivity(named: "Validate token with label '\(label)' does not exist") { _ in

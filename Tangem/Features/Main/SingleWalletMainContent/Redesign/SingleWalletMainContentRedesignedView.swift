@@ -20,6 +20,8 @@ struct SingleWalletMainContentRedesignedView: View {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
 
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             NotificationBannerContainer(
                 items: viewModel.notificationBannerItems,
                 stackingType: .carousel
@@ -68,13 +70,18 @@ private extension SingleWalletMainContentRedesignedView {
 #if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
-    let walletModel = userWalletModel.walletModelsManager.walletModels.first!
+    let walletModel = userWalletModel
+        .accountModelsManager
+        .cryptoAccountModels[0]
+        .walletModelsManager
+        .walletModels[0]
 
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),

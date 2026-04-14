@@ -12,29 +12,23 @@ import TangemUI
 import TangemLocalization
 
 struct ReceiveMainView: View {
-    // MARK: - ViewModel
-
     @ObservedObject var viewModel: ReceiveMainViewModel
 
     var body: some View {
-        contentView
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    @ViewBuilder
-    private var contentView: some View {
         ZStack {
             switch viewModel.viewState {
             case .selector(let viewModel):
                 SelectorReceiveAssetsView(viewModel: viewModel)
                     .transition(.content)
+
             case .qrCode(let viewModel):
                 QRCodeReceiveAssetsView(viewModel: viewModel)
                     .transition(.content)
+
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
-            case .yieldTokenAlert(let viewModel):
-                YieldNoticeReceiveView(viewModel: viewModel)
+                    .fixedSize(horizontal: false, vertical: true)
+
             case .none:
                 EmptyView()
             }
@@ -45,7 +39,6 @@ struct ReceiveMainView: View {
             }
         }
         .scrollBounceBehavior(.basedOnSize)
-        .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -59,7 +52,7 @@ struct ReceiveMainView: View {
         var closeButtonAction: (() -> Void)?
 
         switch viewState {
-        case .tokenAlert, .yieldTokenAlert:
+        case .tokenAlert:
             title = nil
             backButtonAction = nil
             closeButtonAction = viewModel.onCloseTapAction
@@ -96,10 +89,4 @@ private extension AnyTransition {
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
         removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
     )
-}
-
-extension ReceiveMainView {
-    private enum Layout {
-        static let scrollViewCoordinateSpace = "ReceiveAssetsCoordinatorView.ScrollView"
-    }
 }

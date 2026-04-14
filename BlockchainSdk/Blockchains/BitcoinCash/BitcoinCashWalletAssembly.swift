@@ -13,7 +13,6 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
         let networkParams: UTXONetworkParams = input.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
 
         let unspentOutputManager: UnspentOutputManager = .bitcoinCash(
-            address: input.wallet.defaultAddress,
             isTestnet: input.isTestnet
         )
 
@@ -57,9 +56,14 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
 
         let networkService = BitcoinCashNetworkService(
             providers: providers,
-            blockchainName: Blockchain.bitcoinCash.displayName
+            blockchainName: input.wallet.blockchain.displayName
         )
 
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

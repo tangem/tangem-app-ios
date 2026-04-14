@@ -36,33 +36,28 @@ struct CommonUserWalletModelFactory {
         }
     }
 
-    func makeModel(
-        walletInfo: WalletInfo,
-        keys: WalletKeys,
-        name: String? = nil
-    ) -> UserWalletModel? {
+    func makeModel(walletInfo: WalletInfo, keys: WalletKeys, name: String? = nil) -> UserWalletModel? {
         let config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
 
-        guard
-            let userWalletId = UserWalletId(config: config),
-            let dependencies = CommonUserWalletModelDependencies(
-                userWalletId: userWalletId,
-                config: config,
-                keys: keys
-            )
-        else {
+        guard let userWalletId = UserWalletId(config: config) else {
             return nil
         }
+
+        let dependencies = CommonUserWalletModelDependencies(
+            userWalletId: userWalletId,
+            walletInfo: walletInfo,
+            config: config,
+            keys: keys
+        )
 
         let commonModel = CommonUserWalletModel(
             walletInfo: walletInfo,
             name: name ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: config),
             config: config,
             userWalletId: userWalletId,
-            walletModelsManager: dependencies.walletModelsManager,
-            userTokensManager: dependencies.userTokensManager,
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
+            keysDerivingInteractor: dependencies.keysDerivingInteractor,
             totalBalanceProvider: dependencies.totalBalanceProvider,
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
             accountModelsManager: dependencies.accountModelsManager

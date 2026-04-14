@@ -27,9 +27,7 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            if let promotionNotificationsViewModel = viewModel.promotionNotificationsViewModel {
-                PromotionNotificationsView(viewModel: promotionNotificationsViewModel)
-            }
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             if let viewModel = viewModel.tangemPayBannerViewModel {
                 GetTangemPayBannerView(viewModel: viewModel)
@@ -41,10 +39,6 @@ struct MultiWalletMainContentView: View {
             }
 
             ForEach(viewModel.tokensNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
-            ForEach(viewModel.yieldModuleNotificationInputs) { input in
                 NotificationView(input: input)
             }
 
@@ -204,7 +198,7 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
+        let sectionsProvider = CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
             manageTokensActionFactory: { _ in {} }
         )
@@ -221,7 +215,7 @@ struct MultiWalletMainContentView: View {
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            promotionNotificationsViewModel: nil,
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),

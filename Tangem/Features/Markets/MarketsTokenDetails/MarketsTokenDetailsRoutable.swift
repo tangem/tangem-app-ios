@@ -10,7 +10,6 @@ import Foundation
 
 protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable {
     func openURL(_ url: URL)
-    func openTokenSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     @MainActor
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
@@ -19,4 +18,8 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int)
     func shareTokenDetails(url: URL)
+    @MainActor
+    func openInfoDialogue(title: String, message: String)
+    @MainActor
+    func openFullDescriptionDialogue(title: String, description: String, onGenerateAITapAction: @escaping () -> Void)
 }

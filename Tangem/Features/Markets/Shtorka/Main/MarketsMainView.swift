@@ -12,7 +12,6 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
-import TangemAccessibilityIdentifiers
 
 struct MarketsMainView: View {
     @ObservedObject var viewModel: MarketsMainViewModel
@@ -66,13 +65,16 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
+                        .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
+                        .transition(.opacity)
                 } else {
                     widgetsListView
+                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showSearchResult)
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
-            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
 
             navigationBarBackground
 
@@ -97,12 +99,14 @@ struct MarketsMainView: View {
             isListContentObscured: isListContentObscured
         ) {
             Group {
-                if showSearchResult {
+                if showSearchResult, !FeatureProvider.isAvailable(.redesign) {
+                    // Redesigned search UI draws its own header inside `searchResultView`,
+                    // so no overlay is needed in that branch.
                     MarketsSearchResultListOverlayView(
                         titleOpacity: $listOverlayTitleOpacity,
                         totalHeight: $searchResultListOverlayTotalHeight
                     )
-                } else {
+                } else if !showSearchResult {
                     defaultListOverlay
                 }
             }
@@ -114,6 +118,15 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private var searchResultView: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            TokenSearchView(viewModel: viewModel.tokenSearchViewModel, headerHeight: headerHeight)
+        } else {
+            legacySearchResultView
+        }
+    }
+
+    @ViewBuilder
+    private var legacySearchResultView: some View {
         switch viewModel.tokenListViewModel.tokenListLoadingState {
         case .noResults:
             noResultsStateView
@@ -238,6 +251,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
+                            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
@@ -262,23 +276,11 @@ struct MarketsMainView: View {
     @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
-            redesignErrorStateView(with: tryLoadAgain)
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             MarketsListErrorView(tryLoadAgain: tryLoadAgain)
         }
-    }
-
-    private func redesignErrorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        VStack(spacing: SizeUnit.x2.value) {
-            Text(Localization.marketsLoadingErrorTitle)
-                .style(Font.Tangem.Body14.regular, color: Color.Tangem.Text.Neutral.tertiary)
-
-            TangemButton(content: .text(AttributedString(Localization.tryToLoadDataAgainButtonTitle)), action: tryLoadAgain)
-                .setSize(.x8)
-                .setCornerStyle(.rounded)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder

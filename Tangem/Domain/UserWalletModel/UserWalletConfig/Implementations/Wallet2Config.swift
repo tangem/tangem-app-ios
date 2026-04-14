@@ -18,7 +18,7 @@ import SwiftUI
 // [REDACTED_TODO_COMMENT]
 struct Wallet2Config {
     let card: CardDTO
-    private let isDemo: Bool
+    let isDemo: Bool
 
     init(card: CardDTO, isDemo: Bool) {
         self.card = card
@@ -199,7 +199,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF33":
             return cardsCount == 2 ? Assets.Cards.pizzaDayWalletDouble : Assets.Cards.pizzaDayWalletTriple
         // Red panda
-        case "AF34":
+        case "AF34", "BB000038":
             return cardsCount == 2 ? Assets.Cards.redPandaDouble : Assets.Cards.redPandaTriple
         // Cryptoseth
         case "AF32":
@@ -348,6 +348,15 @@ extension Wallet2Config: UserWalletConfig {
         // Lunar
         case "AF990057", "AF990058", "AF990059":
             return cardsCount == 2 ? Assets.Cards.lunarDouble : Assets.Cards.lunarTriple
+        // French Collection
+        case "AF990084", "AF990085", "AF990086":
+            return cardsCount == 2 ? Assets.Cards.frenchCollectionDouble : Assets.Cards.frenchCollectionTriple
+        // Football
+        case "AF990088", "AF990089", "AF990090":
+            return cardsCount == 2 ? Assets.Cards.footballDouble : Assets.Cards.footballTriple
+        // Metaplanet
+        case "BB000040":
+            return cardsCount == 2 ? Assets.Cards.metaplanetDouble : Assets.Cards.metaplanetTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -465,7 +474,7 @@ extension Wallet2Config: UserWalletConfig {
                 ? .twoCards(.init(card: CC.bitcoinPizzaDay, secondCard: CC.bitcoinPizzaDay))
                 : .threeCards(.init(card: CC.bitcoinPizzaDay, secondCard: CC.bitcoinPizzaDay, thirdCard: CC.bitcoinPizzaDay))
         // Red Panda
-        case "AF34":
+        case "AF34", "BB000038":
             return cardsCount == 2
                 ? .twoCards(.init(card: CC.redPanda, secondCard: CC.redPanda))
                 : .threeCards(.init(card: CC.redPanda, secondCard: CC.redPanda, thirdCard: CC.redPanda))
@@ -808,15 +817,7 @@ extension Wallet2Config: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        if isDemo {
-            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
-        }
-
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {
