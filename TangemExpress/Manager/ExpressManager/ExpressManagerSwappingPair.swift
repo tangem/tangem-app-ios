@@ -16,4 +16,13 @@ public struct ExpressManagerSwappingPair {
         self.source = source
         self.destination = destination
     }
+
+    public func currencySymbol(for amountType: ExpressAmountType) -> String {
+        switch amountType {
+        case .from:
+            return source.currency.symbol
+        case .to:
+            return destination.currency.symbol
+        }
+    }
 }
