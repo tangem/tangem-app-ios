@@ -871,17 +871,19 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
             .map { state -> ExchangeAmountRestriction? in
-                guard case .loaded(_, _, .restriction(let restriction, _)) = state else {
+                guard case .loaded(_, _, let loadedState) = state else {
                     return nil
                 }
 
-                switch restriction {
-                case .tooSmallAmountForSwapping(let amount):
+                switch loadedState {
+                case .restriction(.tooSmallAmountForSwapping(let amount), _):
                     return .tooSmallAmount(amount)
-                case .tooBigAmountForSwapping(let amount):
+                case .restriction(.tooBigAmountForSwapping(let amount), _):
                     return .tooBigAmount(amount)
-                case .notEnoughBalanceForSwapping:
+                case .restriction(.notEnoughBalanceForSwapping, _):
                     return .balanceExceeded
+                case .requiredRefresh:
+                    return .exchangeDataLoadingFailed
                 default:
                     return nil
                 }
@@ -959,6 +961,7 @@ extension SwapModel: SendSwapProvidersInput {
         case .loading(.rates): .loading
         case .loading: .none
         case .loaded(_, _, .idle): .none
+        case .loaded(_, _, .requiredRefresh(let error, _)): .failure(error)
         case .loaded(_, let selected, _): selected.map { .success($0) }
         }
     }
@@ -1040,7 +1043,9 @@ extension SwapModel: SendFeeInput {
         switch providersState {
         case .loaded(_, _, state: .readyToSwap):
             return true
-        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)):
+        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)),
+             .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForTxValue, _)),
+             .loaded(_, .some(let selected), state: .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
         case .loaded(_, _, state: .previewCEX(let previewCEX)):
             return !previewCEX.isExemptFee
