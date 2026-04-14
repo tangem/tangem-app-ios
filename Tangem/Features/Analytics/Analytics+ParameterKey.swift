@@ -82,6 +82,7 @@ extension Analytics {
         case tokenChosen = "Token Chosen"
         case availableTokens = "Available tokens"
         case provider = "Provider"
+        case rateType = "Rate Type"
         case commission = "Commission"
         case place = "Place"
         case result = "Result"

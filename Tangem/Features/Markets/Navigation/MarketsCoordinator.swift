@@ -17,6 +17,7 @@ class MarketsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
+    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -60,21 +61,13 @@ class MarketsCoordinator: CoordinatorObject {
     func start(with options: MarketsCoordinator.Options) {
         let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
-        if FeatureProvider.isAvailable(.marketsAndNews) {
-            let viewModel = MarketsMainViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
+        let viewModel = MarketsMainViewModel(
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            tokenSearchStorage: CommonTokenSearchStorage(persistentStorage: persistentStorage),
+            coordinator: self
+        )
 
-            marketsMainViewModel = viewModel
-        } else {
-            let viewModel = MarketsViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
-
-            marketsViewModel = viewModel
-        }
+        marketsMainViewModel = viewModel
     }
 }
 
@@ -167,7 +160,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
 
         Task { @MainActor in
-            let viewModel = AccountsAwareAddTokenFlowViewModel(
+            let viewModel = AddTokenFlowViewModel(
                 userWalletModels: userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -212,7 +205,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
     }
 }
 
-// MARK: - EarnAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+// MARK: - EarnAddTokenRoutable, AddTokenFlowRoutable
 
 extension MarketsCoordinator: EarnAddTokenRoutable {
     func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
