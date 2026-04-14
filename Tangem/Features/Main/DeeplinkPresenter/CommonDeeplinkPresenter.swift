@@ -195,13 +195,7 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { UIApplication.dismissTop() })
 
         coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
+            with: .init(userWalletModels: [userWalletModel])
         )
 
         return makeDeeplinkViewController(
@@ -216,7 +210,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .sell())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
@@ -229,7 +224,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false

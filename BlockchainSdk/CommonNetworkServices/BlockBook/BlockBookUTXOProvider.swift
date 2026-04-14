@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 import TangemFoundation
 import TangemNetworkUtils
 
@@ -131,6 +132,38 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
     }
 }
 
+// MARK: - XPUB
+
+extension BlockBookUTXOProvider {
+    /// https://github.com/trezor/blockbook/blob/master/docs/api.md#get-xpub
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, Error> {
+        let parameters = BlockBookTarget.XPUBRequestParameters(
+            page: nil,
+            pageSize: nil,
+            details: .tokenBalances,
+            tokens: .used
+        )
+
+        return executeRequest(
+            .xpub(xpub: xpub, parameters: parameters),
+            responseType: BlockBookXPUBResponse.self
+        )
+        .withWeakCaptureOf(self)
+        .tryMap { provider, response in
+            try provider.mapToUTXOXpubAddressesInfo(tokens: response.tokens ?? [])
+        }
+        .eraseToAnyPublisher()
+    }
+
+    /// https://github.com/trezor/blockbook/blob/master/docs/api.md#get-utxo
+    func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
+        executeRequest(.utxo(address: xpub), responseType: [BlockBookUnspentTxResponse].self)
+            .withWeakCaptureOf(self)
+            .tryMap { try $0.mapToGroupedUnspentOutputs(outputs: $1) }
+            .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Private
 
 extension BlockBookUTXOProvider {
@@ -155,8 +188,43 @@ private extension BlockBookUTXOProvider {
         }
     }
 
+    func mapToGroupedUnspentOutputs(outputs: [BlockBookUnspentTxResponse]) throws -> [UTXOUsedAddress: [UnspentOutput]] {
+        var grouped = [UTXOUsedAddress: [UnspentOutput]]()
+
+        for output in outputs {
+            guard let address = output.address, let path = output.path else {
+                continue
+            }
+
+            guard let value = Decimal(stringValue: output.value) else {
+                continue
+            }
+
+            let derivationPath = try DerivationPath(rawPath: path)
+            let usedAddress = UTXOUsedAddress(address: address, derivationPath: derivationPath)
+            let unspentOutput = UnspentOutput(blockId: output.height ?? 0, txId: output.txid, index: output.vout, amount: value.uint64Value)
+            grouped[usedAddress, default: []].append(unspentOutput)
+        }
+
+        return grouped
+    }
+
     func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, address: String) throws -> TransactionRecord {
         try BlockBookTransactionTransactionRecordMapper(blockchain: blockchain)
             .mapToTransactionRecord(transaction: transaction, address: address)
+    }
+
+    func mapToUTXOXpubAddressesInfo(tokens: [BlockBookXPUBResponse.Token]) throws -> UTXOXpubAddressesInfo {
+        let addresses = try tokens.map { token in
+            let derivationPath = try DerivationPath(rawPath: token.path)
+
+            return UTXOXpubAddressesInfo.Address(
+                usedAddress: UTXOUsedAddress(address: token.name, derivationPath: derivationPath),
+                transfers: token.transfers,
+                balance: Decimal(stringValue: token.balance) ?? 0
+            )
+        }
+
+        return UTXOXpubAddressesInfo(addresses: addresses)
     }
 }

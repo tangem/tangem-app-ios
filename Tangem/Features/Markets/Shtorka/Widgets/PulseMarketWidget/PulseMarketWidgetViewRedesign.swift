@@ -10,22 +10,38 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct PulseMarketWidgetViewRedesign: View {
     @ObservedObject var viewModel: PulseMarketWidgetViewModel
 
     @Environment(\.mainWindowSize) private var mainWindowSize
 
+    private var listStateID: Int {
+        switch viewModel.tokenViewModelsState {
+        case .loading: return 0
+        case .success: return 1
+        case .failure: return 2
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
+                .disableAnimations()
 
             if viewModel.isNeedDisplayFilter {
                 filter
+            } else if case .loading = viewModel.tokenViewModelsState {
+                filterSkeletons
             }
 
             list
+                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
+                .id(listStateID)
+                .transition(.opacity)
         }
+        .animation(.easeInOut(duration: 0.3), value: listStateID)
     }
 
     private var header: some View {
@@ -38,37 +54,24 @@ struct PulseMarketWidgetViewRedesign: View {
         )
     }
 
-    private var loadingSkeletons: some View {
-        VStack(spacing: .zero) {
-            ForEach(0 ..< 5) { _ in
-                MarketsSkeletonItemView()
-            }
-        }
-    }
-
+    @ViewBuilder
     private var list: some View {
-        Group {
-            switch viewModel.tokenViewModelsState {
-            case .loading:
-                loadingSkeletons
-                    .transition(.opacity.animation(.easeInOut))
-            case .success(let tokenViewModels):
-                VStack(spacing: .zero) {
-                    ForEach(tokenViewModels) {
-                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-                    }
+        switch viewModel.tokenViewModelsState {
+        case .loading:
+            loadingSkeletons
+
+        case .success(let tokenViewModels):
+            VStack(spacing: .zero) {
+                ForEach(tokenViewModels) {
+                    MarketTokenRowView(viewModel: $0)
                 }
-                .transition(.opacity.animation(.easeInOut))
-            case .failure:
-                MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
-                    .transition(.opacity.animation(.easeInOut))
             }
+
+        case .failure:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
+                .infinityFrame(axis: .horizontal, alignment: .center)
+                .padding(.vertical, 132)
         }
-        .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level4,
-            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-        )
     }
 
     private var filter: some View {
@@ -77,5 +80,35 @@ struct PulseMarketWidgetViewRedesign: View {
             selectedId: $viewModel.filterSelectedId,
             horizontalInset: 4
         )
+    }
+
+    private var loadingSkeletons: some View {
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 5, id: \.self) { _ in
+                MarketTokenRowSkeletonView()
+            }
+        }
+    }
+
+    private var filterSkeletons: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: .unit(.x2)) {
+                SkeletonView()
+                    .frame(width: 113, height: 36)
+                    .clipShape(.capsule)
+
+                SkeletonView()
+                    .frame(width: 113, height: 36)
+                    .clipShape(.capsule)
+
+                SkeletonView()
+                    .frame(width: 200, height: 36)
+                    .clipShape(.capsule)
+            }
+            .padding(.horizontal, SizeUnit.x4.value)
+        }
+        .scrollDisabled(true)
+        .padding(.horizontal, -SizeUnit.x4.value)
+        .allowsHitTesting(false)
     }
 }

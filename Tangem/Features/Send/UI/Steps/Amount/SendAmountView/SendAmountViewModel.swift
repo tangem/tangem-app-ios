@@ -286,6 +286,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func openRateInfo(type: RateInfoSheetViewModel.RateType) {
+        switch type {
+        case .fixed:
+            Analytics.log(.sendNoticeFixedRate)
+        case .floating:
+            Analytics.log(.sendNoticeFloatRate)
+        }
+
         router?.openRateInfoSheet(rateType: type, onDismiss: { [weak self] in
             guard let self else { return }
             pendingFocusField = activeField

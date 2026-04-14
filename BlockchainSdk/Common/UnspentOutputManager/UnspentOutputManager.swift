@@ -12,14 +12,17 @@ protocol UnspentOutputManager {
     func update(outputs: [UnspentOutput], for address: String) throws
     func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
 
-    func preImage(amount: Int, fee: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction
-    func preImage(amount: Int, feeRate: Int, destination: String, opReturn: Data?) async throws -> PreImageTransaction
+    func preImage(amount: Int, fee: Int, destination: String, changeAddress: String, opReturn: Data?) async throws -> PreImageTransaction
+    func preImage(amount: Int, feeRate: Int, destination: String, changeAddress: String, opReturn: Data?) async throws -> PreImageTransaction
 
     /// Outputs which possible to spent
     func availableOutputs() -> [ScriptUnspentOutput]
 
     func confirmedBalance() -> UInt64
     func unconfirmedBalance() -> UInt64
+
+    /// Clear cached outputs
+    func clearOutputs()
 }
 
 extension UnspentOutputManager {
@@ -38,12 +41,12 @@ extension UnspentOutputManager {
     }
 
     func preImage(transaction: Transaction) async throws -> PreImageTransaction {
-        assert(!transaction.fee.amount.isZero, "Use preImage(amount:, feeRate:, destination:) for calculating fee")
+        assert(!transaction.fee.amount.isZero, "Use preImage(amount:, feeRate:, destination:, changeAddress:) for calculating fee")
 
         let amount = transaction.amount.asSmallest().value.intValue()
         let fee = transaction.fee.amount.asSmallest().value.intValue()
         let opReturn = try opReturn(from: transaction)
-        let preImage = try await preImage(amount: amount, fee: fee, destination: transaction.destinationAddress, opReturn: opReturn)
+        let preImage = try await preImage(amount: amount, fee: fee, destination: transaction.destinationAddress, changeAddress: transaction.changeAddress, opReturn: opReturn)
         return preImage
     }
 

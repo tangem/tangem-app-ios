@@ -12,8 +12,8 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
-@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensView: View {
     // MARK: - Model
 
@@ -46,9 +46,9 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    @State private var dragAndDropSourceIndexPath: IndexPath?
+    @State private var dragAndDropSourceIndexPath: OrganizeTokensIndexPath?
 
-    @State private var dragAndDropDestinationIndexPath: IndexPath?
+    @State private var dragAndDropDestinationIndexPath: OrganizeTokensIndexPath?
 
     /// In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
@@ -198,69 +198,95 @@ struct OrganizeTokensView: View {
             cornerRadius: Constants.contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
+        return ForEach(indexed: viewModel.sections.indexed()) { outerSectionIndex, outerSectionViewModel in
             Section(
                 content: {
-                    ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
-                        let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
-                        let identifier = itemViewModel.id
-                        let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
+                    ForEach(indexed: outerSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
+                        Section(
+                            content: {
+                                ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
+                                    let indexPath = OrganizeTokensIndexPath(
+                                        outerSection: outerSectionIndex,
+                                        innerSection: innerSectionIndex,
+                                        item: itemIndex
+                                    )
+                                    let identifier = itemViewModel.id
+                                    let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
 
-                        makeCell(
-                            viewModel: itemViewModel,
-                            indexPath: indexPath,
-                            parametersProvider: parametersProvider
-                        )
-                        .hidden(isDragged)
-                        .accessibilityHidden(isDragged)
-                        .readGeometry(
-                            \.frame,
-                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                        ) { frame in
-                            if !isDragged {
-                                dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                    makeCell(
+                                        viewModel: itemViewModel,
+                                        atIndexPath: indexPath,
+                                        parametersProvider: parametersProvider
+                                    )
+                                    .hidden(isDragged)
+                                    .accessibilityHidden(isDragged)
+                                    .readGeometry(
+                                        \.frame,
+                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                    ) { frame in
+                                        if !isDragged {
+                                            dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                        }
+                                    }
+                                    .id(identifier)
+                                }
+                            },
+                            header: {
+                                let indexPath = OrganizeTokensIndexPath(
+                                    outerSection: outerSectionIndex,
+                                    innerSection: innerSectionIndex,
+                                    item: viewModel.sectionHeaderItemIndex
+                                )
+                                let identifier = innerSectionViewModel.id
+                                let isDragged = identifier == dragAndDropSourceViewModelIdentifier
+                                let isOuterSectionInvisible = outerSectionViewModel.model.style == .invisible
+
+                                makeInnerSection(
+                                    from: innerSectionViewModel,
+                                    atIndexPath: indexPath,
+                                    parametersProvider: parametersProvider
+                                )
+                                .hidden(isDragged)
+                                .accessibilityHidden(isDragged)
+                                .readGeometry(
+                                    \.frame,
+                                    inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                ) { frame in
+                                    if !isDragged {
+                                        dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                    }
+                                }
+                                .id(identifier)
+                                .padding(.top, innerSectionIndex != 0 && isOuterSectionInvisible ? Constants.interSectionSpacing : 0.0)
                             }
-                        }
-                        .id(identifier)
+                        )
                     }
                 },
                 header: {
-                    let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
-                    let identifier = sectionViewModel.id
-                    let isDragged = identifier == dragAndDropSourceViewModelIdentifier
-
-                    makeSection(
-                        from: sectionViewModel,
-                        atIndex: sectionIndex,
+                    makeOuterSection(
+                        from: outerSectionViewModel,
+                        atIndex: outerSectionIndex,
                         parametersProvider: parametersProvider
                     )
-                    .hidden(isDragged)
-                    .accessibilityHidden(isDragged)
-                    .readGeometry(
-                        \.frame,
-                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                    ) { frame in
-                        if !isDragged {
-                            dragAndDropController.saveFrame(frame, forItemAt: indexPath)
-                        }
-                    }
-                    .id(identifier)
-                    .padding(.top, sectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
+                    .padding(.top, outerSectionIndex != 0 ? Constants.interSectionSpacing : 0.0)
                 }
             )
         }
     }
 
+    @ViewBuilder
     private var tokenListHeader: some View {
-        OrganizeTokensListHeader(
-            viewModel: viewModel.headerViewModel,
-            horizontalInset: Constants.contentHorizontalInset,
-            bottomInset: Constants.headerBottomInset
-        )
-        .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
-        .padding(.bottom, Constants.headerAdditionalBottomInset)
-        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
-        .infinityFrame(alignment: .top)
+        if let headerViewModel = viewModel.headerViewModel {
+            OrganizeTokensListHeader(
+                viewModel: headerViewModel,
+                horizontalInset: Constants.contentHorizontalInset,
+                bottomInset: Constants.headerBottomInset
+            )
+            .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
+            .padding(.bottom, Constants.headerAdditionalBottomInset)
+            .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
+            .infinityFrame(alignment: .top)
+        }
     }
 
     private var tokenListFooter: some View {
@@ -375,11 +401,18 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func makeCell(
         viewModel: OrganizeTokensListItemViewModel,
-        indexPath: IndexPath,
+        atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
-            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(name: viewModel.name, section: indexPath.section, item: indexPath.item))
+            .accessibilityIdentifier(
+                OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
+                    name: viewModel.name,
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath.item
+                )
+            )
             .background(Colors.Background.primary)
             .cornerRadius(
                 parametersProvider.cornerRadius(forItemAt: indexPath),
@@ -388,9 +421,9 @@ struct OrganizeTokensView: View {
     }
 
     @ViewBuilder
-    private func makeSection(
+    private func makeInnerSection(
         from section: OrganizeTokensListInnerSection,
-        atIndex sectionIndex: Int,
+        atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
@@ -405,8 +438,34 @@ struct OrganizeTokensView: View {
         }
         .background(Colors.Background.primary)
         .cornerRadius(
-            parametersProvider.cornerRadius(forSectionAtIndex: sectionIndex),
-            corners: parametersProvider.rectCorners(forSectionAtIndex: sectionIndex)
+            parametersProvider.cornerRadius(forInnerSectionAt: indexPath),
+            corners: parametersProvider.rectCorners(forInnerSectionAt: indexPath)
+        )
+    }
+
+    @ViewBuilder
+    private func makeOuterSection(
+        from section: OrganizeTokensListOuterSection,
+        atIndex sectionIndex: Int,
+        parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
+    ) -> some View {
+        Group {
+            switch section.model.style {
+            case .invisible:
+                EmptyView()
+            case .default(let title, let iconData):
+                OrganizeTokensListOuterSectionView(
+                    title: title,
+                    iconData: iconData,
+                    outerSectionIndex: sectionIndex,
+                    accountId: section.model.id
+                )
+            }
+        }
+        .background(Colors.Background.primary)
+        .cornerRadius(
+            parametersProvider.cornerRadius(forOuterSectionAtIndex: sectionIndex),
+            corners: parametersProvider.rectCorners(forOuterSectionAtIndex: sectionIndex)
         )
     }
 
@@ -472,15 +531,15 @@ struct OrganizeTokensView: View {
                 itemFrame: dragAndDropSourceItemFrame
             ) {
                 if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
-                    makeSection(
+                    makeInnerSection(
                         from: section,
-                        atIndex: dragAndDropSourceIndexPath.section,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
                     makeCell(
                         viewModel: itemViewModel,
-                        indexPath: dragAndDropSourceIndexPath,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 }
@@ -490,7 +549,7 @@ struct OrganizeTokensView: View {
 
     private func makeDraggableView<Content>(
         width: CGFloat,
-        indexPath: IndexPath,
+        indexPath: OrganizeTokensIndexPath,
         itemFrame: CGRect,
         @ViewBuilder content: () -> Content
     ) -> some View where Content: View {
@@ -610,6 +669,7 @@ private extension AnyTransition {
 private extension OrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
+        static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0

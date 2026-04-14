@@ -11,7 +11,7 @@ import Combine
 import BigInt
 import TangemSdk
 
-class AlephiumWalletManager: BaseManager, WalletManager {
+class AlephiumWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String {
         networkService.host
     }
@@ -35,9 +35,9 @@ class AlephiumWalletManager: BaseManager, WalletManager {
 
     // MARK: - Manager Implementation
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let accountInfo = try await networkService.getAccountInfo(for: wallet.address).async()
+            let accountInfo = try await networkService.getAccountInfo(for: address).async()
             updateWallet(accountInfo: accountInfo)
         } catch {
             wallet.clearAmounts()

@@ -35,6 +35,7 @@ final class WalletModelTestsMock: WalletModel {
         return TokenQuote(
             currencyId: "mock",
             price: 1,
+            priceUsd: nil,
             priceChange24h: priceChange24h,
             priceChange7d: nil,
             priceChange30d: nil,
@@ -133,6 +134,7 @@ final class WalletModelTestsMock: WalletModel {
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
+    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }

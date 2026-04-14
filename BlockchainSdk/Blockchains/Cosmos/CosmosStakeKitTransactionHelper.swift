@@ -32,7 +32,7 @@ struct CosmosStakeKitTransactionHelper {
     private func makeInput(
         stakingTransaction: StakeKitTransaction
     ) throws -> Data {
-        let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: stakingTransaction.unsignedData))
+        let stakingProtoMessage = try CosmosProtoMessage(serializedBytes: Data(hex: stakingTransaction.unsignedData))
 
         let feeMessage = stakingProtoMessage.feeAndKeyContainer.feeContainer
         let feeValue = feeMessage.feeAmount

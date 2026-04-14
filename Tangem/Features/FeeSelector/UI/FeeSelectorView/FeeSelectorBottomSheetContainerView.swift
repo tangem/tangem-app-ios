@@ -20,12 +20,14 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     private let mainContent: MainContent
     private let buttonContent: ButtonContent
     private let showsButton: Bool
+    private let verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior?
 
     // MARK: - Init
 
     init(
         state: AnyHashable,
         showsButton: Bool = true,
+        verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior? = nil,
         @ViewBuilder button: () -> ButtonContent,
         @ViewBuilder headerContent: () -> HeaderContent = { EmptyView() },
         @ViewBuilder descriptionContent: () -> DescriptionContent = { EmptyView() },
@@ -33,6 +35,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     ) {
         self.state = state
         self.showsButton = showsButton
+        self.verticalSwipeBehavior = verticalSwipeBehavior
         buttonContent = button()
         self.headerContent = headerContent()
         self.descriptionContent = descriptionContent()
@@ -48,6 +51,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
                 configuration.sheetBackgroundColor = Colors.Background.tertiary
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
+                configuration.verticalSwipeBehavior = verticalSwipeBehavior
             }
     }
 
