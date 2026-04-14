@@ -17,7 +17,11 @@ struct EarnDetailCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                EarnDetailView(viewModel: viewModel)
+                if coordinator.isRedesignEnabled {
+                    EarnDetailViewRedesign(viewModel: viewModel)
+                } else {
+                    EarnDetailView(viewModel: viewModel)
+                }
             }
 
             NavHolder()

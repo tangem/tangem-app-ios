@@ -98,11 +98,10 @@ struct ManageTokensView: View {
 
 #Preview {
     let fakeModel = FakeUserWalletModel.wallet3Cards
-    let fakeAPIService = FakeTangemApiService()
-    InjectedValues[\.tangemApiService] = fakeAPIService
-    let context = LegacyManageTokensContext(
-        userTokensManager: fakeModel.userTokensManager,
-        walletModelsManager: fakeModel.walletModelsManager
+    let accountModelsManager = AccountModelsManagerMock()
+    let context = CommonManageTokensContext(
+        accountModelsManager: accountModelsManager,
+        currentAccount: accountModelsManager.cryptoAccountModels[0]
     )
 
     let adapter = ManageTokensAdapter(
@@ -115,7 +114,7 @@ struct ManageTokensView: View {
         )
     )
 
-    return NavigationStack {
+    NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,

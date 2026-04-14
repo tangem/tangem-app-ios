@@ -106,7 +106,7 @@ struct CarouselNewsView: View {
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterIcon)
 
             Text(Localization.newsAllNews)
-                .style(.system(size: 16, weight: .regular), color: .Tangem.Text.Neutral.primary)
+                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
 
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterTitle)
 
@@ -151,12 +151,7 @@ private extension CarouselNewsView {
             static let cornerRadius: CGFloat = 14
         }
 
-        enum RedesignCard {
-            static let width: CGFloat = 228
-            static let height: CGFloat = 172
-            static let padding: CGFloat = .unit(.x4)
-            static let cornerRadius: CGFloat = .unit(.x5)
-        }
+        typealias RedesignCard = CarouselNewsCardView.Layout.RedesignCard
 
         enum RedesignAllNewsCard {
             static let spacingAfterIcon: CGFloat = 10

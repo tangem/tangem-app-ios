@@ -43,7 +43,7 @@ public class ExpressAvailableProvider {
         }
 
         switch getState() {
-        case .permissionRequired(let state):
+        case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
             return .high(rate: state.quote.rate)
         case .preview(let state):
             return .high(rate: state.quote.rate)
@@ -103,11 +103,11 @@ public extension [ExpressAvailableProvider] {
     }
 
     func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
-        guard let rateType, rateType == .fixed else {
-            return self // Float mode or nil → show all
+        guard let rateType else {
+            return self
         }
 
-        return filter { $0.supportedRateTypes.contains(.fixed) }
+        return filter { $0.supportedRateTypes.contains(rateType) }
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {

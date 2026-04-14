@@ -23,10 +23,9 @@ class CommonUserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    let walletModelsManager: WalletModelsManager
-    let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
+    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -53,10 +52,9 @@ class CommonUserWalletModel {
         name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
+        keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
@@ -65,10 +63,9 @@ class CommonUserWalletModel {
         self.config = config
         self.userWalletId = userWalletId
         self.name = name
-        self.walletModelsManager = walletModelsManager
-        self.userTokensManager = userTokensManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
+        self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
@@ -120,10 +117,6 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -340,16 +333,7 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     }
 }
 
-extension CommonUserWalletModel: KeysDerivingProvider {
-    var keysDerivingInteractor: KeysDeriving {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
-        }
-    }
-}
+extension CommonUserWalletModel: KeysDerivingProvider {}
 
 extension CommonUserWalletModel: TangemPayAuthorizingProvider {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
@@ -438,7 +422,6 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
 
 extension CommonUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

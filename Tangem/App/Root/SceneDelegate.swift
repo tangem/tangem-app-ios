@@ -95,10 +95,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = MainWindow(windowScene: windowScene)
 
         sheetRegistry.registerWalletConnectFloatingSheets()
-        sheetRegistry.registerAccountsAwareAddTokenFlowFloatingSheets()
+        sheetRegistry.registerAddTokenFlowFloatingSheets()
         sheetRegistry.registerTangemPayWalletSelectorSheets()
         sheetRegistry.registerCloreMigrationFloatingSheets()
         sheetRegistry.registerYieldModuleFloatingSheets()
+        sheetRegistry.registerEarnModuleFloatingSheets()
+        sheetRegistry.registerMarketsDialogueFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)

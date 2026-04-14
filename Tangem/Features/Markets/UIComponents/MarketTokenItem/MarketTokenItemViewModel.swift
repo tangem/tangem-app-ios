@@ -18,7 +18,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     // MARK: - Published
 
     @Published private(set) var priceValue: String = ""
-    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var priceChangeState: PriceChangeView.State = .empty
     @Published private(set) var charts: [Double]? = nil
 
@@ -121,7 +121,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
                 let (previousValue, newQuote) = elements
 
                 let input = viewModel.calculateViewUpdateInput(for: newQuote, with: viewModel.filterProvider?.currentFilterValue.interval)
-                let priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .calculateChange(from: previousValue?.price, to: newQuote.price)
+                let priceChangeAnimation: ForegroundBlinkAnimationChange = .calculateChange(from: previousValue?.price, to: newQuote.price)
                 return (input, priceChangeAnimation)
             }
             .receive(on: DispatchQueue.main)
