@@ -212,7 +212,7 @@ final class UserWalletNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
         let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
@@ -403,7 +403,7 @@ final class UserWalletNotificationManager {
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
             .flatMapLatest { derivationManagers in
                 return derivationManagers
-                    .compactMap(\.pendingDerivationsCount)
+                    .map(\.pendingDerivationsCount)
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }

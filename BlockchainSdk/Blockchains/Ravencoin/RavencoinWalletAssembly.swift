@@ -10,7 +10,7 @@ import Foundation
 
 struct RavencoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .ravencoin(address: input.wallet.defaultAddress, isTestnet: input.wallet.blockchain.isTestnet)
+        let unspentOutputManager: UnspentOutputManager = .ravencoin(isTestnet: input.wallet.blockchain.isTestnet)
 
         let txBuilder = BitcoinTransactionBuilder(
             network: input.wallet.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
@@ -39,6 +39,11 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
             blockchainName: Blockchain.ravencoin(testnet: false).displayName
         )
 
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

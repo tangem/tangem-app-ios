@@ -30,14 +30,6 @@ struct MarketsTokenDetailsView: View {
 
     private var isDarkColorScheme: Bool { colorScheme == .dark }
 
-    private var shortDescription: String? {
-        guard case .loaded(let model) = viewModel.state else {
-            return nil
-        }
-
-        return model.shortDescription
-    }
-
     /// `UIColor` is used since `Color(uiColor:)` constructor loses Xcode color asset dark/light appearance setting.
     @available(iOS, deprecated: 18.0, message: "Replace 'UIColor' with 'Color' since 'Color.mix(with:by:in:)' is available")
     private var defaultBackgroundColor: UIColor {
@@ -179,15 +171,18 @@ struct MarketsTokenDetailsView: View {
         .opacity(viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .bindAlert($viewModel.alert)
-        .descriptionBottomSheet(
-            info: $viewModel.descriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action
-        )
-        .tokenDescriptionBottomSheet(
-            info: $viewModel.fullDescriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.action,
-            onGeneratedAITapAction: viewModel.onGenerateAITapAction
-        )
+        .if(!viewModel.isRedesignEnabled) { view in
+            view
+                .descriptionBottomSheet(
+                    info: $viewModel.descriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action
+                )
+                .tokenDescriptionBottomSheet(
+                    info: $viewModel.fullDescriptionBottomSheetInfo,
+                    backgroundColor: Colors.Background.action,
+                    onGeneratedAITapAction: viewModel.onGenerateAITapAction
+                )
+        }
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
             MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
                 .adaptivePresentationDetents()
@@ -200,6 +195,26 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var header: some View {
+        if viewModel.isRedesignEnabled {
+            headerRedesign
+        } else {
+            headerLegacy
+        }
+    }
+
+    private var headerRedesign: some View {
+        MarketsTokenDetailsHeaderView(
+            tokenName: viewModel.tokenName,
+            tokenSymbol: viewModel.tokenSymbol,
+            price: viewModel.attributedPrice,
+            priceDate: viewModel.priceDate,
+            priceChangeState: viewModel.priceChangeState,
+            priceChangeAnimation: viewModel.$priceChangeAnimation,
+            iconURL: viewModel.iconURL
+        )
+    }
+
+    private var headerLegacy: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
                 if let price = viewModel.price {
@@ -246,164 +261,43 @@ struct MarketsTokenDetailsView: View {
             marketPriceIntervalType: $viewModel.selectedPriceChangeIntervalType,
             options: viewModel.priceChangeIntervalOptions,
             shouldStretchToFill: true,
-            isDisabled: viewModel.isLoading && !viewModel.allDataLoadFailed,
             style: .init(textVerticalPadding: 4),
             titleFactory: { $0.tokenDetailsNameLocalized }
         )
+        .disabled(viewModel.isLoading && !viewModel.allDataLoadFailed)
     }
 
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            MarketsHistoryChartView(viewModel: viewModel)
+            if FeatureProvider.isAvailable(.redesign) {
+                MarketsHistoryChartViewRedesign(viewModel: viewModel)
+            } else {
+                MarketsHistoryChartView(viewModel: viewModel)
+            }
         }
     }
 
     @ViewBuilder
     private var content: some View {
-        VStack(spacing: Constants.contentVerticalSpacing) {
-            let hasShortDescription = viewModel.descriptionCanBeShowed && shortDescription != nil
-
-            // When `description` is an EmptyView (i.e. `hasShortDescription` is false) we don't want to add extra padding above the `portfolioView`
-            if hasShortDescription {
-                description
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Constants.contentHorizontalPadding)
-            }
-
-            portfolioView
-                .padding(.horizontal, Constants.contentHorizontalPadding)
-                .padding(.top, hasShortDescription ? 0 : Constants.contentVerticalSpacing)
-
-            newsView
-
-            coinView
+        if FeatureProvider.isAvailable(.redesign) {
+            MarketsTokenDetailsContentViewRedesign(viewModel: viewModel)
+        } else {
+            MarketsTokenDetailsContentView(viewModel: viewModel)
         }
     }
 
-    @ViewBuilder
-    private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
-            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
-        }
-    }
-
-    @ViewBuilder
-    private var newsView: some View {
-        if viewModel.isAvailableNews {
-            MarketsTokenNewsView(
-                items: viewModel.tokenNewsItems,
-                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
-            )
-        }
-    }
-
-    private var aboutCoinHeader: some View {
-        Text(Localization.marketsAboutCoinHeader)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8.0)
-    }
-
-    private var coinView: some View {
-        VStack(spacing: Constants.contentVerticalPadding) {
-            if viewModel.accountsAwarePortfolioViewModel != nil {
-                aboutCoinHeader
-            }
-
-            switch viewModel.state {
-            case .loading:
-                ContentBlockSkeletons()
-            case .loaded:
-                contentBlocks
-            case .failedToLoadDetails:
-                UnableToLoadDataView(
-                    isButtonBusy: viewModel.isLoading,
-                    retryButtonAction: viewModel.loadDetailedInfo
-                )
-                .padding(.vertical, 6)
-            case .failedToLoadAllData:
-                EmptyView()
-            }
-        }
-        .padding(.horizontal, Constants.contentHorizontalPadding)
-    }
-
-    @ViewBuilder
-    private var contentBlocks: some View {
-        VStack(spacing: Constants.contentVerticalPadding) {
-            let blocksWidth = mainWindowSize.width - Constants.contentHorizontalPadding * 2
-            if let insightsViewModel = viewModel.insightsViewModel {
-                MarketsTokenDetailsInsightsView(viewModel: insightsViewModel, viewWidth: blocksWidth)
-            }
-
-            if let securityScoreViewModel = viewModel.securityScoreViewModel {
-                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
-            }
-
-            if let metricsViewModel = viewModel.metricsViewModel {
-                MarketsTokenDetailsMetricsView(viewModel: metricsViewModel, viewWidth: blocksWidth)
-            }
-
-            if let pricePerformanceViewModel = viewModel.pricePerformanceViewModel {
-                MarketsTokenDetailsPricePerformanceView(viewModel: pricePerformanceViewModel)
-            }
-
-            if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
-                MarketsTokenDetailsListedOnExchangesView(exchangesCount: numberOfExchangesListedOn) {
-                    viewModel.openExchangesList()
-                }
-            }
-
-            if !viewModel.linksSections.isEmpty {
-                MarketsTokenDetailsLinksView(viewWidth: blocksWidth, sections: viewModel.linksSections)
-            }
-        }
-        .padding(.bottom, 46.0)
-    }
-
-    @ViewBuilder
-    private var description: some View {
-        switch viewModel.state {
-        case .loading:
-            DescriptionBlockSkeletons()
-        case .loaded(let model):
-            if let shortDescription {
-                if model.fullDescription == nil {
-                    Text(shortDescription)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                        .multilineTextAlignment(.leading)
-                } else {
-                    Button(action: viewModel.openFullDescription) {
-                        Group {
-                            Text("\(shortDescription) ")
-                                + readMoreText
-                        }
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                        .multilineTextAlignment(.leading)
-                    }
-                }
-            }
-        case .failedToLoadDetails, .failedToLoadAllData:
-            EmptyView()
-        }
-    }
-
-    @ViewBuilder
     private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level2
+        }
+
         let uiColor = overlayContentHidingBackgroundColor.mix(
             with: defaultBackgroundColor,
             by: viewModel.overlayContentHidingProgress
         )
 
-        Color(uiColor: uiColor)
-    }
-
-    private var readMoreText: Text {
-        let readMoreText = Localization.commonReadMore.replacingOccurrences(of: " ", with: String.unbreakableSpace)
-        return Text(readMoreText).foregroundColor(Colors.Text.accent)
+        return Color(uiColor: uiColor)
     }
 }
 
@@ -415,9 +309,6 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
-        static let contentVerticalSpacing = 32.0
-        static let contentVerticalPadding = 14.0
-        static let contentHorizontalPadding = 16.0
     }
 }
 

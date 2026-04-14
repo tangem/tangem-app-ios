@@ -71,7 +71,7 @@ struct CarouselNewsCardView: View {
                     )
                     .opacity(opacity())
             } else {
-                legacyСontentView(for: item)
+                legacyContentView(for: item)
                     .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
                     .defaultRoundedBackground(
                         with: Colors.Background.action,
@@ -88,7 +88,7 @@ struct CarouselNewsCardView: View {
 
     // MARK: - Content View
 
-    private func legacyСontentView(for item: CarouselNewsItem) -> some View {
+    private func legacyContentView(for item: CarouselNewsItem) -> some View {
         VStack(spacing: Layout.MainCard.verticalSpacing) {
             HStack {
                 NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)

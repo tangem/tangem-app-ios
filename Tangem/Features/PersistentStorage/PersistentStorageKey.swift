@@ -10,6 +10,7 @@ import Foundation
 
 enum PersistentStorageKey {
     /// - Note: Superseded by `accounts(cid:)`, will be removed in future.
+    @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     case wallets(cid: String)
     /// - Note: Supersedes `wallets(cid:)`.
     case accounts(cid: String)
@@ -19,6 +20,8 @@ enum PersistentStorageKey {
     case pendingOnrampTransactions
     case pendingStakingTransactions
     case onrampPreference
+    case tokenSearchQueryHistory
+    case tokenSearchAssetHistory
 
     var path: String {
         switch self {
@@ -38,6 +41,10 @@ enum PersistentStorageKey {
             return "staking_pending_transactions"
         case .onrampPreference:
             return "onramp_preference"
+        case .tokenSearchQueryHistory:
+            return "token_search_query_history"
+        case .tokenSearchAssetHistory:
+            return "token_search_asset_history"
         }
     }
 
@@ -59,6 +66,10 @@ enum PersistentStorageKey {
         case .walletConnectSessions:
             false
         case .wallets:
+            false
+        case .tokenSearchQueryHistory:
+            false
+        case .tokenSearchAssetHistory:
             false
         }
     }

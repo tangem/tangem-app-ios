@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-final class SuiWalletManager: BaseManager, WalletManager {
+final class SuiWalletManager: BaseWalletManager, WalletManager {
     let networkService: SuiNetworkService
     let transactionBuilder: SuiTransactionBuilder
 
@@ -19,9 +19,9 @@ final class SuiWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let result = try await networkService.getBalance(address: wallet.address, coinType: .sui, cursor: nil).async()
+            let result = try await networkService.getBalance(address: address, coinType: .sui, cursor: nil).async()
             let coins = try result.get()
             updateWallet(coins: coins, tokens: cardTokens)
 

@@ -182,6 +182,34 @@ extension BlockBookAddressResponse {
     }
 }
 
+struct BlockBookXPUBResponse: Decodable {
+    let page: Int?
+    let totalPages: Int?
+    let itemsOnPage: Int?
+    let address: String
+    let balance: String
+    let totalReceived: String?
+    let totalSent: String?
+    let unconfirmedBalance: String?
+    let unconfirmedTxs: Int?
+    let txs: Int
+    let usedTokens: Int?
+    let tokens: [Token]?
+}
+
+extension BlockBookXPUBResponse {
+    struct Token: Decodable {
+        let type: String
+        let name: String
+        let path: String
+        let transfers: Int
+        let decimals: Int
+        let balance: String
+        let totalReceived: String?
+        let totalSent: String?
+    }
+}
+
 struct BlockBookUnspentTxResponse: Decodable {
     let txid: String
     let vout: Int
@@ -191,6 +219,10 @@ struct BlockBookUnspentTxResponse: Decodable {
     let height: Int?
     let coinbase: Bool?
     let scriptPubKey: String?
+    /// Derived address, present only in xpub responses
+    let address: String?
+    /// Derivation path, present only in xpub responses
+    let path: String?
 }
 
 struct BlockBookFeeRateResponse: Decodable {

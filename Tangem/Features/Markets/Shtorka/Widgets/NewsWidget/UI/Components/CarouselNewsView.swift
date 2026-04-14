@@ -151,12 +151,7 @@ private extension CarouselNewsView {
             static let cornerRadius: CGFloat = 14
         }
 
-        enum RedesignCard {
-            static let width: CGFloat = 228
-            static let height: CGFloat = 172
-            static let padding: CGFloat = .unit(.x4)
-            static let cornerRadius: CGFloat = .unit(.x5)
-        }
+        typealias RedesignCard = CarouselNewsCardView.Layout.RedesignCard
 
         enum RedesignAllNewsCard {
             static let spacingAfterIcon: CGFloat = 10

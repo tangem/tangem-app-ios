@@ -9,16 +9,10 @@
 import Foundation
 
 extension AccountsDTO.Request {
-    // [REDACTED_TODO_COMMENT]
-    typealias GroupType = UserTokenList.GroupType
-
-    // [REDACTED_TODO_COMMENT]
-    typealias SortType = UserTokenList.SortType
-
     struct UserTokens: Encodable {
         let tokens: [Token]
-        let group: GroupType
-        let sort: SortType
+        let group: AccountsDTO.GroupType
+        let sort: AccountsDTO.SortType
         let notifyStatus: Bool
         let version: Int
     }

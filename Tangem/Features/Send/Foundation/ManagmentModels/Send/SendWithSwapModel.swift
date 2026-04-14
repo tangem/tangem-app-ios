@@ -377,6 +377,10 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             }
             .eraseToAnyPublisher()
     }
+
+    var currentRateType: ExpressProviderRateType? {
+        isSwapMode ? swapModel.currentRateType : nil
+    }
 }
 
 // MARK: - SendSwapProvidersOutput
@@ -521,7 +525,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             let highPriceImpactResult = try await swapModel.highPriceImpactPublisher.first().async()
             let source = try swapModel.sourceToken.get()
 
-            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
+            if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
                     tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)

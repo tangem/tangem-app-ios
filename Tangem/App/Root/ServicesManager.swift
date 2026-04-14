@@ -45,6 +45,7 @@ final class CommonServicesManager {
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
+    @Injected(\.swapTokenSelectorExpandedStateStorage) private var swapTokenSelectorStateStorage: SwapTokenSelectorExpandedStateStorage
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
@@ -180,6 +181,7 @@ extension CommonServicesManager: ServicesManager {
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         stateStorageProvider.initialize()
+        swapTokenSelectorStateStorage.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()

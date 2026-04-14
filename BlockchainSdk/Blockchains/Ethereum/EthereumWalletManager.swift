@@ -13,7 +13,7 @@ import TangemSdk
 import Moya
 import TangemFoundation
 
-class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSigner {
+class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransactionSigner {
     let txBuilder: EthereumTransactionBuilder
     let networkService: EthereumNetworkService
     let addressConverter: EthereumAddressConverter
@@ -46,9 +46,9 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         bind()
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let convertedAddress = try addressConverter.convertToETHAddress(wallet.address)
+            let convertedAddress = try addressConverter.convertToETHAddress(address)
 
             async let infoAndTokens: EthereumInfoResponse = try await networkService
                 .getInfo(address: convertedAddress, tokens: cardTokens)

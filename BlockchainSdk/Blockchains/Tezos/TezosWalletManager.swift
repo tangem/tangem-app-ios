@@ -12,15 +12,15 @@ import TangemSdk
 import stellarsdk
 import TangemLocalization
 
-class TezosWalletManager: BaseManager, WalletManager {
+class TezosWalletManager: BaseWalletManager, WalletManager {
     var txBuilder: TezosTransactionBuilder!
     var networkService: TezosNetworkService!
 
     var currentHost: String { networkService.host }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let response = try await networkService.getInfo(address: wallet.address).async()
+            let response = try await networkService.getInfo(address: address).async()
             updateWallet(with: response)
         } catch {
             wallet.clearAmounts()
