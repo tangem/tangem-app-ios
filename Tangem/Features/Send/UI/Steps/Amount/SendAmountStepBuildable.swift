@@ -24,23 +24,17 @@ extension SendAmountStepBuildable {
 
 enum SendAmountStepBuilder {
     struct IO {
-        let sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput)
-        let sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
-        let receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)?
-        let receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)?
+        let sourceIO: (input: any SendSourceInput, output: any SendSourceOutput)
+        let receiveIO: (input: any SendReceiveInput, output: any SendReceiveOutput)?
         let swapProvidersInput: SendSwapProvidersInput?
 
         init(
-            sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput),
-            sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput),
-            receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)? = nil,
-            receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)? = nil,
+            sourceIO: (input: any SendSourceInput, output: any SendSourceOutput),
+            receiveIO: (input: any SendReceiveInput, output: any SendReceiveOutput)? = nil,
             swapProvidersInput: SendSwapProvidersInput? = nil
         ) {
             self.sourceIO = sourceIO
-            self.sourceAmountIO = sourceAmountIO
             self.receiveIO = receiveIO
-            self.receiveAmountIO = receiveAmountIO
             self.swapProvidersInput = swapProvidersInput
         }
     }
@@ -76,19 +70,19 @@ enum SendAmountStepBuilder {
 
     static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
-            sourceTokenAmountInput: io.sourceAmountIO.input,
-            sourceTokenAmountOutput: io.sourceAmountIO.output,
+            sourceTokenAmountInput: io.sourceIO.input,
+            sourceTokenAmountOutput: io.sourceIO.output,
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output
         )
 
         let interactor = CommonSendAmountInteractor(
             sourceTokenInput: io.sourceIO.input,
-            sourceTokenAmountInput: io.sourceAmountIO.input,
+            sourceTokenAmountInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenOutput: io.receiveIO?.output,
-            receiveTokenAmountInput: io.receiveAmountIO?.input,
-            receiveTokenAmountOutput: io.receiveAmountIO?.output,
+            receiveTokenAmountInput: io.receiveIO?.input,
+            receiveTokenAmountOutput: io.receiveIO?.output,
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
             notificationService: dependencies.notificationService,
@@ -114,9 +108,9 @@ enum SendAmountStepBuilder {
             initialSourceToken: types.initialSourceToken,
             actionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
-            sourceTokenAmountInput: io.sourceAmountIO.input,
+            sourceTokenAmountInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
-            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            receiveTokenAmountInput: io.receiveIO?.input,
             swapProvidersInput: io.swapProvidersInput,
             isReceiveAmountApproximatePublisher: viewModel.isReceiveAmountApproximatePublisher
         )
@@ -125,9 +119,9 @@ enum SendAmountStepBuilder {
         let finish = SendAmountFinishViewModel(
             flowActionType: types.flowActionType,
             sourceTokenInput: io.sourceIO.input,
-            sourceTokenAmountInput: io.sourceAmountIO.input,
+            sourceTokenAmountInput: io.sourceIO.input,
             receiveTokenInput: io.receiveIO?.input,
-            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            receiveTokenAmountInput: io.receiveIO?.input,
             swapProvidersInput: io.swapProvidersInput,
         )
 

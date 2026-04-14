@@ -18,3 +18,11 @@ protocol SendSourceTokenInput: AnyObject {
 protocol SendSourceTokenOutput: AnyObject {
     func userDidSelect(sourceToken: SendSourceToken)
 }
+
+// MARK: - Combined protocols
+
+/// Combines source token and source amount into a single input protocol.
+typealias SendSourceInput = SendSourceTokenInput & SendSourceTokenAmountInput
+
+/// Combines source token and source amount into a single output protocol.
+typealias SendSourceOutput = SendSourceTokenOutput & SendSourceTokenAmountOutput

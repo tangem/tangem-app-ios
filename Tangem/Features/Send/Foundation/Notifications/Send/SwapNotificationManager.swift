@@ -56,7 +56,7 @@ private extension CommonSwapNotificationManager {
             sourceTokenInput.sourceTokenPublisher,
             receiveTokenInput.receiveTokenPublisher,
             swapModelStateProvider.statePublisher
-                .filter { $0.filter(loading: [.providers, .rates]) }
+                .filter { $0.phase.filter(loading: [.providers, .rates]) }
         )
         .withWeakCaptureOf(self)
         .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2) }
@@ -77,7 +77,7 @@ private extension CommonSwapNotificationManager {
     func mapToNotificationInputs(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
-        state: SwapModel.ProvidersState
+        state: SwapState
     ) -> [NotificationViewInput] {
         let factory = NotificationsFactory()
         let events = mapToEvents(source: source, receive: receive, state: state)
@@ -95,9 +95,9 @@ private extension CommonSwapNotificationManager {
     func mapToEvents(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
-        state: SwapModel.ProvidersState
+        state: SwapState
     ) -> [SwapNotificationEvent] {
-        switch (source, receive, state) {
+        switch (source, receive, state.phase) {
         case (.success, .failure(ExpressDestinationServiceError.destinationNotFound(let source)), _):
             return [.noDestinationTokens(tokenName: source.name)]
 
@@ -105,26 +105,30 @@ private extension CommonSwapNotificationManager {
             return [.noDestinationTokens(tokenName: destination.name)]
 
         // Expected when couldn't load the providers list
-        case (_, _, .failure):
+        case (_, _, .error):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success, .success, .loaded(let providers, _, _)) where providers.isEmpty:
+        case (.success, .success, .loaded) where state.providers.available.isEmpty:
             return [.unsupportedPair]
 
-        case (.success(let source), .success(let receive), .loaded(_, let selected, let state)):
-            let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
-            return events
+        case (.success(let source), .success(let receive), .loaded(let loadedPhase)):
+            return mapLoadedPhaseEvents(
+                source: source,
+                receive: receive,
+                provider: state.providers.selected,
+                phase: loadedPhase
+            )
 
         default:
             return []
         }
     }
 
-    func mapLoadedStateEvents(
+    func mapLoadedPhaseEvents(
         source: SendSourceToken,
         receive: SendReceiveToken,
         provider: ExpressAvailableProvider?,
-        state: SwapModel.LoadedState
+        phase: SwapLoadedPhase
     ) -> [SwapNotificationEvent] {
         let sourceTokenItemSymbol = source.tokenItem.currencySymbol
 
@@ -133,7 +137,7 @@ private extension CommonSwapNotificationManager {
         analyticsParams[.receiveToken] = receive.tokenItem.currencySymbol
         analyticsParams[.provider] = provider?.provider.name
 
-        switch state {
+        switch phase {
         case .idle:
             return []
 

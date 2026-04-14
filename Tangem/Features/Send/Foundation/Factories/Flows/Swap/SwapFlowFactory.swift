@@ -153,9 +153,7 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     var amountIO: SwapAmountStepBuilder.IO {
         SwapAmountStepBuilder.IO(
             sourceIO: (input: swapModel, output: swapModel),
-            sourceAmountIO: (input: swapModel, output: swapModel),
             receiveIO: (input: swapModel, output: swapModel),
-            receiveAmountIO: (input: swapModel, output: swapModel),
             swapProvidersInput: swapModel,
             stateProvider: swapModel
         )
@@ -181,10 +179,8 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
         SwapSummaryStepBuilder.IO(
             input: swapModel,
             output: swapModel,
-            sourceTokenInput: swapModel,
-            sourceTokenAmountInput: swapModel,
-            receiveTokenInput: swapModel,
-            receiveTokenAmountInput: swapModel
+            sourceInput: swapModel,
+            receiveInput: swapModel
         )
     }
 

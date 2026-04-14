@@ -139,8 +139,7 @@ extension StakingFlowFactory: SendBaseBuildable {
 extension StakingFlowFactory: SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO {
         SendAmountStepBuilder.IO(
-            sourceIO: (input: stakingModel, output: stakingModel),
-            sourceAmountIO: (input: stakingModel, output: stakingModel)
+            sourceIO: (input: stakingModel, output: stakingModel)
         )
     }
 
