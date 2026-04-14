@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemFoundation
 
 struct NewsListView: View {
@@ -41,6 +42,11 @@ struct NewsListView: View {
                 )
 
                 contentView
+            }
+            .overlay(alignment: .bottom) {
+                ListFooterOverlayShadowView(color: Color.Tangem.Surface.level3)
+                    .frame(height: 100)
+                    .allowsHitTesting(false)
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
         }
