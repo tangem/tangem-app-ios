@@ -31,10 +31,8 @@ enum SwapSummaryStepBuilder {
     struct IO {
         let input: SwapSummaryInput
         let output: SwapSummaryOutput
-        let sourceTokenInput: SendSourceTokenInput
-        let sourceTokenAmountInput: SendSourceTokenAmountInput
-        let receiveTokenInput: SendReceiveTokenInput
-        let receiveTokenAmountInput: SendReceiveTokenAmountInput
+        let sourceInput: any SendSourceInput
+        let receiveInput: any SendReceiveInput
     }
 
     struct Dependencies {
@@ -56,7 +54,7 @@ enum SwapSummaryStepBuilder {
         let interactor = CommonSwapSummaryInteractor(
             input: io.input,
             output: io.output,
-            receiveTokenAmountInput: io.receiveTokenAmountInput,
+            receiveTokenAmountInput: io.receiveInput,
             swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
         )
 
@@ -67,7 +65,7 @@ enum SwapSummaryStepBuilder {
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
             feeCompactViewModel: feeCompactViewModel,
-            sourceTokenInput: io.sourceTokenInput
+            sourceTokenInput: io.sourceInput
         )
 
         swapAmountViewModel.router = viewModel

@@ -247,10 +247,8 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO {
         SendAmountStepBuilder.IO(
             sourceIO: (input: sendWithSwapModel, output: sendWithSwapModel),
-            sourceAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
             receiveIO: (input: sendWithSwapModel, output: sendWithSwapModel),
-            receiveAmountIO: (input: sendWithSwapModel, output: sendWithSwapModel),
-            swapProvidersInput: sendWithSwapModel,
+            swapProvidersInput: sendWithSwapModel
         )
     }
 

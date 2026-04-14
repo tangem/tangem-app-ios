@@ -147,8 +147,7 @@ extension UnstakingFlowFactory: SendBaseBuildable {
 extension UnstakingFlowFactory: SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO {
         SendAmountStepBuilder.IO(
-            sourceIO: (input: unstakingModel, output: unstakingModel),
-            sourceAmountIO: (input: unstakingModel, output: unstakingModel)
+            sourceIO: (input: unstakingModel, output: unstakingModel)
         )
     }
 
