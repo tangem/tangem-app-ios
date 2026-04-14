@@ -90,14 +90,25 @@ struct SendAmountCompactTokenView: View {
     @ViewBuilder
     private var highPriceImpactWarningView: some View {
         if let highPriceImpactWarning = viewModel.highPriceImpactWarning {
-            HStack(spacing: 2) {
-                Text(highPriceImpactWarning.percent)
-                    .style(Fonts.Regular.subheadline, color: highPriceImpactWarning.isHighLoss ? Colors.Text.warning : Colors.Text.attention)
-                    .padding(.leading, 4)
-
-                InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
-                    .color(highPriceImpactWarning.isHighLoss ? Colors.Text.warning : Colors.Text.attention)
+            switch highPriceImpactWarning.level {
+            case .negligible:
+                InfoButtonView(size: .small, tooltipText: highPriceImpactWarning.infoMessage)
+            case .warningLoss:
+                priceImpactHStack(warning: highPriceImpactWarning, color: Colors.Text.attention)
+            case .highLossLowAmount, .highLossHighAmount:
+                priceImpactHStack(warning: highPriceImpactWarning, color: Colors.Text.warning)
             }
+        }
+    }
+
+    private func priceImpactHStack(warning: SendAmountCompactTokenViewModel.HighPriceImpactWarning, color: Color) -> some View {
+        HStack(spacing: 2) {
+            Text(warning.percent)
+                .style(Fonts.Regular.subheadline, color: color)
+                .padding(.leading, 4)
+
+            InfoButtonView(size: .small, tooltipText: warning.infoMessage)
+                .color(color)
         }
     }
 }
