@@ -49,7 +49,7 @@ public class ExpressAvailableProvider {
             return .high(rate: state.quote.rate)
         case .ready(let state):
             return .high(rate: state.quote.rate)
-        case .restriction(.tooSmallAmount(let amount), _):
+        case .restriction(.tooSmallAmount(let amount, _), _):
             // HACK: We need to use a negative value here because
             // sorting by priority works from higher to lower.
             return .medium(minimumAmount: -amount)
