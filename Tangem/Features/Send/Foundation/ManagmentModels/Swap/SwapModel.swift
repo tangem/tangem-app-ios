@@ -418,11 +418,11 @@ extension SwapModel {
 
     func map(restriction: ExpressRestriction) -> RestrictionType {
         switch restriction {
-        case .tooSmallAmount(let minAmount):
-            return .tooSmallAmountForSwapping(minAmount: minAmount)
+        case .tooSmallAmount(let minAmount, let currencySymbol):
+            return .tooSmallAmountForSwapping(minAmount: minAmount, currencySymbol: currencySymbol)
 
-        case .tooBigAmount(let maxAmount):
-            return .tooBigAmountForSwapping(maxAmount: maxAmount)
+        case .tooBigAmount(let maxAmount, let currencySymbol):
+            return .tooBigAmountForSwapping(maxAmount: maxAmount, currencySymbol: currencySymbol)
 
         case .approveTransactionInProgress:
             return .hasPendingApproveTransaction
@@ -876,9 +876,9 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
                 }
 
                 switch loadedState {
-                case .restriction(.tooSmallAmountForSwapping(let amount), _):
+                case .restriction(.tooSmallAmountForSwapping(let amount, _), _):
                     return .tooSmallAmount(amount)
-                case .restriction(.tooBigAmountForSwapping(let amount), _):
+                case .restriction(.tooBigAmountForSwapping(let amount, _), _):
                     return .tooBigAmount(amount)
                 case .restriction(.notEnoughBalanceForSwapping, _):
                     return .balanceExceeded
@@ -1476,8 +1476,8 @@ extension SwapModel {
     }
 
     enum RestrictionType {
-        case tooSmallAmountForSwapping(minAmount: Decimal)
-        case tooBigAmountForSwapping(maxAmount: Decimal)
+        case tooSmallAmountForSwapping(minAmount: Decimal, currencySymbol: String)
+        case tooBigAmountForSwapping(maxAmount: Decimal, currencySymbol: String)
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
