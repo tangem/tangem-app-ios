@@ -48,6 +48,7 @@ struct TrendingCardNewsViewRedesign: View {
             Text(item.title)
                 .multilineTextAlignment(.leading)
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
 
             FixedSpacer(height: .unit(.x4))
@@ -61,14 +62,14 @@ struct TrendingCardNewsViewRedesign: View {
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
         }
-        .infinityFrame(axis: .horizontal, alignment: .center)
         .padding(.all, .unit(.x4))
+        .infinityFrame(axis: .horizontal, alignment: .topLeading)
+        .frame(minHeight: Layout.cardMinHeight)
         .background {
             Assets.Markets
                 .trendingNewsBackground
                 .image
                 .resizable()
-                .scaledToFit()
                 .allowsHitTesting(false)
         }
         .cornerRadiusContinuous(.unit(.x5))
@@ -83,6 +84,7 @@ struct TrendingCardNewsViewRedesign: View {
 
 private extension TrendingCardNewsViewRedesign {
     enum Layout {
+        static let cardMinHeight: CGFloat = 180
         static let skeletonCornerRadius: CGFloat = .unit(.x4)
     }
 }
