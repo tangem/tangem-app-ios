@@ -35,24 +35,13 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if hasShortDescription {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
-            portfolioView
-                .padding(.horizontal, Constants.contentHorizontalPadding)
-                .padding(.top, hasShortDescription ? 0 : Constants.contentVerticalSpacing)
+            coinView
 
             newsView
-
-            coinView
         }
-    }
-
-    @ViewBuilder
-    private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        }
+        .padding(.horizontal, Constants.contentHorizontalPadding)
     }
 
     @ViewBuilder
@@ -67,40 +56,31 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 
     private var coinView: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
-            if viewModel.portfolioViewModel != nil {
-                aboutCoinHeader
-            }
-
             switch viewModel.state {
             case .loading:
                 MarketsTokenDetailsView.ContentBlockSkeletons()
+
             case .loaded:
                 contentBlocks
+
             case .failedToLoadDetails:
                 UnableToLoadDataView(
                     isButtonBusy: viewModel.isLoading,
                     retryButtonAction: viewModel.loadDetailedInfo
                 )
                 .padding(.vertical, 6)
+
             case .failedToLoadAllData:
                 EmptyView()
             }
         }
-        .padding(.horizontal, Constants.contentHorizontalPadding)
-    }
-
-    private var aboutCoinHeader: some View {
-        Text(Localization.marketsAboutCoinHeader)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8.0)
     }
 
     @ViewBuilder
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
             if let metricsViewModel = viewModel.metricsViewModel {
-                MarketsTokenDetailsMetricsView(viewModel: metricsViewModel, viewWidth: blocksWidth)
+                MarketsTokenDetailsMetricsViewRedesign(viewModel: metricsViewModel)
             }
 
             if let insightsViewModel = viewModel.insightsViewModel {
@@ -109,10 +89,6 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
                 MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
-            }
-
-            if let pricePerformanceViewModel = viewModel.pricePerformanceViewModel {
-                MarketsTokenDetailsPricePerformanceView(viewModel: pricePerformanceViewModel)
             }
 
             if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
@@ -166,7 +142,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 private extension MarketsTokenDetailsContentViewRedesign {
     enum Constants {
         static let contentVerticalSpacing: CGFloat = 32
-        static let contentHorizontalPadding: CGFloat = 16
+        static let contentHorizontalPadding: CGFloat = .unit(.x4)
         static let coinVerticalPadding: CGFloat = 14
     }
 }
