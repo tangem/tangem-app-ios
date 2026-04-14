@@ -117,13 +117,14 @@ public extension [ExpressAvailableProvider] {
         }
     }
 
-    func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
+    func showableProviders(selectedProviderId: String?, rateType: ExpressProviderRateType? = nil) -> [ExpressAvailableProvider] {
         filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
             let isAvailableToShow = !provider.getState().isError
+            let isSupportedRateType = rateType.map { provider.supportedRateTypes.contains($0) } ?? true
 
-            return isSelected || isAvailableToShow
+            return (isSelected || isAvailableToShow) && isSupportedRateType
         }
     }
 }
