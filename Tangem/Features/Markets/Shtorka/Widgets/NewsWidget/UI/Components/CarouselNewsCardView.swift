@@ -62,13 +62,7 @@ struct CarouselNewsCardView: View {
         }) {
             if FeatureProvider.isAvailable(.redesign) {
                 contentView(for: item)
-                    .background(Color.Tangem.Surface.level3)
-                    .cornerRadiusContinuous(Layout.RedesignCard.cornerRadius)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Layout.RedesignCard.cornerRadius, style: .continuous)
-                            .inset(by: 0.5)
-                            .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
-                    )
+                    .redesignNewsCarouselCardBackground()
                     .opacity(opacity())
             } else {
                 legacyContentView(for: item)
@@ -138,12 +132,6 @@ struct CarouselNewsCardView: View {
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
         }
-        .padding(Layout.RedesignCard.padding)
-        .frame(
-            width: Layout.RedesignCard.width,
-            height: Layout.RedesignCard.height,
-            alignment: .topLeading
-        )
     }
 
     private func opacity() -> Double {
@@ -191,6 +179,33 @@ extension CarouselNewsCardView {
         enum Skeleton {
             static let cornerRadius: CGFloat = 8
         }
+    }
+}
+
+// MARK: - Shared Redesign Card Background
+
+extension View {
+    /// Applies the shared redesign "pill card" shell used by both news cards
+    /// and the "All news" card in `CarouselNewsView`: fixed 228×172 frame with
+    /// inner padding, `Surface.level3` background, `x5` continuous corner
+    /// radius and a 1pt inset border.
+    func redesignNewsCarouselCardBackground() -> some View {
+        padding(CarouselNewsCardView.Layout.RedesignCard.padding)
+            .frame(
+                width: CarouselNewsCardView.Layout.RedesignCard.width,
+                height: CarouselNewsCardView.Layout.RedesignCard.height,
+                alignment: .topLeading
+            )
+            .background(Color.Tangem.Surface.level3)
+            .cornerRadiusContinuous(CarouselNewsCardView.Layout.RedesignCard.cornerRadius)
+            .overlay(
+                RoundedRectangle(
+                    cornerRadius: CarouselNewsCardView.Layout.RedesignCard.cornerRadius,
+                    style: .continuous
+                )
+                .inset(by: 0.5)
+                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+            )
     }
 }
 

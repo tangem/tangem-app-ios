@@ -115,18 +115,8 @@ struct CarouselNewsView: View {
 
             Spacer(minLength: .zero)
         }
-        .padding(Layout.RedesignCard.padding)
-        .frame(
-            width: Layout.RedesignCard.width,
-            height: Layout.RedesignCard.height
-        )
-        .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(Layout.RedesignCard.cornerRadius)
-        .overlay(
-            RoundedRectangle(cornerRadius: Layout.RedesignCard.cornerRadius, style: .continuous)
-                .inset(by: 0.5)
-                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
-        )
+        .frame(maxWidth: .infinity)
+        .redesignNewsCarouselCardBackground()
     }
 
     private var iconView: some View {
@@ -150,8 +140,6 @@ private extension CarouselNewsView {
             static let padding: CGFloat = 14
             static let cornerRadius: CGFloat = 14
         }
-
-        typealias RedesignCard = CarouselNewsCardView.Layout.RedesignCard
 
         enum RedesignAllNewsCard {
             static let spacingAfterIcon: CGFloat = 10
