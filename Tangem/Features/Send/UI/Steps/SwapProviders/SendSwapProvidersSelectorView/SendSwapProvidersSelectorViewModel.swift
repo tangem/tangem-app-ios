@@ -100,7 +100,7 @@ private extension SendSwapProvidersSelectorViewModel {
 
     private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
-            .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: input?.currentRateType)
             .sortedByPriorityAndQuotes()
             .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
 
@@ -140,6 +140,7 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
+            isDisabled: state.quote == nil,
             badge: badge,
             subtitles: subtitles
         )
