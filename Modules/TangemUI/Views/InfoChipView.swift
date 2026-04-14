@@ -75,12 +75,26 @@ public struct InfoChipsRowView: View {
         ) { chip in
             InfoChipView(item: chip, style: style)
         } limitViewGenerator: { count in
-            Text("+\(count)")
-                .style(style.titleFont, color: style.titleColor)
-                .padding(.horizontal, style.horizontalPadding)
-                .padding(.vertical, style.verticalPadding)
-                .background(style.backgroundColor)
-                .cornerRadiusContinuous(style.cornerRadius)
+            if style == .redesign {
+                Assets.horizontalDots.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color.Tangem.Markers.iconGray)
+                    .frame(width: 20, height: 16)
+                    .frame(height: style.contentHeight)
+                    .padding(.horizontal, style.horizontalPadding)
+                    .padding(.vertical, style.verticalPadding)
+                    .background(style.backgroundColor)
+                    .cornerRadiusContinuous(style.cornerRadius)
+            } else {
+                Text("+\(count)")
+                    .style(style.titleFont, color: style.titleColor)
+                    .padding(.horizontal, style.horizontalPadding)
+                    .padding(.vertical, style.verticalPadding)
+                    .background(style.backgroundColor)
+                    .cornerRadiusContinuous(style.cornerRadius)
+            }
         }
     }
 }
