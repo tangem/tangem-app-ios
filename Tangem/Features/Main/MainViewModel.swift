@@ -123,6 +123,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func openQRScan() {
+        Analytics.log(.mainScreenButtonQRScan)
         coordinator?.openQRScan()
     }
 
@@ -280,7 +281,7 @@ final class MainViewModel: ObservableObject {
             .map { userWalletRepository.models[$0] }
 
         let walletModelsPublishers = userWalletsWithMissingBodyModel
-            .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+            .map { AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel

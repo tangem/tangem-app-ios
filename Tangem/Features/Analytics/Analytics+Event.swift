@@ -158,6 +158,11 @@ extension Analytics {
         case sendProviderClicked = "[Token / Send] Provider Clicked"
         case sendProviderChosen = "[Token / Send] Provider Chosen"
         case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
+        case sendSendWithSwapConfirmScreenOpened = "[Token / Send] Send With Swap Confirm Screen Opened"
+        case sendNoticeFixedRate = "[Token / Send] Notice - Fixed Rate"
+        case sendNoticeFloatRate = "[Token / Send] Notice - Float Rate"
+        case sendSendWithSwapError = "[Token / Send] Send With Swap Error"
+        case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
@@ -168,6 +173,7 @@ extension Analytics {
 
         // MARK: - QR Scan
 
+        case mainScreenButtonQRScan = "[Main Screen] Button - QR Scan"
         case mainScreenNoticeUnrecognizedQR = "[Main Screen] Notice - Unrecognized QR"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
@@ -310,6 +316,10 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+        case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
+        case swapNoticeTradeTooLarge = "[Swap] Notice - Trade Too Large"
+        case swapPermissionScreenOpened = "[Swap] Permission Screen Opened"
+        case swapPermissionUpdateScreenOpened = "[Swap] Permission Update Screen Opened"
 
         case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
@@ -460,6 +470,7 @@ extension Analytics {
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
+        case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
 
         // MARK: - Markets
 
