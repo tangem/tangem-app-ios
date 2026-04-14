@@ -1043,7 +1043,9 @@ extension SwapModel: SendFeeInput {
         switch providersState {
         case .loaded(_, _, state: .readyToSwap):
             return true
-        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)):
+        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)),
+             .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForTxValue, _)),
+             .loaded(_, .some(let selected), state: .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
         case .loaded(_, _, state: .previewCEX(let previewCEX)):
             return !previewCEX.isExemptFee
