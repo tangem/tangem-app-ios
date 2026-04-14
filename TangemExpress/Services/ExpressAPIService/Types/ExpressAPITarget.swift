@@ -116,3 +116,17 @@ struct ExpressAPITarget: Moya.TargetType {
 
     var headers: [String: String]? { nil }
 }
+
+extension ExpressAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        let q = switch target {
+        case .exchangeQuote(let request): String(describing: request)
+        default: ""
+        }
+        return path + " " + q
+    }
+
+    var shouldLogResponseBody: Bool {
+        true
+    }
+}

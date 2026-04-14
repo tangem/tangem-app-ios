@@ -20,3 +20,11 @@ protocol SendReceiveTokenOutput: AnyObject {
     func userDidRequestSelect(receiveTokenItem: TokenItem, selected: @escaping (Bool) -> Void)
     func userDidRequestClearSelection()
 }
+
+// MARK: - Combined protocols
+
+/// Combines receive token and receive amount into a single input protocol.
+typealias SendReceiveInput = SendReceiveTokenInput & SendReceiveTokenAmountInput
+
+/// Combines receive token and receive amount into a single output protocol.
+typealias SendReceiveOutput = SendReceiveTokenOutput & SendReceiveTokenAmountOutput

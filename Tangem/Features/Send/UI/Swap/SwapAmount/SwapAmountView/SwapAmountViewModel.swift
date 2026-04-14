@@ -92,7 +92,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceExpressCurrencyStateCancellable = stateProvider?.statePublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { $0.updateSourceExpressCurrencyState(providersState: $1) }
+            .sink { $0.updateSourceExpressCurrencyState(state: $1) }
 
         // Source token / amount updating
 
@@ -156,30 +156,30 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 // MARK: - Private
 
 private extension SwapAmountViewModel {
-    func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
-        switch providersState {
-        case .loaded(_, _, .restriction(.notEnoughBalanceForSwapping, quote: _)):
+    func updateSourceExpressCurrencyState(state: SwapState) {
+        switch state.phase {
+        case .loaded(.restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
-             .loaded(_, _, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
+        case .loaded(.restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
+             .loaded(.restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
+        case .loaded(.restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
         default:
             sourceExpressCurrencyViewModel.update(errorState: .none)
         }
 
-        updateExpressCurrencyInputEnabledState(providersState: providersState)
+        updateExpressCurrencyInputEnabledState(state: state)
     }
 
-    func updateExpressCurrencyInputEnabledState(providersState: SwapModel.ProvidersState) {
-        switch providersState {
-        case .loaded(let providers, _, _):
-            isInputDisabled = providers.isEmpty
+    func updateExpressCurrencyInputEnabledState(state: SwapState) {
+        switch state.phase {
+        case .loaded:
+            isInputDisabled = state.providers.available.isEmpty
         case .loading(.rates), .loading(.autoupdate), .loading(.fee):
             break // Keep current state during rates/autoupdate/fee loading to avoid interrupting typing
-        case .idle, .failure, .loading(.providers), .loading(.provider):
+        case .idle, .error, .loading(.providers), .loading(.provider):
             isInputDisabled = true
         }
     }
