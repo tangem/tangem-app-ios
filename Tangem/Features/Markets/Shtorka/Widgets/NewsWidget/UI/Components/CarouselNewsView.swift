@@ -106,7 +106,7 @@ struct CarouselNewsView: View {
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterIcon)
 
             Text(Localization.newsAllNews)
-                .style(.system(size: 16, weight: .regular), color: .Tangem.Text.Neutral.primary)
+                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
 
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterTitle)
 
