@@ -46,19 +46,11 @@ struct ExpressProviderFormatter {
         switch state {
         case .error(_, .none):
             return .text(AppConstants.emDashSign)
-        case .restriction(.tooSmallAmount(let minAmount), .none):
-            guard let senderCurrencyCode else {
-                return .text(CommonError.noData.localizedDescription)
-            }
-
-            let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: senderCurrencyCode)
+        case .restriction(.tooSmallAmount(let minAmount, let currencySymbol), .none):
+            let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: currencySymbol)
             return .text(Localization.expressProviderMinAmount(formatted))
-        case .restriction(.tooBigAmount(let maxAmount), .none):
-            guard let senderCurrencyCode else {
-                return .text(CommonError.noData.localizedDescription)
-            }
-
-            let formatted = balanceFormatter.formatCryptoBalance(maxAmount, currencyCode: senderCurrencyCode)
+        case .restriction(.tooBigAmount(let maxAmount, let currencySymbol), .none):
+            let formatted = balanceFormatter.formatCryptoBalance(maxAmount, currencyCode: currencySymbol)
             return .text(Localization.expressProviderMaxAmount(formatted))
         default:
             guard let quote = state.quote else {
