@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
@@ -18,5 +19,6 @@ struct PromotionNotificationsView: View {
         }
         .paginationHasBackground(false)
         .currentIndexHasChanged(viewModel.carouselIndexHasChanged)
+        .onScreenVisibilityChange(viewModel.onScreenVisibilityChange)
     }
 }
