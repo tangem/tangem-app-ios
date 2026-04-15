@@ -570,7 +570,16 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openSwap(walletModel: walletModel)
+        let helper = SwapPredefinedParametersHelper()
+        let parameters: PredefinedSwapParameters
+
+        if FeatureProvider.isAvailable(.swapPipelineV2) {
+            parameters = helper.makeResolvedParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
+        } else {
+            parameters = helper.makeFromParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
+        }
+
+        tokenRouter.openSwap(parameters: parameters)
     }
 
     final func openStaking() {

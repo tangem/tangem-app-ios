@@ -877,7 +877,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            tokenRouter.openSwap(walletModel: walletModel)
+            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo
+            )
+            tokenRouter.openSwap(parameters: parameters)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
         case .yield:
