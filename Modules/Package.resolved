@@ -1,5 +1,5 @@
 {
-  "originHash" : "ff33c046e0936af9bdaa121c6f16c468ac68e3311a6e0e13dfcc7ac2d8a74d1a",
+  "originHash" : "6a766728a3e9d61f1eff31dce87b2bbc7402c5e349fe3662b4dc119afe6e4d78",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "dc605c8e3d1120d6418ae8adda7f658b24174e68",
-        "version" : "1.41.1"
+        "revision" : "6f2cbea2363aba3553843c3715ad66e6f61a2b63",
+        "version" : "1.42.0"
       }
     },
     {
