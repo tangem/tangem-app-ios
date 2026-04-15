@@ -58,10 +58,7 @@ final class TangemPayMainViewModel: ObservableObject {
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
 
-        cardDetailsRepository = .init(
-            lastFourDigits: tangemPayAccount.card?.cardNumberEnd ?? "",
-            customerService: tangemPayAccount.customerService
-        )
+        cardDetailsRepository = .init(tangemPayAccount: tangemPayAccount)
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
 
@@ -163,12 +160,12 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func openAddToApplePayGuide() {
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openAddToApplePayGuide(
-            viewModel: .init(
-                userWalletId: userWalletInfo.id,
-                repository: cardDetailsRepository
-            )
+
+        let guideCardDetailsViewModel = TangemPayCardDetailsViewModel(
+            userWalletId: userWalletInfo.id,
+            repository: cardDetailsRepository
         )
+        coordinator?.openAddToApplePayGuide(viewModel: guideCardDetailsViewModel)
     }
 
     func dismissAddToApplePayGuideBanner() {

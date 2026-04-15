@@ -14,6 +14,7 @@ import TangemUIUtils
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
 
+    @FocusState private var isCardNameFocused: Bool
     @State private var animationProgress: CGFloat = .zero
     @State private var onHalfFlipCalled: Bool = false
 
@@ -104,11 +105,7 @@ struct TangemPayCardDetailsView: View {
 
             HStack(alignment: .bottom, spacing: 6) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Localization.tangempayCardDefaultName)
-                        .style(
-                            Fonts.Bold.footnote,
-                            color: Colors.Text.constantWhite.opacity(0.7)
-                        )
+                    cardNameContent()
 
                     HStack(spacing: 6) {
                         Text("··· " + viewModel.lastFourDigits)
@@ -222,6 +219,44 @@ struct TangemPayCardDetailsView: View {
         }
         .padding(16)
         .screenCaptureProtection()
+    }
+
+    @ViewBuilder
+    private func cardNameContent() -> some View {
+        switch viewModel.cardNameDisplayMode {
+        case .display:
+            Text(viewModel.cardName)
+                .style(
+                    Fonts.Bold.footnote,
+                    color: Colors.Text.constantWhite
+                )
+        case .interactive:
+            Button(action: viewModel.cardNameTapped) {
+                HStack(spacing: 4) {
+                    Text(viewModel.cardName)
+                        .style(
+                            Fonts.Bold.footnote,
+                            color: Colors.Text.constantWhite
+                        )
+
+                    Assets.Glyphs.editNew.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(Colors.Text.constantWhite)
+                }
+            }
+        case .editing:
+            TextField("", text: $viewModel.cardName)
+                .font(Fonts.Bold.footnote)
+                .foregroundColor(Colors.Text.constantWhite)
+                .tint(Colors.Text.constantWhite)
+                .focused($isCardNameFocused)
+                .task {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    isCardNameFocused = true
+                }
+        }
     }
 
     private func showDetailsButton() -> some View {
