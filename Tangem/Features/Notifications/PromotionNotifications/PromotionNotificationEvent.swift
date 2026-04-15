@@ -20,11 +20,8 @@ struct PromotionNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme { promotion.placeholder == .main ? .primary : .action }
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { promotion.dismissable }
-    /// `Banner Shown` analytics is emitted from `PromotionNotificationsViewModel` based on
-    /// on-screen visibility (see `PromotionBannerShownTracker`), so the generic one-shot
-    /// pipeline in `NotificationsAnalyticsService` is disabled for promotion events.
-    var analyticsEvent: Analytics.Event? { nil }
 
+    var analyticsEvent: Analytics.Event? { nil }
     var analyticsParams: [Analytics.ParameterKey: String] {
         [
             .displayId: "\(promotion.id)",
