@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.0.20"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
-        .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.41.1")),
+        .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.42.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
