@@ -49,6 +49,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/pin"
         case .cancelKYC:
             "customer/pay-enabled"
+        case .updateCardDisplayName:
+            "customer/card"
         }
     }
 
@@ -70,7 +72,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .sendWithdrawTransaction:
             .post
 
-        case .cancelKYC:
+        case .cancelKYC,
+             .updateCardDisplayName:
             .patch
 
         case .setPin:
@@ -121,6 +124,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .placeOrder(let customerWalletAddress):
             let requestData = TangemPayPlaceOrderRequest(customerWalletAddress: customerWalletAddress)
             return .requestJSONEncodable(requestData)
+
+        case .updateCardDisplayName(let displayName):
+            let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
+            return .requestCustomJSONEncodable(requestData, encoder: encoder)
         }
     }
 
@@ -157,6 +164,8 @@ extension CustomerInfoManagementAPITarget {
 
         case placeOrder(customerWalletAddress: String)
         case getOrder(orderId: String)
+
+        case updateCardDisplayName(displayName: String)
     }
 }
 
