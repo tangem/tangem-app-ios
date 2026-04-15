@@ -12,12 +12,11 @@ import Combine
 final class PromotionNotificationsViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
-    @Injected(\.promotionBannerShownTracker)
-    private var promotionBannerShownTracker: PromotionBannerShownTracker
-
     private let promotionNotificationsManager: PromotionNotificationsManager
     private var currentIndex: Int = 0
+    private var isViewVisible = false
     private var carouselScrolledTracked = false
+    private var trackedNotificationIds: Set<NotificationViewId> = []
     private var bag = Set<AnyCancellable>()
 
     init(promotionNotificationsManager: PromotionNotificationsManager) {
@@ -29,6 +28,14 @@ final class PromotionNotificationsViewModel: ObservableObject {
         currentIndex = index
         trackBannerShownIfNeeded()
         trackCarouselScrolledIfNeeded()
+    }
+
+    func onScreenVisibilityChange(isVisible: Bool) {
+        isViewVisible = isVisible
+
+        if isVisible {
+            trackBannerShownIfNeeded()
+        }
     }
 
     private func bind() {
@@ -45,19 +52,23 @@ final class PromotionNotificationsViewModel: ObservableObject {
     }
 
     private func trackBannerShownIfNeeded() {
+        guard isViewVisible else {
+            return
+        }
+
         guard let notification = notificationInputs[safe: currentIndex] else {
             return
         }
 
-        guard !promotionBannerShownTracker.hasBeenShown(displayId: notification.id) else {
+        guard !trackedNotificationIds.contains(notification.id) else {
             return
         }
 
+        trackedNotificationIds.insert(notification.id)
         Analytics.log(
             event: .promotionBannerBannerShown,
             params: notification.settings.event.analyticsParams
         )
-        promotionBannerShownTracker.markAsShown(displayId: notification.id)
     }
 
     private func trackCarouselScrolledIfNeeded() {
