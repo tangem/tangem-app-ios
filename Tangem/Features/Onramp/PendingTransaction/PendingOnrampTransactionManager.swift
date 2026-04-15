@@ -33,7 +33,7 @@ class CommonPendingOnrampTransactionsManager {
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
 
-    private var terminalTransactions: [PendingOnrampTransaction] = []
+    private let terminalTransactions = ThreadSafeContainer<[PendingOnrampTransaction]>([])
     private var pollingInitiatingTask: Task<Void, Never>?
     private var pollingResultTask: Task<Void, Never>?
 
@@ -99,38 +99,43 @@ class CommonPendingOnrampTransactionsManager {
             }
             .withPrevious()
 
-        runTask(in: self) { manager in
+        pollingInitiatingTask = runTask { [weak self] in
             let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values
 
             for await previousAndCurrentRequests in previousAndCurrentRequestsSequence {
+                guard let self else { return }
+
                 let previous = previousAndCurrentRequests.previous
                 let current = previousAndCurrentRequests.current
 
                 let nonTerminal = current.filter { !$0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
                 let terminal = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
-                manager.terminalTransactions = terminal
+                terminalTransactions.mutate { $0 = terminal }
 
                 let shouldForceReload = previous?.count ?? 0 != current.count
-                await manager.pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
+                await pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
 
                 // If there are no transactions to poll, send terminal-only or empty
                 if nonTerminal.isEmpty {
-                    manager.pendingTransactionsSubject.send(terminal)
+                    pendingTransactionsSubject.send(terminal)
                 }
             }
         }
 
-        runTask(in: self) { manager in
-            let stream = await manager.pollingService.resultStream
+        pollingResultTask = runTask { [weak self] in
+            guard let pollingService = self?.pollingService else { return }
+            let stream = await pollingService.resultStream
             for await responses in stream {
+                guard let self else { return }
+
                 let polledTransactions = responses.map(\.data)
-                let allTransactions = (polledTransactions + manager.terminalTransactions).sorted(by: \.transactionRecord.date)
+                let allTransactions = (polledTransactions + terminalTransactions.read()).sorted(by: \.transactionRecord.date)
                 let transactionsToUpdateInRepository = responses.compactMap { response in
                     response.hasChanges ? response.data.transactionRecord : nil
                 }
 
-                manager.pendingTransactionsSubject.send(allTransactions)
-                manager.onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
+                pendingTransactionsSubject.send(allTransactions)
+                onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
             }
         }
     }
