@@ -12,6 +12,8 @@ import BlockchainSdk
 import Combine
 
 class KaspaCustomFeeService {
+    private weak var output: CustomFeeServiceOutput?
+
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -37,14 +39,16 @@ class KaspaCustomFeeService {
 
         let zeroAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: .zero)
         initialCustomFee = Fee(zeroAmount)
+
+        bind()
     }
 
-    private func bind(output: CustomFeeServiceOutput) {
+    private func bind() {
         customFeeSubject
             .compactMap { $0 }
             .dropFirst()
-            .sink { [weak output] fee in
-                output?.customFeeDidChanged(fee)
+            .sink { [weak self] fee in
+                self?.output?.customFeeDidChanged(fee)
             }
             .store(in: &bag)
 
@@ -96,6 +100,14 @@ class KaspaCustomFeeService {
     }
 }
 
+// MARK: - CustomFeeService
+
+extension KaspaCustomFeeService: CustomFeeService {
+    func setup(output: any CustomFeeServiceOutput) {
+        self.output = output
+    }
+}
+
 // MARK: - CustomFeeProvider
 
 extension KaspaCustomFeeService: CustomFeeProvider {
@@ -108,9 +120,10 @@ extension KaspaCustomFeeService: CustomFeeProvider {
     }
 
     func initialSetupCustomFee(_ fee: BSDKFee) {
-        customFeeTextField.update(value: fee.amount.value)
         initialCustomFee = fee
         customFeeEnricher = KaspaKRC20FeeParametersEnricher(existingFeeParameters: fee.parameters)
+        customFeeSubject.send(fee)
+        customFeeTextField.update(value: fee.amount.value)
     }
 }
 
