@@ -69,9 +69,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
+    private var isReceiveAmountApproximate: Bool {
+        providerRateTypes.contains(.float) && lastUpdateSource != .receive
+    }
+
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
-            .map { source, rateTypes in !rateTypes.contains(.fixed) || source == .send }
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ in viewModel.isReceiveAmountApproximate }
             .eraseToAnyPublisher()
     }
 
@@ -723,7 +728,8 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+            let displayFormatted = isReceiveAmountApproximate ? "\(AppConstants.tildeSign) \(formatted)" : formatted
+            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(displayFormatted)))
         case .failure:
             return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
