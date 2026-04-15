@@ -18,6 +18,7 @@ import TangemPay
 final class TangemPayCardManagementViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
 
+    @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
@@ -38,15 +39,17 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
 
-        cardDetailsRepository = .init(
-            lastFourDigits: tangemPayAccount.card?.cardNumberEnd ?? "",
-            customerService: tangemPayAccount.customerService
-        )
+        cardDetailsRepository = .init(tangemPayAccount: tangemPayAccount)
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
             userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository
+            repository: cardDetailsRepository,
+            cardNameDisplayMode: .interactive
         )
+
+        tangemPayCardDetailsViewModel.onCardNameTapped = { [weak self] in
+            self?.openCardRename()
+        }
 
         bind()
     }
@@ -204,6 +207,16 @@ private extension TangemPayCardManagementViewModel {
                 layout: .top(padding: 20),
                 type: .temporary()
             )
+    }
+
+    func openCardRename() {
+        cardRenameViewModel = TangemPayCardRenameViewModel(
+            userWalletId: userWalletInfo.id,
+            repository: cardDetailsRepository,
+            onDismiss: { [weak self] in
+                self?.cardRenameViewModel = nil
+            }
+        )
     }
 }
 
