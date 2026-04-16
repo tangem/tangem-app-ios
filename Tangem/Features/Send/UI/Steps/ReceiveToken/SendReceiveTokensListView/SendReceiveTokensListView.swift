@@ -43,7 +43,7 @@ struct SendReceiveTokensListView: View {
                         .transition(.notificationTransition.animation(.linear(duration: 0.2)))
                 }
 
-                GroupedSection(viewModel.items) {
+                GroupedSection(viewModel.items, isLazy: true) {
                     SendReceiveTokensListTokenView(viewModel: $0)
                 }
                 .backgroundColor(Colors.Background.action)
