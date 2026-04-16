@@ -23,7 +23,6 @@ actor CommonExpressManager {
 
     private var _pair: ExpressManagerSwappingPair?
     private var _approvePolicy: ApprovePolicy = .specified
-    private var _feeOption: ExpressFee.Option = .market
     private var _amountType: ExpressAmountType?
 
     private var availableProviders: [ExpressAvailableProvider] = []
@@ -102,19 +101,6 @@ extension CommonExpressManager: ExpressManager {
         }
 
         _approvePolicy = approvePolicy
-
-        let request = try makeRequest(for: selectedProvider)
-        await selectedProvider?.manager.update(request: request)
-        return selectedProvider
-    }
-
-    func update(feeOption: ExpressFee.Option) async throws -> ExpressAvailableProvider? {
-        guard _feeOption != feeOption else {
-            ExpressLogger.warning(self, "ExpressFeeOption already is \(feeOption)")
-            return selectedProvider
-        }
-
-        _feeOption = feeOption
 
         let request = try makeRequest(for: selectedProvider)
         await selectedProvider?.manager.update(request: request)
@@ -318,7 +304,6 @@ private extension CommonExpressManager {
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            feeOption: _feeOption,
             approvePolicy: _approvePolicy,
             operationType: pair.source.operationType
         )
@@ -333,7 +318,6 @@ private extension CommonExpressManager {
 
     func clearCache() {
         selectedProvider = nil
-        _feeOption = .market
     }
 }
 
