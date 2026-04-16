@@ -46,17 +46,17 @@ struct MarketsTokenDetailsContentViewRedesign: View {
         VStack(spacing: Constants.coinVerticalPadding) {
             switch viewModel.state {
             case .loading:
-                MarketsTokenDetailsView.ContentBlockSkeletons()
+                MarketsTokenDetailsView.ContentBlockSkeletonsRedesign()
 
             case .loaded:
                 contentBlocks
 
             case .failedToLoadDetails:
-                UnableToLoadDataView(
+                TangemUnableToLoadDataView(
                     isButtonBusy: viewModel.isLoading,
                     retryButtonAction: viewModel.loadDetailedInfo
                 )
-                .padding(.vertical, 6)
+                .padding(.top, .unit(.x17))
 
             case .failedToLoadAllData:
                 EmptyView()
@@ -97,7 +97,8 @@ struct MarketsTokenDetailsContentViewRedesign: View {
     private var description: some View {
         switch viewModel.state {
         case .loading:
-            MarketsTokenDetailsView.DescriptionBlockSkeletons()
+            MarketsTokenDetailsView.DescriptionBlockSkeletonsRedesign()
+
         case .loaded(let model):
             if let shortDescription {
                 if model.fullDescription == nil {
@@ -115,6 +116,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     }
                 }
             }
+
         case .failedToLoadDetails, .failedToLoadAllData:
             EmptyView()
         }
