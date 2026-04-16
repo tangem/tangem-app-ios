@@ -16,6 +16,7 @@ public struct Wallet {
     public let publicKey: Wallet.PublicKey
     private(set) var addressesProvider: AddressesProvider
 
+    public private(set) var addressesBalances: [String: Amount] = [:]
     public private(set) var amounts: [Amount.AmountType: Amount] = [:]
     public private(set) var pendingTransactions: [PendingTransactionRecord] = []
 
@@ -131,8 +132,11 @@ public struct Wallet {
         addressesProvider.update(address: address)
     }
 
-    mutating func update(userDerivations: [DerivationPath]) {
-        addressesProvider.update(userDerivations: userDerivations)
+    mutating func update(usedAddresses: [UTXOUsedAddress: Amount]) {
+        addressesProvider.update(userDerivations: usedAddresses.map(\.key.derivationPath))
+        usedAddresses.forEach { usedAddress, value in
+            addressesBalances.updateValue(value, forKey: usedAddress.address)
+        }
     }
 
     private func feeAmountType(transactionAmountType: Amount.AmountType) -> Amount.AmountType {

@@ -250,8 +250,19 @@ extension TokenDetailsViewModel {
                 dynamicAddressesManager: dynamicAddressesManager
             )
         case .enabled:
+            let transferableToken = CommonSendTransferableTokenFactory(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel
+            )
+            .makeTransferableToken(supportingFeeOptions: .compound)
+
+            let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
+                transferableToken: transferableToken
+            )
+
             coordinator?.openDynamicAddressesDisableSheet(
-                dynamicAddressesManager: dynamicAddressesManager
+                dynamicAddressesManager: dynamicAddressesManager,
+                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory
             )
         }
     }

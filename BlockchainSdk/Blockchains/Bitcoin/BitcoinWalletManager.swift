@@ -134,9 +134,6 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater {
     }
 
     private func updateWallet(with response: UTXOXpubNetworkProviderUpdatingResponse) throws {
-        let userDerivations = response.info.addresses.map(\.usedAddress.derivationPath)
-
-        wallet.update(userDerivations: userDerivations)
         unspentOutputManager.clearOutputs()
         try response.outputs.forEach { address, outputs in
             if let address = wallet.addresses.first(where: { $0.value == address.address }) {
@@ -147,7 +144,14 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater {
             }
         }
 
+        let usedAddresses: [UTXOUsedAddress: Amount] = response.info.addresses.reduce(into: [:]) { partialResult, address in
+            let balance = Amount(with: wallet.blockchain, type: .coin, value: address.balance)
+            partialResult[address.usedAddress] = balance
+        }
+
         let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+
+        wallet.update(usedAddresses: usedAddresses)
         wallet.add(coinValue: balance)
 
         let mapper = PendingTransactionRecordMapper()

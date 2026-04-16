@@ -180,9 +180,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesDisableSheet(dynamicAddressesManager: DynamicAddressesManager) {
+    func openDynamicAddressesDisableSheet(
+        dynamicAddressesManager: DynamicAddressesManager,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory
+    ) {
         let viewModel = DynamicAddressesDisableSheetViewModel(
             dynamicAddressesManager: dynamicAddressesManager,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
             coordinator: self
         )
         Task { @MainActor in

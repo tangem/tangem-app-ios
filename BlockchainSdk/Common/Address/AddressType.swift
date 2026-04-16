@@ -12,7 +12,7 @@ import TangemLocalization
 public indirect enum AddressType: Hashable {
     case `default`
     case legacy
-    case used(AddressType, index: String)
+    case used(AddressType, index: Int)
 
     public var defaultLocalizedName: String {
         switch self {

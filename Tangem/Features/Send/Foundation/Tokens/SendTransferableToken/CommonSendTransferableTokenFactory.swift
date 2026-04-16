@@ -12,7 +12,10 @@ struct CommonSendTransferableTokenFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
 
-    func makeTransferableToken(balanceType: SendSourceTokenFactoryBalanceType = .available) -> SendTransferableToken {
+    func makeTransferableToken(
+        balanceType: SendSourceTokenFactoryBalanceType = .available,
+        supportingFeeOptions: TokenFeeProviderSupportingOptions = .all
+    ) -> SendTransferableToken {
         let sourceTokenFactory = CommonSendSourceTokenFactory(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
