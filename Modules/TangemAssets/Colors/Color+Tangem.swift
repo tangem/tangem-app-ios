@@ -207,6 +207,11 @@ public extension Color.Tangem.Markers {
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundTintedGreen: Color = .dynamic(light: Primitives.Green.eucalyptus.opacity(0.1), dark: Primitives.Green.emerald.opacity(0.1))
+    static let textYellow: Color = Primitives.Yellow.tangerine
+    static let iconYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundSolidYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
+    static let borderTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
 }
 
 // MARK: - Visa
