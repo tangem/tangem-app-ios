@@ -94,7 +94,8 @@ struct P2PMapper {
             )
         }
 
-        if let rewards = response.stake.totalEarnedAssets, rewards > .zero {
+        // show rewards only if we have active staking, e.g. there are some staked, unstaking or unstaked balances
+        if let rewards = response.stake.totalEarnedAssets, rewards > .zero, !balances.isEmpty {
             balances.append(
                 StakingBalanceInfo(
                     item: .ethereum,
