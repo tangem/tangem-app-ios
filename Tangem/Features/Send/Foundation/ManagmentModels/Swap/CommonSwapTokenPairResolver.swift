@@ -34,7 +34,7 @@ private extension CommonSwapTokenPairResolver {
         let hasBalance = input.walletModel.fiatBalance > 0
 
         // Scenario 1 / 6: token has balance → FROM = current, TO = manual selection
-        guard !hasBalance else {
+        if hasBalance {
             return ResolvedSwapPair(source: input.walletModel, destination: nil)
         }
 
@@ -42,7 +42,7 @@ private extension CommonSwapTokenPairResolver {
 
         if isExchangeable {
             // Scenario 2: account has exchangeable token with balance
-            if let topExchangeable = groups.exchangeableWithBalance.first {
+            if let topExchangeable = groups.topExchangeable {
                 return ResolvedSwapPair(source: topExchangeable, destination: input.walletModel)
             }
 
@@ -66,6 +66,7 @@ private extension CommonSwapTokenPairResolver {
 
         var groups = AccountTokenGroups()
         var mostFundedFiat: Decimal = 0
+        var topExchangeableFiat: Decimal = 0
 
         for model in allModels {
             guard model.id != walletModel.id else { continue }
@@ -75,27 +76,26 @@ private extension CommonSwapTokenPairResolver {
             }
 
             let isExchangeable = expressAvailabilityProvider.canSwap(tokenItem: model.tokenItem)
-            let hasBalance = model.fiatBalance > 0
+            let fiat = model.fiatBalance
+            let hasBalance = fiat > 0
 
-            if hasBalance {
-                let fiat = model.fiatBalance
-                if fiat > mostFundedFiat {
-                    mostFundedFiat = fiat
-                    groups.mostFunded = model
-                }
+            if hasBalance, fiat > mostFundedFiat {
+                mostFundedFiat = fiat
+                groups.mostFunded = model
             }
 
             switch (isExchangeable, hasBalance) {
             case (true, true):
-                groups.exchangeableWithBalance.append(model)
+                if fiat > topExchangeableFiat {
+                    topExchangeableFiat = fiat
+                    groups.topExchangeable = model
+                }
             case (true, false):
                 groups.hasExchangeableEmpty = true
             default:
                 break
             }
         }
-
-        groups.exchangeableWithBalance.sortByFiatBalance()
 
         return groups
     }
@@ -105,7 +105,8 @@ private extension CommonSwapTokenPairResolver {
 
 private extension CommonSwapTokenPairResolver {
     struct AccountTokenGroups {
-        var exchangeableWithBalance: [any WalletModel] = []
+        /// Most funded exchangeable token with balance
+        var topExchangeable: (any WalletModel)?
         var hasExchangeableEmpty: Bool = false
         /// Most funded token across all groups (exchangeable and non-exchangeable)
         var mostFunded: (any WalletModel)?
