@@ -12,7 +12,7 @@ import TangemExpress
 import UIKit
 
 struct ExpressProviderFormatter {
-    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.restrictedCountriesGeoDefiner) private var restrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner
 
     let balanceFormatter: BalanceFormatter
 
@@ -23,7 +23,7 @@ struct ExpressProviderFormatter {
     func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
         let state: ExpressProviderManagerState = availableProvider.getState()
 
-        if ukGeoDefiner.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
+        if restrictedCountriesGeoDefiner.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
             return .fcaWarning
         }
 
@@ -31,7 +31,7 @@ struct ExpressProviderFormatter {
             return .permissionNeeded
         }
 
-        let canShowBest = !ukGeoDefiner.isUK && !hasHighPriceImpactWarning
+        let canShowBest = !restrictedCountriesGeoDefiner.isUK && !hasHighPriceImpactWarning
         let isBest = availableProvider.isBest
 
         return canShowBest && isBest ? .bestRate : .none
