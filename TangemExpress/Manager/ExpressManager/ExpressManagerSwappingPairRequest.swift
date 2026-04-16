@@ -12,7 +12,6 @@ import BlockchainSdk
 public struct ExpressManagerSwappingPairRequest {
     public let amountType: ExpressAmountType
     public let rateType: ExpressProviderRateType
-    public let feeOption: ExpressFee.Option
     public let approvePolicy: ApprovePolicy
     public let operationType: ExpressOperationType
 
@@ -24,7 +23,6 @@ public struct ExpressManagerSwappingPairRequest {
         ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            feeOption: feeOption,
             approvePolicy: approvePolicy,
             operationType: operationType
         )
