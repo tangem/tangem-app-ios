@@ -37,24 +37,12 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            coinView
-
-            newsView
+            content
         }
         .padding(.horizontal, Constants.contentHorizontalPadding)
     }
 
-    @ViewBuilder
-    private var newsView: some View {
-        if viewModel.isAvailableNews {
-            MarketsTokenNewsView(
-                items: viewModel.tokenNewsItems,
-                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
-            )
-        }
-    }
-
-    private var coinView: some View {
+    private var content: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
             switch viewModel.state {
             case .loading:
@@ -76,7 +64,6 @@ struct MarketsTokenDetailsContentViewRedesign: View {
         }
     }
 
-    @ViewBuilder
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
             if let metricsViewModel = viewModel.metricsViewModel {
@@ -87,17 +74,19 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                 MarketsTokenDetailsInsightsViewRedesign(viewModel: insightsViewModel)
             }
 
-            if let securityScoreViewModel = viewModel.securityScoreViewModel {
-                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
-            }
-
             if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
-                MarketsTokenDetailsListedOnExchangesView(exchangesCount: numberOfExchangesListedOn) {
+                MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: numberOfExchangesListedOn) {
                     viewModel.openExchangesList()
                 }
             }
 
-            if !viewModel.linksSections.isEmpty {
+            newsView
+
+            if let securityScoreViewModel = viewModel.securityScoreViewModel {
+                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
+            }
+
+            if viewModel.linksSections.isNotEmpty {
                 MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)
             }
         }
@@ -128,6 +117,16 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             }
         case .failedToLoadDetails, .failedToLoadAllData:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var newsView: some View {
+        if viewModel.isAvailableNews {
+            MarketsTokenNewsView(
+                items: viewModel.tokenNewsItems,
+                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
+            )
         }
     }
 
