@@ -971,8 +971,16 @@ extension SwapModel: SendSwapProvidersInput {
 
 extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
-        updateTask(loadingType: .provider) { expressManager in
-            try await expressManager.updateSelectedProvider(provider: provider)
+        updateTask(loadingType: .provider) { [weak self] expressManager in
+            let result: ExpressManagerUpdatingResult = try await expressManager.updateSelectedProvider(provider: provider)
+
+            if let self, let quote = result.selected?.getState().quote {
+                let amountType = await expressManager.getAmountType()
+                try Task.checkCancellation()
+                sendComplementaryAmount(for: amountType, quote: quote)
+            }
+
+            return result
         }
     }
 }
