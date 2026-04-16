@@ -91,18 +91,7 @@ struct NewsWidgetViewRedesign: View {
         VStack(spacing: Layout.spacingBetweenSections) {
             TrendingCardNewsSkeletonView()
 
-            // Wrapping in a horizontal ScrollView matches CarouselNewsView's structure,
-            // ensuring the skeleton reports proposed width (not content width) to the parent.
-            // Without it, the two 228pt cards push the entire widget VStack beyond screen width.
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: .unit(.x3)) {
-                    CarouselNewsCardSkeletonView()
-                    CarouselNewsCardSkeletonView()
-                }
-                .padding(.horizontal, SizeUnit.x4.value)
-            }
-            .scrollDisabled(true)
-            .padding(.horizontal, -SizeUnit.x4.value)
+            MarketsCarouselNewsSkeletonView()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
