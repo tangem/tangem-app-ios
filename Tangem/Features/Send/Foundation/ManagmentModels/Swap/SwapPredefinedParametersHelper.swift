@@ -33,10 +33,14 @@ struct SwapPredefinedParametersHelper {
             ).makeSwapableToken()
 
             let destinationToken = resolved.destination.map {
-                CommonSendReceiveTokenFactory(tokenItem: $0.tokenItem).makeSendReceiveToken()
+                CommonSendSwapableTokenFactory(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: $0,
+                    operationType: .swap
+                ).makeSwapableToken()
             }
 
-            return .from(sourceToken, receive: destinationToken)
+            return .pair(source: sourceToken, receive: destinationToken)
         }
 
         if let destinationWalletModel = resolved.destination {
