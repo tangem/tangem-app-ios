@@ -66,7 +66,7 @@ extension CommonExpressManager: ExpressManager {
         return availableProviders
     }
 
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressAvailableProvider? {
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
         pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
 
@@ -78,22 +78,18 @@ extension CommonExpressManager: ExpressManager {
         case .none: availableProviders.removeAll()
         }
 
-        return await bestProvider()
+        let selected = await bestProvider()
+        return makeUpdatingResult(selected: selected)
     }
 
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
+    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
         _amountType = amountType
         return try await update(by: source)
     }
 
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider? {
-        selectedProvider = provider
-
-        return selectedProvider
-    }
-
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
-        try await updateState(by: source)
+    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
+        let selected = try await updateState(by: source)
+        return makeUpdatingResult(selected: selected)
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -302,6 +298,10 @@ private extension CommonExpressManager {
 
     func clearCache() {
         selectedProvider = nil
+    }
+
+    func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
+        ExpressManagerUpdatingResult(providers: availableProviders, selected: selected)
     }
 }
 
