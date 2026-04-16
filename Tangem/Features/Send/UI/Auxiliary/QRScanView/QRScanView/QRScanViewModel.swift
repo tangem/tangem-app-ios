@@ -39,24 +39,27 @@ final class QRScanViewModel: ObservableObject, Identifiable {
     }
 
     func toggleFlash() {
+        let newState = !isFlashActive
+        setFlashState(isActive: newState)
+    }
+
+    private func setFlashState(isActive: Bool) {
         guard
             let camera = AVCaptureDevice.default(for: .video),
             camera.hasTorch
         else {
+            isFlashActive = false
             return
         }
 
         do {
             try camera.lockForConfiguration()
+            defer { camera.unlockForConfiguration() }
 
-            // Do it before the actual changes because it's not immediate
-            withAnimation(nil) {
-                isFlashActive = !camera.isTorchActive
-            }
-
-            camera.torchMode = camera.isTorchActive ? .off : .on
-            camera.unlockForConfiguration()
+            camera.torchMode = isActive ? .on : .off
+            isFlashActive = camera.isTorchActive
         } catch {
+            isFlashActive = false
             AppLogger.error("Failed to toggle the flash", error: error)
         }
     }
