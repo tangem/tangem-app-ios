@@ -24,7 +24,6 @@ actor CommonExpressManager {
     private var _amountType: ExpressAmountType?
 
     private var availableProviders: [ExpressAvailableProvider] = []
-    private var selectedProvider: ExpressAvailableProvider?
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -48,20 +47,6 @@ extension CommonExpressManager: ExpressManager {
         return _amountType
     }
 
-    func getRateType() -> ExpressProviderRateType? {
-        guard let amountType = _amountType, let selected = selectedProvider else { return nil }
-
-        if selected.supportedRateTypes.contains(amountType.rateType) {
-            return amountType.rateType
-        }
-
-        return selected.supportedRateTypes.first
-    }
-
-    func getSelectedProvider() -> ExpressAvailableProvider? {
-        return selectedProvider
-    }
-
     func getAllProviders() -> [ExpressAvailableProvider] {
         return availableProviders
     }
@@ -69,9 +54,6 @@ extension CommonExpressManager: ExpressManager {
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
         pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
-
-        // Clear for reselected the best quote
-        clearCache()
 
         switch pair {
         case .some(let pair): try await updateAvailableProviders(pair: pair)
@@ -92,13 +74,9 @@ extension CommonExpressManager: ExpressManager {
         return makeUpdatingResult(selected: selected)
     }
 
-    func requestData() async throws -> ExpressTransactionData {
-        guard let selectedProvider = selectedProvider else {
-            throw ExpressManagerError.selectedProviderNotFound
-        }
-
-        let request = try makeRequest(for: selectedProvider)
-        return try await selectedProvider.manager.sendData(request: request)
+    func requestData(for provider: ExpressAvailableProvider) async throws -> ExpressTransactionData {
+        let request = try makeRequest(for: provider)
+        return try await provider.manager.sendData(request: request)
     }
 }
 
@@ -124,16 +102,13 @@ private extension CommonExpressManager {
 
         try Task.checkCancellation()
 
-        await updateSelectedProvider(pair: pair, by: source)
+        let selected = await bestProvider()
 
-        return try selectedProviderState()
-    }
+        if let selected {
+            pair.source.analyticsLogger.bestProviderSelected(selected)
+        }
 
-    func selectedProviderState() throws -> ExpressAvailableProvider? {
-        let state = selectedProvider?.getState()
-        ExpressLogger.info(self, "Selected provider state: \(state as Any)")
-
-        return selectedProvider
+        return selected
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
@@ -159,16 +134,6 @@ private extension CommonExpressManager {
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
             return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: rateTypes, isBest: false)
-        }
-    }
-
-    func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressProviderUpdateSource) async {
-        if source.isRequiredUpdateSelectedProvider || selectedProvider == nil {
-            selectedProvider = await bestProvider()
-
-            if let selectedProvider {
-                pair.source.analyticsLogger.bestProviderSelected(selectedProvider)
-            }
         }
     }
 
@@ -294,10 +259,6 @@ private extension CommonExpressManager {
             return preferred
         }
         return provider.supportedRateTypes.first ?? .float
-    }
-
-    func clearCache() {
-        selectedProvider = nil
     }
 
     func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
