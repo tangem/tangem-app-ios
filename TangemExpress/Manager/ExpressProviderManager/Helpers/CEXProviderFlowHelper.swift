@@ -159,7 +159,6 @@ private extension CEXProviderFlowHelper {
         return ExpressManagerSwappingPairRequest(
             amountType: .from(reducedAmount),
             rateType: request.rateType,
-            approvePolicy: request.approvePolicy,
             operationType: request.operationType
         )
     }

@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import TangemLogger
 import TangemFoundation
-import BlockchainSdk
 
 actor CommonExpressManager {
     // MARK: - Dependencies
@@ -22,7 +21,6 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ApprovePolicy = .specified
     private var _amountType: ExpressAmountType?
 
     private var availableProviders: [ExpressAvailableProvider] = []
@@ -91,19 +89,6 @@ extension CommonExpressManager: ExpressManager {
     func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider? {
         selectedProvider = provider
 
-        return selectedProvider
-    }
-
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressAvailableProvider? {
-        guard _approvePolicy != approvePolicy else {
-            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
-            return selectedProvider
-        }
-
-        _approvePolicy = approvePolicy
-
-        let request = try makeRequest(for: selectedProvider)
-        await selectedProvider?.manager.update(request: request)
         return selectedProvider
     }
 
@@ -304,7 +289,6 @@ private extension CommonExpressManager {
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            approvePolicy: _approvePolicy,
             operationType: pair.source.operationType
         )
     }

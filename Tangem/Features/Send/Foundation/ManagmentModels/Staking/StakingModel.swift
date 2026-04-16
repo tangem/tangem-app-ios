@@ -588,15 +588,12 @@ extension StakingModel: ApproveFlowDataProvider, ApproveOutput {
             throw SendApproveViewModelInputDataBuilderError.notFound("ReadyToApprove state")
         }
 
-        let selectedPolicy = _approvePolicy.value
-
         guard let approveAmount = _amount.value?.crypto else {
             throw SendApproveViewModelInputDataBuilderError.notFound("Approve amount")
         }
 
         return ApproveFlowInput(
             approveAmount: approveAmount,
-            selectedPolicy: selectedPolicy,
             approveData: approveData,
             approvalFlow: .approve,
             sourceToken: sendSourceToken,

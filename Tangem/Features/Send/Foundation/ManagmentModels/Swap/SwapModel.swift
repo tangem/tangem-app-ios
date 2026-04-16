@@ -519,7 +519,6 @@ extension SwapModel {
 
         let permissionRequiredState = PermissionRequiredState(
             quote: quote,
-            policy: permissionRequired.policy,
             data: permissionRequired.data,
             approvalFlow: permissionRequired.approvalFlow
         )
@@ -1414,7 +1413,6 @@ extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
 
         return ApproveFlowInput(
             approveAmount: state.quote.fromAmount,
-            selectedPolicy: state.policy,
             approveData: state.data,
             approvalFlow: state.approvalFlow,
             sourceToken: sourceToken,
@@ -1648,7 +1646,6 @@ extension SwapModel {
 
     struct PermissionRequiredState {
         let quote: Quote
-        let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
         let approvalFlow: ExpressProviderManagerState.ApprovalFlow
     }

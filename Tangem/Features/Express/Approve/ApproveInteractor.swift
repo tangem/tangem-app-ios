@@ -39,7 +39,7 @@ final class ApproveInteractor {
 
     init(
         approveInteractorState: ApproveInteractorState,
-        initialPolicy: BSDKApprovePolicy,
+        initialPolicy: BSDKApprovePolicy = .specified,
         approveAmount: Decimal,
         allowanceService: any AllowanceService,
         approveTransactionDispatcher: any TransactionDispatcher,

@@ -60,7 +60,6 @@ public enum ExpressProviderManagerState {
 public extension ExpressProviderManagerState {
     struct PermissionRequired {
         public let provider: ExpressProvider
-        public let policy: ApprovePolicy
         public let data: ApproveTransactionData
         public let approvalFlow: ApprovalFlow
         public let fee: Fee
