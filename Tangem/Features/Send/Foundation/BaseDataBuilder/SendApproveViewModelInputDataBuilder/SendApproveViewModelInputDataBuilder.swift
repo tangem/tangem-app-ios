@@ -39,7 +39,6 @@ protocol ApproveFlowDataProvider {
 
 struct ApproveFlowInput {
     let approveAmount: Decimal
-    let selectedPolicy: BSDKApprovePolicy
     let approveData: ApproveTransactionData
     let approvalFlow: ExpressProviderManagerState.ApprovalFlow
     let sourceToken: any SendSourceToken

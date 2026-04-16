@@ -779,7 +779,6 @@ struct ApproveInteractorTests {
 
         return ApproveInteractor(
             approveInteractorState: .approve(data: data),
-            initialPolicy: ApprovePolicy.specified,
             approveAmount: testApproveAmount,
             allowanceService: env.allowanceService,
             approveTransactionDispatcher: env.dispatcher,
@@ -802,7 +801,6 @@ struct ApproveInteractorTests {
 
         return ApproveInteractor(
             approveInteractorState: .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: unit),
-            initialPolicy: ApprovePolicy.specified,
             approveAmount: testApproveAmount,
             allowanceService: env.allowanceService,
             approveTransactionDispatcher: env.dispatcher,

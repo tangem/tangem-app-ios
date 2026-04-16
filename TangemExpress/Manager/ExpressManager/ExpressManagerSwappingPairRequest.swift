@@ -7,12 +7,10 @@
 //
 
 import Foundation
-import BlockchainSdk
 
 public struct ExpressManagerSwappingPairRequest {
     public let amountType: ExpressAmountType
     public let rateType: ExpressProviderRateType
-    public let approvePolicy: ApprovePolicy
     public let operationType: ExpressOperationType
 
     public var amount: Decimal {
@@ -23,7 +21,6 @@ public struct ExpressManagerSwappingPairRequest {
         ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            approvePolicy: approvePolicy,
             operationType: operationType
         )
     }

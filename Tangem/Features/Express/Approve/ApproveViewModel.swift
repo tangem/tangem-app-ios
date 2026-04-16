@@ -204,7 +204,7 @@ extension ApproveViewModel {
         let subtitle: String
         let feeFooterText: String
         let tokenItem: TokenItem
-        let selectedPolicy: BSDKApprovePolicy
+        let selectedPolicy: BSDKApprovePolicy = .specified
         let tangemIconProvider: TangemIconProvider
     }
 }

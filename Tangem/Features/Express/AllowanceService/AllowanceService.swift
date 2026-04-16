@@ -24,6 +24,6 @@ extension AllowanceService {
             return .enoughAllowance
         }
 
-        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: request.approvePolicy)
+        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: .specified)
     }
 }

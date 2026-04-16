@@ -199,7 +199,6 @@ struct ApproveFlowViewModelTests {
 
         let interactor = ApproveInteractor(
             approveInteractorState: interactorState ?? .approve(data: defaultApproveData),
-            initialPolicy: ApprovePolicy.specified,
             approveAmount: 100,
             allowanceService: allowanceService,
             approveTransactionDispatcher: dispatcher,
@@ -213,7 +212,6 @@ struct ApproveFlowViewModelTests {
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
             tokenItem: tokenItem,
-            selectedPolicy: ApprovePolicy.specified,
             tangemIconProvider: TangemIconProviderStub()
         )
 
