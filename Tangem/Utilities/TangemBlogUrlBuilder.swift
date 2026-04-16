@@ -24,6 +24,7 @@ extension TangemBlogUrlBuilder {
         case whatIsStaking
         case mobileWallet
         case giveRevokePermission
+        case seedPhraseFaq
     }
 }
 
@@ -42,6 +43,8 @@ private extension TangemBlogUrlBuilder.Post {
             "mobile-wallet"
         case .giveRevokePermission:
             "give-revoke-permission"
+        case .seedPhraseFaq:
+            "seed-phrase-faq"
         }
     }
 }
