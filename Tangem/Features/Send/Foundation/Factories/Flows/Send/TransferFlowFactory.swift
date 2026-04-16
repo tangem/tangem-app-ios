@@ -128,8 +128,7 @@ extension TransferNFTFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendModel,
             output: sendModel,
-            receiveTokenInput: .none,
-            destinationAccountOutput: sendModel
+            receiveTokenInput: .none
         )
     }
 
