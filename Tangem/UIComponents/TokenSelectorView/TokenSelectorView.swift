@@ -87,7 +87,7 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         case .empty:
             emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
         case .loading:
-            loadingView.transition(.content)
+            TokenSelectorLoadingView().transition(.content)
         case .visible(let itemsCount):
             tokenListContent(itemsCount: itemsCount).transition(.content)
         }
@@ -95,16 +95,6 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         if !viewModel.contentVisibility.isLoading {
             additionalContent
         }
-    }
-
-    private var loadingView: some View {
-        HStack(spacing: 8) {
-            ProgressView()
-
-            Text(Localization.wcCommonLoading)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-        }
-        .padding(.top, 12)
     }
 
     @ViewBuilder
