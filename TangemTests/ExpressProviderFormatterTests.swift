@@ -14,7 +14,7 @@ import Testing
 @Suite("ExpressProviderFormatter — mapToBadge badge suppression", .serialized)
 struct ExpressProviderFormatterBadgeTests {
     init() {
-        InjectedValues[\.ukGeoDefiner] = StubUKGeoDefiner()
+        InjectedValues[\.restrictedCountriesGeoDefiner] = StubRestrictedCountriesGeoDefiner()
     }
 
     @Test("Best rate badge is shown when there is no high price impact warning")
@@ -65,8 +65,9 @@ struct ExpressProviderFormatterBadgeTests {
 
 // MARK: - Stubs
 
-private struct StubUKGeoDefiner: UKGeoDefiner {
+private struct StubRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
     var isUK: Bool { false }
+    var isApplePayAllowed: Bool { true }
 
     func initialize() {}
     func waitForGeoIpRegionIfNeeded() async {}
