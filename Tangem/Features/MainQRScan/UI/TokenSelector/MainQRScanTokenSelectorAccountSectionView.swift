@@ -27,7 +27,7 @@ struct MainQRScanTokenSelectorAccountSectionView: View {
         let unavailableCount = viewModel.incompatibleItemsCount
         let rows = makeRows(availableItems: availableItems, unavailableCount: unavailableCount)
 
-        GroupedSection(rows) { row in
+        GroupedSection(rows, isLazy: true) { row in
             switch row {
             case .token(let item):
                 TokenSelectorItemView(viewModel: item)
