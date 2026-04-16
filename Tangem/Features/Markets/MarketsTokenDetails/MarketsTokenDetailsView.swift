@@ -148,12 +148,9 @@ struct MarketsTokenDetailsView: View {
                 chart
                     .hidden(viewModel.allDataLoadFailed)
                     .overlay(content: {
-                        UnableToLoadDataView(
-                            isButtonBusy: viewModel.isLoading,
-                            retryButtonAction: viewModel.loadDetailedInfo
-                        )
-                        .infinityFrame(axis: .horizontal)
-                        .hidden(!viewModel.allDataLoadFailed)
+                        chartLoadFailedOverlay
+                            .infinityFrame(axis: .horizontal)
+                            .hidden(!viewModel.allDataLoadFailed)
                     })
 
                 content
@@ -275,6 +272,21 @@ struct MarketsTokenDetailsView: View {
             } else {
                 MarketsHistoryChartView(viewModel: viewModel)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var chartLoadFailedOverlay: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: viewModel.isLoading,
+                retryButtonAction: viewModel.loadDetailedInfo
+            )
+        } else {
+            UnableToLoadDataView(
+                isButtonBusy: viewModel.isLoading,
+                retryButtonAction: viewModel.loadDetailedInfo
+            )
         }
     }
 
