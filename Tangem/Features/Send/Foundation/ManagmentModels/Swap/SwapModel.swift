@@ -115,15 +115,19 @@ final class SwapModel {
 
 extension SwapModel {
     func autoupdatingRates() {
-        updateTask(loadingType: .autoupdate) { [weak self] manager in
-            let result: ExpressManagerUpdatingResult = try await manager.update(by: .autoUpdate)
+        updateTask(loadingType: .autoupdate) { [weak self, currentSelected = _providersState.value.selected] manager in
+            let result = try await manager.update(by: .autoUpdate)
 
-            if let self, let quote = result.selected?.getState().quote {
+            // Keep the same selected provider on auto-update
+            let selected = currentSelected ?? result.selected
+            let updatedResult = ExpressManagerUpdatingResult(providers: result.providers, selected: selected)
+
+            if let self, let quote = updatedResult.selected?.getState().quote {
                 let amountType = await manager.getAmountType()
                 sendComplementaryAmount(for: amountType, quote: quote)
             }
 
-            return result
+            return updatedResult
         }
     }
 
@@ -369,6 +373,16 @@ extension SwapModel {
     private func updateRateType() async {
         let newRateType = await expressManager.getRateType()
         _currentRateType.send(newRateType)
+    }
+
+    private func resolveRateType(amountType: ExpressAmountType?, provider: ExpressAvailableProvider?) -> ExpressProviderRateType? {
+        guard let amountType, let provider else { return nil }
+
+        if provider.supportedRateTypes.contains(amountType.rateType) {
+            return amountType.rateType
+        }
+
+        return provider.supportedRateTypes.first
     }
 
     private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
@@ -659,7 +673,7 @@ extension SwapModel {
                 throw SwapModel.SwapModelError.transactionDataNotFound
 
             case .loaded(_, .some(let selected), state: .previewCEX(let previewCEX)):
-                let data = try await expressManager.requestData()
+                let data = try await expressManager.requestData(for: selected)
                 let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
@@ -1177,8 +1191,9 @@ extension SwapModel: FeeSelectorOutput {
         tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
-        updateTask(loadingType: .fee) { manager in
-            try await manager.update(by: .autoUpdate)
+        updateTask(loadingType: .fee) { [currentSelected = _providersState.value.selected] manager in
+            let result = try await manager.update(by: .autoUpdate)
+            return ExpressManagerUpdatingResult(providers: result.providers, selected: currentSelected ?? result.selected)
         }
     }
 }
@@ -1576,6 +1591,13 @@ extension SwapModel {
             switch self {
             case .loaded(let providers, _, _): providers
             default: []
+            }
+        }
+
+        var selected: ExpressAvailableProvider? {
+            switch self {
+            case .loaded(_, let selected, _): selected
+            default: nil
             }
         }
 
