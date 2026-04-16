@@ -34,11 +34,11 @@ class CommonRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
             return true
         }
 
-        return geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
+        return geoDefiner.geoIpRegionCode?.caseInsensitiveCompare(Constants.ukRegionCode) == .orderedSame
     }
 
     private var isPhoneRegionCodeUK: Bool {
-        geoDefiner.phoneRegionCode?.contains(Constants.ukRegionCode) ?? false
+        geoDefiner.phoneRegionCode?.caseInsensitiveCompare(Constants.ukRegionCode) == .orderedSame
     }
 
     // MARK: - Apple Pay
@@ -52,7 +52,7 @@ class CommonRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
             return true
         }
 
-        return !Constants.applePayRestrictedRegionCodes.contains(where: { code.contains($0) })
+        return !Constants.applePayRestrictedRegionCodes.contains(code.lowercased())
     }
 
     private var isPhoneRegionApplePayRestricted: Bool {
@@ -60,7 +60,7 @@ class CommonRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
             return false
         }
 
-        return Constants.applePayRestrictedRegionCodes.contains(where: { code.contains($0) })
+        return Constants.applePayRestrictedRegionCodes.contains(code.lowercased())
     }
 }
 
