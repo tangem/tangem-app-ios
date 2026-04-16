@@ -39,24 +39,31 @@ public final class SolanaNetworkService: MultiNetworkProvider {
     }
 
     func getInfo(accountId: String, tokens: [Token]) -> AnyPublisher<SolanaAccountInfoResponse, Error> {
-        Publishers.Zip3(
-            mainAccountInfo(accountId: accountId),
-            tokenAccountsInfo(accountId: accountId, programId: .tokenProgramId),
-            tokenAccountsInfo(accountId: accountId, programId: .token2022ProgramId)
-        )
-        .tryMap { [weak self] mainAccount, splTokenAccounts, token2022Accounts in
-            guard let self = self else {
-                throw BlockchainSdkError.empty
-            }
+        let mints = Set(tokens.map(\.contractAddress))
 
-            let tokenAccounts = splTokenAccounts + token2022Accounts
-            return mapInfo(
-                mainAccountInfo: mainAccount,
-                tokenAccountsInfo: tokenAccounts,
-                tokens: tokens
-            )
-        }
-        .eraseToAnyPublisher()
+        return accountInfoWithTokenAccounts(accountId: accountId)
+            .map { response in
+                let filteredTokensByMint = response.tokensByMint.filter { mints.contains($0.key) }
+
+                return SolanaAccountInfoResponse(
+                    balance: response.balance,
+                    accountExists: response.accountExists,
+                    tokensByMint: filteredTokensByMint,
+                    mainAccountRentExemption: response.mainAccountRentExemption
+                )
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getInitialWalletInfo(accountId: String) -> AnyPublisher<SolanaInitialWalletInfoResponse, Error> {
+        accountInfoWithTokenAccounts(accountId: accountId)
+            .map { response in
+                return SolanaInitialWalletInfoResponse(
+                    mainBalance: response.balance,
+                    tokenBalancesByMint: response.tokensByMint
+                )
+            }
+            .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String, publicKey: PublicKey) -> AnyPublisher<Fee, Error> {
@@ -366,18 +373,35 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    private func accountInfoWithTokenAccounts(accountId: String) -> AnyPublisher<SolanaAccountInfoResponse, Error> {
+        Publishers.Zip3(
+            mainAccountInfo(accountId: accountId),
+            tokenAccountsInfo(accountId: accountId, programId: .tokenProgramId),
+            tokenAccountsInfo(accountId: accountId, programId: .token2022ProgramId)
+        )
+        .tryMap { [weak self] mainAccount, splTokenAccounts, token2022Accounts in
+            guard let self else {
+                throw BlockchainSdkError.empty
+            }
+
+            return mapInfo(
+                mainAccountInfo: mainAccount,
+                tokenAccountsInfo: splTokenAccounts + token2022Accounts
+            )
+        }
+        .eraseToAnyPublisher()
+    }
+
     private func mapInfo(
         mainAccountInfo: SolanaMainAccountInfoResponse,
-        tokenAccountsInfo: [TokenAccount<AccountInfoData>],
-        tokens: [Token]
+        tokenAccountsInfo: [TokenAccount<AccountInfoData>]
     ) -> SolanaAccountInfoResponse {
         let balance = (Decimal(mainAccountInfo.balance) / blockchain.decimalValue).rounded(blockchain: blockchain)
         let accountExists = mainAccountInfo.accountExists
 
         let tokenInfoResponses: [SolanaTokenAccountInfoResponse] = tokenAccountsInfo.compactMap {
             guard
-                let info = $0.account.data.value?.parsed.info,
-                let token = tokens.first(where: { $0.contractAddress == info.mint })
+                let info = $0.account.data.value?.parsed.info
             else {
                 return nil
             }
@@ -387,7 +411,12 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
             let isToken2022 = $0.account.owner == PublicKey.token2022ProgramId.base58EncodedString
             let shouldUseScaledUiAmount = isToken2022 && isSolanaScaledUIEnabled
-            guard let amount = tokenBalance(from: info.tokenAmount, token: token, useUiAmount: shouldUseScaledUiAmount) else {
+            let decimalCount = Int(info.tokenAmount.decimals)
+            guard let amount = tokenBalance(
+                from: info.tokenAmount,
+                decimalCount: decimalCount,
+                useUiAmount: shouldUseScaledUiAmount
+            ) else {
                 return nil
             }
 
@@ -457,22 +486,25 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
     private func tokenBalance(
         from tokenAmount: SolanaSwift.TokenAmount,
-        token: Token,
+        decimalCount: Int,
         useUiAmount: Bool
     ) -> Decimal? {
+        let safeDecimalCount = min(max(decimalCount, 0), 38)
+
         if useUiAmount {
             // For Token-2022 (e.g. scaled UI amount), use node-provided UI amount.
             if let uiAmount = Decimal(stringValue: tokenAmount.uiAmountString) {
-                return uiAmount.rounded(scale: token.decimalCount)
+                return uiAmount.rounded(scale: safeDecimalCount)
             }
 
-            return Decimal(tokenAmount.uiAmount).rounded(scale: token.decimalCount)
+            return Decimal(tokenAmount.uiAmount).rounded(scale: safeDecimalCount)
         } else {
             guard let integerAmount = Decimal(stringValue: tokenAmount.amount) else {
                 return nil
             }
 
-            return (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
+            let decimalValue: Decimal = pow(10, safeDecimalCount)
+            return (integerAmount / decimalValue).rounded(scale: safeDecimalCount)
         }
     }
 
