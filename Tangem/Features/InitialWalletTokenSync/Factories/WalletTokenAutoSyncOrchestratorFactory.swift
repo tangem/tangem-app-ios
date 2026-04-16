@@ -17,7 +17,8 @@ struct WalletTokenAutoSyncOrchestratorFactory {
     )
 
     private let configurationProvider: InitialWalletTokenSyncConfigurationProvider = CommonInitialWalletTokenSyncConfigurationProvider(
-        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory
+        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory,
+        isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
     )
 
     private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()

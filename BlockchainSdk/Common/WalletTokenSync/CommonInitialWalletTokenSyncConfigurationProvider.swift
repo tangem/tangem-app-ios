@@ -10,9 +10,14 @@ import Foundation
 
 public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTokenSyncConfigurationProvider {
     private let networkServiceFactory: WalletNetworkServiceFactory
+    private let isSolanaScaledUIEnabled: Bool
 
-    public init(networkServiceFactory: WalletNetworkServiceFactory) {
+    public init(
+        networkServiceFactory: WalletNetworkServiceFactory,
+        isSolanaScaledUIEnabled: Bool = true
+    ) {
         self.networkServiceFactory = networkServiceFactory
+        self.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
     }
 
     // MARK: - InitialWalletTokenSyncConfigurationProvider
@@ -23,7 +28,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
              .koinos, .sui, .internetComputer, .filecoin, .casper,
              .cosmos, .terraV1, .terraV2, .sei, .ton, .polkadot, .kusama,
              .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
-             .alephium, .kaspa, .cardano, .chia:
+             .alephium, .kaspa, .cardano, .chia, .solana:
             return true
 
         // Bitcoin UTXO - Like
@@ -40,9 +45,6 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
              .odysseyChain, .bitrock, .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
              .quai, .scroll, .arbitrumNova, .plasma:
             return true
-
-        case .solana:
-            return false
 
         // Unsupported obtain provider
         case .hedera:
@@ -142,6 +144,11 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
         case .chia:
             return try await ChiaInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .solana:
+            return try await SolanaInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory,
+                isSolanaScaledUIEnabled: isSolanaScaledUIEnabled
             ).configuration(for: blockchain, address: address)
         default:
             if blockchain.isEvm {
