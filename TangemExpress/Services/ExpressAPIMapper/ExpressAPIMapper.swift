@@ -220,7 +220,51 @@ struct ExpressAPIMapper {
 
         toAmount /= pow(10, response.toDecimals)
 
-        return OnrampQuote(expectedAmount: toAmount)
+        return OnrampQuote(
+            expectedAmount: toAmount,
+            nativePaymentAvailable: response.nativePaymentAvailable ?? false,
+            quoteId: response.quoteId
+        )
+    }
+
+    func mapToOnrampDataResult(
+        request: ExpressDTO.Onramp.NativePaymentData.Request,
+        response: ExpressDTO.Onramp.NativePaymentData.Response
+    ) throws -> OnrampDataResult {
+        let codedData: ExpressDTO.Onramp.Data.CodedData = try exchangeDataDecoder.decode(
+            txDetailsJson: response.dataJson,
+            signature: response.signature
+        )
+
+        guard request.requestId == codedData.requestId else {
+            throw ExpressAPIMapperError.requestIdNotEqual
+        }
+
+        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
+        }
+
+        fromAmount /= pow(10, codedData.fromPrecision)
+
+        if response.txType == "nativePayment" {
+            return .nativePayment(OnrampNativePaymentData(
+                txId: response.txId,
+                fromAmount: fromAmount,
+                fromCurrencyCode: codedData.fromCurrencyCode,
+                externalTxId: codedData.externalTxId,
+                externalTxUrl: codedData.externalTxUrl
+            ))
+        } else {
+            return .widget(OnrampRedirectData(
+                txId: response.txId,
+                widgetUrl: codedData.widgetUrl,
+                redirectUrl: codedData.redirectUrl,
+                fromAmount: fromAmount,
+                fromCurrencyCode: codedData.fromCurrencyCode,
+                externalTxId: codedData.externalTxId,
+                externalTxUrl: codedData.externalTxUrl
+            ))
+        }
     }
 
     func mapToOnrampRedirectData(

@@ -68,6 +68,7 @@ extension ExpressDTO {
                 let fromAmount: String
                 let toDecimals: Int
                 let providerId: String
+                let toAddress: String
             }
 
             struct Response: Decodable {
@@ -84,6 +85,8 @@ extension ExpressDTO {
                 let maxFromAmount: String?
                 let minToAmount: String?
                 let maxToAmount: String?
+                let nativePaymentAvailable: Bool?
+                let quoteId: String?
             }
         }
 
@@ -132,6 +135,60 @@ extension ExpressDTO {
                 let externalTxId: String?
                 let externalTxUrl: String?
                 let widgetUrl: URL
+            }
+        }
+
+        // MARK: - NativePaymentData
+
+        enum NativePaymentData {
+            struct PaymentData: Encodable {
+                let type: String
+                let paymentToken: String
+                let quoteId: String
+                let userData: UserData
+            }
+
+            struct UserData: Encodable {
+                let email: String?
+                let firstName: String?
+                let lastName: String?
+                let billingAddress: BillingAddress?
+            }
+
+            struct BillingAddress: Encodable {
+                let street: String?
+                let city: String?
+                let subAdministrativeArea: String?
+                let state: String?
+                let postalCode: String?
+                let country: String?
+                let isoCountryCode: String?
+            }
+
+            struct Request: Encodable {
+                let fromCurrencyCode: String
+                let toContractAddress: String
+                let toNetwork: String
+                let paymentMethod: String
+                let countryCode: String
+                let fromAmount: String
+                let fromPrecision: Int
+                let toDecimals: Int
+                let providerId: String
+                let toAddress: String
+                let toExtraId: String?
+                let redirectUrl: String
+                let language: String?
+                let theme: String?
+                let requestId: String
+                let paymentData: PaymentData?
+            }
+
+            struct Response: Decodable {
+                let txId: String
+                let txType: String?
+                let dataJson: String
+                let signature: String
             }
         }
 

@@ -8,12 +8,16 @@
 
 import Foundation
 import Combine
+import PassKit
 import TangemMacro
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
+import SwiftUI
 
 final class OnrampSummaryViewModel: ObservableObject, Identifiable {
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
+
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -107,31 +111,71 @@ private extension OnrampSummaryViewModel {
 
     func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
+        let buyAction = makeBuyAction(provider: provider) { [weak self] in
             self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
             self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-            self?.interactor.userDidRequestOnramp(provider: provider)
         }
 
-        return viewModel
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
 
     func mapToRecommendedOnrampOfferViewModel(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> OnrampOfferViewModel {
         let provider = suggestedOfferType.provider
-
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
+
+        let buyAction = makeBuyAction(provider: provider) { [weak self] in
             switch title {
             case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
             case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
             case .text, .bestRate: break
             }
-
             self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-            self?.interactor.userDidRequestOnramp(provider: provider)
         }
 
-        return viewModel
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
+    }
+
+    func makeBuyAction(
+        provider: OnrampProvider,
+        additionalAnalytics: @escaping () -> Void
+    ) -> OnrampOfferViewModel.BuyAction {
+        if geoEligibilityService.isApplePayAllowed,
+           provider.paymentMethod.type == .applePay,
+           provider.quote?.nativePaymentAvailable == true,
+           let amount = provider.amount,
+           let currencyCode = interactor.currencyCode {
+            let request = OnrampApplePayUtils.makePaymentRequest(amount: amount, currencyCode: currencyCode)
+            return .nativeApplePay(request: request) { [weak self] phase in
+                self?.handleApplePayPhase(phase, provider: provider, additionalAnalytics: additionalAnalytics)
+            }
+        }
+
+        return .button { [weak self] in
+            additionalAnalytics()
+            self?.interactor.userDidRequestOnramp(provider: provider)
+        }
+    }
+
+    func handleApplePayPhase(
+        _ phase: PayWithApplePayButtonPaymentAuthorizationPhase,
+        provider: OnrampProvider,
+        additionalAnalytics: () -> Void
+    ) {
+        switch phase {
+        case .willAuthorize:
+            additionalAnalytics()
+
+        case .didAuthorize(let payment, let resultHandler):
+            let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
+            resultHandler(.init(status: .success, errors: nil))
+            interactor.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult)
+
+        case .didFinish:
+            break
+
+        @unknown default:
+            break
+        }
     }
 }
 
