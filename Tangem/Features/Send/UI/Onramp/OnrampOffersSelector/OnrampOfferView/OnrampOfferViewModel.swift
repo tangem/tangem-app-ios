@@ -20,6 +20,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let amount: Amount
     let provider: Provider
     let isAvailable: Bool
+    let isNativePayment: Bool
 
     @IgnoredEquatable
     var buyAction: BuyAction
@@ -29,12 +30,14 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         amount: Amount,
         provider: Provider,
         isAvailable: Bool,
+        isNativePayment: Bool,
         buyAction: BuyAction
     ) {
         self.title = title
         self.amount = amount
         self.provider = provider
         self.isAvailable = isAvailable
+        self.isNativePayment = isNativePayment
         self.buyAction = buyAction
     }
 }
@@ -64,5 +67,10 @@ extension OnrampOfferViewModel {
             request: PKPaymentRequest,
             onPhaseChange: (PayWithApplePayButtonPaymentAuthorizationPhase) -> Void
         )
+
+        var isNativePayment: Bool {
+            if case .nativeApplePay = self { return true }
+            return false
+        }
     }
 }
