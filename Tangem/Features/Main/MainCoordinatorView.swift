@@ -195,7 +195,7 @@ struct MainCoordinatorView: CoordinatorView {
 private extension View {
     @ViewBuilder
     func injectNavigationAssertionDelegate() -> some View {
-        if AppEnvironment.current.isAlphaOrBetaOrDebug {
+        if AppEnvironment.current.isInternalOrDebug {
             modifier(NavigationControllerDelegateViewModifier())
         } else {
             self

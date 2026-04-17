@@ -87,7 +87,11 @@ final class SwapModel {
 
         if shouldStartInitialLoading {
             Task.detached { [weak self] in
-                await self?.initialLoading()
+                if FeatureProvider.isAvailable(.swapPipelineV2) {
+                    await self?.initialLoadingV2()
+                } else {
+                    await self?.initialLoading()
+                }
             }
         }
 
@@ -222,6 +226,13 @@ extension SwapModel {
                   let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 return try await expressManager.update(pair: .none)
+            }
+
+            if FeatureProvider.isAvailable(.swapPipelineV2) {
+                await updatePairsIgnoringErrors(
+                    for: source.tokenItem.expressCurrency,
+                    userWalletInfo: source.userWalletInfo
+                )
             }
 
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
@@ -761,6 +772,27 @@ extension SwapModel {
         }
     }
 
+    /// V2 initial loading: avoids source/destination resolution requests and applies the already resolved token state.
+    /// Nil tokens (not resolved by `SwapTokenPairResolver`) get `.failure(.tokenSelectionRequired)`.
+    /// If both tokens are already resolved, `swappingPairDidChange()` is triggered to validate/refresh pair availability,
+    /// which may update pairs and perform network-backed repository work.
+    private func initialLoadingV2() async {
+        switch (_sourceToken.value, _receiveToken.value) {
+        case (.success, .success):
+            swappingPairDidChange()
+
+        case (.success, _):
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+        case (_, .success):
+            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+        default:
+            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+        }
+    }
+
     private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
         do {
             try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
@@ -1174,6 +1206,14 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
+        if FeatureProvider.isAvailable(.swapPipelineV2) {
+            swapSourceAndReceiveTokenV2()
+        } else {
+            swapSourceAndReceiveToken()
+        }
+    }
+
+    private func swapSourceAndReceiveToken() {
         guard let source = _sourceToken.value.value,
               let destination = _receiveToken.value.value as? SendSwapableToken else {
             ExpressLogger.info("Swap Source and Receive tokens is not possible")
@@ -1184,6 +1224,40 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         _receiveToken.send(.success(source))
 
         swappingPairDidChange()
+    }
+
+    private func swapSourceAndReceiveTokenV2() {
+        let sourceResult = _sourceToken.value
+        let receiveResult = _receiveToken.value
+
+        externalAmountUpdater.externalUpdate(amount: nil)
+
+        switch (sourceResult, receiveResult) {
+        case (.success(let source), .success(let destination)):
+            if let swapableDestination = destination as? SendSwapableToken {
+                _sourceToken.send(.success(swapableDestination))
+                _receiveToken.send(.success(source))
+                swappingPairDidChange()
+            } else {
+                _receiveToken.send(.success(destination))
+                _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+            }
+
+        case (.success(let source), .failure(SwapModelError.tokenSelectionRequired)):
+            _receiveToken.send(.success(source))
+            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+        case (.failure(SwapModelError.tokenSelectionRequired), .success(let destination)):
+            if let swapableDestination = destination as? SendSwapableToken {
+                _sourceToken.send(.success(swapableDestination))
+            } else {
+                _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+            }
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+        default:
+            ExpressLogger.info("Swap Source and Receive tokens is not possible")
+        }
     }
 
     private func mapToIsReadyToSend(providersState: ProvidersState) -> Bool {
@@ -1552,6 +1626,7 @@ extension SwapModel {
         case transactionDataNotFound
         case sourceNotFound
         case destinationNotFound
+        case tokenSelectionRequired
 
         var errorDescription: String? { rawValue }
     }
