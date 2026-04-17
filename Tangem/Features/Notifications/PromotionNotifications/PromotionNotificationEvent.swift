@@ -16,7 +16,13 @@ struct PromotionNotificationEvent: NotificationEvent {
     var id: NotificationViewId { promotion.id }
     var title: NotificationView.Title? { .string(promotion.title) }
     var description: String? { promotion.subtitle }
-    var icon: NotificationView.MessageIcon { .init(iconType: .loadableIcon(url: promotion.iconUrl)) }
+    var icon: NotificationView.MessageIcon {
+        if let iconUrl = promotion.iconUrl {
+            return .init(iconType: .loadableIcon(url: iconUrl))
+        }
+        return .init(iconType: .placeholder)
+    }
+
     var colorScheme: NotificationView.ColorScheme { promotion.placeholder == .main ? .primary : .action }
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { promotion.dismissable }
