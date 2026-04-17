@@ -462,6 +462,7 @@
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
 "express_provider_great_rate" = "Competitive rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Available up to %@";
@@ -1394,9 +1395,18 @@
 "tangempay_card_details_withdraw_in_progress_description" = "在当前操作完成之前，您无法启动兑换或新的提款。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
 "tangempay_card_details_withdraw" = "提现";
+"tangempay_card_page_daily_limit_change" = "Change";
+"tangempay_card_page_daily_limit_current_limit" = "Current limit";
+"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
+"tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
+"tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
+"tangempay_card_page_daily_limit_title" = "Daily limit";
 "tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "修改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用查看。";
+"tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
+"tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "tangempay_failed_to_issue_card_retry_description" = "出现技术错误，请点击下方按钮重试";
@@ -1443,7 +1453,7 @@
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_set_pin_code" = "Set \nPIN code";
-"tangempay_sync_needed_restore_access" = "Restore access";
+"tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed" = "工作階段已過期";
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
@@ -1469,7 +1479,10 @@
 "token_button_unavailability_reason_sell_unavailable" = "Selling %@ is not supported by current providers, but we are working to add more options.";
 "token_button_unavailability_reason_staking_unavailable" = "Staking %@ is not supported by current providers, but we are working to add more options.";
 "token_button_unavailability_reason_yield_supply_approval" = "Approval has been revoked. Your funds remain in Yield mode. To perform actions, please go to Yield mode and grant permission again.";
+"token_details_balance_available" = "Available balance";
+"token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choose address";
+"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
 "token_details_generate_xpub" = "Generate XPUB";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
@@ -1981,7 +1994,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning this off will withdraw your assets from Aave, convert them back to %@ in your wallet, and stop yield accrual.";
 "yield_module_stop_earning_sheet_fee_note" = "A network fee is charged by the blockchain when you exit Yield Mode.";
 "yield_module_stop_earning_sheet_title" = "Disable Yield Mode";
-"yield_module_stop_earning" = "Disabling Yield Mode";
+"yield_module_stop_earning" = "Disable Yield Mode";
 "yield_module_supply_apr" = "Supply APY";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
