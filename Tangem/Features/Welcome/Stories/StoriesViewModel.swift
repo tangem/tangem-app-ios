@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 final class StoriesViewModel: ObservableObject {
-    @Injected(\.restrictedCountriesGeoDefiner) var restrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner
+    @Injected(\.geoEligibilityService) var geoEligibilityService: GeoEligibilityService
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
@@ -64,7 +64,7 @@ final class StoriesViewModel: ObservableObject {
     }
 
     func checkInitialData() async {
-        await restrictedCountriesGeoDefiner.waitForGeoIpRegionIfNeeded()
+        await geoEligibilityService.waitForGeoIpRegionIfNeeded()
         await didFinishChecking()
     }
 
@@ -157,7 +157,7 @@ final class StoriesViewModel: ObservableObject {
     private func didFinishChecking() {
         var pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
 
-        if restrictedCountriesGeoDefiner.isUK, let currenciesIndex = pages.firstIndex(of: .currencies) {
+        if geoEligibilityService.isUK, let currenciesIndex = pages.firstIndex(of: .currencies) {
             pages.remove(at: currenciesIndex)
         }
 

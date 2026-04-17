@@ -38,7 +38,7 @@ final class CommonServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
-    @Injected(\.restrictedCountriesGeoDefiner) private var restrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
@@ -176,7 +176,7 @@ extension CommonServicesManager: ServicesManager {
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
-        restrictedCountriesGeoDefiner.initialize()
+        geoEligibilityService.initialize()
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
