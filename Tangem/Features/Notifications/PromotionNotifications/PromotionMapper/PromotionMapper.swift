@@ -13,8 +13,7 @@ enum PromotionMapper {
         guard let id = dto.id,
               let placeholder = dto.placeholder,
               let title = dto.title,
-              let subtitle = dto.subtitle,
-              let iconUrl = dto.iconUrl else {
+              let subtitle = dto.subtitle else {
             return nil
         }
 
@@ -24,7 +23,7 @@ enum PromotionMapper {
             priority: dto.priority,
             title: title,
             subtitle: subtitle,
-            iconUrl: iconUrl,
+            iconUrl: dto.iconUrl,
             deeplink: dto.deeplink,
             buttonEnabled: dto.buttonEnabled ?? false,
             buttonText: dto.buttonText,
