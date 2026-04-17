@@ -61,21 +61,12 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var rootViewWithTitle: some View {
-        if !viewModel.isMarketsSheetStyle {
+        if viewModel.isMarketsSheetStyle {
             rootView
-                .toolbar(content: {
-                    ToolbarItem(placement: .principal) {
-                        navigationBarTitle
-                    }
-
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: viewModel.shareTokenDetails) {
-                            Assets.Glyphs.moreVertical.image
-                        }
-                    }
-                })
+        } else if viewModel.isRedesignEnabled {
+            redesignedToolbar
         } else {
-            rootView
+            legacyToolbar
         }
     }
 
@@ -91,7 +82,67 @@ struct MarketsTokenDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    @ViewBuilder
     private var navigationBar: some View {
+        if viewModel.isRedesignEnabled {
+            redesignedNavigationBar
+        } else {
+            legacyNavigationBar
+        }
+    }
+
+    // MARK: - Redesigned navigation
+
+    private var redesignedToolbar: some View {
+        rootView.navigationToolbar(
+            leadingContent: { redesignedBackButton },
+            principalContent: { EmptyView() },
+            trailingContent: { redesignedShareButton }
+        )
+    }
+
+    private var redesignedNavigationBar: some View {
+        NavigationHeader(
+            leadingContent: { redesignedBackButton },
+            principalContent: { EmptyView() },
+            trailingContent: { redesignedShareButton }
+        )
+        .readGeometry(\.size.height, bindTo: $headerHeight)
+        .infinityFrame(axis: .vertical, alignment: .top)
+    }
+
+    private var redesignedBackButton: some View {
+        circleIconButton(icon: Assets.DesignSystem.chevronSmallLeft, action: viewModel.onBackButtonTap)
+    }
+
+    private var redesignedShareButton: some View {
+        circleIconButton(icon: Assets.DesignSystem.share, action: viewModel.shareTokenDetails)
+    }
+
+    private func circleIconButton(icon: ImageType, action: @escaping () -> Void) -> some View {
+        TangemButton(content: .icon(icon), action: action)
+            .setCornerStyle(.rounded)
+            .setStyleType(.secondary)
+            .setSize(.x11)
+    }
+
+    // MARK: - Legacy navigation
+
+    private var legacyToolbar: some View {
+        rootView.toolbar {
+            ToolbarItem(placement: .principal) {
+                navigationBarTitle
+            }
+
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: viewModel.shareTokenDetails) {
+                    Assets.Glyphs.moreVertical.image
+                }
+            }
+        }
+    }
+
+    private var legacyNavigationBar: some View {
         MarketsNavigationBar(
             titleView: { navigationBarTitle },
             onBackButtonAction: viewModel.onBackButtonTap,
