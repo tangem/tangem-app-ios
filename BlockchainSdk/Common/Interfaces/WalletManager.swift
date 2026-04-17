@@ -10,60 +10,13 @@ import Foundation
 import TangemSdk
 import Combine
 
-public protocol WalletManager: WalletProvider,
-    TokensWalletProvider,
-    WalletUpdater,
+public protocol WalletManager: BaseWalletManagerObject,
     BlockchainDataProvider,
     TransactionSender,
     TransactionCreator,
     TransactionFeeProvider,
     YieldSupplyServiceProvider,
     TransactionValidator {}
-
-// MARK: - WalletProvider
-
-public protocol WalletProvider: AnyObject {
-    var wallet: Wallet { get set }
-    var state: WalletManagerState { get }
-
-    var walletPublisher: AnyPublisher<Wallet, Never> { get }
-    var statePublisher: AnyPublisher<WalletManagerState, Never> { get }
-}
-
-extension WalletProvider {
-    var defaultSourceAddress: String { wallet.address }
-    var defaultChangeAddress: String { wallet.address }
-}
-
-public enum WalletManagerState {
-    case initial
-    case loading
-    case loaded
-    case failed(Error)
-}
-
-// MARK: - WalletUpdater
-
-public protocol WalletUpdater: AnyObject {
-    /// Reset the last updating time
-    func setNeedsUpdate()
-    func update() async
-}
-
-// MARK: - TokensWalletProvider
-
-public protocol TokensWalletProvider {
-    var cardTokens: [Token] { get }
-
-    func removeToken(_ token: Token)
-    func addToken(_ token: Token)
-}
-
-public extension TokensWalletProvider {
-    func addTokens(_ tokens: [Token]) {
-        tokens.forEach { addToken($0) }
-    }
-}
 
 // MARK: - BlockchainDataProvider
 

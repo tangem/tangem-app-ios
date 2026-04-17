@@ -10,22 +10,47 @@ import Foundation
 
 public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTokenSyncConfigurationProvider {
     private let networkServiceFactory: WalletNetworkServiceFactory
+    private let isSolanaScaledUIEnabled: Bool
 
-    public init(networkServiceFactory: WalletNetworkServiceFactory) {
+    public init(
+        networkServiceFactory: WalletNetworkServiceFactory,
+        isSolanaScaledUIEnabled: Bool = true
+    ) {
         self.networkServiceFactory = networkServiceFactory
+        self.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
     }
 
     // MARK: - InitialWalletTokenSyncConfigurationProvider
 
     public func canHandle(_ blockchain: Blockchain) -> Bool {
         switch blockchain {
-        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar, .koinos, .sui, .internetComputer, .filecoin, .casper,
-             .cosmos, .terraV1, .terraV2, .sei, .ton,
-             .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
-             .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash, .kaspa, .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant,
-             .alephium:
+        case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar,
+             .koinos, .sui, .internetComputer, .filecoin, .casper,
+             .cosmos, .terraV1, .terraV2, .sei, .ton, .polkadot, .kusama,
+             .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
+             .alephium, .kaspa, .cardano, .chia, .solana:
             return true
-        default:
+
+        // Bitcoin UTXO - Like
+        case .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash,
+             .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant:
+            return true
+
+        // EVM blockchains from MoralisSupportedBlockchains.
+        case .ethereum, .polygon, .bsc, .arbitrum, .optimism, .avalanche, .fantom, .base, .linea,
+             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad:
+            return true
+
+        // Other EVM blockchains supported by this provider.
+        case .ethereumPoW, .disChain, .ethereumClassic, .rsk, .kava, .telos, .octa, .decimal, .xdc,
+             .shibarium, .areon, .playa3ullGames, .aurora, .manta, .zkSync, .polygonZkEVM,
+             .mantle, .flare, .taraxa, .cyber, .blast, .energyWebEVM, .core, .canxium, .xodex,
+             .odysseyChain, .bitrock, .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
+             .quai, .scroll, .arbitrumNova, .plasma:
+            return true
+
+        // Unsupported obtain provider
+        case .hedera:
             return false
         }
     }
@@ -115,7 +140,26 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
             return try await TronInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: networkServiceFactory
             ).configuration(for: blockchain, address: address)
+        case .cardano:
+            return try await CardanoInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .chia:
+            return try await ChiaInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory
+            ).configuration(for: blockchain, address: address)
+        case .solana:
+            return try await SolanaInitialWalletTokenSyncConfigurationProvider(
+                networkServiceFactory: networkServiceFactory,
+                isSolanaScaledUIEnabled: isSolanaScaledUIEnabled
+            ).configuration(for: blockchain, address: address)
         default:
+            if blockchain.isEvm {
+                return try await EVMInitialWalletTokenSyncConfigurationProvider(
+                    networkServiceFactory: networkServiceFactory
+                ).configuration(for: blockchain, address: address)
+            }
+
             throw BlockchainSdkError.notImplemented
         }
     }
