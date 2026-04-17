@@ -15,7 +15,7 @@ final class AppSettingsStoryAvailabilityService: StoryAvailabilityService {
     private let unavailableForCurrentSessionStoryIdsSubject: CurrentValueSubject<Set<TangemStory.ID>, Never>
     private let queue: DispatchQueue
 
-    @Injected(\.restrictedCountriesGeoDefiner) private var restrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     let availableStoriesPublisher: AnyPublisher<Set<TangemStory.ID>, Never>
 
@@ -40,7 +40,7 @@ final class AppSettingsStoryAvailabilityService: StoryAvailabilityService {
     }
 
     func checkStoryAvailability(storyId: TangemStory.ID) -> Bool {
-        guard !restrictedCountriesGeoDefiner.isUK else {
+        guard !geoEligibilityService.isUK else {
             return false
         }
 
