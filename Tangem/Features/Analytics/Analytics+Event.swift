@@ -754,5 +754,12 @@ extension Analytics {
         case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
         case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
         case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
+
+        // MARK: - Initial Token Sync
+
+        case initialTokenSyncStarted = "[Token Sync] Sync Started"
+        case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
+        case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
+        case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
     }
 }
