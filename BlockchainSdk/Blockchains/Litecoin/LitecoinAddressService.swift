@@ -29,10 +29,12 @@ extension LitecoinAddressService: AddressValidator {
 extension LitecoinAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         switch addressType {
-        case .default:
+        case .default, .used(.default, _):
             return try bech32.makeAddress(for: publicKey, with: addressType)
-        case .legacy:
+        case .legacy, .used(.legacy, _):
             return try legacy.makeAddress(for: publicKey, with: addressType)
+        case .used:
+            throw AddressTypeError.notSupported
         }
     }
 }

@@ -266,7 +266,11 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .receive:
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
-            contextActionTokenRouter.openSwap(walletModel: walletModel)
+            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
+                walletModel: walletModel,
+                userWalletInfo: userWalletInfo
+            )
+            contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:
             contextActionTokenRouter.openSell(for: walletModel)
         case .stake:
