@@ -252,11 +252,7 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         return SimpleWalletManagerFactory()
     }
 }
