@@ -608,16 +608,6 @@ extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
     }
 }
 
-// MARK: - SendDestinationAccountOutput
-
-extension SendWithSwapModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        transferModel.setDestinationAccountInfo(analyticsProvider: analyticsProvider)
-    }
-}
-
 // MARK: - TokenFeeProvidersManagerProviding
 
 extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
