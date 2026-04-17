@@ -280,15 +280,9 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSwap(input: SendInput) {
-        let sourceToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
+    func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .tokenDetails)
+        let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(

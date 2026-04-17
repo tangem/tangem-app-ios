@@ -24,6 +24,8 @@ class AvailableTokenBalanceProvider {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
 
+    private var statePublisherSubscription: AnyCancellable?
+
     init(
         input: AvailableTokenBalanceProviderInput,
         walletModelId: WalletModelId,
@@ -34,6 +36,8 @@ class AvailableTokenBalanceProvider {
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.input = input
+
+        bind(to: input)
     }
 }
 
@@ -74,6 +78,28 @@ extension AvailableTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 private extension AvailableTokenBalanceProvider {
+    func bind(to input: AvailableTokenBalanceProviderInput) {
+        statePublisherSubscription = input
+            .statePublisher
+            .compactMap { state in
+                switch state {
+                case .loaded(let balance):
+                    return balance
+                case .noAccount:
+                    return .zero
+                case .created,
+                     .loading,
+                     .failed:
+                    return nil
+                }
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { provider, balance in
+                provider.storeBalance(balance: balance)
+            }
+    }
+
     func storeBalance(balance: Decimal) {
         let balance = CachedBalance(balance: balance, date: .now)
         tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .available)
@@ -100,10 +126,8 @@ private extension AvailableTokenBalanceProvider {
         case .loading:
             return .loading(cachedBalance())
         case .loaded(let balance):
-            storeBalance(balance: balance)
             return .loaded(balance)
         case .noAccount(let message, _):
-            storeBalance(balance: .zero)
             return .empty(.noAccount(message: message))
         case .failed:
             return .failure(cachedBalance())
