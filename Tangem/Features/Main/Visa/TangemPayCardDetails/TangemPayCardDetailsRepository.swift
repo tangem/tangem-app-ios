@@ -6,27 +6,31 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemVisa
 import TangemPay
 
 final class TangemPayCardDetailsRepository {
     let lastFourDigits: String
-    private weak var customerService: CustomerInfoManagementService?
 
-    init(
-        lastFourDigits: String,
-        customerService: CustomerInfoManagementService
-    ) {
-        self.lastFourDigits = lastFourDigits
-        self.customerService = customerService
+    var cardNamePublisher: AnyPublisher<String, Never> {
+        tangemPayAccount.cardDisplayNamePublisher
+    }
+
+    private let tangemPayAccount: TangemPayAccount
+
+    init(tangemPayAccount: TangemPayAccount) {
+        lastFourDigits = tangemPayAccount.card?.cardNumberEnd ?? ""
+        self.tangemPayAccount = tangemPayAccount
+    }
+
+    func updateCardDisplayName(_ name: String) async throws {
+        try await tangemPayAccount.customerService.updateCardDisplayName(name)
+        await tangemPayAccount.loadCustomerInfo()
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
-        guard let customerService else {
-            throw Error.customerServiceNotFound
-        }
-
         let publicKey = try await RainCryptoUtilities
             .getRainRSAPublicKey(
                 for: FeatureStorage.instance.visaAPIType
@@ -37,7 +41,7 @@ final class TangemPayCardDetailsRepository {
                 publicKey: publicKey
             )
 
-        let cardDetails = try await customerService.getCardDetails(sessionId: sessionId)
+        let cardDetails = try await tangemPayAccount.customerService.getCardDetails(sessionId: sessionId)
 
         let decryptedPan = try RainCryptoUtilities.decryptSecret(
             base64Secret: cardDetails.pan.secret,
