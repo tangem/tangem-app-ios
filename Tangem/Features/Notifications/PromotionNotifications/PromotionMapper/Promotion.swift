@@ -14,7 +14,7 @@ struct Promotion: Hashable {
     let priority: String?
     let title: String
     let subtitle: String
-    let iconUrl: URL
+    let iconUrl: URL?
     let deeplink: URL?
     let buttonEnabled: Bool
     let buttonText: String?
