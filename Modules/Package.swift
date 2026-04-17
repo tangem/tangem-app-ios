@@ -429,5 +429,13 @@ private func makeBuildSettings() -> BuildSettings? {
         return buildSettings
     }
 
+    if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_BUILD_FOR_INTERNAL"] != nil {
+        return BuildSettings(
+            cSettings: [.define("INTERNAL", to: "1")],
+            cxxSettings: [.define("INTERNAL", to: "1")],
+            swiftSettings: [.define("INTERNAL")]
+        )
+    }
+
     return nil
 }
