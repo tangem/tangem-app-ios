@@ -12,6 +12,7 @@ public enum AppEnvironment: String {
     case beta = "Beta"
     case production = "Production"
     case alpha = "Alpha"
+    case `internal` = "Internal"
 }
 
 public extension AppEnvironment {
@@ -47,7 +48,7 @@ public extension AppEnvironment {
         #endif
     }
 
-    var isAlphaOrBetaOrDebug: Bool {
+    var isInternalOrDebug: Bool {
         isDebug || !isProduction
     }
 
