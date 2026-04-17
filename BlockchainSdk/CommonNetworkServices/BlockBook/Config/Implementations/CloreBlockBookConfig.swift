@@ -29,13 +29,11 @@ extension CloreBlockBookConfig {
     func node(for blockchain: Blockchain) -> BlockBookNode {
         guard blockchain == .clore else {
             assertionFailure("Blockchain does not supported for this blockbook")
-            return .init(rpcNode: "", restNode: "")
+            let emptyURL = URL(string: "")!
+            return .init(rpcNode: emptyURL, restNode: emptyURL)
         }
 
-        return BlockBookNode(
-            rpcNode: urlNode.absoluteString,
-            restNode: urlNode.absoluteString
-        )
+        return BlockBookNode(rpcNode: urlNode, restNode: urlNode)
     }
 
     func path(for request: BlockBookTarget.Request) -> String {

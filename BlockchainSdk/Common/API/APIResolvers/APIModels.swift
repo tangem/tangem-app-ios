@@ -7,12 +7,11 @@
 
 import Foundation
 import TangemNetworkUtils
-import TangemFoundation
 
 public typealias APIList = [String: [NetworkProviderType]]
 
 public enum NetworkProviderType: Equatable, Hashable, Codable {
-    case `public`(link: String)
+    case `public`(link: URL)
     case nowNodes
     case blink
     case quickNode

@@ -17,9 +17,9 @@ struct BlockBookTarget: TargetType {
     var baseURL: URL {
         switch request {
         case .rpc:
-            return URL(string: config.node(for: blockchain).rpcNode)!
+            return config.node(for: blockchain).rpcNode
         default:
-            return URL(string: config.node(for: blockchain).restNode)!
+            return config.node(for: blockchain).restNode
         }
     }
 

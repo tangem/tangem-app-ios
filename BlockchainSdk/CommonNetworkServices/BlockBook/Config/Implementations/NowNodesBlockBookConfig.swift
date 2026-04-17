@@ -35,8 +35,8 @@ extension NowNodesBlockBookConfig {
              .bitcoinCash:
             let testnetSuffix = blockchain.isTestnet ? "-testnet" : ""
             return BlockBookNode(
-                rpcNode: "https://\(prefix).\(host)",
-                restNode: "https://\(prefix)book\(testnetSuffix).\(host)"
+                rpcNode: URL(string: "https://\(prefix).\(host)")!,
+                restNode: URL(string: "https://\(prefix)book\(testnetSuffix).\(host)")!
             )
         case .ethereum,
              .ethereumPoW,
@@ -45,20 +45,20 @@ extension NowNodesBlockBookConfig {
              .ravencoin,
              .tron:
             return BlockBookNode(
-                rpcNode: "https://\(prefix).\(host)",
-                restNode: "https://\(prefix)-blockbook.\(host)"
+                rpcNode: URL(string: "https://\(prefix).\(host)")!,
+                restNode: URL(string: "https://\(prefix)-blockbook.\(host)")!
             )
         case .bsc:
             return BlockBookNode(
-                rpcNode: "https://bsc.\(host)",
-                restNode: "http://bsc-blockbook.\(host)"
+                rpcNode: URL(string: "https://bsc.\(host)")!,
+                restNode: URL(string: "http://bsc-blockbook.\(host)")!
             )
         case .arbitrum:
             // L2 blockchains use `currencySymbol` from their L1s, so we can't just
             // use the `prefix` variable here for L2s like Arbitrum, Optimism, etc
             return BlockBookNode(
-                rpcNode: "https://arbitrum.\(host)",
-                restNode: "https://arb-blockbook.\(host)"
+                rpcNode: URL(string: "https://arbitrum.\(host)")!,
+                restNode: URL(string: "https://arb-blockbook.\(host)")!
             )
         default:
             fatalError("NowNodesBlockBookConfig don't support blockchain: \(blockchain.displayName)")

@@ -11,7 +11,6 @@ import BlockchainSdk
 
 struct APIListUtils {
     private let fileName = "providers_order"
-    private let urlValidator = APIURLValidator()
 
     func parseLocalAPIListJson() throws -> APIList {
         let apiListDTO = try JsonUtils.readBundleFile(with: fileName, type: APIListDTO.self)
@@ -27,15 +26,11 @@ struct APIListUtils {
                         return nil
                     }
 
-                    link = link.trimmingCharacters(in: .whitespacesAndNewlines)
-                    // Check that link is valid
-                    guard urlValidator.isLinkValid(link) else {
-                        return nil
-                    }
-
                     return NetworkProviderType.public(link: link)
+
                 case .private:
                     return mapToNetworkProviderType(name: apiInfo.name)
+
                 case .none:
                     return nil
                 }

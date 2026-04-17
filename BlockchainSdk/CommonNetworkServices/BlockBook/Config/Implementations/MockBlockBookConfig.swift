@@ -21,17 +21,14 @@ struct MockBlockBookConfig: BlockBookConfig {
 
 extension MockBlockBookConfig {
     var host: String {
-        return urlNode.host ?? ""
+        urlNode.host ?? ""
     }
 
     func node(for blockchain: Blockchain) -> BlockBookNode {
-        return BlockBookNode(
-            rpcNode: urlNode.absoluteString,
-            restNode: urlNode.absoluteString
-        )
+        BlockBookNode(rpcNode: urlNode, restNode: urlNode)
     }
 
     func path(for request: BlockBookTarget.Request) -> String {
-        return ""
+        ""
     }
 }

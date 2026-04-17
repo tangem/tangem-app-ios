@@ -15,8 +15,7 @@ struct APINodeInfoResolver {
     func resolve(for providerType: NetworkProviderType) -> NodeInfo? {
         switch providerType {
         case .public(let link):
-            return PublicAPIResolver(blockchain: blockchain)
-                .resolve(for: link)
+            return NodeInfo(url: link)
         case .blink:
             return BlinkAPIResolver(keysConfig: keysConfig)
                 .resolve(for: blockchain)
