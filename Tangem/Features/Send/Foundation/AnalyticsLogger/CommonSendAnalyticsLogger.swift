@@ -292,10 +292,24 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
         Analytics.log(.sendScreenReopened, params: [.source: .amount])
     }
 
-    func logSendWithSwapError(screen: Analytics.ParameterValue, errorDescription: String) {
+    func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue) {
         guard isSendWithSwapFlow else { return }
+        Analytics.log(event: .sendSwapErrorInsufficientBalance, params: [.screen: screen.rawValue])
+    }
 
-        Analytics.log(event: .sendSendWithSwapError, params: [
+    func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {
+        guard isSendWithSwapFlow else { return }
+        Analytics.log(event: .sendSwapErrorMinAmount, params: [.screen: screen.rawValue])
+    }
+
+    func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {
+        guard isSendWithSwapFlow else { return }
+        Analytics.log(event: .sendSwapErrorMaxAmount, params: [.screen: screen.rawValue])
+    }
+
+    func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {
+        guard isSendWithSwapFlow else { return }
+        Analytics.log(event: .sendSwapErrorExpressQuote, params: [
             .screen: screen.rawValue,
             .errorDescription: errorDescription,
         ])
