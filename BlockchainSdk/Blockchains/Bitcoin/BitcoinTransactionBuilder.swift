@@ -34,17 +34,23 @@ class BitcoinTransactionBuilder {
         self.sequence = sequence
     }
 
-    func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
+    func fee(amount: Amount, address: String, feeRate: Int, changeAddress: String) async throws -> Int {
         let satoshi = amount.asSmallest().value.intValue()
-        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address, opReturn: nil)
+        let preImage = try await unspentOutputManager.preImage(
+            amount: satoshi,
+            feeRate: feeRate,
+            destination: address,
+            changeAddress: changeAddress,
+            opReturn: nil
+        )
         return preImage.fee
     }
 
-    func buildForSign(transaction: Transaction) async throws -> [Data] {
+    func buildForSign(transaction: Transaction) async throws -> [UTXOTransactionSerializerPreImageHash] {
         let preImage = try await unspentOutputManager.preImage(transaction: transaction)
         let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
 
-        let hashes: [Data] = try {
+        let hashes: [UTXOTransactionSerializerPreImageHash] = try {
             switch builderType {
             case .walletCore(let coinType) where possibleToUseWalletCore:
                 let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
@@ -91,11 +97,11 @@ private extension BitcoinTransactionBuilder {
                 switch script.spendable {
                 // If we're spending an output which was received on address which was generated for the compressed public key,
                 // we need to `compress()` the public key that was used for signing
-                case .publicKey(let publicKey) where Secp256k1Key.isCompressed(publicKey: publicKey):
+                case .publicKey(let publicKey) where Secp256k1Key.isCompressed(publicKey: publicKey.publicKey):
                     return try Secp256k1Key(with: signature.publicKey).compress()
 
                 case .publicKey(let publicKey):
-                    return publicKey
+                    return publicKey.publicKey
 
                 // The redeemScript is used only for Twin cards
                 // We always use the compressed public key from `SignatureInfo`
@@ -118,7 +124,7 @@ private extension BitcoinTransactionBuilder {
         let hasExtendedPublicKey = try preImage.inputs.contains { input in
             switch input.script.spendable {
             case .none: throw UTXOTransactionSerializerError.spendableScriptNotFound
-            case .publicKey(let data): Secp256k1Key.isExtended(publicKey: data)
+            case .publicKey(let key): Secp256k1Key.isExtended(publicKey: key.publicKey)
             case .redeemScript: false
             }
         }
