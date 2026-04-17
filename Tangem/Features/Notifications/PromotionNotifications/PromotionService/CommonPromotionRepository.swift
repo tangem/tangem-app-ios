@@ -92,6 +92,10 @@ private extension CommonPromotionRepository {
 
     @discardableResult
     func updatePromotions(for userWalletId: UserWalletId, hasToRefresh: Bool) -> Task<Void, Never>? {
+        guard FeatureProvider.isAvailable(.newPromotionBanners) else {
+            return nil
+        }
+
         let walletIdString = userWalletId.stringValue
         let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
         let hasCache = promotionsSubject.value[userWalletId] != nil
