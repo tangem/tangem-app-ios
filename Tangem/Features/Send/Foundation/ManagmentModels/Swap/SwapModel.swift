@@ -213,6 +213,7 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
+        _currentRateType = nil
         let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
 
         updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
@@ -245,7 +246,7 @@ extension SwapModel {
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?
     ) {
         updateTask?.cancel()
-        updateTask = runTask(in: self, code: { @MainActor input in
+        updateTask = runTask(in: self) { @MainActor input in
             do {
                 input.update(providersState: .loading(loadingType))
                 let result = try await block(input.expressManager)
@@ -261,9 +262,7 @@ extension SwapModel {
 
                     try Task.checkCancellation()
 
-                    if case .requiredRefresh(let occurredError, _) = state {
-                        input.logSwapError(loadingType: loadingType, error: occurredError)
-                    }
+                    input.logErrorIfNeeded(state: state, loadingType: loadingType)
 
                     input.update(providersState: .loaded(
                         providers: updatingResult.providers,
@@ -277,10 +276,13 @@ extension SwapModel {
                 ExpressLogger.debug("updateTask was cancelled")
                 // Do nothing
             } catch {
-                input.logSwapError(loadingType: loadingType, error: error)
+                input.analyticsLogger.logSwapErrorExpressQuote(
+                    screen: loadingType.analyticsScreenName,
+                    errorDescription: error.localizedDescription
+                )
                 input.update(providersState: .failure(error))
             }
-        })
+        }
     }
 
     func update(providersState: ProvidersState) {
@@ -289,19 +291,35 @@ extension SwapModel {
         _providersState.send(providersState)
     }
 
-    private func logSwapError(loadingType: LoadingType, error: Error) {
-        analyticsLogger.logSendWithSwapError(
-            screen: loadingType.analyticsScreenName,
-            errorDescription: error.localizedDescription
-        )
+    private func logErrorIfNeeded(state: LoadedState, loadingType: LoadingType) {
+        let screen = loadingType.analyticsScreenName
+        switch state {
+        case .requiredRefresh(let occurredError, _):
+            analyticsLogger.logSwapErrorExpressQuote(
+                screen: screen,
+                errorDescription: occurredError.localizedDescription
+            )
+        case .restriction(let restriction, _):
+            switch restriction {
+            case .tooSmallAmountForSwapping, .notEnoughReceivedAmount:
+                analyticsLogger.logSwapErrorMinAmount(screen: screen)
+            case .tooBigAmountForSwapping:
+                analyticsLogger.logSwapErrorMaxAmount(screen: screen)
+            case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
+                analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
+            case .hasPendingTransaction, .hasPendingApproveTransaction:
+                break
+            }
+        default:
+            break
+        }
     }
 
     private func updateRateTypeAndLogIfNeeded() async {
-        let rateType = await expressManager.getRateType()
-        let rateTypeDidChange = rateType != nil && rateType != _currentRateType
-        _currentRateType = rateType
+        let previousRateType = _currentRateType
+        _currentRateType = await expressManager.getRateType()
 
-        if rateTypeDidChange {
+        if previousRateType == nil, _currentRateType != nil {
             analyticsLogger.logSendWithSwapAmountScreenOpened()
         }
     }
