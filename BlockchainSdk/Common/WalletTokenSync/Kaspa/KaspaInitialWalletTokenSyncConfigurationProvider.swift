@@ -27,7 +27,7 @@ struct KaspaInitialWalletTokenSyncConfigurationProvider {
         let lockingScriptBuilder: KaspaAddressLockingScriptBuilder = .kaspa()
         let lockingScript = try lockingScriptBuilder.lockingScript(for: address)
         let lockingScriptAddress = LockingScriptAddress(value: address, type: .default, lockingScript: lockingScript)
-        let unspentOutputManager: CommonUnspentOutputManager = .kaspa(address: lockingScriptAddress)
+        let unspentOutputManager: CommonUnspentOutputManager = .kaspa()
 
         let responses = try await infoService.getInfo(addresses: [lockingScriptAddress]).async()
 

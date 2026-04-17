@@ -467,16 +467,6 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: UserTokensReorderingOptions.Grouping {
-        let converter = UserTokensReorderingOptionsConverter()
-        return converter.convert(userTokensRepository.cryptoAccount.grouping)
-    }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting {
-        let converter = UserTokensReorderingOptionsConverter()
-        return converter.convert(userTokensRepository.cryptoAccount.sorting)
-    }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokensRepository

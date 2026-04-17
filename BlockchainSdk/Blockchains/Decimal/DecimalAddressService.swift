@@ -23,12 +23,14 @@ extension DecimalAddressService: AddressProvider {
         let ethAddress = try ethereumAddressService.makeAddress(for: publicKey, with: .default).value
 
         switch addressType {
-        case .default:
+        case .default, .used(.default, _):
             // If need to convert address to decimal native type
             let decimalAddress = try converter.convertToDecimalAddress(ethAddress)
             return DecimalPlainAddress(value: decimalAddress, type: addressType)
-        case .legacy:
+        case .legacy, .used(.legacy, _):
             return DecimalPlainAddress(value: ethAddress, type: addressType)
+        case .used:
+            throw AddressTypeError.notSupported
         }
     }
 }

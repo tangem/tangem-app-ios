@@ -2,6 +2,7 @@
 //  CommonWalletTokenAutoSyncOrchestrator.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
@@ -15,35 +16,47 @@ import TangemSdk
 final class CommonWalletTokenAutoSyncOrchestrator {
     private let syncStateActor: WalletTokenAutoSyncStateActor
     private let progressService: WalletTokenAutoSyncProgressService
+    private let persister: WalletTokenAutoSyncPersister
     private let relayerFactory: (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
+    private let userWalletRepository: UserWalletRepository
+    private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
+
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         syncStateActor: WalletTokenAutoSyncStateActor,
         progressService: WalletTokenAutoSyncProgressService,
-        relayerFactory: @escaping (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
+        persister: WalletTokenAutoSyncPersister,
+        relayerFactory: @escaping (Blockchain) -> (any WalletTokenAutoSyncRelayer)?,
+        userWalletRepository: UserWalletRepository,
+        analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
     ) {
         self.syncStateActor = syncStateActor
         self.progressService = progressService
+        self.persister = persister
         self.relayerFactory = relayerFactory
+        self.userWalletRepository = userWalletRepository
+        self.analyticsProvider = analyticsProvider
+        bindUserWalletRepositoryEvents()
     }
 }
 
 // MARK: - WalletTokenAutoSyncInteractor
 
 extension CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
-    func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
+    func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async {
         let userWalletId = userWalletModel.userWalletId
-        let stateActor = syncStateActor
-        try await stateActor.tryRegister(userWalletId: userWalletId)
 
-        Task(priority: .utility) { [weak self] in
-            do {
-                try await self?.performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
-            } catch {
-                AppLogger.tag("CommonWalletTokenAutoSyncOrchestrator").error("Sync failed", error: error)
+        do {
+            try await syncStateActor.executeIfPossible(userWalletId: userWalletId) { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                await performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
             }
-
-            await stateActor.unregister(userWalletId: userWalletId)
+        } catch {
+            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(userWalletId.stringValue): \(error)")
         }
     }
 }
@@ -51,7 +64,29 @@ extension CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
 // MARK: - Private
 
 private extension CommonWalletTokenAutoSyncOrchestrator {
-    func performSync(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async throws {
+    func bindUserWalletRepositoryEvents() {
+        userWalletRepository.eventProvider
+            .receiveOnMain()
+            .sink { [weak self] event in
+                guard case .deleted(let userWalletIds, _) = event else {
+                    return
+                }
+
+                self?.handleDeletedWallets(userWalletIds)
+            }
+            .store(in: &cancellables)
+    }
+
+    func handleDeletedWallets(_ userWalletIds: [UserWalletId]) {
+        Task { [weak self] in
+            for userWalletId in userWalletIds {
+                await self?.syncStateActor.cancelAndUnregister(userWalletId: userWalletId)
+                await self?.progressService.remove(userWalletId: userWalletId)
+            }
+        }
+    }
+
+    func performSync(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async {
         // Derivation unsupported
         guard let derivationStyle = userWalletModel.config.derivationStyle else {
             return
@@ -61,50 +96,133 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         let addressResolver = WalletAddressResolver()
 
         await progressService.add(userWalletId: userWalletId)
+        analyticsProvider.logInitialTokenSyncStarted(userWalletId: userWalletId)
 
-        let relayerPairs = resolveRelayerPairs(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains
-        )
+        let accountModelsManager = userWalletModel.accountModelsManager
+        do {
+            let relayerPairs = resolveRelayerPairs(
+                supportedBlockchains: userWalletModel.config.supportedBlockchains
+            )
 
-        let totalNetworks = relayerPairs.count
-        var allTokens: [TokenItem] = []
+            let totalNetworks = relayerPairs.count
 
-        for (index, (blockchain, relayer)) in relayerPairs.enumerated() {
-            if Task.isCancelled { break }
+            let pendingTokens: [TokenItem] = try await withThrowingTaskGroup(of: [TokenItem].self) { group in
+                for (blockchain, relayer) in relayerPairs {
+                    let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
 
-            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
+                    group.addTask {
+                        await self.syncTokens(
+                            blockchainNetwork: blockchainNetwork,
+                            relayer: relayer,
+                            addressResolver: addressResolver,
+                            keyInfos: keyInfos
+                        )
+                    }
+                }
 
-            let networkAddressPair = try addressResolver.resolveAddress(
+                return try await self.collectAndFlushTokens(
+                    from: &group,
+                    totalNetworks: totalNetworks,
+                    userWalletId: userWalletId,
+                    accountModelsManager: accountModelsManager
+                )
+            }
+
+            try Task.checkCancellation()
+
+            if pendingTokens.isNotEmpty {
+                await persister.syncDiscoveredTokensWithAccounts(
+                    discoveredTokens: pendingTokens,
+                    accountModelsManager: accountModelsManager
+                )
+            }
+
+            try Task.checkCancellation()
+
+            await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
+            analyticsProvider.logInitialTokenSyncCompleted(userWalletId: userWalletId)
+        } catch {
+            await progressService.remove(userWalletId: userWalletId)
+        }
+    }
+
+    func syncTokens(
+        blockchainNetwork: BlockchainNetwork,
+        relayer: any WalletTokenAutoSyncRelayer,
+        addressResolver: WalletAddressResolver,
+        keyInfos: [KeyInfo]
+    ) async -> [TokenItem] {
+        let networkAddressPair: NetworkAddressPair
+        do {
+            networkAddressPair = try addressResolver.resolveAddress(
                 for: blockchainNetwork.blockchain,
                 keyInfos: keyInfos
             )
+        } catch {
+            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
+            return []
+        }
 
-            do {
-                let stream = try await relayer.resolveTokenStream(
-                    pair: networkAddressPair,
-                    keyInfos: keyInfos
-                )
+        do {
+            let stream = try await relayer.resolveTokenStream(
+                pair: networkAddressPair,
+                keyInfos: keyInfos
+            )
 
-                for try await token in stream {
-                    if Task.isCancelled { break }
-                    allTokens.append(token)
-                }
-            } catch {
-                AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchain.displayName): \(error)")
+            var tokens: [TokenItem] = []
+
+            for try await token in stream {
+                if Task.isCancelled { break }
+                tokens.append(token)
             }
 
-            let percent = Int((Double(index + 1) / Double(totalNetworks)) * 100)
+            return tokens
+        } catch {
+            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
+            return []
+        }
+    }
+
+    /// Collects token results from the task group and periodically flushes them to accounts.
+    ///
+    /// As each child task completes, its tokens are accumulated in a pending buffer.
+    /// Every time the completion progress crosses the next ``Constants/syncFlushProgressStep`` threshold (e.g. 20%, 40%, …),
+    /// the buffer is flushed via ``syncDiscoveredTokensWithAccounts`` and cleared.
+    ///
+    /// - Returns: Tokens that have not yet been flushed (accumulated after the last threshold crossing).
+    ///   The caller is responsible for flushing the remaining tokens after the group finishes.
+    func collectAndFlushTokens(
+        from group: inout ThrowingTaskGroup<[TokenItem], any Error>,
+        totalNetworks: Int,
+        userWalletId: UserWalletId,
+        accountModelsManager: AccountModelsManager
+    ) async throws -> [TokenItem] {
+        var pendingToWrite: [TokenItem] = []
+        var completedCount = 0
+        var lastFlushedPercent = 0
+
+        for try await tokens in group {
+            try Task.checkCancellation()
+
+            pendingToWrite.append(contentsOf: tokens)
+            completedCount += 1
+
+            let percent = Int((Double(completedCount) / Double(totalNetworks)) * 100)
             await progressService.reportProgress(userWalletId: userWalletId, percent: min(percent, 99))
+
+            if percent - lastFlushedPercent >= Constants.syncFlushProgressStep, pendingToWrite.isNotEmpty {
+                try Task.checkCancellation()
+
+                await persister.syncDiscoveredTokensWithAccounts(
+                    discoveredTokens: pendingToWrite,
+                    accountModelsManager: accountModelsManager
+                )
+                pendingToWrite.removeAll()
+                lastFlushedPercent = percent
+            }
         }
 
-        if !allTokens.isEmpty {
-            await syncDiscoveredTokensWithAccounts(
-                discoveredTokens: allTokens,
-                accountModelsManager: userWalletModel.accountModelsManager
-            )
-        }
-
-        await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
+        return pendingToWrite
     }
 
     func resolveRelayerPairs(
@@ -119,90 +237,11 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
                 return (blockchain, relayer)
             }
     }
-
-    func syncDiscoveredTokensWithAccounts(
-        discoveredTokens: [TokenItem],
-        accountModelsManager: AccountModelsManager,
-        attempt: Int = 0
-    ) async {
-        do {
-            try await waitForTokenListReady(accountModelsManager: accountModelsManager)
-
-            addNewTokensToMainAccount(
-                discoveredTokens: discoveredTokens,
-                accountModelsManager: accountModelsManager
-            )
-        } catch {
-            guard attempt < Constants.maxSyncRetries, !Task.isCancelled else {
-                AppLogger.tag("WalletTokenAutoSync").error("Failed to sync discovered tokens after \(attempt) attempts", error: error)
-                return
-            }
-
-            AppLogger.tag("WalletTokenAutoSync").debug("Token list not ready, retry \(attempt + 1)/\(Constants.maxSyncRetries)")
-
-            await syncDiscoveredTokensWithAccounts(
-                discoveredTokens: discoveredTokens,
-                accountModelsManager: accountModelsManager,
-                attempt: attempt + 1
-            )
-        }
-    }
-
-    func waitForTokenListReady(accountModelsManager: AccountModelsManager) async throws {
-        try await accountModelsManager
-            .cryptoAccountModelsPublisher
-            .setFailureType(to: WalletTokenAutoSyncError.self)
-            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Void, WalletTokenAutoSyncError> in
-                guard cryptoAccountModels.isNotEmpty else {
-                    return Fail(error: .userTokenListNotReady).eraseToAnyPublisher()
-                }
-
-                return cryptoAccountModels
-                    .map { $0.userTokensManager.userTokensPublisher }
-                    .combineLatest()
-                    .map { _ in () }
-                    .setFailureType(to: WalletTokenAutoSyncError.self)
-                    .eraseToAnyPublisher()
-            }
-            .timeout(
-                .seconds(Constants.syncTimeoutSeconds),
-                scheduler: DispatchQueue.main,
-                customError: { .userTokenListNotReady }
-            )
-            .async()
-    }
-
-    func addNewTokensToMainAccount(
-        discoveredTokens: [TokenItem],
-        accountModelsManager: AccountModelsManager
-    ) {
-        guard let mainAccount = accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
-            AppLogger.tag("WalletTokenAutoSync").debug("No main crypto account found, skipping token persistence")
-            return
-        }
-
-        let newTokens = discoveredTokens.filter { token in
-            !mainAccount.userTokensManager.contains(token, derivationInsensitive: false)
-        }
-
-        guard newTokens.isNotEmpty else {
-            AppLogger.tag("WalletTokenAutoSync").debug("No new tokens to add, all already present")
-            return
-        }
-
-        do {
-            try mainAccount.userTokensManager.update(itemsToRemove: [], itemsToAdd: newTokens)
-            AppLogger.tag("WalletTokenAutoSync").debug("Added \(newTokens.count) new tokens to main account")
-        } catch {
-            AppLogger.tag("WalletTokenAutoSync").error("Failed to add tokens to main account", error: error)
-        }
-    }
 }
 
 private extension CommonWalletTokenAutoSyncOrchestrator {
     enum Constants {
-        static let maxSyncRetries = 5
-        static let syncTimeoutSeconds = 3
+        static let syncFlushProgressStep = 20
     }
 }
 

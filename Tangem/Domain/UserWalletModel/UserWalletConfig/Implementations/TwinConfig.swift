@@ -193,16 +193,8 @@ extension TwinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
-        guard let savedPairKey = twinData.pairPublicKey else {
-            throw CommonError.noData
-        }
-
-        return TwinWalletManagerFactory(pairPublicKey: savedPairKey)
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
+        TwinWalletManagerFactory(pairPublicKey: twinData.pairPublicKey)
     }
 
     func makeOnboardingStepsBuilder(

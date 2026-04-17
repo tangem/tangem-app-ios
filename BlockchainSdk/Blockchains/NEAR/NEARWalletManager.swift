@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 import TangemLocalization
 
-final class NEARWalletManager: BaseManager {
+final class NEARWalletManager: BaseWalletManager {
     private let networkService: NEARNetworkService
 
     private let transactionBuilder: NEARTransactionBuilder
@@ -37,8 +37,8 @@ final class NEARWalletManager: BaseManager {
         fatalError("\(#function) has not been implemented")
     }
 
-    override func updateWalletManager() async throws {
-        let accountId = wallet.address
+    func updateWalletManager(address: String) async throws {
+        let accountId = address
         let transactionHashes = wallet.pendingTransactions.map(\.hash)
 
         do {
