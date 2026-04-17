@@ -113,7 +113,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let bannerNotificationManager: BannerNotificationManager? = {
-                guard model.config.hasFeature(.multiCurrency) else {
+                guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                      model.config.hasFeature(.multiCurrency) else {
                     return nil
                 }
 
