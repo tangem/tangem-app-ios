@@ -405,10 +405,6 @@ extension TransferModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension TransferModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        // No-op: swap functionality not supported
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
