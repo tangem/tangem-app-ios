@@ -12,6 +12,7 @@ import TangemFoundation
 
 protocol OnrampSummaryInteractor: AnyObject {
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> { get }
+    var currencyCode: String? { get }
     var bottomInfoPublisher: AnyPublisher<LoadingResult<Decimal, OnrampSummaryInteractorBottomInfoError>?, Never> { get }
 
     var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> { get }
@@ -19,6 +20,7 @@ protocol OnrampSummaryInteractor: AnyObject {
 
     func userDidChangeFiat(amount: Decimal?)
     func userDidRequestOnramp(provider: OnrampProvider)
+    func userDidAuthorizeNativePayment(provider: OnrampProvider, applePayResult: OnrampApplePayResult)
 }
 
 enum OnrampSummaryInteractorBottomInfoError: Error {
@@ -53,6 +55,10 @@ class CommonOnrampSummaryInteractor {
 // MARK: - OnrampSummaryInteractor
 
 extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
+    var currencyCode: String? {
+        amountInput?.fiatCurrency?.identity.code
+    }
+
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> {
         guard let amountInput else {
             assertionFailure("OnrampAmountInput not found")
@@ -135,6 +141,10 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
 
     func userDidRequestOnramp(provider: OnrampProvider) {
         output?.userDidRequestOnramp(provider: provider)
+    }
+
+    func userDidAuthorizeNativePayment(provider: OnrampProvider, applePayResult: OnrampApplePayResult) {
+        output?.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult)
     }
 
     func userDidChangeFiat(amount: Decimal?) {

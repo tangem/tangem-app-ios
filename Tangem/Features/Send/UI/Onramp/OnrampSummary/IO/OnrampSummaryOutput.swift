@@ -10,4 +10,5 @@ import TangemExpress
 
 protocol OnrampSummaryOutput: AnyObject {
     func userDidRequestOnramp(provider: OnrampProvider)
+    func userDidAuthorizeNativePayment(provider: OnrampProvider, applePayResult: OnrampApplePayResult)
 }

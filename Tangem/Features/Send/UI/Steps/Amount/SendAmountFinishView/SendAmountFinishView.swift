@@ -11,6 +11,7 @@ import Combine
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import PassKit
 
 struct SendAmountFinishView: View {
     @ObservedObject var viewModel: SendAmountFinishViewModel

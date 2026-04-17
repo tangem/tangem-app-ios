@@ -380,6 +380,36 @@ private extension OnrampModel {
         _onrampProviders.resend()
     }
 
+    func nativePaymentDataDidLoad(data: OnrampNativePaymentData) {
+        guard let provider = selectedOnrampProvider else {
+            assertionFailure("selectedOnrampProvider is unexpectedly nil")
+            return
+        }
+
+        let txData = SentOnrampTransactionData(
+            txId: data.txId,
+            provider: provider.provider,
+            paymentMethod: provider.paymentMethod,
+            destinationTokenItem: tokenItem,
+            destinationAddress: defaultAddressString,
+            date: Date(),
+            fromAmount: data.fromAmount,
+            fromCurrencyCode: data.fromCurrencyCode,
+            externalTxId: data.externalTxId,
+            externalTxUrl: data.externalTxUrl
+        )
+
+        onrampPendingTransactionsRepository
+            .onrampTransactionDidSend(txData, userWalletId: userWalletId)
+
+        stopTimer()
+        _transactionTime.send(Date())
+        _expressTransactionId.send(data.txId)
+        DispatchQueue.main.async {
+            self.router?.openFinishStep()
+        }
+    }
+
     func log(_ message: String) {
         ExpressLogger.tag("Onramp").info(self, message)
     }
@@ -509,6 +539,35 @@ extension OnrampModel: OnrampSummaryOutput {
     func userDidRequestOnramp(provider: OnrampProvider) {
         _selectedOnrampProvider.send(.success(provider))
         router?.openOnrampRedirecting()
+    }
+
+    func userDidAuthorizeNativePayment(provider: OnrampProvider, applePayResult: OnrampApplePayResult) {
+        _selectedOnrampProvider.send(.success(provider))
+
+        mainTask { model in
+            let appLanguageCode = Locale.appLanguageCode
+            var redirectURL = URL(string: "\(IncomingActionConstants.tangemDomain)/onramp")!
+            redirectURL.appendPathComponent(provider.provider.id)
+
+            let redirectSettings = OnrampRedirectSettings(
+                redirectURL: redirectURL.absoluteString,
+                theme: .light,
+                language: appLanguageCode
+            )
+
+            let result = try await model.onrampManager.loadNativePaymentData(
+                provider: provider,
+                redirectSettings: redirectSettings,
+                applePayResult: applePayResult
+            )
+
+            switch result {
+            case .nativePayment(let data):
+                model.nativePaymentDataDidLoad(data: data)
+            case .widget(let data):
+                model.redirectDataDidLoad(data: data)
+            }
+        }
     }
 }
 
