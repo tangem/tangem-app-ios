@@ -493,13 +493,6 @@ extension SendWithSwapModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        if !isSwapMode {
-            transferModel.stopSwapProvidersAutoUpdateTimer()
-        }
-        // SwapModel handles this internally via autoupdatingTimer
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
