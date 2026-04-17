@@ -61,6 +61,13 @@ final class UserWalletNotificationManager {
 
     deinit {
         tokenSyncProgressTask?.cancel()
+
+        // Release bag on main to serialize Combine cancel cascade with main-scheduled upstream emissions.
+        // See [REDACTED_INFO]
+        if !Thread.isMainThread {
+            let cancellables = bag
+            DispatchQueue.main.async { _ = cancellables }
+        }
     }
 
     private func createNotifications() {
