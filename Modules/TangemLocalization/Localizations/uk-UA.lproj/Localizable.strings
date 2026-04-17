@@ -462,6 +462,7 @@
 "express_more_providers_soon" = "Незабаром з'являться нові провайдери.\nСлідкуйте за новинами!";
 "express_provider_best_rate" = "Найкращий курс";
 "express_provider_fca_warning_list" = "Список попереджень FCA";
+"express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
 "express_provider_great_rate" = "Найкращий вибір";
 "express_provider_in_fca_warning_list" = "Список попереджень FCA";
 "express_provider_max_amount" = "Доступно до %@";
@@ -1394,9 +1395,18 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Ви не можете розпочати обмін або новий вивід, поки не завершено поточний.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вивід виконується";
 "tangempay_card_details_withdraw" = "Вивести";
+"tangempay_card_page_daily_limit_change" = "Change";
+"tangempay_card_page_daily_limit_current_limit" = "Current limit";
+"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
+"tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
+"tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
+"tangempay_card_page_daily_limit_title" = "Daily limit";
 "tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "Змінити PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можна подивитися тут, якщо забудете його.";
+"tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
+"tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "Я розумію, що повністю втрачу доступ до своєї картки Tangem Pay та всіх коштів на ній без можливості відновлення.";
 "tangempay_failed_to_issue_card_retry_description" = "Технічна помилка, спробуйте ще раз, натиснувши кнопку нижче";
@@ -1469,7 +1479,10 @@
 "token_button_unavailability_reason_sell_unavailable" = "Наразі продаж %@ недоступний. Слідкуйте за нашими оновленнями.";
 "token_button_unavailability_reason_staking_unavailable" = "Стейкінг %@ зараз недоступний. Будь ласка, слідкуйте за нашими оновленнями.";
 "token_button_unavailability_reason_yield_supply_approval" = "Дозвіл скасовано. Ваші кошти залишаються в режимі прибутковості. Щоб виконати дії, перейдіть у режим прибутковості та надайте дозвіл знову.";
+"token_details_balance_available" = "Available balance";
+"token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Оберіть адресу";
+"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
 "token_details_generate_xpub" = "Згенерувати XPUB";
 "token_details_hide_alert_hide" = "Приховати";
 "token_details_hide_alert_message" = "Ви збираєтеся приховати цей токен з головного екрану. Ви можете додати його назад будь-коли на сторінці керування токенами.";

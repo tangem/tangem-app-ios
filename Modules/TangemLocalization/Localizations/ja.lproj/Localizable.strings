@@ -462,6 +462,7 @@
 "express_more_providers_soon" = "さらに多くのプロバイダーが利用可能になる予定です";
 "express_provider_best_rate" = "ベストレート";
 "express_provider_fca_warning_list" = "FCA警告リスト";
+"express_provider_fixed_rate_is_unavailable" = "固定レートは利用できません";
 "express_provider_great_rate" = "お得なレート";
 "express_provider_in_fca_warning_list" = "FCA警告リストに掲載されたプロバイダー";
 "express_provider_max_amount" = "最大 %@ まで使用可能";
@@ -1394,9 +1395,18 @@
 "tangempay_card_details_withdraw_in_progress_description" = "現在の処理が完了するまでは、スワップや新しい出金を開始することはできません。";
 "tangempay_card_details_withdraw_in_progress_title" = "出金処理中です";
 "tangempay_card_details_withdraw" = "出金";
+"tangempay_card_page_daily_limit_change" = "変更";
+"tangempay_card_page_daily_limit_current_limit" = "現在の利用限度額";
+"tangempay_card_page_daily_limit_error_description" = "1日の利用限度額を読み込めませんでした。もう一度お試しください。";
+"tangempay_card_page_daily_limit_error_title" = "1日の利用限度額を表示できません";
+"tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
+"tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
+"tangempay_card_page_daily_limit_title" = "1日の利用限度額";
 "tangempay_card_page_settings_title" = "カード設定";
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_come_back_if_forget_pin" = "忘れた場合はアプリに戻って確認できます。";
+"tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
+"tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_digital_card" = "デジタルカード";
 "tangempay_factory_settings_warning_title" = "復元は不可能であり、Tangem Payカードおよびカード上のすべての資金へのアクセスを完全に失うことを理解しました";
 "tangempay_failed_to_issue_card_retry_description" = "技術的なエラーが発生しました。下のボタンをクリックして、もう一度お試しください。";
@@ -1443,7 +1453,7 @@
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
 "tangempay_set_pin_code" = "\nPINコードの設定";
-"tangempay_sync_needed_restore_access" = "アクセスを復元";
+"tangempay_sync_needed_restore_access" = "セッションを更新";
 "tangempay_sync_needed" = "セッションの有効期限が切れました";
 "tangempay_tangem_visa_card" = "日常の支払いにUSDCを利用";
 "tangempay_temporarily_unavailable" = "Tangem Payは現在一時的に利用できません。";
@@ -1469,7 +1479,10 @@
 "token_button_unavailability_reason_sell_unavailable" = "%@の売却は、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
 "token_button_unavailability_reason_staking_unavailable" = "%@のステーキングは、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
 "token_button_unavailability_reason_yield_supply_approval" = "承認が取り消されましたが、あなたの資金は引き続き利息モードです。操作を行うには、利息モードに移動し、再度承認を付与してください。";
+"token_details_balance_available" = "利用可能残高";
+"token_details_balance_total" = "合計残高";
 "token_details_choose_address" = "アドレスを選択";
+"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
 "token_details_generate_xpub" = "XPUBを生成する";
 "token_details_hide_alert_hide" = "非表示";
 "token_details_hide_alert_message" = "このトークンをメイン画面から非表示にします。トークンの管理ページからいつでも再度追加できます。";
@@ -1981,7 +1994,7 @@
 "yield_module_stop_earning_sheet_description" = "これをオフにすると、Aaveから資産が引き出され、ウォレット内の%@に変換され、利回りの発生が停止します。";
 "yield_module_stop_earning_sheet_fee_note" = "利息モードを終了すると、ブロックチェーンによってネットワーク料金が請求されます。";
 "yield_module_stop_earning_sheet_title" = "利息モードを無効にする";
-"yield_module_stop_earning" = "利回りモードを解除中";
+"yield_module_stop_earning" = "利息モードを無効にする";
 "yield_module_supply_apr" = "供給APY";
 "yield_module_supply" = "供給";
 "yield_module_token_details_earn_notification_apy" = "APY";
