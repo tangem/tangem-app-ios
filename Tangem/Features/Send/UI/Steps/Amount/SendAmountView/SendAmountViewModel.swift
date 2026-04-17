@@ -171,6 +171,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         animateActiveFieldChange = true
         animateDestinationRemoval = true
         forceCompactSourceTokenRow = false
+        pendingReverseRecalculation = false
+        // Disconnect before nilling to prevent stale async onValueChanged
+        // callbacks from interfering with the removal cleanup.
+        destinationAmountField?.onValueChanged = nil
         destinationAmountField = nil
         destinationFieldBag = nil
         lastUpdateSource = nil
@@ -620,7 +624,7 @@ extension SendAmountViewModel {
         } else if lastUpdateSource == .receive {
             // Token changed while user was editing TO — trigger reverse
             // calculation with the user's current field value once the
-            // pair-change quote completes
+            // pair-change quote completes.
             pendingReverseRecalculation = true
         }
     }
@@ -642,10 +646,9 @@ extension SendAmountViewModel {
                 pendingReverseRecalculation = false
                 lastUpdateSource = .receive
 
-                // If the field is empty (first selection), populate from the forward quote
-                if field.cryptoTextFieldViewModel.value == nil {
-                    field.updateAmountsUI(amount: sendAmount)
-                }
+                // Populate the field from the forward estimate so the reverse
+                // recalculation below uses the fiat-equivalent value for the new token
+                field.updateAmountsUI(amount: sendAmount)
 
                 let receiveValue = field.cryptoTextFieldViewModel.value
                 _ = interactor.update(receiveAmount: receiveValue)
