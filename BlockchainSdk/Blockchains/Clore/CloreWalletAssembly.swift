@@ -10,7 +10,7 @@ import Foundation
 
 struct CloreWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let unspentOutputManager: UnspentOutputManager = .clore(address: input.wallet.defaultAddress)
+        let unspentOutputManager: UnspentOutputManager = .clore()
         let txBuilder = BitcoinTransactionBuilder(
             network: CloreMainNetworkParams(),
             unspentOutputManager: unspentOutputManager,

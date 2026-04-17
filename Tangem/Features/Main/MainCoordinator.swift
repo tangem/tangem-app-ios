@@ -507,16 +507,9 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSwap(input: SendInput) {
-        let sourceTokenFactory = CommonSendSwapableTokenFactory(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            operationType: .swap
-        )
-        let sourceToken = sourceTokenFactory.makeSwapableToken()
-
+    func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
+        let options = SendCoordinator.Options(type: .swap(parameters), source: .main)
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
