@@ -41,8 +41,8 @@ struct SegWitLockingScriptBuilder {
         return (version: version, script: .init(data: lockingScript, type: type, spendable: .none))
     }
 
-    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
-        let keyHash = publicKey.sha256Ripemd160
+    func encode(publicKey: DerivationPublicKey, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let keyHash = publicKey.publicKey.sha256Ripemd160
         return try encode(spendable: .publicKey(publicKey), keyHash: keyHash, type: type)
     }
 

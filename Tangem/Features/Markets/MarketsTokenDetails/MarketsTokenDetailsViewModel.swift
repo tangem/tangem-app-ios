@@ -69,9 +69,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private var loadedNewsIds: [Int] = []
 
-    var isAvailableNews: Bool {
-        !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
-    }
+    var isAvailableNews: Bool { !tokenNewsItems.isEmpty }
 
     var price: String? { priceInfo?.price }
 
@@ -243,11 +241,28 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
         Analytics.log(event: .marketsChartButtonReadMore, params: [.token: tokenInfo.symbol.uppercased()])
 
-        fullDescriptionBottomSheetInfo = .init(
-            title: Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name),
-            description: fullDescription,
-            showCloseButton: true
-        )
+        let title = Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name)
+
+        if isRedesignEnabled {
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                coordinator?.openFullDescriptionDialogue(
+                    title: title,
+                    description: fullDescription,
+                    onGenerateAITapAction: { [weak self] in
+                        guard let self else { return }
+                        let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
+                        coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
+                    }
+                )
+            }
+        } else {
+            fullDescriptionBottomSheetInfo = .init(
+                title: title,
+                description: fullDescription,
+                showCloseButton: true
+            )
+        }
     }
 
     func onBackButtonTap() {
@@ -629,10 +644,16 @@ extension MarketsTokenDetailsViewModel: CustomStringConvertible {
 
 extension MarketsTokenDetailsViewModel: MarketsTokenDetailsBottomSheetRouter {
     func openInfoBottomSheet(title: String, message: String) {
-        descriptionBottomSheetInfo = .init(
-            title: title,
-            description: message
-        )
+        if isRedesignEnabled {
+            Task { @MainActor in
+                coordinator?.openInfoDialogue(title: title, message: message)
+            }
+        } else {
+            descriptionBottomSheetInfo = .init(
+                title: title,
+                description: message
+            )
+        }
     }
 }
 
