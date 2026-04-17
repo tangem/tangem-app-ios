@@ -222,7 +222,7 @@ struct ExpressAPIMapper {
 
         return OnrampQuote(
             expectedAmount: toAmount,
-            nativePaymentAvailable: response.nativePaymentAvailable ?? false,
+            nativePaymentAvailable: true, // [REDACTED_TODO_COMMENT]
             quoteId: response.quoteId
         )
     }

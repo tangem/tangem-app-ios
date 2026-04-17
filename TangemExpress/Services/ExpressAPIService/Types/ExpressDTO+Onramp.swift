@@ -68,7 +68,8 @@ extension ExpressDTO {
                 let fromAmount: String
                 let toDecimals: Int
                 let providerId: String
-                let toAddress: String
+                // [REDACTED_TODO_COMMENT]
+                // let toAddress: String
             }
 
             struct Response: Decodable {

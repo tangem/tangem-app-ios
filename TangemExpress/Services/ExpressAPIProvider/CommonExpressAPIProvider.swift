@@ -204,8 +204,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromPrecision: item.pairItem.fiatCurrency.precision,
             fromAmount: item.sourceAmountWEI(),
             toDecimals: item.pairItem.destination.decimalCount,
-            providerId: item.providerInfo.id,
-            toAddress: item.pairItem.address
+            providerId: item.providerInfo.id
+            // [REDACTED_TODO_COMMENT]
+            // toAddress: item.pairItem.address
         )
 
         let response = try await expressAPIService.onrampQuote(request: request)

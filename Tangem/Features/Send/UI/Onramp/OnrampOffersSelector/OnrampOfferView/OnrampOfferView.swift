@@ -14,6 +14,8 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
@@ -25,7 +27,12 @@ struct OnrampOfferView: View {
             bottomView
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+        .environment(\.colorScheme, viewModel.isNativePayment ? invertedColorScheme : colorScheme)
         .opacity(viewModel.isAvailable ? 1 : 0.6)
+    }
+
+    private var invertedColorScheme: ColorScheme {
+        colorScheme == .light ? .dark : .light
     }
 
     private var topView: some View {
@@ -108,8 +115,9 @@ struct OnrampOfferView: View {
                 .disabled(!viewModel.isAvailable)
         case .nativeApplePay(let request, let onPhaseChange):
             PayWithApplePayButton(.plain, request: request, onPaymentAuthorizationChange: onPhaseChange)
-                .payWithApplePayButtonStyle(.white)
-                .frame(height: 32)
+                .payWithApplePayButtonStyle(.automatic)
+                .frame(width: 80, height: 32)
+                .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
         }
     }
@@ -133,17 +141,23 @@ struct OnrampOfferView: View {
         }
     }
 
+    @ViewBuilder
     private var trailingBottomView: some View {
-        HStack(spacing: 4) {
-            Text(Localization.onrampPayWith)
+        if viewModel.isNativePayment {
+            Text(Localization.onrampPaymentMethodSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+        } else {
+            HStack(spacing: 4) {
+                Text(Localization.onrampPayWith)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
-                SkeletonView()
-                    .frame(width: 30, height: 16)
-                    .cornerRadiusContinuous(6)
+                IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
+                    SkeletonView()
+                        .frame(width: 30, height: 16)
+                        .cornerRadiusContinuous(6)
+                }
+                .foregroundStyle(Colors.Icon.secondary)
             }
-            .foregroundStyle(Colors.Icon.secondary)
         }
     }
 }

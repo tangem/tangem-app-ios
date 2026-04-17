@@ -54,6 +54,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
+            isNativePayment: buyAction.isNativePayment,
             buyAction: buyAction
         )
     }
