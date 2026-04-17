@@ -71,13 +71,13 @@ extension TONCompiledTransaction: Decodable {
         // extract Cell
         let message = try container.decode(String.self, forKey: TONCompiledTransaction.CodingKeys.message)
 
-        guard let decodedMessage: [UInt8] = Data(base64Encoded: message)?.bytes else {
+        guard let decodedMessage = Data(base64Encoded: message) else {
             throw DecodingError.dataCorrupted(
                 .init(codingPath: [CodingKeys.message], debugDescription: "Message must be base64 encoded")
             )
         }
 
-        let cells = try Cell.fromBoc(src: Data(decodedMessage))
+        let cells = try Cell.fromBoc(src: decodedMessage)
 
         guard let cell = cells.first else {
             throw DecodingError.dataCorrupted(

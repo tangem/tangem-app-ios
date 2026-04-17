@@ -10,7 +10,7 @@ import Foundation
 import WalletCore
 import Combine
 
-final class ICPWalletManager: BaseManager, WalletManager {
+final class ICPWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String { networkService.host }
 
     var allowsFeeSelection: Bool = false
@@ -28,9 +28,9 @@ final class ICPWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
+    func updateWalletManager(address: String) async throws {
         do {
-            let balance = try await networkService.getBalance(address: wallet.address).async()
+            let balance = try await networkService.getBalance(address: address).async()
             updateWallet(with: balance)
         } catch {
             wallet.clearAmounts()
