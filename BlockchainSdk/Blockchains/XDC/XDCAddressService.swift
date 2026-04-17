@@ -22,11 +22,13 @@ extension XDCAddressService: AddressProvider {
         let ethAddress = try ethereumAddressService.makeAddress(for: publicKey, with: .default).value
 
         switch addressType {
-        case .default:
+        case .default, .used(.default, _):
             let xdcAddress = converter.convertToXDCAddress(ethAddress)
             return PlainAddress(value: xdcAddress, type: addressType)
-        case .legacy:
+        case .legacy, .used(.legacy, _):
             return PlainAddress(value: ethAddress, type: addressType)
+        case .used:
+            throw AddressTypeError.notSupported
         }
     }
 }

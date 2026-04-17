@@ -32,6 +32,9 @@ public protocol CustomerInfoManagementService: AnyObject {
         signature: TangemPayWithdrawSignature
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult
 
+    @discardableResult
+    func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
+
     func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
@@ -143,6 +146,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
         let response: TangemPayWithdraw.Transaction.Response = try await self.request(for: .sendWithdrawTransaction(requestTransaction))
         return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: apiType.baseURL.absoluteString)
+    }
+
+    public func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        try await request(for: .updateCardDisplayName(displayName: displayName))
     }
 
     public func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {

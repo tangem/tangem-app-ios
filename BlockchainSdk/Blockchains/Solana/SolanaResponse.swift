@@ -28,3 +28,8 @@ struct SolanaTokenAccountInfoResponse {
     let balance: Decimal
     let space: UInt64?
 }
+
+struct SolanaInitialWalletInfoResponse {
+    let mainBalance: Decimal
+    let tokenBalancesByMint: [String: SolanaTokenAccountInfoResponse]
+}
