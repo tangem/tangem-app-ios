@@ -43,10 +43,6 @@ class KaspaNetworkProvider: HostProvider {
 // MARK: - UTXONetworkAddressInfoProvider
 
 extension KaspaNetworkProvider: UTXONetworkAddressInfoProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
-        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
-    }
-
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         requestPublisher(for: .utxos(address: address))
             .withWeakCaptureOf(self)

@@ -21,7 +21,7 @@ struct NewsListView: View {
         VStack(spacing: 12) {
             NavigationBar(
                 title: Localization.commonNews,
-                settings: .init(backgroundColor: Color.Tangem.Surface.level3),
+                settings: .init(backgroundColor: Color.Tangem.Surface.level2),
                 leftButtons: {
                     BackButton(
                         height: 44.0,
@@ -44,7 +44,7 @@ struct NewsListView: View {
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
         }
-        .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
         .onFirstAppear { viewModel.handleViewAction(.onFirstAppear) }
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
@@ -171,7 +171,7 @@ private struct NewsSkeletonItemView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color.Tangem.Surface.level4)
+        .background(Color.Tangem.Surface.level3)
         .cornerRadius(14)
     }
 }
