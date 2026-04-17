@@ -9,6 +9,6 @@
 import Foundation
 
 struct BlockBookNode {
-    let rpcNode: String
-    let restNode: String
+    let rpcNode: URL
+    let restNode: URL
 }

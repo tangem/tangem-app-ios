@@ -9,26 +9,23 @@
 import Foundation
 
 struct PublicBlockBookConfig: BlockBookConfig {
-    let urlNode: String
+    let urlNode: URL
 
     let apiKeyHeaderName: String? = nil
     let apiKeyHeaderValue: String? = nil
 
-    init(urlNode: String) {
+    init(urlNode: URL) {
         self.urlNode = urlNode
     }
 }
 
 extension PublicBlockBookConfig {
     var host: String {
-        urlNode
+        urlNode.absoluteString
     }
 
     func node(for blockchain: Blockchain) -> BlockBookNode {
-        return BlockBookNode(
-            rpcNode: urlNode,
-            restNode: urlNode
-        )
+        BlockBookNode(rpcNode: urlNode, restNode: urlNode)
     }
 
     func path(for request: BlockBookTarget.Request) -> String {
