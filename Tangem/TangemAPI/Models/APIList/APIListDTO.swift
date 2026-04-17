@@ -14,5 +14,5 @@ typealias APIListDTO = [String: [APIInfoDTO]]
 struct APIInfoDTO: Decodable {
     let type: String
     let name: String?
-    let url: String?
+    let url: URL?
 }
