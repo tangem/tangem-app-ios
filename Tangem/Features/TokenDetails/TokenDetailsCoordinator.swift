@@ -68,7 +68,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let bannerNotificationManager: BannerNotificationManager? = {
-            guard options.userWalletInfo.config.hasFeature(.multiCurrency) else {
+            guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                  options.userWalletInfo.config.hasFeature(.multiCurrency) else {
                 return nil
             }
 
