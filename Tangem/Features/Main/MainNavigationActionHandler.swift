@@ -271,7 +271,7 @@ extension MainCoordinator {
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeAvailable,
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeFeatureAvailable,
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
