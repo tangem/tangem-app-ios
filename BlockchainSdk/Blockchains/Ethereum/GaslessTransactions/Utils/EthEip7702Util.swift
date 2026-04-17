@@ -48,7 +48,7 @@ public struct EthEip7702Util {
         let encodingInput = EthereumRlpEncodingInput.with { $0.item.list = rlpList }
         let inputData = try encodingInput.serializedData()
         let outputData = EthereumRlp.encode(coin: .ethereum, input: inputData)
-        let rlpEncodedData = try EthereumRlpEncodingOutput(serializedData: outputData).encoded
+        let rlpEncodedData = try EthereumRlpEncodingOutput(serializedBytes: outputData).encoded
         return (Data([magicByte]) + rlpEncodedData).sha3(.keccak256)
     }
 }
