@@ -50,7 +50,7 @@ struct NewsItemView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
-        .background(Color.Tangem.Surface.level4)
+        .background(Color.Tangem.Surface.level3)
         .cornerRadius(14)
     }
 

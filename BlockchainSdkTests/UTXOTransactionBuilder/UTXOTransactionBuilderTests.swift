@@ -7,6 +7,7 @@
 //
 
 import Testing
+import TangemSdk
 @testable import BlockchainSdk
 
 struct UTXOTransactionSerializerTests {
@@ -15,8 +16,11 @@ struct UTXOTransactionSerializerTests {
         // given
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .final, signHashType: .bitcoinAll)
         let publicKey = Data(hexString: "02677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bb")
+        let spendable: UTXOLockingScript.SpendableType = .publicKey(
+            .init(publicKey: publicKey, derivationPath: try DerivationPath(rawPath: "m/44'/0'/0'/0/0"))
+        )
         let sourceScript = UTXOLockingScript(
-            data: Data(hex: "76a9147775253a54f9873fe3065877a423e4191057d8b988ac"), type: .p2pkh, spendable: .publicKey(publicKey)
+            data: Data(hex: "76a9147775253a54f9873fe3065877a423e4191057d8b988ac"), type: .p2pkh, spendable: spendable
         )
         let destinationScript = UTXOLockingScript(
             data: Data(hex: "76a914041c20c9f7d7e16cb2813da977bc9901a8e7d0d688ac"), type: .p2pkh, spendable: .none
@@ -54,7 +58,8 @@ struct UTXOTransactionSerializerTests {
 
         // then
         #expect(hashes.count == 1)
-        #expect(hashes[0].hex() == signatures[0].hash.hex())
+        #expect(hashes[0].hashToSign.hex() == signatures[0].hash.hex())
+        #expect(hashes[0].spendableType == spendable)
         #expect(encoded.hex() == "0100000001592a4158767d43996edbf3c6a7aa183ed9213c95dcb26a4f3190f08a82c903f3010000006b483045022100b9ef66034d8da7cf4be4aa86ac3a8d1a6a941767f9add309a03e15f70a1c9a120220628100fd65c9209a353e3eff108bb2763c129cb7c1254e5b9c546fa942e218a1012102677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bbffffffff02404b4c00000000001976a914041c20c9f7d7e16cb2813da977bc9901a8e7d0d688aca840cb0a000000001976a9147775253a54f9873fe3065877a423e4191057d8b988ac00000000")
     }
 
@@ -63,8 +68,11 @@ struct UTXOTransactionSerializerTests {
         // given
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .zero, signHashType: .bitcoinAll)
         let publicKey = Data(hexString: "0252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa")
+        let spendable: UTXOLockingScript.SpendableType = .publicKey(
+            .init(publicKey: publicKey, derivationPath: try DerivationPath(rawPath: "m/84'/0'/0'/0/0"))
+        )
         let sourceScript = UTXOLockingScript(
-            data: Data(hex: "001434b42184b9e9eccfe0143804e797bea8cdf86708"), type: .p2wpkh, spendable: .publicKey(publicKey)
+            data: Data(hex: "001434b42184b9e9eccfe0143804e797bea8cdf86708"), type: .p2wpkh, spendable: spendable
         )
         let destinationScript = UTXOLockingScript(
             data: Data(hex: "0014c75a89f9a522c5c8015f308c74b5275800d2c021"), type: .p2wpkh, spendable: .none
@@ -102,7 +110,8 @@ struct UTXOTransactionSerializerTests {
 
         // then
         #expect(hashes.count == 1)
-        #expect(hashes[0].hex() == signatures[0].hash.hex())
+        #expect(hashes[0].hashToSign.hex() == signatures[0].hash.hex())
+        #expect(hashes[0].spendableType == spendable)
         #expect(encoded.hex() == "01000000000101d3eee0b2d7e48c79fbfa6a7da2a897de8d6c4ea170151c624ab1327fd670206d010000000000000000021027000000000000160014c75a89f9a522c5c8015f308c74b5275800d2c02134820d000000000016001434b42184b9e9eccfe0143804e797bea8cdf867080248304502210083e4312e42a4038972c9b15babac8555c0ea85f28ac61cd77071017beb3de9eb022045d6c2d971d8bb8ace5365377f3631d6775e52ac5aebfb56755df2580775852501210252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa00000000")
     }
 
@@ -110,7 +119,6 @@ struct UTXOTransactionSerializerTests {
     func legacy_withMemo() throws {
         // given
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .final, signHashType: .bitcoinAll)
-
         let memo = Data("hi".utf8)
         let txWithMemo = Transaction(
             amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
@@ -123,8 +131,11 @@ struct UTXOTransactionSerializerTests {
         )
 
         let publicKey = Data(hexString: "02677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bb")
+        let spendable: UTXOLockingScript.SpendableType = .publicKey(
+            .init(publicKey: publicKey, derivationPath: try DerivationPath(rawPath: "m/44'/0'/0'/0/0"))
+        )
         let sourceScript = UTXOLockingScript(
-            data: Data(hex: "76a9147775253a54f9873fe3065877a423e4191057d8b988ac"), type: .p2pkh, spendable: .publicKey(publicKey)
+            data: Data(hex: "76a9147775253a54f9873fe3065877a423e4191057d8b988ac"), type: .p2pkh, spendable: spendable
         )
         let destinationScript = UTXOLockingScript(
             data: Data(hex: "76a914041c20c9f7d7e16cb2813da977bc9901a8e7d0d688ac"), type: .p2pkh, spendable: .none
@@ -175,7 +186,9 @@ struct UTXOTransactionSerializerTests {
         // then
         #expect(hashesNoMemo.count == 1)
         #expect(hashesWithMemo.count == 1)
-        #expect(hashesWithMemo[0].hex() != hashesNoMemo[0].hex())
+        #expect(hashesNoMemo[0].spendableType == spendable)
+        #expect(hashesWithMemo[0].spendableType == spendable)
+        #expect(hashesWithMemo[0].hashToSign.hex() != hashesNoMemo[0].hashToSign.hex())
 
         // OP_RETURN output: value=0 + scriptLen=4 + 6a 02 6869
         #expect(encoded.hex().contains("0000000000000000046a026869"))
