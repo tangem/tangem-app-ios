@@ -16,7 +16,7 @@ import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-    @Injected(\.restrictedCountriesGeoDefiner) private var restrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
@@ -81,7 +81,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
-    var descriptionCanBeShowed: Bool { !restrictedCountriesGeoDefiner.isUK }
+    var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
     var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
 
@@ -562,7 +562,7 @@ private extension MarketsTokenDetailsViewModel {
             )
         }
 
-        if let securityScore = model.securityScore, !restrictedCountriesGeoDefiner.isUK {
+        if let securityScore = model.securityScore, !geoEligibilityService.isUK {
             securityScoreViewModel = .init(
                 securityScoreValue: securityScore.securityScore,
                 providers: securityScore.providers,
@@ -611,7 +611,7 @@ private extension MarketsTokenDetailsViewModel {
             tokenInsights = insights
         }
 
-        guard let insights, !restrictedCountriesGeoDefiner.isUK else {
+        guard let insights, !geoEligibilityService.isUK else {
             insightsViewModel = nil
             return
         }

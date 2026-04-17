@@ -1,5 +1,5 @@
 //
-//  CommonRestrictedCountriesGeoDefiner.swift
+//  CommonGeoEligibilityService.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-class CommonRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
+class CommonGeoEligibilityService: GeoEligibilityService {
     private let geoDefiner: GeoDefiner = .init()
 
     func initialize() {
@@ -64,7 +64,7 @@ class CommonRestrictedCountriesGeoDefiner: RestrictedCountriesGeoDefiner {
     }
 }
 
-extension CommonRestrictedCountriesGeoDefiner {
+extension CommonGeoEligibilityService {
     private enum Constants {
         static let ukRegionCode: String = "gb"
 
