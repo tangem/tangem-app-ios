@@ -10,8 +10,9 @@ import Foundation
 import TangemExpress
 
 /// Pair update handler for the send-via-swap flow.
-/// Estimates receive amount on first selection via local rates.
-/// Preserves current direction on subsequent pair changes.
+/// Estimates receive amount via local rates on pair changes.
+/// The TO token can only be changed while editing the TO field,
+/// so we always use `.to(estimate)` to preserve direction and focus.
 final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
     private let expressManager: ExpressManager
     private let balanceConverter = BalanceConverter()
@@ -24,20 +25,18 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        receiveAmount: Decimal?
+        sourceAmount: Decimal?
     ) async throws -> SwapPairUpdateResult {
-        // Pre-pair: compute local estimate for first selection
+        // Compute local estimate of the receive amount using source → destination rates
         var estimatedTo: Decimal?
-        if receiveAmount == nil,
-           let sourceAmount,
+        if let sourceAmount,
            let sourceCurrencyId = source.tokenItem.currencyId,
            let destCurrencyId = destination.tokenItem.currencyId {
             estimatedTo = try? await balanceConverter.convertCryptoToCrypto(
                 sourceId: sourceCurrencyId,
                 sourceAmount: sourceAmount,
                 targetId: destCurrencyId
-            )
+            ).rounded(scale: destination.tokenItem.decimalCount)
         }
 
         // Pair update — populates availableProviders in CommonExpressManager
@@ -47,53 +46,27 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
         }
 
-        // First selection — return estimate if available
-        guard let receiveAmount else {
-            let amountUpdate: SwapPairUpdateResult.AmountUpdate? = estimatedTo.map {
-                .setReceiveAmount(crypto: $0, currencyId: destination.tokenItem.currencyId)
-            }
+        // If local rate estimation succeeded, return it immediately.
+        // The ViewModel's pendingReverseRecalculation mechanism will trigger
+        // the actual .to(estimate) quote, preserving direction and focus.
+        if let estimatedTo {
+            let amountUpdate: SwapPairUpdateResult.AmountUpdate = .setReceiveAmount(
+                crypto: estimatedTo,
+                currencyId: destination.tokenItem.currencyId
+            )
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: amountUpdate)
         }
 
-        // Resolve direction and fetch quote
-        let amountType = await resolveAmountType(
-            pairResult: pairResult,
-            sourceAmount: sourceAmount,
-            receiveAmount: receiveAmount
-        )
-
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(
-            amountType: amountType,
+        // Fallback: local rates unavailable — fetch a forward quote from Express
+        // so that the receive amount is populated and pendingReverseRecalculation can fire.
+        let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(
+            amountType: .from(sourceAmount),
             by: .pairChange
         )
 
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate? = result.selected?.getState().quote.flatMap {
-            switch amountType {
-            case .from:
-                .setReceiveAmount(crypto: $0.expectAmount, currencyId: destination.tokenItem.currencyId)
-            case .to:
-                .setSourceAmount(crypto: $0.fromAmount, currencyId: source.tokenItem.currencyId)
-            }
+        let amountUpdate: SwapPairUpdateResult.AmountUpdate? = quoteResult.selected?.getState().quote.map {
+            .setReceiveAmount(crypto: $0.expectAmount, currencyId: destination.tokenItem.currencyId)
         }
-
-        return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
-    }
-
-    /// Preserves current direction. Falls back to `.from` if provider doesn't support fixed.
-    private func resolveAmountType(
-        pairResult: ExpressManagerUpdatingResult,
-        sourceAmount: Decimal,
-        receiveAmount: Decimal
-    ) async -> ExpressAmountType {
-        switch await expressManager.getAmountType() {
-        case .from(let sourceAmount):
-            return .from(sourceAmount)
-
-        case .to where pairResult.providers.contains(where: { $0.supportedRateTypes.contains(.fixed) }):
-            return .to(receiveAmount)
-
-        case .to, .none:
-            return .from(sourceAmount)
-        }
+        return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)
     }
 }
