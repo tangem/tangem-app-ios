@@ -2,6 +2,7 @@
 //  WalletTokenAutoSyncOrchestratorFactory.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -22,6 +23,7 @@ struct WalletTokenAutoSyncOrchestratorFactory {
     )
 
     private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
+    private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider = CommonWalletTokenAutoSyncAnalyticsService()
 
     func makeOrchestrator() -> CommonWalletTokenAutoSyncOrchestrator {
         CommonWalletTokenAutoSyncOrchestrator(
@@ -33,7 +35,8 @@ struct WalletTokenAutoSyncOrchestratorFactory {
                 coinsCatalogProvider: coinsCatalogProvider,
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
             ),
-            userWalletRepository: InjectedValues[\.userWalletRepository]
+            userWalletRepository: InjectedValues[\.userWalletRepository],
+            analyticsProvider: analyticsProvider
         )
     }
 
