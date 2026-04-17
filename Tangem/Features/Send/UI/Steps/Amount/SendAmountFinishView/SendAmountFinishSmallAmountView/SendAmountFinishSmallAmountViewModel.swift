@@ -11,7 +11,6 @@ import TangemUI
 struct SendAmountFinishSmallAmountViewModel {
     let tokenHeader: SendTokenHeader
     let tokenIconInfo: TokenIconInfo
-    let amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
-    let amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    let amountText: String
     let alternativeAmount: String?
 }
