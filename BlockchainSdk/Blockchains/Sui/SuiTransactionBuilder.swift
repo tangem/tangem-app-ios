@@ -76,7 +76,7 @@ final class SuiTransactionBuilder {
         }
 
         let preImageHashes = try TransactionCompiler.preImageHashes(coinType: .sui, txInputData: signingInput.serializedData())
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard preSigningOutput.error == .ok else {
             BSDKLogger.error(error: "SuiPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
@@ -121,7 +121,7 @@ final class SuiTransactionBuilder {
             pubKeyType: .ed25519
         )
 
-        let output = try SuiSigningOutput(serializedData: compiled)
+        let output = try SuiSigningOutput(serializedBytes: compiled)
         return (output.unsignedTx, output.signature)
     }
 
@@ -159,7 +159,7 @@ final class SuiTransactionBuilder {
             publicKeys: publicKey.blockchainKey.asDataVector()
         )
 
-        return try SuiSigningOutput(serializedData: compiled).unsignedTx
+        return try SuiSigningOutput(serializedBytes: compiled).unsignedTx
     }
 
     private func buildForInspectTokenTransaction(amount: Amount, token: Token, destination: String, referenceGasPrice: Decimal) throws -> String {
@@ -180,7 +180,7 @@ final class SuiTransactionBuilder {
             publicKeys: publicKey.blockchainKey.asDataVector()
         )
 
-        return try SuiSigningOutput(serializedData: compiled).unsignedTx
+        return try SuiSigningOutput(serializedBytes: compiled).unsignedTx
     }
 
     private func makeCoinSigningInput(amount: Decimal, destination: String, fee: SuiFeeParameters) -> WalletCore.SuiSigningInput {
