@@ -15,6 +15,7 @@ import TangemPay
 
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
+    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -22,17 +23,21 @@ struct CommonUserWalletModelDependencies {
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
-    init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
-        guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
-            return nil
-        }
+    init(userWalletId: UserWalletId, walletInfo: WalletInfo, config: UserWalletConfig, keys: WalletKeys) {
+        let walletManagerFactory = config.makeAnyWalletManagerFactory()
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
         let hasTokenSynchronization = config.hasFeature(.multiCurrency)
 
-        let keysRepository = CommonKeysRepository(keys: keys)
+        let keysRepository = Self.makeKeysRepository(keys: keys)
         self.keysRepository = keysRepository
+
+        keysDerivingInteractor = Self.makeKeysDeriving(
+            walletInfo: walletInfo,
+            userWalletId: userWalletId,
+            config: config
+        )
 
         let derivationManager = Self.makeDerivationManager(
             keysRepository: keysRepository,
@@ -57,6 +62,7 @@ struct CommonUserWalletModelDependencies {
             config: config,
             walletManagerFactory: walletManagerFactory,
             keysRepository: keysRepository,
+            keysDerivingInteractor: keysDerivingInteractor,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
@@ -102,6 +108,23 @@ struct CommonUserWalletModelDependencies {
 // MARK: - Factory methods
 
 private extension CommonUserWalletModelDependencies {
+    static func makeKeysRepository(keys: WalletKeys) -> CommonKeysRepository {
+        CommonKeysRepository(keys: keys)
+    }
+
+    static func makeKeysDeriving(
+        walletInfo: WalletInfo,
+        userWalletId: UserWalletId,
+        config: UserWalletConfig
+    ) -> KeysDeriving {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return KeysDerivingCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
+        }
+    }
+
     static func makeDerivationManager(
         keysRepository: KeysRepository,
         areHDWalletsSupported: Bool
@@ -158,7 +181,8 @@ private extension CommonUserWalletModelDependencies {
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         walletManagerFactory: AnyWalletManagerFactory,
-        keysRepository: CommonKeysRepository,
+        keysRepository: KeysRepository,
+        keysDerivingInteractor: KeysDeriving,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
@@ -168,6 +192,13 @@ private extension CommonUserWalletModelDependencies {
         shouldLoadExpressAvailability: Bool
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysProvider: keysRepository,
+            keysDerivingInteractor: keysDerivingInteractor
+        )
+
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
@@ -181,9 +212,7 @@ private extension CommonUserWalletModelDependencies {
             userTokensRepositoryProvider: { derivationIndex in
                 UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIndex: derivationIndex)
             },
-            walletModelsFactoryProvider: { userWalletId in
-                config.makeWalletModelsFactory(userWalletId: userWalletId)
-            }
+            walletModelsFactoryProvider: walletModelsFactoryProvider
         )
 
         return CommonAccountModelsManager(

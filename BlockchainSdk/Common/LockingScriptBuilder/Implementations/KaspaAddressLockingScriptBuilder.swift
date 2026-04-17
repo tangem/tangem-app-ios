@@ -43,17 +43,17 @@ struct KaspaAddressLockingScriptBuilder {
         }
     }
 
-    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+    func encode(publicKey: DerivationPublicKey, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
         let lockingScript: UTXOLockingScript = try {
             switch type {
             case .p2pk where p2pkhPrefix == AddressType.p2pkhSchnorr.rawValue:
-                let lockingScript = OpCodeUtils.p2pk(data: publicKey)
+                let lockingScript = OpCodeUtils.p2pk(data: publicKey.publicKey)
                 return UTXOLockingScript(data: lockingScript, type: .p2pk, spendable: .publicKey(publicKey))
             case .p2pk where p2pkhPrefix == AddressType.p2pkhECDSA.rawValue:
-                let lockingScript = OpCodeUtils.p2pkECDSA(data: publicKey)
+                let lockingScript = OpCodeUtils.p2pkECDSA(data: publicKey.publicKey)
                 return UTXOLockingScript(data: lockingScript, type: .p2pk, spendable: .publicKey(publicKey))
             case .p2sh:
-                let keyHash = publicKey.sha256Ripemd160
+                let keyHash = publicKey.publicKey.sha256Ripemd160
                 let lockingScript = OpCodeUtils.p2sh256(data: keyHash)
                 return UTXOLockingScript(data: lockingScript, type: .p2sh, spendable: .publicKey(publicKey))
             default:
@@ -61,7 +61,7 @@ struct KaspaAddressLockingScriptBuilder {
             }
         }()
 
-        let address = CashAddrBech32.encode(p2pkhPrefix.data + publicKey, prefix: bech32Prefix)
+        let address = CashAddrBech32.encode(p2pkhPrefix.data + publicKey.publicKey, prefix: bech32Prefix)
         return (address: address, script: lockingScript)
     }
 }

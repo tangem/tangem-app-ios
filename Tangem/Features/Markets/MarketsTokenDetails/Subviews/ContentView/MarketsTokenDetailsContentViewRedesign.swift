@@ -35,93 +35,58 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if hasShortDescription {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
-            portfolioView
-                .padding(.horizontal, Constants.contentHorizontalPadding)
-                .padding(.top, hasShortDescription ? 0 : Constants.contentVerticalSpacing)
-
-            newsView
-
-            coinView
-        }
-    }
-
-    @ViewBuilder
-    private var portfolioView: some View {
-        if let portfolioViewModel = viewModel.portfolioViewModel {
-            MarketsPortfolioContainerView(viewModel: portfolioViewModel)
-        }
-    }
-
-    @ViewBuilder
-    private var newsView: some View {
-        if viewModel.isAvailableNews {
-            MarketsTokenNewsView(
-                items: viewModel.tokenNewsItems,
-                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
-            )
-        }
-    }
-
-    private var coinView: some View {
-        VStack(spacing: Constants.coinVerticalPadding) {
-            if viewModel.portfolioViewModel != nil {
-                aboutCoinHeader
-            }
-
-            switch viewModel.state {
-            case .loading:
-                MarketsTokenDetailsView.ContentBlockSkeletons()
-            case .loaded:
-                contentBlocks
-            case .failedToLoadDetails:
-                UnableToLoadDataView(
-                    isButtonBusy: viewModel.isLoading,
-                    retryButtonAction: viewModel.loadDetailedInfo
-                )
-                .padding(.vertical, 6)
-            case .failedToLoadAllData:
-                EmptyView()
-            }
+            content
         }
         .padding(.horizontal, Constants.contentHorizontalPadding)
     }
 
-    private var aboutCoinHeader: some View {
-        Text(Localization.marketsAboutCoinHeader)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8.0)
+    private var content: some View {
+        VStack(spacing: Constants.coinVerticalPadding) {
+            switch viewModel.state {
+            case .loading:
+                MarketsTokenDetailsView.ContentBlockSkeletonsRedesign()
+
+            case .loaded:
+                contentBlocks
+
+            case .failedToLoadDetails:
+                TangemUnableToLoadDataView(
+                    isButtonBusy: viewModel.isLoading,
+                    retryButtonAction: viewModel.loadDetailedInfo
+                )
+                .padding(.top, .unit(.x17))
+
+            case .failedToLoadAllData:
+                EmptyView()
+            }
+        }
     }
 
-    @ViewBuilder
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
             if let metricsViewModel = viewModel.metricsViewModel {
-                MarketsTokenDetailsMetricsView(viewModel: metricsViewModel, viewWidth: blocksWidth)
+                MarketsTokenDetailsMetricsViewRedesign(viewModel: metricsViewModel)
             }
 
             if let insightsViewModel = viewModel.insightsViewModel {
-                MarketsTokenDetailsInsightsView(viewModel: insightsViewModel, viewWidth: blocksWidth)
-            }
-
-            if let securityScoreViewModel = viewModel.securityScoreViewModel {
-                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
-            }
-
-            if let pricePerformanceViewModel = viewModel.pricePerformanceViewModel {
-                MarketsTokenDetailsPricePerformanceView(viewModel: pricePerformanceViewModel)
+                MarketsTokenDetailsInsightsViewRedesign(viewModel: insightsViewModel)
             }
 
             if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
-                MarketsTokenDetailsListedOnExchangesView(exchangesCount: numberOfExchangesListedOn) {
+                MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: numberOfExchangesListedOn) {
                     viewModel.openExchangesList()
                 }
             }
 
-            if !viewModel.linksSections.isEmpty {
+            newsView
+
+            if let securityScoreViewModel = viewModel.securityScoreViewModel {
+                MarketsTokenDetailsSecurityScoreViewRedesign(viewModel: securityScoreViewModel)
+            }
+
+            if viewModel.linksSections.isNotEmpty {
                 MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)
             }
         }
@@ -132,7 +97,8 @@ struct MarketsTokenDetailsContentViewRedesign: View {
     private var description: some View {
         switch viewModel.state {
         case .loading:
-            MarketsTokenDetailsView.DescriptionBlockSkeletons()
+            MarketsTokenDetailsView.DescriptionBlockSkeletonsRedesign()
+
         case .loaded(let model):
             if let shortDescription {
                 if model.fullDescription == nil {
@@ -150,8 +116,19 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     }
                 }
             }
+
         case .failedToLoadDetails, .failedToLoadAllData:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var newsView: some View {
+        if viewModel.isAvailableNews {
+            MarketsTokenNewsView(
+                items: viewModel.tokenNewsItems,
+                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
+            )
         }
     }
 
@@ -166,7 +143,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 private extension MarketsTokenDetailsContentViewRedesign {
     enum Constants {
         static let contentVerticalSpacing: CGFloat = 32
-        static let contentHorizontalPadding: CGFloat = 16
+        static let contentHorizontalPadding: CGFloat = .unit(.x4)
         static let coinVerticalPadding: CGFloat = 14
     }
 }
