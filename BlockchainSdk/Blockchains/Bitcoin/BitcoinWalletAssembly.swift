@@ -11,7 +11,6 @@ import Foundation
 struct BitcoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let unspentOutputManager: UnspentOutputManager = .bitcoin(
-            address: input.wallet.defaultAddress,
             isTestnet: input.wallet.blockchain.isTestnet
         )
 
