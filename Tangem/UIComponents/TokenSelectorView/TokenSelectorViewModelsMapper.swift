@@ -16,6 +16,8 @@ final class TokenSelectorViewModelsMapper {
         mapToTokenSelectorWalletItemViewModel(wallet: wallet)
     }
 
+    private var cache: [TokenSelectorItem: TokenSelectorItemViewModel] = [:]
+
     // MARK: - Dependencies
 
     private let walletsProvider: any TokenSelectorWalletsProvider
@@ -30,6 +32,13 @@ final class TokenSelectorViewModelsMapper {
     private weak var output: (any TokenSelectorViewModelOutput)?
 
     private let itemViewModelBuilder: TokenSelectorItemViewModelBuilder
+
+    private let mappingQueue = DispatchQueue(
+        label: "com.tangem.TokenSelectorViewModelsMapper.mappingQueue",
+        qos: .userInitiated,
+        target: .global(qos: .userInitiated)
+    )
+
     private var searchTextCancellable: AnyCancellable?
     private var selectedItemCancellable: AnyCancellable?
 
@@ -65,20 +74,6 @@ final class TokenSelectorViewModelsMapper {
 // MARK: - Private
 
 private extension TokenSelectorViewModelsMapper {
-    func items(provider: TokenSelectorAccountModelItemsProvider) -> [TokenSelectorItem] {
-        var items = provider.items
-
-        if !searchText.value.isEmpty {
-            items = items.filter { $0.isMatching(searchText: searchText.value) }
-        }
-
-        if let selected = selectedItem.value {
-            items = items.filter { $0.tokenItem != selected }
-        }
-
-        return items
-    }
-
     func itemsPublisher(provider: TokenSelectorAccountModelItemsProvider) -> AnyPublisher<[TokenSelectorItem], Never> {
         provider
             .itemsPublisher
@@ -138,11 +133,9 @@ private extension TokenSelectorViewModelsMapper {
     ) -> TokenSelectorAccountViewModel {
         let rawItemsPublisher = itemsPublisher(provider: account.itemsProvider)
 
-        let items = items(provider: account.itemsProvider)
-            .map { mapToTokenSelectorItemViewModel(item: $0) }
-
         let itemsPublisher = rawItemsPublisher
             .withWeakCaptureOf(self)
+            .receive(on: mappingQueue)
             .map { provider, items in
                 items.map { provider.mapToTokenSelectorItemViewModel(item: $0) }
             }
@@ -164,16 +157,22 @@ private extension TokenSelectorViewModelsMapper {
 
         return TokenSelectorAccountViewModel(
             header: header,
-            items: items,
             itemsPublisher: itemsPublisher,
             expandableViewModel: expandableViewModel
         )
     }
 
     func mapToTokenSelectorItemViewModel(item: TokenSelectorItem) -> TokenSelectorItemViewModel {
-        itemViewModelBuilder.mapToTokenSelectorItemViewModel(item: item) { [weak self] in
+        if let cached = cache[item] {
+            return cached
+        }
+
+        let viewModel = itemViewModelBuilder.mapToTokenSelectorItemViewModel(item: item) { [weak self] in
             self?.output?.userDidSelect(item: item)
         }
+        cache[item] = viewModel
+
+        return viewModel
     }
 
     func mapToViewType(
