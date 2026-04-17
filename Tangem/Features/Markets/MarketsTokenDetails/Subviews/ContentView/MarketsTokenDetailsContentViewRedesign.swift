@@ -83,7 +83,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             newsView
 
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
-                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
+                MarketsTokenDetailsSecurityScoreViewRedesign(viewModel: securityScoreViewModel)
             }
 
             if viewModel.linksSections.isNotEmpty {
