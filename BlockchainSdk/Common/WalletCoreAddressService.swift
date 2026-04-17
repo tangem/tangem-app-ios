@@ -39,20 +39,18 @@ extension WalletCoreAddressService {
 extension WalletCoreAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         switch addressType {
-        case .default:
+        case .default, .used(.default, _):
             guard let walletCorePublicKey = PublicKey(tangemPublicKey: publicKey.blockchainKey, publicKeyType: publicKeyType) else {
                 throw BlockchainSdkError.twMakeAddressFailed
             }
 
             let address = AnyAddress(publicKey: walletCorePublicKey, coin: coin).description
             return PlainAddress(value: address, type: addressType)
-        case .legacy:
-            if coin == .cardano {
-                let address = try makeByronAddress(publicKey: publicKey)
-                return PlainAddress(value: address, type: addressType)
-            }
-
-            fatalError("WalletCoreAddressService don't support legacy address for \(coin)")
+        case .legacy where coin == .cardano:
+            let address = try makeByronAddress(publicKey: publicKey)
+            return PlainAddress(value: address, type: addressType)
+        default:
+            throw AddressTypeError.notSupported
         }
     }
 }
