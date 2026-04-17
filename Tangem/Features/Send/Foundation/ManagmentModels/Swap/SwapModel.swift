@@ -208,6 +208,7 @@ extension SwapModel {
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
+        _receiveAmount.send(nil)
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -229,8 +230,7 @@ extension SwapModel {
                 pair: pair,
                 source: source,
                 destination: destination,
-                sourceAmount: _sourceAmount.value?.crypto,
-                receiveAmount: _receiveAmount.value?.crypto
+                sourceAmount: _sourceAmount.value?.crypto
             )
 
             if let amountUpdate = result.amountUpdate {
