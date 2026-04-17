@@ -622,7 +622,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         line: UInt = #line
     ) -> StoredCryptoAccount {
         guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
-            #if ALPHA || BETA || DEBUG
+            #if ALPHA || BETA || INTERNAL || DEBUG
             preconditionFailure(
                 "No crypto account found for derivation index '\(derivationIndex)' in crypto accounts: '\(cryptoAccounts)'",
                 file: file,
@@ -630,7 +630,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             )
             #else
             return .dummy(withDerivationIndex: derivationIndex)
-            #endif // ALPHA || BETA || DEBUG
+            #endif // ALPHA || BETA || INTERNAL || DEBUG
         }
 
         return cryptoAccount
