@@ -14,8 +14,7 @@ protocol SwapPairUpdateHandler {
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        receiveAmount: Decimal?
+        sourceAmount: Decimal?
     ) async throws -> SwapPairUpdateResult
 }
 
