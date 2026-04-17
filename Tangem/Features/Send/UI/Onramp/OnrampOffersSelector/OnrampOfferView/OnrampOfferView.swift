@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import PassKit
 import SwiftUI
 import TangemAssets
 import TangemLocalization
@@ -37,10 +38,7 @@ struct OnrampOfferView: View {
 
             Spacer(minLength: 8)
 
-            CapsuleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
-                .size(.medium)
-                .style(.primary)
-                .disabled(!viewModel.isAvailable)
+            buyButton
         }
     }
 
@@ -97,6 +95,22 @@ struct OnrampOfferView: View {
             Spacer(minLength: 8)
 
             trailingBottomView
+        }
+    }
+
+    @ViewBuilder
+    private var buyButton: some View {
+        switch viewModel.buyAction {
+        case .button(let action):
+            CapsuleButton(title: Localization.commonBuy, action: action)
+                .size(.medium)
+                .style(.primary)
+                .disabled(!viewModel.isAvailable)
+        case .nativeApplePay(let request, let onPhaseChange):
+            PayWithApplePayButton(.plain, request: request, onPaymentAuthorizationChange: onPhaseChange)
+                .payWithApplePayButtonStyle(.white)
+                .frame(height: 32)
+                .disabled(!viewModel.isAvailable)
         }
     }
 

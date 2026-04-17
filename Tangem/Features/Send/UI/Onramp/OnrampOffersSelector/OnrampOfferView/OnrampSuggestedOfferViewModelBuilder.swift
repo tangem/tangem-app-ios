@@ -32,7 +32,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
         }
     }
 
-    func mapToOnrampOfferViewModel(title: OnrampOfferViewModel.Title, provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
+    func mapToOnrampOfferViewModel(title: OnrampOfferViewModel.Title, provider: OnrampProvider, buyAction: OnrampOfferViewModel.BuyAction) -> OnrampOfferViewModel {
         let amount: OnrampOfferViewModel.Amount = {
             let formattedAmount = formatter.formatCryptoBalance(
                 provider.quote?.expectedAmount,
@@ -54,7 +54,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
-            buyButtonAction: buyAction
+            buyAction: buyAction
         )
     }
 }

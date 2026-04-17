@@ -7,12 +7,16 @@
 //
 
 import Combine
+import PassKit
 import TangemUI
 import TangemExpress
+import SwiftUI
 
 class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     var viewState: ViewState {
         switch selectedProviderItem {
@@ -102,15 +106,48 @@ private extension OnrampOffersSelectorViewModel {
 
     func mapToOnrampOfferViewModels(item: ProviderItem) -> [OnrampOfferViewModel] {
         let offers = item.selectableProviders().map { provider in
-            onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+            let buyAction = makeBuyAction(provider: provider) { [weak self] in
                 self?.close()
                 self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
                 self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-                self?.output?.userDidRequestOnramp(provider: provider)
             }
+
+            return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider, buyAction: buyAction)
         }
 
         return offers
+    }
+
+    func makeBuyAction(provider: OnrampProvider, additionalAnalytics: @escaping () -> Void) -> OnrampOfferViewModel.BuyAction {
+        if geoEligibilityService.isApplePayAllowed,
+           provider.paymentMethod.type == .applePay,
+           provider.quote?.nativePaymentAvailable == true,
+           let amount = provider.amount,
+           let currencyCode = input?.selectedOnrampProvider?.paymentMethod {
+            // Get currency code from the provider's pair item
+            if let code = try? provider.makeOnrampQuotesRequestItem().pairItem.fiatCurrency.identity.code {
+                let request = OnrampApplePayUtils.makePaymentRequest(amount: amount, currencyCode: code)
+                return .nativeApplePay(request: request) { [weak self] (phase: PayWithApplePayButtonPaymentAuthorizationPhase) in
+                    switch phase {
+                    case .willAuthorize:
+                        additionalAnalytics()
+                    case .didAuthorize(let payment, let resultHandler):
+                        let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
+                        resultHandler(.init(status: .success, errors: nil))
+                        self?.output?.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult)
+                    case .didFinish:
+                        break
+                    @unknown default:
+                        break
+                    }
+                }
+            }
+        }
+
+        return .button { [weak self] in
+            additionalAnalytics()
+            self?.output?.userDidRequestOnramp(provider: provider)
+        }
     }
 }
 
