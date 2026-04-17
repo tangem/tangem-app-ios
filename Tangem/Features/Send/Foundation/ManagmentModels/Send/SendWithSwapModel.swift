@@ -280,7 +280,6 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
         // This effectively switches back to "simple send" mode
         resetFlow(newReceiveToken: .none, reset: { [weak self] in
             self?.swapModel.userDidRequestClearSelection()
-            self?.analyticsLogger.logAmountStepOpened()
         })
     }
 
@@ -297,10 +296,8 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
             self?.swapModel.update(receive: receiveToken)
-            self?.analyticsLogger.logAmountStepOpened()
             selected(true)
-        }, cancel: { [weak self] in
-            self?.analyticsLogger.logAmountStepOpened()
+        }, cancel: {
             selected(false)
         })
     }
