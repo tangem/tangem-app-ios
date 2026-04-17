@@ -2,6 +2,7 @@
 //  CommonWalletTokenAutoSyncOrchestrator.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
@@ -18,6 +19,7 @@ final class CommonWalletTokenAutoSyncOrchestrator {
     private let persister: WalletTokenAutoSyncPersister
     private let relayerFactory: (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
     private let userWalletRepository: UserWalletRepository
+    private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -26,13 +28,15 @@ final class CommonWalletTokenAutoSyncOrchestrator {
         progressService: WalletTokenAutoSyncProgressService,
         persister: WalletTokenAutoSyncPersister,
         relayerFactory: @escaping (Blockchain) -> (any WalletTokenAutoSyncRelayer)?,
-        userWalletRepository: UserWalletRepository
+        userWalletRepository: UserWalletRepository,
+        analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
     ) {
         self.syncStateActor = syncStateActor
         self.progressService = progressService
         self.persister = persister
         self.relayerFactory = relayerFactory
         self.userWalletRepository = userWalletRepository
+        self.analyticsProvider = analyticsProvider
         bindUserWalletRepositoryEvents()
     }
 }
@@ -92,6 +96,7 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         let addressResolver = WalletAddressResolver()
 
         await progressService.add(userWalletId: userWalletId)
+        analyticsProvider.logInitialTokenSyncStarted(userWalletId: userWalletId)
 
         let accountModelsManager = userWalletModel.accountModelsManager
         do {
@@ -135,6 +140,7 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
             try Task.checkCancellation()
 
             await progressService.reportProgress(userWalletId: userWalletId, percent: 100)
+            analyticsProvider.logInitialTokenSyncCompleted(userWalletId: userWalletId)
         } catch {
             await progressService.remove(userWalletId: userWalletId)
         }
