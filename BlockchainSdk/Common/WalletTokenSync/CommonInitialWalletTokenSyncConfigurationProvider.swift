@@ -36,10 +36,13 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
              .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant:
             return true
 
-        // EVM blockchains supported by this provider.
+        // EVM blockchains from MoralisSupportedBlockchains.
         case .ethereum, .polygon, .bsc, .arbitrum, .optimism, .avalanche, .fantom, .base, .linea,
-             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad,
-             .ethereumPoW, .disChain, .ethereumClassic, .rsk, .kava, .telos, .octa, .decimal, .xdc,
+             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad:
+            return true
+
+        // Other EVM blockchains supported by this provider.
+        case .ethereumPoW, .disChain, .ethereumClassic, .rsk, .kava, .telos, .octa, .decimal, .xdc,
              .shibarium, .areon, .playa3ullGames, .aurora, .manta, .zkSync, .polygonZkEVM,
              .mantle, .flare, .taraxa, .cyber, .blast, .energyWebEVM, .core, .canxium, .xodex,
              .odysseyChain, .bitrock, .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
