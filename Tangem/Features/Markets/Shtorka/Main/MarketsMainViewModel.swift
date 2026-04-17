@@ -56,6 +56,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let earnDataProvider = CommonMarketsWidgetEarnService()
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
+    let tokenSearchViewModel: TokenSearchViewModel
+
     private var bag = Set<AnyCancellable>()
 
     private var currentSearchValue: String = ""
@@ -76,11 +78,24 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Init
 
-    init(quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper, coordinator: MarketsMainRoutable) {
+    init(
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        tokenSearchStorage: some TokenSearchStorage,
+        coordinator: MarketsMainRoutable
+    ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
-        headerViewModel = MainBottomSheetHeaderViewModel()
+        let headerViewModel = MainBottomSheetHeaderViewModel()
+        self.headerViewModel = headerViewModel
+
+        tokenSearchViewModel = TokenSearchViewModel(
+            headerViewModel: headerViewModel,
+            storage: tokenSearchStorage,
+            chartsHistoryProvider: chartsHistoryProvider,
+            filterProvider: filterProvider,
+            coordinator: coordinator
+        )
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
@@ -96,7 +111,12 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         headerViewModel.delegate = self
 
-        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        if FeatureProvider.isAvailable(.redesign) {
+            bindToTokenSearch()
+        } else {
+            searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        }
+
         bindToSearchFocus()
 
         bindChildViewModels()
@@ -145,6 +165,14 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
+    private func bindToTokenSearch() {
+        // `tokenSearchViewModel.$isSearching` is already delivered on the main queue by its
+        // own pipeline (`receiveOnMain()` before `assign(to: &$isSearching)`), so no extra
+        // hop is needed here.
+        tokenSearchViewModel.$isSearching
+            .assign(to: &$isSearching)
+    }
+
     private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
         publisher
             .dropFirst()
