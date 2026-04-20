@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public struct ApproveTransactionData: Hashable {
     public let txData: Data
     public let spender: String

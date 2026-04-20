@@ -6,7 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
+import TangemSdk
 @testable import BlockchainSdk
 
 class BitcoinCashLockingScriptBuilderTests {

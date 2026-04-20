@@ -52,7 +52,7 @@ struct BitcoinCashAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
         }
