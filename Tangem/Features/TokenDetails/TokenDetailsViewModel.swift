@@ -241,6 +241,7 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagement() {
+        // [REDACTED_TODO_COMMENT]
         coordinator?.openDynamicAddressesEnterView()
     }
 
