@@ -158,7 +158,7 @@ struct MarketsTokenDetailsExchangesListView: View {
         case .failure(let error):
             error.localizedDescription.hashValue
         case .loading:
-            .zero
+            0
         }
     }
 }
