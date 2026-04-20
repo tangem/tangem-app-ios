@@ -56,11 +56,15 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
                 ]
             )
         case .crypto:
-            Analytics.log(event: .buttonCopyAddress, params: [
-                .token: tokenItem.currencySymbol,
-                .blockchain: tokenItem.blockchain.displayName,
-                .source: Analytics.ParameterValue.qr.rawValue,
-            ])
+            Analytics.log(
+                event: .buttonCopyAddress,
+                params: [
+                    .token: tokenItem.currencySymbol,
+                    .blockchain: tokenItem.blockchain.displayName,
+                    .source: Analytics.ParameterValue.qr.rawValue,
+                ],
+                analyticsSystems: .all
+            )
         }
     }
 
@@ -83,11 +87,15 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
 
 extension CommonReceiveAnalyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger {
     func logCopyAddressButtonTapped() {
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .source: Analytics.ParameterValue.receive.rawValue,
-        ])
+        Analytics.log(
+            event: .buttonCopyAddress,
+            params: [
+                .token: tokenItem.currencySymbol,
+                .blockchain: tokenItem.blockchain.displayName,
+                .source: Analytics.ParameterValue.receive.rawValue,
+            ],
+            analyticsSystems: .all
+        )
     }
 
     func logShareDomainNameAddressButtonTapped() {
