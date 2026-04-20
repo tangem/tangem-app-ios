@@ -6,7 +6,10 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
+import TangemSdk
+import TangemFoundation
 @testable import BlockchainSdk
 
 final class LitecoinTransactionTests {

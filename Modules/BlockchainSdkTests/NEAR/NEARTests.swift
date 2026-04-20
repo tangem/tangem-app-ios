@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import WalletCore
+import TangemSdk
 @testable import BlockchainSdk
 
 struct NEARTests {

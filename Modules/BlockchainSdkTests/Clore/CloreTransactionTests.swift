@@ -8,6 +8,8 @@
 
 import Foundation
 import Testing
+import TangemSdk
+import TangemFoundation
 import enum WalletCore.CoinType
 @testable import BlockchainSdk
 
