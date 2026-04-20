@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import BigInt
+import TangemFoundation
 
 // MARK: - EthereumErrorMapper
 

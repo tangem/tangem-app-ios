@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
+import TangemSdk
 import Testing
+@testable import BlockchainSdk
 
 struct SolanaTransactionHelperTests {
     private let sizeTester: TransactionSizeTesterUtility
@@ -33,7 +34,7 @@ struct SolanaTransactionHelperTests {
         #expect(dataToSign.hex() == estimateDataToSign)
 
         #expect(sizeTester.isValidForCos4_52AndAbove(dataToSign))
-        #expect(!sizeTester.isValidForiPhone7(dataToSign))
+        #expect(!sizeTester.isValidForIPhone7(dataToSign))
         #expect(!sizeTester.isValidForCosBelow4_52(dataToSign))
 
         let dataToSend = try helper.addSignature(dummySignature, transaction: unsignedData)

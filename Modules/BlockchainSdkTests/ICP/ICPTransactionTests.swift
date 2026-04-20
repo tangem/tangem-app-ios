@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Testing
 import WalletCore
 import TangemSdk
+import TangemFoundation
 @testable import BlockchainSdk
-import Testing
 
 struct ICPTransactionTests {
     private let sizeTester = TransactionSizeTesterUtility()
