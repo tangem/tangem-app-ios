@@ -6,11 +6,13 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BigInt
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
 import WalletCore
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct EthereumTransactionTests {
     private let blockchain = Blockchain.ethereum(testnet: false)
