@@ -6,11 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import WalletCore
-@testable import BlockchainSdk
 import TangemSdk
 import Testing
 import enum WalletCore.CoinType
+@testable import BlockchainSdk
 
 struct SolanaAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
