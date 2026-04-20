@@ -1,7 +1,9 @@
-@testable import BlockchainSdk
+import Foundation
 import Testing
 import CryptoKit
 import WalletCore
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct BinanceTests {
     private let txBuilder: BinanceTransactionBuilder
