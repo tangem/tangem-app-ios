@@ -6,11 +6,12 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import CryptoKit
 import TangemSdk
 import WalletCore
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct TONTransactionTests {
     private var privateKey = try! Curve25519.Signing.PrivateKey(
