@@ -430,7 +430,7 @@
 "express_exchange_notification_refund_text" = "Отправленные средства были возвращены в %1$@ на ваш кошелек в соответствии с правилами OKX или моста обмена. %2$@";
 "express_exchange_notification_refund_title" = "Сумма была возвращена в %1$@ (%2$@ сети)";
 "express_exchange_notification_verification_text" = "Посетите сайт провайдера для проверки";
-"express_exchange_notification_verification_title" = "Провайдер запрашивает прохождение верификации";
+"express_exchange_notification_verification_title" = "Требуется верификация у провайдера";
 "express_exchange_status_bought" = "Покупка завершена";
 "express_exchange_status_buying_active" = "Ожидание покупки...";
 "express_exchange_status_buying" = "Ожидание покупки";
@@ -1277,13 +1277,21 @@
 "swap_search_tooltip_title" = "Используйте поиск, чтобы найти то, что вам нужно.";
 "swap_story_fifth_subtitle" = "Чувствуйте уверенность с круглосуточной поддержкой, готовой помочь в любой ситуации!";
 "swap_story_fifth_title" = "Круглосуточная поддержка";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Надежные провайдеры в одном месте — обменивайте любые активы легко и быстро прямо в своем кошельке!";
+"swap_story_first_title_v2" = "Swap Inside Your Wallet";
 "swap_story_first_title" = "Обменивайте с нами";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Высший уровень безопасности и проверенные партнёры защищают каждую транзакцию";
+"swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Полная защита";
+"swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
 "swap_story_second_subtitle" = "Автоматически находим самые выгодные предложения среди проверенных провайдеров";
+"swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Лучшие курсы";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Интуитивный обмен в пару касаний — без сложностей и ожидания";
+"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
 "swap_story_third_title" = "Проще простого";
 "swap_via_provider" = "Обмен через провайдера";
 "swap_your_assets_title" = "Ваши средства";
