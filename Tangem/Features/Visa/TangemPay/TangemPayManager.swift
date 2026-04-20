@@ -124,7 +124,7 @@ final class TangemPayManager: TangemPayAccountModel {
                 await onDidDismiss?()
             }
         )
-        Analytics.log(.visaOnboardingVisaKYCFlowOpened, contextParams: .userWallet(userWalletId))
+        Analytics.log(.visaOnboardingVisaKYCFlowOpened, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
     }
 
     func cancelKYC(onFinish: @escaping (Bool) -> Void) {
@@ -192,7 +192,7 @@ final class TangemPayManager: TangemPayAccountModel {
             } catch {
                 stateSubject.value = .unavailable
             }
-            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, contextParams: .userWallet(userWalletId))
+            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
         case .enrolled(let customerInfo, let productInstance):
             orderStatusPollingService.cancel()
@@ -206,7 +206,7 @@ final class TangemPayManager: TangemPayAccountModel {
                 await account.loadBalance()
             }
             stateSubject.value = .tangemPayAccount(account)
-            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, contextParams: .userWallet(userWalletId))
+            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
         case .kycRequired(let productInstanceExists):
             orderStatusPollingService.cancel()
