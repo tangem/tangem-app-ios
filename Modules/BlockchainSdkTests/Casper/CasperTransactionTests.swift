@@ -8,8 +8,9 @@
 
 import Foundation
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 final class CasperTransactionTests {
     private let sizeUtility = TransactionSizeTesterUtility()

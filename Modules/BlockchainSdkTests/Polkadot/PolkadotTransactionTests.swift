@@ -6,11 +6,13 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import CryptoKit
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct PolkadotTests {
     /// Taken from trust wallet, `SignerTests.cpp`
