@@ -116,7 +116,7 @@ struct OnrampOfferView: View {
         case .nativeApplePay(let request, let onPhaseChange):
             PayWithApplePayButton(.plain, request: request, onPaymentAuthorizationChange: onPhaseChange)
                 .payWithApplePayButtonStyle(.automatic)
-                .frame(width: 80, height: 32)
+                .frame(width: 66, height: 32)
                 .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
         }
