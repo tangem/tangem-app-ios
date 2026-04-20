@@ -42,11 +42,11 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaOnboardingVisaActivationScreenOpened)
+        Analytics.log(.visaOnboardingVisaActivationScreenOpened, analyticsSystems: .all)
     }
 
     func getCard() {
-        Analytics.log(.visaOnboardingButtonVisaGetCard)
+        Analytics.log(.visaOnboardingButtonVisaGetCard, analyticsSystems: .all)
 
         switch walletSelectionType {
         case .single(let id):
