@@ -46,7 +46,7 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
         $viewType
             .flatMapLatest { $0.itemsCount }
             .removeDuplicates()
-            .map { $0 == .zero ? .empty : .visible(itemsCount: $0) }
+            .map { $0 == 0 ? .empty : .visible(itemsCount: $0) }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
     }
