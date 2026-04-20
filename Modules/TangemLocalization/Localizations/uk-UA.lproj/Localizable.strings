@@ -1277,13 +1277,21 @@
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Надійні провайдери дозволяють легко обмінювати активи, забезпечуючи повну безпеку у вашому гаманці";
+"swap_story_first_title_v2" = "Swap Inside Your Wallet ";
 "swap_story_first_title" = "Обмінюйте з нами";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Найвищий рівень безпеки та перевірені провайдери гарантують захист ваших активів при кожному обміні.";
+"swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Безпечніше, ніж будь-коли";
+"swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
 "swap_story_second_subtitle" = "Отримуйте максимальну вигоду з кращими курсами від надійних провайдерів";
+"swap_story_second_title_v2" = "Best Available Rate ";
 "swap_story_second_title" = "Найкращі тарифи";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Просто та зручно — обмін токенів в декілька дотиків";
+"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
 "swap_story_third_title" = "Легше, ніж будь-коли";
 "swap_via_provider" = "Обмін через провайдера";
 "swap_your_assets_title" = "Ваші активи";
