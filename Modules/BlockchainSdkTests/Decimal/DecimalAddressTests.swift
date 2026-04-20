@@ -8,8 +8,8 @@
 
 import Foundation
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct DecimalAddressTests {
     private let addressService = AddressServiceFactory(blockchain: .decimal(testnet: false)).makeAddressService()
@@ -43,7 +43,7 @@ struct DecimalAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }

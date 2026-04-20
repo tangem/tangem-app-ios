@@ -6,9 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import WalletCore
-@testable import BlockchainSdk
 import Testing
+import TangemSdk
+@testable import BlockchainSdk
 
 struct SeiTransactionTests {
     private let cosmosChain: CosmosChain

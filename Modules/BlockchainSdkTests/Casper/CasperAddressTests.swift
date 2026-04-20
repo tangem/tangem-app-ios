@@ -9,9 +9,9 @@
 import Foundation
 import TangemSdk
 import CryptoKit
+import Testing
 import class WalletCore.PrivateKey
 @testable import BlockchainSdk
-import Testing
 
 struct CasperAddressTests {
     let ed25519AddressService = AddressServiceFactory(blockchain: .casper(curve: .ed25519, testnet: false)).makeAddressService()
