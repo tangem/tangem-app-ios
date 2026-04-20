@@ -1277,13 +1277,21 @@
 "swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Mehrere vertrauenswürdige Anbieter an einem Ort – tausche mühelos alle Vermögenswerte in Deiner Wallet";
+"swap_story_first_title_v2" = "Swap Inside Your Wallet";
 "swap_story_first_title" = "Tausche mit uns";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Keine Fummeleien, keine Umsätze, keine blinden Flecken – Deine Transaktion ist immer geschützt";
+"swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Undurchdringliche Verteidigung";
+"swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
 "swap_story_second_subtitle" = "Maximiere Deine Wert mit Tarifen aus einem breiten Netzwerk vertrauenswürdiger Anbieter und wähle immer den Besten aus";
+"swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Unschlagbare Preise";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Problemlos und intuitiv, sodass Deine Token mit nur wenigen Handgriffen getauscht werden können";
+"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
 "swap_story_third_title" = "Einfach bequem";
 "swap_via_provider" = "Tausch über Anbieter";
 "swap_your_assets_title" = "Dein Vermögen";
