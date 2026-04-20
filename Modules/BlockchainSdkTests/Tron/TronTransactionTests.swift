@@ -6,8 +6,10 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-@testable import BlockchainSdk
+import Foundation
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct TronTransactionTests {
     private let blockchain: Blockchain
