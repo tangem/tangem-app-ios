@@ -6,17 +6,19 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-@testable import BlockchainSdk
+import Foundation
 import Testing
 import CryptoKit
 import TangemSdk
 import WalletCore
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct TezosTests {
     @Test(arguments: [Configuration.ed25519_slip0010, .secp256k1])
     func correctCoinTransaction(config: Configuration) throws {
         // given
-        let transaction = try makeTransaction(publickKey: config.publicKey, curve: config.curve)
+        let transaction = try makeTransaction(publicKey: config.publicKey, curve: config.curve)
         let txBuilder = try makeTXBuilder(pubKey: config.publicKey, curve: config.curve)
 
         // when
@@ -34,7 +36,7 @@ struct TezosTests {
     @Test(arguments: [Configuration.ed25519_slip0010, .secp256k1])
     func transactionSize(config: Configuration) throws {
         // given
-        let transaction = try makeTransaction(publickKey: config.publicKey, curve: config.curve)
+        let transaction = try makeTransaction(publicKey: config.publicKey, curve: config.curve)
         let txBuilder = try makeTXBuilder(pubKey: config.publicKey, curve: config.curve)
 
         // when
@@ -66,11 +68,11 @@ extension TezosTests {
         )
     }
 
-    private func makeTransaction(publickKey: Data, curve: EllipticCurve) throws -> Transaction {
+    private func makeTransaction(publicKey: Data, curve: EllipticCurve) throws -> Transaction {
         let blockchain = Blockchain.tezos(curve: curve)
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         let address = try service.makeAddress(
-            for: Wallet.PublicKey(seedKey: publickKey, derivationType: .none),
+            for: Wallet.PublicKey(seedKey: publicKey, derivationType: .none),
             with: .default
         )
 
