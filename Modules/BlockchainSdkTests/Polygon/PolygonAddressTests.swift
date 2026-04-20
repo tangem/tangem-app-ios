@@ -40,7 +40,7 @@ struct PolygonAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         let service = AddressServiceFactory(blockchain: .polygon(testnet: false)).makeAddressService()
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)

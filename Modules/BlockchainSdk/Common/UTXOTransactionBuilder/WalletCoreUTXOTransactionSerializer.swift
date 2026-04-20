@@ -6,10 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import WalletCore
 
 struct WalletCoreUTXOTransactionSerializer {
-    typealias Transaction = (transaction: BlockchainSdk.Transaction, preImage: PreImageTransaction)
+    typealias _Transaction = (transaction: Transaction, preImage: PreImageTransaction)
     let coinType: CoinType
     let sequence: SequenceType
 
@@ -22,7 +23,7 @@ struct WalletCoreUTXOTransactionSerializer {
 // MARK: - UTXOTransactionSerializer
 
 extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
-    func preImageHashes(transaction: Transaction) throws -> [UTXOTransactionSerializerPreImageHash] {
+    func preImageHashes(transaction: _Transaction) throws -> [UTXOTransactionSerializerPreImageHash] {
         let input = try buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
@@ -43,7 +44,7 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
         }
     }
 
-    func compile(transaction: Transaction, signatures: [SignatureInfo]) throws -> Data {
+    func compile(transaction: _Transaction, signatures: [SignatureInfo]) throws -> Data {
         let input = try buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
@@ -81,7 +82,7 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
 // MARK: - Private
 
 private extension WalletCoreUTXOTransactionSerializer {
-    func buildSigningInputInput(transaction: Transaction) throws -> BitcoinSigningInput {
+    func buildSigningInputInput(transaction: _Transaction) throws -> BitcoinSigningInput {
         let utxo = transaction.preImage.inputs.map { input in
             BitcoinUnspentTransaction.with {
                 $0.outPoint = .with {

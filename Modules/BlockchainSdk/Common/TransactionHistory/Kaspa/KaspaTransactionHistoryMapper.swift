@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class KaspaTransactionHistoryMapper {
     typealias Input = KaspaTransactionHistoryResponse.Transaction.Input

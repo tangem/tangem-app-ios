@@ -6,11 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
 import ScaleCodec
 import BigInt
-@testable
-import BlockchainSdk
+@testable import BlockchainSdk
 
 /// These tests are needed because ScaleCodec decodes Data using little-endian,
 /// but `BigUInt.init`  interprets those bytes as big-endian. That is why we need to check that everything is parsed correctly

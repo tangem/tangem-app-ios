@@ -6,9 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-@testable import BlockchainSdk
+import Foundation
 import TangemSdk
 import Testing
+@testable import BlockchainSdk
 
 struct AlephiumAddressTests {
     private let addressService: AddressService
@@ -45,7 +46,7 @@ struct AlephiumAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
