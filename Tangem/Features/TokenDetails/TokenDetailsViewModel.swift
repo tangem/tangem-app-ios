@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import Combine
 import TangemSdk
@@ -240,6 +241,7 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagement() {
+        // [REDACTED_TODO_COMMENT]
         coordinator?.openDynamicAddressesEnterView()
     }
 
