@@ -6,10 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import WalletCore
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct VeChainAddressTests {
     @Test

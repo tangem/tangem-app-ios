@@ -31,7 +31,7 @@ struct DogecoinAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
         }

@@ -6,8 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-@testable import BlockchainSdk
+import Foundation
 import Testing
+import TangemSdk
+@testable import BlockchainSdk
 
 struct RadiantAddressTests {
     /// Validate by https://github.com/RadiantBlockchain/radiantjs

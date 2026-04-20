@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
 class CommonUnspentOutputManager {
@@ -91,7 +92,7 @@ private extension CommonUnspentOutputManager {
             .destination(destinationScript, value: preImage.destination),
         ]
 
-        if preImage.change > .zero {
+        if preImage.change > 0 {
             outputs.append(.change(changeScript, value: preImage.change))
         }
 

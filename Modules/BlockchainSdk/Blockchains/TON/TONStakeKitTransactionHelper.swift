@@ -8,6 +8,7 @@
 
 import Foundation
 import TonSwift
+import TangemFoundation
 
 class TONStakeKitTransactionHelper {
     private let transactionBuilder: TONTransactionBuilder

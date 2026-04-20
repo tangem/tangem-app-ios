@@ -18,12 +18,20 @@ public enum AppEnvironment: String {
 public extension AppEnvironment {
     static var current: AppEnvironment {
         guard let environmentName: String = InfoDictionaryUtils.environmentName.value() else {
-            assertionFailure("ENVIRONMENT_NAME not found")
+            // There is no info.plist SPM modules, so when running unit tests in SPM modules ENVIRONMENT_NAME can't be fetched
+            if !isUnitTestInSPMModules {
+                assertionFailure("ENVIRONMENT_NAME not found")
+            }
+
             return .production
         }
 
         guard let environment = AppEnvironment(rawValue: environmentName) else {
-            assertionFailure("ENVIRONMENT_NAME not correct")
+            // There is no info.plist SPM modules, so when running unit tests in SPM modules ENVIRONMENT_NAME can't be fetched
+            if !isUnitTestInSPMModules {
+                assertionFailure("ENVIRONMENT_NAME not correct")
+            }
+
             return .production
         }
 
@@ -54,5 +62,13 @@ public extension AppEnvironment {
 
     var isProduction: Bool {
         self == .production
+    }
+}
+
+// MARK: - Private implementation
+
+private extension AppEnvironment {
+    static var isUnitTestInSPMModules: Bool {
+        ProcessInfo.processInfo.environment["XCODE_TEST_PLAN_NAME"]?.hasPrefix("TangemModules") == true
     }
 }

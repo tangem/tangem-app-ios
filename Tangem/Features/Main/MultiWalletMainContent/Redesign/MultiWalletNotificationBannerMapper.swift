@@ -203,9 +203,9 @@ private extension MultiWalletNotificationBannerMapper {
         notificationId: NotificationViewId
     ) -> NotificationBanner.Buttons {
         switch notificationButtons.count {
-        case .zero:
+        case 0:
             return .none
-        case .one:
+        case 1:
             return .one(
                 mapButton(notificationButtons[0], notificationId: notificationId)
             )
