@@ -7,7 +7,6 @@
 //
 
 import Combine
-import PassKit
 import TangemUI
 import TangemExpress
 import SwiftUI
@@ -118,36 +117,23 @@ private extension OnrampOffersSelectorViewModel {
         return offers
     }
 
-    func makeBuyAction(provider: OnrampProvider, additionalAnalytics: @escaping () -> Void) -> OnrampOfferViewModel.BuyAction {
-        if geoEligibilityService.isApplePayAllowed,
-           provider.paymentMethod.type == .applePay,
-           provider.quote?.nativePaymentAvailable == true,
-           let amount = provider.amount,
-           let currencyCode = input?.selectedOnrampProvider?.paymentMethod {
-            // Get currency code from the provider's pair item
-            if let code = try? provider.makeOnrampQuotesRequestItem().pairItem.fiatCurrency.identity.code {
-                let request = OnrampApplePayUtils.makePaymentRequest(amount: amount, currencyCode: code)
-                return .nativeApplePay(request: request) { [weak self] (phase: PayWithApplePayButtonPaymentAuthorizationPhase) in
-                    switch phase {
-                    case .willAuthorize:
-                        additionalAnalytics()
-                    case .didAuthorize(let payment, let resultHandler):
-                        let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
-                        resultHandler(.init(status: .success, errors: nil))
-                        self?.output?.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult)
-                    case .didFinish:
-                        break
-                    @unknown default:
-                        break
-                    }
-                }
+    func makeBuyAction(
+        provider: OnrampProvider,
+        additionalAnalytics: @escaping () -> Void
+    ) -> OnrampOfferViewModel.BuyAction {
+        let currencyCode = try? provider.makeOnrampQuotesRequestItem().pairItem.fiatCurrency.identity.code
+        return OnrampApplePayUtils.makeBuyAction(
+            provider: provider,
+            currencyCode: currencyCode,
+            isApplePayAllowed: geoEligibilityService.isApplePayAllowed,
+            additionalAnalytics: additionalAnalytics,
+            onAuthorize: { [weak self] provider, applePayResult, resultHandler in
+                self?.output?.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult, resultHandler: resultHandler)
+            },
+            onFallbackBuy: { [weak self] in
+                self?.output?.userDidRequestOnramp(provider: provider)
             }
-        }
-
-        return .button { [weak self] in
-            additionalAnalytics()
-            self?.output?.userDidRequestOnramp(provider: provider)
-        }
+        )
     }
 }
 

@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import PassKit
 import TangemMacro
 import TangemExpress
 import TangemLocalization
@@ -139,43 +138,18 @@ private extension OnrampSummaryViewModel {
         provider: OnrampProvider,
         additionalAnalytics: @escaping () -> Void
     ) -> OnrampOfferViewModel.BuyAction {
-        if geoEligibilityService.isApplePayAllowed,
-           provider.paymentMethod.type == .applePay,
-           provider.quote?.nativePaymentAvailable == true,
-           let amount = provider.amount,
-           let currencyCode = interactor.currencyCode {
-            let request = OnrampApplePayUtils.makePaymentRequest(amount: amount, currencyCode: currencyCode)
-            return .nativeApplePay(request: request) { [weak self] phase in
-                self?.handleApplePayPhase(phase, provider: provider, additionalAnalytics: additionalAnalytics)
+        OnrampApplePayUtils.makeBuyAction(
+            provider: provider,
+            currencyCode: interactor.currencyCode,
+            isApplePayAllowed: geoEligibilityService.isApplePayAllowed,
+            additionalAnalytics: additionalAnalytics,
+            onAuthorize: { [weak self] provider, applePayResult, resultHandler in
+                self?.interactor.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult, resultHandler: resultHandler)
+            },
+            onFallbackBuy: { [weak self] in
+                self?.interactor.userDidRequestOnramp(provider: provider)
             }
-        }
-
-        return .button { [weak self] in
-            additionalAnalytics()
-            self?.interactor.userDidRequestOnramp(provider: provider)
-        }
-    }
-
-    func handleApplePayPhase(
-        _ phase: PayWithApplePayButtonPaymentAuthorizationPhase,
-        provider: OnrampProvider,
-        additionalAnalytics: () -> Void
-    ) {
-        switch phase {
-        case .willAuthorize:
-            additionalAnalytics()
-
-        case .didAuthorize(let payment, let resultHandler):
-            let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
-            resultHandler(.init(status: .success, errors: nil))
-            interactor.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult)
-
-        case .didFinish:
-            break
-
-        @unknown default:
-            break
-        }
+        )
     }
 }
 

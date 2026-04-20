@@ -68,8 +68,6 @@ extension ExpressDTO {
                 let fromAmount: String
                 let toDecimals: Int
                 let providerId: String
-                // [REDACTED_TODO_COMMENT]
-                // let toAddress: String
             }
 
             struct Response: Decodable {
@@ -142,8 +140,17 @@ extension ExpressDTO {
         // MARK: - NativePaymentData
 
         enum NativePaymentData {
+            enum PaymentType: String, Encodable {
+                case apple
+            }
+
+            enum TxType: String {
+                case nativePayment
+                case widget
+            }
+
             struct PaymentData: Encodable {
-                let type: String
+                let type: PaymentType
                 let paymentToken: String
                 let quoteId: String
                 let userData: UserData
