@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct AllowanceChecker {
     private let blockchain: Blockchain

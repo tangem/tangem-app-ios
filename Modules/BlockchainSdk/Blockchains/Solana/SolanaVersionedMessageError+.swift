@@ -6,12 +6,13 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 import SolanaSwift
 
 extension VersionedMessageError: @retroactive LocalizedError {}
 
-extension VersionedMessageError: @retroactive UniversalError {
+extension VersionedMessageError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .expectedVersionedMessageButReceivedLegacyMessage:

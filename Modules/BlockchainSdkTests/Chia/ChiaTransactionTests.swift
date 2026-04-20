@@ -6,10 +6,12 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import CryptoKit
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct ChiaTransactionTests {
     private let sizeUtility = TransactionSizeTesterUtility()
