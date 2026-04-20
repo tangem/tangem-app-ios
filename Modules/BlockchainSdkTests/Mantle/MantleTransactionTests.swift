@@ -6,8 +6,10 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-@testable import BlockchainSdk
+import Foundation
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct MantleTransactionTests {
     private let blockchain = Blockchain.mantle(testnet: false)

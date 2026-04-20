@@ -5,7 +5,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Testing
+import TangemSdk
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct PepecoinTransactionTests {
