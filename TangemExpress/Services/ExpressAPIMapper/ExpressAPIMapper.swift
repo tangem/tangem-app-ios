@@ -222,7 +222,7 @@ struct ExpressAPIMapper {
 
         return OnrampQuote(
             expectedAmount: toAmount,
-            nativePaymentAvailable: true, // [REDACTED_TODO_COMMENT]
+            nativePaymentAvailable: response.nativePaymentAvailable ?? false,
             quoteId: response.quoteId
         )
     }
@@ -240,13 +240,17 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.requestIdNotEqual
         }
 
+        guard request.toAddress.caseInsensitiveCompare(codedData.toAddress) == .orderedSame else {
+            throw ExpressAPIMapperError.payoutAddressNotEqual
+        }
+
         guard var fromAmount = Decimal(string: codedData.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
         }
 
         fromAmount /= pow(10, codedData.fromPrecision)
 
-        if response.txType == "nativePayment" {
+        if response.txType == ExpressDTO.Onramp.NativePaymentData.TxType.nativePayment.rawValue {
             return .nativePayment(OnrampNativePaymentData(
                 txId: response.txId,
                 fromAmount: fromAmount,

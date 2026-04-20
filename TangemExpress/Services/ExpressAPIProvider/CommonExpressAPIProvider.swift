@@ -205,8 +205,6 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromAmount: item.sourceAmountWEI(),
             toDecimals: item.pairItem.destination.decimalCount,
             providerId: item.providerInfo.id
-            // [REDACTED_TODO_COMMENT]
-            // toAddress: item.pairItem.address
         )
 
         let response = try await expressAPIService.onrampQuote(request: request)
@@ -258,7 +256,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId,
             paymentData: .init(
-                type: "apple",
+                type: .apple,
                 paymentToken: item.paymentToken,
                 quoteId: item.quoteId,
                 userData: .init(
