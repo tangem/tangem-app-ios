@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PassKit
 import TangemExpress
 import Combine
 import TangemFoundation
@@ -541,31 +542,48 @@ extension OnrampModel: OnrampSummaryOutput {
         router?.openOnrampRedirecting()
     }
 
-    func userDidAuthorizeNativePayment(provider: OnrampProvider, applePayResult: OnrampApplePayResult) {
+    func userDidAuthorizeNativePayment(
+        provider: OnrampProvider,
+        applePayResult: OnrampApplePayResult,
+        resultHandler: @escaping (PKPaymentAuthorizationResult) -> Void
+    ) {
         _selectedOnrampProvider.send(.success(provider))
 
-        mainTask { model in
-            let appLanguageCode = Locale.appLanguageCode
-            var redirectURL = URL(string: "\(IncomingActionConstants.tangemDomain)/onramp")!
-            redirectURL.appendPathComponent(provider.provider.id)
+        task?.cancel()
+        task = runTask(in: self) { model in
+            do {
+                let appLanguageCode = Locale.appLanguageCode
+                var redirectURL = URL(string: "\(IncomingActionConstants.tangemDomain)/onramp")!
+                redirectURL.appendPathComponent(provider.provider.id)
 
-            let redirectSettings = OnrampRedirectSettings(
-                redirectURL: redirectURL.absoluteString,
-                theme: .light,
-                language: appLanguageCode
-            )
+                let redirectSettings = OnrampRedirectSettings(
+                    redirectURL: redirectURL.absoluteString,
+                    theme: .light,
+                    language: appLanguageCode
+                )
 
-            let result = try await model.onrampManager.loadNativePaymentData(
-                provider: provider,
-                redirectSettings: redirectSettings,
-                applePayResult: applePayResult
-            )
+                let result = try await model.onrampManager.loadNativePaymentData(
+                    provider: provider,
+                    redirectSettings: redirectSettings,
+                    applePayResult: applePayResult
+                )
 
-            switch result {
-            case .nativePayment(let data):
-                model.nativePaymentDataDidLoad(data: data)
-            case .widget(let data):
-                model.redirectDataDidLoad(data: data)
+                resultHandler(.init(status: .success, errors: nil))
+
+                switch result {
+                case .nativePayment(let data):
+                    model.nativePaymentDataDidLoad(data: data)
+                case .widget(let data):
+                    model.redirectDataDidLoad(data: data)
+                }
+            } catch _ as CancellationError {
+                // Do nothing
+            } catch {
+                resultHandler(.init(status: .failure, errors: [error]))
+
+                await runOnMain {
+                    model.alertPresenter?.showAlert(error.alertBinder)
+                }
             }
         }
     }

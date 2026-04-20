@@ -7,9 +7,40 @@
 //
 
 import PassKit
+import SwiftUI
 import TangemExpress
 
 enum OnrampApplePayUtils {
+    static func makeBuyAction(
+        provider: OnrampProvider,
+        currencyCode: String?,
+        isApplePayAllowed: Bool,
+        additionalAnalytics: @escaping () -> Void,
+        onAuthorize: @escaping (OnrampProvider, OnrampApplePayResult, @escaping (PKPaymentAuthorizationResult) -> Void) -> Void,
+        onFallbackBuy: @escaping () -> Void
+    ) -> OnrampOfferViewModel.BuyAction {
+        if isApplePayAllowed,
+           provider.paymentMethod.type == .applePay,
+           provider.quote?.nativePaymentAvailable == true,
+           let amount = provider.amount,
+           let currencyCode {
+            let request = makePaymentRequest(amount: amount, currencyCode: currencyCode)
+            return .nativeApplePay(request: request) { phase in
+                handlePhase(
+                    phase,
+                    provider: provider,
+                    additionalAnalytics: additionalAnalytics,
+                    onAuthorize: onAuthorize
+                )
+            }
+        }
+
+        return .button {
+            additionalAnalytics()
+            onFallbackBuy()
+        }
+    }
+
     static func makePaymentRequest(amount: Decimal, currencyCode: String) -> PKPaymentRequest {
         let request = PKPaymentRequest()
         request.merchantIdentifier = OnrampApplePayConstants.merchantIdentifier
@@ -47,5 +78,29 @@ enum OnrampApplePayUtils {
         )
 
         return OnrampApplePayResult(paymentToken: tokenString, userData: userData)
+    }
+
+    // MARK: - Private
+
+    private static func handlePhase(
+        _ phase: PayWithApplePayButtonPaymentAuthorizationPhase,
+        provider: OnrampProvider,
+        additionalAnalytics: () -> Void,
+        onAuthorize: (OnrampProvider, OnrampApplePayResult, @escaping (PKPaymentAuthorizationResult) -> Void) -> Void
+    ) {
+        switch phase {
+        case .willAuthorize:
+            additionalAnalytics()
+
+        case .didAuthorize(let payment, let resultHandler):
+            let applePayResult = mapPaymentResult(payment)
+            onAuthorize(provider, applePayResult, resultHandler)
+
+        case .didFinish:
+            break
+
+        @unknown default:
+            break
+        }
     }
 }

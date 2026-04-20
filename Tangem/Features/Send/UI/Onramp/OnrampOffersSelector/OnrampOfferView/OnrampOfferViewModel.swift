@@ -20,7 +20,8 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let amount: Amount
     let provider: Provider
     let isAvailable: Bool
-    let isNativePayment: Bool
+
+    var isNativePayment: Bool { buyAction.isNativePayment }
 
     @IgnoredEquatable
     var buyAction: BuyAction
@@ -30,14 +31,12 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         amount: Amount,
         provider: Provider,
         isAvailable: Bool,
-        isNativePayment: Bool,
         buyAction: BuyAction
     ) {
         self.title = title
         self.amount = amount
         self.provider = provider
         self.isAvailable = isAvailable
-        self.isNativePayment = isNativePayment
         self.buyAction = buyAction
     }
 }
