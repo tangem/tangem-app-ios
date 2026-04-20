@@ -1,5 +1,5 @@
 {
-  "originHash" : "db72e71340472d913d8fb11f5db1288ddd4a2ff0c179dd555c0618a32ff89a26",
+  "originHash" : "ef863cef8319129d2b1e799b76747fa19eb97607d433cd1660a6c0a63be2afeb",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hiero-sdk-swift.git",
       "state" : {
-        "revision" : "6c51a6c8f3772dcbf69eeeff385581ecb9f7f42c",
-        "version" : "0.49.0-tangem1"
+        "revision" : "22b17059949bdf0c3429cfedee2eecb448fe3ce9",
+        "version" : "0.49.0-tangem2"
       }
     },
     {
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
-        "revision" : "48d906f7a3eca66dd4cbc239f21fd829dfc9decf",
-        "version" : "0.1.2-tangem4"
+        "revision" : "c018c6c755bd2a2cde11a5e920432909c5514083",
+        "version" : "0.1.2-tangem5"
       }
     },
     {
@@ -762,8 +762,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "032a18b7b784821e820a424a58fb40efa3a702c3",
-        "version" : "4.0.20"
+        "revision" : "0720868399068fdab8355a4ecb3180e00e4c22bd",
+        "version" : "4.1.0"
       }
     },
     {

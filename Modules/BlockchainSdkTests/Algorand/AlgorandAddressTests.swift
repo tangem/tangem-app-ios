@@ -10,8 +10,8 @@ import Foundation
 import TangemSdk
 import WalletCore
 import CryptoKit
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct AlgorandAddressTests {
     @Test
@@ -47,7 +47,7 @@ struct AlgorandAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: .algorand(curve: .ed25519_slip0010, testnet: false))
         let addressService = addressServiceFactory.makeAddressService()
 

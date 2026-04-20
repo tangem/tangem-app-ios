@@ -47,7 +47,7 @@ struct BSCAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         let blockchain = Blockchain.bsc(testnet: false)
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         #expect(throws: (any Error).self) {
