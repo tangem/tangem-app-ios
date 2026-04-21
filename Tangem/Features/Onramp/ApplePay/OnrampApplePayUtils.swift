@@ -22,7 +22,9 @@ enum OnrampApplePayUtils {
     ) -> OnrampOfferViewModel.BuyAction {
         if isApplePayAllowed,
            provider.paymentMethod.type == .applePay,
-           provider.quote?.nativePaymentAvailable == true,
+           let quote = provider.quote,
+           quote.nativePaymentAvailable == true,
+           quote.quoteId != nil,
            let amount = provider.amount,
            let currencyCode {
             let request = makePaymentRequest(amount: amount, currencyCode: currencyCode, countryCode: countryCode)
