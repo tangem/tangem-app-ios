@@ -68,8 +68,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
-            pendingTransactionsManager: pendingTransactionsManager,
-            allowsFeeSelection: blockchain.allowsFeeSelection
+            pendingTransactionsManager: pendingTransactionsManager
         )
     }
 }

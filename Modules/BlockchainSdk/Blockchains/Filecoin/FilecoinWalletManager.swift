@@ -15,10 +15,6 @@ class FilecoinWalletManager: BaseWalletManager, WalletManager {
         networkService.host
     }
 
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     private let networkService: FilecoinNetworkService
     private let transactionBuilder: FilecoinTransactionBuilder
 
