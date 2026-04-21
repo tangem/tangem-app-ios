@@ -55,6 +55,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
     func clearHistory() {
         cancellable = nil
         transactionHistoryProvider.reset()
+        _state.send(.initial)
         cleanStorage()
         AppLogger.info(self, "was reset")
     }
