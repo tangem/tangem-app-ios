@@ -157,8 +157,6 @@ final class NEARWalletManager: BaseWalletManager {
 extension NEARWalletManager: WalletManager {
     var currentHost: String { networkService.host }
 
-    var allowsFeeSelection: Bool { false }
-
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         return Publishers.CombineLatest(
             getProtocolConfig().setFailureType(to: Error.self),

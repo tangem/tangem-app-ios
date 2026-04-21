@@ -53,8 +53,6 @@ class CardanoWalletManager: BaseWalletManager, WalletManager, MultiAddressesWall
 }
 
 extension CardanoWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool { false }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         // Use Just to switch on global queue because we have async signing
         return Just(())
