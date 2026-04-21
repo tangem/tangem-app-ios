@@ -9,42 +9,46 @@
 import SwiftUI
 import Combine
 import TangemAccounts
+import TangemFoundation
 
 final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
+    let walletId: UserWalletId
+    let walletName: String
+
+    let viewType: ViewType
+
     @Published private(set) var isOpen: Bool = true
-
-    @Published private(set) var viewType: ViewType
     @Published private(set) var contentVisibility: TokenSelectorViewModel.ContentVisibility?
-
-    private let onOpenStateChange: ((Bool) -> Void)?
+    @Published private(set) var isFilteredOut: Bool = false
 
     init(
-        isOpen: Bool = true,
-        viewType: ViewType,
-        viewTypePublisher: AnyPublisher<ViewType, Never>,
-        onOpenStateChange: ((Bool) -> Void)? = nil
+        walletId: UserWalletId,
+        walletName: String,
+        viewType: ViewType
     ) {
-        self.isOpen = isOpen
+        self.walletId = walletId
+        self.walletName = walletName
         self.viewType = viewType
-        self.onOpenStateChange = onOpenStateChange
 
-        viewTypePublisher.receiveOnMain().assign(to: &$viewType)
+        contentVisibility = .empty
 
         bind()
     }
 
     func toggleIsOpen() {
         withAnimation(.easeInOut(duration: 0.25)) { isOpen.toggle() }
-        onOpenStateChange?(isOpen)
     }
 
     func update(isOpen: Bool) {
         self.isOpen = isOpen
     }
 
+    func update(isFilteredOut: Bool) {
+        self.isFilteredOut = isFilteredOut
+    }
+
     private func bind() {
-        $viewType
-            .flatMapLatest { $0.itemsCount }
+        viewType.itemsCount
             .removeDuplicates()
             .map { $0 == 0 ? .empty : .visible(itemsCount: $0) }
             .removeDuplicates()
@@ -55,7 +59,7 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
 extension TokenSelectorWalletItemViewModel {
     enum ViewType {
         case wallet(TokenSelectorAccountViewModel)
-        case accounts(walletName: String, accounts: [TokenSelectorAccountViewModel])
+        case accounts([TokenSelectorAccountViewModel])
     }
 }
 
@@ -64,7 +68,7 @@ extension TokenSelectorWalletItemViewModel.ViewType {
         switch self {
         case .wallet(let wallet):
             return wallet.itemsCountPublisher
-        case .accounts(_, let accounts):
+        case .accounts(let accounts):
             return accounts
                 .map { $0.itemsCountPublisher }
                 .combineLatest()
