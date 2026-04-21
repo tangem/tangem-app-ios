@@ -1,5 +1,5 @@
 //
-//  SwapTokenSelectorExpandedStateStorage.swift
+//  CommonTokenSelectorStateStorage.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,25 +11,28 @@ import Combine
 import CombineExt
 import TangemFoundation
 
-final class SwapTokenSelectorExpandedStateStorage: TokenSelectorExpandedStateStorage {
+final class CommonTokenSelectorStateStorage: TokenSelectorStateStorage {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
     @AppStorageCompat(StorageKeys.accountStates) private var accountStates: [String: Bool] = [:]
-
-    private var walletOpenStates: [UserWalletId: Bool] = [:]
+    @AppStorageCompat(StorageKeys.selectedWalletId) private var storedSelectedWalletId: Data? = nil
 
     private var userWalletRepositorySubscription: AnyCancellable?
     private var userWalletModelsSubscriptions: [UserWalletId: AnyCancellable] = [:]
 
-    // MARK: - Wallet State
+    // MARK: - Selected Wallet
 
-    func isWalletOpen(_ walletId: UserWalletId) -> Bool {
-        walletOpenStates[walletId] ?? true
+    var selectedWalletId: UserWalletId? {
+        get { storedSelectedWalletId.map { UserWalletId(value: $0) } }
+        set { storedSelectedWalletId = newValue?.value }
     }
 
-    func setWalletOpen(_ open: Bool, for walletId: UserWalletId) {
-        walletOpenStates[walletId] = open
+    // MARK: - Initialize
+
+    func initialize() {
+        subscribeToUserWalletModelsIfNeeded(userWalletRepository.models)
+        bind()
     }
 
     // MARK: - Account State
@@ -99,8 +102,11 @@ final class SwapTokenSelectorExpandedStateStorage: TokenSelectorExpandedStateSto
             )
 
             accountStates.removeAll { $0.key.hasPrefix(storageKeyPrefix) }
-            walletOpenStates.removeValue(forKey: userWalletId)
             userWalletModelsSubscriptions.removeValue(forKey: userWalletId)
+
+            if selectedWalletId == userWalletId {
+                selectedWalletId = nil
+            }
         }
     }
 
@@ -140,25 +146,16 @@ final class SwapTokenSelectorExpandedStateStorage: TokenSelectorExpandedStateSto
     }
 }
 
-// MARK: - Initializable
-
-extension SwapTokenSelectorExpandedStateStorage: Initializable {
-    func initialize() {
-        subscribeToUserWalletModelsIfNeeded(userWalletRepository.models)
-        bind()
-    }
-}
-
 // MARK: - AccountStateStorage
 
-private extension SwapTokenSelectorExpandedStateStorage {
+private extension CommonTokenSelectorStateStorage {
     struct AccountStateStorage: ExpandableAccountItemStateStorage {
         var didUpdatePublisher: AnyPublisher<Void, Never> { .empty }
 
         private let userWalletId: UserWalletId
-        private let storage: SwapTokenSelectorExpandedStateStorage
+        private let storage: CommonTokenSelectorStateStorage
 
-        init(userWalletId: UserWalletId, innerStorage: SwapTokenSelectorExpandedStateStorage) {
+        init(userWalletId: UserWalletId, innerStorage: CommonTokenSelectorStateStorage) {
             self.userWalletId = userWalletId
             storage = innerStorage
         }
@@ -182,20 +179,6 @@ private extension SwapTokenSelectorExpandedStateStorage {
 
     enum StorageKeys: String, RawRepresentable {
         case accountStates = "tangem_expandable_swap_wallet_account_item_state_storage"
-    }
-}
-
-// MARK: - Injection
-
-extension InjectedValues {
-    var swapTokenSelectorExpandedStateStorage: SwapTokenSelectorExpandedStateStorage {
-        get { Self[SwapTokenSelectorExpandedStateStorage.Key.self] }
-        set { Self[SwapTokenSelectorExpandedStateStorage.Key.self] = newValue }
-    }
-}
-
-private extension SwapTokenSelectorExpandedStateStorage {
-    struct Key: InjectionKey {
-        static var currentValue: SwapTokenSelectorExpandedStateStorage = .init()
+        case selectedWalletId = "tangem_swap_token_selector_selected_wallet_id"
     }
 }
