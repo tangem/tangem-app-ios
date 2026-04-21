@@ -29,7 +29,6 @@
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
 		B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */ = {isa = PBXBuildFile; productRef = B6457BCF2F9120CA00C91066 /* TangemMacro */; };
 		B67E38BB2CC7179000D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BA2CC7179000D660EB /* TangemSdk */; };
-		B67E38BD2CC7179600D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BC2CC7179600D660EB /* TangemSdk */; };
 		B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BE2CC717A300D660EB /* TangemSdk */; };
 		B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C02CC71A2C00D660EB /* TangemSdk */; };
 		B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C22CC71B5F00D660EB /* TangemSdk */; };
@@ -402,7 +401,6 @@
 			files = (
 				F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */,
 				B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */,
-				B67E38BD2CC7179600D660EB /* TangemSdk in Frameworks */,
 				B6C0D4092CBDCD34001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -757,7 +755,6 @@
 			packageProductDependencies = (
 				B6C0D4082CBDCD34001113ED /* Moya */,
 				B62C167C2CBE0A3D00522683 /* Alamofire */,
-				B67E38BC2CC7179600D660EB /* TangemSdk */,
 				F92DB9CC2CD4C3D200C16530 /* TangemModules */,
 			);
 			productName = TangemExpress;
@@ -7681,11 +7678,6 @@
 			productName = TangemMacro;
 		};
 		B67E38BA2CC7179000D660EB /* TangemSdk */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */;
-			productName = TangemSdk;
-		};
-		B67E38BC2CC7179600D660EB /* TangemSdk */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */;
 			productName = TangemSdk;
