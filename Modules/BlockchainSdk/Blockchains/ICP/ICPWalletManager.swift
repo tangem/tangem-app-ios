@@ -13,8 +13,6 @@ import Combine
 final class ICPWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String { networkService.host }
 
-    var allowsFeeSelection: Bool = false
-
     // MARK: - Private Properties
 
     private let transactionBuilder: ICPTransactionBuilder
