@@ -41,10 +41,6 @@ class TezosWalletManager: BaseWalletManager, WalletManager {
 }
 
 extension TezosWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         guard let contents = txBuilder.buildContents(transaction: transaction) else {
             return .sendTxFail(error: BlockchainSdkError.failedToBuildTx, currentHost: currentHost)

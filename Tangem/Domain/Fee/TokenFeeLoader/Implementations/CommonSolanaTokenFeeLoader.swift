@@ -26,8 +26,6 @@ extension CommonSolanaTokenFeeLoader: SolanaTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonSolanaTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { tokenFeeLoader.allowsFeeSelection }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }
