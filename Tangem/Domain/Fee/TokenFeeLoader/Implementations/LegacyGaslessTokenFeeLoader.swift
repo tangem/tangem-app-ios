@@ -23,8 +23,6 @@ struct LegacyGaslessTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension LegacyGaslessTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { false }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)

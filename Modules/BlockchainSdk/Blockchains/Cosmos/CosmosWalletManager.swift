@@ -13,7 +13,6 @@ import TangemSdk
 
 class CosmosWalletManager: BaseWalletManager, WalletManager {
     var currentHost: String { networkService.host }
-    var allowsFeeSelection: Bool { cosmosChain.allowsFeeSelection }
 
     var networkService: CosmosNetworkService!
     var txBuilder: CosmosTransactionBuilder!
