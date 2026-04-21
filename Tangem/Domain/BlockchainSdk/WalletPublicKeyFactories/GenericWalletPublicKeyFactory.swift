@@ -23,20 +23,18 @@ struct GenericWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
-        case .cardano(let extended):
-            if extended {
-                return try CardanoWalletPublicKeyFactory().makePublicKey(
-                    blockchainNetwork: blockchainNetwork,
-                    keys: keys
-                )
-            } else {
-                return try HDWalletPublicKeyFactory().makePublicKey(
-                    blockchainNetwork: blockchainNetwork,
-                    keys: keys
-                )
-            }
+        case .cardano(extended: true):
+            return try CardanoWalletPublicKeyFactory().makePublicKey(
+                blockchainNetwork: blockchainNetwork,
+                keys: keys
+            )
         case .quai:
             return try QuaiWalletPublicKeyFactory(dataStorage: dataStorage).makePublicKey(
+                blockchainNetwork: blockchainNetwork,
+                keys: keys
+            )
+        case _ where blockchainNetwork.isDynamicAddressesEnabled():
+            return try BitcoinXPUBPublicKeyFactory().makePublicKey(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
