@@ -14,10 +14,6 @@ class CasperWalletManager: BaseWalletManager, WalletManager {
         networkService.host
     }
 
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     // MARK: - Private Implementation
 
     private let networkService: CasperNetworkService
