@@ -30,7 +30,6 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var id: WalletModelId { sourceToken.id }
     var header: TokenHeader { sourceToken.header }
     var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
-    var isFixedFee: Bool { sourceToken.isFixedFee }
     var isCustom: Bool { sourceToken.isCustom }
     var defaultAddressString: String { sourceToken.defaultAddressString }
 
