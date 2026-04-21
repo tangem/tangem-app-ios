@@ -62,7 +62,7 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
         case .idle:
-            let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+            let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .swap())
             coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         }
     }
@@ -159,7 +159,7 @@ private extension SwapActionButtonViewModel {
     func scheduledOpenSwap() {
         guard isOpeningRequired else { return }
 
-        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
+        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .swap())
         coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         isOpeningRequired = false
     }
