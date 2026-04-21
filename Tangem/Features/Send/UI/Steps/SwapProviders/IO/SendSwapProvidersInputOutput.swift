@@ -20,6 +20,7 @@ protocol SendSwapProvidersInput: AnyObject {
     var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> { get }
 
     var currentRateType: ExpressProviderRateType? { get }
+    var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> { get }
 }
 
 extension SendSwapProvidersInput {
