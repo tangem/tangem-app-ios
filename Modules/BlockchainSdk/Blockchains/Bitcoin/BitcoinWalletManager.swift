@@ -22,7 +22,6 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
      */
     var minimalFeePerByte: Decimal { 1 }
     var minimalFee: Decimal { 0.00001 }
-    var allowsFeeSelection: Bool { true }
     var dustValue: Amount {
         Amount(with: wallet.blockchain, value: minimalFee)
     }
