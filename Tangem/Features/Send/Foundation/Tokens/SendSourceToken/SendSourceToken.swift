@@ -16,7 +16,6 @@ protocol SendSourceToken: SendReceiveToken {
     var id: WalletModelId { get }
     var header: TokenHeader { get }
     var feeTokenItem: TokenItem { get }
-    var isFixedFee: Bool { get }
     var isCustom: Bool { get }
     var defaultAddressString: String { get }
 

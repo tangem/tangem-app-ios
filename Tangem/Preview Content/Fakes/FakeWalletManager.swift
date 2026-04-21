@@ -20,7 +20,6 @@ class FakeWalletManager: WalletManager {
     var cardTokens: [BlockchainSdk.Token] = []
     var currentHost: String = "tangem.com"
     var outputsCount: Int?
-    var allowsFeeSelection: Bool = true
 
     var walletPublisher: AnyPublisher<Wallet, Never> { $wallet.eraseToAnyPublisher() }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { $state.eraseToAnyPublisher() }
