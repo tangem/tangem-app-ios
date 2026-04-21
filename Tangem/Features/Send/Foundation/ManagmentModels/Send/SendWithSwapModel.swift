@@ -416,6 +416,10 @@ extension SendWithSwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
+    var supportFeeSelection: Bool {
+        isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
