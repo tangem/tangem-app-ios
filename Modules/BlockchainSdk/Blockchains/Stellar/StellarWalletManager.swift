@@ -212,8 +212,6 @@ class StellarWalletManager: BaseWalletManager, WalletManager {
 }
 
 extension StellarWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool { true }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let sequenceNumberPublisher = networkService.getSequenceNumber(for: wallet.address)
         let checkTargetAccountPublisher = networkService.checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
