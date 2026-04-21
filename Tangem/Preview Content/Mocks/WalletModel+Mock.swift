@@ -33,6 +33,7 @@ extension CommonWalletModel {
             tokenItem: tokenItem,
             walletManager: EthereumWalletManagerMock(),
             stakingManager: StakingManagerMock(),
+            dynamicAddressesManager: nil,
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryService: nil,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),

@@ -22,7 +22,7 @@ class CommonWalletModel {
 
     let id: WalletModelId
     let userWalletId: UserWalletId
-    let tokenItem: TokenItem
+    private(set) var tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
 
@@ -46,6 +46,7 @@ class CommonWalletModel {
     private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
+    private let dynamicAddressesManager: DynamicAddressesManager?
     private let featureManager: WalletModelFeaturesManager
 
     private var assetRequirementsTaskCancellable: AnyCancellable?
@@ -74,6 +75,7 @@ class CommonWalletModel {
         tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
+        dynamicAddressesManager: DynamicAddressesManager?,
         featureManager: WalletModelFeaturesManager,
         transactionHistoryService: TransactionHistoryService?,
         receiveAddressService: ReceiveAddressService,
@@ -83,6 +85,7 @@ class CommonWalletModel {
     ) {
         self.userWalletId = userWalletId
         self.walletManager = walletManager
+        self.dynamicAddressesManager = dynamicAddressesManager
         self.featureManager = featureManager
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
@@ -780,6 +783,44 @@ extension CommonWalletModel: WalletModelRentProvider {
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - WalletModelDynamicAddressesProvider
+
+extension CommonWalletModel: WalletModelDynamicAddressesProvider {
+    var dynamicAddressesEnablingRequirements: DynamicAddressesEnablingRequirements? {
+        dynamicAddressesManager?.enablingRequirements
+    }
+
+    var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? {
+        dynamicAddressesManager?.disablingRequirements
+    }
+
+    func enableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try await dynamicAddressesManager.enableDynamicAddresses()
+        await MainActor.run {
+            tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+        }
+
+        await update(silent: false, features: .full)
+    }
+
+    func disableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try dynamicAddressesManager.disableDynamicAddresses()
+        await MainActor.run {
+            tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+        }
+
+        await update(silent: false, features: .full)
     }
 }
 
