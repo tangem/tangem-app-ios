@@ -19,7 +19,6 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
-    let allowsFeeSelection: Bool
 
     private var bag = Set<AnyCancellable>()
 
@@ -31,15 +30,13 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
-        pendingTransactionsManager: EthereumPendingTransactionsManager,
-        allowsFeeSelection: Bool
+        pendingTransactionsManager: EthereumPendingTransactionsManager
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsManager = pendingTransactionsManager
-        self.allowsFeeSelection = allowsFeeSelection
 
         super.init(wallet: wallet)
 

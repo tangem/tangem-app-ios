@@ -112,8 +112,6 @@ final class TONWalletManager: BaseWalletManager, WalletManager {
 // MARK: - TransactionFeeProvider
 
 extension TONWalletManager: TransactionFeeProvider {
-    var allowsFeeSelection: Bool { false }
-
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         getJettonWalletAddressIfNeeded(transactionType: amount.type)
             .tryMap { [weak self] jettonWalletAddress -> String in

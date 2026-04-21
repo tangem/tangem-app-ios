@@ -71,16 +71,6 @@ extension CosmosChain {
         }
     }
 
-    /// For some chains gas prices are hardcoded with the same value for all fee levels
-    var allowsFeeSelection: Bool {
-        switch self {
-        case .cosmos, .gaia, .terraV2, .sei:
-            return true
-        case .terraV1:
-            return false
-        }
-    }
-
     /// feeCurrencies/gasPriceStep field from Keplr registry
     func gasPrices(for amountType: Amount.AmountType) -> [Double] {
         switch self {
