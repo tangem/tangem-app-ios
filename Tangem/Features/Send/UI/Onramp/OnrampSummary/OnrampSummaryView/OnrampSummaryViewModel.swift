@@ -12,7 +12,6 @@ import TangemMacro
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
-import SwiftUI
 
 final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
@@ -141,6 +140,7 @@ private extension OnrampSummaryViewModel {
         OnrampApplePayUtils.makeBuyAction(
             provider: provider,
             currencyCode: interactor.currencyCode,
+            countryCode: Locale.current.region?.identifier ?? "US",
             isApplePayAllowed: geoEligibilityService.isApplePayAllowed,
             additionalAnalytics: additionalAnalytics,
             onAuthorize: { [weak self] provider, applePayResult, resultHandler in
