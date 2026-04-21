@@ -42,6 +42,7 @@
 		B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FC2CBDC6FE001113ED /* Moya */; };
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
 		B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = B6C144062DFD1BF8008E9478 /* DGCharts */; };
+		B6DBDE4A2F97790F00885068 /* Hiero in Frameworks */ = {isa = PBXBuildFile; productRef = B6DBDE492F97790F00885068 /* Hiero */; };
 		B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE742CF39079008DEA94 /* BlockiesSwift */; };
 		B6DDDE782CF39158008DEA94 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE772CF39158008DEA94 /* CombineExt */; };
 		B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */; };
@@ -307,6 +308,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6DBDE4A2F97790F00885068 /* Hiero in Frameworks */,
 				DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */,
 				B62C167F2CBE0B7900522683 /* Moya in Frameworks */,
 				B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */,
@@ -603,6 +605,7 @@
 				B6C02EB12F856B000003ADBE /* FirebasePerformance */,
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
+				B6DBDE492F97790F00885068 /* Hiero */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -924,6 +927,7 @@
 				B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */,
 				B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */,
+				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -7506,6 +7510,14 @@
 				minimumVersion = 15.0.3;
 			};
 		};
+		B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/hiero-sdk-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "0.49.0-tangem2";
+			};
+		};
 		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/BlockiesSwift.git";
@@ -7749,6 +7761,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */;
 			productName = DGCharts;
+		};
+		B6DBDE492F97790F00885068 /* Hiero */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */;
+			productName = Hiero;
 		};
 		B6DDDE742CF39079008DEA94 /* BlockiesSwift */ = {
 			isa = XCSwiftPackageProductDependency;
