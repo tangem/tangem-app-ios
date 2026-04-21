@@ -78,8 +78,6 @@ extension SuiWalletManager: BlockchainDataProvider {
 }
 
 extension SuiWalletManager: TransactionFeeProvider {
-    var allowsFeeSelection: Bool { false }
-
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
         return networkService.getReferenceGasPrice()
             .withWeakCaptureOf(self)
