@@ -119,8 +119,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenTapped: { [weak coordinator, weak userWalletModel] _ in
                 guard let coordinator, let userWalletModel else { return }
                 coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-            },
-            yieldApyTapped: nil
+            }
         )
 
         let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
