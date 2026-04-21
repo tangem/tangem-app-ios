@@ -29,7 +29,7 @@ struct TokenSelectorWalletItemView: View {
                         TokenSelectorAccountView(viewModel: viewModel)
                     }
                     .zIndex(50.0) // To place it above the separator so that it won't overlap the separator when the list is expanded
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .transition(.move(edge: .top))
                 } else {
                     Separator(color: Colors.Stroke.primary)
                         .transition(.opacity)
