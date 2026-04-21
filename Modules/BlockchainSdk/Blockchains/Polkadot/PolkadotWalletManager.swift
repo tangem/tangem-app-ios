@@ -48,10 +48,6 @@ class PolkadotWalletManager: BaseWalletManager, WalletManager {
 }
 
 extension PolkadotWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         Publishers.Zip(
             networkService.blockchainMeta(for: transaction.sourceAddress),
