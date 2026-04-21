@@ -89,7 +89,11 @@ final class CommonUserTokensManager {
     }
 
     private func makeTokenItem(from tokenItem: TokenItem, with derivationPath: DerivationPath?) -> TokenItem {
-        let blockchainNetwork = BlockchainNetwork(tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = BlockchainNetwork(
+            tokenItem.blockchain,
+            derivationPath: derivationPath,
+            derivationMode: tokenItem.blockchainNetwork.derivationMode
+        )
 
         switch tokenItem {
         case .token(let token, _):
