@@ -20,6 +20,7 @@ protocol MultiNetworkProvider: AnyObject, HostProvider {
     var providers: [Provider] { get }
     var blockchainName: String { get }
     var currentProviderIndex: Int { get set }
+    var terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes { get }
 }
 
 extension MultiNetworkProvider {
@@ -33,6 +34,8 @@ extension MultiNetworkProvider {
 
     var host: String { provider?.host ?? .unknown }
 
+    var terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes { .empty }
+
     func providerPublisher<T>(for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>) -> AnyPublisher<T, Error> {
         guard let provider else {
             return .anyFail(error: BlockchainSdkError.noAPIInfo)
@@ -43,22 +46,20 @@ extension MultiNetworkProvider {
             .catch { [weak self] error -> AnyPublisher<T, Error> in
                 guard let self = self else { return .anyFail(error: error) }
 
-                if let moyaError = error as? MoyaError, case .statusCode(let resp) = moyaError {
-                    NetworkLogger.error("Message: \(String(describing: String(data: resp.data, encoding: .utf8)))", error: moyaError)
-                } else {
+                switch error {
+                case MoyaError.statusCode(let response):
+                    let message = String(data: response.data, encoding: .utf8) ?? "no response data"
+                    NetworkLogger.error("MultiNetworkProvider catch error: \(message)", error: error)
+
+                    if terminalStatusCodes.shouldStopSwitching(response.statusCode) {
+                        return .anyFail(error: error)
+                    }
+
+                case BlockchainSdkError.noAccount, BlockchainSdkError.accountNotActivated, HorizonRequestError.notFound:
+                    return .anyFail(error: error)
+
+                default:
                     NetworkLogger.error(error: error)
-                }
-
-                if case BlockchainSdkError.noAccount = error {
-                    return .anyFail(error: error)
-                }
-
-                if case HorizonRequestError.notFound = error {
-                    return .anyFail(error: error)
-                }
-
-                if case BlockchainSdkError.accountNotActivated = error {
-                    return .anyFail(error: error)
                 }
 
                 let beforeSwitchIfNeededHost = host
