@@ -15,10 +15,6 @@ let package = Package(
     products: [
         .library(
             name: modulesWrapperLibraryName,
-            // `TangemModules` is an umbrella module and all crypto-related dependencies are linked into the resulting
-            // `TangemModules.framework`. Without this, Xcode's archive action silently drops transitively-referenced
-            // static libs (e.g. `Hiero`, `IcpKit`, etc), producing "Undefined symbols for architecture arm64" at link time
-            type: .dynamic,
             targets: [
                 modulesWrapperLibraryName,
             ]
