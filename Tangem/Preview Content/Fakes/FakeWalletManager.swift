@@ -53,7 +53,10 @@ class FakeWalletManager: WalletManager {
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
-            .makeWalletModelsFactory(derivationModeUpdater: FakeDerivationModeUpdater())
+            .makeWalletModelsFactory(
+                derivationModeUpdater: FakeDerivationModeUpdater(),
+                userTokensManager: UserTokensManagerMock()
+            )
 
         walletModels = walletModelsFactory.makeWalletModels(
             for: types,
