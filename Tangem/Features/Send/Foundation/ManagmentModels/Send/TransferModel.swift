@@ -349,6 +349,10 @@ extension TransferModel: SendFeeInput {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
     }
 
+    var supportFeeSelection: Bool {
+        _sourceToken.tokenFeeProvidersManager.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         _sourceToken.tokenFeeProvidersManager.supportFeeSelectionPublisher
     }

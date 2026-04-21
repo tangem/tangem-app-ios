@@ -303,8 +303,6 @@ extension CommonWalletModel: WalletModel {
 
     var publicKey: Wallet.PublicKey { wallet.publicKey }
 
-    var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol

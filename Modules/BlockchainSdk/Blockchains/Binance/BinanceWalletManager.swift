@@ -92,8 +92,6 @@ extension BinanceWalletManager: ThenProcessable {}
 // MARK: - TransactionFeeProvider
 
 extension BinanceWalletManager: TransactionFeeProvider {
-    var allowsFeeSelection: Bool { false }
-
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         return networkService.getFee()
             .tryMap { [weak self] feeString throws -> [Fee] in

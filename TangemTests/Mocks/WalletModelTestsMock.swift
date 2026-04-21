@@ -155,7 +155,6 @@ final class WalletModelTestsMock: WalletModel {
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
-    var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
