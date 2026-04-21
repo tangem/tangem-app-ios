@@ -16,10 +16,6 @@ class KoinosWalletManager: BaseWalletManager, WalletManager, FeeResourceRestrict
         networkService.host
     }
 
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     var feeResourceType: FeeResourceType {
         .mana
     }

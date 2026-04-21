@@ -275,10 +275,6 @@ extension VisaWalletModel: WalletModel {
         Wallet.PublicKey(seedKey: Data(), derivationType: .none)
     }
 
-    var shouldShowFeeSelector: Bool {
-        false
-    }
-
     var isCustom: Bool {
         false
     }

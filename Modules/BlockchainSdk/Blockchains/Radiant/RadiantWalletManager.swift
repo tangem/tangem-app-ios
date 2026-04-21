@@ -115,10 +115,6 @@ extension RadiantWalletManager: WalletManager {
         networkService.host
     }
 
-    var allowsFeeSelection: Bool {
-        true
-    }
-
     var dustValue: Amount {
         Amount(with: wallet.blockchain, value: Constants.dustValue)
     }
