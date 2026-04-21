@@ -24,30 +24,78 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     @Published private(set) var actionType: ActionType?
     @Published private(set) var isLoading: Bool = false
 
+    private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
+    private let compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory
     private weak var coordinator: (any DynamicAddressesDisableSheetRoutable)?
 
-    init(coordinator: any DynamicAddressesDisableSheetRoutable) {
+    private var disablingTask: Task<Void, Never>?
+
+    init(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        coordinator: any DynamicAddressesDisableSheetRoutable
+    ) {
+        self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
+        self.compoundFlowBaseDependenciesFactory = compoundFlowBaseDependenciesFactory
         self.coordinator = coordinator
 
         setupView()
     }
 
     func dismiss() {
+        disablingTask?.cancel()
         coordinator?.closeDynamicAddressesDisableSheet()
     }
 
     private func setupView() {
-        actionType = .disable { [weak self] in
-            self?.confirm()
+        switch walletModelDynamicAddressesProvider.dynamicAddressesDisablingRequirements {
+        case .compoundTransaction(let amount, let destination):
+            let dependencies = compoundFlowBaseDependenciesFactory.makeDependencies(
+                amount: amount,
+                destination: destination
+            )
+
+            let compoundViewModel = DynamicAddressesCompoundTransactionViewModel(
+                transferModel: dependencies.transferModel,
+                notificationManager: dependencies.notificationManager,
+                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                onFinish: { [weak self] in
+                    self?.close(isSuccess: true)
+                }
+            )
+
+            actionType = .compoundTransactionDisable(compoundViewModel)
+
+        case .none:
+            actionType = .disable { [weak self] in
+                self?.confirm()
+            }
         }
     }
 
     private func confirm() {
         isLoading = true
-        defer { isLoading = false }
+        disablingTask?.cancel()
+        disablingTask = Task { [weak self] in
+            await self?.disableDynamicAddresses()
+        }
+    }
 
-        // [REDACTED_TODO_COMMENT]
-        close(isSuccess: true)
+    private func disableDynamicAddresses() async {
+        do {
+            try await walletModelDynamicAddressesProvider.disableDynamicAddresses()
+            await MainActor.run {
+                self.isLoading = false
+                self.close(isSuccess: true)
+            }
+        } catch is CancellationError {
+            // Do nothing
+        } catch {
+            await MainActor.run {
+                self.isLoading = false
+                self.alertPresenter.present(alert: error.alertBinder)
+            }
+        }
     }
 
     private func close(isSuccess: Bool) {

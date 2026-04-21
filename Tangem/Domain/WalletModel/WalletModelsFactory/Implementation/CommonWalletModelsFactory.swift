@@ -16,15 +16,18 @@ struct CommonWalletModelsFactory {
     private let config: UserWalletConfig
     private let userWalletId: UserWalletId
     private let walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider
+    private let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
 
     init(
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider
+        walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider,
+        dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
     ) {
         self.config = config
         self.userWalletId = userWalletId
         self.walletModelFeaturesManagerProvider = walletModelFeaturesManagerProvider
+        self.dynamicAddressesManagerProvider = dynamicAddressesManagerProvider
     }
 
     private func isMainCoinCustom(
@@ -137,6 +140,12 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: tokenItem,
                 addresses: walletManager.wallet.addresses
             )
+
+            let dynamicAddressesManager = dynamicAddressesManagerProvider.makeDynamicAddressesManager(
+                tokenItem: tokenItem,
+                walletManager: walletManager
+            )
+
             let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
@@ -151,6 +160,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     address: walletManager.wallet.address
                 ),
+                dynamicAddressesManager: dynamicAddressesManager,
                 featureManager: featureManager,
                 transactionHistoryService: transactionHistoryService,
                 receiveAddressService: receiveAddressService,
@@ -181,6 +191,11 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     walletManager: walletManager
                 )
 
+                let dynamicAddressesManager = dynamicAddressesManagerProvider.makeDynamicAddressesManager(
+                    tokenItem: tokenItem,
+                    walletManager: walletManager
+                )
+
                 let tokenModel = CommonWalletModel(
                     userWalletId: userWalletId,
                     tokenItem: tokenItem,
@@ -190,6 +205,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         tokenItem: tokenItem,
                         address: walletManager.wallet.address
                     ),
+                    dynamicAddressesManager: dynamicAddressesManager,
                     featureManager: featureManager,
                     transactionHistoryService: transactionHistoryService,
                     receiveAddressService: receiveAddressService,

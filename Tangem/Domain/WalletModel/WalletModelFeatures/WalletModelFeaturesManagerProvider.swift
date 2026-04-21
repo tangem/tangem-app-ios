@@ -12,8 +12,6 @@ import TangemFoundation
 struct WalletModelFeaturesManagerProvider {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
-    let keysProvider: KeysProvider
-    let keysDerivingInteractor: KeysDeriving
 
     func makeWalletModelFeaturesManager(
         tokenItem: TokenItem,
@@ -25,13 +23,6 @@ struct WalletModelFeaturesManagerProvider {
             tokenItem: tokenItem
         )
 
-        let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager()
-
-        let featureManager = CommonWalletModelFeaturesManager(
-            nftFeatureManager: nftFeatureManager,
-            dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
-        )
-
-        return featureManager
+        return CommonWalletModelFeaturesManager(nftFeatureManager: nftFeatureManager)
     }
 }
