@@ -1066,6 +1066,10 @@ extension SwapModel: SendFeeInput {
         .eraseToAnyPublisher()
     }
 
+    var supportFeeSelection: Bool {
+        tokenFeeProvidersManager?.supportFeeSelection ?? false
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         tokenFeeProvidersManagerPublisher
             .flatMapLatest { $0.supportFeeSelectionPublisher }
