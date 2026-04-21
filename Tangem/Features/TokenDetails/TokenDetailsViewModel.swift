@@ -229,23 +229,29 @@ extension TokenDetailsViewModel {
         }
     }
 
-    func openDynamicAddressesManagement(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
-        if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
-            let transferableToken = CommonSendTransferableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel
-            )
-            .makeTransferableToken(supportingFeeOptions: .compound)
+    func openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        let transferableToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        )
+        .makeTransferableToken(supportingFeeOptions: .compound)
 
-            let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
-                transferableToken: transferableToken
-            )
+        let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
+            transferableToken: transferableToken
+        )
 
-            coordinator?.openDynamicAddressesDisableSheet(
-                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
-                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory
-            )
-        } else {
+        coordinator?.openDynamicAddressesDisableSheet(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory
+        )
+    }
+
+    func openDynamicAddressesEnableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        switch walletModelDynamicAddressesProvider.dynamicAddressesEnablingRequirements {
+        case .customTokensRemoveIsNeeded:
+            coordinator?.openDynamicAddressesUnavailableSheet(messageType: .hasCustomToken)
+        default:
+            // Other enabling requirements will handle in `DynamicAddressesEnterView`
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
             )
@@ -316,9 +322,19 @@ private extension TokenDetailsViewModel {
         let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider
 
         if let walletModelDynamicAddressesProvider, hasFeature, isDynamicAddressesSupported {
-            items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
-                self?.openDynamicAddressesManagement(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
-            })
+            if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
+                items.append(DotsMenuItem(type: .disableDynamicAddresses) { [weak self] in
+                    self?.openDynamicAddressesDisableView(
+                        walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                    )
+                })
+            } else {
+                items.append(DotsMenuItem(type: .enableDynamicAddresses) { [weak self] in
+                    self?.openDynamicAddressesEnableView(
+                        walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                    )
+                })
+            }
         }
 
         if userWalletInfo.config.hasFeature(.multiCurrency) {
@@ -634,12 +650,13 @@ extension TokenDetailsViewModel {
 
         enum MenuType: String {
             case generateXPUB
-            case dynamicAddresses
+            case enableDynamicAddresses
+            case disableDynamicAddresses
             case hideToken
 
             var role: ButtonRole? {
                 switch self {
-                case .generateXPUB, .dynamicAddresses: .none
+                case .generateXPUB, .enableDynamicAddresses, .disableDynamicAddresses: .none
                 case .hideToken: .destructive
                 }
             }
@@ -647,14 +664,14 @@ extension TokenDetailsViewModel {
             var title: String {
                 switch self {
                 case .generateXPUB: Localization.tokenDetailsGenerateXpub
-                case .dynamicAddresses: Localization.dynamicAddresses
+                case .enableDynamicAddresses, .disableDynamicAddresses: Localization.dynamicAddresses
                 case .hideToken: Localization.tokenDetailsHideToken
                 }
             }
 
             var accessibilityIdentifier: String? {
                 switch self {
-                case .generateXPUB, .dynamicAddresses: .none
+                case .generateXPUB, .enableDynamicAddresses, .disableDynamicAddresses: .none
                 case .hideToken: TokenAccessibilityIdentifiers.hideTokenButton
                 }
             }
