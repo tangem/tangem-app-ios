@@ -57,7 +57,6 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
             pendingTransactionsManager: pendingTransactionsManager,
-            allowsFeeSelection: wallet.blockchain.allowsFeeSelection,
             l1SmartContractAddress: l1SmartContractAddress,
             l1FeeMultiplier: l1FeeMultiplier
         )

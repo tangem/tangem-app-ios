@@ -47,8 +47,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            pendingTransactionsManager: pendingTransactionsManager,
-            allowsFeeSelection: wallet.blockchain.allowsFeeSelection
+            pendingTransactionsManager: pendingTransactionsManager
         )
     }
 }

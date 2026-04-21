@@ -33,7 +33,6 @@ protocol WalletModel:
 
     var isEmpty: Bool { get }
     var publicKey: Wallet.PublicKey { get }
-    var shouldShowFeeSelector: Bool { get }
     var isCustom: Bool { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }

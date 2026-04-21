@@ -44,7 +44,6 @@ struct TangemPaySourceTokenFactory {
             id: .init(tokenItem: tokenItem),
             header: header,
             feeTokenItem: feeTokenItem,
-            isFixedFee: false,
             isCustom: false,
             defaultAddressString: defaultAddressString,
             availableBalanceProvider: availableBalanceProvider,

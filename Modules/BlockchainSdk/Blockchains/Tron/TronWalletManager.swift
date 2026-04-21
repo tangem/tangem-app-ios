@@ -18,10 +18,6 @@ class TronWalletManager: BaseWalletManager, WalletManager {
         networkService.host
     }
 
-    var allowsFeeSelection: Bool {
-        false
-    }
-
     private let feeSigner = DummySigner()
 
     func updateWalletManager(address: String) async throws {

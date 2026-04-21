@@ -57,8 +57,6 @@ class SolanaWalletManager: BaseWalletManager, WalletManager {
 }
 
 extension SolanaWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool { false }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let sendPublisher: AnyPublisher<TransactionID, Error>
         switch transaction.amount.type {

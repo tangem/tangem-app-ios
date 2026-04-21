@@ -199,8 +199,6 @@ class XRPWalletManager: BaseWalletManager, WalletManager {
 }
 
 extension XRPWalletManager: TransactionSender {
-    var allowsFeeSelection: Bool { true }
-
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         return Future.async { [weak self] in
             guard let self else {

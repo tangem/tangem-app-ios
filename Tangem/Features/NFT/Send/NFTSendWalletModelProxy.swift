@@ -92,10 +92,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.publicKey
     }
 
-    var shouldShowFeeSelector: Bool {
-        mainTokenWalletModel.shouldShowFeeSelector
-    }
-
     var isCustom: Bool {
         // By definition, NFT assets can't be added by user
         false
