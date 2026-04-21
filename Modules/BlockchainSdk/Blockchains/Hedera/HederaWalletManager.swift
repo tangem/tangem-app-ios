@@ -495,8 +495,6 @@ final class HederaWalletManager: BaseWalletManager {
 extension HederaWalletManager: WalletManager {
     var currentHost: String { networkService.host }
 
-    var allowsFeeSelection: Bool { false }
-
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         let doesAccountExistPublisher = doesAccountExist(destination: destination)
 
