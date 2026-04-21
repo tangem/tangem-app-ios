@@ -76,7 +76,6 @@ class EthereumWalletManagerMock: WalletManager {
 
     func validate(fee: BlockchainSdk.Fee) throws {}
     func validate(amount: BlockchainSdk.Amount) throws {}
-    var allowsFeeSelection: Bool { true }
 
     func updateWalletManager(address: String) async throws {}
 
