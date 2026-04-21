@@ -59,6 +59,7 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
     func clearHistory() {
         cancellable = nil
         transactionHistoryProviders.forEach { _, provider in provider.reset() }
+        _state.send(.initial)
         cleanStorage()
         AppLogger.info(self, "was reset")
     }
