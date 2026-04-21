@@ -8,7 +8,6 @@
 
 import Foundation
 import Moya
-import TangemSdk
 import TangemNetworkUtils
 
 public struct TangemExpressFactory {
