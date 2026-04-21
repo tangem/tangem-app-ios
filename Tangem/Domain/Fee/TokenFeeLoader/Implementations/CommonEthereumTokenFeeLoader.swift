@@ -67,8 +67,6 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonEthereumTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { tokenFeeLoader.allowsFeeSelection }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }
