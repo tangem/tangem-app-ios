@@ -14,6 +14,7 @@ enum OnrampApplePayUtils {
     static func makeBuyAction(
         provider: OnrampProvider,
         currencyCode: String?,
+        countryCode: String,
         isApplePayAllowed: Bool,
         additionalAnalytics: @escaping () -> Void,
         onAuthorize: @escaping (OnrampProvider, OnrampApplePayResult, @escaping (PKPaymentAuthorizationResult) -> Void) -> Void,
@@ -24,7 +25,7 @@ enum OnrampApplePayUtils {
            provider.quote?.nativePaymentAvailable == true,
            let amount = provider.amount,
            let currencyCode {
-            let request = makePaymentRequest(amount: amount, currencyCode: currencyCode)
+            let request = makePaymentRequest(amount: amount, currencyCode: currencyCode, countryCode: countryCode)
             return .nativeApplePay(request: request) { phase in
                 handlePhase(
                     phase,
@@ -41,12 +42,12 @@ enum OnrampApplePayUtils {
         }
     }
 
-    static func makePaymentRequest(amount: Decimal, currencyCode: String) -> PKPaymentRequest {
+    static func makePaymentRequest(amount: Decimal, currencyCode: String, countryCode: String) -> PKPaymentRequest {
         let request = PKPaymentRequest()
         request.merchantIdentifier = OnrampApplePayConstants.merchantIdentifier
         request.supportedNetworks = [.visa, .masterCard]
         request.merchantCapabilities = .threeDSecure
-        request.countryCode = Locale.current.region?.identifier ?? "US"
+        request.countryCode = countryCode
         request.currencyCode = currencyCode
         request.requiredBillingContactFields = [.postalAddress, .name, .emailAddress]
         request.paymentSummaryItems = [

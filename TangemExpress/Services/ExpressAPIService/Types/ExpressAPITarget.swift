@@ -71,6 +71,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampPairs: "onramp-pairs"
         case .onrampQuote: "onramp-quote"
         case .onrampData: "onramp-data"
+        // Same endpoint as .onrampData but uses POST method with JSON body for native payment flow
         case .onrampNativePaymentData: "onramp-data"
         case .onrampStatus: "onramp-status"
         }

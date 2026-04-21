@@ -9,7 +9,6 @@
 import Combine
 import TangemUI
 import TangemExpress
-import SwiftUI
 
 class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter)
@@ -125,6 +124,7 @@ private extension OnrampOffersSelectorViewModel {
         return OnrampApplePayUtils.makeBuyAction(
             provider: provider,
             currencyCode: currencyCode,
+            countryCode: Locale.current.region?.identifier ?? "US",
             isApplePayAllowed: geoEligibilityService.isApplePayAllowed,
             additionalAnalytics: additionalAnalytics,
             onAuthorize: { [weak self] provider, applePayResult, resultHandler in
