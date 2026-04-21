@@ -89,7 +89,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         case .loading:
             TokenSelectorLoadingView().transition(.content)
         case .visible(let itemsCount):
-            tokenListContent(itemsCount: itemsCount).transition(.content)
+            // zIndex keeps the token list above other content during animated transitions
+            tokenListContent(itemsCount: itemsCount).transition(.content).zIndex(1)
         }
 
         if !viewModel.contentVisibility.isLoading {
@@ -103,7 +104,30 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
             sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
         }
 
-        ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
+        walletsSection
+    }
+
+    @ViewBuilder
+    private var walletsSection: some View {
+        if viewModel.walletChips.count > 1 {
+            walletChipsView
+
+            // Zero spacing prevents hidden (filtered-out) wallets from adding gaps between chips and the visible wallet
+            VStack(spacing: 0) {
+                ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
+            }
+            .padding(.top, Constants.chipsToListExtraSpacing)
+        } else {
+            ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
+        }
+    }
+
+    private var walletChipsView: some View {
+        HorizontalChipsView(
+            chips: viewModel.walletChips.map { Chip(id: $0.id, title: $0.name) },
+            selectedId: $viewModel.selectedChipId,
+            horizontalInset: 8
+        )
     }
 
     private func sectionHeader(
@@ -148,6 +172,7 @@ extension TokenSelectorView {
 
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
+        static var chipsToListExtraSpacing: CGFloat { 8 }
     }
 }
 
