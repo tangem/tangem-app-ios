@@ -600,6 +600,15 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                 updatedAccount = cryptoAccount
                     .with(sorting: request.sorting, grouping: request.grouping)
                     .withTokens(request.tokens)
+            case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
+                let updatedTokens = cryptoAccount.tokens.map { storedToken in
+                    guard storedToken == tokenItem.toStoredToken() else {
+                        return storedToken
+                    }
+
+                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: blockchainNetwork))
+                }
+                updatedAccount = cryptoAccount.withTokens(updatedTokens)
             }
 
             innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)

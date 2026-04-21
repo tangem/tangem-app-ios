@@ -67,6 +67,17 @@ extension StoredCryptoAccount.Token {
 
         return WalletModelId(tokenItem: tokenItem)
     }
+
+    func with(blockchainNetwork: BlockchainNetworkContainer) -> Self {
+        StoredCryptoAccount.Token(
+            id: id,
+            name: name,
+            symbol: symbol,
+            decimalCount: decimalCount,
+            blockchainNetwork: blockchainNetwork,
+            contractAddress: contractAddress
+        )
+    }
 }
 
 extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
