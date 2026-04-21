@@ -59,7 +59,10 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         )
 
         let derivationModeUpdater = CommonDerivationModeUpdater(userTokensRepository: userTokensRepository)
-        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(derivationModeUpdater: derivationModeUpdater)
+        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
+            derivationModeUpdater: derivationModeUpdater,
+            userTokensManager: userTokensManager
+        )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
