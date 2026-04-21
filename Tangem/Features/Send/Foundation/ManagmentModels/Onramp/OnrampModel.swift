@@ -568,16 +568,16 @@ extension OnrampModel: OnrampSummaryOutput {
                     applePayResult: applePayResult
                 )
 
-                resultHandler(.init(status: .success, errors: nil))
-
                 switch result {
                 case .nativePayment(let data):
+                    resultHandler(.init(status: .success, errors: nil))
                     model.nativePaymentDataDidLoad(data: data)
                 case .widget(let data):
+                    resultHandler(.init(status: .failure, errors: []))
                     model.redirectDataDidLoad(data: data)
                 }
-            } catch _ as CancellationError {
-                // Do nothing
+            } catch is CancellationError {
+                resultHandler(.init(status: .failure, errors: [CancellationError()]))
             } catch {
                 resultHandler(.init(status: .failure, errors: [error]))
 
