@@ -703,12 +703,17 @@ extension SendAmountViewModel {
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
                 if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
-                    let balanceState: LoadableBalanceView.State = .loaded(text: .builder(
-                        builder: { Localization.commonBalance($0) },
-                        sensitive: balance
-                    ))
-                    let sendState: LoadableTextView.State = .loaded(text: "Send: \(formatted)")
-                    compactSourceSubtitle = .balanceAndSend(balance: balanceState, send: sendState)
+                    compactSourceSubtitle = .balanceAndSend(
+                        balance: .loaded(text: .builder(
+                            builder: { Localization.commonBalance($0) },
+                            sensitive: balance
+                        )),
+                        sendLabel: Localization.commonSend,
+                        sendAmount: .loaded(text: .builder(
+                            builder: { $0 },
+                            sensitive: formatted
+                        ))
+                    )
                 } else {
                     let sendText = Localization.sendSummaryTitle(formatted)
                     if let balance = sourceCryptoBalance {
