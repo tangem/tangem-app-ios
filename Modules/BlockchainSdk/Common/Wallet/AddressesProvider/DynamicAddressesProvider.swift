@@ -53,8 +53,11 @@ extension DynamicAddressesProvider: Wallet.AddressesProvider {
 
         do {
             userAddresses = try userDerivations.reduce(into: [:]) { partialResult, derivationPath in
-                let index = derivationPath.nodes.last?.pathDescription ?? "n/a"
-                partialResult[derivationPath] = try makeAddress(at: derivationPath, type: .used(.default, index: index))
+                let path = derivationPath.nodes.suffix(2).map(\.pathDescription).joined(separator: "/")
+                partialResult[derivationPath] = try makeAddress(
+                    at: derivationPath,
+                    type: .used(.default, path: path)
+                )
             }
             recalculateAddresses()
         } catch {
