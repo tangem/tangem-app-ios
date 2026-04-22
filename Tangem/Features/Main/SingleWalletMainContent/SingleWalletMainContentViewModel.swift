@@ -125,7 +125,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
             ActionButtonsViewModel(
                 coordinator: $0,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
             )
         }
 
@@ -265,10 +266,12 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .receive:
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
-            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
-                walletModel: walletModel,
+            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+                origin: .tokenDetails(.init(walletModel: walletModel)),
                 userWalletInfo: userWalletInfo
-            )
+            ) else {
+                return
+            }
             contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:
             contextActionTokenRouter.openSell(for: walletModel)
