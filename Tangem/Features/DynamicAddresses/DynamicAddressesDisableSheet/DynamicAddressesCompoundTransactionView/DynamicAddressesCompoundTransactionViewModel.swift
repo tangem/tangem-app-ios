@@ -7,10 +7,11 @@
 //
 
 import Combine
-import TangemFoundation
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
+import TangemAssets
+import TangemLocalization
 
 final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
@@ -20,20 +21,25 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading: Bool = false
     @Published private(set) var isLoading: Bool = false
-    @Published private(set) var mainButtonIcon: MainButton.Icon?
+    @Published private(set) var mainButtonIcon: MainButton.Icon? = .trailing(Assets.tangemIcon)
 
     private let transferModel: TransferModel
     private let notificationManager: SendNotificationManager
+    private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
     private let sendAlertBuilder: SendAlertBuilder = CommonSendAlertBuilder()
     private let onFinish: () -> Void
+
+    private var sendingTask: Task<Void, Never>?
 
     init(
         transferModel: TransferModel,
         notificationManager: SendNotificationManager,
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         onFinish: @escaping () -> Void
     ) {
         self.transferModel = transferModel
         self.notificationManager = notificationManager
+        self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
         self.onFinish = onFinish
 
         feeCompactViewModel = FeeCompactViewModel(showsLeadingIcon: false)
@@ -44,20 +50,29 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     }
 
     func confirm() {
-        Task {
-            do {
-                _ = try await transferModel.performAction()
-                // [REDACTED_TODO_COMMENT]
-                await runOnMain { onFinish() }
-            } catch is CancellationError {
-                // Do nothing
-            } catch let error as TransactionDispatcherResult.Error {
-                await runOnMain { proceed(error: error) }
-            } catch {
-                AppLogger.error(error: error)
-                await runOnMain { [alertPresenter] in
-                    alertPresenter.present(alert: error.alertBinder)
-                }
+        sendingTask?.cancel()
+        sendingTask = Task { [weak self] in
+            await self?.disableDynamicAddresses()
+        }
+    }
+
+    private func disableDynamicAddresses() async {
+        do {
+            _ = try await transferModel.performAction()
+            try Task.checkCancellation()
+
+            try await walletModelDynamicAddressesProvider.disableDynamicAddresses()
+            try Task.checkCancellation()
+
+            await runOnMain { onFinish() }
+        } catch is CancellationError {
+            // Do nothing
+        } catch let error as TransactionDispatcherResult.Error {
+            await runOnMain { proceed(error: error) }
+        } catch {
+            AppLogger.error(error: error)
+            await runOnMain { [alertPresenter] in
+                alertPresenter.present(alert: error.alertBinder)
             }
         }
     }
