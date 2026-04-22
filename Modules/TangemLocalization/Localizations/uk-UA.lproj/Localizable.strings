@@ -285,6 +285,7 @@
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Оберіть дію";
 "common_sell" = "Продати";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "Не вдалося надіслати транзакцію";
 "common_send" = "Надіслати";
 "common_server_unavailable" = "Сервер недоступний, спробуйте пізніше";
@@ -399,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
 "dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
+"dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
+"dynamic_addresses_receive_badge" = "Dynamic address";
 "dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Найкращі можливості";
 "earn_clear_filter" = "Очистити фільтр";
@@ -624,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Цей токен недоступний для цього гаманця";
 "markets_add_token" = "Додати";
 "markets_available networks" = "Доступні мережі";
+"markets_common_market_price" = "Market Price";
 "markets_common_my_portfolio" = "Моє портфоліо";
 "markets_common_title" = "Маркет";
 "markets_earn_common_title" = "Заробляйте з Tangem";
@@ -636,6 +641,7 @@
 "markets_loading_no_data_title" = "Немає даних";
 "markets_portfolio_block_add_token_title" = "**Add to your portfolio** to start buying, exchanging or receiving this asset";
 "markets_portfolio_block_subtitle" = "In your portfolio";
+"markets_portfolio_block_title" = "Your portfolio";
 "markets_pulse_common_title" = "Пульс ринку";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Шукати на маркеті";
@@ -835,7 +841,9 @@
 "onboarding_getting_started" = "Підготовка";
 "onboarding_linking_error_card_with_wallets" = "На картці, яку ви намагаєтеся додати, вже створено інший гаманець. Якщо у вас є кошти на цьому гаманці, будь ласка, виведіть їх, а потім скиньте цю картку до заводських налаштувань і додайте її як резервну.";
 "onboarding_navbar_save_wallet" = "Збережіть ваш гаманець";
+"onboarding_navbar_title_biometrics" = "Use biometrics";
 "onboarding_navbar_title_creating_backup" = "Резервна копія";
+"onboarding_navbar_title_last_step" = "Last step";
 "onboarding_navbar_upgrade_wallet_biometrics" = "Біометрія";
 "onboarding_seed_button_read_more" = "Дізнатися більше про seed-фразу";
 "onboarding_seed_generate_title" = "Ваша seed-фраза";
@@ -1389,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "Поділіться своєю адресою або покажіть QR-код";
 "tangempay_card_details_receive_error_description" = "Виявлено технічні проблеми. Будь ласка, спробуйте пізніше або зверніться до служби підтримки.";
 "tangempay_card_details_receive_error_title" = "Поповнення наразі недоступне";
+"tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Показати";
@@ -1405,7 +1414,7 @@
 "tangempay_card_details_withdraw" = "Вивести";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
-"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
 "tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
 "tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
@@ -1457,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "Платіжний рахунок не синхронізовано";
 "tangempay_payment_account" = "Платіжний акаунт";
 "tangempay_pin_validation_error_message" = "Слабкий ПІН: не використовуйте повторів або послідовностей.";
+"tangempay_reissue_card_confirm" = "Replace card";
+"tangempay_reissue_card_description" = "This generates a new set of card details. Your old details will stop working. You can't undo this.";
+"tangempay_reissue_card_fee_label" = "Replacement fee";
+"tangempay_reissue_card_fee_unreachable_error_title" = "Replacement fee info unreachable";
+"tangempay_reissue_card_in_progress_description" = "Usually takes up to 5 minutes. In rare cases, up to 48 hours.";
+"tangempay_reissue_card_in_progress" = "Replacing your digital card";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
+"tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
@@ -1551,7 +1570,7 @@
 "unlock_wallet_description_full" = "Використовуйте %@ або відскануйте картку/кільце, щоб отримати доступ до свого гаманця";
 "unsupported_wc_version" = "Не вдалося встановити з'єднання: Цей dApp використовує Wallet Connect версії 1.0, яка не підтримується. Будь ласка, переконайтеся, що dApp підтримує Wallet Connect версії 2.0 для успішного підключення.";
 "update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
-"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted permission amount.\nUpdate permission to proceed";
 "update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Оновлення до апаратного гаманця";
 "user_push_notification_agreement_argument_one_subtitle" = "Миттєві сповіщення про транзакції, обміни та важливі оновлення.";
