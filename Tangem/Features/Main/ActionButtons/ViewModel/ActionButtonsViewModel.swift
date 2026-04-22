@@ -46,13 +46,16 @@ final class ActionButtonsViewModel: ObservableObject {
     private var lastSellInitializeState: SellServiceState?
 
     private let userWalletModel: UserWalletModel
+    private let swapAvailabilityChecker: SwapAvailabilityChecker
     private var latestWalletModelsCount = 0
 
     init(
         coordinator: some ActionButtonsRoutable,
-        userWalletModel: some UserWalletModel
+        userWalletModel: some UserWalletModel,
+        swapAvailabilityChecker: SwapAvailabilityChecker
     ) {
         self.userWalletModel = userWalletModel
+        self.swapAvailabilityChecker = swapAvailabilityChecker
 
         sellActionButtonViewModel = SellActionButtonViewModel(
             model: .sell,
@@ -268,7 +271,7 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        switch latestWalletModelsCount {
+        switch swapAvailableWalletModelsCount() {
         case 0:
             swapActionButtonViewModel.updateState(to: .disabled)
         case 1:
@@ -280,6 +283,13 @@ private extension ActionButtonsViewModel {
         default:
             swapActionButtonViewModel.updateState(to: .idle)
         }
+    }
+
+    func swapAvailableWalletModelsCount() -> Int {
+        AccountWalletModelsAggregator
+            .walletModels(from: userWalletModel.accountModelsManager)
+            .filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
+            .count
     }
 }
 
