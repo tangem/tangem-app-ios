@@ -285,6 +285,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Sélectionnez une action";
 "common_sell" = "Vendre";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "Échec d'envoi de la transaction";
 "common_send" = "Envoyer";
 "common_server_unavailable" = "Le serveur n'est pas disponible, veuillez réessayer plus tard";
@@ -399,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
 "dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
+"dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
+"dynamic_addresses_receive_badge" = "Dynamic address";
 "dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Meilleures opportunités";
 "earn_clear_filter" = "Effacer le filtre";
@@ -624,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Cet actif n'est pas disponible pour ce portefeuille";
 "markets_add_token" = "Ajoutez un jeton";
 "markets_available networks" = "Réseaux disponibles";
+"markets_common_market_price" = "Market Price";
 "markets_common_my_portfolio" = "Mon portfolio";
 "markets_common_title" = "Marché";
 "markets_earn_common_title" = "Gagnez avec Tangem";
@@ -636,6 +641,7 @@
 "markets_loading_no_data_title" = "Aucune donnée";
 "markets_portfolio_block_add_token_title" = "**Add to your portfolio** to start buying, exchanging or receiving this asset";
 "markets_portfolio_block_subtitle" = "In your portfolio";
+"markets_portfolio_block_title" = "Your portfolio";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
@@ -835,7 +841,9 @@
 "onboarding_getting_started" = "Initialisation en cours";
 "onboarding_linking_error_card_with_wallets" = "Un autre portefeuille a déjà été créé sur la carte que vous essayez d'ajouter. Si vous avez des fonds dans ce portefeuille, veuillez les retirer, puis réinitialiser cette carte et l'ajouter comme sauvegarde.";
 "onboarding_navbar_save_wallet" = "Enregistrer votre portefeuille";
+"onboarding_navbar_title_biometrics" = "Use biometrics";
 "onboarding_navbar_title_creating_backup" = "Sauvegarde en cours";
+"onboarding_navbar_title_last_step" = "Last step";
 "onboarding_navbar_upgrade_wallet_biometrics" = "Biométrie";
 "onboarding_seed_button_read_more" = "En savoir plus sur les seed phrases";
 "onboarding_seed_generate_title" = "Votre seed phrase";
@@ -1389,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "Partagez votre adresse ou montrez le QR code";
 "tangempay_card_details_receive_error_description" = "Problèmes techniques détectés. Veuillez réessayer plus tard ou contacter le service d'assistance.";
 "tangempay_card_details_receive_error_title" = "Réception indisponible pour le moment";
+"tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Révéler";
@@ -1405,7 +1414,7 @@
 "tangempay_card_details_withdraw" = "Retirer";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
-"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
 "tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
 "tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
@@ -1457,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "Le compte de paiement n'est pas synchronisé";
 "tangempay_payment_account" = "Compte de paiement";
 "tangempay_pin_validation_error_message" = "Code PIN invalide : évitez les séquences ou les répétitions";
+"tangempay_reissue_card_confirm" = "Replace card";
+"tangempay_reissue_card_description" = "This generates a new set of card details. Your old details will stop working. You can't undo this.";
+"tangempay_reissue_card_fee_label" = "Replacement fee";
+"tangempay_reissue_card_fee_unreachable_error_title" = "Replacement fee info unreachable";
+"tangempay_reissue_card_in_progress_description" = "Usually takes up to 5 minutes. In rare cases, up to 48 hours.";
+"tangempay_reissue_card_in_progress" = "Replacing your digital card";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
+"tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";
 "tangempay_service_unavailable_title" = "Service temporairement indisponible";
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
@@ -1551,7 +1570,7 @@
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
 "update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
-"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted permission amount.\nUpdate permission to proceed";
 "update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Passez à un hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
