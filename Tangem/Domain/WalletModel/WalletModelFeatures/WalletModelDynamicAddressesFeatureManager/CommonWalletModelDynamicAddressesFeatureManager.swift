@@ -9,16 +9,22 @@
 import Foundation
 import Combine
 
-final class CommonWalletModelDynamicAddressesFeatureManager {}
+final class CommonWalletModelDynamicAddressesFeatureManager {
+    private let dynamicAddressesManager: DynamicAddressesManager?
+
+    init(dynamicAddressesManager: DynamicAddressesManager?) {
+        self.dynamicAddressesManager = dynamicAddressesManager
+    }
+}
 
 // MARK: - WalletModelDynamicAddressesFeatureManager protocol conformance
 
 extension CommonWalletModelDynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager {
     var dynamicAddressesFeature: WalletModelFeature? {
-        nil
+        dynamicAddressesManager.map { .dynamicAddresses(manager: $0) }
     }
 
     var dynamicAddressesFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
-        .just(output: nil)
+        .just(output: dynamicAddressesFeature)
     }
 }
