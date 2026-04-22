@@ -102,6 +102,7 @@ struct SendAmountTokenView: View {
                             isSensitiveText: true
                         )
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
         }
