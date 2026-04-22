@@ -815,10 +815,12 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
-                walletModel: walletModel,
+            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+                origin: .tokenDetails(.init(walletModel: walletModel)),
                 userWalletInfo: userWalletModel.userWalletInfo
-            )
+            ) else {
+                return
+            }
             tokenRouter.openSwap(parameters: parameters)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
@@ -861,7 +863,8 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }
