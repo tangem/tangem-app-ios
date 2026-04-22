@@ -20,7 +20,8 @@ enum OnrampApplePayUtils {
         onAuthorize: @escaping (OnrampProvider, OnrampApplePayResult, @escaping (PKPaymentAuthorizationResult) -> Void) -> Void,
         onFallbackBuy: @escaping () -> Void
     ) -> OnrampOfferViewModel.BuyAction {
-        if isApplePayAllowed,
+        if FeatureProvider.isAvailable(.onrampNativePayment),
+           isApplePayAllowed,
            provider.paymentMethod.type == .applePay,
            let quote = provider.quote,
            quote.nativePaymentAvailable == true,

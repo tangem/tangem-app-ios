@@ -23,6 +23,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
+    @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         tokenItem: walletModel.tokenItem,
@@ -69,6 +70,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
+    private let tokenRouter: SingleTokenRoutable
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -91,6 +93,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.tokenRouter = tokenRouter
 
         super.init(
             userWalletInfo: userWalletInfo,
@@ -290,7 +293,26 @@ extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
         tokenNotificationInputs = notificationManager.notificationInputs
+        setupQuickTopUpBanner()
         bind()
+    }
+
+    private func setupQuickTopUpBanner() {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+
+        guard availabilityProvider.isBuyAvailable,
+              FeatureProvider.isAvailable(.onrampNativePayment) else { return }
+
+        quickTopUpBannerViewModel = QuickTopUpBannerViewModel(
+            walletModel: walletModel,
+            onOpenOnramp: { [weak self] parameters in
+                guard let self else { return }
+                tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+            }
+        )
     }
 
     private func bind() {
