@@ -285,6 +285,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Select action";
 "common_sell" = "Sell";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "Impossibile inviare la transazione";
 "common_send" = "Invia";
 "common_server_unavailable" = "The server is not available, please try again later";
@@ -399,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
 "dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
+"dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
+"dynamic_addresses_receive_badge" = "Dynamic address";
 "dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Best opportunities";
 "earn_clear_filter" = "Clear filter";
@@ -624,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "This asset is not available for this wallet";
 "markets_add_token" = "Add";
 "markets_available networks" = "Available networks";
+"markets_common_market_price" = "Market Price";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
 "markets_earn_common_title" = "Staking & Yield mode";
@@ -636,6 +641,7 @@
 "markets_loading_no_data_title" = "No data";
 "markets_portfolio_block_add_token_title" = "**Add to your portfolio** to start buying, exchanging or receiving this asset";
 "markets_portfolio_block_subtitle" = "In your portfolio";
+"markets_portfolio_block_title" = "Your portfolio";
 "markets_pulse_common_title" = "Market Pulse";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Search tokens";
@@ -835,7 +841,9 @@
 "onboarding_getting_started" = "Getting started";
 "onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. If you have funds in this wallet, please withdraw it and then reset this card and add it as a backup.";
 "onboarding_navbar_save_wallet" = "Save your wallet";
+"onboarding_navbar_title_biometrics" = "Use biometrics";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
+"onboarding_navbar_title_last_step" = "Last step";
 "onboarding_navbar_upgrade_wallet_biometrics" = "Biometrics";
 "onboarding_seed_button_read_more" = "Read more about seed phrase";
 "onboarding_seed_generate_title" = "Your seed phrase";
@@ -1389,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "Condividi il tuo indirizzo o mostra il QR code";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Ricezione non disponibile al momento";
+"tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Rivela";
@@ -1405,7 +1414,7 @@
 "tangempay_card_details_withdraw" = "Ritiro";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
-"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
 "tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
 "tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
@@ -1457,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "Il conto di pagamento non è sincronizzato";
 "tangempay_payment_account" = "Conto di pagamento";
 "tangempay_pin_validation_error_message" = "PIN non valido: evitare sequenze o ripetizioni";
+"tangempay_reissue_card_confirm" = "Replace card";
+"tangempay_reissue_card_description" = "This generates a new set of card details. Your old details will stop working. You can't undo this.";
+"tangempay_reissue_card_fee_label" = "Replacement fee";
+"tangempay_reissue_card_fee_unreachable_error_title" = "Replacement fee info unreachable";
+"tangempay_reissue_card_in_progress_description" = "Usually takes up to 5 minutes. In rare cases, up to 48 hours.";
+"tangempay_reissue_card_in_progress" = "Replacing your digital card";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
+"tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "Stiamo risolvendo un problema tecnico. Riprova più tardi.";
 "tangempay_service_unavailable_title" = "Servizio temporaneamente non disponibile";
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
@@ -1551,7 +1570,7 @@
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
 "update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
-"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted permission amount.\nUpdate permission to proceed";
 "update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
