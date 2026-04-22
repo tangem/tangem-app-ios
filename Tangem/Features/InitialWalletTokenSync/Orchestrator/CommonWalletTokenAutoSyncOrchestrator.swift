@@ -21,6 +21,7 @@ final class CommonWalletTokenAutoSyncOrchestrator {
     private let userWalletRepository: UserWalletRepository
     private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
 
+    private let walletDidCreateSubject = PassthroughSubject<UserWalletId, Never>()
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -37,44 +38,81 @@ final class CommonWalletTokenAutoSyncOrchestrator {
         self.relayerFactory = relayerFactory
         self.userWalletRepository = userWalletRepository
         self.analyticsProvider = analyticsProvider
-        bindUserWalletRepositoryEvents()
+
+        bindDeletedWalletsPipeline()
+        bindStartSyncPipeline()
     }
 }
 
-// MARK: - WalletTokenAutoSyncInteractor
+// MARK: - WalletLifecycleObserver
 
-extension CommonWalletTokenAutoSyncOrchestrator: WalletTokenAutoSyncInteractor {
-    func startIfPossible(userWalletModel: UserWalletModel, keyInfos: [KeyInfo]) async {
-        let userWalletId = userWalletModel.userWalletId
-
-        do {
-            try await syncStateActor.executeIfPossible(userWalletId: userWalletId) { [weak self] in
-                guard let self else {
-                    return
-                }
-
-                await performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
-            }
-        } catch {
-            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(userWalletId.stringValue): \(error)")
-        }
+extension CommonWalletTokenAutoSyncOrchestrator: WalletLifecycleObserver {
+    func walletDidCreate(with userWalletId: UserWalletId) {
+        walletDidCreateSubject.send(userWalletId)
     }
 }
 
-// MARK: - Private
+// MARK: - Private Implementation
 
 private extension CommonWalletTokenAutoSyncOrchestrator {
-    func bindUserWalletRepositoryEvents() {
+    func bindDeletedWalletsPipeline() {
         userWalletRepository.eventProvider
-            .receiveOnMain()
-            .sink { [weak self] event in
+            .compactMap { event -> [UserWalletId]? in
                 guard case .deleted(let userWalletIds, _) = event else {
-                    return
+                    return nil
                 }
 
-                self?.handleDeletedWallets(userWalletIds)
+                return userWalletIds
+            }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { service, userWalletIds in
+                service.handleDeletedWallets(userWalletIds)
             }
             .store(in: &cancellables)
+    }
+
+    func bindStartSyncPipeline() {
+        let repositoryStartSyncPublisher = userWalletRepository.eventProvider
+            .compactMap { event -> UserWalletId? in
+                switch event {
+                case .inserted(let userWalletId):
+                    return userWalletId
+                default:
+                    return nil
+                }
+            }
+
+        Publishers.Merge(
+            walletDidCreateSubject.eraseToAnyPublisher(),
+            repositoryStartSyncPublisher.eraseToAnyPublisher()
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .compactMap { service, userWalletId -> UserWalletModel? in
+            service.userWalletRepository.models.first(where: { $0.userWalletId == userWalletId })
+        }
+        .flatMapLatest { userWalletModel -> AnyPublisher<UserWalletModel, Never> in
+            userWalletModel.accountModelsManager.cryptoAccountModelsPublisher
+                .filter { cryptoAccountModels in
+                    cryptoAccountModels.contains(where: { $0.isMainAccount })
+                }
+                .prefix(1)
+                .mapToValue(userWalletModel)
+                .eraseToAnyPublisher()
+        }
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { service, userWalletModel in
+            service.handleStartSync(userWalletModel: userWalletModel)
+        }
+        .store(in: &cancellables)
+    }
+
+    func handleStartSync(userWalletModel: UserWalletModel) {
+        Task { [weak self] in
+            await self?.attemptStartSync(userWalletModel: userWalletModel)
+        }
     }
 
     func handleDeletedWallets(_ userWalletIds: [UserWalletId]) {
@@ -83,6 +121,32 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
                 await self?.syncStateActor.cancelAndUnregister(userWalletId: userWalletId)
                 await self?.progressService.remove(userWalletId: userWalletId)
             }
+        }
+    }
+
+    func attemptStartSync(userWalletModel: UserWalletModel) async {
+        let userWalletId = userWalletModel.userWalletId
+
+        guard
+            userWalletModel.config.hasFeature(.walletAssetsDiscovery),
+            userWalletModel.hasImportedWallets,
+            FeatureProvider.isAvailable(.mobileWalletTokenAutoSync)
+        else {
+            AssetsDiscoveryLogger.debug("Skip \(userWalletId.stringValue): token discovery is not supported")
+            return
+        }
+
+        do {
+            try await syncStateActor.startIfPossible(
+                userWalletId: userWalletId,
+                operation: { [weak self] in
+                    guard let self else { return }
+                    let keyInfos = userWalletModel.keysRepository.keys
+                    await performSync(userWalletModel: userWalletModel, keyInfos: keyInfos)
+                }
+            )
+        } catch {
+            AssetsDiscoveryLogger.debug("Skip \(userWalletId.stringValue): \(error)")
         }
     }
 
@@ -154,12 +218,9 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
     ) async -> [TokenItem] {
         let networkAddressPair: NetworkAddressPair
         do {
-            networkAddressPair = try addressResolver.resolveAddress(
-                for: blockchainNetwork.blockchain,
-                keyInfos: keyInfos
-            )
+            networkAddressPair = try addressResolver.resolveAddress(for: blockchainNetwork, keyInfos: keyInfos)
         } catch {
-            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
+            AssetsDiscoveryLogger.debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
             return []
         }
 
@@ -178,7 +239,7 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
 
             return tokens
         } catch {
-            AppLogger.tag("WalletTokenAutoSync").debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
+            AssetsDiscoveryLogger.debug("Skip \(blockchainNetwork.blockchain.displayName): \(error)")
             return []
         }
     }
@@ -247,17 +308,13 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
 
 // MARK: - InjectedValues
 
+private struct WalletLifecycleObserverKey: InjectionKey {
+    static var currentValue: WalletLifecycleObserver = WalletTokenAutoSyncOrchestratorFactory().makeOrchestrator()
+}
+
 extension InjectedValues {
-    var walletTokenAutoSyncInteractor: WalletTokenAutoSyncInteractor {
-        shared
-    }
-
-    private var shared: CommonWalletTokenAutoSyncOrchestrator {
-        get { Self[Key.self] }
-        set { Self[Key.self] = newValue }
-    }
-
-    private struct Key: InjectionKey {
-        static var currentValue: CommonWalletTokenAutoSyncOrchestrator = WalletTokenAutoSyncOrchestratorFactory().makeOrchestrator()
+    var walletLifecycleObserver: WalletLifecycleObserver {
+        get { Self[WalletLifecycleObserverKey.self] }
+        set { Self[WalletLifecycleObserverKey.self] = newValue }
     }
 }
