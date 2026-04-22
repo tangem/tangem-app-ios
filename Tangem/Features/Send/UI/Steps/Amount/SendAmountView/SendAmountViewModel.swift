@@ -734,7 +734,7 @@ extension SendAmountViewModel {
             isInputFieldSwitchingLocked = false
         }
     }
-    
+
     private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
         if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
             return .balanceAndSend(
