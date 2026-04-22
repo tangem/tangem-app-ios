@@ -94,10 +94,12 @@ struct SendAmountTokenView: View {
                         Text(sendLabel)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                        LoadableBalanceView(
+                        LoadableTextView(
                             state: sendAmount,
-                            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.primary1),
-                            loader: .init(size: CGSize(width: 130, height: 15), skeletonColor: Color.Tangem.Skeleton.backgroundAction)
+                            font: Fonts.Regular.caption1,
+                            textColor: Colors.Text.primary1,
+                            loaderSize: CGSize(width: 130, height: 15),
+                            isSensitiveText: true
                         )
                     }
                 }
