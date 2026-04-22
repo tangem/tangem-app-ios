@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import CombineExt
 import BlockchainSdk
 
 final class CommonWalletTokenAutoSyncPersister: WalletTokenAutoSyncPersister {
@@ -42,11 +41,11 @@ private extension CommonWalletTokenAutoSyncPersister {
             return
         } catch {
             guard attempt < Constants.maxSyncRetries, !Task.isCancelled else {
-                AppLogger.tag("WalletTokenAutoSync").error("Failed to sync discovered tokens after \(attempt + 1) attempts", error: error)
+                AssetsDiscoveryLogger.error("Failed to sync discovered tokens after \(attempt + 1) attempts", error: error)
                 return
             }
 
-            AppLogger.tag("WalletTokenAutoSync").debug("Token list not ready, retry \(attempt + 1)/\(Constants.maxSyncRetries)")
+            AssetsDiscoveryLogger.debug("Token list not ready, retry \(attempt + 1)/\(Constants.maxSyncRetries)")
 
             try? await Task.sleep(for: Constants.retryDelay)
 
@@ -61,22 +60,18 @@ private extension CommonWalletTokenAutoSyncPersister {
         }
     }
 
+    /// Ensures main account token list is initialized before auto-sync.
     func waitForTokenListReady(accountModelsManager: AccountModelsManager) async throws {
-        try await accountModelsManager
-            .cryptoAccountModelsPublisher
-            .setFailureType(to: WalletTokenAutoSyncError.self)
-            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Void, WalletTokenAutoSyncError> in
-                guard cryptoAccountModels.isNotEmpty else {
-                    return Fail(error: .userTokenListNotReady).eraseToAnyPublisher()
-                }
+        guard let mainAccount = accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+            throw WalletTokenAutoSyncError.userTokenListNotReady
+        }
 
-                return cryptoAccountModels
-                    .map { $0.userTokensManager.userTokensPublisher }
-                    .combineLatest()
-                    .map { _ in () }
-                    .setFailureType(to: WalletTokenAutoSyncError.self)
-                    .eraseToAnyPublisher()
-            }
+        try await mainAccount
+            .userTokensManager
+            .userTokensPublisher
+            .setFailureType(to: WalletTokenAutoSyncError.self)
+            .prefix(1)
+            .mapToVoid()
             .timeout(
                 .seconds(Constants.syncTimeoutSeconds),
                 scheduler: DispatchQueue.main,
@@ -90,7 +85,7 @@ private extension CommonWalletTokenAutoSyncPersister {
         accountModelsManager: AccountModelsManager
     ) {
         guard let mainAccount = accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
-            AppLogger.tag("WalletTokenAutoSync").debug("No main crypto account found, skipping token persistence")
+            AssetsDiscoveryLogger.debug("No main crypto account found, skipping token persistence")
             return
         }
 
@@ -99,18 +94,18 @@ private extension CommonWalletTokenAutoSyncPersister {
         }
 
         guard newTokens.isNotEmpty else {
-            AppLogger.tag("WalletTokenAutoSync").debug("No new tokens to add, all already present")
+            AssetsDiscoveryLogger.debug("No new tokens to add, all already present")
             return
         }
 
         do {
             try Task.checkCancellation()
             try mainAccount.userTokensManager.update(itemsToRemove: [], itemsToAdd: newTokens)
-            AppLogger.tag("WalletTokenAutoSync").debug("Added \(newTokens.count) new tokens to main account")
+            AssetsDiscoveryLogger.debug("Added \(newTokens.count) new tokens to main account")
         } catch is CancellationError {
-            AppLogger.tag("WalletTokenAutoSync").debug("Token persistence cancelled before account update")
+            AssetsDiscoveryLogger.debug("Token persistence cancelled before account update")
         } catch {
-            AppLogger.tag("WalletTokenAutoSync").error("Failed to add tokens to main account", error: error)
+            AssetsDiscoveryLogger.error("Failed to add tokens to main account", error: error)
         }
     }
 }
