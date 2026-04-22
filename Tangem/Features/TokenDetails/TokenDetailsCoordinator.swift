@@ -167,8 +167,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesEnterView() {
-        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    func openDynamicAddressesEnterView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            coordinator: self
+        )
     }
 
     func openDynamicAddressesUnavailableSheet() {
@@ -178,8 +181,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesDisableSheet() {
+    func openDynamicAddressesDisableSheet(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory
+    ) {
         let viewModel = DynamicAddressesDisableSheetViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
             coordinator: self
         )
         Task { @MainActor in
