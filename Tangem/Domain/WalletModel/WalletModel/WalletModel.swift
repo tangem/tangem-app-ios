@@ -133,6 +133,19 @@ protocol WalletModelBalancesProvider {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
 }
 
+// MARK: - Dependencies
+
+protocol WalletModelDynamicAddressesProvider {
+    var dynamicAddressesEnablingRequirements: DynamicAddressesEnablingRequirements? { get }
+    var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? { get }
+
+    @MainActor
+    func enableDynamicAddresses() async throws
+
+    @MainActor
+    func disableDynamicAddresses() async throws
+}
+
 // MARK: - Helpers
 
 protocol WalletModelHelpers {
