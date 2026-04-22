@@ -13,7 +13,6 @@ import TangemFoundation
 import TangemNetworkUtils
 import TangemSdk
 
-@available(iOS 13.0, *)
 public final class SolanaNetworkService: MultiNetworkProvider {
     let providers: [RPCEndpoint]
     var currentProviderIndex: Int = 0
@@ -140,6 +139,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             allowUnfundedRecipient: true,
             signer: signer
         )
+        .mapError(Self.mapRPCErrorIfPossible)
         .eraseToAnyPublisher()
     }
 
@@ -151,6 +151,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             serializedTransaction: base64serializedTransaction,
             startSendingTimestamp: startSendingTimestamp
         )
+        .mapError(Self.mapRPCErrorIfPossible)
         .eraseToAnyPublisher()
     }
 
@@ -171,6 +172,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
                     signer: signer
                 )
             }
+            .mapError(Self.mapRPCErrorIfPossible)
             .eraseToAnyPublisher()
     }
 
@@ -482,6 +484,28 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
         )
+    }
+
+    private static func mapRPCErrorIfPossible(_ error: Error) -> Error {
+        switch error {
+        case RPCError.invalidResponse(let responseError):
+            return SolanaError.invalidResponse(responseError)
+
+        case RPCError.httpErrorCode(let statusCode, let description):
+            var message = "The operation couldn’t be completed."
+                + " This may be due to a temporary network or RPC server issue."
+                + " Please try again in a few moments."
+                + "\nStatus code: \(statusCode)."
+
+            if let description {
+                message.append("Description: \(description)")
+            }
+
+            return SolanaError.other(message)
+
+        default:
+            return error
+        }
     }
 
     private func tokenBalance(
