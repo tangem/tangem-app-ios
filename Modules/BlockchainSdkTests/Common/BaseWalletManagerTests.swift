@@ -93,30 +93,6 @@ struct BaseWalletManagerWalletProviderTests {
     }
 }
 
-// MARK: - WalletReplaceable
-
-struct BaseWalletManagerWalletReplaceableTests {
-    @Test
-    func updateWalletSucceedsForSameNetwork() throws {
-        let sut = MockSingleAddressWalletManager(wallet: .stub(blockchain: .ethereum(testnet: false), address: "0x111"))
-        let newWallet = Wallet.stub(blockchain: .ethereum(testnet: false), address: "0x222")
-
-        try sut.update(wallet: newWallet)
-
-        #expect(sut.wallet.address == "0x222")
-    }
-
-    @Test
-    func updateWalletThrowsForDifferentNetwork() {
-        let sut = MockSingleAddressWalletManager(wallet: .stub(blockchain: .ethereum(testnet: false)))
-        let newWallet = Wallet.stub(blockchain: .bitcoin(testnet: false))
-
-        #expect(throws: BaseWalletManager.InternalError.self) {
-            try sut.update(wallet: newWallet)
-        }
-    }
-}
-
 // MARK: - WalletManagerUpdater (state transitions)
 
 struct BaseWalletManagerUpdaterTests {

@@ -137,6 +137,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: tokenItem,
                 addresses: walletManager.wallet.addresses
             )
+
             let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
