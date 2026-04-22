@@ -7,6 +7,7 @@
 //
 
 enum TokenFeeProviderSupportingOptions {
+    static let compound = TokenFeeProviderSupportingOptions.exactly([.market])
     static let swap = TokenFeeProviderSupportingOptions.exactly([.market, .fast])
 
     case all
