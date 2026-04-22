@@ -81,7 +81,7 @@ struct SendAmountTokenView: View {
                     textColor: Colors.Text.tertiary,
                     loaderSize: CGSize(width: 130, height: 15)
                 )
-            case .balanceAndSend(let balance, let send):
+            case .balanceAndSend(let balance, let sendLabel, let sendAmount):
                 VStack(alignment: .leading, spacing: 2) {
                     LoadableBalanceView(
                         state: balance,
@@ -90,12 +90,16 @@ struct SendAmountTokenView: View {
                     )
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
 
-                    LoadableTextView(
-                        state: send,
-                        font: Fonts.Regular.caption1,
-                        textColor: Colors.Text.primary1,
-                        loaderSize: CGSize(width: 130, height: 15)
-                    )
+                    HStack(spacing: 4) {
+                        Text(sendLabel)
+                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+                        LoadableBalanceView(
+                            state: sendAmount,
+                            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.primary1),
+                            loader: .init(size: CGSize(width: 130, height: 15), skeletonColor: Color.Tangem.Skeleton.backgroundAction)
+                        )
+                    }
                 }
             }
         }
