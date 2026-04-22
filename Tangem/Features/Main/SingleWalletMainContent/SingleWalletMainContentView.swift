@@ -17,12 +17,6 @@ struct SingleWalletMainContentView: View {
         VStack(spacing: 14) {
             ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
 
-            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
-                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
-            }
-
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -30,6 +24,12 @@ struct SingleWalletMainContentView: View {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
             }
+
+            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
+                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
+            }
+
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             MarketPriceView(
                 currencySymbol: viewModel.currencySymbol,
