@@ -71,7 +71,7 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
-    func openSwap(swapParameters: PredefinedSwapParameters) {
+    func openSwap(parameters: PredefinedSwapParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] options in
             self?.sendCoordinator = nil
 
@@ -88,7 +88,7 @@ extension TangemPayMainCoordinator {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(type: .swap(swapParameters), source: .main))
+        coordinator.start(with: .init(type: .swap(parameters), source: .main))
         sendCoordinator = coordinator
     }
 }
@@ -136,7 +136,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
                 Task { @MainActor in
                     self?.floatingSheetPresenter.removeActiveSheet()
                     try? await Task.sleep(for: .seconds(0.2))
-                    self?.openSwap(swapParameters: input)
+                    self?.openSwap(parameters: input)
                 }
             }
 
@@ -274,7 +274,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
 
             // Give some time to hide sheet with animation
             try? await Task.sleep(for: .seconds(0.2))
-            openSwap(swapParameters: input)
+            openSwap(parameters: input)
         }
     }
 
