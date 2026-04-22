@@ -27,6 +27,7 @@ enum Feature: String, Hashable, CaseIterable {
     case usdtRevokeGaslessFee
     case newPromotionBanners
     case swapPipelineV2
+    case onrampNativePayment
 
     var name: String {
         switch self {
@@ -48,6 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .newPromotionBanners: return "New Promotion Banners"
         case .swapPipelineV2: return "Swap Pipeline V2"
+        case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         }
     }
 
@@ -71,6 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return .unspecified
         case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .unspecified
+        case .onrampNativePayment: return .unspecified
         }
     }
 }
