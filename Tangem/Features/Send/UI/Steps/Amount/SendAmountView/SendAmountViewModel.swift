@@ -708,7 +708,7 @@ extension SendAmountViewModel {
                             builder: { Localization.commonBalance($0) },
                             sensitive: balance
                         )),
-                        sendLabel: Localization.commonSend,
+                        sendLabel: Localization.commonSendColon,
                         sendAmount: .loaded(text: .builder(
                             builder: { $0 },
                             sensitive: formatted
