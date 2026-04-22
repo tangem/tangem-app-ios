@@ -68,6 +68,18 @@ extension BlockchainNetwork: Codable {
 // MARK: - DerivationMode
 
 extension BlockchainNetwork {
+    func with(derivationMode: DerivationMode) -> Self {
+        BlockchainNetwork(
+            blockchain,
+            derivationPath: derivationPath,
+            derivationMode: derivationMode
+        )
+    }
+}
+
+// MARK: - DerivationMode
+
+extension BlockchainNetwork {
     enum DerivationMode: Codable {
         case plain
         case xpub

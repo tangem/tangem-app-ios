@@ -51,19 +51,6 @@ extension BaseWalletManager: WalletProvider {
     var walletPublisher: AnyPublisher<Wallet, Never> { _wallet.eraseToAnyPublisher() }
 }
 
-// MARK: - WalletReplaceable
-
-extension BaseWalletManager: WalletReplaceable {
-    func update(wallet newWallet: Wallet) throws {
-        guard newWallet.blockchain == wallet.blockchain else {
-            throw InternalError.attemptToWalletUpdateWithDifferentBlockchain
-        }
-
-        setNeedsUpdate()
-        _wallet.send(newWallet)
-    }
-}
-
 // MARK: - WalletManagerUpdater
 
 extension BaseWalletManager: WalletManagerUpdater {
@@ -165,12 +152,10 @@ extension BaseWalletManager {
 extension BaseWalletManager {
     enum InternalError: LocalizedError {
         case walletManagerUpdaterNotSetup
-        case attemptToWalletUpdateWithDifferentBlockchain
 
         var errorDescription: String? {
             switch self {
             case .walletManagerUpdaterNotSetup: "WalletManagerUpdater is not set"
-            case .attemptToWalletUpdateWithDifferentBlockchain: "Attempt to update wallet with different Blockchain"
             }
         }
     }
