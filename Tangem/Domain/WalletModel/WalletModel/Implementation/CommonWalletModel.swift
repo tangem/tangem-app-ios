@@ -22,7 +22,7 @@ class CommonWalletModel {
 
     let id: WalletModelId
     let userWalletId: UserWalletId
-    let tokenItem: TokenItem
+    private(set) var tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
 
@@ -47,6 +47,10 @@ class CommonWalletModel {
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
+
+    private var dynamicAddressesManager: DynamicAddressesManager? {
+        featureManager.features.dynamicAddressesManager
+    }
 
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
@@ -780,6 +784,40 @@ extension CommonWalletModel: WalletModelRentProvider {
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - WalletModelDynamicAddressesProvider
+
+extension CommonWalletModel: WalletModelDynamicAddressesProvider {
+    var dynamicAddressesEnablingRequirements: DynamicAddressesEnablingRequirements? {
+        dynamicAddressesManager?.enablingRequirements
+    }
+
+    var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? {
+        dynamicAddressesManager?.disablingRequirements
+    }
+
+    func enableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try await dynamicAddressesManager.enableDynamicAddresses()
+        tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+
+        await update(silent: false, features: .full)
+    }
+
+    func disableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try dynamicAddressesManager.disableDynamicAddresses()
+        tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+
+        await update(silent: false, features: .full)
     }
 }
 

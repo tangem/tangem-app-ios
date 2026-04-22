@@ -40,7 +40,10 @@ public struct CaseFlagableMacro: MemberMacro {
 
         // Build properties: var isXxx: Bool { if case .xxx = self { true } else { false } }
         let properties: [String] = caseNames.map { caseName in
-            let capitalized = caseName.prefix(1).uppercased() + caseName.dropFirst()
+            // Strip backticks from escaped identifiers (e.g. `default`) for the property name,
+            // but keep the original form for the case pattern match.
+            let unescaped = caseName.replacing("`", with: "")
+            let capitalized = unescaped.prefix(1).uppercased() + unescaped.dropFirst()
             return """
             \(accessModifier)var is\(capitalized): Bool { if case .\(caseName) = self { true } else { false } }
             """
