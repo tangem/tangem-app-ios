@@ -230,7 +230,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             // Phase 1: Instantly swap FROM token row to target state (no animation)
             forceCompactSourceTokenRow = tappedField != .send
             if tappedField != .send {
-                compactSourceSubtitle = .balance(state: .loading())
+                compactSourceSubtitle = makeLoadingCompactSourceSubtitle()
             }
 
             // Phase 2: Animate the collapse/expand after SwiftUI commits Phase 1
@@ -698,7 +698,7 @@ extension SendAmountViewModel {
     func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
         switch sourceAmount {
         case .loading:
-            compactSourceSubtitle = .balance(state: .loading())
+            compactSourceSubtitle = makeLoadingCompactSourceSubtitle()
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
@@ -709,10 +709,7 @@ extension SendAmountViewModel {
                             sensitive: balance
                         )),
                         sendLabel: Localization.commonSendColon,
-                        sendAmount: .loaded(text: .builder(
-                            builder: { $0 },
-                            sensitive: formatted
-                        ))
+                        sendAmount: .loaded(text: formatted)
                     )
                 } else {
                     let sendText = Localization.sendSummaryTitle(formatted)
@@ -736,6 +733,21 @@ extension SendAmountViewModel {
         if !sourceAmount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .receive {
             isInputFieldSwitchingLocked = false
         }
+    }
+
+    /// Preserves two-line height between loading and loaded states when split rows are enabled.
+    func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
+        if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+            return .balanceAndSend(
+                balance: .loaded(text: .builder(
+                    builder: { Localization.commonBalance($0) },
+                    sensitive: balance
+                )),
+                sendLabel: Localization.commonSendColon,
+                sendAmount: .loading
+            )
+        }
+        return .balance(state: .loading())
     }
 
     func mapToSendAmountTokenViewDataSubtitleType(
