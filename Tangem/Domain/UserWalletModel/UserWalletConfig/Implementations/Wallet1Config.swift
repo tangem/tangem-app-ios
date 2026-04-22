@@ -295,6 +295,8 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .tangemPay:
             return card.settings.isHDWalletAllowed ? .available : .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
