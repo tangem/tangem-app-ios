@@ -118,19 +118,11 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        if viewModel.hasDotsMenu {
+        if !viewModel.dotsMenuItems.isEmpty {
             Menu {
-                if viewModel.canGenerateXPUB {
-                    Button(Localization.tokenDetailsGenerateXpub, action: viewModel.generateXPUBButtonAction)
-                }
-
-                if viewModel.canManageDynamicAddresses {
-                    Button(Localization.dynamicAddresses, action: viewModel.openDynamicAddressesManagement)
-                }
-
-                if viewModel.canHideToken {
-                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
+                ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
+                    Button(item.type.title, role: item.type.role, action: item.action)
+                        .accessibilityIdentifier(item.type.accessibilityIdentifier)
                 }
             } label: {
                 NavbarDotsImage()
