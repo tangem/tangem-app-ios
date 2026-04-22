@@ -228,13 +228,6 @@ extension SwapModel {
                 return try await expressManager.update(pair: .none)
             }
 
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                await updatePairsIgnoringErrors(
-                    for: source.tokenItem.expressCurrency,
-                    userWalletInfo: source.userWalletInfo
-                )
-            }
-
             let pair = ExpressManagerSwappingPair(source: source, destination: destination)
 
             let result = try await pairUpdateHandler.handlePairChange(
@@ -817,12 +810,22 @@ extension SwapModel: SwapTokenSelectorOutput {
         let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
             .makeSwapableToken()
 
+        if FeatureProvider.isAvailable(.swapPipelineV2),
+           _sourceToken.value.value?.tokenItem != token.tokenItem {
+            externalAmountUpdater.externalUpdate(amount: nil)
+        }
+
         update(source: token)
     }
 
     func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem) {
         let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
             .makeSwapableToken()
+
+        if FeatureProvider.isAvailable(.swapPipelineV2),
+           _receiveToken.value.value?.tokenItem != token.tokenItem {
+            externalAmountUpdater.externalUpdate(amount: nil)
+        }
 
         update(receive: token)
     }

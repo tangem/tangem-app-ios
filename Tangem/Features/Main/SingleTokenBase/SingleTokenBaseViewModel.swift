@@ -571,12 +571,12 @@ extension SingleTokenBaseViewModel {
         }
 
         let helper = SwapPredefinedParametersHelper()
-        let parameters: PredefinedSwapParameters
 
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            parameters = helper.makeResolvedParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-        } else {
-            parameters = helper.makeFromParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
+        guard let parameters = helper.makeParameters(
+            origin: .tokenDetails(.init(walletModel: walletModel)),
+            userWalletInfo: userWalletInfo
+        ) else {
+            return
         }
 
         tokenRouter.openSwap(parameters: parameters)
