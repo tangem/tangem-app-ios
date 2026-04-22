@@ -285,6 +285,7 @@
 "common_seed_phrase" = "シードフレーズ";
 "common_select_action" = "アクションを選択";
 "common_sell" = "売る";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "取引の送信に失敗しました";
 "common_send" = "送る";
 "common_server_unavailable" = "サーバーが利用できません。しばらくしてからもう一度お試しください。";
@@ -399,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "動的アドレスは利用できません";
 "dynamic_addresses_error_service_unavailable_description" = "現在、プロバイダーに接続できません。しばらくしてからもう一度お試しください。";
 "dynamic_addresses_error_service_unavailable_title" = "サービスを利用できません。しばらくしてからもう一度お試しください。";
+"dynamic_addresses_notification_funds_found_description" = "追加のアドレスに資金が見つかりました。アクセスするには、動的アドレスを有効にしてください。";
+"dynamic_addresses_notification_funds_found_title" = "追加のアドレスで資金が見つかりました";
+"dynamic_addresses_receive_badge" = "動的アドレス";
 "dynamic_addresses" = "動的アドレス";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "絞り込みを解除";
@@ -624,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "このアセットはこのウォレットでは使用できません。";
 "markets_add_token" = "追加";
 "markets_available networks" = "利用可能なネットワーク";
+"markets_common_market_price" = "市場価格";
 "markets_common_my_portfolio" = "私のポートフォリオ";
 "markets_common_title" = "マーケット";
 "markets_earn_common_title" = "ステーキング・利息モード";
@@ -636,6 +641,7 @@
 "markets_loading_no_data_title" = "データなし";
 "markets_portfolio_block_add_token_title" = "**ポートフォリオに追加して**、この資産の買付・交換・受け取りを始めましょう";
 "markets_portfolio_block_subtitle" = "ポートフォリオ内";
+"markets_portfolio_block_title" = "ポートフォリオ";
 "markets_pulse_common_title" = "マーケット動向";
 "markets_search_clear_all_hints" = "すべてクリア";
 "markets_search_header_title" = "トークンを探す";
@@ -835,7 +841,9 @@
 "onboarding_getting_started" = "スタート";
 "onboarding_linking_error_card_with_wallets" = "追加しようとしているカードには、すでに別のウォレットが作成されています。このウォレットに資金がある場合は、それを引き出してからこのカードをリセットし、バックアップとして追加してください。";
 "onboarding_navbar_save_wallet" = "ウォレットを保存する";
+"onboarding_navbar_title_biometrics" = "生体認証を使用する";
 "onboarding_navbar_title_creating_backup" = "バックアップの作成";
+"onboarding_navbar_title_last_step" = "最終ステップ";
 "onboarding_navbar_upgrade_wallet_biometrics" = "生体認証";
 "onboarding_seed_button_read_more" = "シードフレーズについてもっと読む";
 "onboarding_seed_generate_title" = "あなたのシードフレーズ";
@@ -1279,17 +1287,17 @@
 "swap_story_fifth_title" = "いつもここに";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "複数の信頼できるプロバイダーが一箇所に集結。ウォレット内で様々な暗号資産を簡単に交換できます。";
-"swap_story_first_title_v2" = "Swap Inside Your Wallet";
+"swap_story_first_title_v2" = "ウォレット内でスワップ";
 "swap_story_first_title" = "ぜひスワップしてください";
-"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
+"swap_story_forth_subtitle_v2" = "スワップは信頼できるプロバイダーを通じて実行されます。秘密鍵は常にTangemウォレット内に保持されます。シンプル。透明。自己管理。";
 "swap_story_forth_subtitle" = "失敗も死角もありません。取引は常に保護されます。";
-"swap_story_forth_title_v2" = "You Stay in Control";
+"swap_story_forth_title_v2" = "主導権はあなたの手にあります";
 "swap_story_forth_title" = "難攻不落の防御";
 "swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
 "swap_story_second_subtitle" = "幅広いネットワークの中から、常に最適なプロバイダーと料金レートを選択します";
-"swap_story_second_title_v2" = "Best Available Rate";
+"swap_story_second_title_v2" = "利用可能なベストレート";
 "swap_story_second_title" = "破格のレート";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "主要ネットワークと数千種類のトークンに対応 ステーブルコイン同士のスワップは手数料0%%";
 "swap_story_third_subtitle" = "手間がかからず直感的に操作でき、数回タップするだけでトークンを交換できます。";
 "swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
 "swap_story_third_title" = "とにかく便利";
@@ -1389,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "アドレスを共有するか、QRコードを表示してください。";
 "tangempay_card_details_receive_error_description" = "技術的な問題が検出されました。しばらくしてからもう一度お試しいただくか、サポートにお問い合わせください。";
 "tangempay_card_details_receive_error_title" = "現在、受け取りは利用できません";
+"tangempay_card_details_reissue_card" = "カードを交換する";
 "tangempay_card_details_rename_card_invalid_description" = "英字と数字のみ使用できます";
 "tangempay_card_details_rename_card_invalid_title" = "無効な文字が含まれています";
 "tangempay_card_details_reveal_text" = "表示";
@@ -1457,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "支払アカウントが同期されていません";
 "tangempay_payment_account" = "支払いアカウント";
 "tangempay_pin_validation_error_message" = "無効な暗証番号：連続や繰り返しを避けてください";
+"tangempay_reissue_card_confirm" = "カードを交換";
+"tangempay_reissue_card_description" = "これにより、新しいカード情報が発行されます。現在のカード情報は使えなくなります。この操作は元に戻せません。";
+"tangempay_reissue_card_fee_label" = "交換手数料";
+"tangempay_reissue_card_fee_unreachable_error_title" = "交換手数料の情報にアクセスできません";
+"tangempay_reissue_card_in_progress_description" = "通常は5分以内に完了します。まれに最大48時間かかる場合があります。";
+"tangempay_reissue_card_in_progress" = "デジタルカードを交換しています";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "発行手数料を支払うため、決済口座にUSDCを入金してください";
+"tangempay_reissue_card_insufficient_funds_title" = "手数料を支払えません";
+"tangempay_reissue_card_insufficient_funds" = "カード交換に必要な残高が不足しています";
+"tangempay_reissue_card_title" = "カードを交換しますか？";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
@@ -1551,7 +1570,7 @@
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
 "update_approval_permission_fee_note" = "以前の承認は取り消され、新しい承認が発行されます。これらの各操作には、ネットワークによるトークン承認手数料がかかります。履歴には、取り消しの証拠として金額0の取引が表示されます。";
-"update_approval_permission_subtitle" = "取引金額が、以前に許可された承認額を超えています。\n続行するには、承認内容を更新してください。";
+"update_approval_permission_subtitle" = "取引金額が、以前に許可された承認額を超えています。\n続行するには、承認内容を更新してください";
 "update_approval_permission_title" = "承認を更新";
 "upgrade_to_hardware_wallet_button_title" = "ハードウェアウォレットにアップグレード";
 "user_push_notification_agreement_argument_one_subtitle" = "取引・スワップ・重要な更新に関するリアルタイム通知。";

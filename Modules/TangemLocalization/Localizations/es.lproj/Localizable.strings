@@ -285,6 +285,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "Error al enviar la transacción";
 "common_send" = "Enviar";
 "common_server_unavailable" = "El servidor no está disponible, por favor inténtelo de nuevo más tarde";
@@ -399,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "Direcciones dinámicas no disponibles";
 "dynamic_addresses_error_service_unavailable_description" = "No podemos conectar con el proveedor en este momento. Vuelva a intentarlo más tarde.";
 "dynamic_addresses_error_service_unavailable_title" = "Servicio no disponible. Por favor, inténtelo de nuevo.";
+"dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
+"dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
+"dynamic_addresses_receive_badge" = "Dynamic address";
 "dynamic_addresses" = "Direcciones dinámicas";
 "earn_best_opportunities" = "Las mejores oportunidades";
 "earn_clear_filter" = "Limpiar filtro";
@@ -624,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Este activo no está disponible para esta billetera";
 "markets_add_token" = "Añadir";
 "markets_available networks" = "Redes disponibles";
+"markets_common_market_price" = "Market Price";
 "markets_common_my_portfolio" = "Mi portafolio";
 "markets_common_title" = "Mercado";
 "markets_earn_common_title" = "Modo Staking & Rendimiento";
@@ -636,6 +641,7 @@
 "markets_loading_no_data_title" = "Sin datos";
 "markets_portfolio_block_add_token_title" = "**Añadir a su portafolio** para empezar a comprar, intercambiar o recibir este activo";
 "markets_portfolio_block_subtitle" = "En su portafolio";
+"markets_portfolio_block_title" = "Your portfolio";
 "markets_pulse_common_title" = "Análisis del Mercado";
 "markets_search_clear_all_hints" = "Borrar todo";
 "markets_search_header_title" = "Buscar tokens";
@@ -835,7 +841,9 @@
 "onboarding_getting_started" = "Inicializando";
 "onboarding_linking_error_card_with_wallets" = "Ya se ha creado otra billetera en la tarjeta que está intentando agregar. Si tiene fondos en esta billetera, por favor retírelos y luego reinicie esta tarjeta y agréguela como backup.";
 "onboarding_navbar_save_wallet" = "Guardar su billetera";
+"onboarding_navbar_title_biometrics" = "Use biometrics";
 "onboarding_navbar_title_creating_backup" = "Creando un backup";
+"onboarding_navbar_title_last_step" = "Last step";
 "onboarding_navbar_upgrade_wallet_biometrics" = "Biometría";
 "onboarding_seed_button_read_more" = "Leer más sobre seed phrase";
 "onboarding_seed_generate_title" = "Su seed phrase";
@@ -1389,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "Comparte tu dirección o muestra el código QR";
 "tangempay_card_details_receive_error_description" = "Se detectaron problemas técnicos. Inténtelo de nuevo más tarde o póngase en contacto con el servicio de asistencia.";
 "tangempay_card_details_receive_error_title" = "Recepción no disponible ahora";
+"tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Mostrar";
@@ -1405,7 +1414,7 @@
 "tangempay_card_details_withdraw" = "Retirar";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
-"tangempay_card_page_daily_limit_error_description" = "We couldn\'t load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
 "tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
 "tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
@@ -1457,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "La cuenta de pago no está sincronizada";
 "tangempay_payment_account" = "Cuenta de pago";
 "tangempay_pin_validation_error_message" = "PIN no válido: evitar secuencias o repeticiones";
+"tangempay_reissue_card_confirm" = "Replace card";
+"tangempay_reissue_card_description" = "This generates a new set of card details. Your old details will stop working. You can't undo this.";
+"tangempay_reissue_card_fee_label" = "Replacement fee";
+"tangempay_reissue_card_fee_unreachable_error_title" = "Replacement fee info unreachable";
+"tangempay_reissue_card_in_progress_description" = "Usually takes up to 5 minutes. In rare cases, up to 48 hours.";
+"tangempay_reissue_card_in_progress" = "Replacing your digital card";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
+"tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "Estamos solucionando un problema técnico. Por favor, inténtelo de nuevo más tarde.";
 "tangempay_service_unavailable_title" = "Servicio temporalmente no disponible";
 "tangempay_service_unreachable_try_later" = "No es posible mostrar los datos en este momento, pero los pagos con tarjeta siguen funcionando.";
