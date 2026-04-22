@@ -735,7 +735,7 @@ extension SendAmountViewModel {
         }
     }
     
-    func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
+    private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
         if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
             return .balanceAndSend(
                 balance: .loaded(text: .builder(
