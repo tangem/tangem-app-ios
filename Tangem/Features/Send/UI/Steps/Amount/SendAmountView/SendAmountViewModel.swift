@@ -734,8 +734,7 @@ extension SendAmountViewModel {
             isInputFieldSwitchingLocked = false
         }
     }
-
-    /// Preserves two-line height between loading and loaded states when split rows are enabled.
+    
     func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
         if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
             return .balanceAndSend(
