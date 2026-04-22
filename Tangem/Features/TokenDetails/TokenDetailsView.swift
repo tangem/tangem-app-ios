@@ -67,6 +67,10 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
+                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                    QuickTopUpBannerView(viewModel: quickTopUpVM)
+                }
+
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
