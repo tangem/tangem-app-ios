@@ -134,8 +134,8 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater {
 
     private func updateWallet(with response: UTXOXpubNetworkProviderUpdatingResponse) throws {
         let userDerivations = response.info.addresses.map(\.usedAddress.derivationPath)
-
         wallet.update(userDerivations: userDerivations)
+
         unspentOutputManager.clearOutputs()
         try response.outputs.forEach { address, outputs in
             if let address = wallet.addresses.first(where: { $0.value == address.address }) {
@@ -203,6 +203,69 @@ extension BitcoinWalletManager: TransactionSender {
         }
         .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - XPUBAddressesWalletManagerProvider
+
+extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
+    func compoundTransactionIfNeeded() -> (amount: Amount, destination: String)? {
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        guard balance > 0 else {
+            return nil
+        }
+
+        guard let plainWallet = try? makePlainWallet() else {
+            return nil
+        }
+
+        let plainWalletScripts = plainWallet.addresses
+            .compactMap { ($0 as? LockingScriptAddress)?.lockingScript }
+
+        let hasOutputsOutsidePlainWallet = unspentOutputManager.availableOutputs()
+            .contains { !plainWalletScripts.contains($0.script) }
+
+        guard hasOutputsOutsidePlainWallet else {
+            return nil
+        }
+
+        let amount = Amount(with: wallet.blockchain, value: balance)
+        return (amount: amount, destination: plainWallet.address)
+    }
+
+    func updateToXpubKey(xpubKey: Wallet.PublicKey.XPUBKey) throws {
+        wallet = try makeXpubWallet(xpubKey: xpubKey)
+        setNeedsUpdate()
+    }
+
+    func updateToPlainKey() throws {
+        wallet = try makePlainWallet()
+        setNeedsUpdate()
+    }
+
+    private func makeXpubWallet(xpubKey: Wallet.PublicKey.XPUBKey) throws -> Wallet {
+        guard case .plain(let plainKey) = wallet.publicKey.derivationType else {
+            throw XPUBAddressesWalletManagerProviderError.plainHDKeyNotFound
+        }
+
+        return try makeWallet(derivationType: .xpub(plain: plainKey, xpub: xpubKey))
+    }
+
+    private func makePlainWallet() throws -> Wallet {
+        guard case .xpub(let plainKey, _) = wallet.publicKey.derivationType else {
+            throw XPUBAddressesWalletManagerProviderError.xpubHDKeyNotFound
+        }
+
+        return try makeWallet(derivationType: .plain(plainKey))
+    }
+
+    private func makeWallet(derivationType: Wallet.PublicKey.DerivationType) throws -> Wallet {
+        let publicKey = Wallet.PublicKey(
+            seedKey: wallet.publicKey.seedKey,
+            derivationType: derivationType
+        )
+        let factory = WalletFactory(blockchain: wallet.blockchain)
+        return try factory.makeWallet(publicKey: publicKey)
     }
 }
 

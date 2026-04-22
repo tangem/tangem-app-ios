@@ -43,14 +43,19 @@ class FakeWalletManager: WalletManager {
             isDemo: false
         )
         let userWalletId = UserWalletId(value: Data())
-        let keysProvider = CommonKeysRepository(keys: .cardWallet(keys: []))
+        let keysRepository = CommonKeysRepository(keys: .cardWallet(keys: []))
 
-        walletModels = WalletModelsFactoryProvider(
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
-            keysProvider: keysProvider,
+            keysRepository: keysRepository,
             keysDerivingInteractor: KeysDerivingMock()
-        ).makeWalletModelsFactory().makeWalletModels(
+        )
+
+        let walletModelsFactory = walletModelsFactoryProvider
+            .makeWalletModelsFactory(derivationModeUpdater: FakeDerivationModeUpdater())
+
+        walletModels = walletModelsFactory.makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,
@@ -76,10 +81,6 @@ class FakeWalletManager: WalletManager {
     }
 
     func updateWalletManager(address: String) async throws {}
-
-    func update(wallet newWallet: BlockchainSdk.Wallet) throws {
-        wallet = newWallet
-    }
 
     func removeToken(_ token: BlockchainSdk.Token) {
         cardTokens.removeAll(where: { $0 == token })
@@ -184,4 +185,14 @@ extension FakeWalletManager {
         wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
+}
+
+private struct FakeDerivationModeUpdater: DerivationModeUpdater {
+    func update(derivationMode: BlockchainNetwork.DerivationMode, for tokenItem: TokenItem) -> BlockchainNetwork {
+        BlockchainNetwork(
+            tokenItem.blockchain,
+            derivationPath: tokenItem.blockchainNetwork.derivationPath,
+            derivationMode: derivationMode
+        )
+    }
 }
