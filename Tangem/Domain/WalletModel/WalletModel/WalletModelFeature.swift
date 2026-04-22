@@ -14,12 +14,22 @@ import TangemMacro
 enum WalletModelFeature {
     case nft(networkService: NFTNetworkService)
 
-    @available(*, unavailable, message: "This feature is not implemented yet")
-    case dynamicAddresses
+    case dynamicAddresses(manager: DynamicAddressesManager)
 
     @available(*, unavailable, message: "This feature is not implemented yet")
     case staking
 
     @available(*, unavailable, message: "This feature is not implemented yet")
     case transactionHistory
+}
+
+// MARK: - Convenience accessors
+
+extension Array where Element == WalletModelFeature {
+    var dynamicAddressesManager: DynamicAddressesManager? {
+        for case .dynamicAddresses(let manager) in self {
+            return manager
+        }
+        return nil
+    }
 }
