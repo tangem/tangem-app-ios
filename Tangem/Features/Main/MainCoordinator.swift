@@ -844,8 +844,9 @@ extension MainCoordinator {
         case referral(input: ReferralInputModel)
         case staking(options: StakingDetailsCoordinator.Options)
         case marketsTokenDetails(tokenId: String)
+        case tokenExchanges(tokenId: String)
         case externalLink(url: URL)
-        case market
+        case markets(filter: MarketsDeeplinkFilter)
         case onboardVisa(deeplinkString: String)
         case newsDetails(newsId: Int)
         case promo(code: String, refcode: String?, campaign: String?)
