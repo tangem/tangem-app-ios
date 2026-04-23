@@ -29,7 +29,7 @@ struct MarketsMainView: View {
     @State private var isListContentObscured = false
 
     private var defaultBackgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             .Tangem.Surface.level2
         } else {
             Colors.Background.tertiary
@@ -69,12 +69,12 @@ struct MarketsMainView: View {
                         .transition(.opacity)
                 } else {
                     widgetsListView
+                        .scrollDismissesKeyboard(.immediately)
                         .transition(.opacity)
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: showSearchResult)
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
-            .scrollDismissesKeyboard(.immediately)
 
             navigationBarBackground
 
@@ -96,37 +96,61 @@ struct MarketsMainView: View {
             backdropViewColor: defaultBackgroundColor,
             overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
             isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
-            isListContentObscured: isListContentObscured
-        ) {
-            Group {
-                if showSearchResult, !FeatureProvider.isAvailable(.redesign) {
-                    // Redesigned search UI draws its own header inside `searchResultView`,
-                    // so no overlay is needed in that branch.
-                    MarketsSearchResultListOverlayView(
-                        titleOpacity: $listOverlayTitleOpacity,
-                        totalHeight: $searchResultListOverlayTotalHeight
-                    )
-                } else if !showSearchResult {
-                    defaultListOverlay
-                }
-            }
-        }
+            isListContentObscured: isListContentObscured,
+            overlay: { navigationBarBackgroundOverlay }
+        )
         .frame(height: headerHeight + overlayHeight)
         .offset(y: listOverlayVerticalOffset)
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
     @ViewBuilder
-    private var searchResultView: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            TokenSearchView(viewModel: viewModel.tokenSearchViewModel, headerHeight: headerHeight)
+    private var navigationBarBackgroundOverlay: some View {
+        if viewModel.isRedesign {
+            navigationBarBackgroundOverlayRedesign
         } else {
-            legacySearchResultView
+            navigationBarBackgroundOverlayLegacy
         }
     }
 
     @ViewBuilder
-    private var legacySearchResultView: some View {
+    private var navigationBarBackgroundOverlayRedesign: some View {
+        if !showSearchResult {
+            defaultListOverlay
+        }
+    }
+
+    @ViewBuilder
+    private var navigationBarBackgroundOverlayLegacy: some View {
+        if showSearchResult {
+            MarketsSearchResultListOverlayView(
+                titleOpacity: $listOverlayTitleOpacity,
+                totalHeight: $searchResultListOverlayTotalHeight
+            )
+        } else {
+            defaultListOverlay
+        }
+    }
+
+    @ViewBuilder
+    private var searchResultView: some View {
+        if viewModel.isRedesign {
+            searchResultViewRedesign
+        } else {
+            searchResultViewLegacy
+                .scrollDismissesKeyboard(.immediately)
+        }
+    }
+
+    private var searchResultViewRedesign: some View {
+        MarketsTokenSearchView(
+            viewModel: viewModel.tokenSearchViewModel,
+            headerHeight: headerHeight
+        )
+    }
+
+    @ViewBuilder
+    private var searchResultViewLegacy: some View {
         switch viewModel.tokenListViewModel.tokenListLoadingState {
         case .noResults:
             noResultsStateView
@@ -148,7 +172,7 @@ struct MarketsMainView: View {
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(alignment: .center, spacing: .zero) {
-                if FeatureProvider.isAvailable(.redesign) {
+                if viewModel.isRedesign {
                     redesignTitleView
                 } else {
                     legacyTitleView
@@ -251,7 +275,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
-                            .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
+                            .padding(.horizontal, viewModel.isRedesign ? SizeUnit.x4.value : 0)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
@@ -275,7 +299,7 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
@@ -285,7 +309,7 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             makeRedesignContentView(with: item)
         } else {
             makeLegacyContentView(with: item)
