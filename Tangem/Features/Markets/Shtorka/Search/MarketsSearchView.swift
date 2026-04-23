@@ -15,7 +15,8 @@ import TangemUIUtils
 
 struct MarketsSearchView: View {
     @ObservedObject var viewModel: MarketsSearchViewModel
-    let onBackButtonAction: () -> Void
+    let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
+    let onLeadingButtonAction: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainWindowSize) private var mainWindowSize
@@ -133,7 +134,8 @@ struct MarketsSearchView: View {
     private var navigationBar: some View {
         MarketsSearchNavigationBar(
             title: Localization.marketsCommonTitle,
-            onBackButtonAction: onBackButtonAction,
+            leadingButton: leadingButton,
+            onLeadingButtonAction: onLeadingButtonAction,
             onSearchButtonAction: viewModel.onSearchButtonAction
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)
