@@ -16,9 +16,13 @@ import TangemVisa
 
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let lastFourDigits: String
+    let cardNameDisplayMode: CardNameDisplayMode
 
     @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
     @Published var isFlipped: Bool = false
+    @Published var cardName: String = ""
+
+    var onCardNameTapped: (() -> Void)?
 
     private var expectedState: TangemPayCardDetailsState? = nil
 
@@ -29,11 +33,18 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     init(
         userWalletId: UserWalletId,
-        repository: TangemPayCardDetailsRepository
+        repository: TangemPayCardDetailsRepository,
+        cardNameDisplayMode: CardNameDisplayMode = .display
     ) {
+        self.cardNameDisplayMode = cardNameDisplayMode
         self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
+
+        repository.cardNamePublisher
+            .receiveOnMain()
+            .assign(to: \.cardName, on: self, ownership: .weak)
+            .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
@@ -41,6 +52,10 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 viewModel.cardDetailsExposureTask?.cancel()
             }
             .store(in: &bag)
+    }
+
+    func cardNameTapped() {
+        onCardNameTapped?()
     }
 
     func copyNumber() {
@@ -105,6 +120,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 AppLogger.error("Failed to load card details", error: error)
             }
         }
+    }
+}
+
+extension TangemPayCardDetailsViewModel {
+    enum CardNameDisplayMode {
+        case display
+        case interactive
+        case editing
     }
 }
 

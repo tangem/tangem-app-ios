@@ -1,0 +1,40 @@
+//
+//  Fact0rnWalletAssembly.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2024 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct Fact0rnWalletAssembly: WalletManagerAssembly {
+    func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
+        let unspentOutputManager: UnspentOutputManager = .fact0rn()
+        let txBuilder = BitcoinTransactionBuilder(
+            network: Fact0rnMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager,
+            builderType: .custom
+        )
+
+        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, _ in
+                let electrumWebSocketProvider = ElectrumWebSocketProvider(url: nodeInfo.url)
+                let provider = Fact0rnNetworkProvider(provider: electrumWebSocketProvider)
+
+                return provider
+            })
+
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.fact0rn.displayName
+        )
+
+        return Fact0rnWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
+    }
+}
