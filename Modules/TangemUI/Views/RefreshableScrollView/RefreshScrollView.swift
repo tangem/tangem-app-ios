@@ -17,7 +17,6 @@ public struct RefreshScrollView<Content: View>: View {
     private let content: Content
 
     @State private var introspectResponderChainID = UUID()
-    private let coordinateSpaceName = UUID()
 
     public init(
         stateObject: RefreshScrollViewStateObject,
@@ -70,11 +69,11 @@ public struct RefreshScrollView<Content: View>: View {
     var legacyScrollView: some View {
         ScrollView(.vertical, showsIndicators: showsIndicators) {
             scrollContent.readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
+                inCoordinateSpace: .named(CoordinateSpaceName.scrollView),
                 bindTo: $stateObject.contentOffset
             )
         }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollView)
     }
 
     @ViewBuilder
@@ -100,6 +99,12 @@ public extension RefreshScrollView {
             pinnedViews: PinnedScrollableViews = .init()
         )
     }
+}
+
+private enum CoordinateSpaceName {
+    private static let prefix = "RefreshScrollView.CoordinateSpaceName."
+
+    static let scrollView = prefix + "scrollView"
 }
 
 private extension View {
