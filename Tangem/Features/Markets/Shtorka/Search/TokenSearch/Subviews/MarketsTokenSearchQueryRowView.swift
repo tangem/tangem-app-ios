@@ -1,5 +1,5 @@
 //
-//  TokenSearchQueryRowView.swift
+//  MarketsTokenSearchQueryRowView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct TokenSearchQueryRowView: View {
+struct MarketsTokenSearchQueryRowView: View {
     let query: String
     let onTap: () -> Void
 
@@ -43,7 +43,7 @@ struct TokenSearchQueryRowView: View {
 
 // MARK: - Constants
 
-private extension TokenSearchQueryRowView {
+private extension MarketsTokenSearchQueryRowView {
     enum Constants {
         static let iconSize: CGFloat = 24
     }
@@ -54,9 +54,9 @@ private extension TokenSearchQueryRowView {
 #if DEBUG
 #Preview {
     VStack(spacing: 0) {
-        TokenSearchQueryRowView(query: "Usdt", onTap: {})
-        TokenSearchQueryRowView(query: "Eth", onTap: {})
-        TokenSearchQueryRowView(query: "volume > 1M", onTap: {})
+        MarketsTokenSearchQueryRowView(query: "Usdt", onTap: {})
+        MarketsTokenSearchQueryRowView(query: "Eth", onTap: {})
+        MarketsTokenSearchQueryRowView(query: "volume > 1M", onTap: {})
     }
     .padding(.horizontal, .unit(.x4))
     .background(Color.Tangem.Surface.level2)
