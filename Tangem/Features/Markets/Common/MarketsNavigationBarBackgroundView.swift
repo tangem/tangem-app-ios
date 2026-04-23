@@ -15,7 +15,7 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
     let overlayContentHidingProgress: CGFloat
     let isNavigationBarBackgroundBackdropViewHidden: Bool
     let isListContentObscured: Bool
-    let overlay: () -> Overlay
+    @ViewBuilder var overlay: Overlay
 
     var body: some View {
         ZStack {
@@ -32,7 +32,7 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
                 .fill(.bar)
                 .visible(isListContentObscured)
                 .overlay(alignment: .bottom) {
-                    overlay()
+                    overlay
                 }
                 .overlay(alignment: .bottom) {
                     listOverlaySeparator
@@ -46,7 +46,6 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
         }
     }
 
-    @ViewBuilder
     private var listOverlaySeparator: some View {
         Separator(height: .minimal, color: Colors.Stroke.primary)
             .visible(isListContentObscured)

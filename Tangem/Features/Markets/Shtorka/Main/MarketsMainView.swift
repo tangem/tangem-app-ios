@@ -36,9 +36,6 @@ struct MarketsMainView: View {
         }
     }
 
-    private let scrollTopAnchorId = UUID()
-    private let scrollViewFrameCoordinateSpaceName = UUID()
-
     private var overlayHeight: CGFloat { showSearchResult ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
     private var showSearchResult: Bool { viewModel.isSearching }
 
@@ -159,8 +156,8 @@ struct MarketsMainView: View {
         case .loading, .allDataLoaded, .idle:
             MarketsMainSearchView(
                 headerHeight: headerHeight,
-                scrollTopAnchorId: scrollTopAnchorId,
-                scrollViewFrameCoordinateSpaceName: scrollViewFrameCoordinateSpaceName,
+                scrollTopAnchorId: Identifiers.scrollTopAnchorID,
+                scrollViewFrameCoordinateSpaceName: CoordinateSpaceName.scrollViewFrame,
                 searchResultListOverlayTotalHeight: searchResultListOverlayTotalHeight,
                 mainWindowSize: mainWindowSize,
                 updateListOverlayAppearance: updateListOverlayAppearance(contentOffset:),
@@ -257,7 +254,7 @@ struct MarketsMainView: View {
                     VStack(spacing: 0.0) {
                         Color.clear
                             .frame(height: 0)
-                            .id(scrollTopAnchorId)
+                            .id(Identifiers.scrollTopAnchorID)
 
                         // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
                         // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
@@ -280,11 +277,11 @@ struct MarketsMainView: View {
                     }
                     .padding(.top, Layout.Widgets.topPadding)
                     .readContentOffset(
-                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                        inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame),
                         onChange: updateListOverlayAppearance(contentOffset:)
                     )
                 }
-                .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+                .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
             }
 
             if case .error = viewModel.widgetsViewState {
@@ -361,5 +358,17 @@ private extension MarketsMainView {
             static let verticalContentSpacing: CGFloat = 40.0
             static let topPadding: CGFloat = 32.0
         }
+    }
+
+    enum Identifiers {
+        private static let prefix = "MarketsMainView.Identifiers."
+
+        static let scrollTopAnchorID = prefix + "scrollTopAnchorID"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsMainView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
