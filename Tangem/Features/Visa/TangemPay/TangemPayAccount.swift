@@ -36,6 +36,13 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerInfo.id
     }
 
+    var cardDisplayNamePublisher: AnyPublisher<String, Never> {
+        customerInfoSubject
+            .map(\.productInstance.displayName)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var syncNeededSignalPublisher: AnyPublisher<Void, Never> {
         syncNeededSignalSubject.eraseToAnyPublisher()
     }

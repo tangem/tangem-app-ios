@@ -277,8 +277,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendWithSwapModel,
             output: sendWithSwapModel,
-            receiveTokenInput: sendWithSwapModel,
-            destinationAccountOutput: sendWithSwapModel
+            receiveTokenInput: sendWithSwapModel
         )
     }
 
