@@ -162,6 +162,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
+        pendingReverseRecalculation = false
+        lastUpdateSource = .send
 
         let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.heavy()
@@ -446,6 +448,7 @@ private extension SendAmountViewModel {
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
+        pendingReverseRecalculation = false
         lastUpdateSource = .send
         let amount = try? interactor.update(sourceAmount: amount)
         sourceAmountField.updateAlternativeUI(amount: amount)
