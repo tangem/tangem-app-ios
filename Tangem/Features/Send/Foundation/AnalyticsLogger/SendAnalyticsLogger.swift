@@ -139,7 +139,7 @@ protocol SendAmountAnalyticsLogger {
     func logSwapErrorMinAmount(screen: Analytics.ParameterValue)
     func logSwapErrorMaxAmount(screen: Analytics.ParameterValue)
     func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String)
-    func logSendWithSwapAmountScreenOpened()
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?)
 }
 
 extension SendAmountAnalyticsLogger {
@@ -147,7 +147,7 @@ extension SendAmountAnalyticsLogger {
     func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {}
     func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {}
     func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {}
-    func logSendWithSwapAmountScreenOpened() {}
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?) {}
 }
 
 protocol SendReceiveTokensListAnalyticsLogger {
