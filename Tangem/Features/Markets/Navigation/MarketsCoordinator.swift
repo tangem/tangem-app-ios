@@ -17,7 +17,6 @@ class MarketsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
-    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -63,7 +62,6 @@ class MarketsCoordinator: CoordinatorObject {
 
         let viewModel = MarketsMainViewModel(
             quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-            tokenSearchStorage: CommonTokenSearchStorage(persistentStorage: persistentStorage),
             coordinator: self
         )
 
