@@ -31,7 +31,6 @@ enum SendDestinationStepBuilder {
         let input: SendDestinationInput
         let output: SendDestinationOutput
         let receiveTokenInput: SendReceiveTokenInput?
-        let destinationAccountOutput: SendDestinationAccountOutput
     }
 
     struct Types {
@@ -69,8 +68,7 @@ enum SendDestinationStepBuilder {
             interactor: interactor,
             sendQRCodeService: dependencies.sendQRCodeService,
             analyticsLogger: dependencies.analyticsLogger,
-            router: router,
-            destinationAccountOutput: io.destinationAccountOutput
+            router: router
         )
 
         let step = SendDestinationStep(
