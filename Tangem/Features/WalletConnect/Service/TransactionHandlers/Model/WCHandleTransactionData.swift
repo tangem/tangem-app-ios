@@ -23,6 +23,7 @@ struct WCHandleTransactionData {
     let validate: () async throws -> WalletConnectMessageHandleRestrictionType
     let accept: () async throws -> Void
     let reject: () async throws -> Void
+    let clearDuplicateFilter: () async -> Void
 
     weak var updatableHandler: WCTransactionUpdatable?
 
@@ -35,7 +36,8 @@ extension WCHandleTransactionData {
     init(
         from dto: WCHandleTransactionDTO,
         validatedRequest: WCValidatedRequest,
-        respond: @escaping (String, RPCID, RPCResult) async throws -> Void
+        respond: @escaping (String, RPCID, RPCResult) async throws -> Void,
+        clearDuplicateFilter: @escaping () async -> Void
     ) {
         topic = validatedRequest.request.topic
         userWalletModel = validatedRequest.userWalletModel
@@ -61,5 +63,7 @@ extension WCHandleTransactionData {
             let result = try dto.reject()
             try await respond(validatedRequest.request.topic, validatedRequest.request.id, result)
         }
+
+        self.clearDuplicateFilter = clearDuplicateFilter
     }
 }
