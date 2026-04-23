@@ -425,6 +425,10 @@ extension SendWithSwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
+    var supportFeeSelection: Bool {
+        isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -614,16 +618,6 @@ extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
     func approveDidSendTransaction() {
         guard isSwapMode else { return }
         swapModel.approveDidSendTransaction()
-    }
-}
-
-// MARK: - SendDestinationAccountOutput
-
-extension SendWithSwapModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        transferModel.setDestinationAccountInfo(analyticsProvider: analyticsProvider)
     }
 }
 
