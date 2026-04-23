@@ -15,6 +15,13 @@ protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactionsPublisher: AnyPublisher<[PendingTransaction], Never> { get }
 
     func hideTransaction(with id: String)
+    func pauseOnrampTransactionPolling()
+    func resumeOnrampTransactionPolling()
+}
+
+extension PendingExpressTransactionsManager {
+    func pauseOnrampTransactionPolling() {}
+    func resumeOnrampTransactionPolling() {}
 }
 
 class CommonPendingExpressTransactionsManager {

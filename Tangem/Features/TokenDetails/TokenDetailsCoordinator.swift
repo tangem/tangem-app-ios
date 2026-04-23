@@ -372,13 +372,30 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             walletModel: input.walletModel
         ).makeTransferableToken()
 
-        let coordinator = makeSendCoordinator()
+        tokenDetailsViewModel?.onrampDidOpen()
+
+        let coordinator = makeSendCoordinatorWithOnrampLifecycle()
         let options = SendCoordinator.Options(
             type: .onramp(sourceToken, parameters: parameters),
             source: .tokenDetails
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+
+    private func makeSendCoordinatorWithOnrampLifecycle() -> SendCoordinator {
+        let baseDismiss = makeSendCoordinatorDismissAction()
+        let basePopToRoot = makeSendCoordinatorPopToRootAction()
+        return SendCoordinator(
+            dismissAction: { [weak self] options in
+                self?.tokenDetailsViewModel?.onrampDidClose()
+                baseDismiss(options)
+            },
+            popToRootAction: { [weak self] options in
+                self?.tokenDetailsViewModel?.onrampDidClose()
+                basePopToRoot(options)
+            }
+        )
     }
 
     func openPendingExpressTransactionDetails(

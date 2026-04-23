@@ -11,6 +11,14 @@ import Combine
 import TangemExpress
 import TangemFoundation
 
+private let debugTimestampFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "HH:mm:ss.SSS"
+    return f
+}()
+
+private func debugTs() -> String { debugTimestampFormatter.string(from: Date()) }
+
 class CommonPendingOnrampTransactionsManager {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
@@ -36,6 +44,7 @@ class CommonPendingOnrampTransactionsManager {
     private let terminalTransactions = ThreadSafeContainer<[PendingOnrampTransaction]>([])
     private var pollingInitiatingTask: Task<Void, Never>?
     private var pollingResultTask: Task<Void, Never>?
+    private var isPaused = false
 
     init(
         userWalletId: String,
@@ -64,6 +73,7 @@ class CommonPendingOnrampTransactionsManager {
     private func request(pendingTransaction: PendingOnrampTransaction) async -> PendingOnrampTransaction? {
         do {
             let record = pendingTransaction.transactionRecord
+            print("ДЕБАГ \(debugTs()): [OnrampMgr \(Unmanaged.passUnretained(self).toOpaque()) token=\(tokenItem.currencySymbol)] FIRING /onramp-status txId=\(record.expressTransactionId)")
             let onrampTransaction = try await expressAPIProvider.onrampStatus(transactionId: record.expressTransactionId)
             let pendingTransaction = pendingOnrampTransactionFactory.buildPendingOnrampTransaction(
                 currentOnrampTransaction: onrampTransaction,
@@ -112,10 +122,11 @@ class CommonPendingOnrampTransactionsManager {
                 let terminal = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
                 terminalTransactions.mutate { $0 = terminal }
 
-                let shouldForceReload = previous?.count ?? 0 != current.count
-                await pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
+                if !isPaused {
+                    let shouldForceReload = previous?.count ?? 0 != current.count
+                    await pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
+                }
 
-                // If there are no transactions to poll, send terminal-only or empty
                 if nonTerminal.isEmpty {
                     pendingTransactionsSubject.send(terminal)
                 }
@@ -170,6 +181,28 @@ extension CommonPendingOnrampTransactionsManager: PendingExpressTransactionsMana
 
     func hideTransaction(with id: String) {
         onrampPendingTransactionsRepository.hideSwapTransaction(with: id)
+    }
+
+    func pauseOnrampTransactionPolling() {
+        guard !isPaused else { return }
+        isPaused = true
+        runTask(in: pollingService) { await $0.cancelTask() }
+    }
+
+    func resumeOnrampTransactionPolling() {
+        guard isPaused else { return }
+        isPaused = false
+
+        let records = filterRelatedTokenTransactions(list: onrampPendingTransactionsRepository.transactions)
+        let nonTerminal = records
+            .map(pendingOnrampTransactionFactory.buildPendingOnrampTransaction(for:))
+            .filter { !$0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
+
+        guard !nonTerminal.isEmpty else { return }
+
+        runTask(in: pollingService) { [nonTerminal] in
+            await $0.startPolling(requests: nonTerminal, force: true)
+        }
     }
 }
 

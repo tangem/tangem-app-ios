@@ -41,8 +41,8 @@ struct ExpressPendingTransactionsFactory {
         )
 
         return CompoundPendingTransactionsManager(
-            first: pendingExpressTransactionsManager,
-            second: pendingOnrampTransactionsManager
+            swapManager: pendingExpressTransactionsManager,
+            onrampManager: pendingOnrampTransactionsManager
         )
     }
 
