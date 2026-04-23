@@ -110,6 +110,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         assertionFailure("Must be reimplemented")
     }
 
+    func onrampDidOpen() {
+        pendingExpressTransactionsManager.pauseOnrampTransactionPolling()
+    }
+
+    func onrampDidClose() {
+        pendingExpressTransactionsManager.resumeOnrampTransactionPolling()
+    }
+
     final func openExplorer() {
         let addresses = walletModel.addresses
 
