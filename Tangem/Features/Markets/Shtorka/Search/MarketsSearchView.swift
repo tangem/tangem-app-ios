@@ -157,8 +157,13 @@ struct MarketsSearchView: View {
     @ViewBuilder
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
-                .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            if FeatureProvider.isAvailable(.redesign) {
+                MarketsRatingHeaderViewRedesign(viewModel: viewModel.marketsRatingHeaderViewModel)
+                    .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            } else {
+                MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
+                    .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            }
         }
         .infinityFrame(axis: .horizontal)
         .padding(.top, Constants.listOverlayTopInset)
@@ -178,14 +183,16 @@ struct MarketsSearchView: View {
         }
     }
 
-    @ViewBuilder
     private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return .Tangem.Surface.level2
+        }
+
         let uiColor = overlayContentHidingBackgroundColor.mix(
             with: defaultBackgroundColor,
             by: viewModel.overlayContentHidingProgress
         )
-
-        Color(uiColor: uiColor)
+        return Color(uiColor: uiColor)
     }
 
     @ViewBuilder
@@ -221,23 +228,14 @@ struct MarketsSearchView: View {
                     Color.clear
                         .frame(height: overlayHeight)
 
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.tokenListViewModel.tokenViewModels) {
-                            MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-                        }
-
-                        // Need for display list skeleton view
-                        if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
-                            loadingSkeletons
-                        }
-
-                        if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
-                            MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
-                        }
+                    if FeatureProvider.isAvailable(.redesign) {
+                        redesignTokenList
+                    } else {
+                        legacyTokenList
                     }
-                    .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
-                        proxy.scrollTo(scrollTopAnchorId)
-                    }
+                }
+                .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
+                    proxy.scrollTo(scrollTopAnchorId)
                 }
                 .readContentOffset(
                     inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
@@ -245,6 +243,44 @@ struct MarketsSearchView: View {
                 )
             }
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        }
+    }
+
+    private var redesignTokenList: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.tokenListViewModel.tokenViewModels) { itemVM in
+                MarketTokenRowView(viewModel: itemVM.tokenItemViewModel)
+                    .onAppear { itemVM.onAppear() }
+                    .onDisappear { itemVM.onDisappear() }
+            }
+
+            if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
+                ForEach(0 ..< 20, id: \.self) { _ in
+                    MarketTokenRowSkeletonView()
+                }
+            }
+
+            if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
+                MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
+            }
+        }
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
+        .padding(.horizontal, .unit(.x4))
+    }
+
+    private var legacyTokenList: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.tokenListViewModel.tokenViewModels) {
+                MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+            }
+
+            if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
+                loadingSkeletons
+            }
+
+            if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
+                MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
+            }
         }
     }
 
@@ -272,8 +308,17 @@ struct MarketsSearchView: View {
         MarketsNoResultsStateView()
     }
 
+    @ViewBuilder
     private var errorStateView: some View {
-        MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: viewModel.tokenListViewModel.onTryLoadList
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+        }
     }
 
     private var loadingSkeletons: some View {
