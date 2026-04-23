@@ -25,7 +25,6 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     private var defaultBackgroundColor: Color { Colors.Background.primary }
 
-    private let scrollViewFrameCoordinateSpaceName = UUID()
     private let scrollViewContentTopInset = 14.0
     private let navigationBarTitle = Localization.marketsTokenDetailsExchangesTitle
 
@@ -143,12 +142,12 @@ struct MarketsTokenDetailsExchangesListView: View {
                     EmptyView()
                 }
             }
-            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
             }
             .id(viewModel.exchangesList.value)
         }
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
     }
 
     private var exchangeListAnimationValue: Int {
@@ -160,6 +159,14 @@ struct MarketsTokenDetailsExchangesListView: View {
         case .loading:
             0
         }
+    }
+}
+
+extension MarketsTokenDetailsExchangesListView {
+    private enum CoordinateSpaceName {
+        private static let prefix = "MarketsTokenDetailsExchangesListView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 
