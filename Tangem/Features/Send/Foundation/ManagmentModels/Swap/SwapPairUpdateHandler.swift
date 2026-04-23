@@ -10,11 +10,13 @@ import Foundation
 import TangemExpress
 
 protocol SwapPairUpdateHandler {
+    /// - Parameter isFullRefresh: `true` when the token changed, `false` for destination-address-only updates.
     func handlePairChange(
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
-        sourceAmount: Decimal?
+        sourceAmount: Decimal?,
+        isFullRefresh: Bool
     ) async throws -> SwapPairUpdateResult
 }
 
