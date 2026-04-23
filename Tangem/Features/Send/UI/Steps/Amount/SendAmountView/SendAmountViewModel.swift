@@ -69,14 +69,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
+    @Published private(set) var currentRateType: ExpressProviderRateType?
+
     private var isReceiveAmountApproximate: Bool {
-        providerRateTypes.contains(.float) && lastUpdateSource != .receive
+        currentRateType == .float && lastUpdateSource != .receive
     }
 
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
-            .withWeakCaptureOf(self)
-            .map { viewModel, _ in viewModel.isReceiveAmountApproximate }
+        // Use emitted values directly — @Published emits on willSet,
+        // so reading stored properties in the map would return stale values.
+        Publishers.CombineLatest($lastUpdateSource, $currentRateType)
+            .map { lastUpdateSource, currentRateType in
+                currentRateType == .float && lastUpdateSource != .receive
+            }
             .eraseToAnyPublisher()
     }
 
@@ -106,6 +111,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
+    private let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
@@ -130,7 +136,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
+        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -142,6 +149,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
         self.providerRateTypesPublisher = providerRateTypesPublisher
+        self.currentRateTypePublisher = currentRateTypePublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -396,6 +404,10 @@ private extension SendAmountViewModel {
                 viewModel.handleProviderRateTypesChange(rateTypes)
             }
             .store(in: &bag)
+
+        currentRateTypePublisher?
+            .receiveOnMain()
+            .assign(to: &$currentRateType)
     }
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
