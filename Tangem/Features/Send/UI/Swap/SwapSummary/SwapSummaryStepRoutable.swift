@@ -7,8 +7,8 @@
 //
 
 protocol SwapSummaryStepRoutable: AnyObject {
-    func summaryStepRequestEditSourceToken(tokenItem: TokenItem)
-    func summaryStepRequestEditReceiveToken(tokenItem: TokenItem)
+    func summaryStepRequestEditSourceToken(tokenItem: TokenItem?)
+    func summaryStepRequestEditReceiveToken(tokenItem: TokenItem?)
     func summaryStepRequestEditFee()
     func summaryStepRequestEditProviders()
 }

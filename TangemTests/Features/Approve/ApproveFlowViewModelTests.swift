@@ -5,6 +5,7 @@
 //  Created for Approve flow unit tests.
 //
 
+import Foundation
 import Testing
 import Combine
 import BlockchainSdk

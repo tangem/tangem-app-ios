@@ -275,10 +275,6 @@ extension VisaWalletModel: WalletModel {
         Wallet.PublicKey(seedKey: Data(), derivationType: .none)
     }
 
-    var shouldShowFeeSelector: Bool {
-        false
-    }
-
     var isCustom: Bool {
         false
     }
@@ -298,6 +294,8 @@ extension VisaWalletModel: WalletModel {
     var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
+
+    var features: [WalletModelFeature] { [] }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         .just(output: [])

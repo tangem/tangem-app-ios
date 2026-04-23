@@ -129,6 +129,7 @@ private struct BadgeMatrixView: View {
         switch color {
         case .blue: "Blue"
         case .red: "Red"
+        case .yellow: "Yellow"
         case .gray: "Gray"
         }
     }
