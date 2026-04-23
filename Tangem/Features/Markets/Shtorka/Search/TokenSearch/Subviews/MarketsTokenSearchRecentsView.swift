@@ -1,5 +1,5 @@
 //
-//  TokenSearchRecentsView.swift
+//  MarketsTokenSearchRecentsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct TokenSearchRecentsView: View {
+struct MarketsTokenSearchRecentsView: View {
     let queries: [String]
     let marketAssetViewModels: [MarketTokenItemViewModel]
     let onQueryTap: (String) -> Void
@@ -53,7 +53,7 @@ struct TokenSearchRecentsView: View {
         if queries.isNotEmpty {
             VStack(spacing: 0) {
                 ForEach(Array(queries.enumerated()), id: \.offset) { index, query in
-                    TokenSearchQueryRowView(query: query, onTap: { onQueryTap(query) })
+                    MarketsTokenSearchQueryRowView(query: query, onTap: { onQueryTap(query) })
 
                     if index < queries.count - 1 {
                         Separator(color: .Tangem.Border.Neutral.primary)
@@ -96,7 +96,7 @@ struct TokenSearchRecentsView: View {
 
 #if DEBUG
 #Preview {
-    TokenSearchRecentsView(
+    MarketsTokenSearchRecentsView(
         queries: ["Usdt", "Eth", "volume > 1M"],
         marketAssetViewModels: [],
         onQueryTap: { _ in },
