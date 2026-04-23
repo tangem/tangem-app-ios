@@ -76,16 +76,17 @@ private extension SendSwapProvidersSelectorViewModel {
     func bind(input: SendSwapProvidersInput) {
         let highPriceImpactPublisher = receiveTokenAmountInput?.highPriceImpactPublisher ?? Just(nil).eraseToAnyPublisher()
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             input.selectedExpressProviderPublisher.map { $0?.value },
             input.expressProvidersPublisher,
-            highPriceImpactPublisher
+            highPriceImpactPublisher,
+            input.currentRateTypePublisher
         )
         .withWeakCaptureOf(self)
         .map { viewModel, values in
-            let (selectedProvider, providers, highPriceImpactValue) = values
+            let (selectedProvider, providers, highPriceImpactValue, currentRateType) = values
             let hasWarning = highPriceImpactValue.map { !$0.level.isNegligible } ?? false
-            return viewModel.prepareProviderRows(selectedProvider: selectedProvider, providers: providers, hasHighPriceImpactWarning: hasWarning)
+            return viewModel.prepareProviderRows(selectedProvider: selectedProvider, providers: providers, currentRateType: currentRateType, hasHighPriceImpactWarning: hasWarning)
         }
         .receiveOnMain()
         .assign(to: &$providerViewModels)
@@ -98,9 +99,9 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$ukNotificationInput)
     }
 
-    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
+    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], currentRateType: ExpressProviderRateType?, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
-            .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: input?.currentRateType)
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
             .sortedByPriorityAndQuotes()
             .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
 
