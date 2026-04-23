@@ -22,7 +22,8 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
-        sourceAmount: Decimal?
+        sourceAmount: Decimal?,
+        isFullRefresh: Bool
     ) async throws -> SwapPairUpdateResult {
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
 
