@@ -150,11 +150,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenCardVariant = .token(tokenItemViewModel)
         }
 
-        redesignState = RedesignState(
-            actionButtonsViewModel: actionButtonsVM,
-            tokenCardVariant: tokenCardVariant,
-            tokenItemInfoProvider: infoProvider
-        )
+        redesignState = RedesignState(actionButtonsViewModel: actionButtonsVM, tokenCardVariant: tokenCardVariant)
     }
 
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
@@ -295,9 +291,6 @@ extension SingleWalletMainContentViewModel {
     struct RedesignState {
         let actionButtonsViewModel: ActionButtonsViewModel?
         let tokenCardVariant: TokenCardVariant
-
-        /// Retained because `TokenItemViewModel.infoProvider` is weak
-        let tokenItemInfoProvider: DefaultTokenItemInfoProvider
 
         enum TokenCardVariant {
             /// Plain token row (no account header)
