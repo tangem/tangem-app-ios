@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BlockchainSdk
 
 struct CommonSolanaTokenFeeLoader {
@@ -25,8 +26,6 @@ extension CommonSolanaTokenFeeLoader: SolanaTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonSolanaTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { tokenFeeLoader.allowsFeeSelection }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }

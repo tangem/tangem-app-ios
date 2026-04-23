@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsSearchNavigationBar<Content: View>: View {
     let titleView: () -> Content
@@ -57,12 +58,23 @@ struct MarketsSearchNavigationBar<Content: View>: View {
 
 extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle {
     init(title: String, onBackButtonAction: @escaping () -> Void, onSearchButtonAction: @escaping () -> Void) {
+        let font: Font
+        let color: Color
+
+        if FeatureProvider.isAvailable(.redesign) {
+            font = Font.Tangem.Body16.semibold
+            color = Color.Tangem.Text.Neutral.primary
+        } else {
+            font = Fonts.Bold.body
+            color = Colors.Text.primary1
+        }
+
         titleView = {
             DefaultNavigationBarTitle(
                 title,
                 settings: .init(
-                    font: Fonts.Bold.body,
-                    color: Colors.Text.primary1,
+                    font: font,
+                    color: color,
                     lineLimit: 1,
                     minimumScaleFactor: 0.6
                 )
