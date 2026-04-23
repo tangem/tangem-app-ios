@@ -59,10 +59,13 @@ extension MainCoordinator {
                 return routeStakingAction(params: navigationAction.params)
 
             case .markets:
-                return routeMarketAction()
+                return routeMarketAction(params: navigationAction.params)
 
             case .tokenChart:
                 return routeTokenChartAction(params: navigationAction.params)
+
+            case .tokenExchanges:
+                return routeTokenExchangesAction(params: navigationAction.params)
 
             case .link:
                 return routeLinkAction(params: navigationAction.params)
@@ -141,8 +144,28 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeMarketAction() -> Bool {
-            coordinator?.openDeepLink(.market)
+        private func routeTokenExchangesAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let tokenId = params.tokenId
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.tokenExchanges(tokenId: tokenId))
+            return true
+        }
+
+        private func routeMarketAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            // `order` and `interval` fall back independently: an invalid or missing value
+            // for one parameter must not influence the other. The case where only
+            // `interval` is provided naturally resolves to `order = .rating` because
+            // the factory substitutes the default when the raw order is missing.
+            let filter = MarketsDeeplinkFilterFactory().make(
+                orderRawValue: params.order,
+                intervalRawValue: params.interval
+            )
+            coordinator?.openDeepLink(.markets(filter: filter))
             return true
         }
 
