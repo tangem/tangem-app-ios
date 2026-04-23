@@ -20,8 +20,6 @@ struct TangemPayMainView: View {
         headerTopPadding: Constants.headerTopPadding
     )
 
-    private let coordinateSpaceName = UUID()
-
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
@@ -54,7 +52,7 @@ struct TangemPayMainView: View {
             .padding(.horizontal, 16)
             .padding(.top, 12)
             .readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
+                inCoordinateSpace: .named(Constants.coordinateSpaceName),
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
@@ -63,7 +61,7 @@ struct TangemPayMainView: View {
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: Constants.coordinateSpaceName)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(Localization.tangempayPaymentAccount)
@@ -192,5 +190,6 @@ private extension TangemPayMainView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+        static let coordinateSpaceName = "TangemPayMainView.coordinateSpaceName"
     }
 }
