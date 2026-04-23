@@ -89,7 +89,11 @@ final class CommonUserTokensManager {
     }
 
     private func makeTokenItem(from tokenItem: TokenItem, with derivationPath: DerivationPath?) -> TokenItem {
-        let blockchainNetwork = BlockchainNetwork(tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = BlockchainNetwork(
+            tokenItem.blockchain,
+            derivationPath: derivationPath,
+            derivationMode: tokenItem.blockchainNetwork.derivationMode
+        )
 
         switch tokenItem {
         case .token(let token, _):
@@ -465,16 +469,6 @@ extension CommonUserTokensManager: UserTokensReordering {
             .cryptoAccountPublisher
             .map { $0.tokens.compactMap(\.walletModelId?.id) }
             .eraseToAnyPublisher()
-    }
-
-    var groupingOption: UserTokensReorderingOptions.Grouping {
-        let converter = UserTokensReorderingOptionsConverter()
-        return converter.convert(userTokensRepository.cryptoAccount.grouping)
-    }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting {
-        let converter = UserTokensReorderingOptionsConverter()
-        return converter.convert(userTokensRepository.cryptoAccount.sorting)
     }
 
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
