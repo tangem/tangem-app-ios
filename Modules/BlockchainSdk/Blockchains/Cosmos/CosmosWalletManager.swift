@@ -1,0 +1,220 @@
+//
+//  CosmosWalletManager.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import WalletCore
+import TangemSdk
+
+class CosmosWalletManager: BaseWalletManager, WalletManager {
+    var currentHost: String { networkService.host }
+
+    var networkService: CosmosNetworkService!
+    var txBuilder: CosmosTransactionBuilder!
+
+    private let cosmosChain: CosmosChain
+
+    init(cosmosChain: CosmosChain, wallet: Wallet) {
+        self.cosmosChain = cosmosChain
+
+        super.init(wallet: wallet)
+    }
+
+    func updateWalletManager(address: String) async throws {
+        do {
+            let transactionHashes = wallet.pendingTransactions.map { $0.hash }
+            let info = try await networkService
+                .accountInfo(for: address, tokens: cardTokens, transactionHashes: transactionHashes)
+                .async()
+            updateWallet(accountInfo: info)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
+    }
+
+    func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
+        Result {
+            try txBuilder.buildForSign(transaction: transaction)
+        }
+        .publisher
+        .withWeakCaptureOf(self)
+        .flatMap { manager, hash in
+            signer
+                .sign(hash: hash, walletPublicKey: manager.wallet.publicKey)
+                .tryMap { signature -> Data in
+                    let signature = try Secp256k1Signature(with: signature)
+                    return try signature.unmarshal(with: manager.wallet.publicKey.blockchainKey, hash: hash).data
+                }
+        }
+        .withWeakCaptureOf(self)
+        .tryMap { manager, signature -> Data in
+            try manager.txBuilder.buildForSend(transaction: transaction, signature: signature)
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, transaction in
+            manager.networkService
+                .send(transaction: transaction)
+                .mapAndEraseSendTxError(tx: transaction.hex(), currentHost: manager.currentHost)
+        }
+        .handleEvents(receiveOutput: { [weak self] hash in
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+            self?.wallet.addPendingTransaction(record)
+        })
+        .withWeakCaptureOf(self)
+        .map { manager, hash in
+            TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
+        }
+        .mapSendTxError(currentHost: currentHost)
+        .eraseToAnyPublisher()
+    }
+
+    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
+        return estimateGas(amount: amount, destination: destination)
+            .tryMap { [weak self] gas in
+                guard let self = self else { throw BlockchainSdkError.empty }
+
+                let blockchain = cosmosChain.blockchain
+                let gasPrices = cosmosChain.gasPrices(for: amount.type)
+
+                return try Array(repeating: gas, count: gasPrices.count)
+                    .enumerated()
+                    .map { index, estimatedGas in
+                        let gasMultiplier = self.cosmosChain.gasMultiplier
+                        let feeMultiplier = self.cosmosChain.feeMultiplier
+
+                        let gas = estimatedGas * gasMultiplier
+
+                        var feeValueInSmallestDenomination = UInt64(Double(gas) * gasPrices[index] * feeMultiplier)
+                        if let tax = self.tax(for: amount) {
+                            feeValueInSmallestDenomination += tax
+                        }
+
+                        let feeDecimalValue: Decimal
+                        let feeAmountType: Amount.AmountType
+                        switch blockchain.feePaidCurrency {
+                        case .sameCurrency:
+                            feeDecimalValue = amount.type.token?.decimalValue ?? blockchain.decimalValue
+                            feeAmountType = amount.type
+                        case .coin:
+                            feeDecimalValue = blockchain.decimalValue
+                            feeAmountType = .coin
+                        case .token(let token):
+                            feeDecimalValue = token.decimalValue
+                            feeAmountType = .token(value: token)
+                        case .feeResource:
+                            throw BlockchainSdkError.notImplemented
+                        }
+
+                        var feeValue = (Decimal(feeValueInSmallestDenomination) / feeDecimalValue)
+                        if let extraFee = self.cosmosChain.extraFee(for: amount.value) {
+                            feeValue += extraFee
+                        }
+
+                        feeValue = feeValue.rounded(blockchain: blockchain)
+
+                        let parameters = CosmosFeeParameters(gas: gas)
+                        return Fee(Amount(with: blockchain, type: feeAmountType, value: feeValue), parameters: parameters)
+                    }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func estimateGas(amount: Amount, destination: String) -> AnyPublisher<UInt64, Error> {
+        return Just(())
+            .setFailureType(to: Error.self)
+            .tryMap { [weak self] () -> Data in
+                guard let self else { throw BlockchainSdkError.empty }
+
+                let dummyFee = Fee(
+                    Amount(with: amount, value: 0),
+                    parameters: CosmosFeeParameters(gas: 0)
+                )
+
+                let transaction = Transaction(
+                    amount: amount,
+                    fee: dummyFee,
+                    sourceAddress: wallet.address,
+                    destinationAddress: destination,
+                    changeAddress: wallet.address
+                )
+
+                return try txBuilder.buildForSend(
+                    transaction: transaction,
+                    signature: Data(repeating: 1, count: 65) // Dummy signature
+                )
+            }
+            .tryCatch { _ -> AnyPublisher<Data, Error> in
+                .anyFail(error: BlockchainSdkError.failedToGetFee)
+            }
+            .flatMap { [weak self] transaction -> AnyPublisher<UInt64, Error> in
+                guard let self else {
+                    return .anyFail(error: BlockchainSdkError.empty)
+                }
+
+                return networkService.estimateGas(for: transaction)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func updateWallet(accountInfo: CosmosAccountInfo) {
+        wallet.add(amount: accountInfo.amount)
+        if let accountNumber = accountInfo.accountNumber {
+            txBuilder.setAccountNumber(accountNumber)
+        }
+        txBuilder.setSequenceNumber(accountInfo.sequenceNumber)
+
+        for (token, balance) in accountInfo.tokenBalances {
+            wallet.add(tokenValue: balance, for: token)
+        }
+
+        wallet.removePendingTransaction { hash in
+            accountInfo.confirmedTransactionHashes.contains(hash)
+        }
+    }
+
+    private func tax(for amount: Amount) -> UInt64? {
+        guard case .token(let token) = amount.type,
+              let taxPercent = cosmosChain.taxPercentByContractAddress[token.contractAddress]
+        else {
+            return nil
+        }
+
+        let amountInSmallestDenomination = amount.value * token.decimalValue
+        let taxAmount = amountInSmallestDenomination * taxPercent / 100
+
+        return (taxAmount as NSDecimalNumber).uint64Value
+    }
+}
+
+extension CosmosWalletManager: ThenProcessable {}
+
+// MARK: - StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider
+
+extension CosmosWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
+    typealias RawTransaction = Data
+
+    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
+        try CosmosStakeKitTransactionHelper(builder: txBuilder)
+            .prepareForSign(stakingTransaction: transaction)
+    }
+
+    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
+        let unmarshal = try signature.unmarshal()
+
+        return try CosmosStakeKitTransactionHelper(builder: txBuilder)
+            .buildForSend(stakingTransaction: transaction, signature: unmarshal)
+    }
+}
+
+extension CosmosWalletManager: StakeKitTransactionDataBroadcaster {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
+        try await networkService.send(transaction: rawTransaction).async()
+    }
+}
