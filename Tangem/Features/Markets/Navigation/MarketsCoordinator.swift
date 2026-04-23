@@ -195,7 +195,9 @@ extension MarketsCoordinator: MarketsMainRoutable {
         marketsSearchCoordinator.start(
             with: .init(
                 initialOrderType: orderType,
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+                initialIntervalType: nil,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                leadingButton: .back
             )
         )
 
