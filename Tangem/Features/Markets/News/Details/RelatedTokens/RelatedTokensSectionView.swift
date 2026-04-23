@@ -22,7 +22,7 @@ struct RelatedTokensSectionView: View {
 
             content
                 .defaultRoundedBackground(
-                    with: Color.Tangem.Surface.level4,
+                    with: Color.Tangem.Surface.level3,
                     verticalPadding: .zero,
                     horizontalPadding: .zero
                 )

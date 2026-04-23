@@ -507,27 +507,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSwap(input: SendInput) {
-        let sourceTokenFactory = CommonSendSwapableTokenFactory(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            operationType: .swap
-        )
-        let sourceToken = sourceTokenFactory.makeSwapableToken()
-
-        let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .main)
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .main,
-                presentCompletion: { [weak self] in
-                    coordinator.start(with: options)
-                    self?.sendCoordinator = coordinator
-                }
-            )
-        }
+    func openSwap(parameters: PredefinedSwapParameters) {
+        openSwapFlow(parameters: parameters, source: .main)
     }
 
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {
@@ -751,6 +732,10 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
             )
         }
     }
+
+    func openSwap(predefinedParameters: PredefinedSwapParameters) {
+        openSwapFlow(parameters: predefinedParameters, source: .actionButtons)
+    }
 }
 
 // MARK: - PendingExpressTxStatusRoutable
@@ -899,6 +884,26 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
                 source: .main(action: .backup)
             ))
             openOnboardingModal(with: .mobileInput(backupInput))
+        }
+    }
+}
+
+// MARK: - Swap Flow Helper
+
+private extension MainCoordinator {
+    func openSwapFlow(parameters: PredefinedSwapParameters, source: SendCoordinator.Source) {
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(type: .swap(parameters), source: source)
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: options)
+                    self?.sendCoordinator = coordinator
+                }
+            )
         }
     }
 }
