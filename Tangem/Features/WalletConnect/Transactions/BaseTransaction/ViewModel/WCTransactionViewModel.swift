@@ -445,6 +445,7 @@ private extension WCTransactionViewModel {
         Task {
             analyticsLogger.logCancelButtonTapped()
             try? await transactionData.reject()
+            await transactionData.clearDuplicateFilter()
             floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -590,6 +591,8 @@ private extension WCTransactionViewModel {
 
     private func successSignTransaction(onComplete: (() -> Void)? = nil) {
         onComplete?()
+
+        Task { await transactionData.clearDuplicateFilter() }
 
         analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
 
