@@ -13,16 +13,27 @@ import TangemUIUtils
 import TangemAssets
 
 public struct TangemSearchField: View, Setupable {
-    // MARK: - State properties
+    public typealias Action = () -> Void
+    public typealias BoolAction = (Bool) -> Void
+
+    // MARK: - Dependencies
 
     @Binding private var text: String
+    private let focusAction: Action?
+    private let clearAction: Action?
+    private let cancelAction: Action?
+    private let onFocusChanged: BoolAction?
+
+    // MARK: - State properties
+
     @FocusState private var isFocused: Bool
     @State private var showCancelButton: Bool = false
 
     // MARK: - Scaled properties
 
     @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var fieldPadding: CGFloat = .unit(.x3)
+    @ScaledMetric private var fieldHeight: CGFloat = .unit(.x11)
+    @ScaledMetric private var fieldHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var fieldCornerRadius: CGFloat = .unit(.x4)
     @ScaledMetric private var fieldSearchSpacing: CGFloat = .unit(.x1)
     @ScaledMetric private var fieldClearSpacing: CGFloat = .unit(.x1)
@@ -38,8 +49,18 @@ public struct TangemSearchField: View, Setupable {
 
     private let animation: Animation = .easeInOut
 
-    public init(text: Binding<String>) {
+    public init(
+        text: Binding<String>,
+        focusAction: Action? = nil,
+        clearAction: Action? = nil,
+        cancelAction: Action? = nil,
+        onFocusChanged: BoolAction? = nil
+    ) {
         _text = text
+        self.focusAction = focusAction
+        self.clearAction = clearAction
+        self.cancelAction = cancelAction
+        self.onFocusChanged = onFocusChanged
     }
 
     public var body: some View {
@@ -53,7 +74,10 @@ public struct TangemSearchField: View, Setupable {
         }
         .animation(animation, value: focusTextState)
         .animation(animation, value: showCancelButton)
-        .onChange(of: isFocused) { showCancelButton = $0 }
+        .onChange(of: isFocused) {
+            showCancelButton = $0
+            onFocusChanged?($0)
+        }
     }
 }
 
@@ -62,13 +86,12 @@ public struct TangemSearchField: View, Setupable {
 private extension TangemSearchField {
     var field: some View {
         fieldContent
-            .padding(fieldPadding)
+            .padding(.horizontal, fieldHorizontalPadding)
             .frame(maxWidth: .infinity, alignment: .center)
+            .frame(height: fieldHeight)
             .background(Color.Tangem.Field.backgroundDefault, in: fieldShape)
             .contentShape(.rect)
-            .onTapGesture {
-                isFocused = true
-            }
+            .onTapGesture(perform: onFieldTap)
     }
 
     var fieldContent: some View {
@@ -187,21 +210,16 @@ private extension TangemSearchField {
 // MARK: - Actions
 
 private extension TangemSearchField {
-    func onCancel() {
-        clearSearch()
-        lostFocus()
+    func onFieldTap() {
+        focusAction?()
     }
 
     func onClear() {
-        clearSearch()
+        clearAction?()
     }
 
-    func clearSearch() {
-        text = .empty
-    }
-
-    func lostFocus() {
-        isFocused = false
+    func onCancel() {
+        cancelAction?()
     }
 }
 

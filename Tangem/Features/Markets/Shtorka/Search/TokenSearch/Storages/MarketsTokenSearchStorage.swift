@@ -1,5 +1,5 @@
 //
-//  TokenSearchStorage.swift
+//  MarketsTokenSearchStorage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 
-protocol TokenSearchStorage: AnyObject, Sendable {
-    var recentItemsPublisher: AnyPublisher<[TokenSearchRecentItem], Never> { get }
+protocol MarketsTokenSearchStorage: AnyObject, Sendable {
+    var recentItemsPublisher: AnyPublisher<[MarketsTokenSearchRecentItem], Never> { get }
 
     func saveQuery(_ query: String) async
     func saveMarketAsset(_ tokenModel: MarketsTokenModel) async

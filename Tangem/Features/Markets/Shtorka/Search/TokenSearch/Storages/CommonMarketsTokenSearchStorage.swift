@@ -1,5 +1,5 @@
 //
-//  CommonTokenSearchStorage.swift
+//  CommonMarketsTokenSearchStorage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 
-actor CommonTokenSearchStorage: TokenSearchStorage {
-    nonisolated var recentItemsPublisher: AnyPublisher<[TokenSearchRecentItem], Never> {
+actor CommonMarketsTokenSearchStorage: MarketsTokenSearchStorage {
+    nonisolated var recentItemsPublisher: AnyPublisher<[MarketsTokenSearchRecentItem], Never> {
         recentItemsSubject
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -18,7 +18,7 @@ actor CommonTokenSearchStorage: TokenSearchStorage {
 
     private let maxItems = 3
     private let persistentStorage: PersistentStorageProtocol
-    private nonisolated let recentItemsSubject: CurrentValueSubject<[TokenSearchRecentItem], Never>
+    private nonisolated let recentItemsSubject: CurrentValueSubject<[MarketsTokenSearchRecentItem], Never>
 
     init(persistentStorage: PersistentStorageProtocol) {
         self.persistentStorage = persistentStorage
@@ -68,9 +68,9 @@ actor CommonTokenSearchStorage: TokenSearchStorage {
         }
     }
 
-    private static func makeRecentItems(queries: [String], assets: [MarketsTokenModel]) -> [TokenSearchRecentItem] {
-        let queryItems = queries.map { TokenSearchRecentItem.query($0) }
-        let assetItems = assets.map { TokenSearchRecentItem.marketAsset($0) }
+    private static func makeRecentItems(queries: [String], assets: [MarketsTokenModel]) -> [MarketsTokenSearchRecentItem] {
+        let queryItems = queries.map { MarketsTokenSearchRecentItem.query($0) }
+        let assetItems = assets.map { MarketsTokenSearchRecentItem.marketAsset($0) }
         return queryItems + assetItems
     }
 
