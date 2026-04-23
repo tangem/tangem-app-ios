@@ -35,6 +35,8 @@ enum IncomingActionConstants {
         static let promoCode = "promo_code"
         static let refcode = "ref"
         static let campaign = "campaign"
+        static let order = "order"
+        static let interval = "interval"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
@@ -43,6 +45,7 @@ enum IncomingActionConstants {
         case referral
         case markets
         case tokenChart = "token_chart"
+        case tokenExchanges = "token_exchanges"
         case buy
         case swap
         case sell
