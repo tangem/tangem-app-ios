@@ -1,5 +1,5 @@
 //
-//  TokenSearchRecentItem.swift
+//  MarketsTokenSearchRecentItem.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TokenSearchRecentItem: Codable, Hashable {
+enum MarketsTokenSearchRecentItem: Codable, Hashable {
     case query(String)
     case marketAsset(MarketsTokenModel)
 }
