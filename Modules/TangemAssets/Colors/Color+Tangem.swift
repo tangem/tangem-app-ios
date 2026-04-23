@@ -137,7 +137,7 @@ public extension Color.Tangem.Border {
 // MARK: - Field
 
 public extension Color.Tangem.Field {
-    static let backgroundDefault: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+    static let backgroundDefault: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundFocused: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textPlaceholder: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
     static let textDefault: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
