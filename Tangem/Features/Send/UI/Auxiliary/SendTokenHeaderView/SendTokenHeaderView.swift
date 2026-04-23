@@ -35,6 +35,7 @@ struct SendTokenHeaderView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
             }
+            .infinityFrame(axis: .horizontal)
         }
     }
 }
