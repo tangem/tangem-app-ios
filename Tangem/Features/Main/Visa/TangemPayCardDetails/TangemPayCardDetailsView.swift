@@ -14,6 +14,7 @@ import TangemUIUtils
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
 
+    @FocusState private var isCardNameFocused: Bool
     @State private var animationProgress: CGFloat = .zero
     @State private var onHalfFlipCalled: Bool = false
 
@@ -76,7 +77,22 @@ struct TangemPayCardDetailsView: View {
 
     private func hiddenStateContent(isFrozen: Bool, isLoading: Bool) -> some View {
         VStack {
-            HStack(alignment: .center, spacing: 6) {
+            HStack(alignment: .top) {
+                HStack(alignment: .center, spacing: 6) {
+                    Image(systemName: "cloud.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 10)
+                        .foregroundColor(Colors.Text.constantWhite)
+
+                    Text(Localization.tangempayDigitalCard)
+                        .style(
+                            Fonts.Bold.footnote,
+                            color: Colors.Text.constantWhite
+                        )
+                }
+                .padding(.top, 4)
+
                 Spacer()
 
                 Assets.Visa.logo.image
@@ -87,24 +103,30 @@ struct TangemPayCardDetailsView: View {
 
             Spacer()
 
-            HStack(alignment: .center, spacing: 6) {
-                Text("*" + viewModel.lastFourDigits)
-                    .style(
-                        Fonts.Regular.body,
-                        color: Colors.Text.constantWhite
-                    )
+            HStack(alignment: .bottom, spacing: 6) {
+                VStack(alignment: .leading, spacing: 2) {
+                    cardNameContent()
 
-                Group {
-                    if isLoading {
-                        CircularActivityIndicator(color: .white, lineWidth: 1.5)
-                    } else if isFrozen {
-                        Image(systemName: "snowflake")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.white)
+                    HStack(spacing: 6) {
+                        Text("··· " + viewModel.lastFourDigits)
+                            .style(
+                                Fonts.Bold.subheadline,
+                                color: Colors.Text.constantWhite
+                            )
+
+                        Group {
+                            if isLoading {
+                                CircularActivityIndicator(color: .white, lineWidth: 1.5)
+                            } else if isFrozen {
+                                Image(systemName: "snowflake")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .frame(width: 16, height: 16)
                     }
                 }
-                .frame(width: 16, height: 16)
 
                 Spacer()
 
@@ -112,7 +134,6 @@ struct TangemPayCardDetailsView: View {
                     showDetailsButton()
                 }
             }
-            .frame(height: cardNumberHeight)
         }
         .padding(16)
         .background(
@@ -200,11 +221,49 @@ struct TangemPayCardDetailsView: View {
         .screenCaptureProtection()
     }
 
+    @ViewBuilder
+    private func cardNameContent() -> some View {
+        switch viewModel.cardNameDisplayMode {
+        case .display:
+            Text(viewModel.cardName)
+                .style(
+                    Fonts.Bold.footnote,
+                    color: Colors.Text.constantWhite
+                )
+        case .interactive:
+            Button(action: viewModel.cardNameTapped) {
+                HStack(spacing: 4) {
+                    Text(viewModel.cardName)
+                        .style(
+                            Fonts.Bold.footnote,
+                            color: Colors.Text.constantWhite
+                        )
+
+                    Assets.Glyphs.editNew.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(Colors.Text.constantWhite)
+                }
+            }
+        case .editing:
+            TextField("", text: $viewModel.cardName)
+                .font(Fonts.Bold.footnote)
+                .foregroundColor(Colors.Text.constantWhite)
+                .tint(Colors.Text.constantWhite)
+                .focused($isCardNameFocused)
+                .task {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    isCardNameFocused = true
+                }
+        }
+    }
+
     private func showDetailsButton() -> some View {
         Button(action: viewModel.toggleVisibility) {
             Text(Localization.tangempayCardDetailsShowDetails)
                 .style(
-                    Fonts.Regular.footnote,
+                    Fonts.Bold.footnote,
                     color: Colors.Text.constantWhite
                 )
                 .padding(.horizontal, 10)
