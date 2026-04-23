@@ -32,7 +32,7 @@ final class SwapModel {
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
-    private var _currentRateType: ExpressProviderRateType?
+    private let _currentRateType = CurrentValueSubject<ExpressProviderRateType?, Never>(nil)
 
     // MARK: - Dependencies
 
@@ -218,7 +218,7 @@ extension SwapModel {
     }
 
     func swappingPairDidChange() {
-        _currentRateType = nil
+        _currentRateType.send(nil)
         let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
 
         updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
@@ -320,10 +320,11 @@ extension SwapModel {
     }
 
     private func updateRateTypeAndLogIfNeeded() async {
-        let previousRateType = _currentRateType
-        _currentRateType = await expressManager.getRateType()
+        let previousRateType = _currentRateType.value
+        let newRateType = await expressManager.getRateType()
+        _currentRateType.send(newRateType)
 
-        if previousRateType == nil, _currentRateType != nil {
+        if previousRateType == nil, newRateType != nil {
             analyticsLogger.logSendWithSwapAmountScreenOpened()
         }
     }
@@ -1004,7 +1005,11 @@ extension SwapModel: SendSwapProvidersInput {
     }
 
     var currentRateType: ExpressProviderRateType? {
-        _currentRateType
+        _currentRateType.value
+    }
+
+    var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
+        _currentRateType.removeDuplicates().eraseToAnyPublisher()
     }
 
     private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {

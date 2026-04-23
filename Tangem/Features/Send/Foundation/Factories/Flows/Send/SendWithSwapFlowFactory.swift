@@ -264,7 +264,8 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil
+            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil,
+            currentRateTypePublisher: sendWithSwapModel.currentRateTypePublisher
         )
     }
 }
