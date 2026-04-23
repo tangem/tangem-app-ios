@@ -80,14 +80,26 @@ public struct TangemSearchFieldShowcase: View {
 
     private var preview: some View {
         VStack {
-            TangemSearchField(text: $text)
-                .cornerStyle(cornerStyle)
-                .placeholder(text: "Search Value")
-                .configure(
-                    hasSearchIcon: hasSearchIcon,
-                    hasClearButton: hasClearButton
-                )
-                .focused($isFocused)
+            TangemSearchField(
+                text: $text,
+                focusAction: {
+                    isFocused = true
+                },
+                clearAction: {
+                    text = ""
+                },
+                cancelAction: {
+                    text = ""
+                    isFocused = false
+                }
+            )
+            .cornerStyle(cornerStyle)
+            .placeholder(text: "Search Value")
+            .configure(
+                hasSearchIcon: hasSearchIcon,
+                hasClearButton: hasClearButton
+            )
+            .focused($isFocused)
 
             Button("Resign focus") {
                 isFocused = false
