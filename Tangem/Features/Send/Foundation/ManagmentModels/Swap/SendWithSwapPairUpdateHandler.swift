@@ -21,10 +21,18 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
-        sourceAmount: Decimal?
+        sourceAmount: Decimal?,
+        isFullRefresh: Bool
     ) async throws -> SwapPairUpdateResult {
         // Pair update — populates availableProviders in CommonExpressManager
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+
+        if !isFullRefresh {
+            // Destination-only change: re-fetch quotes using the existing amountType
+            // to preserve rate direction (e.g. .to for fixed-rate mode).
+            let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(by: .pairChange)
+            return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
+        }
 
         guard let sourceAmount else {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
