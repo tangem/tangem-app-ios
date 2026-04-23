@@ -45,32 +45,40 @@ struct PendingTransaction {
 }
 
 final class CompoundPendingTransactionsManager: PendingExpressTransactionsManager {
-    private let first: PendingExpressTransactionsManager
-    private let second: PendingExpressTransactionsManager
+    private let swapManager: PendingExpressTransactionsManager
+    private let onrampManager: PendingExpressTransactionsManager
 
     init(
-        first: PendingExpressTransactionsManager,
-        second: PendingExpressTransactionsManager
+        swapManager: PendingExpressTransactionsManager,
+        onrampManager: PendingExpressTransactionsManager
     ) {
-        self.first = first
-        self.second = second
+        self.swapManager = swapManager
+        self.onrampManager = onrampManager
     }
 
     var pendingTransactions: [PendingTransaction] {
-        first.pendingTransactions + second.pendingTransactions
+        swapManager.pendingTransactions + onrampManager.pendingTransactions
     }
 
     var pendingTransactionsPublisher: AnyPublisher<[PendingTransaction], Never> {
         Publishers.CombineLatest(
-            first.pendingTransactionsPublisher,
-            second.pendingTransactionsPublisher
+            swapManager.pendingTransactionsPublisher,
+            onrampManager.pendingTransactionsPublisher
         )
         .map { $0 + $1 }
         .eraseToAnyPublisher()
     }
 
     func hideTransaction(with id: String) {
-        first.hideTransaction(with: id)
-        second.hideTransaction(with: id)
+        swapManager.hideTransaction(with: id)
+        onrampManager.hideTransaction(with: id)
+    }
+
+    func pauseOnrampTransactionPolling() {
+        onrampManager.pauseOnrampTransactionPolling()
+    }
+
+    func resumeOnrampTransactionPolling() {
+        onrampManager.resumeOnrampTransactionPolling()
     }
 }

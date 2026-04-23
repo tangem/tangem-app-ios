@@ -190,8 +190,8 @@ private extension TokenDetailsView {
         expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
-        first: pendingExpressTxsManager,
-        second: pendingOnrampTxsManager
+        swapManager: pendingExpressTxsManager,
+        onrampManager: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
 
