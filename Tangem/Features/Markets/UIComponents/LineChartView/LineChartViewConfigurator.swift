@@ -23,15 +23,22 @@ struct LineChartViewConfigurator {
     }
 
     private func configureYAxis(on chartView: LineChartViewWrapper.UIViewType, using yAxisData: LineChartViewData.YAxis) {
-        chartView.leftAxis.setLabelCount(yAxisData.labelCount, force: true)
         // If all values are the same, a 5% diff is applied to the min/max values of
         // the Y-axis to give the chart some room to render a horizontal chart line
         let yAxisMinMaxDiff = yAxisData.axisMinValue == yAxisData.axisMaxValue ? 0.05 : 0.0
 
         // We're losing some precision here due to the `Decimal` -> `Double` conversion,
         // but that's ok - graphical charts are never 100% accurate by design
-        chartView.leftAxis.axisMinimum = yAxisData.axisMinValue.doubleValue * (1.0 - yAxisMinMaxDiff)
-        chartView.leftAxis.axisMaximum = yAxisData.axisMaxValue.doubleValue * (1.0 + yAxisMinMaxDiff)
+        let axisMinimum = yAxisData.axisMinValue.doubleValue * (1.0 - yAxisMinMaxDiff)
+        let axisMaximum = yAxisData.axisMaxValue.doubleValue * (1.0 + yAxisMinMaxDiff)
+
+        chartView.leftAxis.setLabelCount(yAxisData.labelCount, force: true)
+        chartView.leftAxis.axisMinimum = axisMinimum
+        chartView.leftAxis.axisMaximum = axisMaximum
+
+        chartView.rightAxis.setLabelCount(yAxisData.labelCount, force: true)
+        chartView.rightAxis.axisMinimum = axisMinimum
+        chartView.rightAxis.axisMaximum = axisMaximum
     }
 
     private func configureXAxis(on chartView: LineChartViewWrapper.UIViewType, using xAxisData: LineChartViewData.XAxis) {
@@ -40,7 +47,7 @@ struct LineChartViewConfigurator {
 
     private func makeDataSet() -> LineChartDataSet {
         let chartDataEntries = chartData.xAxis.values.map { value in
-            return ChartDataEntry(x: value.timeStamp.doubleValue, y: value.price.doubleValue, data: value)
+            return ChartDataEntry(x: Double(value.timeStamp), y: value.price.doubleValue, data: value)
         }
 
         let dataSet = ColorSplitLineChartDataSet(entries: chartDataEntries)

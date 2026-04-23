@@ -157,7 +157,7 @@ extension SwapTokenSelectorViewModel {
 }
 
 extension SwapTokenSelectorViewModel.SwapDirection {
-    var tokenItem: TokenItem {
+    var tokenItem: TokenItem? {
         switch self {
         case .fromSource(let tokenItem): tokenItem
         case .toDestination(let tokenItem): tokenItem

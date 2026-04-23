@@ -29,12 +29,15 @@ class InitialTokenSyncAddressResolverTests {
     func resolvesAddressesForInitialTokenSyncBlockchainsInV3Config() async throws {
         let info = try await walletInfo()
         defer { try? CommonMobileWalletSdk().delete(walletIDs: [userWalletId]) }
+
+        let config = MobileUserWalletConfig(mobileWalletInfo: info)
+        let derivationStyle = try #require(config.derivationStyle)
         let keys = info.keys
 
-        let configBlockchains = SupportedBlockchains(version: .v2).blockchains()
-        let supportedBlockchains = Set(configBlockchains.filter(isInitialTokenSyncSupported))
-        let result = try supportedBlockchains.map { blockchain in
-            try walletAddressResolver.resolveAddress(for: blockchain, keyInfos: keys)
+        let supportedBlockchains = config.supportedBlockchains.filter(isInitialTokenSyncSupported)
+        let result = try supportedBlockchains.map { blockchain -> NetworkAddressPair in
+            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
+            return try walletAddressResolver.resolveAddress(for: blockchainNetwork, keyInfos: keys)
         }
 
         let expectedNetworkIds = Set(supportedBlockchains.map { $0.networkId })

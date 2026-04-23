@@ -24,7 +24,7 @@ extension SendFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
     func makeTransferModel(
-        analyticsLogger: any SendAnalyticsLogger,
+        analyticsLogger: any SendManagementModelAnalyticsLogger,
         predefinedValues: TransferModel.PredefinedValues
     ) -> TransferModel {
         TransferModel(

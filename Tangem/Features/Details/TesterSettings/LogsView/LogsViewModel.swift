@@ -17,7 +17,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class LogsViewModel: ObservableObject {
     var selectedCategory: String { categories[selectedCategoryIndex] }
 
-    @Published var selectedCategoryIndex: Int = .zero
+    @Published var selectedCategoryIndex: Int = 0
     @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
     @Published var categories: [String] = ["All"]
     @Published var alert: AlertBinder?
@@ -72,7 +72,7 @@ final class LogsViewModel: ObservableObject {
             with: .withPrimaryCancelButton(secondaryTitle: "Yes", secondaryAction: { [weak self] in
                 OSLogFileWriter.shared.deleteLogFile(completion: {
                     DispatchQueue.main.async {
-                        self?.selectedCategoryIndex = .zero
+                        self?.selectedCategoryIndex = 0
                         self?.load()
                     }
                 })
