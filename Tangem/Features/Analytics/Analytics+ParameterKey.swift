@@ -14,6 +14,7 @@ extension Analytics {
         case firmware = "Firmware"
         case action = "Action"
         case errorDescription = "Error"
+        case swapErrorDescription = "Error Description"
         case errorCode = "Error Code"
         case errorMessage = "Error Message"
         case errorType = "Error Type"
