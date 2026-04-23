@@ -570,7 +570,16 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openSwap(walletModel: walletModel)
+        let helper = SwapPredefinedParametersHelper()
+
+        guard let parameters = helper.makeParameters(
+            origin: .tokenDetails(.init(walletModel: walletModel)),
+            userWalletInfo: userWalletInfo
+        ) else {
+            return
+        }
+
+        tokenRouter.openSwap(parameters: parameters)
     }
 
     final func openStaking() {
