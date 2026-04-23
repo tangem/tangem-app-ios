@@ -54,7 +54,7 @@ final class SwapModel {
     private let pairUpdateHandler: SwapPairUpdateHandler
 
     private let balanceConverter = BalanceConverter()
-    private var autoupdatingTimerSubscription: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -95,7 +95,7 @@ final class SwapModel {
             }
         }
 
-        setupAutoupdatingTimerSubscription()
+        bind()
     }
 
     deinit {
@@ -120,10 +120,31 @@ extension SwapModel {
         }
     }
 
-    func setupAutoupdatingTimerSubscription() {
-        autoupdatingTimerSubscription = _providersState
+    private func bind() {
+        _receiveToken
+            .map { $0.value?.tokenItem }
+            .pairwise()
+            .filter { previous, current in previous == nil && current != nil }
+            .asyncMap { [weak self] _ -> ExpressProviderRateType in
+                guard let self else { return .float }
+                let states = await _providersState.dropFirst().values
+                for await state in states {
+                    if case .loaded(_, .some(let provider), _) = state {
+                        let hasFixed = provider.supportedRateTypes.contains(.fixed)
+                        return hasFixed ? .fixed : .float
+                    }
+                }
+                return .float
+            }
+            .sink { [weak self] rateType in
+                self?.analyticsLogger.logSendWithSwapAmountScreenOpened(rateType: rateType)
+            }
+            .store(in: &bag)
+
+        _providersState
             .withWeakCaptureOf(self)
             .sink { $0.updateAutoupdatingTimer(state: $1) }
+            .store(in: &bag)
     }
 
     func updateAutoupdatingTimer(state: ProvidersState) {
@@ -293,7 +314,7 @@ extension SwapModel {
                         state: state
                     ))
 
-                    await input.updateRateTypeAndLogIfNeeded()
+                    await input.updateRateType()
                 }
             } catch is CancellationError {
                 ExpressLogger.debug("updateTask was cancelled")
@@ -338,14 +359,9 @@ extension SwapModel {
         }
     }
 
-    private func updateRateTypeAndLogIfNeeded() async {
-        let previousRateType = _currentRateType.value
+    private func updateRateType() async {
         let newRateType = await expressManager.getRateType()
         _currentRateType.send(newRateType)
-
-        if previousRateType == nil, newRateType != nil {
-            analyticsLogger.logSendWithSwapAmountScreenOpened()
-        }
     }
 
     private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
