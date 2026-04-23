@@ -42,8 +42,6 @@ struct MarketsTokenDetailsView: View {
         isDarkColorScheme ? defaultBackgroundColor.forcedDark : UIColor.backgroundPlain.forcedLight
     }
 
-    private let scrollViewFrameCoordinateSpaceName = UUID()
-
     var body: some View {
         rootViewWithTitle
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -70,7 +68,6 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack {
             scrollView
@@ -178,7 +175,6 @@ struct MarketsTokenDetailsView: View {
         )
     }
 
-    @ViewBuilder
     private var scrollView: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .center, spacing: Constants.scrollViewVerticalPadding) {
@@ -209,7 +205,7 @@ struct MarketsTokenDetailsView: View {
                     .transition(.opacity)
             }
             .padding(.top, Constants.scrollViewContentTopInset)
-            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
                 if viewModel.isMarketsSheetStyle {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
@@ -217,7 +213,7 @@ struct MarketsTokenDetailsView: View {
             }
         }
         .opacity(viewModel.overlayContentHidingProgress)
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         .bindAlert($viewModel.alert)
         .if(!viewModel.isRedesignEnabled) { view in
             view
@@ -303,7 +299,6 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var picker: some View {
         MarketsPickerView(
             marketPriceIntervalType: $viewModel.selectedPriceChangeIntervalType,
@@ -372,6 +367,12 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsTokenDetailsView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 
