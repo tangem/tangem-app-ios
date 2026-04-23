@@ -51,17 +51,23 @@ struct TrendingCardNewsViewRedesign: View {
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
         }
-        .infinityFrame(axis: .horizontal, alignment: .center)
         .padding(.all, .unit(.x4))
+        .infinityFrame(axis: .horizontal, alignment: .topLeading)
+        .frame(minHeight: Layout.cardMinHeight)
         .background {
             Assets.Markets
                 .trendingNewsBackground
                 .image
                 .resizable()
-                .scaledToFit()
                 .allowsHitTesting(false)
         }
         .cornerRadiusContinuous(.unit(.x5))
         .opacity(item.isRead ? 0.6 : 1.0)
+    }
+}
+
+private extension TrendingCardNewsViewRedesign {
+    enum Layout {
+        static let cardMinHeight: CGFloat = 180
     }
 }
