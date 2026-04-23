@@ -71,6 +71,9 @@ struct SendCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: OnrampOffersSelectorViewModel.self) {
                 OnrampOffersSelectorView(viewModel: $0)
             }
+            .floatingSheetContent(for: OnrampKYCVerificationSheetViewModel.self) {
+                OnrampKYCVerificationSheetView(viewModel: $0)
+            }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
             }
