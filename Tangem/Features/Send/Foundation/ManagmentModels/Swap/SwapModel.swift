@@ -212,16 +212,34 @@ extension SwapModel {
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
-        _receiveAmount.send(nil)
+
+        let tokenChanged = _receiveToken.value.value?.tokenItem.id != wallet.tokenItem.id
+
+        if tokenChanged {
+            _receiveAmount.send(nil)
+        }
+
         _receiveToken.send(.success(wallet))
-        swappingPairDidChange()
+        swappingPairDidChange(isFullRefresh: tokenChanged)
     }
 
-    func swappingPairDidChange() {
-        _currentRateType.send(nil)
+    func swappingPairDidChange(isFullRefresh: Bool = true) {
+        if isFullRefresh {
+            _currentRateType.send(nil)
+        }
         let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
 
-        updateTask(loadingType: hasAmount ? .rates : .providers) { [weak self] expressManager in
+        let loadingType: LoadingType
+        if isFullRefresh {
+            loadingType = hasAmount ? .rates : .providers
+        } else {
+            // Destination-only change: .providers doesn't clear displayed amounts
+            // (only .rates triggers .loading in mapToAmountResult) and keeps
+            // analyticsScreenName as .amount instead of .confirmation
+            loadingType = .providers
+        }
+
+        updateTask(loadingType: loadingType) { [weak self] expressManager in
             guard let self, let source = _sourceToken.value.value,
                   let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
@@ -234,7 +252,8 @@ extension SwapModel {
                 pair: pair,
                 source: source,
                 destination: destination,
-                sourceAmount: _sourceAmount.value?.crypto
+                sourceAmount: _sourceAmount.value?.crypto,
+                isFullRefresh: isFullRefresh
             )
 
             if let amountUpdate = result.amountUpdate {
