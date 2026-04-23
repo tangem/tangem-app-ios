@@ -54,13 +54,7 @@ class CommonSendAnalyticsLogger {
     }
 
     private var rateTypeAnalyticsValue: String? {
-        guard let currentRateType = sendSwapProvidersInput?.currentRateType else {
-            return nil
-        }
-
-        return currentRateType == .fixed
-            ? Analytics.ParameterValue.fixed.rawValue
-            : Analytics.ParameterValue.float.rawValue
+        sendSwapProvidersInput?.currentRateType?.analyticsValue.rawValue
     }
 
     private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
@@ -281,41 +275,73 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     }
 
     func logAmountStepOpened() {
-        Analytics.log(
-            .sendAmountScreenOpened,
-            params: [.source: sourceFlow, .type: entryTypeParameterValue],
-            analyticsSystems: .all
-        )
+        if isSendWithSwapFlow {
+            logSendWithSwapAmountScreenOpened(rateType: nil)
+        } else {
+            Analytics.log(
+                .sendAmountScreenOpened,
+                params: [.source: sourceFlow, .type: entryTypeParameterValue],
+                analyticsSystems: .all
+            )
+        }
     }
 
     func logAmountStepReopened() {
-        Analytics.log(.sendScreenReopened, params: [.source: .amount])
+        if isSendWithSwapFlow {
+            logSendWithSwapAmountScreenOpened(rateType: nil)
+        } else {
+            Analytics.log(.sendScreenReopened, params: [.source: .amount])
+        }
     }
 
     func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue) {
         guard isSendWithSwapFlow else { return }
-        Analytics.log(event: .sendSwapErrorInsufficientBalance, params: [.screen: screen.rawValue])
+        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+        Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
     }
 
     func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {
         guard isSendWithSwapFlow else { return }
-        Analytics.log(event: .sendSwapErrorMinAmount, params: [.screen: screen.rawValue])
+        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+        Analytics.log(event: .sendSwapErrorMinAmount, params: params)
     }
 
     func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {
         guard isSendWithSwapFlow else { return }
-        Analytics.log(event: .sendSwapErrorMaxAmount, params: [.screen: screen.rawValue])
+        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+        Analytics.log(event: .sendSwapErrorMaxAmount, params: params)
     }
 
     func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {
         guard isSendWithSwapFlow else { return }
-        Analytics.log(event: .sendSwapErrorExpressQuote, params: [
+        var params: [Analytics.ParameterKey: String] = [
             .screen: screen.rawValue,
-            .errorDescription: errorDescription,
-        ])
+            .swapErrorDescription: errorDescription,
+        ]
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            params[.receiveToken] = receive.tokenItem.currencySymbol
+            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+        Analytics.log(event: .sendSwapErrorExpressQuote, params: params)
     }
 
-    func logSendWithSwapAmountScreenOpened() {
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?) {
         guard isSendWithSwapFlow, let sourceTokenItem else {
             return
         }
@@ -334,7 +360,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
             analyticsParameters[.provider] = provider.provider.name
         }
 
-        if let rateType = rateTypeAnalyticsValue {
+        if let rateType = rateType?.analyticsValue.rawValue ?? rateTypeAnalyticsValue {
             analyticsParameters[.rateType] = rateType
         }
 
@@ -863,6 +889,15 @@ extension CommonSendAnalyticsLogger {
             case .swap: .swap
             case .sendAndSwap: .sendAndSwap
             }
+        }
+    }
+}
+
+extension ExpressProviderRateType {
+    var analyticsValue: Analytics.ParameterValue {
+        switch self {
+        case .fixed: Analytics.ParameterValue.fixed
+        case .float: Analytics.ParameterValue.float
         }
     }
 }
