@@ -32,8 +32,17 @@ public protocol CustomerInfoManagementService: AnyObject {
         signature: TangemPayWithdrawSignature
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult
 
+    @discardableResult
+    func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
+
+    @discardableResult
+    func setCardLimit(amount: Int) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
+
     func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+
+    func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
+    func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
 
     @discardableResult
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse
@@ -145,11 +154,27 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: apiType.baseURL.absoluteString)
     }
 
+    public func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        try await request(for: .updateCardDisplayName(displayName: displayName))
+    }
+
+    public func setCardLimit(amount: Int) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        try await request(for: .setCardLimit(amount: amount))
+    }
+
     public func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await request(for: .placeOrder(customerWalletAddress: customerWalletAddress))
     }
 
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await request(for: .getOrder(orderId: orderId))
+    }
+
+    public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
+        try await request(for: .getFee(type: type))
+    }
+
+    public func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse {
+        try await request(for: .reissueCard(cardId: cardId))
     }
 }

@@ -61,13 +61,6 @@ extension AppEnvironment {
             return "config_dev"
         }
 
-        switch self {
-        case .production:
-            return "config_prod"
-        case .beta:
-            return "config_beta"
-        case .alpha:
-            return "config_alpha"
-        }
+        return "config_prod"
     }
 }
