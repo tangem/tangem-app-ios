@@ -13,4 +13,5 @@ enum UserTokenListUpdateType {
     case append(_ entries: [TokenItem])
     case remove(_ entry: TokenItem)
     case update(_ request: UserTokensRepositoryUpdateRequest)
+    case updateBlockchainNetwork(_ blockchainNetwork: BlockchainNetwork, for: TokenItem)
 }
