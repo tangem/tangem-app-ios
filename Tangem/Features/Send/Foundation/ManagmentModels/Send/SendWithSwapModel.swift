@@ -425,6 +425,10 @@ extension SendWithSwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
+    var supportFeeSelection: Bool {
+        isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -527,7 +531,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
-                    tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
+                    tangemIconProvider: source.tangemIconProvider
                 )
                 router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
@@ -614,16 +618,6 @@ extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
     func approveDidSendTransaction() {
         guard isSwapMode else { return }
         swapModel.approveDidSendTransaction()
-    }
-}
-
-// MARK: - SendDestinationAccountOutput
-
-extension SendWithSwapModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        transferModel.setDestinationAccountInfo(analyticsProvider: analyticsProvider)
     }
 }
 
