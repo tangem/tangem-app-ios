@@ -46,12 +46,56 @@ class MockedCardScanner {
             vc.addAction(action)
         }
 
+        let cobrandMockOption = UIAlertAction(
+            title: "Cobrand mock",
+            style: .default,
+            handler: { [weak self] _ in self?.promptCobrandMock(handler) }
+        )
+        vc.addAction(cobrandMockOption)
+
         let jsonOption = UIAlertAction(
             title: "Custom JSON",
             style: .default,
             handler: { [weak self] _ in self?.promptJSON(handler) }
         )
         vc.addAction(jsonOption)
+
+        vc.addAction(
+            UIAlertAction(
+                title: Localization.commonCancel,
+                style: .cancel,
+                handler: { _ in handler(.failure(TangemSdkError.userCancelled)) }
+            ))
+
+        AppPresenter.shared.show(vc)
+    }
+
+    private func promptCobrandMock(_ handler: @escaping SelectionHandler) {
+        let vc = UIAlertController(
+            title: "Configure cobrand mock",
+            message: "wallet2 mock will be used with the specified batch ID and cards count",
+            preferredStyle: .alert
+        )
+
+        vc.addTextField { textField in
+            textField.placeholder = "Batch ID (e.g. AF07)"
+        }
+
+        vc.addTextField { textField in
+            textField.placeholder = "Cards count (default: 2)"
+            textField.keyboardType = .numberPad
+        }
+
+        let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
+            if let batchId = vc.textFields?[0].text, !batchId.isEmpty {
+                let cardsCount = Int(vc.textFields?[1].text ?? "") ?? 2
+                handler(.success(.cobrandMock(batchId: batchId, cardsCount: cardsCount)))
+            } else {
+                handler(.failure(.userCancelled))
+            }
+        }
+
+        vc.addAction(submitAction)
 
         vc.addAction(
             UIAlertAction(
@@ -121,6 +165,19 @@ extension MockedCardScanner: CardScanner {
                         )
 
                         completion(.success(response))
+                    case .cobrandMock(let batchId, let cardsCount):
+                        do {
+                            let card = try CardMock.wallet2.cobrandMock(batchId: batchId, cardsCount: cardsCount)
+                            let response = AppScanTaskResponse(
+                                card: card,
+                                walletData: .none,
+                                primaryCard: nil
+                            )
+
+                            completion(.success(response))
+                        } catch {
+                            completion(.failure(.underlying(error: error)))
+                        }
                     case .json(let jsonString):
                         guard let jsonData = jsonString.data(using: .utf8) else {
                             completion(.failure(.underlying(error: Error.jsonToDataError)))
@@ -161,6 +218,7 @@ extension MockedCardScanner {
     enum Option {
         case scan(AppScanTaskResponse)
         case cardMock(CardMock)
+        case cobrandMock(batchId: String, cardsCount: Int)
         case json(String)
     }
 
