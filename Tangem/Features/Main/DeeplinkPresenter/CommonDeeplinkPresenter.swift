@@ -16,7 +16,6 @@ final class CommonDeeplinkPresenter {
     // MARK: - Properties
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-
     private let coordinatorFactory: MainCoordinatorChildFactory
 
     // MARK: - Init
@@ -129,7 +128,7 @@ private extension CommonDeeplinkPresenter {
         case .newsDetails(let newsId):
             return constructNewsDetailsViewController(newsId: newsId)
 
-        case .externalLink:
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails:
             return nil
         }
     }
