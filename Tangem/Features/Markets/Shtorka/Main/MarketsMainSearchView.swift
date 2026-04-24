@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Combine
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -18,8 +17,8 @@ struct MarketsMainSearchView: View {
     private var overlayHeight: CGFloat { searchResultListOverlayTotalHeight }
 
     let headerHeight: CGFloat
-    let scrollTopAnchorId: UUID
-    let scrollViewFrameCoordinateSpaceName: UUID
+    let scrollTopAnchorId: String
+    let scrollViewFrameCoordinateSpaceName: String
     let searchResultListOverlayTotalHeight: CGFloat
     let mainWindowSize: CGSize
     let updateListOverlayAppearance: (CGPoint) -> Void
@@ -27,13 +26,6 @@ struct MarketsMainSearchView: View {
     @ObservedObject var viewModel: MarketsTokenListViewModel
 
     var body: some View {
-        list
-    }
-
-    // MARK: - Private Implementation
-
-    @ViewBuilder
-    private var list: some View {
         ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
                 // ScrollView inserts default spacing between its content views.
