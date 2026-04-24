@@ -136,6 +136,17 @@ enum TokenItem: Hashable, Codable {
     }
 }
 
+// MARK: - Mutating
+
+extension TokenItem {
+    func with(blockchainNetwork: BlockchainNetwork) -> Self {
+        switch self {
+        case .blockchain: .blockchain(blockchainNetwork)
+        case .token(let token, _): .token(token, blockchainNetwork)
+        }
+    }
+}
+
 // MARK: - CustomStringConvertible
 
 extension TokenItem: CustomStringConvertible {
