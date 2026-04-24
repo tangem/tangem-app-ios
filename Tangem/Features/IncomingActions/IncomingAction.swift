@@ -14,6 +14,7 @@ public enum IncomingAction: Equatable {
     case dismissSafari(URL)
     case referralProgram
     case navigation(DeeplinkNavigationAction)
+    case tangemPayPush(TangemPayPushPayload)
 }
 
 public extension IncomingAction {
