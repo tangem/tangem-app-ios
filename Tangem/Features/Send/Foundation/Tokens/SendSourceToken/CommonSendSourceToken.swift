@@ -25,6 +25,7 @@ struct CommonSendSourceToken: SendSourceToken {
 
     let transactionDispatcherProvider: any TransactionDispatcherProvider
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    let tangemIconProvider: any TangemIconProvider
 
     // MARK: - SendReceiveToken
 
