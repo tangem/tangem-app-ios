@@ -293,10 +293,20 @@ final class UserWalletNotificationManager {
         let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            self?.delegate?.didTapNotification(with: id, action: action)
+            guard let self else { return }
+
+            if case .openManageTokensAfterWalletSuccessImport = action {
+                Analytics.log(.initialTokenSyncManageTokens, contextParams: .userWallet(userWalletModel.userWalletId))
+            }
+
+            delegate?.didTapNotification(with: id, action: action)
         }
 
-        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+            guard let self else { return }
+            Analytics.log(.initialTokenSyncButtonClosed, contextParams: .userWallet(userWalletModel.userWalletId))
+            dismissNotification(with: id)
+        }
 
         let input = factory.buildNotificationInput(
             for: GeneralNotificationEvent.initialWalletTokenSyncCompleted,
