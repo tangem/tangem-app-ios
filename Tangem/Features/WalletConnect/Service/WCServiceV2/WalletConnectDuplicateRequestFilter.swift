@@ -31,6 +31,15 @@ actor WalletConnectDuplicateRequestFilter {
         self.currentDateProvider = currentDateProvider
     }
 
+    /// Removes the footprint for the given request, allowing it to be processed again immediately.
+    ///
+    /// Call this after a request has been cancelled or successfully handled to ensure
+    /// that retry attempts from the dApp are not blocked by the duplicate filter.
+    func removeFootprint(for request: ReownWalletKit.Request) {
+        let footprint = StableRequestFootprint(from: request)
+        requestToReceivedDate[footprint] = nil
+    }
+
     /// Returns `true` if processing is allowed for the request, `false` if it is considered a recent duplicate.
     func isProcessingAllowed(for request: ReownWalletKit.Request) -> Bool {
         let currentDate = currentDateProvider()
