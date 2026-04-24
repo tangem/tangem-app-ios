@@ -13,9 +13,11 @@ import TangemExpress
 /// No estimation on first selection. Always uses float (`.from`) direction.
 final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     private let expressManager: ExpressManager
+    private let expressPairsRepository: ExpressPairsRepository
 
-    init(expressManager: ExpressManager) {
+    init(expressManager: ExpressManager, expressPairsRepository: ExpressPairsRepository) {
         self.expressManager = expressManager
+        self.expressPairsRepository = expressPairsRepository
     }
 
     func handlePairChange(
@@ -25,6 +27,18 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         sourceAmount: Decimal?,
         isFullRefresh: Bool
     ) async throws -> SwapPairUpdateResult {
+        if FeatureProvider.isAvailable(.swapPipelineV2) {
+            let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
+            let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
+
+            if !isPairCached {
+                try await expressPairsRepository.updatePairs(
+                    for: source.currency,
+                    userWalletInfo: source.userWalletInfo
+                )
+            }
+        }
+
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
 
         guard let sourceAmount else {
