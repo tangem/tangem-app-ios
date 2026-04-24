@@ -29,6 +29,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
+    @Published private(set) var shouldDisplayReplacingCardBanner: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published var alert: AlertBinder?
 
@@ -250,6 +251,11 @@ private extension TangemPayMainViewModel {
             .map { $0 == .blocked ? .frozen : .normal }
             .receiveOnMain()
             .assign(to: \.freezingState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        tangemPayAccount.isReissuingCardPublisher
+            .receiveOnMain()
+            .assign(to: \.shouldDisplayReplacingCardBanner, on: self, ownership: .weak)
             .store(in: &bag)
 
         pendingExpressTransactionsManager
