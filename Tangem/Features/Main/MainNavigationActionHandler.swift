@@ -35,13 +35,23 @@ extension MainCoordinator {
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
-            guard coordinator != nil,
-                  case .navigation(let navigationAction) = action,
-                  !userWalletRepository.isLocked
-            else {
+            guard coordinator != nil, !userWalletRepository.isLocked else {
                 return false
             }
 
+            switch action {
+            case .tangemPayPush(let payload):
+                return routeTangemPayPushAction(payload: payload)
+
+            case .navigation(let navigationAction):
+                return routeNavigationAction(navigationAction)
+
+            case .walletConnect, .start, .dismissSafari, .referralProgram:
+                return false
+            }
+        }
+
+        private func routeNavigationAction(_ navigationAction: DeeplinkNavigationAction) -> Bool {
             switch navigationAction.destination {
             case .referral:
                 return routeReferralAction(userWalletId: navigationAction.params.userWalletId)
@@ -321,6 +331,21 @@ extension MainCoordinator {
                     deeplinkString: deeplinkString
                 )
             )
+            return true
+        }
+
+        private func routeTangemPayPushAction(payload: TangemPayPushPayload) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            switch payload.body {
+            case .cardReady:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
+            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
+            }
             return true
         }
     }
