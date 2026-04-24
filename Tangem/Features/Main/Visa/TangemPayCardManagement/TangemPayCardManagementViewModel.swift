@@ -22,6 +22,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
+    @Published private(set) var dailyLimitState: TangemPayDailyLimitState = .loading
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -52,6 +53,14 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func openChangeDailyLimit() {
+        guard case .loaded = dailyLimitState else { return }
+
+        Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
+
+        coordinator?.openChangeDailyLimit(tangemPayAccount: tangemPayAccount)
     }
 
     func openAddToApplePayGuide() {
@@ -104,6 +113,24 @@ private extension TangemPayCardManagementViewModel {
         .receiveOnMain()
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
+
+        tangemPayAccount.cardLimitPublisher
+            .map {
+                let formatter = BalanceFormatter().makeDefaultFiatFormatter(
+                    forCurrencyCode: AppConstants.usdCurrencyCode,
+                    locale: .posixEnUS,
+                    formattingOptions: .init(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false)
+                )
+                if let limit = formatter.string(from: .init(value: $0)) {
+                    return .loaded(currentLimit: limit)
+                } else {
+                    return .error
+                }
+            }
+            .prepend(.loading)
+            .receiveOnMain()
+            .assign(to: \.dailyLimitState, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     func updateCardSettingsRows(freezingState: TangemPayFreezingState) {

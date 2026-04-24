@@ -33,6 +33,12 @@ struct TangemPayCardManagementView: View {
                         }
                     }
 
+                    TangemPayDailyLimitSectionView(
+                        state: viewModel.dailyLimitState,
+                        isFrozen: viewModel.freezingState.isFrozen,
+                        changeAction: viewModel.openChangeDailyLimit
+                    )
+
                     GroupedSection(viewModel.cardSettingsRows) {
                         DefaultRowView(viewModel: $0)
                     } header: {

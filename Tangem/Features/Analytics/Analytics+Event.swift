@@ -695,6 +695,10 @@ extension Analytics {
         case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
         case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
 
+        case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
+        case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
+        case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"

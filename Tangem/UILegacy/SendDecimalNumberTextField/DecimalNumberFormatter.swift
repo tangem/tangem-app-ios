@@ -17,7 +17,8 @@ struct DecimalNumberFormatter {
 
     init(
         numberFormatter: NumberFormatter = .init(),
-        maximumFractionDigits: Int
+        maximumFractionDigits: Int,
+        locale: Locale? = nil
     ) {
         self.numberFormatter = numberFormatter
 
@@ -25,6 +26,10 @@ struct DecimalNumberFormatter {
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
+
+        if let locale {
+            numberFormatter.locale = locale
+        }
     }
 
     func update(maximumFractionDigits: Int) {
