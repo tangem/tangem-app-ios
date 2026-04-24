@@ -34,6 +34,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
+    @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
@@ -375,5 +376,17 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openChangeDailyLimit(tangemPayAccount: TangemPayAccount) {
+        tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
+    }
+}
+
+// MARK: - TangemPayDailyLimitRoutable
+
+extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
+    func closeTangemPayDailyLimit() {
+        tangemPayDailyLimitViewModel = nil
     }
 }
