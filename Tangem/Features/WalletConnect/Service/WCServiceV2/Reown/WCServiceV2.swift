@@ -304,7 +304,10 @@ private extension WCServiceV2 {
                         let handleTransactionData = WCHandleTransactionData(
                             from: transactionDTO,
                             validatedRequest: validatedRequest,
-                            respond: walletKitClient.respond
+                            respond: walletKitClient.respond,
+                            clearDuplicateFilter: { [weak self] in
+                                await self?.duplicateRequestFilter.removeFootprint(for: request)
+                            }
                         )
 
                         self.transactionRequestSubject.send(.success(handleTransactionData))
