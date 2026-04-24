@@ -10,15 +10,15 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct BlockchainNetwork: Hashable {
+struct BlockchainNetwork: Codable {
     let blockchain: Blockchain
     let derivationPath: DerivationPath?
-    let derivationMode: DerivationMode
+    let settings: BlockchainSettings?
 
-    init(_ blockchain: Blockchain, derivationPath: DerivationPath?, derivationMode: DerivationMode = .plain) {
+    init(_ blockchain: Blockchain, derivationPath: DerivationPath?, settings: BlockchainSettings? = nil) {
         self.blockchain = blockchain
         self.derivationPath = derivationPath
-        self.derivationMode = derivationMode
+        self.settings = settings
     }
 
     /// Get all derivation paths for current Blockchain
@@ -48,40 +48,41 @@ struct BlockchainNetwork: Hashable {
     }
 
     func isDynamicAddressesEnabled() -> Bool {
-        blockchain.isDynamicAddressesSupported && derivationMode == .xpub
+        blockchain.isDynamicAddressesSupported && settings == .dynamicAddresses
     }
 }
 
-// MARK: - Codable
+// MARK: - Equatable & Hashable
 
-extension BlockchainNetwork: Codable {
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        blockchain = try container.decode(Blockchain.self, forKey: .blockchain)
-        derivationPath = try container.decodeIfPresent(DerivationPath.self, forKey: .derivationPath)
+extension BlockchainNetwork: Hashable {
+    /// Identity of a `BlockchainNetwork` is defined by `blockchain` + `derivationPath`.
+    /// `settings` is a mutable configuration flag and must not affect equality/hashing.
+    static func == (lhs: BlockchainNetwork, rhs: BlockchainNetwork) -> Bool {
+        lhs.blockchain == rhs.blockchain && lhs.derivationPath == rhs.derivationPath
+    }
 
-        // Have to use custom decodable with fallback to `DerivationMode.plain`
-        derivationMode = try container.decodeIfPresent(DerivationMode.self, forKey: .derivationMode) ?? .plain
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(blockchain)
+        hasher.combine(derivationPath)
     }
 }
 
-// MARK: - DerivationMode
+// MARK: - Settings
 
 extension BlockchainNetwork {
-    func with(derivationMode: DerivationMode) -> Self {
+    func with(settings: BlockchainSettings?) -> Self {
         BlockchainNetwork(
             blockchain,
             derivationPath: derivationPath,
-            derivationMode: derivationMode
+            settings: settings
         )
     }
 }
 
-// MARK: - DerivationMode
-
-extension BlockchainNetwork {
-    enum DerivationMode: Codable {
-        case plain
-        case xpub
-    }
+enum BlockchainSettings: Codable {
+    /// Dynamic (xpub-derived) receive addresses are enabled for this UTXO network.
+    /// When set, `BlockchainNetwork.derivationPaths()` expands to the xpub parent/child
+    /// pair and the wallet manager is routed through the XPUB factories.
+    /// Only meaningful for blockchains where `Blockchain.isDynamicAddressesSupported` is true.
+    case dynamicAddresses
 }
