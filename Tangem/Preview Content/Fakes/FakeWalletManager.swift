@@ -53,7 +53,7 @@ class FakeWalletManager: WalletManager {
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
-            .makeWalletModelsFactory(derivationModeUpdater: FakeDerivationModeUpdater())
+            .makeWalletModelsFactory(blockchainSettingsUpdater: FakeBlockchainSettingsUpdater())
 
         walletModels = walletModelsFactory.makeWalletModels(
             for: types,
@@ -187,12 +187,12 @@ extension FakeWalletManager {
     }()
 }
 
-private struct FakeDerivationModeUpdater: DerivationModeUpdater {
-    func update(derivationMode: BlockchainNetwork.DerivationMode, for tokenItem: TokenItem) -> BlockchainNetwork {
+private struct FakeBlockchainSettingsUpdater: BlockchainSettingsUpdater {
+    func update(settings: BlockchainSettings?, for tokenItem: TokenItem) -> BlockchainNetwork {
         BlockchainNetwork(
             tokenItem.blockchain,
             derivationPath: tokenItem.blockchainNetwork.derivationPath,
-            derivationMode: derivationMode
+            settings: settings
         )
     }
 }
