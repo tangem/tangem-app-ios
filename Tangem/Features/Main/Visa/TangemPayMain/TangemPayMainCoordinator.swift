@@ -50,7 +50,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
-        rootViewModel = .init(
+        rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
             coordinator: self
