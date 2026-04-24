@@ -111,3 +111,34 @@ extension TangemPayTransactionDetailsView {
         let backgroundColor: Color
     }
 }
+
+extension TangemPayTransactionDetailsView.AdditionalInfo {
+    static func declined(reason: String?) -> Self {
+        let text = if let reason {
+            Localization.tangemPayHistoryItemSpendMcDeclinedReason(reason)
+        } else {
+            Localization.tangemPayTransactionDeclinedNotificationText
+        }
+        return warning(text: text)
+    }
+
+    static let fee: Self = warning(text: Localization.tangemPayTransactionFeeNotificationText)
+
+    static let reversed: Self = .init(
+        text: Localization.tangemPayTransactionReversedNotificationText,
+        textColor: Colors.Text.tertiary,
+        icon: Assets.infoCircle20.image,
+        iconColor: Colors.Icon.secondary,
+        backgroundColor: Colors.Button.disabled
+    )
+
+    private static func warning(text: String) -> Self {
+        .init(
+            text: text,
+            textColor: Colors.Text.warning,
+            icon: Assets.infoCircle20.image,
+            iconColor: Colors.Icon.warning,
+            backgroundColor: Colors.Icon.warning.opacity(0.1)
+        )
+    }
+}
