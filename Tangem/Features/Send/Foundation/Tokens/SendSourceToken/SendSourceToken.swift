@@ -28,6 +28,7 @@ protocol SendSourceToken: SendReceiveToken {
     // Common providers
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+    var tangemIconProvider: any TangemIconProvider { get }
 }
 
 extension SendSourceToken {
