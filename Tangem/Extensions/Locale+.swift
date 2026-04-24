@@ -9,10 +9,6 @@
 import Foundation
 
 extension Locale {
-    var localizationCode: String {
-        language.languageCode?.identifier ?? "en"
-    }
-
     /// Copyright https://github.com/mattt
     /// https://gist.github.com/mattt/6d022b66f08ea8c1b99ebe7e48b95c4b
     func localizedCurrencySymbol(forCurrencyCode currencyCode: String) -> String? {
