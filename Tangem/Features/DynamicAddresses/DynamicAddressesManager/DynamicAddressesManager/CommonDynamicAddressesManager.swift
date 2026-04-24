@@ -13,7 +13,7 @@ final class CommonDynamicAddressesManager {
     private let tokenItem: TokenItem
     private let xpubAddressesWalletManagerProvider: XPUBAddressesWalletManagerProvider
     private let xpubKeyGenerator: XPUBKeyGenerator
-    private let derivationModeUpdater: DerivationModeUpdater
+    private let blockchainSettingsUpdater: BlockchainSettingsUpdater
 
     private let _state: CurrentValueSubject<DynamicAddressesState, Never>
 
@@ -21,14 +21,14 @@ final class CommonDynamicAddressesManager {
         tokenItem: TokenItem,
         xpubAddressesWalletManagerProvider: XPUBAddressesWalletManagerProvider,
         xpubKeyGenerator: XPUBKeyGenerator,
-        derivationModeUpdater: DerivationModeUpdater
+        blockchainSettingsUpdater: BlockchainSettingsUpdater
     ) {
         self.tokenItem = tokenItem
         self.xpubAddressesWalletManagerProvider = xpubAddressesWalletManagerProvider
         self.xpubKeyGenerator = xpubKeyGenerator
-        self.derivationModeUpdater = derivationModeUpdater
+        self.blockchainSettingsUpdater = blockchainSettingsUpdater
 
-        let isEnabled = tokenItem.blockchainNetwork.derivationMode == .xpub
+        let isEnabled = tokenItem.blockchainNetwork.settings == .dynamicAddresses
         _state = .init(isEnabled ? .enabled : .disabled)
     }
 }
@@ -69,7 +69,7 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
         try Task.checkCancellation()
 
         try xpubAddressesWalletManagerProvider.updateToXpubKey(xpubKey: xpubKey)
-        let updatedBlockchainNetwork = derivationModeUpdater.update(derivationMode: .xpub, for: tokenItem)
+        let updatedBlockchainNetwork = blockchainSettingsUpdater.update(settings: .dynamicAddresses, for: tokenItem)
 
         _state.send(.enabled)
         return updatedBlockchainNetwork
@@ -81,7 +81,7 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
         }
 
         try xpubAddressesWalletManagerProvider.updateToPlainKey()
-        let updatedBlockchainNetwork = derivationModeUpdater.update(derivationMode: .plain, for: tokenItem)
+        let updatedBlockchainNetwork = blockchainSettingsUpdater.update(settings: nil, for: tokenItem)
 
         _state.send(.disabled)
         return updatedBlockchainNetwork
