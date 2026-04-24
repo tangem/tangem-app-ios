@@ -1448,7 +1448,7 @@ extension SwapModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .refresh:
-            swappingPairDidChange()
+            swappingPairDidChange(isFullRefresh: false)
         case .givePermission:
             router?.openApproveSheet()
         case .generateAddresses,
