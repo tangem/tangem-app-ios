@@ -32,6 +32,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let navigationActionHandler: MainNavigationActionHandler
@@ -87,6 +89,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
+    private var tangemPayMainDeeplinkSubscription: AnyCancellable?
 
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
@@ -202,9 +205,26 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openDeepLink(_ deepLink: DeepLinkDestination) {
-        if case .externalLink(let url) = deepLink {
+        switch deepLink {
+        case .externalLink(let url):
             safariManager.openURL(url)
-        } else {
+        case .tangemPayMain(let customerWalletId):
+            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
+        case .tangemPayTransactionDetails(let payload):
+            openTangemPayTransactionDetailsFromPush(payload: payload)
+        case .expressTransactionStatus,
+             .tokenDetails,
+             .buy,
+             .sell,
+             .swap,
+             .referral,
+             .staking,
+             .marketsTokenDetails,
+             .markets,
+             .onboardVisa,
+             .newsDetails,
+             .promo,
+             .tokenExchanges:
             deeplinkDestination.send(deepLink)
         }
     }
@@ -455,6 +475,94 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             tangemPayAccount: tangemPayAccount
         ))
         tangemPayMainCoordinator = coordinator
+    }
+
+    private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+        guard let userWalletModel = findUserWalletModel(byCustomerWalletId: customerWalletId) else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
+        let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+
+        if let tangemPayAccount = accountModel?.state?.tangemPayAccount {
+            openTangemPayMainView(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                tangemPayAccount: tangemPayAccount
+            )
+            return
+        }
+
+        guard let accountModel else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
+        tangemPayMainDeeplinkSubscription = accountModel.statePublisher
+            .compactMap(\.tangemPayAccount)
+            .first()
+            .timeout(.seconds(Constants.tangemPayMainDeeplinkTimeout), scheduler: DispatchQueue.main)
+            .receiveOnMain()
+            .sink(
+                receiveCompletion: { [weak self] _ in
+                    self?.tangemPayMainDeeplinkSubscription = nil
+                },
+                receiveValue: { [weak self] tangemPayAccount in
+                    self?.openTangemPayMainView(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        tangemPayAccount: tangemPayAccount
+                    )
+                }
+            )
+    }
+
+    private func openTangemPayTransactionDetailsFromPush(payload: TangemPayPushPayload) {
+        guard let userWalletModel = findUserWalletModel(byCustomerWalletId: payload.customerWalletId),
+              let displayData = payload.displayData(using: TangemPayDisplayDataMapper())
+        else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
+        let viewModel = TangemPayTransactionDetailsViewModel(
+            displayData: displayData,
+            origin: .push(payload),
+            userWalletId: userWalletModel.userWalletId,
+            customerId: payload.customerId,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func findUserWalletModel(byCustomerWalletId customerWalletId: String) -> (any UserWalletModel)? {
+        userWalletRepository.models.first { $0.userWalletId.stringValue == customerWalletId }
+    }
+}
+
+// MARK: - TangemPayTransactionDetailsRoutable
+
+extension MainCoordinator: TangemPayTransactionDetailsRoutable {
+    func transactionDetailsDidRequestClose() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: subject).recipient,
+            emailType: .visaFeedback(subject: subject)
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 }
 
@@ -763,6 +871,7 @@ extension MainCoordinator {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
+        static let tangemPayMainDeeplinkTimeout: TimeInterval = 10
     }
 }
 
@@ -851,6 +960,8 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case markets(filter: MarketsDeeplinkFilter)
         case onboardVisa(deeplinkString: String)
+        case tangemPayMain(customerWalletId: String)
+        case tangemPayTransactionDetails(payload: TangemPayPushPayload)
         case newsDetails(newsId: Int)
         case promo(code: String, refcode: String?, campaign: String?)
     }
