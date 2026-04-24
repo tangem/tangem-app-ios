@@ -13,7 +13,6 @@ import TangemUI
 
 struct OnrampRedirectingView: View {
     @ObservedObject var viewModel: OnrampRedirectingViewModel
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -24,11 +23,9 @@ struct OnrampRedirectingView: View {
         .navigationTitle(Text(viewModel.title))
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear {
-            viewModel.update(colorScheme: colorScheme)
+        .task {
+            await viewModel.loadRedirectData()
         }
-        .onChange(of: colorScheme) { viewModel.update(colorScheme: $0) }
-        .task { await viewModel.loadRedirectData() }
     }
 
     private var content: some View {
