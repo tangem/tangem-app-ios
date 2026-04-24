@@ -12,7 +12,7 @@ import TangemSdk
 struct DynamicAddressesManagerProvider {
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
-    let derivationModeUpdater: DerivationModeUpdater
+    let blockchainSettingsUpdater: BlockchainSettingsUpdater
 
     func makeDynamicAddressesManager(
         tokenItem: TokenItem,
@@ -37,7 +37,7 @@ struct DynamicAddressesManagerProvider {
             tokenItem: tokenItem,
             xpubAddressesWalletManagerProvider: xpubAddressesWalletManagerProvider,
             xpubKeyGenerator: generator,
-            derivationModeUpdater: derivationModeUpdater
+            blockchainSettingsUpdater: blockchainSettingsUpdater
         )
     }
 }
