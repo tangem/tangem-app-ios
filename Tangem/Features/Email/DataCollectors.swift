@@ -366,8 +366,14 @@ struct VisaDisputeTransactionDataCollector: EmailDataCollector {
 struct TangemPaySupportDataCollector: EmailDataCollector {
     enum Source {
         case transactionDetails(TangemPayTransactionRecord)
+        case transactionDetailsPush(TangemPayPushPayload, PushTransactionType)
         case failedToIssueCardSheet
         case permanentBanner
+
+        enum PushTransactionType {
+            case transaction
+            case receiveWithdraw
+        }
     }
 
     let source: Source
@@ -394,6 +400,13 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
                 issueType = "Receive/Withdraw"
                 encodable = value
             }
+
+        case .transactionDetailsPush(let payload, let pushTransactionType):
+            issueType = switch pushTransactionType {
+            case .transaction: "Transaction"
+            case .receiveWithdraw: "Receive/Withdraw"
+            }
+            encodable = payload
 
         case .failedToIssueCardSheet:
             issueType = "Card issuing"
