@@ -157,7 +157,19 @@ private extension TangemPayCardManagementViewModel {
             }
         )
 
-        cardSettingsRows = [changePinRow, freezeRow]
+        let replaceCardRow = DefaultRowViewModel(
+            title: Localization.tangempayCardDetailsReissueCard,
+            action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
+                self?.onReplaceCard()
+            }
+        )
+
+        cardSettingsRows = [changePinRow, freezeRow, replaceCardRow]
+    }
+
+    func onReplaceCard() {
+        Analytics.log(.visaReplaceCardClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openTangemPayReissueSheet(userWalletId: userWalletInfo.id, tangemPayAccount: tangemPayAccount)
     }
 
     func setPin() {
