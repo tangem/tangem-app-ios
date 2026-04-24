@@ -15,8 +15,6 @@ struct DemoTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension DemoTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { true }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: tokenItem.blockchain)
         return fees
