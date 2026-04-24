@@ -112,5 +112,11 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
         transferModel.actionInProcessing
             .receiveOnMain()
             .assign(to: &$isLoading)
+
+        transferModel.sourceTokenPublisher
+            .compactMap { $0.value }
+            .map { $0.tangemIconProvider.getMainButtonIcon() }
+            .receiveOnMain()
+            .assign(to: &$mainButtonIcon)
     }
 }
