@@ -27,6 +27,10 @@ struct TangemPayMainView: View {
 
                 balanceCard
 
+                if viewModel.shouldDisplayReplacingCardBanner {
+                    TangemPayReplacingCardBanner()
+                }
+
                 if viewModel.shouldDisplayAddToApplePayGuide {
                     Button(action: viewModel.openAddToApplePayGuide) {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
