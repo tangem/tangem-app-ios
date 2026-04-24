@@ -450,7 +450,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
+        coordinator.start(with: .init(
+            userWalletInfo: userWalletInfo,
+            tangemPayAccount: tangemPayAccount
+        ))
         tangemPayMainCoordinator = coordinator
     }
 }
