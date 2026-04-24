@@ -54,11 +54,17 @@ public class CommonIncomingActionManager {
             return
         }
 
-        let deeplinkURL = [Constants.deeplinkKey, Constants.externalLinkKey]
-            .compactMap { response.notification.request.content.userInfo[$0] as? String }
-            .first
-
         let userInfo = response.notification.request.content.userInfo
+
+        if let tangemPayAction = TangemPayPushPayload.parse(from: userInfo).map(IncomingAction.tangemPayPush) {
+            pendingAction = tangemPayAction
+            tryHandleLastAction()
+            return
+        }
+
+        let deeplinkURL = [Constants.deeplinkKey, Constants.externalLinkKey]
+            .compactMap { userInfo[$0] as? String }
+            .first
 
         if let deeplinkURL {
             tryHandleDeeplinkUrlByDeeplinkKey(with: deeplinkURL)
