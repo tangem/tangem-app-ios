@@ -133,17 +133,7 @@ extension VisaWalletModel: FiatTokenBalanceProviderInput {
 }
 
 extension VisaWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: WalletAddress, token: Token?) -> URL? {
         // [REDACTED_TODO_COMMENT]
         return nil
     }
@@ -243,7 +233,10 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
-    var addresses: [String] { [defaultAddressString] }
+    var addresses: [WalletAddress] {
+        // [REDACTED_TODO_COMMENT]
+        [WalletAddress(value: defaultAddressString, localizedName: "")]
+    }
 
     var defaultAddressString: String {
         // [REDACTED_TODO_COMMENT]

@@ -76,7 +76,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        walletAddresses: walletModel.addresses,
+        walletAddresses: walletModel.addresses.map(\.value),
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )
@@ -113,11 +113,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final func openExplorer() {
         let addresses = walletModel.addresses
 
-        if addresses.count == 1 {
-            openAddressExplorer(at: 0)
+        if let address = addresses.singleElement {
+            openAddressExplorer(for: address)
         } else {
-            openAddressSelector { [weak self] index in
-                self?.openAddressExplorer(at: index)
+            openAddressSelector { [weak self] address in
+                self?.openAddressExplorer(for: address)
             }
         }
     }
@@ -599,15 +599,15 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    private func openAddressSelector(callback: @escaping (Int) -> Void) {
-        let addressTypes = walletModel.receiveAddressTypes
-        if addressTypes.isEmpty {
+    private func openAddressSelector(callback: @escaping (WalletAddress) -> Void) {
+        let walletAddresses = walletModel.addresses
+        if walletAddresses.isEmpty {
             return
         }
 
-        let addressButtons = addressTypes.enumerated().map { index, addressType in
-            ConfirmationDialogViewModel.Button(title: addressType.info.localizedName) {
-                callback(index)
+        let addressButtons = walletAddresses.map { address in
+            ConfirmationDialogViewModel.Button(title: address.localizedName) {
+                callback(address)
             }
         }
 
@@ -633,8 +633,8 @@ extension SingleTokenBaseViewModel {
         )
     }
 
-    private func openAddressExplorer(at index: Int) {
-        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+    private func openAddressExplorer(for address: WalletAddress) {
+        guard let url = walletModel.exploreURL(for: address, token: amountType.token) else {
             return
         }
 

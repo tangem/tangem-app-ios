@@ -146,7 +146,10 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var addresses: [String] { [defaultAddressString] }
+    var addresses: [WalletAddress] {
+        [WalletAddress(value: defaultAddressString, localizedName: "")]
+    }
+
     var defaultAddressString: String { "mock" }
 
     var isMainToken: Bool { true }
@@ -207,9 +210,7 @@ final class WalletModelTestsMock: WalletModel {
 
     var description: String { "WalletModelTestsMock" }
 
-    func displayAddress(for index: Int) -> String { "" }
-    func shareAddressString(for index: Int) -> String { "" }
-    func exploreURL(for index: Int, token: Token?) -> URL? { nil }
+    func exploreURL(for address: WalletAddress, token: Token?) -> URL? { nil }
     func exploreTransactionURL(for hash: String) -> URL? { nil }
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }

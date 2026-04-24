@@ -13,7 +13,7 @@ enum ReferralAccountFinder {
 
             for walletModel in walletModels {
                 // Addresses are compared in a case-insensitive manner (mirrors the Android implementation)
-                if walletModel.addresses.contains(where: { $0 == address }) {
+                if walletModel.addresses.contains(where: { $0.value == address }) {
                     return account
                 }
             }

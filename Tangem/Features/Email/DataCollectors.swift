@@ -29,29 +29,34 @@ private extension EmailDataCollector {
     }
 
     func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
-        var dataToFormat: [EmailCollectedData] = []
+        let walletAddresses = walletModel.addresses
+        guard !walletAddresses.isEmpty else { return [] }
 
-        let receiveAddressTypes = walletModel.receiveAddressTypes
-        if receiveAddressTypes.count > 1 {
-            var explorerLinks = "Multiple explorers links: "
-            var addresses = "Multiple addresses: "
-            let suffix = " ; \n"
-            receiveAddressTypes.enumerated().forEach {
-                let namePrefix = $0.element.info.localizedName + " - "
-                addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
-            }
-            explorerLinks.removeLast(suffix.count)
-            addresses.removeLast(suffix.count)
-
-            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
-            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-        } else if receiveAddressTypes.count == 1 {
-            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
+        if walletAddresses.count == 1, let address = walletAddresses.first {
+            return [
+                EmailCollectedData(
+                    type: .wallet(.walletAddress),
+                    data: address.value
+                ),
+                EmailCollectedData(
+                    type: .wallet(.explorerLink),
+                    data: walletModel.exploreURL(for: address)?.absoluteString ?? ""
+                ),
+            ]
         }
 
-        return dataToFormat
+        let suffix = " ; \n"
+        let addresses = "Multiple addresses: " + walletAddresses
+            .map { "\($0.localizedName) - \($0.value)" }
+            .joined(separator: suffix)
+        let explorerLinks = "Multiple explorers links: " + walletAddresses
+            .map { "\($0.localizedName) - \(walletModel.exploreURL(for: $0)?.absoluteString ?? "")" }
+            .joined(separator: suffix)
+
+        return [
+            EmailCollectedData(type: .wallet(.walletAddress), data: addresses),
+            EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks),
+        ]
     }
 }
 

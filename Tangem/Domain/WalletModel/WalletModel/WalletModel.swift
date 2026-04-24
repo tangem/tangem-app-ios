@@ -23,7 +23,7 @@ protocol WalletModel:
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
-    var addresses: [String] { get }
+    var addresses: [WalletAddress] { get }
     var defaultAddressString: String { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
@@ -66,10 +66,6 @@ extension WalletModel {
     /// Default implementation provided because not all wallet models support fulfilling asset requirements
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         Just(false).eraseToAnyPublisher()
-    }
-
-    func exploreURL(for index: Int) -> URL? {
-        return exploreURL(for: index, token: nil)
     }
 
     var walletConnectAddress: String {
@@ -149,11 +145,15 @@ protocol WalletModelDynamicAddressesProvider {
 // MARK: - Helpers
 
 protocol WalletModelHelpers {
-    func displayAddress(for index: Int) -> String
-    func shareAddressString(for index: Int) -> String
-    func exploreURL(for index: Int, token: Token?) -> URL?
+    func exploreURL(for address: WalletAddress, token: Token?) -> URL?
     func exploreTransactionURL(for hash: String) -> URL?
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error>
+}
+
+extension WalletModelHelpers {
+    func exploreURL(for address: WalletAddress) -> URL? {
+        exploreURL(for: address, token: nil)
+    }
 }
 
 // MARK: - Fee

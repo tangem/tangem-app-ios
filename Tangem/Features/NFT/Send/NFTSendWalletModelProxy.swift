@@ -57,7 +57,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
-    var addresses: [String] {
+    var addresses: [WalletAddress] {
         mainTokenWalletModel.addresses
     }
 
@@ -204,15 +204,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fiatTotalTokenBalanceProvider
     }
 
-    func displayAddress(for index: Int) -> String {
-        mainTokenWalletModel.displayAddress(for: index)
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        mainTokenWalletModel.shareAddressString(for: index)
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: WalletAddress, token: Token?) -> URL? {
         // NFTs have their own explorer URLs
         NFTExplorerLinkProvider().provide(for: asset.id)
     }

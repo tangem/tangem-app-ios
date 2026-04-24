@@ -20,7 +20,7 @@ enum UserTokenListExternalParametersHelper {
 
         return walletModels
             .reduce(into: [:]) { partialResult, walletModel in
-                let addresses = walletModel.addresses
+                let addresses = walletModel.addresses.map(\.value)
                 partialResult[walletModel.id] = addresses
             }
     }

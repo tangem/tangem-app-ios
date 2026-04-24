@@ -311,7 +311,7 @@ private extension CommonNFTManager {
                             try await self.dispatchUpdate(
                                 walletModelId: walletModel.id,
                                 networkService: networkService,
-                                address: address,
+                                address: address.value,
                                 ignoreCache: ignoreCache
                             )
                         }

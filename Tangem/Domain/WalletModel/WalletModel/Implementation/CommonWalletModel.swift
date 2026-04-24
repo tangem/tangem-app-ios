@@ -262,7 +262,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [String] { wallet.addresses.map { $0.value } }
+    var addresses: [WalletAddress] {
+        WalletAddressBuilder(wallet: wallet).build()
+    }
 
     var defaultAddressString: String { wallet.defaultAddress.value }
 
@@ -479,20 +481,12 @@ extension CommonWalletModel: WalletModelBalancesProvider {
 // MARK: - Helpers
 
 extension CommonWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        wallet.addresses[index].value
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        wallet.getShareString(for: wallet.addresses[index].value)
-    }
-
-    func exploreURL(for index: Int, token: Token? = nil) -> URL? {
+    func exploreURL(for address: WalletAddress, token: Token? = nil) -> URL? {
         if isDemo {
             return nil
         }
 
-        return wallet.getExploreURL(for: wallet.addresses[index].value, token: token)
+        return wallet.getExploreURL(for: address.value, token: token)
     }
 
     func exploreTransactionURL(for hash: String) -> URL? {
