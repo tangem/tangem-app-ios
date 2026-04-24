@@ -58,8 +58,8 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let derivationModeUpdater = CommonDerivationModeUpdater(userTokensRepository: userTokensRepository)
-        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(derivationModeUpdater: derivationModeUpdater)
+        let blockchainSettingsUpdater = CommonBlockchainSettingsUpdater(userTokensRepository: userTokensRepository)
+        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(blockchainSettingsUpdater: blockchainSettingsUpdater)
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
@@ -93,11 +93,11 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
 // MARK: - Auxiliary types
 
 private extension CommonCryptoAccountDependenciesFactory {
-    struct CommonDerivationModeUpdater: DerivationModeUpdater {
+    struct CommonBlockchainSettingsUpdater: BlockchainSettingsUpdater {
         let userTokensRepository: UserTokensRepository
 
-        func update(derivationMode: BlockchainNetwork.DerivationMode, for tokenItem: TokenItem) -> BlockchainNetwork {
-            let blockchainNetwork = tokenItem.blockchainNetwork.with(derivationMode: derivationMode)
+        func update(settings: BlockchainSettings?, for tokenItem: TokenItem) -> BlockchainNetwork {
+            let blockchainNetwork = tokenItem.blockchainNetwork.with(settings: settings)
             userTokensRepository.performBatchUpdates { updater in
                 updater.updateBlockchainNetwork(blockchainNetwork, for: tokenItem)
             }
