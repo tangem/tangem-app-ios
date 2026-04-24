@@ -81,6 +81,7 @@ extension TokenBalanceType: CustomStringConvertible {
 // MARK: - Models
 
 extension TokenBalanceType {
+    @CaseFlagable
     enum EmptyReason: Hashable {
         /// The data is not loaded yet
         case noData
