@@ -154,6 +154,9 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
+                TangemPayTransactionDetailsView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
