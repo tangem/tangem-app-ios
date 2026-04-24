@@ -87,18 +87,26 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        // Shared instance between multiple accounts, optional due to late binding
-        var sharedOptionsManagerAdapter: AccountsOrganizeOptionsManagerAdapter? = nil
-
         cryptoAccountModelsPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, cryptoAccountModels -> AnyPublisher<[OrganizeTokensListOuterSection], Never> in
                 viewModel.cryptoAccountModelsBag.removeAll() // Invalidate all old subscriptions since the list of accounts may change
-                sharedOptionsManagerAdapter = nil // Clear old options manager reference
 
-                guard cryptoAccountModels.isNotEmpty else {
+                guard let firstAccount = cryptoAccountModels.first else {
                     return .just(output: [])
                 }
+
+                // Currently, all crypto accounts share the same group/sort options, so we use a single,
+                // shared instance of the `AccountsOrganizeOptionsManagerAdapter` across all accounts.
+                // The adapter is cached by the identity of the first `CryptoAccountModel`; as long as
+                // that account is still present in the current list, the cached adapter remains valid
+                // regardless of reordering or other account changes.
+                let currentAccountIds = cryptoAccountModels.map(ObjectIdentifier.init).toSet()
+                let optionsManagerAdapter = Self.makeOrGetCachedOptionsManagerAdapter(
+                    for: firstAccount,
+                    currentAccountIds: currentAccountIds,
+                    using: entitiesCache
+                )
 
                 let hasSingleAccount = cryptoAccountModels.count == 1
 
@@ -119,17 +127,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     .map { outerSectionIndex, cryptoAccountModel in
                         let outerSectionViewModel = outerSectionViewModels[outerSectionIndex]
                         let dragAndDropActionsCache = aggregatedCache.dragAndDropActionsCache(for: outerSectionViewModel)
-
-                        let optionsManagerAdapter: AccountsOrganizeOptionsManagerAdapter
-                        if let adapter = sharedOptionsManagerAdapter {
-                            optionsManagerAdapter = adapter
-                        } else {
-                            // Currently, all crypto accounts share the same group/sort options, so we create a single,
-                            // shared instance of the `AccountsOrganizeOptionsManagerAdapter` adapter here
-                            let userTokensReorderer = cryptoAccountModel.userTokensManager
-                            optionsManagerAdapter = AccountsOrganizeOptionsManagerAdapter(userTokensReorderer: userTokensReorderer)
-                            sharedOptionsManagerAdapter = optionsManagerAdapter
-                        }
 
                         let tokenSectionsAdapter = Self
                             .makeOrGetCachedTokenSectionsAdapter(
@@ -181,6 +178,30 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         didSave = true
         coordinator?.didTapSaveButton()
+    }
+
+    private static func makeOrGetCachedOptionsManagerAdapter(
+        for cryptoAccountModel: any CryptoAccountModel,
+        currentAccountIds: Set<ObjectIdentifier>,
+        using cache: EntitiesCache
+    ) -> AccountsOrganizeOptionsManagerAdapter {
+        if let cached = cache.sharedOptionsManagerAdapter, currentAccountIds.contains(cached.cacheKey) {
+            return cached.adapter
+        }
+
+        let newAdapter = AccountsOrganizeOptionsManagerAdapter(
+            userTokensReorderer: cryptoAccountModel.userTokensManager
+        )
+        let cacheKey = ObjectIdentifier(cryptoAccountModel)
+
+        cache.mutate { cache in
+            cache.sharedOptionsManagerAdapter = (cacheKey, newAdapter)
+            // Existing cached instances of `TokenSectionsAdapter` have been created using the old adapter,
+            // so they must be discarded and re-created later in `makeOrGetCachedTokenSectionsAdapter` when needed
+            cache.tokenSectionsAdapters.removeAll()
+        }
+
+        return newAdapter
     }
 
     private static func makeOrGetCachedTokenSectionsAdapter(
@@ -305,7 +326,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .sink { dragAndDropActionsCache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
             .store(in: &cryptoAccountModelsBag)
 
-        // Saving reordered wallet model IDs on Save button tap and then notifying coordinator
+        // Saving reordered wallet model IDs on `Save` button tap and then notifying coordinator
         onSavePublisher
             .withWeakCaptureOf(self)
             .receive(on: mappingQueue)
@@ -580,7 +601,10 @@ extension OrganizeTokensViewModel {
 
     /// A cache for various inner types used in `OrganizeTokensViewModel`.
     final class Cache {
-        /// Keyed by `ObjectIdentifier` of `CryptoAccountModel`.
+        /// A single instance for the ENTIRE SET of multiple accounts, keyed by `ObjectIdentifier` of any `CryptoAccountModel`.
+        var sharedOptionsManagerAdapter: (cacheKey: ObjectIdentifier, adapter: AccountsOrganizeOptionsManagerAdapter)?
+
+        /// A single instance per one ONE SPECIFIC account, keyed by `ObjectIdentifier` of that `CryptoAccountModel`.
         var tokenSectionsAdapters: [ObjectIdentifier: TokenSectionsAdapter] = [:]
 
         func purge(using cryptoAccountModels: [any CryptoAccountModel]) {
