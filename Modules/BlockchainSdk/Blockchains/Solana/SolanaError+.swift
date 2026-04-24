@@ -9,34 +9,80 @@
 import Foundation
 import SolanaSwift
 
-extension SolanaError: @retroactive LocalizedError {
+extension SolanaSwift.SolanaError: @retroactive LocalizedError {
     public var errorDescription: String? {
-        // [REDACTED_TODO_COMMENT]
         switch self {
         case .unauthorized:
-            return "unauthorized"
+            return "Solana request is unauthorized."
+
         case .notFoundProgramAddress:
-            return "notFoundProgramAddress"
+            return "Solana program address was not found."
+
         case .invalidRequest(let reason):
-            return "invalidRequest (\(reason ?? ""))"
-        case .invalidResponse(let error):
-            return "invalidResponse (\(error.code ?? -1))"
-        case .socket:
-            return "socket"
+            if let reason {
+                return "Invalid Solana request. \(reason)."
+            }
+            return "Invalid Solana request."
+
+        case .invalidResponse(let responseError):
+            return responseError.sanitizedDescription()
+
+        case .socket(let error):
+            return "Solana socket error. \(error.localizedDescription)."
+
         case .couldNotRetriveAccountInfo:
-            return "couldNotRetrieveAccountInfo"
+            return "Could not retrieve Solana account info."
+
         case .other(let reason):
-            return "other (\(reason))"
+            return reason
+
         case .nullValue:
-            return "nullValue"
+            return "Solana response contains an empty value."
+
         case .couldNotRetriveBalance:
-            return "couldNotRetrieveBalance"
+            return "Could not retrieve Solana balance."
+
         case .blockHashNotFound:
-            return "blockHashNotFound"
+            return "Solana blockhash was not found. Please try again."
+
         case .invalidPublicKey:
-            return "invalidPublicKey"
+            return "Invalid Solana public key."
+
         case .invalidMNemonic:
-            return "invalidMnemonic"
+            return "Invalid Solana mnemonic."
         }
+    }
+}
+
+private extension SolanaSwift.ResponseError {
+    func sanitizedDescription() -> String? {
+        @inline(__always)
+        func fallbackErrorDescription() -> String? {
+            let errorCode = code.map(String.init) ?? "unknown code"
+            let errorMessage = message ?? "Unknown error."
+
+            return "RPC code: " + errorCode + " . " + errorMessage
+        }
+
+        guard
+            message?.contains("Transaction simulation failed") == true,
+            let logs = data?.logs
+        else {
+            return fallbackErrorDescription()
+        }
+
+        if logs.contains { $0.caseInsensitiveContains("insufficient funds") } {
+            return "The transaction couldn’t be completed."
+                + " Your account has insufficient tokens for this transfer."
+                + " Please top up your balance and try again."
+        }
+
+        if logs.contains { $0.caseInsensitiveContains("insufficient lamports") } {
+            return "The transaction couldn’t be completed."
+                + " Your account has insufficient SOL for this transfer."
+                + " Please top up your balance and try again."
+        }
+
+        return fallbackErrorDescription()
     }
 }
