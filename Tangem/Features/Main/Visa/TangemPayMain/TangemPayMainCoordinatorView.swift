@@ -56,9 +56,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayFakedoorSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
-                TangemPayTransactionDetailsView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
