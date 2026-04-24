@@ -62,6 +62,7 @@ struct CommonSendSourceTokenFactory {
             emailDataCollectorBuilder: emailDataCollectorBuilder,
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: walletModel.account,
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             tokenItem: walletModel.tokenItem,
             fiatItem: fiatItem,
             address: walletModel.defaultAddressString,
