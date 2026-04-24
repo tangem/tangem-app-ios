@@ -13,7 +13,7 @@ import TangemAccounts
 final class TokenSelectorAccountViewModel: ObservableObject, Identifiable {
     let header: HeaderType
     let expandableViewModel: TokenSelectorExpandableAccountItemViewModel?
-    @Published private(set) var items: [TokenSelectorItemViewModel]
+    @Published private(set) var items: [TokenSelectorItemViewModel] = []
 
     var itemsCountPublisher: AnyPublisher<Int, Never> {
         $items.compactMap { $0.count }.eraseToAnyPublisher()
@@ -21,13 +21,11 @@ final class TokenSelectorAccountViewModel: ObservableObject, Identifiable {
 
     init(
         header: HeaderType,
-        items: [TokenSelectorItemViewModel],
         itemsPublisher: AnyPublisher<[TokenSelectorItemViewModel], Never>,
         expandableViewModel: TokenSelectorExpandableAccountItemViewModel? = nil
     ) {
         self.header = header
         self.expandableViewModel = expandableViewModel
-        self.items = items
 
         itemsPublisher.receiveOnMain().assign(to: &$items)
     }
