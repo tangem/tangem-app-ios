@@ -14,4 +14,5 @@ protocol TangemPayCardManagementRoutable: AnyObject {
     func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
     func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount)
     func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void)
+    func openChangeDailyLimit(tangemPayAccount: TangemPayAccount)
 }

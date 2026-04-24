@@ -49,7 +49,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/pin"
         case .cancelKYC:
             "customer/pay-enabled"
-        case .updateCardDisplayName:
+        case .updateCardDisplayName, .setCardLimit:
             "customer/card"
         }
     }
@@ -73,7 +73,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             .post
 
         case .cancelKYC,
-             .updateCardDisplayName:
+             .updateCardDisplayName,
+             .setCardLimit:
             .patch
 
         case .setPin:
@@ -128,6 +129,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .updateCardDisplayName(let displayName):
             let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
+
+        case .setCardLimit(let amount):
+            let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
+            return .requestCustomJSONEncodable(requestData, encoder: encoder)
         }
     }
 
@@ -166,6 +171,7 @@ extension CustomerInfoManagementAPITarget {
         case getOrder(orderId: String)
 
         case updateCardDisplayName(displayName: String)
+        case setCardLimit(amount: Int)
     }
 }
 
