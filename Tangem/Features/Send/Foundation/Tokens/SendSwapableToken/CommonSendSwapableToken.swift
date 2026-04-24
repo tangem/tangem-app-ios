@@ -41,6 +41,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
 
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
+    var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
 
     var tokenItem: TokenItem { sourceToken.tokenItem }
     var fiatItem: FiatItem { sourceToken.fiatItem }

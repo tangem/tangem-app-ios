@@ -64,7 +64,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     func bind(sourceTokenInput: SendSourceTokenInput) {
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonTangemIconProvider(config: $0.userWalletInfo.config).getMainButtonIcon() }
+            .map { $0.tangemIconProvider.getMainButtonIcon() }
             .receiveOnMain()
             .assign(to: &$mainButtonIcon)
 
