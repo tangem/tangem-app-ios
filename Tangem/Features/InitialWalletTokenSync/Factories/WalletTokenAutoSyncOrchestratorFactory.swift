@@ -2,6 +2,7 @@
 //  WalletTokenAutoSyncOrchestratorFactory.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -17,18 +18,25 @@ struct WalletTokenAutoSyncOrchestratorFactory {
     )
 
     private let configurationProvider: InitialWalletTokenSyncConfigurationProvider = CommonInitialWalletTokenSyncConfigurationProvider(
-        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory
+        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory,
+        isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
     )
+
+    private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
+    private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider = CommonWalletTokenAutoSyncAnalyticsService()
 
     func makeOrchestrator() -> CommonWalletTokenAutoSyncOrchestrator {
         CommonWalletTokenAutoSyncOrchestrator(
             syncStateActor: sharedSyncStateActor,
             progressService: InjectedValues[\.walletTokenSyncProgressService],
+            persister: persister,
             relayerFactory: makeRelayerFactory(
                 configurationProvider: configurationProvider,
                 coinsCatalogProvider: coinsCatalogProvider,
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
-            )
+            ),
+            userWalletRepository: InjectedValues[\.userWalletRepository],
+            analyticsProvider: analyticsProvider
         )
     }
 
@@ -38,16 +46,17 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         tokenBalanceClient: MoralisTokenBalanceClient
     ) -> (Blockchain) -> (any WalletTokenAutoSyncRelayer)? {
         { blockchain in
-            if configurationProvider.canHandle(blockchain) {
-                return makeConfigurationRelayer(
-                    configurationProvider: configurationProvider,
+            // Use Moralis first to obtain blockchain balances
+            if MoralisSupportedBlockchains.all.contains(blockchain) {
+                return makeMoralisRelayer(
+                    tokenBalanceClient: tokenBalanceClient,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }
 
-            if MoralisSupportedBlockchains.all.contains(blockchain) {
-                return makeMoralisRelayer(
-                    tokenBalanceClient: tokenBalanceClient,
+            if configurationProvider.canHandle(blockchain) {
+                return makeConfigurationRelayer(
+                    configurationProvider: configurationProvider,
                     coinsCatalogProvider: coinsCatalogProvider
                 )
             }
