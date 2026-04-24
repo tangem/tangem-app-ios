@@ -481,8 +481,8 @@ extension OnrampModel: OnrampRedirectingOutput {
             .onrampTransactionDidSend(txData, userWalletId: userWalletId)
 
         stopTimer()
-        DispatchQueue.main.async {
-            self.router?.openOnrampWebView(url: data.widgetUrl, onDismiss: { [weak self] in
+        DispatchQueue.main.async { [weak self] in
+            self?.router?.openOnrampWebView(url: data.widgetUrl, onDismiss: { [weak self] in
                 self?.restartTimer()
             }, onSuccess: { [weak self] url in
                 self?.proceedSuccess(txID: data.txId, redirectUrl: data.redirectUrl, url: url)
