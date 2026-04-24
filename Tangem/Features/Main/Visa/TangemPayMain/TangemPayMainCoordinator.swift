@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissOptions?>
@@ -380,6 +381,54 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
 
     func openChangeDailyLimit(tangemPayAccount: TangemPayAccount) {
         tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
+    }
+
+    func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
+        Task { @MainActor in
+            do {
+                let feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                let balance = try await tangemPayAccount.customerService.getBalance()
+
+                let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
+                let isInsufficientFunds = balance.fiat.availableBalance < feeResponse.amount
+
+                let viewModel = TangemPayReissueSheetViewModel(
+                    userWalletId: userWalletId,
+                    tangemPayAccount: tangemPayAccount,
+                    feeText: feeText,
+                    isInsufficientFunds: isInsufficientFunds,
+                    coordinator: self
+                )
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            } catch {
+                VisaLogger.error("Failed to load reissue fee", error: error)
+            }
+        }
+    }
+
+    private static func formatFee(amount: Decimal, currency: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currency
+        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
+    }
+}
+
+// MARK: - TangemPayReissueSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayReissueSheetRoutable {
+    func closeReissueSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openAddFundsFromReissueSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.addFunds()
+        }
     }
 }
 
