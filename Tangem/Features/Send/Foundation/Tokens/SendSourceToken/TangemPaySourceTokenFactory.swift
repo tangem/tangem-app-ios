@@ -53,6 +53,7 @@ struct TangemPaySourceTokenFactory {
             emailDataCollectorBuilder: emailDataCollectorBuilder,
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: nil,
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             tokenItem: tokenItem,
             fiatItem: fiatItem,
             address: defaultAddressString,
