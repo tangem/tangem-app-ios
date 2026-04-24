@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemExpress
 import BlockchainSdk
 import BigInt
@@ -66,8 +67,6 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonEthereumTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { tokenFeeLoader.allowsFeeSelection }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }

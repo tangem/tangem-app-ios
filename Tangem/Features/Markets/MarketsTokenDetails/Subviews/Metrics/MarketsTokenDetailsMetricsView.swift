@@ -121,6 +121,7 @@ extension MarketsTokenDetailsMetricsView {
         viewModel: .init(
             metrics: .init(
                 marketRating: 3,
+                marketRatingChange24H: -2,
                 circulatingSupply: 112259808785.143,
                 marketCap: 112234033891,
                 volume24H: 42854017104,
