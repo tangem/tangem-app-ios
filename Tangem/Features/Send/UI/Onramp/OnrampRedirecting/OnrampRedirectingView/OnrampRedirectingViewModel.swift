@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
-final class OnrampRedirectingViewModel: ObservableObject {
+final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     var title: String {
@@ -36,8 +36,6 @@ final class OnrampRedirectingViewModel: ObservableObject {
     private let interactor: OnrampRedirectingInteractor
     private weak var coordinator: OnrampRedirectingRoutable?
 
-    private var colorScheme: ColorScheme = .light
-
     init(
         tokenItem: TokenItem,
         interactor: OnrampRedirectingInteractor,
@@ -49,14 +47,8 @@ final class OnrampRedirectingViewModel: ObservableObject {
     }
 
     func loadRedirectData() async {
-        let theme: OnrampRedirectSettings.Theme = switch colorScheme {
-        case .light: .light
-        case .dark: .dark
-        @unknown default: .light
-        }
-
         do {
-            try await interactor.loadRedirectData(theme: theme)
+            try await interactor.loadRedirectData(theme: .dark)
         } catch {
             await runOnMain {
                 alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
@@ -64,9 +56,5 @@ final class OnrampRedirectingViewModel: ObservableObject {
                 }
             }
         }
-    }
-
-    func update(colorScheme: ColorScheme) {
-        self.colorScheme = colorScheme
     }
 }
