@@ -35,6 +35,9 @@ public protocol CustomerInfoManagementService: AnyObject {
     @discardableResult
     func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
 
+    @discardableResult
+    func setCardLimit(amount: Int) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
+
     func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
@@ -150,6 +153,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func updateCardDisplayName(_ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
         try await request(for: .updateCardDisplayName(displayName: displayName))
+    }
+
+    public func setCardLimit(amount: Int) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        try await request(for: .setCardLimit(amount: amount))
     }
 
     public func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
