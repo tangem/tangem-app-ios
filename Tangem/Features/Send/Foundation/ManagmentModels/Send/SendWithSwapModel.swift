@@ -531,7 +531,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
-                    tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
+                    tangemIconProvider: source.tangemIconProvider
                 )
                 router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
