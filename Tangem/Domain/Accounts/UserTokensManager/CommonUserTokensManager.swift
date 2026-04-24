@@ -92,7 +92,7 @@ final class CommonUserTokensManager {
         let blockchainNetwork = BlockchainNetwork(
             tokenItem.blockchain,
             derivationPath: derivationPath,
-            derivationMode: tokenItem.blockchainNetwork.derivationMode
+            settings: tokenItem.blockchainNetwork.settings
         )
 
         switch tokenItem {
