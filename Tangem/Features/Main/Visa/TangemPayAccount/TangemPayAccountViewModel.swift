@@ -90,11 +90,17 @@ private extension TangemPayAccountViewModel {
                 case .failedToIssueCard:
                     .just(output: .failedToIssueCard)
                 case .tangemPayAccount(let tangemPayAccount):
-                    Publishers.CombineLatest(
+                    Publishers.CombineLatest3(
                         tangemPayAccount.cardPublisher,
-                        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+                        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher,
+                        tangemPayAccount.isReissuingCardPublisher
                     )
-                    .map { card, balanceType in
+                    .map { card, balanceType, isReissuing in
+                        if isReissuing {
+                            let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
+                            return .replacingCard(balance: balance)
+                        }
+
                         switch card {
                         case .none:
                             return .skeleton
@@ -180,6 +186,7 @@ extension TangemPayAccountViewModel {
         case issuingYourCard
         case failedToIssueCard
         case normal(card: CardInfo, balance: LoadableBalanceView.State)
+        case replacingCard(balance: LoadableBalanceView.State)
         case syncNeeded
         case unavailable(cached: CachedDisplayData? = nil)
         case rootedDevice
@@ -194,6 +201,8 @@ extension TangemPayAccountViewModel {
                 Localization.tangempayFailedToIssueCard
             case .normal(let card, _):
                 "*" + card.cardNumberEnd
+            case .replacingCard:
+                Localization.tangempayReissueCardInProgress
             case .syncNeeded:
                 Localization.tangempaySyncNeeded
             case .unavailable(let cached):
@@ -209,7 +218,7 @@ extension TangemPayAccountViewModel {
 
         var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined:
+            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .replacingCard:
                 true
             case .syncNeeded, .unavailable, .rootedDevice:
                 false

@@ -41,6 +41,9 @@ public protocol CustomerInfoManagementService: AnyObject {
     func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
+    func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
+    func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
+
     @discardableResult
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse
 }
@@ -165,5 +168,13 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await request(for: .getOrder(orderId: orderId))
+    }
+
+    public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
+        try await request(for: .getFee(type: type))
+    }
+
+    public func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse {
+        try await request(for: .reissueCard(cardId: cardId))
     }
 }

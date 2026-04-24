@@ -695,6 +695,10 @@ extension Analytics {
         case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
         case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
 
+        case visaReplaceCardClicked = "[Visa Screen] Visa Replace Card Clicked"
+        case visaReplaceCardConfirmationPopupOpened = "[Visa Screen] Visa Replace Card Confirmation Popup Opened"
+        case visaReplaceCardConfirmed = "[Visa Screen] Visa Replace Card Confirmed"
+
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
