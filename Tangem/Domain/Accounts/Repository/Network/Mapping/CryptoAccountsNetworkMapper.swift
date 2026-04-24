@@ -158,7 +158,7 @@ final class CryptoAccountsNetworkMapper {
     private func mapDynamicAddressesEnabled(token: StoredCryptoAccount.Token) -> Bool? {
         switch token.blockchainNetwork {
         case .known(let blockchainNetwork) where blockchainNetwork.blockchain.isDynamicAddressesSupported:
-            return blockchainNetwork.derivationMode == .xpub
+            return blockchainNetwork.settings == .dynamicAddresses
         case .known, .unknown:
             return nil
         }
@@ -313,8 +313,8 @@ final class CryptoAccountsNetworkMapper {
 
         // Mapping must fail here if the derivation path does exist but invalid
         let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
-        let derivationMode: BlockchainNetwork.DerivationMode = token.dynamicAddressesEnabled == true ? .xpub : .plain
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath, derivationMode: derivationMode)
+        let settings: BlockchainSettings? = token.dynamicAddressesEnabled == true ? .dynamicAddresses : nil
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath, settings: settings)
 
         return .known(blockchainNetwork: blockchainNetwork)
     }
