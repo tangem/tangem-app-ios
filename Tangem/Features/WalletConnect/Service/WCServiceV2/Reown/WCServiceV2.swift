@@ -139,14 +139,14 @@ private extension WCServiceV2 {
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
-                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
-                        WCLogger.warning("Skipping duplicate request: \(request)")
-                        return
-                    }
-
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
                         await self.reject(transactionRequest: request)
+                        return
+                    }
+
+                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
+                        WCLogger.warning("Skipping duplicate request: \(request)")
                         return
                     }
 
