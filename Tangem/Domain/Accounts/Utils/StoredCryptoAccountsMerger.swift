@@ -61,11 +61,17 @@ struct StoredCryptoAccountsMerger {
         var updatedTokens = cryptoAccount.tokens
         var isDirty = false
 
-        var existingNetworksToUpdate: [BlockchainNetwork] = []
-        let knownExistingNetworks = updatedTokens.compactMap(\.blockchainNetwork.knownValue).toSet()
+        var existingNetworksToUpdate: [StoredCryptoAccount.Token.StoredBlockchainNetwork] = []
+        let knownExistingNetworks = updatedTokens
+            .compactMap(\.blockchainNetwork.knownValue)
+            .toSet()
 
-        let newTokenItemsGroupedByNetworks = newTokenItems.grouped(by: \.blockchainNetwork)
-        let newNetworks = newTokenItems.uniqueProperties(\.blockchainNetwork)
+        let newTokenItemsGroupedByNetworks = Dictionary(grouping: newTokenItems) {
+            StoredEntryConverter.convertToStoredBlockchainNetwork($0.blockchainNetwork)
+        }
+        let newNetworks = newTokenItems
+            .uniqueProperties(\.blockchainNetwork)
+            .map(StoredEntryConverter.convertToStoredBlockchainNetwork)
 
         // First loop: determine which networks are new and which already exist. New networks will be added entirely, including all tokens.
         for network in newNetworks {
@@ -114,7 +120,7 @@ struct StoredCryptoAccountsMerger {
 // MARK: - Convenience extensions
 
 private extension StoredCryptoAccount.Token {
-    func isEqual(to tokenItem: TokenItem, in network: BlockchainNetwork) -> Bool {
+    func isEqual(to tokenItem: TokenItem, in network: StoredBlockchainNetwork) -> Bool {
         return blockchainNetwork.knownValue == network && contractAddress == tokenItem.contractAddress
     }
 }
