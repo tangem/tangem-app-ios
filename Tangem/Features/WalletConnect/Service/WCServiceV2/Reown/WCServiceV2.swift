@@ -685,6 +685,10 @@ extension WCServiceV2 {
         private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
 
         func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
+            // Resume any previously stored continuation before overwriting it — otherwise its
+            // last reference (the dictionary slot) is dropped without resume and the runtime
+            // logs SWIFT TASK CONTINUATION MISUSE.
+            pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: CancellationError())
             pairingTopicToSessionProposalContinuation[topic] = continuation
         }
 
