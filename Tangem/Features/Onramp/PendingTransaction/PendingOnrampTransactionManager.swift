@@ -11,14 +11,6 @@ import Combine
 import TangemExpress
 import TangemFoundation
 
-private let debugTimestampFormatter: DateFormatter = {
-    let f = DateFormatter()
-    f.dateFormat = "HH:mm:ss.SSS"
-    return f
-}()
-
-private func debugTs() -> String { debugTimestampFormatter.string(from: Date()) }
-
 class CommonPendingOnrampTransactionsManager {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
@@ -73,7 +65,6 @@ class CommonPendingOnrampTransactionsManager {
     private func request(pendingTransaction: PendingOnrampTransaction) async -> PendingOnrampTransaction? {
         do {
             let record = pendingTransaction.transactionRecord
-            print("ДЕБАГ \(debugTs()): [OnrampMgr \(Unmanaged.passUnretained(self).toOpaque()) token=\(tokenItem.currencySymbol)] FIRING /onramp-status txId=\(record.expressTransactionId)")
             let onrampTransaction = try await expressAPIProvider.onrampStatus(transactionId: record.expressTransactionId)
             let pendingTransaction = pendingOnrampTransactionFactory.buildPendingOnrampTransaction(
                 currentOnrampTransaction: onrampTransaction,

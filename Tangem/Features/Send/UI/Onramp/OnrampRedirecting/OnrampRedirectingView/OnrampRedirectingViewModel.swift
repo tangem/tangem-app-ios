@@ -35,6 +35,7 @@ final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: OnrampRedirectingInteractor
     private weak var coordinator: OnrampRedirectingRoutable?
+    private let theme: OnrampRedirectSettings.Theme
 
     init(
         tokenItem: TokenItem,
@@ -44,6 +45,7 @@ final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.coordinator = coordinator
+        theme = Self.resolveCurrentTheme()
 
         loadRedirectData()
     }
@@ -51,7 +53,7 @@ final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
     func loadRedirectData() {
         runTask(in: self) { input in
             do {
-                try await input.interactor.loadRedirectData(theme: .dark)
+                try await input.interactor.loadRedirectData(theme: input.theme)
             } catch {
                 await runOnMain { [weak input] in
                     input?.alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak input] in
@@ -60,5 +62,10 @@ final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
                 }
             }
         }
+    }
+
+    private static func resolveCurrentTheme() -> OnrampRedirectSettings.Theme {
+        let theme: OnrampRedirectSettings.Theme = UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        return theme
     }
 }
