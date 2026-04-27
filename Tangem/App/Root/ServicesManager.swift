@@ -38,14 +38,14 @@ final class CommonServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
-    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
-    @Injected(\.swapTokenSelectorExpandedStateStorage) private var swapTokenSelectorStateStorage: SwapTokenSelectorExpandedStateStorage
+    @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
@@ -176,12 +176,12 @@ extension CommonServicesManager: ServicesManager {
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
-        ukGeoDefiner.initialize()
+        geoEligibilityService.initialize()
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         stateStorageProvider.initialize()
-        swapTokenSelectorStateStorage.initialize()
+        tokenSelectorStateStorage.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
