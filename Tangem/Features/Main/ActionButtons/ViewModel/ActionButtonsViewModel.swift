@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemLocalization
 import Foundation
 import TangemFoundation
@@ -208,11 +209,26 @@ private extension ActionButtonsViewModel {
         let isActionButtonsAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
             .removeDuplicates()
 
+        let walletModelsActionsUpdatePublisher = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { walletModels in
+                guard !walletModels.isEmpty else {
+                    return AnyPublisher.just
+                }
+
+                return walletModels
+                    .map(\.actionsUpdatePublisher)
+                    .merge()
+            }
+
         expressAvailabilityProvider
             .expressAvailabilityUpdateState
-            .combineLatest(isActionButtonsAvailablePublisher)
-            .sink { [weak self] expressUpdateState, isActionButtonsAvailable in
-                self?.updateSwapButtonState(
+            .combineLatest(isActionButtonsAvailablePublisher, walletModelsActionsUpdatePublisher)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                // `walletModelsActionsUpdatePublisher` acts just as a trigger to re-evaluate swap button state
+                let (expressUpdateState, isActionButtonsAvailable, _) = input
+                viewModel.updateSwapButtonState(
                     expressUpdateState: expressUpdateState,
                     isActionButtonsAvailable: isActionButtonsAvailable
                 )
