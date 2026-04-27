@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct DefaultIncomingLinkParser {
     // MARK: - Type Aliases
@@ -41,6 +42,8 @@ struct DefaultIncomingLinkParser {
             id: keyedQueryItems[IncomingActionConstants.DeeplinkParams.id],
             refcode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.refcode],
             campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
+            order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
+            interval: keyedQueryItems[IncomingActionConstants.DeeplinkParams.interval]?.lowercased(),
         )
     }
 
