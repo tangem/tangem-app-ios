@@ -225,12 +225,12 @@ struct MarketsTokenDetailsExchangesListView: View {
                 }
                 .roundedBackground(with: .Tangem.Surface.level3, padding: 0, radius: .unit(.x5))
             }
-            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
             }
             .id(viewModel.exchangesList.value)
         }
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
     }
 
     private var legacyScrollContent: some View {
