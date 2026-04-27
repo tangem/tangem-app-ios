@@ -58,7 +58,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         if case .available(let fees) = state {
             return fees.count > 1
         }
-        return tokenFeeLoader.supportingFeeOptions.count > 1
+        return false
     }
 
     var state: TokenFeeProviderState {
@@ -114,13 +114,19 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     }
 
     func select(feeOption: FeeOption) {
-        let supportedByLoader = tokenFeeLoader.supportingFeeOptions.contains(feeOption)
+        let supportedByState: Bool = {
+            if case .available(let fees) = stateSubject.value {
+                return fees.keys.contains(feeOption)
+            }
+            return feeOption == .market
+        }()
+
         let supportedByRestrictions = switch supportingOptions {
         case .all: true
         case .exactly(let options): options.contains(feeOption)
         }
 
-        if supportedByLoader || supportedByRestrictions {
+        if supportedByState || supportedByRestrictions {
             selectedFeeOptionSubject.send(feeOption)
         }
     }
@@ -157,7 +163,9 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             try Task.checkCancellation()
 
             let fees = mapToFeesDictionary(fees: loadedFees)
-            updateState(state: .available(fees))
+            let supportingFees = filterBySupportingOptions(fees: fees)
+
+            updateState(state: .available(supportingFees))
 
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
             updateState(state: .unavailable(.notSupported))
