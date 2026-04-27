@@ -21,8 +21,6 @@ struct TokenDetailsView: View {
         headerTopPadding: Constants.headerTopPadding
     )
 
-    private let coordinateSpaceName = UUID()
-
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
@@ -80,7 +78,7 @@ struct TokenDetailsView: View {
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
+                inCoordinateSpace: .named(CoordinateSpaceName.scrollView),
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
@@ -91,7 +89,7 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 TokenIcon(
@@ -118,19 +116,11 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        if viewModel.hasDotsMenu {
+        if !viewModel.dotsMenuItems.isEmpty {
             Menu {
-                if viewModel.canGenerateXPUB {
-                    Button(Localization.tokenDetailsGenerateXpub, action: viewModel.generateXPUBButtonAction)
-                }
-
-                if viewModel.canManageDynamicAddresses {
-                    Button(Localization.dynamicAddresses, action: viewModel.openDynamicAddressesManagement)
-                }
-
-                if viewModel.canHideToken {
-                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
+                ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
+                    Button(item.type.title, role: item.type.role, action: item.action)
+                        .accessibilityIdentifier(item.type.accessibilityIdentifier)
                 }
             } label: {
                 NavbarDotsImage()
@@ -159,6 +149,12 @@ private extension TokenDetailsView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "TokenDetailsView.CoordinateSpaceName."
+
+        static let scrollView = prefix + "scrollView"
     }
 }
 

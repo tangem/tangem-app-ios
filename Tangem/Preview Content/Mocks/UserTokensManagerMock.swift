@@ -73,10 +73,6 @@ extension UserTokensManagerMock: UserTokensPushNotificationsRemoteStatusSyncing 
 extension UserTokensManagerMock: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
-    var groupingOption: UserTokensReorderingOptions.Grouping { .none }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting { .dragAndDrop }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 
     var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
