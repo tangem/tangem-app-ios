@@ -25,8 +25,8 @@ class DecimalNumberTextFieldViewModel: ObservableObject {
     private let decimalValue = CurrentValueSubject<DecimalValue?, Never>(nil)
     private var bag: Set<AnyCancellable> = []
 
-    init(maximumFractionDigits: Int, maximumTextLength: Int? = nil) {
-        decimalNumberFormatter = .init(maximumFractionDigits: maximumFractionDigits)
+    init(maximumFractionDigits: Int, maximumTextLength: Int? = nil, locale: Locale? = nil) {
+        decimalNumberFormatter = .init(maximumFractionDigits: maximumFractionDigits, locale: locale)
         self.maximumTextLength = maximumTextLength
     }
 }
