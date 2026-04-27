@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "061FBF77-59C0-4B92-9070-05BE3E429028",
+      "id" : "DA6A7A2C-4A98-4CF6-9852-AC3C857C2FDB",
       "name" : "Test Scheme Action",
       "options" : {
 
@@ -9,16 +9,9 @@
     }
   ],
   "defaultOptions" : {
-
+    "performanceAntipatternCheckerEnabled" : true
   },
   "testTargets" : [
-    {
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "TangemNFTTests",
-        "name" : "TangemNFTTests"
-      }
-    },
     {
       "target" : {
         "containerPath" : "container:",
@@ -29,8 +22,8 @@
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "TangemMobileWalletSdkTests",
-        "name" : "TangemMobileWalletSdkTests"
+        "identifier" : "TangemNFTTests",
+        "name" : "TangemNFTTests"
       }
     },
     {
@@ -38,6 +31,21 @@
         "containerPath" : "container:",
         "identifier" : "TangemLoggerTests",
         "name" : "TangemLoggerTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemMobileWalletSdkTests",
+        "name" : "TangemMobileWalletSdkTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BlockchainSdkTests",
+        "name" : "BlockchainSdkTests"
       }
     }
   ],

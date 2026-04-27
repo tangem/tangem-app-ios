@@ -60,21 +60,12 @@ class MarketsCoordinator: CoordinatorObject {
     func start(with options: MarketsCoordinator.Options) {
         let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
-        if FeatureProvider.isAvailable(.marketsAndNews) {
-            let viewModel = MarketsMainViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
+        let viewModel = MarketsMainViewModel(
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            coordinator: self
+        )
 
-            marketsMainViewModel = viewModel
-        } else {
-            let viewModel = MarketsViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
-
-            marketsViewModel = viewModel
-        }
+        marketsMainViewModel = viewModel
     }
 }
 
@@ -204,7 +195,9 @@ extension MarketsCoordinator: MarketsMainRoutable {
         marketsSearchCoordinator.start(
             with: .init(
                 initialOrderType: orderType,
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+                initialIntervalType: nil,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                leadingButton: .back
             )
         )
 
