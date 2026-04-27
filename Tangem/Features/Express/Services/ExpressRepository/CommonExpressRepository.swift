@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import TangemExpress
 import TangemFoundation
+import TangemExpress
 
 actor CommonExpressRepository {
     @Injected(\.expressPairsRepository)

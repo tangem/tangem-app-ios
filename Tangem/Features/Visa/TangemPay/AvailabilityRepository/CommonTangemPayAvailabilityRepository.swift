@@ -279,7 +279,7 @@ private extension UserWalletModel {
 
 private extension Array where Element == UserWalletModel {
     func asOfferAvailability() -> TangemPayOfferAvailability {
-        guard count > .zero else {
+        guard count > 0 else {
             return .notAvailable
         }
         let ids = map { $0.userWalletId.stringValue }
