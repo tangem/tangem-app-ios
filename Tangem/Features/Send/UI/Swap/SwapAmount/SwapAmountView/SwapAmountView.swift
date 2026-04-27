@@ -34,9 +34,9 @@ struct SwapAmountView: View {
                 .disabled(viewModel.isInputDisabled)
                 .offset(x: isShaking ? 10 : 0)
                 .simultaneousGesture(TapGesture().onEnded {
-                    viewModel.textFieldDidTapped()
+                    viewModel.textFieldDidTap()
                 })
-                .onChange(of: viewModel.sourceExpressCurrencyViewModel.errorState) { errorState in
+                .onChange(of: viewModel.sourceExpressCurrencyViewModel.state.errorState) { errorState in
                     guard case .insufficientFunds = errorState else {
                         return
                     }
