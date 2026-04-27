@@ -236,7 +236,7 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: sourceToken.tangemIconProvider
         )
     }
 }
@@ -277,8 +277,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendWithSwapModel,
             output: sendWithSwapModel,
-            receiveTokenInput: sendWithSwapModel,
-            destinationAccountOutput: sendWithSwapModel
+            receiveTokenInput: sendWithSwapModel
         )
     }
 

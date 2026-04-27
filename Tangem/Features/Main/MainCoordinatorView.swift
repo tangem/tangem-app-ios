@@ -154,6 +154,9 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
+                TangemPayTransactionDetailsView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
@@ -195,7 +198,7 @@ struct MainCoordinatorView: CoordinatorView {
 private extension View {
     @ViewBuilder
     func injectNavigationAssertionDelegate() -> some View {
-        if AppEnvironment.current.isAlphaOrBetaOrDebug {
+        if AppEnvironment.current.isInternalOrDebug {
             modifier(NavigationControllerDelegateViewModifier())
         } else {
             self
