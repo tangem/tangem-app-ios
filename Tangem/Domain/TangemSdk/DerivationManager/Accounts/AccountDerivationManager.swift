@@ -69,7 +69,7 @@ extension AccountDerivationManager: DerivationStatusProvider {
                 // distinct by `network` to avoid counting the same pending derivations but for different master keys multiple times.
                 pending
                     .unique(by: \.network)
-                    .reduce(0) { $0 + $1.paths.count }
+                    .count
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
