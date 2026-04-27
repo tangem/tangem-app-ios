@@ -24,17 +24,13 @@ struct HotCryptoView: View {
 
     @ViewBuilder
     private var content: some View {
-        GroupedSection(
-            items,
-            content: {
-                tokenItem(item: $0)
-                    .padding(.vertical, 16)
-            },
-            header: {
-                DefaultHeaderView(Localization.tokensListHotCryptoHeader)
-                    .padding(.init(top: 14, leading: 0, bottom: 10, trailing: 0))
-            }
-        )
+        GroupedSection(items, isLazy: true) { item in
+            tokenItem(item: item)
+                .padding(.vertical, 16)
+        } header: {
+            DefaultHeaderView(Localization.tokensListHotCryptoHeader)
+                .padding(.init(top: 14, leading: 0, bottom: 10, trailing: 0))
+        }
         .settings(\.backgroundColor, Colors.Background.action)
     }
 

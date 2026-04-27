@@ -11,7 +11,7 @@ import UIKit
 import BlockchainSdk
 
 struct ReceiveAddressInfo: Identifiable, Hashable {
-    var id: String { type.rawValue }
+    var id: String { address }
     let address: String
     let type: AddressType
     let localizedName: String

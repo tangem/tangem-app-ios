@@ -95,10 +95,52 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func tokenChartWithCyrillicInvalidTokenId() {
+    func tokenChartWithInvalidCharacterTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "токен"),
+            params: .init(tokenId: "token#invalid"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: Token Exchanges deeplink
+
+    @Test
+    func tokenExchangesWithValidLetters() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "ethereum"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithMissingTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithInvalidTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "bad token$"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithInvalidCharacterTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "token#invalid"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
@@ -167,10 +209,10 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func stakingWithInvalidCyrylicNetworkAndTokenId() {
+    func stakingWithInvalidCharacterTokenAndNetworkId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "биткоин", networkId: "биткоин"),
+            params: .init(tokenId: "token#invalid", networkId: "net#invalid"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))

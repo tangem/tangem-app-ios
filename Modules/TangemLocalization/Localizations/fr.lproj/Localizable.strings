@@ -285,6 +285,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Sélectionnez une action";
 "common_sell" = "Vendre";
+"common_send_colon" = "Send:";
 "common_send_tx_error" = "Échec d'envoi de la transaction";
 "common_send" = "Envoyer";
 "common_server_unavailable" = "Le serveur n'est pas disponible, veuillez réessayer plus tard";
@@ -383,6 +384,11 @@
 "domain_receive_assets_onboarding_network_name" = "%@ réseau";
 "domain_receive_assets_onboarding_title" = "Envoyez des fonds en utilisant uniquement";
 "dynamic_addresses_custom_token_error_on_addition" = "Dynamic Addresses is enabled. Custom \"change\" and \"index\" are unavailable.";
+"dynamic_addresses_disable_description" = "You are turning off Dynamic Addresses. Funds will now be received on your fixed address.";
+"dynamic_addresses_disable_fee_description" = "A network fee applies to consolidate funds into the fixed address.";
+"dynamic_addresses_disable_main_button_title" = "Disable Dynamic Addresses";
+"dynamic_addresses_disable_title" = "Disable dynamic addresses";
+"dynamic_addresses_disabled_popup_title" = "Dynamic addresses disabled";
 "dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
 "dynamic_addresses_enter_features_privacy_description" = "Use a new address for each transaction to reduce traceability and improve on-chain privacy.";
 "dynamic_addresses_enter_features_privacy_title" = "Enhanced Privacy";
@@ -394,6 +400,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
 "dynamic_addresses_error_service_unavailable_title" = "Service unavailable. Please try again.";
+"dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
+"dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
+"dynamic_addresses_receive_badge" = "Dynamic address";
 "dynamic_addresses" = "Dynamic addresses";
 "earn_best_opportunities" = "Meilleures opportunités";
 "earn_clear_filter" = "Effacer le filtre";
@@ -457,6 +466,7 @@
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
+"express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
 "express_provider_great_rate" = "Meilleur choix";
 "express_provider_in_fca_warning_list" = "Fournisseur figurant sur la liste d'avertissement de la FCA";
 "express_provider_max_amount" = "Disponible jusqu'à %@";
@@ -618,6 +628,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Cet actif n'est pas disponible pour ce portefeuille";
 "markets_add_token" = "Ajoutez un jeton";
 "markets_available networks" = "Réseaux disponibles";
+"markets_common_market_price" = "Market Price";
 "markets_common_my_portfolio" = "Mon portfolio";
 "markets_common_title" = "Marché";
 "markets_earn_common_title" = "Gagnez avec Tangem";
@@ -630,6 +641,7 @@
 "markets_loading_no_data_title" = "Aucune donnée";
 "markets_portfolio_block_add_token_title" = "**Add to your portfolio** to start buying, exchanging or receiving this asset";
 "markets_portfolio_block_subtitle" = "In your portfolio";
+"markets_portfolio_block_title" = "Your portfolio";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
@@ -829,7 +841,9 @@
 "onboarding_getting_started" = "Initialisation en cours";
 "onboarding_linking_error_card_with_wallets" = "Un autre portefeuille a déjà été créé sur la carte que vous essayez d'ajouter. Si vous avez des fonds dans ce portefeuille, veuillez les retirer, puis réinitialiser cette carte et l'ajouter comme sauvegarde.";
 "onboarding_navbar_save_wallet" = "Enregistrer votre portefeuille";
+"onboarding_navbar_title_biometrics" = "Use biometrics";
 "onboarding_navbar_title_creating_backup" = "Sauvegarde en cours";
+"onboarding_navbar_title_last_step" = "Last step";
 "onboarding_navbar_upgrade_wallet_biometrics" = "Biométrie";
 "onboarding_seed_button_read_more" = "En savoir plus sur les seed phrases";
 "onboarding_seed_generate_title" = "Votre seed phrase";
@@ -1271,13 +1285,21 @@
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Plusieurs fournisseurs de confiance en un seul endroit : échangez n'importe quel actif facilement";
+"swap_story_first_title_v2" = "Swap Inside Your Wallet";
 "swap_story_first_title" = "Échangez Avec Nous";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Une sécurité de haut niveau et des fournisseurs vérifiés garantissant que vos actifs sont protégés à chaque échange";
+"swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Plus Sûr Que Jamais";
+"swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
 "swap_story_second_subtitle" = "Maximisez votre valeur avec des tarifs d'un large réseau de fournisseurs de confiance";
+"swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Meilleurs Tarifs";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Simple et intuitif, vous permettant d'échanger des jetons en quelques clics";
+"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
 "swap_story_third_title" = "Plus Simple Que Jamais";
 "swap_via_provider" = "Échange via le fournisseur";
 "swap_your_assets_title" = "Vos actifs";
@@ -1375,6 +1397,7 @@
 "tangempay_card_details_receive_description" = "Partagez votre adresse ou montrez le QR code";
 "tangempay_card_details_receive_error_description" = "Problèmes techniques détectés. Veuillez réessayer plus tard ou contacter le service d'assistance.";
 "tangempay_card_details_receive_error_title" = "Réception indisponible pour le moment";
+"tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Révéler";
@@ -1389,9 +1412,18 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Vous ne pouvez pas lancer d'échange ou de nouveau retrait tant que le retrait actuel n'est pas terminé.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retrait en cours";
 "tangempay_card_details_withdraw" = "Retirer";
+"tangempay_card_page_daily_limit_change" = "Change";
+"tangempay_card_page_daily_limit_current_limit" = "Current limit";
+"tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
+"tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
+"tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
+"tangempay_card_page_daily_limit_title" = "Daily limit";
 "tangempay_card_page_settings_title" = "Card settings";
 "tangempay_change_pin_code" = "Modifier le code PIN";
 "tangempay_come_back_if_forget_pin" = "Revenez dans l'application si vous l'oubliez.";
+"tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
+"tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_digital_card" = "Digital card";
 "tangempay_factory_settings_warning_title" = "Je comprends que je perdrai complètement l'accès à ma carte Tangem Pay et à tous les fonds qui s'y trouvent, sans possibilité de récupération.";
 "tangempay_failed_to_issue_card_retry_description" = "Une erreur technique s'est produite, veuillez réessayer en cliquant sur le bouton ci-dessous";
@@ -1434,6 +1466,16 @@
 "tangempay_payment_account_sync_needed" = "Le compte de paiement n'est pas synchronisé";
 "tangempay_payment_account" = "Compte de paiement";
 "tangempay_pin_validation_error_message" = "Code PIN invalide : évitez les séquences ou les répétitions";
+"tangempay_reissue_card_confirm" = "Replace card";
+"tangempay_reissue_card_description" = "This generates a new set of card details. Your old details will stop working. You can't undo this.";
+"tangempay_reissue_card_fee_label" = "Replacement fee";
+"tangempay_reissue_card_fee_unreachable_error_title" = "Replacement fee info unreachable";
+"tangempay_reissue_card_in_progress_description" = "Usually takes up to 5 minutes. In rare cases, up to 48 hours.";
+"tangempay_reissue_card_in_progress" = "Replacing your digital card";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
+"tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";
 "tangempay_service_unavailable_title" = "Service temporairement indisponible";
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
@@ -1464,7 +1506,10 @@
 "token_button_unavailability_reason_sell_unavailable" = "L'achat de %@ n'est pas pris en charge par les fournisseurs actuels mais nous travaillons à ajouter plus d'options.";
 "token_button_unavailability_reason_staking_unavailable" = "Le staking de %@ n'est pas pris en charge par les fournisseurs actuels, mais nous travaillons à ajouter plus d'options.";
 "token_button_unavailability_reason_yield_supply_approval" = "L’autorisation a été révoquée. Vos fonds restent en mode rendement. Pour effectuer des actions, accédez au mode rendement et accordez à nouveau l’autorisation.";
+"token_details_balance_available" = "Available balance";
+"token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choisissez une adresse";
+"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
 "token_details_generate_xpub" = "Générer XPUB";
 "token_details_hide_alert_hide" = "Masquer";
 "token_details_hide_alert_message" = "Vous êtes sur le point de masquer ce jeton de l'écran principal. Vous pouvez le rajouter à tout moment via la page de gestion des jetons.";
@@ -1525,7 +1570,7 @@
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
 "update_approval_permission_fee_note" = "Previous permission will be revoked and a new one will be issued. Network will charge token approval fee for each of theses actions. You will see a zero-amount transaction in the history as a revoke evidence.";
-"update_approval_permission_subtitle" = "Transaction exceeds previously granted  permission amount.\nUpdate permission to proceed";
+"update_approval_permission_subtitle" = "Transaction exceeds previously granted permission amount.\nUpdate permission to proceed";
 "update_approval_permission_title" = "Update permission";
 "upgrade_to_hardware_wallet_button_title" = "Passez à un hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";

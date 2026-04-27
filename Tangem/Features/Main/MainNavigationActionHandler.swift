@@ -35,13 +35,23 @@ extension MainCoordinator {
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
-            guard coordinator != nil,
-                  case .navigation(let navigationAction) = action,
-                  !userWalletRepository.isLocked
-            else {
+            guard coordinator != nil, !userWalletRepository.isLocked else {
                 return false
             }
 
+            switch action {
+            case .tangemPayPush(let payload):
+                return routeTangemPayPushAction(payload: payload)
+
+            case .navigation(let navigationAction):
+                return routeNavigationAction(navigationAction)
+
+            case .walletConnect, .start, .dismissSafari, .referralProgram:
+                return false
+            }
+        }
+
+        private func routeNavigationAction(_ navigationAction: DeeplinkNavigationAction) -> Bool {
             switch navigationAction.destination {
             case .referral:
                 return routeReferralAction(userWalletId: navigationAction.params.userWalletId)
@@ -59,10 +69,13 @@ extension MainCoordinator {
                 return routeStakingAction(params: navigationAction.params)
 
             case .markets:
-                return routeMarketAction()
+                return routeMarketAction(params: navigationAction.params)
 
             case .tokenChart:
                 return routeTokenChartAction(params: navigationAction.params)
+
+            case .tokenExchanges:
+                return routeTokenExchangesAction(params: navigationAction.params)
 
             case .link:
                 return routeLinkAction(params: navigationAction.params)
@@ -141,8 +154,28 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeMarketAction() -> Bool {
-            coordinator?.openDeepLink(.market)
+        private func routeTokenExchangesAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let tokenId = params.tokenId
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.tokenExchanges(tokenId: tokenId))
+            return true
+        }
+
+        private func routeMarketAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            // `order` and `interval` fall back independently: an invalid or missing value
+            // for one parameter must not influence the other. The case where only
+            // `interval` is provided naturally resolves to `order = .rating` because
+            // the factory substitutes the default when the raw order is missing.
+            let filter = MarketsDeeplinkFilterFactory().make(
+                orderRawValue: params.order,
+                intervalRawValue: params.interval
+            )
+            coordinator?.openDeepLink(.markets(filter: filter))
             return true
         }
 
@@ -298,6 +331,21 @@ extension MainCoordinator {
                     deeplinkString: deeplinkString
                 )
             )
+            return true
+        }
+
+        private func routeTangemPayPushAction(payload: TangemPayPushPayload) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            switch payload.body {
+            case .cardReady:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
+            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
+            }
             return true
         }
     }
