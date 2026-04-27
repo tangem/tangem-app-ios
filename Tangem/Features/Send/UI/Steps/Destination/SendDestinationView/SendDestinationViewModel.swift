@@ -41,7 +41,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private let sendQRCodeService: SendQRCodeService
     private let analyticsLogger: SendDestinationAnalyticsLogger
     private weak var router: SendDestinationRoutable?
-    private weak var destinationAccountOutput: SendDestinationAccountOutput?
 
     private var updatingTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
@@ -54,14 +53,12 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
         analyticsLogger: SendDestinationAnalyticsLogger,
-        router: SendDestinationRoutable,
-        destinationAccountOutput: SendDestinationAccountOutput
+        router: SendDestinationRoutable
     ) {
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
         self.analyticsLogger = analyticsLogger
         self.router = router
-        self.destinationAccountOutput = destinationAccountOutput
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
@@ -241,10 +238,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private func userDidTapSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
         FeedbackGenerator.success()
 
-        // Set destination account info, which forwards to analytics logger
-        destinationAccountOutput?.setDestinationAccountInfo(
-            analyticsProvider: suggestedDestination.accountModelAnalyticsProvider
-        )
+        analyticsLogger.setDestinationAnalyticsProvider(suggestedDestination.accountModelAnalyticsProvider)
 
         let destination = SendDestinationAddressViewModel.Address(
             string: suggestedDestination.address,
