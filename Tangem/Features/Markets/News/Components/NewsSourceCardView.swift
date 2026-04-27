@@ -65,7 +65,7 @@ struct NewsSourceCardView: View {
             .padding(Constants.padding)
             .frame(width: Constants.cardWidth, alignment: .leading)
             .frame(minHeight: Constants.minHeight, alignment: .top)
-            .background(Color.Tangem.Surface.level4)
+            .background(Color.Tangem.Surface.level3)
             .cornerRadius(Constants.cornerRadius)
         }
         .buttonStyle(.plain)

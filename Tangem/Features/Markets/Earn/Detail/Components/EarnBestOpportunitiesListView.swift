@@ -22,7 +22,7 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     private var backgroundColor: Color {
-        isRedesignEnabled ? .Tangem.Surface.level3 : .Tangem.Surface.level4
+        isRedesignEnabled ? .Tangem.Surface.level3 : Colors.Background.action
     }
 
     private var isRedesignEnabled: Bool {
