@@ -14,27 +14,54 @@ import TangemFoundation
 public final class OSLogFileWriter {
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.OSLogFileWriter.queue")
 
-    private lazy var fileManager: FileManager = .default
+    private let fileManager: FileManager = .default
 
-    private lazy var logFileURL: URL = fileManager
+    private let logFileURL: URL = FileManager.default
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
         .appendingPathComponent(OSLogConstants.fileName)
 
-    private lazy var dateFormatter: DateFormatter = {
+    /// Cached once per process, matching the pattern used in `DateFormatter+.swift` (BlockchainSdk).
+    /// Both formatters are touched only from `loggerSerialQueue`, so they are thread-safe by confinement.
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd-MM-yyyy"
         return formatter
     }()
 
-    private lazy var timeFormatter: DateFormatter = {
+    private static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss:SSS '/' ZZZZ"
         return formatter
     }()
 
+    /// Long-lived write handle. Opened once per process on `loggerSerialQueue` during init
+    /// (and re-opened on the first write after `deleteLogFile`), and reused for every
+    /// subsequent append.
+    /// Access is enforced to `loggerSerialQueue` in DEBUG via the getter/setter below.
+    private var _fileHandle: FileHandle?
+    private var fileHandle: FileHandle? {
+        get {
+            assertOnLoggerSerialQueue()
+            return _fileHandle
+        }
+        set {
+            assertOnLoggerSerialQueue()
+            _fileHandle = newValue
+        }
+    }
+
     private init() {
-        try? removeLogFileIfNeeded()
-        try? createLogFileIfNeeded()
+        loggerSerialQueue.async { [weak self] in
+            guard let self else { return }
+            try? removeLogFileIfNeeded()
+            try? createLogFileIfNeeded()
+        }
+    }
+
+    private func assertOnLoggerSerialQueue() {
+        #if DEBUG
+        dispatchPrecondition(condition: .onQueue(loggerSerialQueue))
+        #endif
     }
 }
 
@@ -109,8 +136,8 @@ private extension OSLogFileWriter {
             .replacingOccurrences(of: "\n", with: OSLogConstants.enter)
 
         let entry = OSLogEntry(
-            date: dateFormatter.string(from: date),
-            time: timeFormatter.string(from: date),
+            date: Self.dateFormatter.string(from: date),
+            time: Self.timeFormatter.string(from: date),
             category: category.name,
             level: level.name,
             message: message
@@ -157,6 +184,11 @@ private extension OSLogFileWriter {
     }
 
     func deleteLogFileSynchronously() throws {
+        // Invalidate the long-lived handle before removing the underlying file; the next write
+        // will reopen it via `obtainFileHandle()`.
+        try? fileHandle?.close()
+        fileHandle = nil
+
         if fileManager.fileExists(atPath: logFileURL.path) {
             try fileManager.removeItem(at: logFileURL)
         }
@@ -173,28 +205,44 @@ private extension OSLogFileWriter {
     }
 
     func appendRowToLogFile(_ row: String) throws {
-        try createLogFileIfNeeded()
-
         guard let data = row.data(using: .utf8) else {
             throw Errors.wrongRow
         }
 
-        let handler = try FileHandle(forWritingTo: logFileURL)
-        try handler.seekToEnd()
-        try handler.write(contentsOf: data)
-        try handler.close()
+        let handle = try obtainFileHandle()
+        try handle.write(contentsOf: data)
+    }
+
+    /// Returns the long-lived write handle, creating the log file (with header) and opening
+    /// the handle on the first call (from `init` or after `deleteLogFile`).
+    ///
+    /// Must be called on `loggerSerialQueue`.
+    func obtainFileHandle() throws -> FileHandle {
+        if let fileHandle {
+            return fileHandle
+        }
+
+        let shouldCreateLogFile = !fileManager.fileExists(atPath: logFileURL.relativePath)
+        if shouldCreateLogFile {
+            fileManager.createFile(atPath: logFileURL.relativePath, contents: nil)
+        }
+
+        let handle = try FileHandle(forWritingTo: logFileURL)
+        try handle.seekToEnd()
+
+        if shouldCreateLogFile {
+            let header = OSLogEntry.encodedHeader(separator: OSLogConstants.separator)
+            if let headerData = header.data(using: .utf8) {
+                try handle.write(contentsOf: headerData)
+            }
+        }
+
+        fileHandle = handle
+        return handle
     }
 
     func createLogFileIfNeeded() throws {
-        guard !fileManager.fileExists(atPath: logFileURL.relativePath) else {
-            return
-        }
-
-        fileManager.createFile(atPath: logFileURL.relativePath, contents: nil)
-
-        // OSLogEntry property names
-        let header = OSLogEntry.encodedHeader(separator: OSLogConstants.separator)
-        try appendRowToLogFile(header)
+        _ = try obtainFileHandle()
     }
 
     func removeLogFileIfNeeded() throws {
