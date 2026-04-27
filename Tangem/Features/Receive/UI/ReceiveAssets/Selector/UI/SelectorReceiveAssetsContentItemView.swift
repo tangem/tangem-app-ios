@@ -8,23 +8,20 @@
 
 import SwiftUI
 import TangemUI
-import TangemAssets
 import TangemLocalization
 
 struct SelectorReceiveAssetsContentItemView: View {
     private(set) var viewModel: SelectorReceiveAssetsContentItemViewModel
-    @State private var containerWidth: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
         content
-            .readGeometry(\.size.width, bindTo: $containerWidth)
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.viewState {
         case .address(let viewModels):
-            drawAddressAssets(for: viewModels, width: containerWidth)
+            drawAddressAssets(for: viewModels)
         case .domain(let viewModels):
             drawDomainAssets(for: viewModels)
         }
@@ -38,27 +35,14 @@ struct SelectorReceiveAssetsContentItemView: View {
         }
     }
 
-    private func drawAddressAssets(for viewModels: [SelectorReceiveAssetsAddressPageItemViewModel], width: CGFloat) -> some View {
-        let pageSpacing: CGFloat = Layout.Container.horizontalSpacing
-        let contentWidth = max(0, width - 2 * Layout.Container.horizontalPadding)
-        let pageWidth = max(0, contentWidth)
-
-        return VStack(spacing: .zero) {
-            PagerWithDots(
-                viewModels,
-                indexUpdateNotifier: viewModel.pageAssetIndexUpdateNotifier,
-                pageWidth: pageWidth,
-                initialIndex: viewModel.pageAssetIndex
-            ) {
-                SelectorReceiveAssetsAddressPageItemView(viewModel: $0)
-                    .padding(.horizontal, pageSpacing)
-            }
+    private func drawAddressAssets(for viewModels: [SelectorReceiveAssetsAddressPageItemViewModel]) -> some View {
+        TangemCarousel(viewModels, initialIndex: viewModel.pageAssetIndex) { vm in
+            SelectorReceiveAssetsAddressPageItemView(viewModel: vm)
         }
-        .frame(width: contentWidth, alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(.horizontal, Layout.Container.horizontalPadding)
+        .interItemSpacing(Layout.Container.horizontalSpacing)
+        .paginationHasBackground(false)
+        .currentIndexHasChanged { viewModel.updatePageIndex($0) }
         .clipped()
-        .disableAnimations()
     }
 }
 
