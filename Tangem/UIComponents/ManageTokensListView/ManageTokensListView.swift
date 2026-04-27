@@ -60,8 +60,6 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
         footer = nil
     }
 
-    private let namespace = UUID()
-
     var body: some View {
         ScrollView {
             VStack(spacing: .zero) {
@@ -76,11 +74,11 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
                 }
             }
             .padding(.bottom, bottomPadding)
-            .readContentOffset(inCoordinateSpace: .named(namespace)) { value in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollView)) { value in
                 contentOffsetObserver?.wrappedValue = value
             }
         }
-        .coordinateSpace(name: namespace)
+        .coordinateSpace(name: CoordinateSpaceName.scrollView)
     }
 
     private var tokenList: some View {
@@ -109,4 +107,10 @@ extension ManageTokensListView {
     enum Constants {
         static var bottomPadding: CGFloat { 60 }
     }
+}
+
+private enum CoordinateSpaceName {
+    static let prefix = "ManageTokensListView.CoordinateSpaceName."
+
+    static let scrollView = prefix + "scrollView"
 }
