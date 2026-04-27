@@ -44,15 +44,19 @@ final class OnrampRedirectingViewModel: ObservableObject, Identifiable {
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.coordinator = coordinator
+
+        loadRedirectData()
     }
 
-    func loadRedirectData() async {
-        do {
-            try await interactor.loadRedirectData(theme: .dark)
-        } catch {
-            await runOnMain {
-                alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
-                    self?.coordinator?.dismissOnrampRedirecting()
+    func loadRedirectData() {
+        runTask(in: self) { input in
+            do {
+                try await input.interactor.loadRedirectData(theme: .dark)
+            } catch {
+                await runOnMain { [weak input] in
+                    input?.alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak input] in
+                        input?.coordinator?.dismissOnrampRedirecting()
+                    }
                 }
             }
         }

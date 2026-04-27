@@ -23,9 +23,6 @@ struct OnrampRedirectingView: View {
         .navigationTitle(Text(viewModel.title))
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .task {
-            await viewModel.loadRedirectData()
-        }
     }
 
     private var content: some View {
