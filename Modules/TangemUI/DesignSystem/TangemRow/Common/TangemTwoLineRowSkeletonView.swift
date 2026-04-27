@@ -1,16 +1,14 @@
 //
-//  MarketTokenRowSkeletonView.swift
-//  Tangem
+//  TangemTwoLineRowSkeletonView.swift
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemUI
-import TangemUIUtils
 
-struct MarketTokenRowSkeletonView: View {
+public struct TangemTwoLineRowSkeletonView: View {
     @ScaledMetric private var iconSize: CGFloat = 40
     @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
     @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
@@ -22,7 +20,9 @@ struct MarketTokenRowSkeletonView: View {
     @ScaledMetric private var secondaryBarHeight: CGFloat = 16
     @ScaledMetric private var secondaryBarWidth: CGFloat = 50
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: { primaryLeadingSkeleton },
@@ -74,7 +74,7 @@ struct MarketTokenRowSkeletonView: View {
     ScrollView(.vertical) {
         VStack(spacing: .zero) {
             ForEach(0 ..< 5) { _ in
-                MarketTokenRowSkeletonView()
+                TangemTwoLineRowSkeletonView()
             }
         }
     }
