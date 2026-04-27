@@ -13,26 +13,17 @@ import TangemLocalization
 import TangemUI
 
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
-    // Header view
-    @Published private(set) var viewType: ExpressCurrencyViewType
-    @Published private(set) var headerType: SendTokenHeader
-    @Published private(set) var errorState: ErrorState?
-    @Published private(set) var balanceState: LoadableBalanceView.State
+    @Published private(set) var state: State
 
-    // Bottom fiat
-    @Published private(set) var fiatAmountState: LoadableTextView.State
-    @Published private(set) var priceChangeState: PriceChangeState?
+    let viewType: ExpressCurrencyViewType
 
-    // Trailing
-    @Published private(set) var tokenIconState: TokenIconState
-    @Published private(set) var symbolState: LoadableTextView.State
-    @Published private(set) var canChangeCurrency: Bool
-
-    private var walletDidChangeSubscription: AnyCancellable?
+    private var balanceStateCancellable: AnyCancellable?
     private var highPriceTask: Task<Void, Error>?
     private var balanceConvertTask: Task<Void, Error>?
 
     private let loadableBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
+    private let balanceFormatter = BalanceFormatter()
+    private let balanceConverter = BalanceConverter()
 
     init(
         viewType: ExpressCurrencyViewType,
@@ -45,68 +36,46 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         canChangeCurrency: Bool
     ) {
         self.viewType = viewType
-        self.headerType = headerType
-        self.balanceState = balanceState
-        self.fiatAmountState = fiatAmountState
-        self.priceChangeState = priceChangeState
-        self.tokenIconState = tokenIconState
-        self.symbolState = symbolState
-        self.canChangeCurrency = canChangeCurrency
+        state = State(
+            headerType: headerType,
+            balanceState: balanceState,
+            fiatAmountState: fiatAmountState,
+            priceChangeState: priceChangeState,
+            tokenIconState: tokenIconState,
+            symbolState: symbolState,
+            canChangeCurrency: canChangeCurrency
+        )
     }
 
     func update(wallet: LoadingResult<any SendGenericToken, Error>, initialWalletId: WalletModelId) {
-        switch wallet {
-        case .loading:
-            canChangeCurrency = false
-            tokenIconState = .loading
-            symbolState = .loading
-            balanceState = .loading(cached: .none)
+        state.update(wallet: wallet, viewType: viewType, initialWalletId: initialWalletId)
 
-        case .success(let wallet as SendSourceToken):
-            headerType = wallet.header.asSendTokenHeader(actionType: .swap, isSource: viewType == .send)
-            canChangeCurrency = wallet.id != initialWalletId
-            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
-            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
-            wallet.availableBalanceProvider.formattedBalanceTypePublisher
+        if case .success(let wallet as SendSourceToken) = wallet {
+            balanceStateCancellable = wallet.availableBalanceProvider.formattedBalanceTypePublisher
                 .withWeakCaptureOf(self)
                 .map { $0.loadableBalanceViewStateBuilder.build(type: $1) }
                 .receiveOnMain()
-                .assign(to: &$balanceState)
-
-        case .success(let wallet as SendReceiveToken):
-            headerType = .action(name: viewType.actionName())
-            canChangeCurrency = false
-            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
-            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: false))
-            // No balance for abstract wallet
-            balanceState = .empty
-
-        case .success(let wallet):
-            assertionFailure("Don't have implementation for \(wallet)")
-            fallthrough
-
-        case .failure:
-            headerType = .action(name: viewType.actionName())
-            canChangeCurrency = true
-            tokenIconState = .notAvailable
-            symbolState = .noData
-            balanceState = .empty
+                .sink { [weak self] value in
+                    self?.state.balanceState = value
+                }
+        } else {
+            balanceStateCancellable = nil
         }
     }
 
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
         guard let expectAmount else {
-            update(fiatAmountState: .loaded(text: BalanceFormatter().formatFiatBalance(0)))
+            update(fiatAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
             return
         }
 
         guard let currencyId = tokenItem?.currencyId else {
-            update(fiatAmountState: .loaded(text: BalanceFormatter().formatFiatBalance(0)))
+            update(fiatAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
             return
         }
 
-        if let fiatValue = BalanceConverter().convertToFiat(expectAmount, currencyId: currencyId) {
-            let formatted = BalanceFormatter().formatFiatBalance(fiatValue)
+        if let fiatValue = balanceConverter.convertToFiat(expectAmount, currencyId: currencyId) {
+            let formatted = balanceFormatter.formatFiatBalance(fiatValue)
             update(fiatAmountState: .loaded(text: formatted))
             return
         }
@@ -114,9 +83,9 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         update(fiatAmountState: .loading)
 
         balanceConvertTask?.cancel()
-        balanceConvertTask = runTask(in: self) { [currencyId] viewModel in
-            let fiatValue = try await BalanceConverter().convertToFiat(expectAmount, currencyId: currencyId)
-            let formatted = BalanceFormatter().formatFiatBalance(fiatValue)
+        balanceConvertTask = runTask(in: self) { [currencyId, balanceConverter, balanceFormatter] viewModel in
+            let fiatValue = try await balanceConverter.convertToFiat(expectAmount, currencyId: currencyId)
+            let formatted = balanceFormatter.formatFiatBalance(fiatValue)
 
             try Task.checkCancellation()
 
@@ -128,27 +97,90 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     func updateHighPricePercentLabel(highPriceImpact: HighPriceImpactCalculator.Result?) {
         guard let highPriceImpact else {
-            priceChangeState = nil
+            state.priceChangeState = nil
             return
         }
 
         if highPriceImpact.level.isNegligible {
-            priceChangeState = .info(message: highPriceImpact.infoMessage)
+            state.priceChangeState = .info(message: highPriceImpact.infoMessage)
         } else {
-            priceChangeState = .percent(highPriceImpact.lossesInPercentsFormatted, message: highPriceImpact.infoMessage, isHighLoss: highPriceImpact.isHighLoss)
+            state.priceChangeState = .percent(highPriceImpact.lossesInPercentsFormatted, message: highPriceImpact.infoMessage, isHighLoss: highPriceImpact.isHighLoss)
         }
     }
 
     func update(errorState: ErrorState?) {
-        self.errorState = errorState
+        state.errorState = errorState
     }
 
     func update(fiatAmountState: LoadableTextView.State) {
-        self.fiatAmountState = fiatAmountState
+        state.fiatAmountState = fiatAmountState
     }
 }
 
 extension ExpressCurrencyViewModel {
+    struct State {
+        var headerType: SendTokenHeader
+        var errorState: ErrorState?
+        var balanceState: LoadableBalanceView.State
+        var fiatAmountState: LoadableTextView.State
+        var priceChangeState: PriceChangeState?
+        var tokenIconState: TokenIconState
+        var symbolState: LoadableTextView.State
+        var canChangeCurrency: Bool
+
+        mutating func update(
+            wallet: LoadingResult<any SendGenericToken, Error>,
+            viewType: ExpressCurrencyViewType,
+            initialWalletId: WalletModelId
+        ) {
+            switch wallet {
+            case .loading:
+                canChangeCurrency = false
+                tokenIconState = .loading
+                symbolState = .loading
+                balanceState = .loading(cached: .none)
+
+            case .success(let wallet as SendSourceToken):
+                headerType = wallet.header.asSendTokenHeader(actionType: .swap, isSource: viewType == .send)
+                // V2: always allow changing currency from token details entry point
+                canChangeCurrency = FeatureProvider.isAvailable(.swapPipelineV2) || wallet.id != initialWalletId
+                symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+                tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
+                // balanceState is updated via publisher subscription in ViewModel
+
+            case .success(let wallet as SendReceiveToken):
+                headerType = .action(name: viewType.actionName())
+                // V2: allow changing receive token (V1 locked it)
+                canChangeCurrency = FeatureProvider.isAvailable(.swapPipelineV2)
+                symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+                tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: false))
+                balanceState = .empty
+
+            case .success(let wallet):
+                assertionFailure("Don't have implementation for \(wallet)")
+                headerType = .action(name: viewType.actionName())
+                canChangeCurrency = true
+                tokenIconState = .notAvailable
+                symbolState = .noData
+                balanceState = .empty
+
+            case .failure(let error as SwapModel.SwapModelError) where error == .tokenSelectionRequired:
+                headerType = .action(name: viewType.actionName())
+                canChangeCurrency = true
+                tokenIconState = .tokenSelectionRequired
+                symbolState = .initialized
+                balanceState = .loaded(text: "")
+
+            case .failure:
+                headerType = .action(name: viewType.actionName())
+                canChangeCurrency = true
+                tokenIconState = .notAvailable
+                symbolState = .noData
+                balanceState = .empty
+            }
+        }
+    }
+
     enum PriceChangeState: Hashable {
         case info(message: String)
         case percent(_ formatted: String, message: String, isHighLoss: Bool)
@@ -166,16 +198,10 @@ extension ExpressCurrencyViewModel {
         case error(String)
     }
 
-    enum BalanceState: Hashable {
-        case idle
-        case notAvailable
-        case loading
-        case formatted(String)
-    }
-
     enum TokenIconState: Hashable {
         case loading
         case notAvailable
+        case tokenSelectionRequired
         case icon(TokenIconInfo)
     }
 }
