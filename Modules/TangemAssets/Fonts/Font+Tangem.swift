@@ -81,6 +81,7 @@ public extension Font.Tangem.Body16 {
 
 public extension Font.Tangem.Heading17 {
     static let regular: Font = .body.weight(.regular)
+    static let medium: Font = .body.weight(.medium)
     static let semibold: Font = .body.weight(.semibold)
 }
 
