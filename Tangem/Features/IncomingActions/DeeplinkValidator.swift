@@ -90,6 +90,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
         case .tokenChart:
             return hasEnoughTokenChartParams(params: params)
 
+        case .tokenExchanges:
+            return hasEnoughTokenChartParams(params: params)
+
         case .buy, .link, .sell, .swap, .referral, .markets, .promo:
             return paramsHaveOnlyValidCharacters([params.tokenId, params.networkId, params.promoCode].compactMap { $0 })
 
