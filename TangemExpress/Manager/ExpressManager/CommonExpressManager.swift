@@ -267,12 +267,11 @@ private extension CommonExpressManager {
         }).first
     }
 
-    /// Providers that have a usable quote and are not restricted by amount limits.
     func eligibleProviders(from providers: [ExpressAvailableProvider]) -> [ExpressAvailableProvider] {
         providers.filter { provider in
             let state = provider.getState()
             switch state {
-            case .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
+            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
                 return false
             default:
                 return state.quote != nil
