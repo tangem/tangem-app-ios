@@ -265,6 +265,10 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemLoggerTests",
             dependencies: [
                 "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
             ]
         ),
         .tangemTestTarget(
