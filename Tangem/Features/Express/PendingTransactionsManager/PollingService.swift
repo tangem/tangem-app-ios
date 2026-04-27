@@ -77,7 +77,6 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
             guard let self else { return }
             let chunkSize = maxConcurrentRequests ?? requests.count
             await pollChunked(for: requests, chunkSize: max(chunkSize, 1))
-            await cancelTask()
         }
     }
 

@@ -12,6 +12,7 @@ import TangemUI
 
 struct TokenDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TokenDetailsCoordinator
+    @State private var isSendPresented = false
 
     init(coordinator: TokenDetailsCoordinator) {
         self.coordinator = coordinator
@@ -25,6 +26,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
 
             sheets
+        }
+        .onReceive(coordinator.$sendCoordinator) { newValue in
+            isSendPresented = newValue != nil
         }
     }
 
@@ -48,8 +52,12 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.sendCoordinator) {
-                SendCoordinatorView(coordinator: $0)
+            .sheet(isPresented: $isSendPresented, onDismiss: {
+                coordinator.sendCoordinator = nil
+            }) {
+                if let sendCoordinator = coordinator.sendCoordinator {
+                    SendCoordinatorView(coordinator: sendCoordinator)
+                }
             }
 
         NavHolder()
