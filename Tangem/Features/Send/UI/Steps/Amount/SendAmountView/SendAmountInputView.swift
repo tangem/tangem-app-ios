@@ -177,6 +177,17 @@ struct SendAmountInputAccessibilityConfiguration {
             }
         )
     }
+
+    /// Destination (receive) amount field configuration for Send-via-Swap.
+    static var destination: SendAmountInputAccessibilityConfiguration {
+        .init(
+            textFieldIdentifier: SendAccessibilityIdentifiers.receiveDecimalNumberTextField,
+            currencySymbolIdentifier: nil,
+            toggleButtonIdentifier: nil,
+            errorIdentifier: nil,
+            alternativeAmountIdentifier: { _ in nil }
+        )
+    }
 }
 
 // MARK: - RateBadgeConfig
