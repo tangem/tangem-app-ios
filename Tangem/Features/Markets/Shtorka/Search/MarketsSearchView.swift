@@ -244,7 +244,7 @@ struct MarketsSearchView: View {
 
             if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
                 ForEach(0 ..< 20, id: \.self) { _ in
-                    MarketTokenRowSkeletonView()
+                    TangemTwoLineRowSkeletonView()
                 }
             }
 
