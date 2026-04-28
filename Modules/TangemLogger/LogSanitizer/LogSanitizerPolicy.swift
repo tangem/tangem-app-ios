@@ -24,6 +24,7 @@ extension LogSanitizerPolicy {
             .objectAddress,
             .iso8601Timestamp,
             .swapPayload,
+            .idempotencyKey,
         ],
         redactRules: [
             .sensitiveKey,
