@@ -43,6 +43,10 @@ final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
         isExpanded ? Assets.DesignSystem.chevronUpSmall : Assets.DesignSystem.chevronDown
     }
 
+    var walletModelIds: [AnyHashable] {
+        walletModels.map(\.id)
+    }
+
     private var isSingleWalletWithSingleAccount: Bool {
         guard
             userWalletRepository.models.count == 1,
