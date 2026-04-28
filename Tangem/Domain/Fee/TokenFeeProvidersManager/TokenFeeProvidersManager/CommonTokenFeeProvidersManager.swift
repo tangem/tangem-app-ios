@@ -226,6 +226,11 @@ private extension CommonTokenFeeProvidersManager {
         let idleTokenFeeProvider = tokenFeeProviders.first(where: { $0.state.isIdle })
 
         guard let idleTokenFeeProvider else {
+            guard initialSelectedProvider.state.isSupported else {
+                FeeLogger.info(self, "Initial provider is unsupported for current input; keep current selected")
+                return
+            }
+
             FeeLogger.info(self, "There are no other providers to choose. Fallback to initial")
             selectedProviderSubject.send(initialSelectedProvider)
             return
@@ -237,7 +242,6 @@ private extension CommonTokenFeeProvidersManager {
 
     func checkSelectedProviderIsSupported() {
         guard !selectedFeeProvider.state.isSupported else {
-            // All good
             return
         }
 
