@@ -114,11 +114,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             .full
         }
 
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .balance: balanceState.rawValue,
         ]
+
+        if walletModel.tokenItem.blockchain.isDynamicAddressesSupported {
+            let isEnabled = walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled()
+            params[.dynamicAddress] = Analytics.ParameterValue.boolState(for: isEnabled).rawValue
+        }
 
         Analytics.log(event: .detailsScreenOpened, params: params)
 
@@ -230,6 +235,8 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagement(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
+
         if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
             let transferableToken = CommonSendTransferableTokenFactory(
                 userWalletInfo: userWalletInfo,
@@ -243,11 +250,13 @@ extension TokenDetailsViewModel {
 
             coordinator?.openDynamicAddressesDisableSheet(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
-                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory
+                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+                analyticsLogger: analyticsLogger
             )
         } else {
             coordinator?.openDynamicAddressesEnterView(
-                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                analyticsLogger: analyticsLogger
             )
         }
     }
