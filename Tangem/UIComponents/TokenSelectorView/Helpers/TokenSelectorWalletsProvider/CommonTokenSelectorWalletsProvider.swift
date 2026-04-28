@@ -27,9 +27,11 @@ final class CommonTokenSelectorWalletsProvider {
 
 extension CommonTokenSelectorWalletsProvider: TokenSelectorWalletsProvider {
     var wallets: [TokenSelectorWallet] {
-        userWalletRepository.models.map { userWalletModel in
-            mapToTokenSelectorWallet(userWalletModel: userWalletModel)
-        }
+        userWalletRepository.models
+            .filter { !$0.isUserWalletLocked }
+            .map { userWalletModel in
+                mapToTokenSelectorWallet(userWalletModel: userWalletModel)
+            }
     }
 }
 
@@ -38,16 +40,12 @@ extension CommonTokenSelectorWalletsProvider: TokenSelectorWalletsProvider {
 private extension CommonTokenSelectorWalletsProvider {
     func mapToTokenSelectorWallet(userWalletModel: any UserWalletModel) -> TokenSelectorWallet {
         let userWalletInfo = userWalletModel.userWalletInfo
-        let isUserWalletLocked = userWalletModel.isUserWalletLocked
         let accounts = mapToAccountType(
             accountModels: userWalletModel.accountModelsManager.accountModels,
-            userWalletInfo: userWalletInfo,
-            isUserWalletLocked: isUserWalletLocked
+            userWalletInfo: userWalletInfo
         )
-        return TokenSelectorWallet(
-            wallet: userWalletInfo,
-            accounts: accounts
-        )
+
+        return TokenSelectorWallet(wallet: userWalletInfo, accounts: accounts)
     }
 
     func mapToTokenSelectorAccount(
@@ -76,8 +74,7 @@ private extension CommonTokenSelectorWalletsProvider {
 
     func mapToAccountType(
         accountModels: [AccountModel],
-        userWalletInfo: UserWalletInfo,
-        isUserWalletLocked: Bool
+        userWalletInfo: UserWalletInfo
     ) -> TokenSelectorWallet.AccountType {
         let filteredAccountModels = accountModelFilter.map { filter in accountModels.filter(filter) } ?? accountModels
 
@@ -99,7 +96,7 @@ private extension CommonTokenSelectorWalletsProvider {
             }
         }
 
-        let hasTangemPayInResults = filteredAccountModels.contains { if case .tangemPay = $0 { return true } else { return false } }
+        let hasTangemPayInResults = filteredAccountModels.contains(where: \.isTangemPay)
 
         switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
         case .single where hasTangemPayInResults:
