@@ -320,7 +320,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)
