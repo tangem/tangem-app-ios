@@ -537,4 +537,46 @@ struct CommonDeepLinkValidatorTests {
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
+
+    // MARK: - Earn deeplink
+
+    @Test
+    func earnWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithValidEarnTypeAndNetworkId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum", earnType: "staking"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithInvalidEarnType_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum", earnType: "bad$type"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithInvalidNetworkId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum!", earnType: "yield"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
 }
