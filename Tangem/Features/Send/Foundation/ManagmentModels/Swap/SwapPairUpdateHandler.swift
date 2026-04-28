@@ -23,14 +23,32 @@ protocol SwapPairUpdateHandler {
 struct SwapPairUpdateResult {
     let expressResult: ExpressManagerUpdatingResult
 
-    /// The amount field to update after the pair change.
+    /// The amount-state update to apply after the pair change.
     /// - `nil` means "keep current amounts unchanged" (no-op).
-    /// - `.clearReceiveAmount` means "actively clear the receive field".
+    /// - Each non-nil case fully specifies the post-change amount state, including direction.
     let amountUpdate: AmountUpdate?
 
     enum AmountUpdate {
-        case setReceiveAmount(crypto: Decimal, currencyId: String?)
-        case setSourceAmount(crypto: Decimal, currencyId: String?)
-        case clearReceiveAmount
+        /// Clear the computed complementary; used when there is no source amount to quote against.
+        case clearComplementary
+
+        /// Float-rate flow: source is the anchor, receive is server-computed.
+        /// Applies as `userAmount = .source(source)`, `complementaryAmount = receive`.
+        case anchorOnSource(
+            source: Decimal,
+            receive: Decimal,
+            sourceCurrencyId: String?,
+            receiveCurrencyId: String?
+        )
+
+        /// Fixed-rate flow: receive is the anchor (locally computed initial value),
+        /// source is server-refined via a `.to(receive)` quote.
+        /// Applies as `userAmount = .receive(receive)`, `complementaryAmount = source`.
+        case anchorOnReceive(
+            source: Decimal,
+            receive: Decimal,
+            sourceCurrencyId: String?,
+            receiveCurrencyId: String?
+        )
     }
 }

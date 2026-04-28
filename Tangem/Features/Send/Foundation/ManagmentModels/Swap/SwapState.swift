@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemExpress
 import TangemFoundation
@@ -66,9 +67,20 @@ extension SwapState {
         }
     }
 
-    /// Rate type derived from amount direction. No separate tracking needed.
+    /// Rate type currently in effect. Derived in priority order:
+    /// 1. From `userAmount` direction if any side is anchored.
+    /// 2. From the selected provider's capabilities — `.fixed` if supported, else `.float` —
+    ///    so consumers (analytics, UI) get a meaningful value during the loading window
+    ///    between "swap mode entered" and "user types something".
+    /// 3. `nil` when neither anchor nor provider is available yet.
     var currentRateType: ExpressProviderRateType? {
-        userAmount?.rateType
+        if let userAmount {
+            return userAmount.rateType
+        }
+        guard let provider = providers.selected else {
+            return nil
+        }
+        return provider.supportedRateTypes.contains(.fixed) ? .fixed : .float
     }
 
     /// Whether we are in a loading state that should show loading UI for amounts
@@ -80,12 +92,18 @@ extension SwapState {
 
 // MARK: - AmountDirection
 
-/// Unifies amount direction and rate type into one concept.
-/// Eliminates the need for separate `_currentRateType` tracking.
+/// Indicates which side of the pair anchors the next express quote, and therefore
+/// which rate type is in effect. Not strictly "what the user typed" — the system
+/// also assigns a direction after a pair change based on provider capabilities.
 enum AmountDirection: Equatable {
-    /// User typed a source amount -> implies float rate type
+    /// Source side anchors the next quote (`.from` direction → float rate type).
+    /// Set when the user types a source amount, OR when only float-rate providers
+    /// are available after a pair change so the system anchors on the user's source.
     case source(SendAmount)
-    /// User typed a receive amount -> implies fixed rate type
+    /// Receive side anchors the next quote (`.to` direction → fixed rate type).
+    /// Set when the user types a receive amount, OR when a fixed-rate provider is
+    /// auto-picked after a pair change and the system anchors on a locally-computed
+    /// receive amount.
     case receive(SendAmount)
 
     var rateType: ExpressProviderRateType {
@@ -249,5 +267,20 @@ extension SwapLoadingType {
         case .autoupdate, .fee:
             return .confirmation
         }
+    }
+}
+
+// MARK: - CurrentValueSubject + atomic mutate
+
+extension CurrentValueSubject where Output == SwapState, Failure == Never {
+    /// Atomically mutate the state: applies the closure to a local copy,
+    /// then assigns once. Produces a single Combine emission regardless
+    /// of how many fields the closure touches. Use this instead of multiple
+    /// `_state.value.X = Y` writes to keep subscribers from observing
+    /// partially-updated worlds.
+    func mutate(_ block: (inout SwapState) -> Void) {
+        var next = value
+        block(&next)
+        value = next
     }
 }
