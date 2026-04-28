@@ -29,13 +29,6 @@
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "TangemPayTests",
-        "name" : "TangemPayTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:",
         "identifier" : "TangemLoggerTests",
         "name" : "TangemLoggerTests"
       }

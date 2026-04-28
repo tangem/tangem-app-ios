@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemLogger
 
 public protocol TangemPayAuthorizationTokensRepository {
     func save(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws
@@ -54,7 +55,10 @@ final class CommonTangemPayAuthorizationService {
     }
 
     private func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
-        try await request(for: .refreshTokens(request: .init(refreshToken: refreshToken)))
+        Logger(category: OSLogCategory(name: "Visa"))
+            .info("refreshToken: \(refreshToken), Idempotency-Key: \(refreshToken.hash)")
+
+        return try await request(for: .refreshTokens(request: .init(refreshToken: refreshToken)))
     }
 
     private func request<T: Decodable>(for target: TangemPayAuthorizationAPITarget.Target) async throws(TangemPayAPIServiceError) -> T {

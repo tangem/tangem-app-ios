@@ -358,12 +358,6 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemNFT",
             ]
         ),
-        .tangemTestTarget(
-            name: "TangemPayTests",
-            dependencies: [
-                "TangemPay",
-            ]
-        ),
     ]
 }
 
