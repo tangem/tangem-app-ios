@@ -97,6 +97,9 @@ extension MainCoordinator {
 
             case .newsArticle:
                 return routeNewsArticleAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+
+            case .earn:
+                return routeEarnAction(params: navigationAction.params)
             }
         }
 
@@ -206,6 +209,17 @@ extension MainCoordinator {
                 intervalRawValue: params.interval
             )
             coordinator?.openDeepLink(.markets(filter: filter))
+            return true
+        }
+
+        private func routeEarnAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let earnType = params.earnType.flatMap { EarnFilterType(rawValue: $0) }
+            coordinator.openDeepLink(.earn(earnType: earnType, networkId: params.networkId))
             return true
         }
 
