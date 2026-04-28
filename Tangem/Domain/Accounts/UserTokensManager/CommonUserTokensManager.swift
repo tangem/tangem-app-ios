@@ -26,7 +26,19 @@ final class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
-    private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
+    private let syncState = OSAllocatedUnfairLock(initialState: SyncState())
+
+    private let onDisposeSubject = CurrentValueSubject<Bool, Never>(false)
+    private var isDisposedPublisher: some Publisher<Bool, Never> { onDisposeSubject.filter(\.self) }
+
+    /// Emits values from the underlying repository's `cryptoAccountPublisher` until this manager is disposed.
+    /// Once `isDisposedPublisher` emits, the reactive stream is effectively stopped.
+    private var activeCryptoAccountPublisher: some Publisher<StoredCryptoAccount, Never> {
+        userTokensRepository
+            .cryptoAccountPublisher
+            .prefix(untilOutputFrom: isDisposedPublisher)
+    }
 
     private var isMainAccountManager: Bool {
         AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
@@ -125,7 +137,10 @@ final class CommonUserTokensManager {
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
-        guard shouldLoadExpressAvailability else {
+        guard
+            !syncState.withLock(\.isDisposed),
+            shouldLoadExpressAvailability
+        else {
             return
         }
 
@@ -197,8 +212,11 @@ final class CommonUserTokensManager {
     }
 
     private func handleWalletModelsUpdate() {
-        let completions = pendingUserTokensSyncCompletions
-        pendingUserTokensSyncCompletions.removeAll()
+        let completions = syncState.withLock { state in
+            let pending = state.pendingCompletions
+            state.pendingCompletions.removeAll()
+            return pending
+        }
         completions.forEach { $0() }
     }
 
@@ -243,15 +261,18 @@ final class CommonUserTokensManager {
 
 extension CommonUserTokensManager: UserTokensManager {
     var userTokens: [TokenItem] {
-        userTokensRepository
+        guard !syncState.withLock(\.isDisposed) else {
+            return []
+        }
+
+        return userTokensRepository
             .cryptoAccount
             .tokens
             .compactMap { $0.toTokenItem() }
     }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
-        userTokensRepository
-            .cryptoAccountPublisher
+        activeCryptoAccountPublisher
             .map { $0.tokens.compactMap { $0.toTokenItem() } }
             .eraseToAnyPublisher()
     }
@@ -446,12 +467,25 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func sync(completion: @escaping () -> Void) {
-        defer {
-            pendingUserTokensSyncCompletions.append(completion)
+        let (shouldStartUpdate, isDisposed) = syncState.withLock { state in
+            guard !state.isDisposed else {
+                return (false, true)
+            }
+
+            let wasEmpty = state.pendingCompletions.isEmpty
+            state.pendingCompletions.append(completion)
+
+            return (wasEmpty, false)
         }
 
-        // Initiate a new update only if there is no ongoing update (i.e. `pendingUserTokensSyncCompletions` is empty)
-        guard pendingUserTokensSyncCompletions.isEmpty else {
+        // Bail out early if the manager is already disposed
+        guard !isDisposed else {
+            completion()
+            return
+        }
+
+        // Initiate a new update only if there is no ongoing update (i.e. `state.pendingCompletions` is empty)
+        guard shouldStartUpdate else {
             return
         }
 
@@ -465,24 +499,21 @@ extension CommonUserTokensManager: UserTokensManager {
 
 extension CommonUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> {
-        return userTokensRepository
-            .cryptoAccountPublisher
+        return activeCryptoAccountPublisher
             .map { $0.tokens.compactMap(\.walletModelId?.id) }
             .eraseToAnyPublisher()
     }
 
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
-        return userTokensRepository
-            .cryptoAccountPublisher
+        return activeCryptoAccountPublisher
             .map { converter.convert($0.grouping) }
             .eraseToAnyPublisher()
     }
 
     var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
-        return userTokensRepository
-            .cryptoAccountPublisher
+        return activeCryptoAccountPublisher
             .map { converter.convert($0.sorting) }
             .eraseToAnyPublisher()
     }
@@ -548,6 +579,21 @@ extension CommonUserTokensManager: UserTokensReordering {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonUserTokensManager: DisposableEntity {
+    func dispose() {
+        let completions = syncState.withLock { state in
+            state.isDisposed = true
+            let pending = state.pendingCompletions
+            state.pendingCompletions.removeAll()
+            return pending
+        }
+        onDisposeSubject.send(true)
+        completions.forEach { $0() }
+    }
+}
+
 // MARK: - Auxiliary types
 
 extension CommonUserTokensManager {
@@ -578,5 +624,11 @@ extension CommonUserTokensManager {
                 return Localization.genericErrorCode(errorCode)
             }
         }
+    }
+
+    /// Atomically accessed sync state.
+    private struct SyncState {
+        var isDisposed = false
+        var pendingCompletions: [() -> Void] = []
     }
 }
