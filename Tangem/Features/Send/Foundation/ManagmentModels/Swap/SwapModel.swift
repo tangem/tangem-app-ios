@@ -418,22 +418,22 @@ extension SwapModel {
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
-        case .preview(let previewCEX) where hasPendingTransaction():
+        case .cexPreview(let previewCEX) where hasPendingTransaction():
             let quote = try await map(provider: selected.provider, quote: previewCEX.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
-        case .ready(let ready) where hasPendingTransaction():
-            let quote = try await map(provider: selected.provider, quote: ready.quote)
+        case .dexPreview(let dexPreview) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: dexPreview.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
         case .permissionRequired(let permissionRequired):
             return try await map(provider: selected, permissionRequired: permissionRequired)
 
-        case .preview(let previewCEX):
+        case .cexPreview(let previewCEX):
             return try await map(provider: selected, previewCEX: previewCEX)
 
-        case .ready(let ready):
-            return try await map(provider: selected, ready: ready)
+        case .dexPreview(let dexPreview):
+            return try await map(provider: selected, dexPreview: dexPreview)
 
         case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction():
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
@@ -520,22 +520,22 @@ extension SwapModel {
         return .permissionRequired(permissionRequiredState)
     }
 
-    func map(provider: ExpressAvailableProvider, ready: ExpressProviderManagerState.Ready) async throws -> LoadedState {
+    func map(provider: ExpressAvailableProvider, dexPreview: ExpressProviderManagerState.DEXPreview) async throws -> LoadedState {
         let source = try sourceToken.get()
-        let fee = ready.fee
+        let fee = dexPreview.fee
 
-        let amount = makeAmount(value: ready.quote.fromAmount, tokenItem: source.tokenItem)
-        let quote = try await map(provider: provider.provider, quote: ready.quote)
+        let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
+        let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
         if let restriction = try validate(amount: amount, fee: fee) {
             return .restriction(restriction, quote: quote)
         }
 
-        let readyToSwapState = ReadyToSwapState(quote: quote, data: ready.data, fee: fee)
+        let readyToSwapState = ReadyToSwapState(quote: quote, data: dexPreview.data, fee: fee)
         return .readyToSwap(readyToSwapState)
     }
 
-    func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.PreviewCEX) async throws -> LoadedState {
+    func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.CEXPreview) async throws -> LoadedState {
         let source = try _sourceToken.value.get()
         let fee = previewCEX.fee
 
