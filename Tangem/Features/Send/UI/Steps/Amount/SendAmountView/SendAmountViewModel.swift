@@ -69,9 +69,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
+    @Published private(set) var currentRateType: ExpressProviderRateType?
+
+    private var isReceiveAmountApproximate: Bool {
+        currentRateType == .float && lastUpdateSource != .receive
+    }
+
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
-            .map { source, rateTypes in !rateTypes.contains(.fixed) || source == .send }
+        // Use emitted values directly — @Published emits on willSet,
+        // so reading stored properties in the map would return stale values.
+        Publishers.CombineLatest($lastUpdateSource, $currentRateType)
+            .map { lastUpdateSource, currentRateType in
+                currentRateType == .float && lastUpdateSource != .receive
+            }
             .eraseToAnyPublisher()
     }
 
@@ -101,6 +111,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
+    private let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
@@ -125,7 +136,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
+        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -137,6 +149,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
         self.providerRateTypesPublisher = providerRateTypesPublisher
+        self.currentRateTypePublisher = currentRateTypePublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -149,6 +162,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
+        pendingReverseRecalculation = false
+        lastUpdateSource = .send
 
         let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.heavy()
@@ -166,6 +181,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         animateActiveFieldChange = true
         animateDestinationRemoval = true
         forceCompactSourceTokenRow = false
+        pendingReverseRecalculation = false
+        // Disconnect before nilling to prevent stale async onValueChanged
+        // callbacks from interfering with the removal cleanup.
+        destinationAmountField?.onValueChanged = nil
         destinationAmountField = nil
         destinationFieldBag = nil
         lastUpdateSource = nil
@@ -387,6 +406,10 @@ private extension SendAmountViewModel {
                 viewModel.handleProviderRateTypesChange(rateTypes)
             }
             .store(in: &bag)
+
+        currentRateTypePublisher?
+            .receiveOnMain()
+            .assign(to: &$currentRateType)
     }
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
@@ -425,6 +448,7 @@ private extension SendAmountViewModel {
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
+        pendingReverseRecalculation = false
         lastUpdateSource = .send
         let amount = try? interactor.update(sourceAmount: amount)
         sourceAmountField.updateAlternativeUI(amount: amount)
@@ -615,7 +639,7 @@ extension SendAmountViewModel {
         } else if lastUpdateSource == .receive {
             // Token changed while user was editing TO — trigger reverse
             // calculation with the user's current field value once the
-            // pair-change quote completes
+            // pair-change quote completes.
             pendingReverseRecalculation = true
         }
     }
@@ -637,10 +661,9 @@ extension SendAmountViewModel {
                 pendingReverseRecalculation = false
                 lastUpdateSource = .receive
 
-                // If the field is empty (first selection), populate from the forward quote
-                if field.cryptoTextFieldViewModel.value == nil {
-                    field.updateAmountsUI(amount: sendAmount)
-                }
+                // Populate the field from the forward estimate so the reverse
+                // recalculation below uses the fiat-equivalent value for the new token
+                field.updateAmountsUI(amount: sendAmount)
 
                 let receiveValue = field.cryptoTextFieldViewModel.value
                 _ = interactor.update(receiveAmount: receiveValue)
@@ -723,8 +746,7 @@ extension SendAmountViewModel {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            let isFloatingRate = providerRateTypes.contains(.float) && lastUpdateSource == .send
-            let displayFormatted = isFloatingRate ? "\(AppConstants.tildeSign) \(formatted)" : formatted
+            let displayFormatted = isReceiveAmountApproximate ? "\(AppConstants.tildeSign) \(formatted)" : formatted
             return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(displayFormatted)))
         case .failure:
             return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))

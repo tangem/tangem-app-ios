@@ -15,7 +15,7 @@ import TangemLocalization
 import TangemFoundation
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
-    private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
+    typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
     // MARK: - Injected & Published Properties
 
@@ -41,10 +41,22 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         return dateString.capitalized(with: headerDateFormatter.locale)
     }
 
+    var isRedesign: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
+
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
+
+    lazy var tokenSearchViewModel = MarketsTokenSearchViewModel(
+        headerViewModel: headerViewModel,
+        tokenListViewModel: tokenListViewModel,
+        chartsHistoryProvider: chartsHistoryProvider,
+        filterProvider: filterProvider,
+        coordinator: coordinator
+    )
 
     private weak var coordinator: MarketsMainRoutable?
 
@@ -63,7 +75,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private var isBottomSheetExpanded: Bool = false
 
     private lazy var promotionNotificationsViewModel: PromotionNotificationsViewModel = {
-        let manager = CommonPromotionNotificationsManager(placement: .news)
+        let manager = NewsPromotionNotificationsManager()
         return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
     }()
 
@@ -76,11 +88,15 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Init
 
-    init(quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper, coordinator: MarketsMainRoutable) {
+    init(
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        coordinator: MarketsMainRoutable
+    ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
-        headerViewModel = MainBottomSheetHeaderViewModel()
+        let headerViewModel = MainBottomSheetHeaderViewModel()
+        self.headerViewModel = headerViewModel
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
@@ -96,7 +112,12 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         headerViewModel.delegate = self
 
-        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        if isRedesign {
+            bindToTokenSearch()
+        } else {
+            searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        }
+
         bindToSearchFocus()
 
         bindChildViewModels()
@@ -145,7 +166,13 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
-    private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
+    func bindToTokenSearch() {
+        tokenSearchViewModel.$state
+            .map { $0 != .idle }
+            .assign(to: &$isSearching)
+    }
+
+    func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
         publisher
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)

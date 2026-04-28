@@ -23,6 +23,15 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
+            }
+
+            ForEach(viewModel.tokensNotificationInputs) { input in
+                NotificationView(input: input)
+            }
+
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -31,15 +40,6 @@ struct MultiWalletMainContentView: View {
 
             if let viewModel = viewModel.tangemPayBannerViewModel {
                 GetTangemPayBannerView(viewModel: viewModel)
-            }
-
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
-            }
-
-            ForEach(viewModel.tokensNotificationInputs) { input in
-                NotificationView(input: input)
             }
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in

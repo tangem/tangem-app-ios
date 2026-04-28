@@ -3,7 +3,6 @@
 
 import Foundation
 import PackageDescription
-import CompilerPluginSupport
 
 // MARK: - Package
 
@@ -12,16 +11,18 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS("16.4"),
-        // [REDACTED_USERNAME]
-        // We enforce a set the macOS minimum target version
-        // so that the swift-syntax dependency can compile and link for macros
-        .macOS(.v13),
     ],
     products: [
         .library(
             name: modulesWrapperLibraryName,
             targets: [
                 modulesWrapperLibraryName,
+            ]
+        ),
+        .library(
+            name: "BlockchainSdk",
+            targets: [
+                "BlockchainSdk",
             ]
         ),
     ],
@@ -33,11 +34,39 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.20")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.6.0")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.0.20"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.1.0"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
-        .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.41.1")),
+        // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
+        // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
+        // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
+        // even if it is not explicitly specified as a dependency.
+        // The workaround for this issue is to place the Swift macros target (`TangemMacro`) in a separate local package (`TangemMacro`).
+        .package(path: "../TangemMacro"),
+        .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.42.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
+        // BSDK only dependencies:
+        // AnyCodable
+        .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.18"),
+        .package(url: "https://github.com/jedisct1/swift-sodium.git", .upToNextMajor(from: "0.10.0")),
+        .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "2.3.1")),
+        // CombineExt
+        // CryptoSwift
+        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem2"),
+        .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
+        // Moya
+        .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
+        .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", .upToNextMajor(from: "0.3.1")),
+        .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", from: "0.12.0"),
+        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem19"),
+        .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
+        .package(url: "https://github.com/valpackett/SwiftCBOR.git", .upToNextMajor(from: "0.6.0")),
+        .package(url: "git@github.com:tangem-developments/swift-protobuf-binaries.git", exact: "1.29.0-tangem1"),
+        // TangemModules
+        // TangemSDK
+        .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.3.9-tangem5"),
+        .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
+        .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
+        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.3.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -48,19 +77,46 @@ let package = Package(
 var serviceModules: [PackageDescription.Target] {
     [
         .tangemTarget(
-            name: "TangemAccessibilityIdentifiers",
-            dependencies: []
-        ),
-        .tangemTarget(name: "TangemMacro", dependencies: ["TangemMacroImplementation"]),
-        .macro(
-            name: "TangemMacroImplementation",
+            name: "BlockchainSdk",
             dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftDiagnostics", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                // BSDK external (not from the `TangemModules` package) dependencies:
+                "AnyCodable",
+                "BigInt",
+                .product(name: "BinanceChain", package: "SwiftBinanceChain"),
+                .product(name: "BitcoinDevKit", package: "bdk-swift"),
+                "CombineExt",
+                "CryptoSwift",
+                .product(name: "Hiero", package: "hiero-sdk-swift"),
+                "IcpKit",
+                "Moya",
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                "PotentCodables", // For `PotentCBOR` only
+                .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
+                .product(name: "secp256k1", package: "secp256k1.swift"),
+                .product(name: "Sodium", package: "swift-sodium"),
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
+                "SwiftCBOR",
+                .product(name: "SwiftProtobuf", package: "swift-protobuf-binaries"),
+                .product(name: "TangemMacro", package: "TangemMacro"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+                .product(name: "TonSwift", package: "ton-swift"),
+                // BSDK (from the `TangemModules` package) dependencies:
+                // Use the following command in the terminal from the root of the repo to find all internal dependencies:
+                // find ./Modules/BlockchainSdk -iname "*.swift" -type f -exec grep -rF "import Tangem" {} \; | cut -d ':' -f2 | sort | uniq
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemLogger",
+                "TangemNetworkUtils",
             ],
-            path: "TangemMacroImplementation",
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemAccessibilityIdentifiers"
         ),
         .tangemTarget(
             name: "TangemAssets",
@@ -74,11 +130,6 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "TangemLocalization",
-            exclude: ["Templates"],
-            resources: [.process("Localizations")]
-        ),
-        .tangemTarget(
             name: "TangemFoundation",
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -86,9 +137,27 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemLocalization",
+            exclude: ["Templates"],
+            resources: [.process("Localizations")]
+        ),
+        .tangemTarget(
             name: "TangemLogger",
             dependencies: [
                 "ZIPFoundation",
+                "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemMobileWalletSdk",
+            path: "TangemMobileWalletSdk/Sources/swift",
+            dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .target(name: "TrezorCrypto"),
                 "TangemFoundation",
             ],
             swiftSettings: [
@@ -103,6 +172,23 @@ var serviceModules: [PackageDescription.Target] {
                 "Alamofire",
                 "TangemFoundation",
                 "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemUI",
+            dependencies: [
+                "CombineExt",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemUIUtils",
+                "TangemLocalization",
+                "TangemAccessibilityIdentifiers",
+                "TangemLogger",
+                .product(name: "BlurSwiftUI", package: "BlurUIKit"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -126,37 +212,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemUIUtilsObjC"
         ),
-        .tangemTarget(
-            name: "TangemUI",
-            dependencies: [
-                "CombineExt",
-                "TangemAssets",
-                "TangemFoundation",
-                "TangemUIUtils",
-                "TangemLocalization",
-                "TangemAccessibilityIdentifiers",
-                "TangemLogger",
-                .product(name: "BlurSwiftUI", package: "BlurUIKit"),
-            ],
-            swiftSettings: [
-                // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
-            ]
-        ),
-        .tangemTarget(
-            name: "TangemMobileWalletSdk",
-            path: "TangemMobileWalletSdk/Sources/swift",
-            dependencies: [
-                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
-                .target(name: "TrezorCrypto"),
-                "TangemFoundation",
-            ],
-            swiftSettings: [
-                // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
-            ]
-        ),
-        // TrezorCrypto library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
+        // `TrezorCrypto` library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
         .tangemTarget(
             name: "TrezorCrypto",
             path: "TangemMobileWalletSdk/Sources/TrezorCrypto",
@@ -180,12 +236,14 @@ var serviceModules: [PackageDescription.Target] {
 var featureModules: [PackageDescription.Target] {
     [
         .tangemTarget(
-            name: "TangemStories",
+            name: "TangemAccounts",
             dependencies: [
-                "Kingfisher",
+                "TangemAssets",
                 "TangemLocalization",
+                "TangemUIUtils",
                 "TangemUI",
                 "TangemFoundation",
+                "TangemAccessibilityIdentifiers",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -213,21 +271,6 @@ var featureModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "TangemAccounts",
-            dependencies: [
-                "TangemAssets",
-                "TangemLocalization",
-                "TangemUIUtils",
-                "TangemUI",
-                "TangemFoundation",
-                "TangemAccessibilityIdentifiers",
-            ],
-            swiftSettings: [
-                // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
-            ]
-        ),
-        .tangemTarget(
             name: "TangemPay",
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
@@ -242,6 +285,19 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemStories",
+            dependencies: [
+                "Kingfisher",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
@@ -250,21 +306,41 @@ var featureModules: [PackageDescription.Target] {
 var unitTestsModules: [PackageDescription.Target] {
     [
         .tangemTestTarget(
+            name: "BlockchainSdkTests",
+            dependencies: [
+                // Use the following command in the terminal from the root of the repo to find all dependencies that are imported in the tests:
+                // find ./Modules/BlockchainSdkTests -iname "*.swift" -type f -exec grep -rF "import " {} \; | cut -d ':' -f2 | sort | uniq
+                "BlockchainSdk",
+                "TangemFoundation",
+                "TangemNetworkUtils",
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "BigInt",
+                .product(name: "BitcoinDevKit", package: "bdk-swift"),
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+                .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
+                .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
+                .product(name: "Hiero", package: "hiero-sdk-swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
             ]
         ),
         .tangemTestTarget(
-            name: "TangemNFTTests",
-            dependencies: [
-                "TangemNFT",
-            ]
-        ),
-        .tangemTestTarget(
             name: "TangemLoggerTests",
             dependencies: [
                 "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
             ]
         ),
         .tangemTestTarget(
@@ -274,6 +350,12 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemMobileWalletSdk",
                 "TrezorCrypto",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemNFTTests",
+            dependencies: [
+                "TangemNFT",
             ]
         ),
     ]
@@ -427,6 +509,14 @@ private func makeBuildSettings() -> BuildSettings? {
         buildSettings.cxxSettings.append(.define("BETA", to: "1"))
         buildSettings.swiftSettings.append(.define("BETA"))
         return buildSettings
+    }
+
+    if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_BUILD_FOR_INTERNAL"] != nil {
+        return BuildSettings(
+            cSettings: [.define("INTERNAL", to: "1")],
+            cxxSettings: [.define("INTERNAL", to: "1")],
+            swiftSettings: [.define("INTERNAL")]
+        )
     }
 
     return nil

@@ -16,31 +16,20 @@ protocol PromotionNotificationsManager: NotificationManager {
 
 class CommonPromotionNotificationsManager {
     @Injected(\.promotionRepository) private var promotionRepository: PromotionRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
+    private let userWalletId: UserWalletId
     private let placement: PromotionPlacement
-    private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
-    private var analyticsSubscription: AnyCancellable?
     private var activePromotionSubscription: AnyCancellable?
 
-    init(placement: PromotionPlacement) {
+    init(userWalletId: UserWalletId, placement: PromotionPlacement) {
+        self.userWalletId = userWalletId
         self.placement = placement
 
         bind()
-    }
-
-    private func analyticsService(for userWalletId: UserWalletId) -> NotificationsAnalyticsService {
-        if let analyticsService = analyticsServices.read()[userWalletId] {
-            return analyticsService
-        }
-
-        let analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
-        analyticsServices.mutate { $0[userWalletId] = analyticsService }
-        return analyticsService
     }
 }
 
@@ -48,20 +37,8 @@ class CommonPromotionNotificationsManager {
 
 private extension CommonPromotionNotificationsManager {
     func bind() {
-        analyticsSubscription = notificationPublisher
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { manager, notifications in
-                guard let userWalletId = manager.userWalletRepository.selectedModel?.userWalletId else {
-                    return
-                }
-
-                manager.analyticsService(for: userWalletId).sendEventsIfNeeded(for: notifications)
-            })
-
         activePromotionSubscription = promotionRepository
-            .promotionsPublisher(placeholder: placement)
+            .promotionsPublisher(userWalletId: userWalletId, placeholder: placement)
             .withWeakCaptureOf(self)
             .map { $0.mapToPromotionNotificationEvents(items: $1) }
             .withWeakCaptureOf(self)
@@ -119,17 +96,11 @@ private extension CommonPromotionNotificationsManager {
 
 extension CommonPromotionNotificationsManager {
     func loadPromotions() async {
-        await promotionRepository.loadPromotions()
+        await promotionRepository.loadPromotions(userWalletId: userWalletId)
     }
 
-    func hide(promotion: PromotionsDTO.Load.Item) {
-        Task {
-            do {
-                try await promotionRepository.hidePromotion(displayId: promotion.id)
-            } catch {
-                PromotionLogger.error("Hide promotion error: ", error: error)
-            }
-        }
+    func hide(promotion: Promotion) {
+        Task { await promotionRepository.hidePromotion(userWalletId: userWalletId, displayId: promotion.id) }
     }
 }
 
