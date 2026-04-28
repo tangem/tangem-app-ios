@@ -340,7 +340,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             }
 
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .markets,
                 presentCompletion: openSwapBlock
             )
