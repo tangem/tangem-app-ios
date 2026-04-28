@@ -113,7 +113,10 @@ struct DefaultIncomingLinkParserTests {
         case .payApp:
             urlString = "https://tangem.com/\(rawValue)?id=some-id"
         case .news:
-            urlString = "tangem://\(rawValue)?id=some-id"
+            urlString = "tangem://\(rawValue)"
+        case .newsArticle:
+            // `.newsArticle` is not a deeplink host. Falls through to generic external link handling.
+            urlString = "https://tangem.com/news/markets/190801-polygon"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -127,11 +130,18 @@ struct DefaultIncomingLinkParserTests {
         #expect(result != nil, "Expected host '\(host)' to be parsed successfully")
     }
 
+    @Test("Rejects tangem://news-article since it is not a deeplink host")
+    func rejectsNewsArticleAsDeeplinkHost() throws {
+        let url = try #require(URL(string: "tangem://news-article?id=190801"))
+        let result = parser.parse(url)
+        #expect(result == nil)
+    }
+
     @Test(
         "Rejects deeplink with unknown host",
         arguments: [
             URL(string: "tangem://unknown?token_id=eth&network_id=ethereum")!,
-            URL(string: "tangem://main")!
+            URL(string: "tangem://main")!,
         ]
     )
     func rejectsUnknownHost(url: URL) {
