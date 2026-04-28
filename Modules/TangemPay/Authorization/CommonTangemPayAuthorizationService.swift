@@ -54,7 +54,15 @@ final class CommonTangemPayAuthorizationService {
     }
 
     private func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
-        try await request(for: .refreshTokens(request: .init(refreshToken: refreshToken)))
+        let request: TangemPayRefreshTokensRequest = .init(refreshToken: refreshToken)
+        
+        let oldHash = request.refreshToken.hash
+        let newHash = request.refreshToken.sha256()
+        
+        Logger(category: OSLogCategory(name: "Visa"))
+            .info("refreshToken: \(refreshToken), Idempotency-Key-Old: \(oldHash), Idempotency-Key-New: \(newHash)")
+        
+        return try await request(for: .refreshTokens(request: request))
     }
 
     private func request<T: Decodable>(for target: TangemPayAuthorizationAPITarget.Target) async throws(TangemPayAPIServiceError) -> T {
