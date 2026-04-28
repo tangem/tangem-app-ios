@@ -15,8 +15,18 @@ final class MarketsTokenSearchViewModel: ObservableObject {
     // MARK: - Published states
 
     @Published private(set) var state: State = .idle
-    @Published private(set) var recentState: RecentState?
-    @Published private(set) var searchState: SearchState?
+    @Published private(set) var recentState: RecentState = .idle
+    @Published private(set) var portfolioState: PortfolioState = .idle
+    @Published private(set) var marketItem: MarketItem?
+
+    // MARK: - Computed properties
+
+    var isSearchEmpty: Bool {
+        guard let marketItem else { return false }
+        return portfolioState == .empty && marketItem.state == .empty
+    }
+
+    let searchEmptyTitle = Localization.commonNoResults
 
     // MARK: - Injections
 
@@ -45,9 +55,7 @@ final class MarketsTokenSearchViewModel: ObservableObject {
         persistentStorage: persistentStorage
     )
 
-    private let portfolioStateSubject = PassthroughSubject<PortfolioState, Never>()
-    private let marketStateSubject = PassthroughSubject<MarketState, Never>()
-
+    private let searchDebounceMs: Int = 300
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -87,18 +95,8 @@ private extension MarketsTokenSearchViewModel {
             .map { viewModel, recentItems in
                 viewModel.makeRecentState(items: recentItems)
             }
-            .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$recentState)
-
-        portfolioStateSubject
-            .combineLatest(marketStateSubject)
-            .compactMap { [weak self] portfolioState, marketState in
-                self?.makeSearchState(portfolioState: portfolioState, marketState: marketState)
-            }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$searchState)
 
         walletModelsAggregator.walletModelsPublisher
             .combineLatest(headerViewModel.$enteredSearchText)
@@ -106,40 +104,27 @@ private extension MarketsTokenSearchViewModel {
                 self?.makePortfolioState(walletModels: walletModels, search: searchText)
             }
             .removeDuplicates()
-            .subscribe(portfolioStateSubject)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$portfolioState)
 
-        tokenListViewModel.$tokenListLoadingState
-            .combineLatest(tokenListViewModel.$tokenViewModels)
-            .compactMap { [weak self] marketListLoadingState, marketItems in
-                self?.makeMarketState(
-                    marketListLoadingState: marketListLoadingState,
-                    marketItems: marketItems
+        tokenListViewModel.$tokenViewModels
+            .combineLatest(tokenListViewModel.$tokenListLoadingState)
+            .compactMap { [weak self] tokenViewModels, tokenListLoadingState in
+                self?.makeMarketItem(
+                    models: tokenViewModels,
+                    loadingState: tokenListLoadingState
                 )
             }
-            .removeDuplicates()
-            .subscribe(marketStateSubject)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$marketItem)
 
         headerViewModel.$enteredSearchText
-            .removeDuplicates()
+            .debounce(for: .milliseconds(searchDebounceMs), scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, searchText in
                 viewModel.fetchMarketTokensIfNeeded(searchText: searchText)
             }
             .store(in: &bag)
-    }
-
-    func fetchMarketTokensIfNeeded(searchText: String) {
-        let search = searchText.trimmed()
-
-        guard search.isNotEmpty else {
-            return
-        }
-
-        tokenListViewModel.onResetShowItemsBelowCapFlag()
-        let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
-        tokenListViewModel.onFetch(with: search, by: filter)
     }
 }
 
@@ -226,18 +211,6 @@ private extension MarketsTokenSearchViewModel {
     }
 }
 
-// MARK: - SearchState
-
-private extension MarketsTokenSearchViewModel {
-    func makeSearchState(portfolioState: PortfolioState, marketState: MarketState) -> SearchState {
-        if portfolioState == .empty, marketState == .empty {
-            let item = SearchEmptyItem(title: Localization.commonNoResults)
-            return .empty(item)
-        }
-        return .result(portfolio: portfolioState, market: marketState)
-    }
-}
-
 // MARK: - PortfolioState
 
 private extension MarketsTokenSearchViewModel {
@@ -253,9 +226,13 @@ private extension MarketsTokenSearchViewModel {
             return .empty
         }
 
-        let item = PortfolioItem(
-            title: Localization.marketsSearchPortfolioHeader,
-            walletModels: filteredWalletModels,
+        let item = makePortfolioItem(walletModels: filteredWalletModels)
+        return .item(item)
+    }
+
+    func makePortfolioItem(walletModels: [any WalletModel]) -> PortfolioItem {
+        let model = MarketsPortfolioTokenSearchViewModel(
+            walletModels: walletModels,
             onSingleToken: { [weak self] in
                 self?.onPortfolioToken()
                 // [REDACTED_TODO_COMMENT]
@@ -265,7 +242,7 @@ private extension MarketsTokenSearchViewModel {
             }
         )
 
-        return .item(item)
+        return PortfolioItem(title: Localization.marketsSearchPortfolioHeader, model: model)
     }
 
     func onPortfolioToken() {
@@ -279,12 +256,58 @@ private extension MarketsTokenSearchViewModel {
 // MARK: - MarketState
 
 private extension MarketsTokenSearchViewModel {
-    func makeMarketState(
-        marketListLoadingState: MarketsView.ListLoadingState,
-        marketItems: [MarketsItemViewModel]
-    ) -> MarketState {
-        // [REDACTED_TODO_COMMENT]
-        return .empty
+    func makeMarketItem(
+        models: [MarketsItemViewModel],
+        loadingState: MarketsView.ListLoadingState
+    ) -> MarketItem {
+        let state: MarketState = makeMarketState(loadingState)
+
+        let underCapItem = MarketItem.UnderCapItem(
+            isShown: tokenListViewModel.shouldDisplayShowTokensUnderCapView,
+            action: weakify(self, forFunction: MarketsTokenSearchViewModel.onMarketUnderCap)
+        )
+
+        let retryItem = MarketItem.RetryItem(
+            action: weakify(self, forFunction: MarketsTokenSearchViewModel.onMarketRetry)
+        )
+
+        return MarketItem(
+            title: Localization.marketsCommonTitle,
+            state: state,
+            models: models,
+            underCapItem: underCapItem,
+            retryItem: retryItem
+        )
+    }
+
+    func makeMarketState(_ loadingState: MarketsView.ListLoadingState) -> MarketState {
+        switch loadingState {
+        case .idle: .idle
+        case .loading: .loading
+        case .allDataLoaded: .loaded
+        case .noResults: .empty
+        case .error: .retry
+        }
+    }
+
+    func onMarketUnderCap() {
+        tokenListViewModel.onShowUnderCapAction()
+    }
+
+    func onMarketRetry() {
+        tokenListViewModel.onTryLoadList()
+    }
+
+    func fetchMarketTokensIfNeeded(searchText: String) {
+        let search = searchText.trimmed()
+
+        guard search.isNotEmpty else {
+            return
+        }
+
+        tokenListViewModel.onResetShowItemsBelowCapFlag()
+        let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
+        tokenListViewModel.onFetch(with: search, by: filter)
     }
 }
 
@@ -297,66 +320,56 @@ extension MarketsTokenSearchViewModel {
         case search
     }
 
-    enum RecentState: Equatable {
+    enum RecentState {
+        case idle
         case empty
         case item(RecentItem)
     }
 
-    struct RecentItem: Equatable {
-        let id = UUID()
+    struct RecentItem {
         let queries: [String]
         let marketTokens: [MarketTokenItemViewModel]
         let onQuery: (String) -> Void
         let onClearAll: () -> Void
-
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            lhs.id == rhs.id
-        }
-    }
-
-    enum SearchState: Equatable {
-        case empty(SearchEmptyItem)
-        case result(portfolio: PortfolioState, market: MarketState)
-    }
-
-    struct SearchEmptyItem: Equatable {
-        let title: String
     }
 
     enum PortfolioState: Equatable {
+        case idle
         case empty
         case item(PortfolioItem)
     }
 
     struct PortfolioItem: Equatable {
         let title: String
-        let walletModels: [any WalletModel]
-        let onSingleToken: () -> Void
-        let onMultipleToken: () -> Void
+        let model: MarketsPortfolioTokenSearchViewModel
 
         static func == (lhs: Self, rhs: Self) -> Bool {
-            Set(lhs.walletModels.map(\.id)) == Set(rhs.walletModels.map(\.id))
+            Set(lhs.model.walletModelIds) == Set(rhs.model.walletModelIds)
         }
     }
 
-    enum MarketState: Equatable {
-        case loading
-        case empty
-        case item(MarketItem)
-        case retry(MarketRetryItem)
-    }
-
-    struct MarketItem: Equatable {
+    struct MarketItem {
         let title: String
-        let onTap: () -> Void
+        let state: MarketState
+        let models: [MarketsItemViewModel]
+        let underCapItem: UnderCapItem
+        let retryItem: RetryItem
 
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            // [REDACTED_TODO_COMMENT]
-            lhs.title == rhs.title
+        struct UnderCapItem {
+            let isShown: Bool
+            let action: () -> Void
+        }
+
+        struct RetryItem {
+            let action: () -> Void
         }
     }
 
-    struct MarketRetryItem: Equatable {
-        // [REDACTED_TODO_COMMENT]
+    enum MarketState {
+        case idle
+        case empty
+        case loading
+        case loaded
+        case retry
     }
 }
