@@ -40,6 +40,7 @@ struct DefaultIncomingLinkParser {
             promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode],
             entry: keyedQueryItems[IncomingActionConstants.DeeplinkParams.entry],
             id: keyedQueryItems[IncomingActionConstants.DeeplinkParams.id],
+            categoryId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.categoryId],
             refcode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.refcode],
             campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
             order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
@@ -48,7 +49,15 @@ struct DefaultIncomingLinkParser {
     }
 
     private func destination(for host: String) -> IncomingActionConstants.DeeplinkDestination? {
-        IncomingActionConstants.DeeplinkDestination(rawValue: host)
+        guard let destination = IncomingActionConstants.DeeplinkDestination(rawValue: host) else {
+            return nil
+        }
+        // `.newsArticle` is a semantic destination emitted only by `NewsIncomingLinkParser`
+        // for universal links. It must never be resolved from a `tangem://` host.
+        guard destination != .newsArticle else {
+            return nil
+        }
+        return destination
     }
 
     private func parseExternalLink(_ url: URL) -> IncomingAction? {
