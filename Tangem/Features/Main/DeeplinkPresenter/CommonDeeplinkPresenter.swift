@@ -128,6 +128,9 @@ private extension CommonDeeplinkPresenter {
         case .newsDetails(let newsId):
             return constructNewsDetailsViewController(newsId: newsId)
 
+        case .newsList(let initialCategoryId):
+            return constructNewsListViewController(initialCategoryId: initialCategoryId)
+
         case .externalLink, .tangemPayMain, .tangemPayTransactionDetails:
             return nil
         }
@@ -335,6 +338,23 @@ private extension CommonDeeplinkPresenter {
         return makeDeeplinkViewController(
             view: {
                 NewsDeeplinkContainerView(newsId: newsId)
+                    .environment(\.mainWindowSize, windowSize)
+            },
+            embedInNavigationStack: true
+        )
+    }
+
+    private func constructNewsListViewController(initialCategoryId: Int?) -> UIViewController {
+        let windowSize = makeFirstWindowSceneSize()
+
+        let coordinator = NewsListCoordinator(
+            dismissAction: { UIApplication.dismissTop() }
+        )
+        coordinator.start(with: .init(initialCategoryId: initialCategoryId, presentSource: .deeplink))
+
+        return makeDeeplinkViewController(
+            view: {
+                NewsListCoordinatorView(coordinator: coordinator)
                     .environment(\.mainWindowSize, windowSize)
             },
             embedInNavigationStack: true
