@@ -47,7 +47,7 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": String(describing: page?.number),
+                "pageNumber": page?.number ?? "nil",
                 "totalPages": totalPages,
                 "totalRecordsCount": totalRecordsCount,
             ]
