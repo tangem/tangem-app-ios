@@ -113,6 +113,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
         case .buy, .link, .sell, .swap, .referral, .markets, .promo:
             return paramsHaveOnlyValidCharacters([params.tokenId, params.networkId, params.promoCode].compactMap { $0 })
 
+        case .earn:
+            return paramsHaveOnlyValidCharacters([params.earnType, params.networkId].compactMap { $0 })
+
         case .onboardVisa:
             return hasEnoughOnboardVisaParams(params: params)
 
