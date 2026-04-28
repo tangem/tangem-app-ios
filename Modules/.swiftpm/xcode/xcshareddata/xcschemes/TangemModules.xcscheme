@@ -59,6 +59,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "TangemPayTests"
+               BuildableName = "TangemPayTests"
+               BlueprintName = "TangemPayTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "TangemHotSdkTests"
                BuildableName = "TangemHotSdkTests"
                BlueprintName = "TangemHotSdkTests"
