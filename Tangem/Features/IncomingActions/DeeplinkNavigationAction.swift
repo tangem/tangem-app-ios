@@ -36,6 +36,7 @@ extension DeeplinkNavigationAction {
         var campaign: String?
         var order: String?
         var interval: String?
+        var earnType: String?
 
         static let empty = Params()
 
