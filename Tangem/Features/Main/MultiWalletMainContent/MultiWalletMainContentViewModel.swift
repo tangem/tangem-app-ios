@@ -11,7 +11,6 @@ import Combine
 import class UIKit.UIPasteboard
 import CombineExt
 import TangemFoundation
-import TangemStaking
 import TangemNFT
 import TangemLocalization
 import TangemUI
@@ -275,18 +274,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tokenItemPromoProvider
             .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
             .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] output in
-                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
-                    return
-                }
-
-                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
-                logger.logYieldNoticeShown()
-            })
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, output in
-                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
+                output.map(viewModel.makeTokenItemPromoViewModel(from:))
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -448,35 +439,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$isLoadingTokenList)
     }
 
-    private func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
-        guard let walletModel = findAvailableWalletModel(for: tokenItem) else {
-            return nil
-        }
-
-        if let stakingManager = walletModel.stakingManager {
-            return { [weak self] _ in
-                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
-            }
-        }
-
-        if let yieldAction = makeYieldApyBadgeTapAction(walletModel: walletModel) {
-            return yieldAction
-        }
-
-        return nil
-    }
-
-    private func findAvailableWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
-        guard let result = try? WalletModelFinder.findWalletModel(userWalletId: userWalletModel.userWalletId, tokenItem: tokenItem),
-              TokenActionAvailabilityProvider(
-                  userWalletConfig: result.userWalletModel.config,
-                  walletModel: result.walletModel
-              ).isTokenInteractionAvailable()
+    private func tokenItemTapped(_ walletModelId: WalletModelId) {
+        guard
+            let walletModel = findWalletModel(with: walletModelId),
+            TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
         else {
-            return nil
+            return
         }
 
-        return result.walletModel
+        coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
     private func makeYieldApyBadgeTapAction(walletModel: any WalletModel) -> ((TokenItem) -> Void)? {
@@ -527,43 +498,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    private func handleStakingApyBadgeTapped(walletModel: any WalletModel, stakingManager: StakingManager) {
-        let analyticsState: String
-
-        switch stakingManager.state {
-        case .availableToStake:
-            analyticsState = Analytics.ParameterValue.disabled.rawValue
-        case .staked:
-            analyticsState = Analytics.ParameterValue.enabled.rawValue
-        case .loading, .loadingError, .temporaryUnavailable, .notEnabled:
-            return
-        }
-
-        logStakingApyClicked(
-            state: analyticsState,
-            tokenName: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
-            blockchainName: walletModel.tokenItem.blockchain.displayName
-        )
-
-        coordinator?.openStaking(
-            options: .init(
-                sendInput: SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-                manager: stakingManager
-            )
-        )
-    }
-
-    private func tokenItemTapped(_ walletModelId: WalletModelId) {
-        guard
-            let walletModel = findWalletModel(with: walletModelId),
-            TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
-        else {
-            return
-        }
-
-        coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-
     private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
         // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
         guard walletModel.multipleTransactionsSender != nil else {
@@ -580,7 +514,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel {
         TokenItemPromoBubbleViewModel(
             id: output.walletModelId,
             leadingImage: output.icon,
@@ -602,6 +536,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 logger.logYieldNoticeClicked()
                 let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
                 navAction?(walletModel.tokenItem)
+            },
+            onAppear: { [weak self] in
+                guard let userWalletId = self?.userWalletModel.userWalletId else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: output.tokenItem, userWalletId: userWalletId)
+                logger.logYieldNoticeShown()
             }
         )
     }
@@ -751,11 +693,7 @@ extension MultiWalletMainContentViewModel: MultiWalletMainContentItemViewModelFa
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
-            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
-            yieldApyTapAction: { [weak self] token in
-                let action = self?.makeApyBadgeTapAction(tokenItem: token)
-                action?(token)
-            }
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
         )
     }
 }
@@ -877,7 +815,13 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            tokenRouter.openSwap(walletModel: walletModel)
+            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+                origin: .tokenDetails(.init(walletModel: walletModel)),
+                userWalletInfo: userWalletModel.userWalletInfo
+            ) else {
+                return
+            }
+            tokenRouter.openSwap(parameters: parameters)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
         case .yield:
@@ -919,7 +863,8 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }
@@ -927,20 +872,6 @@ private extension MultiWalletMainContentViewModel {
 // MARK: - Analytics
 
 private extension MultiWalletMainContentViewModel {
-    func logStakingApyClicked(state: String, tokenName: String, blockchainName: String) {
-        let stateParamValue = Analytics.ParameterValue(rawValue: state)?.rawValue ?? ""
-        let actionParamValue = Analytics.ParameterValue.transactionSourceStaking.rawValue
-
-        let params: [Analytics.ParameterKey: String] = [
-            .token: tokenName,
-            .blockchain: blockchainName,
-            .state: stateParamValue,
-            .action: actionParamValue,
-        ]
-
-        Analytics.log(event: .apyClicked, params: params)
-    }
-
     func logMainButtonUpgradeAnalytics() {
         Analytics.log(
             .mainButtonUpgrade,

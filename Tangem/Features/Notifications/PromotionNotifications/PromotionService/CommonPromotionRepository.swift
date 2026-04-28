@@ -14,7 +14,29 @@ class CommonPromotionRepository {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let promotionsSubject = CurrentValueSubject<[PromotionPlacement: [Promotion]], Never>([:])
+    typealias PromotionList = [PromotionPlacement: [Promotion]]
+
+    /// Cached promotions by user wallet id
+    private let promotionsSubject = CurrentValueSubject<[UserWalletId: PromotionList], Never>([:])
+
+    private var selectedUserWalletId: UserWalletId? {
+        userWalletRepository.selectedModel?.userWalletId
+    }
+
+    private var selectedUserWalletIdPublisher: AnyPublisher<UserWalletId, Never> {
+        userWalletRepository.eventProvider
+            .compactMap { event in
+                guard case .selected(let userWalletId) = event else {
+                    return nil
+                }
+
+                return userWalletId
+            }
+            .prepend(selectedUserWalletId)
+            .compactMap(\.self)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 
     private var loadPromotionTask: Task<Void, Never>?
     private var userWalletRepositoryEventSubscription: AnyCancellable?
@@ -22,39 +44,40 @@ class CommonPromotionRepository {
     init() {
         bind()
 
-        Task { await loadPromotions() }
+        if let userWalletId = selectedUserWalletId {
+            Task { await loadPromotions(userWalletId: userWalletId) }
+        }
     }
 }
 
 // MARK: - PromotionRepository
 
 extension CommonPromotionRepository: PromotionRepository {
-    func promotionsPublisher(placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
-        promotionsSubject.map { $0[placeholder, default: []] }.eraseToAnyPublisher()
+    func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
+        return promotionsSubject
+            .map { $0[userWalletId]?[placeholder] ?? [] }
+            .eraseToAnyPublisher()
     }
 
-    func loadPromotions() async {
-        guard let walletId = userWalletRepository.selectedModel?.userWalletId else {
-            promotionsSubject.send([:])
-            return
-        }
-
-        await updatePromotions(for: walletId).value
+    func loadPromotions(userWalletId: UserWalletId) async {
+        await updatePromotions(for: userWalletId, hasToRefresh: true)?.value
     }
 
-    func hidePromotion(displayId: Int) async throws {
-        guard let userWalletId = userWalletRepository.selectedModel?.userWalletId else {
-            return
+    func hidePromotion(userWalletId: UserWalletId, displayId: Int) async {
+        let walletIdString = userWalletId.stringValue
+        let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
+
+        do {
+            let request = PromotionsDTO.Hide.Request(
+                displayId: displayId,
+                walletId: walletIdString,
+                status: .dismissed
+            )
+
+            _ = try await tangemApiService.hidePromotion(request: request)
+        } catch {
+            PromotionsLogger.error("Hiding promotion for user wallet: \"\(redactedUserWalletId)\"", error: error)
         }
-
-        let walletId = userWalletId.stringValue
-        let request = PromotionsDTO.Hide.Request(
-            displayId: displayId,
-            walletId: walletId,
-            status: .dismissed
-        )
-
-        _ = try await tangemApiService.hidePromotion(request: request)
     }
 }
 
@@ -62,66 +85,60 @@ extension CommonPromotionRepository: PromotionRepository {
 
 private extension CommonPromotionRepository {
     func bind() {
-        userWalletRepositoryEventSubscription = userWalletRepository.eventProvider
+        userWalletRepositoryEventSubscription = selectedUserWalletIdPublisher
             .withWeakCaptureOf(self)
-            .sink { repository, event in
-                guard case .selected(let userWalletId) = event else {
-                    return
-                }
-
-                repository.updatePromotions(for: userWalletId)
-            }
+            .sink { $0.updatePromotions(for: $1, hasToRefresh: false) }
     }
 
     @discardableResult
-    func updatePromotions(for userWalletId: UserWalletId) -> Task<Void, Never> {
+    func updatePromotions(for userWalletId: UserWalletId, hasToRefresh: Bool) -> Task<Void, Never>? {
+        guard FeatureProvider.isAvailable(.newPromotionBanners) else {
+            return nil
+        }
+
+        let walletIdString = userWalletId.stringValue
+        let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
+        let hasCache = promotionsSubject.value[userWalletId] != nil
+
+        guard hasToRefresh || !hasCache else {
+            return nil
+        }
+
         loadPromotionTask?.cancel()
+        loadPromotionTask = runTask(in: self) { repository in
+            PromotionsLogger.info("Start loading promotions for user wallet: \"\(redactedUserWalletId)\"")
 
-        let task = runTask(in: self) { repository in
-            async let mainPromotions = repository.loadMainPromotions(for: userWalletId)
-            async let newsPromotions = repository.loadNewsPromotions(for: userWalletId)
+            async let mainPromotions = repository.loadPromotions(for: walletIdString, placement: .main)
+            async let newsPromotions = repository.loadPromotions(for: walletIdString, placement: .news)
 
-            let promotions: [PromotionPlacement: [Promotion]] = await [
-                .main: mainPromotions,
-                .news: newsPromotions,
-            ]
+            let promotions: PromotionList = await [.main: mainPromotions, .news: newsPromotions]
+            PromotionsLogger.info("Finished loading promotions for user wallet: \"\(redactedUserWalletId)\". Promotions \(promotions.mapValues { $0.map(\.id) })")
 
             if Task.isCancelled { return }
 
-            repository.promotionsSubject.send(promotions)
+            guard repository.promotionsSubject.value[userWalletId] != promotions else {
+                return
+            }
+
+            repository.promotionsSubject.value[userWalletId] = promotions
         }
 
-        loadPromotionTask = task
-
-        return task
+        return loadPromotionTask
     }
 
-    func loadMainPromotions(for userWalletId: UserWalletId) async -> [Promotion] {
+    func loadPromotions(for userWalletId: String, placement: PromotionPlacement) async -> [Promotion] {
         do {
-            let walletId = userWalletId.stringValue
             let request = PromotionsDTO.Load.Request(
-                walletId: walletId,
-                placeholder: .main,
-                language: Locale.current.localizationCode
+                walletId: userWalletId,
+                placeholder: placement,
+                language: Locale.deviceLanguageCode(withRegion: false)
             )
 
-            return try await tangemApiService.loadPromotions(request: request).items
+            let items = try await tangemApiService.loadPromotions(request: request).items
+            return items.compactMap(PromotionMapper.mapToPromotion(from:))
         } catch {
-            return []
-        }
-    }
-
-    func loadNewsPromotions(for userWalletId: UserWalletId) async -> [Promotion] {
-        do {
-            let walletId = userWalletId.stringValue
-            let request = PromotionsDTO.Load.Request(
-                walletId: walletId,
-                placeholder: .news,
-                language: Locale.current.localizationCode
-            )
-
-            return try await tangemApiService.loadPromotions(request: request).items
-        } catch {
+            let redactedUserWalletId = "\(userWalletId.prefix(4))...\(userWalletId.suffix(4))"
+            PromotionsLogger.error("Loading promotions for user wallet: \"\(redactedUserWalletId)\"", error: error)
             return []
         }
     }

@@ -24,12 +24,15 @@ final class TokenSelectorItemSwapAvailabilityProvider {
                 switch direction {
                 case .none:
                     return .none
-                case .fromSource(let source):
+                case .fromSource(.some(let source)):
                     return await provider
                         .expressPairsRepository
                         .getPairs(from: source.expressCurrency)
                         .map(\.destination)
+                case .fromSource(.none):
+                    return .none
                 case .toDestination(let destination):
+                    guard let destination else { return .none }
                     return await provider
                         .expressPairsRepository
                         .getPairs(to: destination.expressCurrency)
@@ -74,8 +77,13 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
             walletModel: walletModel
         )
 
-        guard case .available = availabilityProvider.swapAvailability else {
-            return .unavailable(reason: .unavailableForSwap)
+        guard availabilityProvider.isTokenInteractionAvailable() else {
+            return .unavailable(reason: .unavailableForSwap(.noAddress))
+        }
+
+        let swapState = availabilityProvider.swapAvailability
+        guard case .available = swapState else {
+            return .unavailable(reason: .unavailableForSwap(.swapState(swapState)))
         }
 
         return .available
@@ -86,7 +94,7 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
 
 extension TokenSelectorItemSwapAvailabilityProvider {
     enum SwapDirection {
-        case fromSource(TokenItem)
-        case toDestination(TokenItem)
+        case fromSource(TokenItem?)
+        case toDestination(TokenItem?)
     }
 }

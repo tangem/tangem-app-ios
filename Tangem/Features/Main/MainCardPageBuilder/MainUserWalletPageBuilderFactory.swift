@@ -113,7 +113,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let bannerNotificationManager: BannerNotificationManager? = {
-                guard model.config.hasFeature(.multiCurrency) else {
+                guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                      model.config.hasFeature(.multiCurrency) else {
                     return nil
                 }
 
@@ -124,7 +125,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let promotionNotificationsManager = CommonPromotionNotificationsManager(placement: .main)
+            let promotionNotificationsManager = CommonPromotionNotificationsManager(
+                userWalletId: model.userWalletId,
+                placement: .main
+            )
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -177,7 +181,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
-        let promotionNotificationsManager = CommonPromotionNotificationsManager(placement: .main)
+        let promotionNotificationsManager = CommonPromotionNotificationsManager(
+            userWalletId: model.userWalletId,
+            placement: .main
+        )
 
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,

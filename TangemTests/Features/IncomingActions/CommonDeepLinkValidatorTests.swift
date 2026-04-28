@@ -95,10 +95,52 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func tokenChartWithCyrillicInvalidTokenId() {
+    func tokenChartWithInvalidCharacterTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "токен"),
+            params: .init(tokenId: "token#invalid"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: Token Exchanges deeplink
+
+    @Test
+    func tokenExchangesWithValidLetters() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "ethereum"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithMissingTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithInvalidTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "bad token$"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func tokenExchangesWithInvalidCharacterTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .tokenExchanges,
+            params: .init(tokenId: "token#invalid"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
@@ -167,10 +209,10 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func stakingWithInvalidCyrylicNetworkAndTokenId() {
+    func stakingWithInvalidCharacterTokenAndNetworkId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "биткоин", networkId: "биткоин"),
+            params: .init(tokenId: "token#invalid", networkId: "net#invalid"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
@@ -377,6 +419,120 @@ struct CommonDeepLinkValidatorTests {
         let action = DeeplinkNavigationAction(
             destination: .onboardVisa,
             params: .init(id: "some-id"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: - News custom-scheme deeplink (tangem://news)
+
+    @Test
+    func newsWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .empty,
+            deeplinkString: "tangem://news"
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNumericCategoryId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(categoryId: "12"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNumericId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(id: "900"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNonNumericCategoryId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(categoryId: "x"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNonNumericArticleId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(id: "x"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: - News universal link (https://tangem.com/news/{category}/{id}-{slug})
+
+    @Test
+    func newsArticleWithNumericId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "190801"),
+            deeplinkString: "https://tangem.com/news/markets/190801-polygon"
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithNoParams_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithOnlyCategoryId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(categoryId: "42"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithEmptyId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: ""),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithNonNumericId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "abc"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithInvalidCharactersInId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "190 801"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))

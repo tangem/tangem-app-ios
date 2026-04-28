@@ -66,10 +66,10 @@ final class YieldTokenItemPromoProvider {
         return filtered
     }
 
-    private func selectWalletModelId(
+    private func selectWalletModel(
         from filtered: [any WalletModel],
         promoProviderInput: [TokenItemPromoProviderInput]
-    ) -> (id: WalletModelId, contractAddress: String)? {
+    ) -> (any WalletModel)? {
         guard filtered.isNotEmpty else {
             return nil
         }
@@ -96,13 +96,11 @@ final class YieldTokenItemPromoProvider {
             }
         }
 
-        let selectedModel = promoProviderInput.first { topIds.contains($0.id) }
-
-        guard let id = selectedModel?.id, let address = selectedModel?.tokenItem.contractAddress else {
+        guard let selectedId = promoProviderInput.first(where: { topIds.contains($0.id) })?.id else {
             return nil
         }
 
-        return (id, address)
+        return filtered.first(where: { $0.id == selectedId })
     }
 
     private func makeYieldMarketsPublisher() -> some Publisher<[YieldModuleMarketInfo], Never> {
@@ -160,13 +158,12 @@ extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
                     yieldMarketInfo: marketInfo
                 )
 
-                let selectedWalletModelId = provider.selectWalletModelId(
-                    from: yieldAvailableWalletModels,
-                    promoProviderInput: promoProviderInput
-                )
-
                 guard
-                    let (id, contractAddress) = selectedWalletModelId,
+                    let selectedWalletModel = provider.selectWalletModel(
+                        from: yieldAvailableWalletModels,
+                        promoProviderInput: promoProviderInput
+                    ),
+                    let contractAddress = selectedWalletModel.tokenItem.contractAddress,
                     let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.apy
                 else {
                     return nil
@@ -175,7 +172,8 @@ extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
                 let apyFormatted = PercentFormatter().format(apy, option: .interval)
 
                 return TokenItemPromoProviderOutput(
-                    walletModelId: id,
+                    walletModelId: selectedWalletModel.id,
+                    tokenItem: selectedWalletModel.tokenItem,
                     message: Localization.yieldModuleMainScreenPromoBannerMessage(apyFormatted),
                     icon: Assets.YieldModule.yieldLogo16.image,
                     appStorageKey: Constants.appStorageKey

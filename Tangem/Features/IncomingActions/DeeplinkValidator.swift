@@ -29,8 +29,20 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.id)
     }
 
-    private func hasEnoughNewsParams(params: DeeplinkNavigationAction.Params) -> Bool {
-        areParamsValid(params, keys: \.id)
+    /// Universal news-article link: `https://tangem.com/news/{category}/{id}-{slug}`.
+    /// Numeric article id is mandatory — an article screen cannot be opened without it.
+    private func hasEnoughNewsArticleParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        guard areParamsValid(params, keys: \.id), let id = params.id else {
+            return false
+        }
+
+        return paramsHaveOnlyNumericCharacters([id])
+    }
+
+    private func hasValidNewsParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        let values = [params.categoryId, params.id].compactMap { $0 }
+
+        return paramsHaveOnlyValidCharacters(values) && paramsHaveOnlyNumericCharacters(values)
     }
 
     private func hasEnoughTokenParams(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -55,6 +67,10 @@ private extension CommonDeepLinkValidator {
         params.allSatisfy { $0.range(of: Constants.regex, options: .regularExpression) != nil }
     }
 
+    private func paramsHaveOnlyNumericCharacters(_ params: [String]) -> Bool {
+        params.allSatisfy { $0.range(of: Constants.numericRegex, options: .regularExpression) != nil }
+    }
+
     private func areParamsValid(_ params: DeeplinkNavigationAction.Params, keys: KeyPath<DeeplinkNavigationAction.Params, String?>...) -> Bool {
         let values = keys.compactMap { params[keyPath: $0] }
 
@@ -71,6 +87,7 @@ private extension CommonDeepLinkValidator {
 private extension CommonDeepLinkValidator {
     enum Constants {
         static let regex: String = "^[a-zA-Z0-9-_@\\.]+$"
+        static let numericRegex: String = "^[0-9]+$"
     }
 }
 
@@ -90,6 +107,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
         case .tokenChart:
             return hasEnoughTokenChartParams(params: params)
 
+        case .tokenExchanges:
+            return hasEnoughTokenChartParams(params: params)
+
         case .buy, .link, .sell, .swap, .referral, .markets, .promo:
             return paramsHaveOnlyValidCharacters([params.tokenId, params.networkId, params.promoCode].compactMap { $0 })
 
@@ -100,7 +120,10 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
             return hasEnoughPayAppParams(params: params)
 
         case .news:
-            return hasEnoughNewsParams(params: params)
+            return hasValidNewsParams(params: params)
+
+        case .newsArticle:
+            return hasEnoughNewsArticleParams(params: params)
         }
     }
 }

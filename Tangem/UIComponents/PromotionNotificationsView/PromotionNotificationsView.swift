@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
@@ -16,7 +17,9 @@ struct PromotionNotificationsView: View {
         NotificationBannerCarousel(items: viewModel.notificationInputs) { input in
             NotificationView(input: input)
         }
+        .hasClipShape(false)
         .paginationHasBackground(false)
         .currentIndexHasChanged(viewModel.carouselIndexHasChanged)
+        .onScreenVisibilityChange(viewModel.onScreenVisibilityChange)
     }
 }
