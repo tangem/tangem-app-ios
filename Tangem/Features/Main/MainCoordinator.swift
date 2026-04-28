@@ -224,7 +224,8 @@ extension MainCoordinator: MainRoutable {
              .onboardVisa,
              .newsDetails,
              .promo,
-             .tokenExchanges:
+             .tokenExchanges,
+             .newsList:
             deeplinkDestination.send(deepLink)
         }
     }
@@ -963,6 +964,7 @@ extension MainCoordinator {
         case tangemPayMain(customerWalletId: String)
         case tangemPayTransactionDetails(payload: TangemPayPushPayload)
         case newsDetails(newsId: Int)
+        case newsList(initialCategoryId: Int?)
         case promo(code: String, refcode: String?, campaign: String?)
     }
 }
