@@ -12,6 +12,7 @@ import Combine
 public protocol ExpressManager: Actor {
     func getPair() -> ExpressManagerSwappingPair?
     func getAmountType() -> ExpressAmountType?
+    func getRateType() -> ExpressProviderRateType?
     func getAllProviders() -> [ExpressAvailableProvider]
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
@@ -19,7 +20,7 @@ public protocol ExpressManager: Actor {
     func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult
 
     /// Use this method for CEX provider
-    func requestData(for provider: ExpressAvailableProvider) async throws -> ExpressTransactionData
+    func requestData() async throws -> ExpressTransactionData
 }
 
 public class ExpressManagerUpdatingResult {
