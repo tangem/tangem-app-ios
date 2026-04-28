@@ -12,40 +12,23 @@ import Testing
 
 @Suite("TangemPayAuthorizationAPITarget idempotency key")
 struct TangemPayAuthorizationAPITargetTests {
-    @Test(".hash collapses the colliding pair to the same value (the bug)")
+    private let tokenA = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1111111111111111111111111111111111111111111111111111MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM2222222222222222222222222222222222222222222222222222ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+    private let tokenB = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+
+    @Test(".hash collapses these two distinct tokens to the same value (the bug)")
     func hashCollidesOnPair() {
-        let (a, b) = collidingPair()
-        #expect(a != b)
-        #expect(a.hash == b.hash)
+        #expect(tokenA != tokenB)
+        #expect(tokenA.hash == tokenB.hash)
     }
 
-    @Test("Target produces distinct idempotency keys for that same pair")
+    @Test("Target produces distinct idempotency keys for those same tokens")
     func differentTokensProduceDifferentKeys() {
-        let (a, b) = collidingPair()
-        #expect(idempotencyKey(for: a) != idempotencyKey(for: b))
+        #expect(idempotencyKey(for: tokenA) != idempotencyKey(for: tokenB))
     }
 
     @Test("Target produces the same idempotency key for the same refresh token")
     func sameTokenProducesSameKey() {
-        let (a, _) = collidingPair()
-        #expect(idempotencyKey(for: a) == idempotencyKey(for: a))
-    }
-
-    private func collidingPair() -> (String, String) {
-        let head = String(repeating: "A", count: 32)
-        let middle = String(repeating: "M", count: 32)
-        let tail = String(repeating: "Z", count: 32)
-        let a = head
-            + String(repeating: "1", count: 52)
-            + middle
-            + String(repeating: "2", count: 52)
-            + tail
-        let b = head
-            + String(repeating: "X", count: 52)
-            + middle
-            + String(repeating: "Y", count: 52)
-            + tail
-        return (a, b)
+        #expect(idempotencyKey(for: tokenA) == idempotencyKey(for: tokenA))
     }
 
     private func idempotencyKey(for refreshToken: String) -> String? {
