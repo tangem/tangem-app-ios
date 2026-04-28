@@ -43,7 +43,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
 
         guard let sourceAmount else {
             // No source amount — clear stale receive amount and return pair result
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
+            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearComplementary)
         }
 
         let result: ExpressManagerUpdatingResult = try await expressManager.update(
@@ -51,12 +51,14 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
             by: .pairChange
         )
 
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate = result.selected?.getState().quote.map {
-            SwapPairUpdateResult.AmountUpdate.setReceiveAmount(
-                crypto: $0.expectAmount,
-                currencyId: destination.tokenItem.currencyId
+        let amountUpdate: SwapPairUpdateResult.AmountUpdate = result.selected?.getState().quote.map { quote in
+            .anchorOnSource(
+                source: sourceAmount,
+                receive: quote.expectAmount,
+                sourceCurrencyId: source.tokenItem.currencyId,
+                receiveCurrencyId: destination.tokenItem.currencyId
             )
-        } ?? .clearReceiveAmount
+        } ?? .clearComplementary
 
         return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
     }
