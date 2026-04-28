@@ -19,6 +19,7 @@ protocol TokenSelectorWalletsProvider {
 
 extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsProvider {
     static func common() -> Self { .init() }
+    static func standardAccountsOnly() -> Self { .init(accountModelFilter: \.isStandard) }
 }
 
 // MARK: - Wallet
