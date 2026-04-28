@@ -117,6 +117,8 @@ struct DefaultIncomingLinkParserTests {
         case .newsArticle:
             // `.newsArticle` is not a deeplink host. Falls through to generic external link handling.
             urlString = "https://tangem.com/news/markets/190801-polygon"
+        case .earn:
+            urlString = "tangem://\(rawValue)"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
