@@ -10,107 +10,53 @@ import CryptoKit
 import Foundation
 import Testing
 
-/// Pins the behavior of `String.hash` (bridged from `NSString.hash`):
-/// for inputs longer than 96 characters it samples only
-/// `[0..32) ∪ [length/2-16..length/2+16) ∪ [length-32..length)`,
-/// so strings differing only in unsampled positions hash identically.
+/// Pins why `TangemPayAuthorizationAPITarget` uses `.sha256()` instead of
+/// `.hash` to derive the refresh-token idempotency key.
 ///
-/// Captured here so we don't accidentally rely on `.hash` for distinctness
-/// (e.g. as an idempotency key).
-@Suite("String.hash collision behavior")
+/// `.hash` is the bridged `NSString.hash`, which for inputs longer than 96
+/// characters samples only `[0..32) ∪ [length/2-16..length/2+16) ∪
+/// [length-32..length)`, so distinct inputs differing in unsampled positions
+/// hash identically — collapsing two refresh tokens to the same key.
+@Suite("Refresh-token idempotency-key hashing")
 struct StringHashCollisionTests {
-    @Test("Distinct short strings produce distinct hashes")
-    func distinctShortStringsHaveDistinctHashes() {
-        let a = "hello"
-        let b = "world"
-        #expect(a != b)
-        #expect(a.hash != b.hash)
-    }
-
-    @Test("Two unrelated long strings produce different hashes")
-    func unrelatedLongStringsHaveDifferentHashes() {
-        let a = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        let b = "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!"
-        #expect(a != b)
-        #expect(a.hash != b.hash)
-    }
-
-    @Test("Long strings differing only in an unsampled region collide")
-    func longStringsCollideWhenDifferencesAreUnsampled() {
-        let a = makeSampledTwin(length: 200, fillerForUnsampled: "x")
-        let b = makeSampledTwin(length: 200, fillerForUnsampled: "y")
-
+    @Test(".hash collapses distinct inputs to the same value (bug)")
+    func hashCollidesOnDistinctInputs() {
+        let (a, b) = collidingPair()
         #expect(a != b)
         #expect(a.hash == b.hash)
     }
 
-    @Test("Long strings with completely different unsampled content still collide")
-    func unrelatedLookingLongStringsCollideViaSampling() {
+    @Test(".sha256() returns distinct digests for those same distinct inputs (fix)")
+    func sha256DistinguishesDistinctInputs() {
+        let (a, b) = collidingPair()
+        #expect(a != b)
+        #expect(sha256Hex(a) != sha256Hex(b))
+    }
+
+    @Test(".sha256() returns the same digest for the same input (retries)")
+    func sha256IsDeterministicForSameInput() {
+        let input = "OGM3ZjRkYjctYjE0Mi00MWU4LWIwYWQtMWI5YmYzZmVjZGE0OnM0bFRpSTc1QjNYXzl3Y29NeXdOS0RjRi16cW1oUFM3VFEtU2NUbzlSVlU"
+        #expect(sha256Hex(input) == sha256Hex(input))
+    }
+
+    /// Two 200-char strings sharing the three NSString.hash sampling windows
+    /// `[0..32) ∪ [84..116) ∪ [168..200)` and differing only in the unsampled
+    /// gaps, which is enough to force a `.hash` collision.
+    private func collidingPair() -> (String, String) {
         let head = String(repeating: "A", count: 32)
         let middle = String(repeating: "M", count: 32)
         let tail = String(repeating: "Z", count: 32)
-        let s1 = head
+        let a = head
             + String(repeating: "1", count: 52)
             + middle
             + String(repeating: "2", count: 52)
             + tail
-        let s2 = head
-            + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        let b = head
+            + String(repeating: "X", count: 52)
             + middle
-            + "zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA"
+            + String(repeating: "Y", count: 52)
             + tail
-
-        #expect(s1 != s2)
-        #expect(s1.hash == s2.hash)
-    }
-
-    @Test("Long strings differing inside a sampled region produce different hashes")
-    func longStringsDifferingInSampledRegionDiffer() {
-        let base = String(repeating: "A", count: 200)
-        var copy = Array(base)
-        copy[0] = "B" // index 0 lands in the first sampled window
-        let modified = String(copy)
-
-        #expect(base != modified)
-        #expect(base.hash != modified.hash)
-    }
-
-    @Test("SHA-256 of the same input is the same on every call")
-    func sha256IsDeterministicForSameInput() {
-        let input = "OGM3ZjRkYjctYjE0Mi00MWU4LWIwYWQtMWI5YmYzZmVjZGE0OnM0bFRpSTc1QjNYXzl3Y29NeXdOS0RjRi16cW1oUFM3VFEtU2NUbzlSVlU"
-        let h1 = sha256Hex(input)
-        let h2 = sha256Hex(input)
-        let h3 = sha256Hex(input)
-        #expect(h1 == h2)
-        #expect(h2 == h3)
-    }
-
-    @Test("Pairs that collide under .hash produce distinct SHA-256 digests")
-    func sha256DistinguishesHashCollisionPairs() {
-        let a = makeSampledTwin(length: 200, fillerForUnsampled: "x")
-        let b = makeSampledTwin(length: 200, fillerForUnsampled: "y")
-
-        #expect(a.hash == b.hash) // baseline: collide under .hash
-        #expect(sha256Hex(a) != sha256Hex(b))
-    }
-
-    /// Returns a string whose three NSString.hash sampling windows hold the
-    /// same content across calls, varying only in the unsampled gaps.
-    private func makeSampledTwin(length: Int, fillerForUnsampled: Character) -> String {
-        var chars = [Character](repeating: fillerForUnsampled, count: length)
-        let head = String(repeating: "A", count: 32)
-        let middle = String(repeating: "M", count: 32)
-        let tail = String(repeating: "Z", count: 32)
-        for (i, c) in head.enumerated() {
-            chars[i] = c
-        }
-        for (i, c) in middle.enumerated() {
-            chars[length / 2 - 16 + i] = c
-        }
-        for (i, c) in tail.enumerated() {
-            chars[length - 32 + i] = c
-        }
-        return String(chars)
+        return (a, b)
     }
 
     /// SHA-256 of the UTF-8 bytes, lowercase hex. Byte-identical to the
