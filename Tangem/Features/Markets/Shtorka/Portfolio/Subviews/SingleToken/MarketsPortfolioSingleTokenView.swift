@@ -38,6 +38,7 @@ private extension MarketsPortfolioSingleTokenView {
                 .padding(padding)
                 .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: backgroundCornerRadius))
         }
+        .buttonStyle(.plain)
     }
 
     var token: some View {
