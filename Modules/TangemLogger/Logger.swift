@@ -94,38 +94,39 @@ public extension Logger {
 
 private extension Logger {
     func log<M>(_ level: OSLog.Level, message: @autoclosure () -> M, option: PrefixOption) {
+        // `.console` is debug-only by design — suppress everywhere (console and file) in non-debug.
         guard checkIfConsoleLogAllowed() else { return }
 
-        let message: String = {
-            if let prefix = category.prefix?(level, option) {
-                if prefix.contains("Optional") {
-                    ConsoleLog.warning("Check why OSLogCategory.prefix \(prefix) contains the `Optional` word. Maybe you use `String(describing:)` to make message")
-                }
+        let shouldWriteToConsole = Logger.configuration.isLoggable()
+        let shouldWriteToFile = Logger.configuration.isWritable()
 
-                return [prefix, message()].describing()
-            }
+        // Skip the entire pipeline — including the caller's `@autoclosure` — when nothing will be
+        // written.
+        guard shouldWriteToConsole || shouldWriteToFile else { return }
 
-            return String(describing: message())
-        }()
+        let built = buildMessage(level: level, option: option, message: message())
 
-        writeToConsole(level, message: message)
-        writeToFile(level, message: message)
-    }
-
-    func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
-        guard Logger.configuration.isLoggable() else {
-            return
+        if shouldWriteToConsole {
+            OSLog.logger(for: category).log(level: level, message: built)
         }
 
-        OSLog.logger(for: category).log(level: level, message: message())
+        if shouldWriteToFile {
+            OSLogFileWriter.shared.write(built, category: category, level: level)
+        }
     }
 
-    func writeToFile(_ level: OSLog.Level, message: @autoclosure () -> String) {
-        guard Logger.configuration.isWritable() else {
-            return
+    func buildMessage<M>(level: OSLog.Level, option: PrefixOption, message: M) -> String {
+        guard let prefix = category.prefix?(level, option) else {
+            return String(describing: message)
         }
 
-        OSLogFileWriter.shared.write(message(), category: category, level: level)
+        #if DEBUG
+        if prefix.contains("Optional") {
+            ConsoleLog.warning("Check why OSLogCategory.prefix \(prefix) contains the `Optional` word. Maybe you use `String(describing:)` to make message")
+        }
+        #endif
+
+        return [prefix, message].describing()
     }
 
     func checkIfConsoleLogAllowed() -> Bool {
