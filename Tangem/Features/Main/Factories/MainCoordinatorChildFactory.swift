@@ -29,6 +29,7 @@ protocol MainCoordinatorChildFactory {
 
     func makeMarketsTokenDetailsCoordinator() -> MarketsTokenDetailsCoordinator
     func makeMarketsSearchCoordinator(dismissAction: @escaping Action<Void>) -> MarketsSearchCoordinator
+    func makeEarnCoordinator(dismissAction: @escaping Action<Void>) -> EarnCoordinator
     func makeTangemPayOnboardingCoordinator(
         dismissAction: @escaping Action<TangemPayOnboardingCoordinator.DismissOptions?>
     ) -> TangemPayOnboardingCoordinator
