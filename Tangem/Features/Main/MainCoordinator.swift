@@ -225,7 +225,8 @@ extension MainCoordinator: MainRoutable {
              .newsDetails,
              .promo,
              .tokenExchanges,
-             .newsList:
+             .newsList,
+             .earn:
             deeplinkDestination.send(deepLink)
         }
     }
@@ -966,6 +967,7 @@ extension MainCoordinator {
         case newsDetails(newsId: Int)
         case newsList(initialCategoryId: Int?)
         case promo(code: String, refcode: String?, campaign: String?)
+        case earn(earnType: EarnFilterType?, networkId: String?)
     }
 }
 
