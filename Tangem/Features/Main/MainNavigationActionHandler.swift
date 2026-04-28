@@ -93,11 +93,16 @@ extension MainCoordinator {
                 return routePromoAction(params: navigationAction.params)
 
             case .news:
-                return routeNewsAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+                return routeNewsDeeplinkAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+
+            case .newsArticle:
+                return routeNewsArticleAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
             }
         }
 
-        private func routeNewsAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+        /// Universal-link deeplink to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
+        /// Article id is guaranteed to be present and numeric by the validator.
+        private func routeNewsArticleAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
             guard let coordinator,
                   let idString = params.id,
                   let newsId = Int(idString)
@@ -108,6 +113,31 @@ extension MainCoordinator {
 
             newsDeeplinkValidationService.setDeeplinkURL(deeplinkString)
             coordinator.openDeepLink(.newsDetails(newsId: newsId))
+            return true
+        }
+
+        /// Custom-scheme deeplink: `tangem://news[?id=…|?category_id=…]`.
+        /// Routes to article details if `id` is provided, otherwise to the news list
+        /// (optionally pre-selecting a category).
+        private func routeNewsDeeplinkAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            if let idString = params.id?.nilIfEmpty {
+                guard let newsId = Int(idString) else {
+                    incomingActionManager.discardIncomingAction()
+                    return false
+                }
+
+                coordinator.openDeepLink(.newsDetails(newsId: newsId))
+                return true
+            }
+
+            let initialCategoryId = params.categoryId?.nilIfEmpty.flatMap(Int.init)
+            coordinator.openDeepLink(.newsList(initialCategoryId: initialCategoryId))
+
             return true
         }
 
