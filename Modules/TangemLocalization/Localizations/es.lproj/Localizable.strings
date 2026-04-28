@@ -163,6 +163,7 @@
 "common_account" = "Cuenta";
 "common_accounts" = "Cuentas";
 "common_activate" = "Activar";
+"common_add_funds" = "Add funds";
 "common_add_to_portfolio" = "Añadir al portafolio";
 "common_add_token" = "Agregar token";
 "common_add_tokens" = "Añada tokens";
@@ -211,11 +212,13 @@
 "common_custom" = "Personalizado";
 "common_disable" = "Desactivar";
 "common_disabled" = "Desactivado";
+"common_disabling" = "Disabling";
 "common_disconnect" = "Desconectar";
 "common_done" = "Listo";
 "common_edit" = "Editar";
 "common_enable" = "Activar";
 "common_enabled" = "Activado";
+"common_enabling" = "Enabling";
 "common_error" = "Error";
 "common_estimated_fee" = "Comisión de red por recarga";
 "common_exchange" = "Intercambiar";
@@ -248,6 +251,7 @@
 "common_locked_wallets" = "Billeteras bloqueadas";
 "common_locked" = "Bloqueado";
 "common_main_network" = "Red principal";
+"common_more" = "More";
 "common_network_fee_title" = "Tarifa de la red";
 "common_network_fee_warning_content" = "La cantidad enviada se reducirá en %1$@ (%2$@) para cubrir el nivel de tarifa seleccionado";
 "common_news" = "Noticias";
@@ -665,6 +669,7 @@
 "markets_sort_by_top_gainers_title" = "Ganadores";
 "markets_sort_by_top_losers_title" = "Perdedores";
 "markets_sort_by_trending_title" = "Tendencias";
+"markets_token_add_subtitle" = "in another network or account";
 "markets_token_added" = "Token añadido";
 "markets_token_details_about_token_title" = "Acerca de %@";
 "markets_token_details_blockchain_site" = "Sitio web";
@@ -815,6 +820,7 @@
 "onboarding_activation_error_message" = "Por favor repita la operación. La tarjeta/anillo se restablecerá a la configuración de fábrica.";
 "onboarding_activation_error_title" = "Error de activación";
 "onboarding_add_tokens" = "Agregar tokens";
+"onboarding_address_sync_title" = "Sync your wallet";
 "onboarding_alert_message_not_max_backup_cards_added" = "Ha añadido una tarjeta o anillo como copia de seguridad. Una vez finalizada la copia de seguridad, no puedes añadir más dispositivos. Si tiene una tarjeta o anillo más, añádalo ahora. ¿Quiere continuar?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ no puede crear un backup para Tangem Wallet debido a algunas limitaciones del sistema. Por favor, use otro teléfono para realizar esta operación. Todas las demás funciones funcionan de manera estable.";
 "onboarding_backup_exit_warning" = "La copia de seguridad está parcialmente completa y no se puede salir ahora.";
@@ -950,6 +956,9 @@
 "qr_scanner_error_unsupported_network_title" = "No se encontraron tokens compatibles";
 "qr_scanner_warning_unknown_parameters_message" = "Este código QR contiene parámetros que no son reconocidos: %@. Si continúa, es posible que se pierdan algunos detalles de pago.";
 "qr_scanner_warning_unknown_parameters_title" = "Parámetros desconocidos";
+"quick_action_buy_description" = "Credit card or bank account";
+"quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_swap_description" = "Between your portfolios";
 "receive_bottom_sheet_no_memo_required_message" = "No se requiere nota";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ en la red %2$@";
 "receive_bottom_sheet_warning_message_description" = "El envío de cualquier otra moneda supondrá una pérdida irreversible.";
@@ -1285,11 +1294,11 @@
 "swap_search_tooltip_title" = "Utilice la búsqueda para encontrar lo que necesite";
 "swap_story_fifth_subtitle" = "Siéntase seguro con una asistencia permanente que le ayudará con cualquier problema";
 "swap_story_fifth_title" = "Siempre aquí";
-"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Múltiples proveedores de confianza en un solo lugar: intercambie cualquier activo sin esfuerzo en su billetera";
 "swap_story_first_title_v2" = "Swap Inside Your Wallet";
 "swap_story_first_title" = "Intercambie con nosotros";
-"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times. Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Sin cuelgues, sin pérdidas, sin puntos ciegos - su transacción siempre está protegida";
 "swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Defensa impenetrable";
@@ -1299,7 +1308,7 @@
 "swap_story_second_title" = "Tarifas inmejorables";
 "swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
-"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
+"swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simplemente cómodo";
 "swap_via_provider" = "Intercambio a través del proveedor";
 "swap_your_assets_title" = "Sus activos";
@@ -1361,6 +1370,8 @@
 "tangem_pay_unfreeze_card_failed" = "No se pudo descongelar la tarjeta. Inténtalo de nuevo más tarde.";
 "tangem_pay_unfreeze_card_success" = "Tu tarjeta está descongelada.";
 "tangem_pay_withdrawal" = "Retirada";
+"tangempay_account_deactivated_message_subtitle" = "This was done due to regulatory requirements. Anyway withdrawals are still available.";
+"tangempay_account_deactivated_message_title" = "Your card was deactivated";
 "tangempay_account_unable_to_use_rooted" = "No se puede usar en un dispositivo rooteado";
 "tangempay_available_balance" = "Available balance";
 "tangempay_cancel_kyc" = "Ocultar verificación de la pantalla";
@@ -1371,7 +1382,7 @@
 "tangempay_card_details_card_number" = "Número de tarjeta";
 "tangempay_card_details_change_pin_success_description" = "La tarjeta está completamente lista para pagos.";
 "tangempay_card_details_change_pin_success_title" = "Código PIN creado";
-"tangempay_card_details_change_pin" = "Modificar PIN";
+"tangempay_card_details_change_pin" = "Código PIN";
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "Error al cargar datos. Inténtalo de nuevo más tarde.";
 "tangempay_card_details_expiry" = "Caducidad";
@@ -1412,6 +1423,8 @@
 "tangempay_card_details_withdraw_in_progress_description" = "No puedes iniciar un intercambio o un nuevo retiro hasta que el actual finalice.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retiro en progreso";
 "tangempay_card_details_withdraw" = "Retirar";
+"tangempay_card_limit_setup_amount_subtitle" = "Set a limit from %@";
+"tangempay_card_limit_setup_error_message" = "We couldn’t set the limit. Please try again.";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
 "tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
@@ -1480,6 +1493,7 @@
 "tangempay_service_unavailable_title" = "Servicio temporalmente no disponible";
 "tangempay_service_unreachable_try_later" = "No es posible mostrar los datos en este momento, pero los pagos con tarjeta siguen funcionando.";
 "tangempay_set_pin_code" = "Establecer \nCódigo PIN";
+"tangempay_status_deactivated" = "Card deactivated";
 "tangempay_sync_needed_restore_access" = "Restablecer acceso";
 "tangempay_sync_needed" = "Sesión expirada";
 "tangempay_tangem_visa_card" = "Usa USDC para pagos cotidianos";
@@ -1957,6 +1971,7 @@
 "yield_module_approve_sheet_fee_note" = "Se le descontará la comisión y se volverán a suministrar sus activos.";
 "yield_module_approve_sheet_subtitle" = "Para seguir generando rendimiento, se requiere aprobación.";
 "yield_module_approve_sheet_title" = "Confirmar aprobación";
+"yield_module_average_apy" = "Average APY %1$@%%";
 "yield_module_balance_info_sheet_subtitle" = "Sus fondos se suministran actualmente al protocolo Aave, pero puede gestionarlos en cualquier momento.";
 "yield_module_balance_info_sheet_title" = "Su %@ está depositado en Aave";
 "yield_module_chart_loading_error" = "No se puede cargar el gráfico...";
@@ -2029,6 +2044,7 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Los intereses se devengan automáticamente";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Modo Rendimiento";
 "yield_module_token_details_earn_notification_processing" = "Activando Modo Rendimiento";
+"yield_module_token_details_earn_notification_subtitle" = "Yield Mode • %1$@%% APY";
 "yield_module_token_details_earn_notification_title" = "Modo Rendimiento";
 "yield_module_transaction_deploy_contract" = "Implementación del contrato del Modo Rendimiento";
 "yield_module_transaction_enter_subtitle" = "%1$@ suministrado a Aave";
