@@ -175,7 +175,7 @@ extension CommonServicesManager: ServicesManager {
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
+        storyDataPrefetchService.prefetchStoryIfNeeded(.initialSwapStoryBasedOnToggle)
         geoEligibilityService.initialize()
         wcService.initialize()
         eTagStorage.initialize()
