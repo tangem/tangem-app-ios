@@ -61,6 +61,13 @@ final class UserWalletNotificationManager {
 
     deinit {
         tokenSyncProgressTask?.cancel()
+
+        // Release bag on main to serialize Combine cancel cascade with main-scheduled upstream emissions.
+        // See [REDACTED_INFO]
+        if !Thread.isMainThread {
+            let cancellables = bag
+            DispatchQueue.main.async { _ = cancellables }
+        }
     }
 
     private func createNotifications() {
@@ -286,10 +293,20 @@ final class UserWalletNotificationManager {
         let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            self?.delegate?.didTapNotification(with: id, action: action)
+            guard let self else { return }
+
+            if case .openManageTokensAfterWalletSuccessImport = action {
+                Analytics.log(.initialTokenSyncManageTokens, contextParams: .userWallet(userWalletModel.userWalletId))
+            }
+
+            delegate?.didTapNotification(with: id, action: action)
         }
 
-        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+            guard let self else { return }
+            Analytics.log(.initialTokenSyncButtonClosed, contextParams: .userWallet(userWalletModel.userWalletId))
+            dismissNotification(with: id)
+        }
 
         let input = factory.buildNotificationInput(
             for: GeneralNotificationEvent.initialWalletTokenSyncCompleted,

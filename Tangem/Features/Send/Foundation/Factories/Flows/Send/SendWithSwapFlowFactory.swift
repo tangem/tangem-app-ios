@@ -236,7 +236,7 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: sourceToken.tangemIconProvider
         )
     }
 }
@@ -262,7 +262,8 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil
+            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil,
+            currentRateTypePublisher: sendWithSwapModel.currentRateTypePublisher
         )
     }
 }
@@ -274,8 +275,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendWithSwapModel,
             output: sendWithSwapModel,
-            receiveTokenInput: sendWithSwapModel,
-            destinationAccountOutput: sendWithSwapModel
+            receiveTokenInput: sendWithSwapModel
         )
     }
 

@@ -8,7 +8,6 @@
 
 import Foundation
 
-typealias Promotion = PromotionsDTO.Load.Item
 typealias PromotionPlacement = PromotionsDTO.Placement
 
 enum PromotionsDTO {}
@@ -33,16 +32,16 @@ extension PromotionsDTO {
         }
 
         struct Item: Decodable {
-            let id: Int
-            let placeholder: PromotionsDTO.Placement
-            let priority: String
-            let title: String
-            let subtitle: String
-            let iconUrl: URL
+            let id: Int?
+            let placeholder: PromotionsDTO.Placement?
+            let priority: String?
+            let title: String?
+            let subtitle: String?
+            let iconUrl: URL?
             let deeplink: URL?
-            let buttonEnabled: Bool
+            let buttonEnabled: Bool?
             let buttonText: String?
-            let dismissable: Bool
+            let dismissable: Bool?
         }
     }
 }
