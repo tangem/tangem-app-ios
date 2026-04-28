@@ -20,23 +20,30 @@ final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder?
 
     private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
+    private let analyticsLogger: DynamicAddressesAnalyticsLogger
     private weak var coordinator: DynamicAddressesEnterRoutable?
 
     private var enablingTask: Task<Void, Never>?
 
     init(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger,
         coordinator: DynamicAddressesEnterRoutable
     ) {
         self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         setupView()
+
+        analyticsLogger.logDynamicAddressesScreenOpened()
     }
 
     // MARK: - Actions
 
     func userDidTapEnableAction() {
+        analyticsLogger.logButtonEnableDynamicAddresses()
+
         mainButtonIsLoading = true
         enablingTask?.cancel()
         enablingTask = Task { [weak self] in
@@ -57,6 +64,8 @@ private extension DynamicAddressesEnterViewModel {
         do {
             try await walletModelDynamicAddressesProvider.enableDynamicAddresses()
             try Task.checkCancellation()
+
+            analyticsLogger.logDynamicAddressesEnabled()
 
             await MainActor.run {
                 mainButtonIsLoading = false
