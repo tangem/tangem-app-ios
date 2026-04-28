@@ -836,7 +836,7 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
@@ -1016,7 +1016,7 @@ private extension MainCoordinator {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)
