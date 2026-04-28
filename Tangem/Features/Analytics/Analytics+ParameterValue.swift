@@ -81,6 +81,8 @@ extension Analytics {
         case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceStaking = "Staking"
+        case dynamicAddressesSourceDetailedScreen = "Detailed Screen"
+        case dynamicAddressesSourceDynamicAddresses = "Dynamic Addresses"
 
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
