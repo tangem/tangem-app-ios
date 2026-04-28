@@ -40,10 +40,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li day ago</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>%li日前</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -207,6 +205,20 @@
         <string>li</string>
         <key>other</key>
         <string>%liNFT</string>
+      </dict>
+    </dict>
+    <key>onboarding_address_sync_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>ウォレットに%liトークンがあります。続行するには、アドレスを同期してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
