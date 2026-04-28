@@ -82,7 +82,11 @@ private extension MarketsPortfolioTokenSearchView {
                 icon: viewModel.showAllImage,
                 iconPosition: .right
             ),
-            action: viewModel.onShowAllTap
+            action: {
+                withAnimation(.easeInOut) {
+                    viewModel.onShowAllTap()
+                }
+            }
         )
         .setStyleType(.secondary)
         .setCornerStyle(.rounded)
@@ -125,6 +129,5 @@ private struct ExpandableContainer<Footer: View, Content: View>: View {
 
             footer
         }
-        .animation(.default, value: isExpanded)
     }
 }
