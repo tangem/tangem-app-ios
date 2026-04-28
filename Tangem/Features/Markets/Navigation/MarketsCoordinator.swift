@@ -178,7 +178,10 @@ extension MarketsCoordinator: MarketsMainRoutable {
             }
         )
 
-        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
+        coordinator.start(with: .init(
+            mostlyUsedTokens: mostlyUsedTokens,
+            presentSource: .navigation
+        ))
 
         earnListCoordinator = coordinator
     }
