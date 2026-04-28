@@ -76,7 +76,8 @@ struct ExpressAPIMapper {
             fromAmount: fromAmount,
             expectAmount: toAmount,
             allowanceContract: response.allowanceContract,
-            quoteId: response.quoteId
+            quoteId: response.quoteId,
+            txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) }
         )
     }
 
@@ -114,7 +115,7 @@ struct ExpressAPIMapper {
         fromAmount /= pow(10, response.fromDecimals)
         toAmount /= pow(10, response.toDecimals)
 
-        let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue)
+        let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue, txType: txDetails.txType)
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
@@ -138,24 +139,22 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?) throws -> Decimal {
-        switch item.providerInfo.type {
-        case .cex:
+    func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?, txType: ExpressTransactionType) throws -> Decimal {
+        switch txType {
+        case .send:
             guard let txValue, let decimalTxValue = Decimal(string: txValue) else {
                 throw ExpressAPIMapperError.mapToDecimalError(txValue ?? "")
             }
 
-            // For CEX we have txValue amount as value which have to be sent
+            // For CEX/send we have txValue amount as value which have to be sent
             return decimalTxValue / pow(10, item.source.currency.decimalCount)
-        case .dex, .dexBridge:
+        case .swap:
             if let txValue, let decimalTxValue = Decimal(string: txValue) {
-                // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
+                // For DEX/swap we have txValue amount as coin. Because it's EVM or Solana DEX
                 return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
 
             return .zero
-        case .onramp, .unknown:
-            throw ExpressAPIMapperError.wrongProviderType
         }
     }
 
@@ -280,7 +279,6 @@ enum ExpressAPIMapperError: LocalizedError {
     case requestIdNotEqual
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
-    case wrongProviderType
 
     var errorDescription: String? {
         switch self {
@@ -288,7 +286,6 @@ enum ExpressAPIMapperError: LocalizedError {
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
-        case .wrongProviderType: "Provider type is not support"
         }
     }
 }
