@@ -26,6 +26,7 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
 
     private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
     private let compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory
+    private let analyticsLogger: DynamicAddressesAnalyticsLogger
     private weak var coordinator: (any DynamicAddressesDisableSheetRoutable)?
 
     private var disablingTask: Task<Void, Never>?
@@ -33,10 +34,12 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     init(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        analyticsLogger: DynamicAddressesAnalyticsLogger,
         coordinator: any DynamicAddressesDisableSheetRoutable
     ) {
         self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
         self.compoundFlowBaseDependenciesFactory = compoundFlowBaseDependenciesFactory
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         setupView()
@@ -59,6 +62,7 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
                 transferModel: dependencies.transferModel,
                 notificationManager: dependencies.notificationManager,
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                analyticsLogger: analyticsLogger,
                 onFinish: { [weak self] in
                     self?.close(isSuccess: true)
                 }
@@ -74,6 +78,8 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     }
 
     private func confirm() {
+        analyticsLogger.logButtonDisableDynamicAddresses()
+
         isLoading = true
         disablingTask?.cancel()
         disablingTask = Task { [weak self] in
@@ -84,6 +90,8 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     private func disableDynamicAddresses() async {
         do {
             try await walletModelDynamicAddressesProvider.disableDynamicAddresses()
+            analyticsLogger.logDynamicAddressesDisabled()
+
             await MainActor.run {
                 self.isLoading = false
                 self.close(isSuccess: true)
