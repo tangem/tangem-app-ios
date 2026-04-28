@@ -57,7 +57,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
         switch target {
         case .refreshTokens(let request):
             return [
-                .idempotencyKey: "\(request.refreshToken.hash)",
+                .idempotencyKey: "\(request.refreshToken.sha256())",
             ]
         case .getChallenge, .getTokens:
             return nil
