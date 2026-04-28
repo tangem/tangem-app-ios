@@ -47,7 +47,7 @@ private extension MarketsTokenSearchView {
     var stateView: some View {
         switch viewModel.state {
         case .idle:
-            emptyView
+            idleView
         case .recent:
             recentStateView
         case .search:
@@ -68,7 +68,7 @@ private extension MarketsTokenSearchView {
         }
     }
 
-    var emptyView: some View {
+    var idleView: some View {
         EmptyView()
     }
 }
@@ -83,8 +83,8 @@ private extension MarketsTokenSearchView {
             recentView(item)
         case .empty:
             recentEmptyView
-        case .none:
-            emptyView
+        case .idle:
+            idleView
         }
     }
 
@@ -107,79 +107,56 @@ private extension MarketsTokenSearchView {
 private extension MarketsTokenSearchView {
     @ViewBuilder
     var searchStateView: some View {
-        switch viewModel.searchState {
-        case .result(let portfolio, let market):
-            searchResultView(portfolio: portfolio, market: market)
-        case .empty(let item):
-            searchEmptyView(item)
-        case .none:
-            emptyView
+        if viewModel.isSearchEmpty {
+            searchEmptyView
+        } else {
+            searchResultView
         }
     }
 
-    func searchResultView(
-        portfolio: ViewModel.PortfolioState,
-        market: ViewModel.MarketState
-    ) -> some View {
-        VStack(spacing: portfolioMarketSpacing) {
-            portfolioStateView(portfolio)
-            marketStateView(market)
-        }
-    }
-
-    func searchEmptyView(_ item: ViewModel.SearchEmptyItem) -> some View {
-        Text(item.title)
+    var searchEmptyView: some View {
+        Text(viewModel.searchEmptyTitle)
             .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
             .frame(maxWidth: .infinity)
             .padding(.top, searchEmptyTopPadding)
     }
 
+    var searchResultView: some View {
+        VStack(spacing: portfolioMarketSpacing) {
+            portfolioStateView
+            marketView
+        }
+    }
+
     @ViewBuilder
-    func portfolioStateView(_ state: ViewModel.PortfolioState) -> some View {
-        switch state {
+    var portfolioStateView: some View {
+        switch viewModel.portfolioState {
+        case .idle:
+            idleView
         case .empty:
-            emptyView
+            EmptyView()
         case .item(let item):
             portfolioView(item)
         }
     }
 
     func portfolioView(_ item: ViewModel.PortfolioItem) -> some View {
-        let viewModel = MarketsPortfolioTokenSearchViewModel(
-            walletModels: item.walletModels,
-            onSingleToken: item.onSingleToken,
-            onMultipleToken: item.onMultipleToken
-        )
-        return sectionView(title: item.title) {
-            MarketsPortfolioTokenSearchView(viewModel: viewModel)
+        sectionView(title: item.title) {
+            MarketsPortfolioTokenSearchView(viewModel: item.model)
         }
     }
 
     @ViewBuilder
-    func marketStateView(_ state: ViewModel.MarketState) -> some View {
-        switch state {
-        case .item(let item):
-            marketView(item)
-        case .loading:
-            marketLoadingView()
-        case .retry(let item):
-            marketRetryView(item)
-        case .empty:
-            emptyView
+    var marketView: some View {
+        switch viewModel.marketItem {
+        case .some(let item): marketItemView(item)
+        case .none: EmptyView()
         }
     }
 
-    func marketView(_ item: ViewModel.MarketItem) -> some View {
+    func marketItemView(_ item: ViewModel.MarketItem) -> some View {
         sectionView(title: item.title) {
-            // [REDACTED_TODO_COMMENT]
+            MarketsTokenSearchItemView(item: item)
         }
-    }
-
-    func marketLoadingView() -> some View {
-        emptyView // [REDACTED_TODO_COMMENT]
-    }
-
-    func marketRetryView(_ item: ViewModel.MarketRetryItem) -> some View {
-        emptyView // [REDACTED_TODO_COMMENT]
     }
 }
