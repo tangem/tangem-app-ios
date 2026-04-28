@@ -45,6 +45,7 @@ struct DefaultIncomingLinkParser {
             campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
             order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
             interval: keyedQueryItems[IncomingActionConstants.DeeplinkParams.interval]?.lowercased(),
+            earnType: keyedQueryItems[IncomingActionConstants.DeeplinkParams.earnType]?.lowercased(),
         )
     }
 
