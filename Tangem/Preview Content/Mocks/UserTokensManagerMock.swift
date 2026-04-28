@@ -79,3 +79,9 @@ extension UserTokensManagerMock: UserTokensReordering {
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
 }
+
+// MARK: - DisposableEntity protocol conformance
+
+extension UserTokensManagerMock: DisposableEntity {
+    func dispose() {}
+}
