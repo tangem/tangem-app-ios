@@ -1,60 +1,64 @@
 //
-//  DEXExpressProviderManager.swift
+//  DEXProviderFlowHelper.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemFoundation
 
-final class DEXExpressProviderManager {
-    // MARK: - Dependencies
+struct DEXProviderFlowHelper {
+    private let context: ExpressProviderFlowContext
 
-    private let provider: ExpressProvider
-    private let swappingPair: ExpressManagerSwappingPair
-    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
-    private let expressAPIProvider: ExpressAPIProvider
-    private let mapper: ExpressManagerMapper
+    private var provider: ExpressProvider { context.provider }
+    private var pair: ExpressManagerSwappingPair { context.pair }
+    private var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
+    private var expressAPIProvider: ExpressAPIProvider { context.expressAPIProvider }
+    private var mapper: ExpressManagerMapper { context.mapper }
 
-    // MARK: - State
-
-    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
-
-    init(
-        provider: ExpressProvider,
-        swappingPair: ExpressManagerSwappingPair,
-        expressFeeProvider: ExpressFeeProvider,
-        expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
-    ) {
-        self.provider = provider
-        self.swappingPair = swappingPair
-        self.expressFeeProvider = expressFeeProvider
-        self.expressAPIProvider = expressAPIProvider
-        self.mapper = mapper
-    }
-}
-
-// MARK: - ExpressProviderManager
-
-extension DEXExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair { swappingPair }
-    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
-
-    func getState() -> ExpressProviderManagerState {
-        _state.read()
+    init(context: ExpressProviderFlowContext) {
+        self.context = context
     }
 
-    func update(request: ExpressManagerSwappingPairRequest) async {
-        let state = await getState(request: request)
-        ExpressLogger.info(self, "Update to \(state)")
-        _state.mutate { $0 = state }
+    // MARK: - Public
+
+    /// Post-quote entry point. Performs restriction checks, allowance, exchange-data (eager), txValue check, and fee estimation.
+    func processAfterQuote(quote: ExpressQuote, request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
+        // For .to flow, the actual source amount comes from the quote, not the request
+        let sourceAmount: Decimal
+        switch request.amountType {
+        case .from:
+            sourceAmount = request.amount
+        case .to:
+            sourceAmount = quote.fromAmount
+        }
+
+        if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
+            return restriction
+        }
+
+        do {
+            let dataItem = try mapper.makeExpressSwappableDataItem(
+                pair: pair,
+                request: request,
+                providerId: provider.id,
+                providerType: provider.type,
+                quoteId: quote.quoteId
+            )
+            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            try Task.checkCancellation()
+
+            return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
+        } catch {
+            return mapError(error, quote: quote, amountType: request.amountType)
+        }
     }
 
-    func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        guard case .ready(let state) = _state.read() else {
+    /// Reads transaction data from the cached DEX preview state.
+    func sendData(currentState: ExpressProviderManagerState) throws -> ExpressTransactionData {
+        guard case .dexPreview(let state) = currentState else {
             throw ExpressProviderError.transactionDataNotFound
         }
 
@@ -64,61 +68,7 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 
 // MARK: - Private
 
-private extension DEXExpressProviderManager {
-    func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
-        do {
-            let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
-            let quote = try await expressAPIProvider.exchangeQuote(item: item)
-
-            // For .to flow, the actual source amount comes from the quote, not the request
-            let sourceAmount: Decimal
-            switch request.amountType {
-            case .from:
-                sourceAmount = request.amount
-            case .to:
-                sourceAmount = quote.fromAmount
-            }
-
-            if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
-                return restriction
-            }
-
-            do {
-                let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type, quoteId: quote.quoteId)
-                let data = try await expressAPIProvider.exchangeData(item: dataItem)
-                try Task.checkCancellation()
-
-                return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
-            } catch {
-                return proceed(error: error, quote: quote, amountType: request.amountType)
-            }
-        } catch {
-            return proceed(error: error, quote: .none, amountType: request.amountType)
-        }
-    }
-
-    func proceed(error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
-        switch error {
-        case let error as ExpressAPIError:
-            guard let amount = error.value?.amount else {
-                return .error(error, quote: quote)
-            }
-
-            let currencySymbol = swappingPair.currencySymbol(for: amountType)
-
-            switch error.errorCode {
-            case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount, currencySymbol: currencySymbol), quote: quote)
-            case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount, currencySymbol: currencySymbol), quote: quote)
-            default:
-                return .error(error, quote: quote)
-            }
-        case let error:
-            return .error(error, quote: quote)
-        }
-    }
-
+private extension DEXProviderFlowHelper {
     func checkRestriction(
         sourceAmount: Decimal,
         request: ExpressManagerSwappingPairRequest,
@@ -196,7 +146,7 @@ private extension DEXExpressProviderManager {
 
         do {
             let ready = try await ready(request: request, quote: quote, data: data)
-            return .ready(ready)
+            return .dexPreview(ready)
         } catch {
             return .error(error, quote: quote)
         }
@@ -219,21 +169,29 @@ private extension DEXExpressProviderManager {
         return .insufficientBalance(estimatedAmount)
     }
 
-    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.Ready {
+    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.DEXPreview {
         let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
 
         try Task.checkCancellation()
 
         // better to make the quote from the data
-        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId)
+        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId, txType: quote.txType)
         return .init(provider: provider, data: data, fee: fee, quote: quoteData)
+    }
+
+    func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
+        let currencySymbol = pair.currencySymbol(for: amountType)
+        if let apiError = error as? ExpressAPIError {
+            return .mapError(apiError, quote: quote, currencySymbol: currencySymbol)
+        }
+        return .error(error, quote: quote)
     }
 }
 
 // MARK: - CustomStringConvertible
 
-extension DEXExpressProviderManager: CustomStringConvertible {
+extension DEXProviderFlowHelper: CustomStringConvertible {
     var description: String {
-        objectDescription(self)
+        objectDescription("DEXProviderFlowHelper")
     }
 }
