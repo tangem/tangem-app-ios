@@ -1,64 +1,57 @@
 //
-//  CEXExpressProviderManager.swift
+//  CEXProviderFlowHelper.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemFoundation
 
-final class CEXExpressProviderManager {
-    // MARK: - Dependencies
+struct CEXProviderFlowHelper {
+    private let context: ExpressProviderFlowContext
 
-    private let provider: ExpressProvider
-    private let swappingPair: ExpressManagerSwappingPair
-    private let expressFeeProvider: ExpressFeeProvider // a.k.a TokenFeeProvidersManager
-    private let expressAPIProvider: ExpressAPIProvider
-    private let mapper: ExpressManagerMapper
+    private var provider: ExpressProvider { context.provider }
+    private var pair: ExpressManagerSwappingPair { context.pair }
+    private var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
+    private var expressAPIProvider: ExpressAPIProvider { context.expressAPIProvider }
+    private var mapper: ExpressManagerMapper { context.mapper }
 
-    // MARK: - State
-
-    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
-
-    init(
-        provider: ExpressProvider,
-        swappingPair: ExpressManagerSwappingPair,
-        expressFeeProvider: ExpressFeeProvider,
-        expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
-    ) {
-        self.provider = provider
-        self.swappingPair = swappingPair
-        self.expressFeeProvider = expressFeeProvider
-        self.expressAPIProvider = expressAPIProvider
-        self.mapper = mapper
-    }
-}
-
-// MARK: - ExpressProviderManager
-
-extension CEXExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair { swappingPair }
-    var feeProvider: any ExpressFeeProvider { expressFeeProvider }
-
-    func getState() -> ExpressProviderManagerState {
-        _state.read()
+    init(context: ExpressProviderFlowContext) {
+        self.context = context
     }
 
-    func update(request: ExpressManagerSwappingPairRequest) async {
-        let state = await getState(request: request)
-        ExpressLogger.info(self, "Update to \(state)")
+    // MARK: - Public
 
-        _state.mutate { $0 = state }
+    /// Post-quote entry point. Performs balance/fee checks after the flow type is resolved.
+    /// For `.from` flow: checks balance/fee, computes subtractFee. If subtraction needed, re-quotes with reduced amount.
+    /// For `.to` flow: uses the provided quote directly.
+    func processAfterQuote(quote: ExpressQuote, request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
+        do {
+            switch request.amountType {
+            case .from:
+                return try await processFromAmountAfterQuote(quote: quote, request: request)
+            case .to:
+                return try await processToAmountAfterQuote(quote: quote, request: request)
+            }
+        } catch {
+            return mapError(error, quote: quote, amountType: request.amountType)
+        }
     }
 
-    func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let quoteId = getQuoteId()
+    /// Lazily fetches exchange data on send.
+    func sendData(currentState: ExpressProviderManagerState, request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
+        let quoteId = getQuoteId(from: currentState)
         let adjustedRequest = try await adjustRequest(request)
 
-        let item = try mapper.makeExpressSwappableDataItem(pair: pair, request: adjustedRequest, providerId: provider.id, providerType: provider.type, quoteId: quoteId)
+        let item = try mapper.makeExpressSwappableDataItem(
+            pair: pair,
+            request: adjustedRequest,
+            providerId: provider.id,
+            providerType: provider.type,
+            quoteId: quoteId
+        )
 
         let data = try await expressAPIProvider.exchangeData(item: item)
         try Task.checkCancellation()
@@ -69,39 +62,8 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 
 // MARK: - Private
 
-private extension CEXExpressProviderManager {
-    func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
-        do {
-            switch request.amountType {
-            case .from:
-                return try await getStateForFromAmount(request: request)
-            case .to:
-                return try await getStateForToAmount(request: request)
-            }
-        } catch let error as ExpressAPIError {
-            guard let amount = error.value?.amount else {
-                return .error(error, quote: .none)
-            }
-
-            let currencySymbol = swappingPair.currencySymbol(for: request.amountType)
-
-            switch error.errorCode {
-            case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount, currencySymbol: currencySymbol), quote: .none)
-            case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount, currencySymbol: currencySymbol), quote: .none)
-            default:
-                return .error(error, quote: .none)
-            }
-
-        } catch {
-            return .error(error, quote: .none)
-        }
-    }
-
-    func getStateForToAmount(request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
-        let quote = try await loadQuote(request: request)
-
+private extension CEXProviderFlowHelper {
+    func processToAmountAfterQuote(quote: ExpressQuote, request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
         if try isNotEnoughBalanceForSwapping(amount: quote.fromAmount) {
             return .restriction(.insufficientBalance(quote.fromAmount), quote: quote)
         }
@@ -114,23 +76,19 @@ private extension CEXExpressProviderManager {
         let estimatedFee = try await expressFeeProvider.estimatedFee(amount: quote.fromAmount)
         try Task.checkCancellation()
 
-        // In .to flow we can't subtract fee — reducing fromAmount would change what user receives.
-        // Instead just check that balance covers fromAmount + fee.
         if try !canCoverFee(amount: quote.fromAmount, estimatedFee: estimatedFee) {
             return .restriction(.insufficientBalance(quote.fromAmount), quote: quote)
         }
 
-        return .preview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
+        return .cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
     }
 
-    func getStateForFromAmount(request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
+    func processFromAmountAfterQuote(quote: ExpressQuote, request: ExpressManagerSwappingPairRequest) async throws -> ExpressProviderManagerState {
         if try isNotEnoughBalanceForSwapping(amount: request.amount) {
-            let quote = try await loadQuote(request: request)
             return .restriction(.insufficientBalance(request.amount), quote: quote)
         }
 
         guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
-            let quote = try await loadQuote(request: request)
             let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
             return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
         }
@@ -141,18 +99,23 @@ private extension CEXExpressProviderManager {
         let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
 
         guard isEnoughAmountToSubtractFee(amount: request.amount, subtractFee: subtractFee) else {
-            let quote = try await loadQuote(request: request)
             return .restriction(.insufficientBalance(request.amount), quote: quote)
         }
 
-        let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
-        let quote = try await loadQuote(request: previewDataRequest)
+        // If subtraction is needed, re-quote with reduced amount
+        if subtractFee > 0 {
+            let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
+            let adjustedQuote = try await loadQuote(request: previewDataRequest)
+            return .cexPreview(.init(provider: provider, subtractFee: subtractFee, quote: adjustedQuote, fee: estimatedFee))
+        }
 
-        return .preview(.init(provider: provider, subtractFee: subtractFee, quote: quote, fee: estimatedFee))
+        return .cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
     }
 
-    func getQuoteId() -> String? {
-        if case .preview(let preview) = _state.read() {
+    // MARK: - Shared helpers
+
+    func getQuoteId(from state: ExpressProviderManagerState) -> String? {
+        if case .cexPreview(let preview) = state {
             return preview.quote.quoteId
         }
         return nil
@@ -172,9 +135,13 @@ private extension CEXExpressProviderManager {
     }
 
     func loadQuote(request: ExpressManagerSwappingPairRequest) async throws -> ExpressQuote {
-        let item = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: provider.id, providerType: provider.type)
+        let item = mapper.makeExpressSwappableItem(
+            pair: pair,
+            request: request,
+            providerId: provider.id,
+            providerType: provider.type
+        )
         let quote = try await expressAPIProvider.exchangeQuote(item: item)
-
         return quote
     }
 
@@ -226,12 +193,20 @@ private extension CEXExpressProviderManager {
         ExpressLogger.info(self, "Subtract fee - \(fee) from amount - \(amount)")
         return fee
     }
+
+    func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
+        let currencySymbol = pair.currencySymbol(for: amountType)
+        if let apiError = error as? ExpressAPIError {
+            return .mapError(apiError, quote: quote, currencySymbol: currencySymbol)
+        }
+        return .error(error, quote: quote)
+    }
 }
 
 // MARK: - CustomStringConvertible
 
-extension CEXExpressProviderManager: CustomStringConvertible {
+extension CEXProviderFlowHelper: CustomStringConvertible {
     var description: String {
-        objectDescription(self)
+        objectDescription("CEXProviderFlowHelper")
     }
 }

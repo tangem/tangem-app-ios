@@ -78,6 +78,8 @@ extension ExpressProviderError: @retroactive UniversalError {
             103006001
         case .allowanceProviderNotFound:
             103006002
+        case .transactionTypeMismatch:
+            103006003
         }
     }
 }
