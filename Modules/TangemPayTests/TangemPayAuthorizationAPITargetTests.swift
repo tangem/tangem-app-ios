@@ -12,6 +12,44 @@ import Testing
 
 @Suite("TangemPayAuthorizationAPITarget idempotency key")
 struct TangemPayAuthorizationAPITargetTests {
+    @Test(".hash collides: two strings differing only in filler bytes")
+    func hashCollidesOnFillerTwin() {
+        let head = String(repeating: "A", count: 32)
+        let middle = String(repeating: "M", count: 32)
+        let tail = String(repeating: "Z", count: 32)
+        let a = head
+            + String(repeating: "1", count: 52)
+            + middle
+            + String(repeating: "2", count: 52)
+            + tail
+        let b = head
+            + String(repeating: "X", count: 52)
+            + middle
+            + String(repeating: "Y", count: 52)
+            + tail
+        #expect(a != b)
+        #expect(a.hash == b.hash)
+    }
+
+    @Test(".hash collides: two visibly-different long strings")
+    func hashCollidesOnVisiblyDifferentStrings() {
+        let head = String(repeating: "A", count: 32)
+        let middle = String(repeating: "M", count: 32)
+        let tail = String(repeating: "Z", count: 32)
+        let a = head
+            + String(repeating: "1", count: 52)
+            + middle
+            + String(repeating: "2", count: 52)
+            + tail
+        let b = head
+            + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            + middle
+            + "zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA"
+            + tail
+        #expect(a != b)
+        #expect(a.hash == b.hash)
+    }
+
     @Test("Different refresh tokens produce different idempotency keys")
     func differentTokensProduceDifferentKeys() {
         let a = "refresh-token-a"
