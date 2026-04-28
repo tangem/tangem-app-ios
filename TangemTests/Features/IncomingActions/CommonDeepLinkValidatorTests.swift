@@ -423,4 +423,118 @@ struct CommonDeepLinkValidatorTests {
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
+
+    // MARK: - News custom-scheme deeplink (tangem://news)
+
+    @Test
+    func newsWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .empty,
+            deeplinkString: "tangem://news"
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNumericCategoryId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(categoryId: "12"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNumericId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(id: "900"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNonNumericCategoryId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(categoryId: "x"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsWithNonNumericArticleId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .news,
+            params: .init(id: "x"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: - News universal link (https://tangem.com/news/{category}/{id}-{slug})
+
+    @Test
+    func newsArticleWithNumericId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "190801"),
+            deeplinkString: "https://tangem.com/news/markets/190801-polygon"
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithNoParams_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithOnlyCategoryId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(categoryId: "42"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithEmptyId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: ""),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithNonNumericId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "abc"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func newsArticleWithInvalidCharactersInId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .newsArticle,
+            params: .init(id: "190 801"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
 }
