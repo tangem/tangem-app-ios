@@ -163,6 +163,7 @@
 "common_account" = "Аккаунт";
 "common_accounts" = "Аккаунты";
 "common_activate" = "Активировать";
+"common_add_funds" = "Add funds";
 "common_add_to_portfolio" = "Добавить в портфель";
 "common_add_token" = "Добавить токен";
 "common_add_tokens" = "Добавьте токены";
@@ -211,11 +212,13 @@
 "common_custom" = "Свое";
 "common_disable" = "Отключить";
 "common_disabled" = "Отключено";
+"common_disabling" = "Disabling";
 "common_disconnect" = "Отключить";
 "common_done" = "Готово";
 "common_edit" = "Изменить";
 "common_enable" = "Включить";
 "common_enabled" = "Включено";
+"common_enabling" = "Enabling";
 "common_error" = "Ошибка";
 "common_estimated_fee" = "Комиссия сети";
 "common_exchange" = "Обменять";
@@ -248,6 +251,7 @@
 "common_locked_wallets" = "Заблокированные кошельки";
 "common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
+"common_more" = "More";
 "common_network_fee_title" = "Комиссия сети";
 "common_network_fee_warning_content" = "Сумма отправки будет уменьшена на %1$@ (%2$@) для покрытия выбранного уровня комиссии";
 "common_news" = "Новости";
@@ -665,6 +669,7 @@
 "markets_sort_by_top_gainers_title" = "Лидеры роста";
 "markets_sort_by_top_losers_title" = "Лидеры падения";
 "markets_sort_by_trending_title" = "В тренде";
+"markets_token_add_subtitle" = "in another network or account";
 "markets_token_added" = "Токен добавлен";
 "markets_token_details_about_token_title" = "О %@";
 "markets_token_details_blockchain_site" = "Веб-сайт";
@@ -815,6 +820,7 @@
 "onboarding_activation_error_message" = "Необходимо повторить операцию, при этом карта будет сброшена к заводским настройкам";
 "onboarding_activation_error_title" = "Ошибка активации";
 "onboarding_add_tokens" = "Добавление токенов";
+"onboarding_address_sync_title" = "Sync your wallet";
 "onboarding_alert_message_not_max_backup_cards_added" = "Вы добавили одну резервную карту или кольцо. После того, как процесс будет завершен, Вы больше не сможете добавить еще. Если у Вас есть еще одна карта или кольцо, добавьте ее в резервную копию. Хотите продолжить?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ не может создать резервную копию для Tangem Wallet из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции. Все остальные функции работают стабильно.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
@@ -950,6 +956,9 @@
 "qr_scanner_error_unsupported_network_title" = "Поддерживаемые токены не найдены";
 "qr_scanner_warning_unknown_parameters_message" = "Этот QR-код содержит параметры, которые не распознаны: %@. Некоторые данные платежа могут быть утеряны, если вы продолжите.";
 "qr_scanner_warning_unknown_parameters_title" = "Неизвестные параметры";
+"quick_action_buy_description" = "Credit card or bank account";
+"quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_swap_description" = "Between your portfolios";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ в %2$@ сети";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
@@ -1285,11 +1294,11 @@
 "swap_search_tooltip_title" = "Используйте поиск, чтобы найти то, что вам нужно.";
 "swap_story_fifth_subtitle" = "Чувствуйте уверенность с круглосуточной поддержкой, готовой помочь в любой ситуации!";
 "swap_story_fifth_title" = "Круглосуточная поддержка";
-"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
+"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
 "swap_story_first_subtitle" = "Надежные провайдеры в одном месте — обменивайте любые активы легко и быстро прямо в своем кошельке!";
 "swap_story_first_title_v2" = "Swap Inside Your Wallet";
 "swap_story_first_title" = "Обменивайте с нами";
-"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
+"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times. Clear. Transparent. Self-custodial.";
 "swap_story_forth_subtitle" = "Высший уровень безопасности и проверенные партнёры защищают каждую транзакцию";
 "swap_story_forth_title_v2" = "You Stay in Control";
 "swap_story_forth_title" = "Полная защита";
@@ -1299,7 +1308,7 @@
 "swap_story_second_title" = "Лучшие курсы";
 "swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Интуитивный обмен в пару касаний — без сложностей и ожидания";
-"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
+"swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Проще простого";
 "swap_via_provider" = "Обмен через провайдера";
 "swap_your_assets_title" = "Ваши средства";
@@ -1361,17 +1370,19 @@
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
+"tangempay_account_deactivated_message_subtitle" = "This was done due to regulatory requirements. Anyway withdrawals are still available.";
+"tangempay_account_deactivated_message_title" = "Your card was deactivated";
 "tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
 "tangempay_available_balance" = "Баланс";
 "tangempay_cancel_kyc" = "Скрыть KYC с главной";
 "tangempay_card_default_name" = "Карта Tangem Pay";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
-"tangempay_card_details_add_to_wallet_button_text" = "Добавить в Google кошелек";
+"tangempay_card_details_add_to_wallet_button_text" = "Добавить в Google Wallet";
 "tangempay_card_details_card_number" = "Номер";
 "tangempay_card_details_change_pin_success_description" = "Карта готова к покупкам";
 "tangempay_card_details_change_pin_success_title" = "ПИН-код установлен";
-"tangempay_card_details_change_pin" = "Сменить ПИН";
+"tangempay_card_details_change_pin" = "ПИН-код";
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "Не удалось загрузить данные. Повторите попытку позже.";
 "tangempay_card_details_expiry" = "Срок";
@@ -1397,7 +1408,7 @@
 "tangempay_card_details_receive_description" = "Скопируйте свой адрес или покажите QR";
 "tangempay_card_details_receive_error_description" = "Техническая ошибка. Попробуйте позже или обратитесь в поддержку.";
 "tangempay_card_details_receive_error_title" = "Пополнение недоступно";
-"tangempay_card_details_reissue_card" = "Replace card";
+"tangempay_card_details_reissue_card" = "Перевыпустить карту";
 "tangempay_card_details_rename_card_invalid_description" = "Можно вводить только буквы и цифры";
 "tangempay_card_details_rename_card_invalid_title" = "Недопустимые символы";
 "tangempay_card_details_reveal_text" = "Показать";
@@ -1412,6 +1423,8 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Вы не можете начать обмен или новый вывод, пока не завершится текущий.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вывод выполняется";
 "tangempay_card_details_withdraw" = "Вывести";
+"tangempay_card_limit_setup_amount_subtitle" = "Set a limit from %@";
+"tangempay_card_limit_setup_error_message" = "We couldn’t set the limit. Please try again.";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
 "tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
@@ -1480,6 +1493,7 @@
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
 "tangempay_set_pin_code" = "Set \nPIN code";
+"tangempay_status_deactivated" = "Card deactivated";
 "tangempay_sync_needed_restore_access" = "Обновить сессию";
 "tangempay_sync_needed" = "Сессия истекла";
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
@@ -1957,6 +1971,7 @@
 "yield_module_approve_sheet_fee_note" = "Комиссия будет списана, и ваши активы снова начнут приносить доход.";
 "yield_module_approve_sheet_subtitle" = "Чтобы продолжить зарабатывать, нужно выдать разрешение.";
 "yield_module_approve_sheet_title" = "Подтвердить разрешение";
+"yield_module_average_apy" = "Average APY %1$@%%";
 "yield_module_balance_info_sheet_subtitle" = "Ваши средства в данный момент размещены в протоколе Aave, но вы можете воспользоваться ими в любое время.";
 "yield_module_balance_info_sheet_title" = "Ваш %@ внесён в Aave";
 "yield_module_chart_loading_error" = "Невозможно загрузить график";
@@ -2029,6 +2044,7 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Проценты начисляются автоматически.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Режим доходности";
 "yield_module_token_details_earn_notification_processing" = "Включение режима доходности";
+"yield_module_token_details_earn_notification_subtitle" = "Yield Mode • %1$@%% APY";
 "yield_module_token_details_earn_notification_title" = "Режим доходности";
 "yield_module_transaction_deploy_contract" = "Установка контракта режима доходности";
 "yield_module_transaction_enter_subtitle" = "%1$@ отправлено в Aave";
