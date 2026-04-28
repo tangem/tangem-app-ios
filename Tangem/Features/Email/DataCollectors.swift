@@ -31,7 +31,9 @@ private extension EmailDataCollector {
     func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
         var dataToFormat: [EmailCollectedData] = []
 
-        let receiveAddressTypes = walletModel.receiveAddressTypes
+        // Drop `.domain(...)` entries: their offsets don't map to `wallet.addresses`,
+        // and `displayAddress(for:)`/`exploreURL(for:)` would crash on out-of-bounds index.
+        let receiveAddressTypes = walletModel.receiveAddressTypes.filter { $0.key == .address }
         if receiveAddressTypes.count > 1 {
             var explorerLinks = "Multiple explorers links: "
             var addresses = "Multiple addresses: "
