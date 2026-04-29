@@ -157,10 +157,14 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     override func copyDefaultAddress() {
         super.copyDefaultAddress()
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: walletModel.tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.main.rawValue,
-        ])
+        Analytics.log(
+            event: .buttonCopyAddress,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.main.rawValue,
+            ],
+            analyticsSystems: .all
+        )
         delegate?.displayAddressCopiedToast()
     }
 
