@@ -21,7 +21,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    @Published final var alert: AlertBinder? = nil
+    @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
     @Published final var isReloadingTransactionHistory: Bool = false
     @Published final var isFulfillingAssetRequirements = false
@@ -31,7 +31,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
     @Published private(set) final var miniChartData: LoadingResult<[Double]?, any Error> = .loading
 
-    private(set) final lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+    private(set) final lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: 0.2),
         refreshable: { [weak self] in await self?.onPullToRefresh() }
     )
