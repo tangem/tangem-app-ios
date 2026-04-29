@@ -34,7 +34,7 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
-    private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(
+    private(set) lazy var scrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: .zero),
         refreshable: { [weak self] in
             await self?.refresh()
