@@ -88,8 +88,13 @@ struct TokenDetailsView: View {
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: scrollOffsetHandler.onViewAppear)
+        .onAppear {
+            viewModel.onAppear()
+            scrollOffsetHandler.onViewAppear()
+        }
+        .onFirstAppear {
+            viewModel.onFirstAppear()
+        }
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: coordinateSpaceName)
         .toolbar(content: {
