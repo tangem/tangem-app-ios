@@ -270,14 +270,14 @@ private extension WCServiceV2 {
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
-                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
-                        WCLogger.warning("Skipping duplicate request: \(request)")
-                        return
-                    }
-
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
                         await self.reject(transactionRequest: request)
+                        return
+                    }
+
+                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
+                        WCLogger.warning("Skipping duplicate request: \(request)")
                         return
                     }
 
@@ -882,6 +882,10 @@ extension WCServiceV2 {
         private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
 
         func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
+            // Resume any previously stored continuation before overwriting it — otherwise its
+            // last reference (the dictionary slot) is dropped without resume and the runtime
+            // logs SWIFT TASK CONTINUATION MISUSE.
+            pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: CancellationError())
             pairingTopicToSessionProposalContinuation[topic] = continuation
         }
 
