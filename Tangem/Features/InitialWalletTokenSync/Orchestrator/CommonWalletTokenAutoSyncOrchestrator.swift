@@ -170,33 +170,58 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
 
             let totalNetworks = relayerPairs.count
 
-            let pendingTokens: [TokenItem] = try await withThrowingTaskGroup(of: [TokenItem].self) { group in
-                for (blockchain, relayer) in relayerPairs {
-                    let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
+            // Sliding window + progressive flush.
+            //
+            // Tokens from completed tasks are accumulated in `state.pendingToWrite`
+            // and flushed to `accountModelsManager` whenever the completion
+            // progress crosses the next `syncFlushProgressStep` threshold
+            // (e.g. 20%, 40%, ...). The next sync task is enqueued *before*
+            // we start flushing so persistence overlaps with the next
+            // network round-trip — the user sees tokens appearing on the
+            // main screen incrementally instead of in one delayed batch.
+            var state = SyncFlushState()
 
-                    group.addTask {
-                        await self.syncTokens(
-                            blockchainNetwork: blockchainNetwork,
-                            relayer: relayer,
-                            addressResolver: addressResolver,
-                            keyInfos: keyInfos
-                        )
+            try await Self.runWithSlidingWindow(
+                items: relayerPairs,
+                limit: Constants.maxConcurrentSyncTasks,
+                operation: { [weak self] pair in
+                    guard let self else {
+                        throw SyncOrchestrationError.orchestratorDeallocatedDuringSync
                     }
+                    let (blockchain, relayer) = pair
+                    let blockchainNetwork = BlockchainNetwork(
+                        blockchain,
+                        derivationPath: blockchain.derivationPath(for: derivationStyle)
+                    )
+                    return await syncTokens(
+                        blockchainNetwork: blockchainNetwork,
+                        relayer: relayer,
+                        addressResolver: addressResolver,
+                        keyInfos: keyInfos
+                    )
+                },
+                onResult: { [weak self] tokens in
+                    guard let self else {
+                        throw SyncOrchestrationError.orchestratorDeallocatedDuringSync
+                    }
+                    try await processSyncResult(
+                        tokens: tokens,
+                        state: &state,
+                        userWalletId: userWalletId,
+                        accountModelsManager: accountModelsManager,
+                        totalNetworks: totalNetworks
+                    )
                 }
+            )
 
-                return try await self.collectAndFlushTokens(
-                    from: &group,
-                    totalNetworks: totalNetworks,
-                    userWalletId: userWalletId,
-                    accountModelsManager: accountModelsManager
-                )
-            }
+            // Tail flush — write whatever was buffered after the last
+            // threshold so no discovered tokens are lost regardless of
+            // how the final batch lined up with `totalNetworks`.
+            if state.pendingToWrite.isNotEmpty {
+                try Task.checkCancellation()
 
-            try Task.checkCancellation()
-
-            if pendingTokens.isNotEmpty {
                 await persister.syncDiscoveredTokensWithAccounts(
-                    discoveredTokens: pendingTokens,
+                    discoveredTokens: state.pendingToWrite,
                     accountModelsManager: accountModelsManager
                 )
             }
@@ -208,6 +233,44 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         } catch {
             await progressService.remove(userWalletId: userWalletId)
         }
+    }
+
+    /// Per-network sync result handler used as the `onResult` callback of
+    /// `runWithSlidingWindow`.
+    ///
+    /// Accumulates discovered tokens, reports progress, and performs an
+    /// intermediate flush whenever the completion percentage crosses the
+    /// next `Constants.syncFlushProgressStep` threshold. The tail flush
+    /// (for the buffer left after the final threshold) is the caller's
+    /// responsibility.
+    func processSyncResult(
+        tokens: [TokenItem],
+        state: inout SyncFlushState,
+        userWalletId: UserWalletId,
+        accountModelsManager: AccountModelsManager,
+        totalNetworks: Int
+    ) async throws {
+        state.pendingToWrite.append(contentsOf: tokens)
+        state.completedCount += 1
+
+        let percent = Int((Double(state.completedCount) / Double(totalNetworks)) * 100)
+        await progressService.reportProgress(userWalletId: userWalletId, percent: min(percent, 99))
+
+        guard
+            percent - state.lastFlushedPercent >= Constants.syncFlushProgressStep,
+            state.pendingToWrite.isNotEmpty
+        else {
+            return
+        }
+
+        try Task.checkCancellation()
+
+        await persister.syncDiscoveredTokensWithAccounts(
+            discoveredTokens: state.pendingToWrite,
+            accountModelsManager: accountModelsManager
+        )
+        state.pendingToWrite.removeAll()
+        state.lastFlushedPercent = percent
     }
 
     func syncTokens(
@@ -244,48 +307,6 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         }
     }
 
-    /// Collects token results from the task group and periodically flushes them to accounts.
-    ///
-    /// As each child task completes, its tokens are accumulated in a pending buffer.
-    /// Every time the completion progress crosses the next ``Constants/syncFlushProgressStep`` threshold (e.g. 20%, 40%, …),
-    /// the buffer is flushed via ``syncDiscoveredTokensWithAccounts`` and cleared.
-    ///
-    /// - Returns: Tokens that have not yet been flushed (accumulated after the last threshold crossing).
-    ///   The caller is responsible for flushing the remaining tokens after the group finishes.
-    func collectAndFlushTokens(
-        from group: inout ThrowingTaskGroup<[TokenItem], any Error>,
-        totalNetworks: Int,
-        userWalletId: UserWalletId,
-        accountModelsManager: AccountModelsManager
-    ) async throws -> [TokenItem] {
-        var pendingToWrite: [TokenItem] = []
-        var completedCount = 0
-        var lastFlushedPercent = 0
-
-        for try await tokens in group {
-            try Task.checkCancellation()
-
-            pendingToWrite.append(contentsOf: tokens)
-            completedCount += 1
-
-            let percent = Int((Double(completedCount) / Double(totalNetworks)) * 100)
-            await progressService.reportProgress(userWalletId: userWalletId, percent: min(percent, 99))
-
-            if percent - lastFlushedPercent >= Constants.syncFlushProgressStep, pendingToWrite.isNotEmpty {
-                try Task.checkCancellation()
-
-                await persister.syncDiscoveredTokensWithAccounts(
-                    discoveredTokens: pendingToWrite,
-                    accountModelsManager: accountModelsManager
-                )
-                pendingToWrite.removeAll()
-                lastFlushedPercent = percent
-            }
-        }
-
-        return pendingToWrite
-    }
-
     func resolveRelayerPairs(
         supportedBlockchains: Set<Blockchain>
     ) -> [(Blockchain, any WalletTokenAutoSyncRelayer)] {
@@ -301,8 +322,26 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
 }
 
 private extension CommonWalletTokenAutoSyncOrchestrator {
+    /// Thrown when sliding-window closures run after `self` has been released (should not happen during a normal sync).
+    enum SyncOrchestrationError: Swift.Error {
+        case orchestratorDeallocatedDuringSync
+    }
+
     enum Constants {
         static let syncFlushProgressStep = 20
+        /// Number of simultaneously running per-network sync tasks.
+        static let maxConcurrentSyncTasks = 4
+    }
+
+    /// Mutable state carried across `processSyncResult` invocations during a
+    /// single `performSync` run.
+    struct SyncFlushState {
+        /// Tokens discovered since the last flush, awaiting persistence.
+        var pendingToWrite: [TokenItem] = []
+        /// Number of per-network sync tasks that have completed so far.
+        var completedCount: Int = 0
+        /// Completion percentage at which the last flush was performed.
+        var lastFlushedPercent: Int = 0
     }
 }
 
@@ -316,5 +355,53 @@ extension InjectedValues {
     var walletLifecycleObserver: WalletLifecycleObserver {
         get { Self[WalletLifecycleObserverKey.self] }
         set { Self[WalletLifecycleObserverKey.self] = newValue }
+    }
+}
+
+// MARK: - Concurrency Helpers
+
+private extension CommonWalletTokenAutoSyncOrchestrator {
+    /// Bounded-concurrency fan-out with a sliding window for throwing tasks.
+    ///
+    /// Runs at most `limit` tasks concurrently: the window is pre-filled with the
+    /// first `limit` items, and after each task completes the next item is enqueued
+    /// *before* `onResult` is invoked. This lets the caller (e.g. a persister flush)
+    /// run in parallel with the next network round-trip, preserving the exact
+    /// behavior of the hand-written sliding-window implementation in `performSync`.
+    ///
+    /// - Note: `onResult` always runs sequentially on the parent task within the
+    ///   `withThrowingTaskGroup` body, so it can safely mutate local `var`
+    ///   bindings captured from the calling function.
+    /// - Note: If `operation` or `onResult` throws, the underlying
+    ///   `ThrowingTaskGroup` cancels the remaining tasks and rethrows the error.
+    static func runWithSlidingWindow<Item, Result>(
+        items: [Item],
+        limit: Int,
+        operation: @escaping @Sendable (Item) async throws -> Result,
+        onResult: (Result) async throws -> Void
+    ) async throws {
+        guard !items.isEmpty, limit > 0 else { return }
+
+        try await withThrowingTaskGroup(of: Result.self) { group in
+            var iterator = items.makeIterator()
+
+            func enqueueNext() {
+                guard let item = iterator.next() else { return }
+                _ = group.addTaskUnlessCancelled {
+                    try Task.checkCancellation()
+                    return try await operation(item)
+                }
+            }
+
+            for _ in 0 ..< limit {
+                enqueueNext()
+            }
+
+            while let result = try await group.next() {
+                try Task.checkCancellation()
+                enqueueNext()
+                try await onResult(result)
+            }
+        }
     }
 }
