@@ -67,6 +67,10 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         syncWithInput(focused: focused)
     }
 
+    func lostInputFocus() {
+        inputShouldBecomeFocused = false
+    }
+
     private func bind() {
         inputSubscription = $enteredSearchText
             .removeDuplicates()

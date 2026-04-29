@@ -280,6 +280,27 @@ extension MarketsCoordinator: NewsDetailsRoutable {
     }
 }
 
+// MARK: - MarketsTokenSearchRoutable
+
+extension MarketsCoordinator: MarketsTokenSearchRoutable {
+    func openPortfolioTokenList(walletModels: [any WalletModel]) {
+        floatingSheetPresenter.enqueue(
+            sheet: MarketsPortfolioTokenListViewModel(
+                walletModels: walletModels,
+                coordinator: self
+            )
+        )
+    }
+}
+
+// MARK: - MarketsPortfolioTokenListRoutable
+
+extension MarketsCoordinator: MarketsPortfolioTokenListRoutable {
+    func closePortfolioTokenList() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
 private extension MarketsCoordinator {
     enum ToastConstants {
         static let topPadding: CGFloat = 52
