@@ -26,12 +26,15 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         sections.contains { $0.accounts.count > 1 }
     }
 
+    private let onSelect: (any WalletModel) -> Void
     private weak var coordinator: MarketsPortfolioTokenListRoutable?
 
     init(
         walletModels: [any WalletModel],
+        onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
+        self.onSelect = onSelect
         self.coordinator = coordinator
         sections = makeWalletSections(walletModels: walletModels)
     }
@@ -41,9 +44,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
 
 extension MarketsPortfolioTokenListViewModel {
     func onCloseTap() {
-        Task { @MainActor [coordinator] in
-            coordinator?.closePortfolioTokenList()
-        }
+        close()
     }
 }
 
@@ -153,9 +154,22 @@ private extension MarketsPortfolioTokenListViewModel {
             cryptoTotalTokenBalancePublisher: cryptoBalancePublisher
         )
 
-        return TokenRow(model: model, onTap: {
-            // [REDACTED_TODO_COMMENT]
-        })
+        let onTap: () -> Void = { [weak self] in
+            self?.onSelect(walletModel)
+            self?.close()
+        }
+
+        return TokenRow(model: model, onTap: onTap)
+    }
+}
+
+// MARK: - Navigation
+
+private extension MarketsPortfolioTokenListViewModel {
+    func close() {
+        Task { @MainActor [coordinator] in
+            coordinator?.closePortfolioTokenList()
+        }
     }
 }
 
