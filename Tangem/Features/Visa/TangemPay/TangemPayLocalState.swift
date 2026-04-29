@@ -20,6 +20,7 @@ enum TangemPayLocalState {
     case failedToIssueCard
 
     case tangemPayAccount(TangemPayAccount)
+    case cardDeactivated(TangemPayAccount)
 }
 
 enum TangemPayCachedLocalState: Codable {
@@ -28,6 +29,7 @@ enum TangemPayCachedLocalState: Codable {
     case issuingCard
     case failedToIssueCard
     case tangemPayAccount(cardNumberEnd: String?)
+    case cardDeactivated(cardNumberEnd: String?)
 }
 
 extension TangemPayLocalState {
@@ -46,10 +48,12 @@ extension TangemPayLocalState {
     }
 
     var tangemPayAccount: TangemPayAccount? {
-        if case .tangemPayAccount(let tangemPayAccount) = self {
+        switch self {
+        case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):
             return tangemPayAccount
+        default:
+            return nil
         }
-        return nil
     }
 
     var cachedLocalState: TangemPayCachedLocalState? {
@@ -64,6 +68,8 @@ extension TangemPayLocalState {
             .failedToIssueCard
         case .tangemPayAccount(let account):
             .tangemPayAccount(cardNumberEnd: account.card?.cardNumberEnd)
+        case .cardDeactivated(let account):
+            .cardDeactivated(cardNumberEnd: account.card?.cardNumberEnd)
         case .loading, .syncNeeded, .syncInProgress, .unavailable:
             nil
         }
