@@ -65,7 +65,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                         }
                 }
             }
-            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
+            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator) { item in
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
@@ -74,7 +74,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                             }
                         }
                 }
-            })
+            }
     }
 
     private var backButton: some View {
