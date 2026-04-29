@@ -131,7 +131,10 @@ private extension CommonDeeplinkPresenter {
         case .newsList(let initialCategoryId):
             return constructNewsListViewController(initialCategoryId: initialCategoryId)
 
-        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails:
+        case .earn(let earnType, let networkId):
+            return constructEarnViewController(earnType: earnType, networkId: networkId)
+
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
             return nil
         }
     }
@@ -242,6 +245,13 @@ private extension CommonDeeplinkPresenter {
         return makeDeeplinkViewController(
             view: { StakingDetailsCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: true
+        )
+    }
+
+    private func constructEarnViewController(earnType: EarnFilterType?, networkId: String?) -> UIViewController {
+        return makeDeeplinkViewController(
+            view: { EarnDeeplinkContainerView(earnType: earnType, networkId: networkId) },
+            embedInNavigationStack: false
         )
     }
 

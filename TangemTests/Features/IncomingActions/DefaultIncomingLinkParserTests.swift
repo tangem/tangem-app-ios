@@ -104,8 +104,10 @@ struct DefaultIncomingLinkParserTests {
 
         let urlString: String
         switch host {
-        case .token, .staking:
+        case .token:
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy&network_id=dummy"
+        case .staking, .yield:
+            urlString = "tangem://\(rawValue)?token_id=dummy&network_id=dummy"
         case .tokenChart, .tokenExchanges:
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy"
         case .onboardVisa:
@@ -117,6 +119,8 @@ struct DefaultIncomingLinkParserTests {
         case .newsArticle:
             // `.newsArticle` is not a deeplink host. Falls through to generic external link handling.
             urlString = "https://tangem.com/news/markets/190801-polygon"
+        case .earn:
+            urlString = "tangem://\(rawValue)"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -274,6 +278,37 @@ struct DefaultIncomingLinkParserTests {
     @Test("Rejects tangem://staking with missing networkId")
     func rejectsStakingWithoutNetworkId() {
         let url = URL(string: "tangem://staking?token_id=matic")!
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
+    }
+
+    @Test("Parses tangem://yield with required params")
+    func parsesYieldWithRequiredParams() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin&network_id=base")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == "usd-coin")
+        #expect(action.params.networkId == "base")
+    }
+
+    @Test("Rejects tangem://yield with missing tokenId")
+    func rejectsYieldWithoutTokenId() {
+        let url = URL(string: "tangem://yield?network_id=base")!
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected due to missing tokenId")
+    }
+
+    @Test("Rejects tangem://yield with missing networkId")
+    func rejectsYieldWithoutNetworkId() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin")!
         let result = parser.parse(url)
 
         #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
