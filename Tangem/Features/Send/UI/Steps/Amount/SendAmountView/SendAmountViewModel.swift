@@ -130,6 +130,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
     private var sourceFieldBag: AnyCancellable?
     private var destinationFieldBag: AnyCancellable?
+    /// Active only while the amount screen is visible. Fires
+    /// `logSendWithSwapAmountScreenOpened` on every `nil → non-nil` rate-type emission so
+    /// the analytics event matches "screen opened in send-via-swap mode" for: TO token added
+    /// while on screen, back from summary with TO present, back from destination edit with TO present.
+    private var amountScreenOpenedAnalyticsBag: AnyCancellable?
 
     init(
         sourceToken: SendSourceToken,
@@ -158,7 +163,26 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {}
+    func onAppear() {
+        // Fire `logSendWithSwapAmountScreenOpened` whenever the rate type transitions
+        // `nil → non-nil` while the screen is visible. Only set up the subscription if
+        // we have a rate-type publisher (i.e. we're in the send-via-swap flow).
+        guard let currentRateTypePublisher else { return }
+
+        amountScreenOpenedAnalyticsBag = currentRateTypePublisher
+            .scan((ExpressProviderRateType?.none, ExpressProviderRateType?.none)) { acc, current in
+                (acc.1, current)
+            }
+            .filter { previous, current in previous == nil && current != nil }
+            .compactMap { $0.1 }
+            .sink { [weak self] rateType in
+                self?.analyticsLogger.logSendWithSwapAmountScreenOpened(rateType: rateType)
+            }
+    }
+
+    func onDisappear() {
+        amountScreenOpenedAnalyticsBag = nil
+    }
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
