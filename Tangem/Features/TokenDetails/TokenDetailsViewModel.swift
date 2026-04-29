@@ -180,10 +180,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     override func copyDefaultAddress() {
         super.copyDefaultAddress()
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: walletModel.tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.token.rawValue,
-        ])
+        Analytics.log(
+            event: .buttonCopyAddress,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.token.rawValue,
+            ],
+            analyticsSystems: .all
+        )
         Toast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
