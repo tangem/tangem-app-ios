@@ -30,6 +30,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var mainTokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var portfolioTokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
     @Published var newsPagerViewModel: NewsPagerViewModel?
@@ -283,10 +284,26 @@ extension MarketsCoordinator: NewsDetailsRoutable {
 // MARK: - MarketsTokenSearchRoutable
 
 extension MarketsCoordinator: MarketsTokenSearchRoutable {
-    func openPortfolioTokenList(walletModels: [any WalletModel]) {
+    func openPortfolioTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    ) {
+        openTokenDetails(
+            userWalletModel: userWalletModel,
+            accountModel: accountModel,
+            walletModel: walletModel
+        )
+    }
+
+    func openPortfolioTokenList(
+        walletModels: [any WalletModel],
+        onSelect: @escaping (any WalletModel) -> Void
+    ) {
         floatingSheetPresenter.enqueue(
             sheet: MarketsPortfolioTokenListViewModel(
                 walletModels: walletModels,
+                onSelect: onSelect,
                 coordinator: self
             )
         )
@@ -298,6 +315,36 @@ extension MarketsCoordinator: MarketsTokenSearchRoutable {
 extension MarketsCoordinator: MarketsPortfolioTokenListRoutable {
     func closePortfolioTokenList() {
         floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - Navigation
+
+private extension MarketsCoordinator {
+    func openTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    ) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.portfolioTokenDetailsCoordinator = nil
+        }
+
+        let popToRootAction: Action<PopToRootOptions> = { _ in }
+
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: accountModel.walletModelsManager,
+                userTokensManager: accountModel.userTokensManager,
+                walletModel: walletModel
+            )
+        )
+
+        portfolioTokenDetailsCoordinator = coordinator
     }
 }
 
