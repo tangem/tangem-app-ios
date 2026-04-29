@@ -889,7 +889,6 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
     func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
-        let event: Analytics.Event
 
         var analyticsParams: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol.uppercased(),
@@ -899,15 +898,13 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         switch action {
         case .marketsDetails:
             analyticsParams[.source] = Analytics.ParameterValue.longTap.rawValue
-            event = .marketsChartScreenOpened
+            Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
         case .copyAddress:
             analyticsParams[.source] = Analytics.ParameterValue.main.rawValue
-            event = .buttonCopyAddress
+            Analytics.log(event: .buttonCopyAddress, params: analyticsParams, analyticsSystems: .all)
         default:
             return
         }
-
-        Analytics.log(event: event, params: analyticsParams)
     }
 }
 
