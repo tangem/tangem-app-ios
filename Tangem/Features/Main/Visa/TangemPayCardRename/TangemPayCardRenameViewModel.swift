@@ -45,7 +45,12 @@ final class TangemPayCardRenameViewModel: ObservableObject, Identifiable {
         let trimmedName = renameCardDetailsViewModel.cardName
             .trimmingCharacters(in: .whitespaces)
 
-        guard isValid(trimmedName) else { return }
+        guard isLengthValid(trimmedName) else { return }
+
+        if hasInvalidCharacters(trimmedName) {
+            showInvalidCharactersAlert()
+            return
+        }
 
         isLoading = true
 
@@ -75,18 +80,25 @@ private extension TangemPayCardRenameViewModel {
             .withWeakCaptureOf(self)
             .map { viewModel, name in
                 let trimmed = name.trimmingCharacters(in: .whitespaces)
-                return !viewModel.isValid(trimmed)
+                return !viewModel.isLengthValid(trimmed)
             }
             .receiveOnMain()
             .assign(to: &$isSaveDisabled)
     }
 
-    func isValid(_ name: String) -> Bool {
-        guard !name.isEmpty, name.count <= Constants.maxCardNameLength else {
-            return false
-        }
+    func isLengthValid(_ name: String) -> Bool {
+        !name.isEmpty && name.count <= Constants.maxCardNameLength
+    }
 
-        return name.unicodeScalars.allSatisfy { Constants.allowedCardNameCharacters.contains($0) }
+    func hasInvalidCharacters(_ name: String) -> Bool {
+        !name.unicodeScalars.allSatisfy { Constants.allowedCardNameCharacters.contains($0) }
+    }
+
+    func showInvalidCharactersAlert() {
+        alert = AlertBinder(
+            title: Localization.tangempayCardDetailsRenameCardInvalidTitle,
+            message: Localization.tangempayCardDetailsRenameCardInvalidDescription
+        )
     }
 
     enum Constants {
