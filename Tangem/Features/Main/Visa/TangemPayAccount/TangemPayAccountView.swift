@@ -72,7 +72,7 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .rootedDevice, .kycDeclined:
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .rootedDevice, .kycDeclined, .cardDeactivated:
             EmptyView()
 
         case .failedToIssueCard:
