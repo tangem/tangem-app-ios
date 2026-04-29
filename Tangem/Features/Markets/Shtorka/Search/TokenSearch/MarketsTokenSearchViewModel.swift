@@ -33,19 +33,20 @@ final class MarketsTokenSearchViewModel: ObservableObject {
     // MARK: - Injections
 
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Dependencies
 
     private let headerViewModel: MainBottomSheetHeaderViewModel
-    private let tokenListViewModel: MarketsTokenListViewModel
-    private let chartsHistoryProvider: MarketsListChartsHistoryProvider
-    private let filterProvider: MarketsListDataFilterProvider
+    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
 
     private weak var coordinator: MarketsTokenSearchRoutable?
 
     // MARK: - Private properties
 
     private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator()
+    private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
+    private let filterProvider = MarketsListDataFilterProvider()
 
     private let marketCapFormatter = MarketCapFormatter(
         divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
@@ -57,6 +58,15 @@ final class MarketsTokenSearchViewModel: ObservableObject {
         persistentStorage: persistentStorage
     )
 
+    private lazy var tokenListViewModel = MarketsTokenListViewModel(
+        listDataProvider: MarketsListDataProvider(),
+        listDataFilterProvider: filterProvider,
+        quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+        quotesUpdatesScheduler: MarketsQuotesUpdatesScheduler(),
+        chartsHistoryProvider: chartsHistoryProvider,
+        coordinator: self
+    )
+
     private let searchDebounceMs: Int = 300
     private var bag = Set<AnyCancellable>()
 
@@ -64,15 +74,11 @@ final class MarketsTokenSearchViewModel: ObservableObject {
 
     init(
         headerViewModel: MainBottomSheetHeaderViewModel,
-        tokenListViewModel: MarketsTokenListViewModel,
-        chartsHistoryProvider: MarketsListChartsHistoryProvider,
-        filterProvider: MarketsListDataFilterProvider,
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsTokenSearchRoutable?
     ) {
         self.headerViewModel = headerViewModel
-        self.tokenListViewModel = tokenListViewModel
-        self.chartsHistoryProvider = chartsHistoryProvider
-        self.filterProvider = filterProvider
+        self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
         bind()
@@ -196,14 +202,8 @@ private extension MarketsTokenSearchViewModel {
     }
 
     func onRecentMarketToken(_ tokenModel: MarketsTokenModel) {
-        let query = headerViewModel.enteredSearchText.trimmed()
-        Task {
-            if query.isNotEmpty {
-                await storage.saveQuery(query)
-            }
-            await storage.saveMarketAsset(tokenModel)
-        }
-        openTokenDetails(tokenModel: tokenModel)
+        storeRecentMarket(tokenModel: tokenModel)
+        openMarketsTokenDetails(tokenModel: tokenModel)
     }
 
     func onRecentQuery(_ query: String) {
@@ -211,6 +211,28 @@ private extension MarketsTokenSearchViewModel {
     }
 
     func onRecentClearAll() {
+        clearRecentStorage()
+    }
+}
+
+// MARK: - Recent storage
+
+private extension MarketsTokenSearchViewModel {
+    func storeRecentMarket(tokenModel: MarketsTokenModel) {
+        storeRecentQuery()
+        Task {
+            await storage.saveMarketAsset(tokenModel)
+        }
+    }
+
+    func storeRecentQuery() {
+        let query = headerViewModel.enteredSearchText.trimmed()
+        if query.isNotEmpty {
+            Task { await storage.saveQuery(query) }
+        }
+    }
+
+    func clearRecentStorage() {
         Task {
             await storage.clearAll()
         }
@@ -240,7 +262,7 @@ private extension MarketsTokenSearchViewModel {
         let model = MarketsPortfolioTokenSearchViewModel(
             walletModels: walletModels,
             onSingleToken: { [weak self] walletModel in
-                self?.onPortfolioToken()
+                self?.onPortfolioToken(walletModel: walletModel)
             },
             onMultipleToken: { [weak self] walletModels in
                 self?.hideKeyboard()
@@ -251,10 +273,17 @@ private extension MarketsTokenSearchViewModel {
         return PortfolioItem(title: Localization.marketsSearchPortfolioHeader, model: model)
     }
 
-    func onPortfolioToken() {
-        let query = headerViewModel.enteredSearchText.trimmed()
-        if query.isNotEmpty {
-            Task { await storage.saveQuery(query) }
+    func onPortfolioToken(walletModel: any WalletModel) {
+        storeRecentQuery()
+
+        if
+            let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
+            let accountModel = walletModel.account {
+            openTokenDetails(
+                userWalletModel: userWalletModel,
+                accountModel: accountModel,
+                walletModel: walletModel
+            )
         }
     }
 }
@@ -320,7 +349,21 @@ private extension MarketsTokenSearchViewModel {
 // MARK: - Navigation
 
 private extension MarketsTokenSearchViewModel {
-    func openTokenDetails(tokenModel: MarketsTokenModel) {
+    func openTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    ) {
+        Task { @MainActor [coordinator] in
+            coordinator?.openPortfolioTokenDetails(
+                userWalletModel: userWalletModel,
+                accountModel: accountModel,
+                walletModel: walletModel
+            )
+        }
+    }
+
+    func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         Task { @MainActor [coordinator] in
             coordinator?.openMarketsTokenDetails(for: tokenModel)
         }
@@ -328,8 +371,26 @@ private extension MarketsTokenSearchViewModel {
 
     func openPortfolioTokenList(walletModels: [any WalletModel]) {
         Task { @MainActor [coordinator] in
-            coordinator?.openPortfolioTokenList(walletModels: walletModels)
+            coordinator?.openPortfolioTokenList(
+                walletModels: walletModels,
+                onSelect: { [weak self] walletModel in
+                    self?.onPortfolioToken(walletModel: walletModel)
+                }
+            )
         }
+    }
+}
+
+// MARK: - MarketsRoutable
+
+extension MarketsTokenSearchViewModel: MarketsRoutable {
+    func openMarketsTokenDetails(for tokenModel: MarketsTokenModel) {
+        storeRecentMarket(tokenModel: tokenModel)
+        openMarketsTokenDetails(tokenModel: tokenModel)
+    }
+
+    func openFilterOrderBottonSheet(with provider: MarketsListDataFilterProvider) {
+        // Not needed
     }
 }
 
