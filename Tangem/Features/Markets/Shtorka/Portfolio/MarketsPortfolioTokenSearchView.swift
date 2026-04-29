@@ -126,6 +126,7 @@ private struct ExpandableContainer<Footer: View, Content: View>: View {
             content
                 .frame(height: height, alignment: .top)
                 .clipped()
+                .allowsHitTesting(isExpanded)
 
             footer
         }
