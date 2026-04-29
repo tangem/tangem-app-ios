@@ -14,7 +14,7 @@ actor WalletTokenAutoSyncStateActor {
 
     func startIfPossible(
         userWalletId: UserWalletId,
-        priority: TaskPriority = .userInitiated,
+        priority: TaskPriority = .utility,
         operation: @escaping @Sendable () async -> Void
     ) throws {
         if runningTasks[userWalletId] != nil {
