@@ -109,7 +109,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        Analytics.log(.visaScreenButtonVisaAddFunds, contextParams: .userWallet(userWalletInfo.id))
+        Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
