@@ -8,7 +8,9 @@
 
 import Foundation
 import Combine
+import class UIKit.UIApplication
 import TangemFoundation
+import TangemUIUtils
 import TangemLocalization
 
 final class MarketsTokenSearchViewModel: ObservableObject {
@@ -39,7 +41,7 @@ final class MarketsTokenSearchViewModel: ObservableObject {
     private let chartsHistoryProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
 
-    private weak var coordinator: MarketsRoutable?
+    private weak var coordinator: MarketsTokenSearchRoutable?
 
     // MARK: - Private properties
 
@@ -65,7 +67,7 @@ final class MarketsTokenSearchViewModel: ObservableObject {
         tokenListViewModel: MarketsTokenListViewModel,
         chartsHistoryProvider: MarketsListChartsHistoryProvider,
         filterProvider: MarketsListDataFilterProvider,
-        coordinator: MarketsRoutable?
+        coordinator: MarketsTokenSearchRoutable?
     ) {
         self.headerViewModel = headerViewModel
         self.tokenListViewModel = tokenListViewModel
@@ -125,6 +127,10 @@ private extension MarketsTokenSearchViewModel {
                 viewModel.fetchMarketTokensIfNeeded(searchText: searchText)
             }
             .store(in: &bag)
+    }
+
+    func hideKeyboard() {
+        headerViewModel.lostInputFocus()
     }
 }
 
@@ -197,7 +203,7 @@ private extension MarketsTokenSearchViewModel {
             }
             await storage.saveMarketAsset(tokenModel)
         }
-        coordinator?.openMarketsTokenDetails(for: tokenModel)
+        openTokenDetails(tokenModel: tokenModel)
     }
 
     func onRecentQuery(_ query: String) {
@@ -233,12 +239,12 @@ private extension MarketsTokenSearchViewModel {
     func makePortfolioItem(walletModels: [any WalletModel]) -> PortfolioItem {
         let model = MarketsPortfolioTokenSearchViewModel(
             walletModels: walletModels,
-            onSingleToken: { [weak self] in
+            onSingleToken: { [weak self] walletModel in
                 self?.onPortfolioToken()
-                // [REDACTED_TODO_COMMENT]
             },
-            onMultipleToken: {
-                // [REDACTED_TODO_COMMENT]
+            onMultipleToken: { [weak self] walletModels in
+                self?.hideKeyboard()
+                self?.openPortfolioTokenList(walletModels: walletModels)
             }
         )
 
@@ -308,6 +314,22 @@ private extension MarketsTokenSearchViewModel {
         tokenListViewModel.onResetShowItemsBelowCapFlag()
         let filter = MarketsListDataProvider.Filter(interval: .day, order: .rating)
         tokenListViewModel.onFetch(with: search, by: filter)
+    }
+}
+
+// MARK: - Navigation
+
+private extension MarketsTokenSearchViewModel {
+    func openTokenDetails(tokenModel: MarketsTokenModel) {
+        Task { @MainActor [coordinator] in
+            coordinator?.openMarketsTokenDetails(for: tokenModel)
+        }
+    }
+
+    func openPortfolioTokenList(walletModels: [any WalletModel]) {
+        Task { @MainActor [coordinator] in
+            coordinator?.openPortfolioTokenList(walletModels: walletModels)
+        }
     }
 }
 
