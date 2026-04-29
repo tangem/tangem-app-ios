@@ -134,7 +134,7 @@ private extension CommonDeeplinkPresenter {
         case .earn(let earnType, let networkId):
             return constructEarnViewController(earnType: earnType, networkId: networkId)
 
-        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails:
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
             return nil
         }
     }

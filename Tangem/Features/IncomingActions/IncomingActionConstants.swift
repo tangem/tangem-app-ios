@@ -44,6 +44,7 @@ enum IncomingActionConstants {
     enum DeeplinkDestination: String, CaseIterable {
         case token
         case staking
+        case yield
         case referral
         case markets
         case tokenChart = "token_chart"
