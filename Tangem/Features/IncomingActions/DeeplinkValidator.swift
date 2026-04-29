@@ -21,6 +21,10 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.tokenId, \.networkId)
     }
 
+    private func hasEnoughYieldParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.tokenId, \.networkId)
+    }
+
     private func hasEnoughOnboardVisaParams(params: DeeplinkNavigationAction.Params) -> Bool {
         areParamsValid(params, keys: \.entry, \.id)
     }
@@ -103,6 +107,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .staking:
             return hasEnoughStakingParams(params: params)
+
+        case .yield:
+            return hasEnoughYieldParams(params: params)
 
         case .tokenChart:
             return hasEnoughTokenChartParams(params: params)
