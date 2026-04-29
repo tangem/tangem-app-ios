@@ -68,6 +68,9 @@ extension MainCoordinator {
             case .staking:
                 return routeStakingAction(params: navigationAction.params)
 
+            case .yield:
+                return routeYieldAction(params: navigationAction.params)
+
             case .markets:
                 return routeMarketAction(params: navigationAction.params)
 
@@ -358,6 +361,27 @@ extension MainCoordinator {
             let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
+            return true
+        }
+
+        private func routeYieldAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard
+                let coordinator,
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                let tokenId = params.tokenId,
+                let networkId = params.networkId,
+                let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable(),
+                walletModel.yieldModuleManager != nil,
+                walletModel.multipleTransactionsSender != nil
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(
+                .yield(walletModel: walletModel, userWalletModel: userWalletModel)
+            )
             return true
         }
 
