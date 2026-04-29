@@ -11,5 +11,15 @@ import Foundation
 @MainActor
 protocol MarketsTokenSearchRoutable: AnyObject {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
-    func openPortfolioTokenList(walletModels: [any WalletModel])
+
+    func openPortfolioTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    )
+
+    func openPortfolioTokenList(
+        walletModels: [any WalletModel],
+        onSelect: @escaping (any WalletModel) -> Void
+    )
 }
