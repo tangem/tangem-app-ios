@@ -218,6 +218,58 @@ struct CommonDeepLinkValidatorTests {
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
 
+    // MARK: Yield deeplink
+
+    @Test
+    func yieldWithValidTokenIdAndNetworkId() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .init(tokenId: "usd-coin", networkId: "base"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func yieldWithMissingTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .init(networkId: "base"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func yieldWithMissingNetworkId() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .init(tokenId: "usd-coin"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func yieldWithInvalidTokenId() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .init(tokenId: "usd coin$", networkId: "base"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func yieldWithInvalidCharacterTokenAndNetworkId() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .init(tokenId: "token#invalid", networkId: "net#invalid"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
     // MARK: Token deeplink
 
     @Test
@@ -533,6 +585,48 @@ struct CommonDeepLinkValidatorTests {
         let action = DeeplinkNavigationAction(
             destination: .newsArticle,
             params: .init(id: "190 801"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    // MARK: - Earn deeplink
+
+    @Test
+    func earnWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithValidEarnTypeAndNetworkId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum", earnType: "staking"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithInvalidEarnType_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum", earnType: "bad$type"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func earnWithInvalidNetworkId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .earn,
+            params: .init(networkId: "ethereum!", earnType: "yield"),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))

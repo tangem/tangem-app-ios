@@ -167,15 +167,20 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesEnterView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+    func openDynamicAddressesEnterView(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    ) {
         dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
             walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            analyticsLogger: analyticsLogger,
             coordinator: self
         )
     }
 
     func openDynamicAddressesUnavailableSheet() {
         let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
+
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -183,11 +188,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
-        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
     ) {
         let viewModel = DynamicAddressesDisableSheetViewModel(
             walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
             compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+            analyticsLogger: analyticsLogger,
             coordinator: self
         )
         Task { @MainActor in
@@ -313,7 +320,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)
