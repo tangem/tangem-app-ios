@@ -50,13 +50,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
 
-    lazy var tokenSearchViewModel = MarketsTokenSearchViewModel(
-        headerViewModel: headerViewModel,
-        tokenListViewModel: tokenListViewModel,
-        chartsHistoryProvider: chartsHistoryProvider,
-        filterProvider: filterProvider,
-        coordinator: coordinator
-    )
+    let tokenSearchViewModel: MarketsTokenSearchViewModel
 
     private weak var coordinator: MarketsMainRoutable?
 
@@ -104,6 +98,12 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
             quotesUpdatesScheduler: quotesUpdatesScheduler,
             chartsHistoryProvider: chartsHistoryProvider,
+            coordinator: coordinator
+        )
+
+        tokenSearchViewModel = MarketsTokenSearchViewModel(
+            headerViewModel: headerViewModel,
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
             coordinator: coordinator
         )
 
