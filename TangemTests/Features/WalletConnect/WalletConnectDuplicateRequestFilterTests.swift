@@ -93,6 +93,53 @@ final class WalletConnectDuplicateRequestFilterTests: LeakTrackingTestSuite {
             #expect(await sut.isProcessingAllowed(for: uniqueRequest))
         }
     }
+
+    // MARK: - removeFootprint
+
+    @Test
+    func shouldAllowDuplicateRequestAfterFootprintRemoval() async throws {
+        let sut = makeSUT()
+
+        let request = try Self.makeAnyRequest()
+        #expect(await sut.isProcessingAllowed(for: request))
+
+        let duplicate = try Self.makeAnyRequest()
+        #expect(await sut.isProcessingAllowed(for: duplicate) == false)
+
+        await sut.removeFootprint(for: request)
+
+        let retry = try Self.makeAnyRequest()
+        #expect(await sut.isProcessingAllowed(for: retry))
+    }
+
+    @Test
+    func removeFootprintShouldNotAffectOtherRequests() async throws {
+        let sut = makeSUT()
+
+        let requestA = try Self.makeAnyRequest(topic: "topicA")
+        let requestB = try Self.makeAnyRequest(topic: "topicB")
+
+        #expect(await sut.isProcessingAllowed(for: requestA))
+        #expect(await sut.isProcessingAllowed(for: requestB))
+
+        await sut.removeFootprint(for: requestA)
+
+        let retryA = try Self.makeAnyRequest(topic: "topicA")
+        let retryB = try Self.makeAnyRequest(topic: "topicB")
+        #expect(await sut.isProcessingAllowed(for: retryA))
+        #expect(await sut.isProcessingAllowed(for: retryB) == false)
+    }
+
+    @Test
+    func removeFootprintForUnknownRequestShouldBeNoOp() async throws {
+        let sut = makeSUT()
+
+        let unknown = try Self.makeAnyRequest(topic: "never-seen")
+        await sut.removeFootprint(for: unknown)
+
+        let request = try Self.makeAnyRequest()
+        #expect(await sut.isProcessingAllowed(for: request))
+    }
 }
 
 // MARK: - Factory methods
