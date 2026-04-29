@@ -17,7 +17,9 @@ struct TangemPayMainView: View {
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
-                TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
+                if !viewModel.isDeactivated {
+                    TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
+                }
 
                 if viewModel.freezingState.shouldShowUnfreezeButton {
                     MainButton(
@@ -46,9 +48,9 @@ struct TangemPayMainView: View {
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
-                NotificationView(input: viewModel.contactSupportNotificationInput)
-
                 if !viewModel.isDeactivated {
+                    NotificationView(input: viewModel.contactSupportNotificationInput)
+
                     TransactionsListView(
                         state: viewModel.tangemPayTransactionHistoryState,
                         exploreAction: nil,
