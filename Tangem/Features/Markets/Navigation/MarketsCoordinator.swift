@@ -178,7 +178,10 @@ extension MarketsCoordinator: MarketsMainRoutable {
             }
         )
 
-        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
+        coordinator.start(with: .init(
+            mostlyUsedTokens: mostlyUsedTokens,
+            presentSource: .navigation
+        ))
 
         earnListCoordinator = coordinator
     }
@@ -274,6 +277,27 @@ extension MarketsCoordinator: NewsDetailsRoutable {
         )
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         newsPagerTokenDetailsCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenSearchRoutable
+
+extension MarketsCoordinator: MarketsTokenSearchRoutable {
+    func openPortfolioTokenList(walletModels: [any WalletModel]) {
+        floatingSheetPresenter.enqueue(
+            sheet: MarketsPortfolioTokenListViewModel(
+                walletModels: walletModels,
+                coordinator: self
+            )
+        )
+    }
+}
+
+// MARK: - MarketsPortfolioTokenListRoutable
+
+extension MarketsCoordinator: MarketsPortfolioTokenListRoutable {
+    func closePortfolioTokenList() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 

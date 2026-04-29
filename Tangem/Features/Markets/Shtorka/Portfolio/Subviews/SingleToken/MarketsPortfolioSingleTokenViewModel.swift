@@ -234,7 +234,7 @@ private extension MarketsPortfolioSingleTokenViewModel {
                 }
             } else {
                 let formattedBalance = balanceFormatter.formatFiatBalance(nil)
-                let attributedBalance = attributedCryptoBalance(formattedBalance)
+                let attributedBalance = attributedFiatBalance(formattedBalance)
                 return .failed(attributedBalance)
             }
         }

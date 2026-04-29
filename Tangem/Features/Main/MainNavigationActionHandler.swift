@@ -68,6 +68,9 @@ extension MainCoordinator {
             case .staking:
                 return routeStakingAction(params: navigationAction.params)
 
+            case .yield:
+                return routeYieldAction(params: navigationAction.params)
+
             case .markets:
                 return routeMarketAction(params: navigationAction.params)
 
@@ -97,6 +100,9 @@ extension MainCoordinator {
 
             case .newsArticle:
                 return routeNewsArticleAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+
+            case .earn:
+                return routeEarnAction(params: navigationAction.params)
             }
         }
 
@@ -206,6 +212,17 @@ extension MainCoordinator {
                 intervalRawValue: params.interval
             )
             coordinator?.openDeepLink(.markets(filter: filter))
+            return true
+        }
+
+        private func routeEarnAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let earnType = params.earnType.flatMap { EarnFilterType(rawValue: $0) }
+            coordinator.openDeepLink(.earn(earnType: earnType, networkId: params.networkId))
             return true
         }
 
@@ -344,6 +361,27 @@ extension MainCoordinator {
             let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
+            return true
+        }
+
+        private func routeYieldAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard
+                let coordinator,
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                let tokenId = params.tokenId,
+                let networkId = params.networkId,
+                let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable(),
+                walletModel.yieldModuleManager != nil,
+                walletModel.multipleTransactionsSender != nil
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(
+                .yield(walletModel: walletModel, userWalletModel: userWalletModel)
+            )
             return true
         }
 

@@ -90,7 +90,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
-
+    private var yieldDeeplinkRouter: YieldDeeplinkRouter?
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
         navigationActionHandler: MainNavigationActionHandler,
@@ -210,6 +210,8 @@ extension MainCoordinator: MainRoutable {
             safariManager.openURL(url)
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
+        case .yield(let walletModel, let userWalletModel):
+            openYieldFromDeeplink(walletModel: walletModel, userWalletModel: userWalletModel)
         case .tangemPayTransactionDetails(let payload):
             openTangemPayTransactionDetailsFromPush(payload: payload)
         case .expressTransactionStatus,
@@ -225,7 +227,8 @@ extension MainCoordinator: MainRoutable {
              .newsDetails,
              .promo,
              .tokenExchanges,
-             .newsList:
+             .newsList,
+             .earn:
             deeplinkDestination.send(deepLink)
         }
     }
@@ -541,6 +544,24 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     private func findUserWalletModel(byCustomerWalletId customerWalletId: String) -> (any UserWalletModel)? {
         userWalletRepository.models.first { $0.userWalletId.stringValue == customerWalletId }
     }
+
+    private func openYieldFromDeeplink(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        yieldDeeplinkRouter = YieldDeeplinkRouter(
+            discardIncomingAction: { [weak self] in
+                self?.incomingActionManager.discardIncomingAction()
+            },
+            openYieldPromoAction: { [weak self] apy, flowFactory in
+                self?.openYieldModulePromoView(apy: apy, factory: flowFactory)
+            },
+            openYieldActiveAction: { [weak self] flowFactory in
+                self?.openYieldModuleActiveInfo(factory: flowFactory)
+            },
+            onFinish: { [weak self] in
+                self?.yieldDeeplinkRouter = nil
+            }
+        )
+        yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
 }
 
 // MARK: - TangemPayTransactionDetailsRoutable
@@ -835,7 +856,7 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
@@ -956,6 +977,7 @@ extension MainCoordinator {
         case swap(userWalletModel: UserWalletModel)
         case referral(input: ReferralInputModel)
         case staking(options: StakingDetailsCoordinator.Options)
+        case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
         case marketsTokenDetails(tokenId: String)
         case tokenExchanges(tokenId: String)
         case externalLink(url: URL)
@@ -966,6 +988,7 @@ extension MainCoordinator {
         case newsDetails(newsId: Int)
         case newsList(initialCategoryId: Int?)
         case promo(code: String, refcode: String?, campaign: String?)
+        case earn(earnType: EarnFilterType?, networkId: String?)
     }
 }
 
@@ -1014,7 +1037,7 @@ private extension MainCoordinator {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)
