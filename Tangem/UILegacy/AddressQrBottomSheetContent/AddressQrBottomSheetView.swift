@@ -18,7 +18,7 @@ struct AddressQrBottomSheetContentViewModel: Identifiable {
     var qrNotice: String
 
     func logCopyAddress() {
-        Analytics.log(.buttonCopyAddress)
+        Analytics.log(.buttonCopyAddress, analyticsSystems: .all)
     }
 
     func logShareAddress() {
