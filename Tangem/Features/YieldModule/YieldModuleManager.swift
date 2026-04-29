@@ -70,7 +70,9 @@ final class CommonYieldModuleManager {
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
     private var _nextExpectedState = CurrentValueSubject<NextExpectedState?, Never>(nil)
-    private var nextExpectedStateTimeoutTask: Task<Void, Never>?
+    private var nextExpectedStateTimeoutCancellable: AnyCancellable?
+
+    private var sendActivationStateCancellable: AnyCancellable?
 
     private var bag = Set<AnyCancellable>()
 
@@ -351,7 +353,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     }
 
     func sendActivationState() {
-        Task {
+        sendActivationStateCancellable = Task {
             switch state?.state {
             case .active:
                 await activate()
@@ -360,7 +362,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             default:
                 break
             }
-        }
+        }.eraseToAnyCancellable()
     }
 
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String) {
@@ -619,20 +621,18 @@ private extension CommonYieldModuleManager {
 
     @MainActor
     func setNextExpectedState(_ state: NextExpectedState?) {
-        // Cancel any existing timeout task
-        nextExpectedStateTimeoutTask?.cancel()
-        nextExpectedStateTimeoutTask = nil
-
+        nextExpectedStateTimeoutCancellable?.cancel()
+        nextExpectedStateTimeoutCancellable = nil
         _nextExpectedState.send(state)
 
         // If setting a non-nil state, start a timeout to reset it
         if state != nil {
-            nextExpectedStateTimeoutTask = Task { @MainActor [weak self] in
+            nextExpectedStateTimeoutCancellable = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(Constants.nextExpectedStateTimeout))
                 guard !Task.isCancelled else { return }
                 self?._nextExpectedState.send(nil)
                 AppLogger.debug("Next expected state timed out and was reset to nil")
-            }
+            }.eraseToAnyCancellable()
         }
     }
 }

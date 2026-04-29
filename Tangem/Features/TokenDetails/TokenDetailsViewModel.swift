@@ -109,27 +109,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
-        case .empty:
-            .empty
-        case .loading:
-            .loading
-        case .failure:
-            .error
-        case .loaded(let amount) where amount == .zero:
-            .empty
-        case .loaded:
-            .full
-        }
+        logScreenOpenedAnalytics()
+    }
 
-        let params: [Analytics.ParameterKey: String] = [
-            .token: walletModel.tokenItem.currencySymbol,
-            .blockchain: walletModel.tokenItem.blockchain.displayName,
-            .balance: balanceState.rawValue,
-        ]
-
-        Analytics.log(event: .detailsScreenOpened, params: params)
-
+    func onFirstAppear() {
         walletModel.yieldModuleManager?.sendActivationState()
     }
 
@@ -232,12 +215,18 @@ extension TokenDetailsViewModel {
         runTask { [weak self] in
             do {
                 let xpub = try await xpubGenerator.generateXPUB()
-                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-                AppPresenter.shared.show(viewController)
+                await runOnMain {
+                    MainActor.assumeIsolated {
+                        let viewController = UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+                        AppPresenter.shared.show(viewController)
+                    }
+                }
             } catch {
                 let sdkError = error.toTangemSdkError()
                 if !sdkError.isUserCancelled {
-                    self?.alert = error.alertBinder
+                    await runOnMain {
+                        self?.alert = error.alertBinder
+                    }
                 }
             }
         }
@@ -284,6 +273,33 @@ extension TokenDetailsViewModel {
 
         userTokensManager.remove(walletModel.tokenItem)
         coordinator?.dismiss()
+    }
+}
+
+// MARK: - Analytics
+
+private extension TokenDetailsViewModel {
+    func logScreenOpenedAnalytics() {
+        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
+        case .empty:
+            .empty
+        case .loading:
+            .loading
+        case .failure:
+            .error
+        case .loaded(let amount) where amount == .zero:
+            .empty
+        case .loaded:
+            .full
+        }
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
+            .balance: balanceState.rawValue,
+        ]
+
+        Analytics.log(event: .detailsScreenOpened, params: params)
     }
 }
 
