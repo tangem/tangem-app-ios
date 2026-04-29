@@ -62,6 +62,7 @@ private extension MarketsPortfolioMultipleTokenView {
         .setStyleType(.secondary)
         .setCornerStyle(.rounded)
         .setSize(.x10)
+        .allowsHitTesting(false)
     }
 
     func iconSet() -> some View {
