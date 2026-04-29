@@ -1292,6 +1292,7 @@
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
+"swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
@@ -1323,6 +1324,8 @@
 "swapping_approve_information_text" = "All decentralized exchanges require approvals to prevent smart contracts from accessing your wallet without your permission. By design, smart contracts can't access your tokens unless you approve. By \"unlocking\" your tokens, you authorize the 1-inch smart contract to spend them. The network's miners receive a gas fee (paid by you) to record this action on the blockchain. You can swap your token after giving approval.";
 "swapping_approve_information_title" = "Approve";
 "swapping_fee_estimation_error_text" = "Fee estimation error. Please send feedback to support.";
+"swapping_from_account_title" = "You send from";
+"swapping_from_title_v2" = "You send";
 "swapping_from_title" = "You swap";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
@@ -1333,6 +1336,7 @@
 "swapping_permit_and_swap" = "Permit and Swap";
 "swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "Swap";
+"swapping_to_account_title" = "You receive to";
 "swapping_to_title" = "You receive";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_not_available" = "not available";
@@ -1412,13 +1416,13 @@
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Receive unavailable now";
 "tangempay_card_details_reissue_card" = "Replace card";
-"tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed.";
+"tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_show_details" = "Show details";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
-"tangempay_card_details_unable_to_rename_card_description" = "Please try again later.";
+"tangempay_card_details_unable_to_rename_card_description" = "Please try again later";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
 "tangempay_card_details_view_pin_code_title" = "Your PIN code";
@@ -1427,7 +1431,7 @@
 "tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
 "tangempay_card_details_withdraw" = "Withdraw";
 "tangempay_card_limit_setup_amount_subtitle" = "Set a limit from %@";
-"tangempay_card_limit_setup_error_message" = "We couldn’t set the limit. Please try again.";
+"tangempay_card_limit_setup_error_message" = "We couldn’t set the limit. Please try again";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
 "tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
@@ -1504,7 +1508,7 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Click the button below to restore access";
-"tangempay_withdrawal_note_description" = "Your on-chain USDC Polygon balance differs from your card balance and updates within 2 business days after a purchase. Funds from refunded purchases won’t be returned your on-chain balance or be available for withdrawal, but will stay on your card balance for purchases.";
+"tangempay_withdrawal_note_description" = "Funds from refunded purchases won’t be returned your on-chain Polygon balance or be available for withdrawal, but will stay on your card balance for purchases";
 "tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "Your PIN code";
 "toast_balances_hidden" = "Balances hidden";
