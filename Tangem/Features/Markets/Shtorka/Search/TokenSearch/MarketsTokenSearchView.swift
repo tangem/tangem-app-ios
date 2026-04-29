@@ -28,7 +28,7 @@ struct MarketsTokenSearchView: View {
     }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: .unit(.x4)) {
                 Color.clear
                     .frame(height: headerHeight)
@@ -36,6 +36,8 @@ struct MarketsTokenSearchView: View {
                 stateView
             }
         }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.immediately)
         .readGeometry(\.frame.height) { frameHeight = $0 }
     }
 }
