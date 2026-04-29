@@ -46,6 +46,8 @@ extension StakeKitHTTPError: @retroactive UniversalError {
         switch self {
         case .badStatusCode:
             105002000
+        case .insufficientGasReserve:
+            105002002
         }
     }
 }
