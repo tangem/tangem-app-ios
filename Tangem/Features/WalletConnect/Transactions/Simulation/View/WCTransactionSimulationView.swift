@@ -215,7 +215,7 @@ struct WCTransactionSimulationView: View {
             switch content {
             case .tokenInfo(let formattedAmount, let iconURL, let asset):
                 Text(asset.isNFT ? (asset.symbol ?? formattedAmount) : formattedAmount)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                     .lineLimit(1)
 
                 if asset.isNFT, let iconURL {
