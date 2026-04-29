@@ -12,6 +12,15 @@ extension Analytics {
         case amplitude
         case crashlytics
         case appsFlyer
+
+        var logBadge: String {
+            switch self {
+            case .firebase: return "FB"
+            case .amplitude: return "AM"
+            case .crashlytics: return "CL"
+            case .appsFlyer: return "AF"
+            }
+        }
     }
 }
 
