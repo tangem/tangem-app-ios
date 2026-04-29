@@ -38,21 +38,27 @@ struct TangemPayMainView: View {
 
                 balance
 
+                if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
+                    NotificationView(input: cardDeactivatedNotificationInput)
+                }
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
                 NotificationView(input: viewModel.contactSupportNotificationInput)
 
-                TransactionsListView(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    exploreConfirmationDialog: nil,
-                    exploreTransactionAction: viewModel.openTransactionDetails,
-                    reloadButtonAction: viewModel.reloadHistory,
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
+                if !viewModel.isDeactivated {
+                    TransactionsListView(
+                        state: viewModel.tangemPayTransactionHistoryState,
+                        exploreAction: nil,
+                        exploreConfirmationDialog: nil,
+                        exploreTransactionAction: viewModel.openTransactionDetails,
+                        reloadButtonAction: viewModel.reloadHistory,
+                        isReloadButtonBusy: false,
+                        fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                    )
+                }
 
                 Spacer()
             }
