@@ -27,7 +27,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
-    private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(refreshable: { [weak self] in
+    private(set) lazy var scrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         await withCheckedContinuation { [weak self] pullToRefreshContinuation in
             guard self?.state.isLoading == false else {
                 self?.pullToRefreshContinuation?.resume()
@@ -37,7 +37,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             self?.pullToRefreshContinuation = pullToRefreshContinuation
             self?.updateInternal()
         }
-    })
+    }
 
     // MARK: - Private properties
 
