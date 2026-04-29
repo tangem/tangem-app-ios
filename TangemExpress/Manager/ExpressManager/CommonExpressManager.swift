@@ -178,6 +178,7 @@ extension CommonExpressManager: ExpressManager {
 
         let request = ExpressManagerSwappingPairRequest(
             amountType: amountType,
+            rateType: amountType.rateType,
             feeOption: feeOption,
             approvePolicy: approvePolicy,
             operationType: pair.source.operationType
@@ -230,6 +231,7 @@ extension CommonExpressManager: ExpressManager {
     ) async throws -> ExpressTransactionData {
         let request = ExpressManagerSwappingPairRequest(
             amountType: amountType,
+            rateType: amountType.rateType,
             feeOption: feeOption,
             approvePolicy: approvePolicy,
             operationType: pair.source.operationType

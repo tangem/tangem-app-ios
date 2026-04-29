@@ -33,6 +33,7 @@ struct SendAmountView: View {
             focusedField = focusTarget(for: field)
         }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     // MARK: - Source
