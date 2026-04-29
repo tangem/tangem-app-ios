@@ -189,7 +189,7 @@ private extension SendWithSwapModel {
         let receiveToken = CommonSendReceiveTokenFactory(tokenItem: receiveTokenItem.tokenItem)
             .makeSendReceiveToken(destination: destination)
 
-        swapModel.update(receive: receiveToken)
+        swapModel.update(receiveDestination: receiveToken)
     }
 }
 

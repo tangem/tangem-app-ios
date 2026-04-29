@@ -1,5 +1,5 @@
 {
-  "originHash" : "ef863cef8319129d2b1e799b76747fa19eb97607d433cd1660a6c0a63be2afeb",
+  "originHash" : "e8ff9f5e39bca75124fc55af90ba4420b91669a25cb055215e0055044761625c",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk.git",
       "state" : {
-        "revision" : "d47760f97a853808be6a045d278fbd12abf546b6",
-        "version" : "12.12.0"
+        "revision" : "46579c364d39b86ec9fb8f613e19f023700a929c",
+        "version" : "12.12.1"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/google-ads-on-device-conversion-ios-sdk",
       "state" : {
-        "revision" : "7b722132d1f2ab421c88a2e5c384c984cebd0d00",
-        "version" : "3.4.0"
+        "revision" : "19dffda9a9caf8d86570ff846535902d8509d7bf",
+        "version" : "3.5.0"
       }
     },
     {
@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleAppMeasurement.git",
       "state" : {
-        "revision" : "1657f705bc70255ff9d66dfcc697a85db164998f",
-        "version" : "12.11.0"
+        "revision" : "5100f946bd32778662047a823bf145c6da32d85d",
+        "version" : "12.12.1"
       }
     },
     {
@@ -573,8 +573,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-structured-headers.git",
       "state" : {
-        "revision" : "76d7627bd88b47bf5a0f8497dd244885960dde0b",
-        "version" : "1.6.0"
+        "revision" : "933538faa42c432d385f02e07df0ace7c5ecfc47",
+        "version" : "1.7.0"
       }
     },
     {
@@ -591,8 +591,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "bbd81b6725ae874c69e9b8c8804d462356b55523",
-        "version" : "1.10.1"
+        "revision" : "5073617dac96330a486245e4c0179cb0a6fd2256",
+        "version" : "1.12.0"
       }
     },
     {
@@ -609,8 +609,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "e932d3c4d8f77433c8f7093b5ebcbf91463948a0",
-        "version" : "2.95.0"
+        "revision" : "f71c8d2a5e74a2c6d11a0fbe324774b5d6084237",
+        "version" : "2.99.0"
       }
     },
     {
@@ -627,8 +627,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "b6571f3db40799df5a7fc0e92c399aa71c883edd",
-        "version" : "1.40.0"
+        "revision" : "81cc18264f92cd307ff98430f89372711d4f6fe9",
+        "version" : "1.43.0"
       }
     },
     {
@@ -636,8 +636,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "173cc69a058623525a58ae6710e2f5727c663793",
-        "version" : "2.36.0"
+        "revision" : "3f337058ccd7243c4cac7911477d8ad4c598d4da",
+        "version" : "2.37.0"
       }
     },
     {
@@ -645,8 +645,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-transport-services.git",
       "state" : {
-        "revision" : "60c3e187154421171721c1a38e800b390680fb5d",
-        "version" : "1.26.0"
+        "revision" : "67787bb645a5e67d2edcdfbe48a216cc549222d5",
+        "version" : "1.28.0"
       }
     },
     {

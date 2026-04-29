@@ -39,7 +39,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        pairUpdateHandler: SendWithSwapPairUpdateHandler(
+        eventHandler: SendWithSwapEventHandler(
             expressManager: expressDependenciesFactory.expressManager
         ),
         shouldStartInitialLoading: false

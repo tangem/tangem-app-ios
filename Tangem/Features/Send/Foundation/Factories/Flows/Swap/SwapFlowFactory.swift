@@ -23,7 +23,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         receiveToken: receiveToken,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        pairUpdateHandler: RegularSwapPairUpdateHandler(
+        eventHandler: RegularSwapEventHandler(
             expressManager: expressDependenciesFactory.expressManager,
             expressPairsRepository: expressDependenciesFactory.expressPairsRepository
         ),
