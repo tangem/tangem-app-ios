@@ -1,5 +1,5 @@
 //
-//  MarketsPortfolioSingleTokenViewModel.swift
+//  MarketsPortfolioTokenListRowViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,20 +13,21 @@ import struct SwiftUI.Color
 import TangemUI
 import TangemAssets
 
-final class MarketsPortfolioSingleTokenViewModel: ObservableObject {
+final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
     typealias Text = SensitiveText.TextType
     typealias BalanceState = MarketsPortfolioTokenBalanceState
 
     typealias TokenBalancePublisher = AnyPublisher<TokenBalanceType, Never>
-    typealias RatePublisher = AnyPublisher<WalletModelRate, Never>
-    typealias Action = () -> Void
 
-    @Published private(set) var priceWithChangeState: PriceWithChangeState = .loading
     @Published private(set) var cryptoBalanceState: BalanceState = .loading
     @Published private(set) var fiatBalanceState: BalanceState = .loading
 
     var tokenName: String {
         tokenInfo.name
+    }
+
+    var networkName: String {
+        tokenInfo.networkName
     }
 
     var tokenIconInfo: TokenIconInfo {
@@ -42,62 +43,37 @@ final class MarketsPortfolioSingleTokenViewModel: ObservableObject {
     }
 
     private let tokenInfo: TokenInfo
-    private let ratePublisher: RatePublisher
     private let fiatTotalTokenBalancePublisher: TokenBalancePublisher
     private let cryptoTotalTokenBalancePublisher: TokenBalancePublisher
-    private let onTapAction: Action
 
-    private let priceFormatter = TokenItemPriceFormatter()
-    private let priceChangeUtility = PriceChangeUtility()
     private let balanceFormatter = BalanceFormatter()
 
     init(
         tokenInfo: TokenInfo,
-        ratePublisher: RatePublisher,
         fiatTotalTokenBalancePublisher: TokenBalancePublisher,
-        cryptoTotalTokenBalancePublisher: TokenBalancePublisher,
-        onTapAction: @escaping Action
+        cryptoTotalTokenBalancePublisher: TokenBalancePublisher
     ) {
         self.tokenInfo = tokenInfo
-        self.ratePublisher = ratePublisher
         self.fiatTotalTokenBalancePublisher = fiatTotalTokenBalancePublisher
         self.cryptoTotalTokenBalancePublisher = cryptoTotalTokenBalancePublisher
-        self.onTapAction = onTapAction
 
         bind()
     }
 }
 
-// MARK: - Internal methods
-
-extension MarketsPortfolioSingleTokenViewModel {
-    func onTap() {
-        onTapAction()
-    }
-}
-
 // MARK: - Binding
 
-private extension MarketsPortfolioSingleTokenViewModel {
+private extension MarketsPortfolioTokenListRowViewModel {
     func bind() {
-        ratePublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .map { viewModel, rate in
-                viewModel.priceWithChangeState(rate: rate)
-            }
-            .assign(to: &$priceWithChangeState)
-
         fiatTotalTokenBalancePublisher
-            .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, balanceType in
                 viewModel.fiatBalanceState(balanceType: balanceType)
             }
+            .receiveOnMain()
             .assign(to: &$fiatBalanceState)
 
         cryptoTotalTokenBalancePublisher
-            .receiveOnMain()
             .withWeakCaptureOf(self)
             .compactMap { viewModel, balanceType in
                 viewModel.cryptoBalanceState(
@@ -105,42 +81,14 @@ private extension MarketsPortfolioSingleTokenViewModel {
                     currencyCode: viewModel.tokenCurrencyCode
                 )
             }
+            .receiveOnMain()
             .assign(to: &$cryptoBalanceState)
-    }
-}
-
-// MARK: - Price with change
-
-private extension MarketsPortfolioSingleTokenViewModel {
-    func priceWithChangeState(rate: WalletModelRate) -> PriceWithChangeState {
-        switch rate {
-        case .loading(.none):
-            return .loading
-        case .loading(.some(let quote)), .failure(.some(let quote)), .loaded(let quote):
-            return PriceWithChangeState(
-                priceState: priceState(quote: quote),
-                changeState: priceChangeState(quote: quote)
-            )
-        case .custom, .failure(.none):
-            return PriceWithChangeState(
-                priceState: .noData,
-                changeState: .empty
-            )
-        }
-    }
-
-    func priceState(quote: TokenQuote) -> LoadableTextView.State {
-        .loaded(text: priceFormatter.formatPrice(quote.price))
-    }
-
-    func priceChangeState(quote: TokenQuote) -> PriceChangeView.State {
-        priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
     }
 }
 
 // MARK: - Crypto balance
 
-private extension MarketsPortfolioSingleTokenViewModel {
+private extension MarketsPortfolioTokenListRowViewModel {
     func cryptoBalanceState(balanceType: TokenBalanceType, currencyCode: String) -> BalanceState {
         let hasLoadingBalance = hasLoadingBalance(balanceType: balanceType)
         let hasBalance = hasBalance(balanceType: balanceType)
@@ -203,7 +151,7 @@ private extension MarketsPortfolioSingleTokenViewModel {
 
 // MARK: - Fiat balance
 
-private extension MarketsPortfolioSingleTokenViewModel {
+private extension MarketsPortfolioTokenListRowViewModel {
     func fiatBalanceState(balanceType: TokenBalanceType) -> BalanceState {
         let hasLoadingBalance = hasLoadingBalance(balanceType: balanceType)
         let hasBalance = hasBalance(balanceType: balanceType)
@@ -234,7 +182,7 @@ private extension MarketsPortfolioSingleTokenViewModel {
                 }
             } else {
                 let formattedBalance = balanceFormatter.formatFiatBalance(nil)
-                let attributedBalance = attributedFiatBalance(formattedBalance)
+                let attributedBalance = attributedCryptoBalance(formattedBalance)
                 return .failed(attributedBalance)
             }
         }
@@ -258,7 +206,7 @@ private extension MarketsPortfolioSingleTokenViewModel {
 
 // MARK: - Private methods
 
-private extension MarketsPortfolioSingleTokenViewModel {
+private extension MarketsPortfolioTokenListRowViewModel {
     func hasLoadingBalance(balanceType: TokenBalanceType) -> Bool {
         balanceType.isLoading
     }
@@ -283,20 +231,11 @@ private extension MarketsPortfolioSingleTokenViewModel {
 
 // MARK: - Types
 
-extension MarketsPortfolioSingleTokenViewModel {
+extension MarketsPortfolioTokenListRowViewModel {
     struct TokenInfo {
         let name: String
+        let networkName: String
         let currencyCode: String
         let iconInfo: TokenIconInfo
-    }
-
-    struct PriceWithChangeState {
-        let priceState: LoadableTextView.State
-        let changeState: PriceChangeView.State
-
-        static let loading = PriceWithChangeState(
-            priceState: .loading,
-            changeState: .loading
-        )
     }
 }
