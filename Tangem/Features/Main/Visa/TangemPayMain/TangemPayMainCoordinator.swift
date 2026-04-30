@@ -18,6 +18,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
 
     // MARK: - Root view model
 
@@ -54,6 +55,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
+            cardDetailsRepository: tangemPayAssembly.makeCardDetailsRepository(for: options.tangemPayAccount),
             coordinator: self
         )
     }
@@ -107,6 +109,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         cardManagementViewModel = TangemPayCardManagementViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
+            cardDetailsRepository: tangemPayAssembly.makeCardDetailsRepository(for: options.tangemPayAccount),
             coordinator: self
         )
     }

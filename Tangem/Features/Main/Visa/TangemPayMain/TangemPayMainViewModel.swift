@@ -47,11 +47,11 @@ final class TangemPayMainViewModel: ObservableObject {
         cardDetailsRepository.lastFourDigits
     }
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayMainRoutable?
-
-    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
@@ -63,13 +63,13 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        cardDetailsRepository: TangemPayCardDetailsRepository,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.cardDetailsRepository = cardDetailsRepository
         self.coordinator = coordinator
-
-        cardDetailsRepository = .init(tangemPayAccount: tangemPayAccount)
 
         cardDeactivatedNotificationInput = tangemPayAccount.isDeactivated
             ? NotificationsFactory().buildNotificationInput(for: TangemPayCardDeactivatedNotificationEvent())

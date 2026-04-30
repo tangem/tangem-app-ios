@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
@@ -170,6 +171,8 @@ struct TangemPayCardDetailsView: View {
                 cardDetailField(
                     label: Localization.tangempayCardDetailsCardNumber,
                     value: cardDetails.number,
+                    valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsNumberValue,
+                    copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyNumber,
                     copyAction: viewModel.copyNumber
                 )
 
@@ -177,12 +180,16 @@ struct TangemPayCardDetailsView: View {
                     cardDetailField(
                         label: Localization.tangempayCardDetailsExpiry,
                         value: cardDetails.expirationDate,
+                        valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsExpirationValue,
+                        copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyExpiration,
                         copyAction: viewModel.copyExpirationDate
                     )
 
                     cardDetailField(
                         label: Localization.tangempayCardDetailsCvc,
                         value: cardDetails.cvc,
+                        valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCvcValue,
+                        copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyCvc,
                         copyAction: viewModel.copyCVC
                     )
                 }
@@ -212,6 +219,7 @@ struct TangemPayCardDetailsView: View {
                                     .fill(Colors.Text.tertiary.opacity(0.2))
                             )
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsHideButton)
                 } else {
                     showDetailsButton()
                 }
@@ -275,9 +283,16 @@ struct TangemPayCardDetailsView: View {
                 )
         }
         .cornerRadius(14)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsShowButton)
     }
 
-    private func cardDetailField(label: String, value: String, copyAction: @escaping () -> Void) -> some View {
+    private func cardDetailField(
+        label: String,
+        value: String,
+        valueAccessibilityIdentifier: String,
+        copyAccessibilityIdentifier: String,
+        copyAction: @escaping () -> Void
+    ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .style(
@@ -291,6 +306,7 @@ struct TangemPayCardDetailsView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.constantWhite
                     )
+                    .accessibilityIdentifier(valueAccessibilityIdentifier)
 
                 Spacer()
 
@@ -302,6 +318,7 @@ struct TangemPayCardDetailsView: View {
                         .frame(size: .init(bothDimensions: 20))
                         .foregroundColor(Colors.Text.tertiary)
                 }
+                .accessibilityIdentifier(copyAccessibilityIdentifier)
             }
         }
         .padding(12)
