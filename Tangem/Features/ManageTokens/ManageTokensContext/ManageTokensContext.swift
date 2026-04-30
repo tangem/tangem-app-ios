@@ -39,4 +39,15 @@ protocol ManageTokensContext {
     func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool
     func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool
+    func hasDynamicAddressRestriction(for tokenItem: TokenItem) -> Bool
+}
+
+extension ManageTokensContext {
+    func hasDynamicAddressRestriction(for tokenItem: TokenItem) -> Bool {
+        let destinationTokensManager = findUserTokensManager(for: tokenItem) ?? userTokensManager
+        return !DynamicAddressesCustomDerivationChecker.canAddCustomToken(
+            tokenItem: tokenItem,
+            existingTokens: destinationTokensManager.userTokens
+        )
+    }
 }
