@@ -51,10 +51,11 @@ struct ProductionLogSanitizerPolicyTests {
 
     @Test
     func shouldPreserveWalletConnectDeeplink() {
-        let input = #"Received deeplink: tangem://wc?uri=wc%3Aa4f57e0493f84cfc7168a91579a18c5d9587dd1dd2d40efbe1cd916570399710%402%3Frelay-protocol%3Dirn%26symKey%3D57285434b30502b8991753225668f667e7c529926f007cec30652861ac11d8a4%26expiryTimestamp%3D1750166958"#
+        let input = "Received deeplink: tangem://wc?uri=wc%3Aa4f57e0493f84cfc7168a91579a18c5d9587dd1dd2d40efbe1cd916570399710%402%3FsymKey%3D57285434b30502b8991753225668f667e7c529926f007cec30652861ac11d8a4%26relay-protocol%3Dirn%26methods%3Dpersonal_sign"
+        let expected = "Received deeplink: tangem://wc?uri=wc%3Aa4f57e0493f84cfc7168a91579a18c5d9587dd1dd2d40efbe1cd916570399710%402%3FsymKey%\(Self.broadHexRedactPlaceholder)%26relay-protocol%3Dirn%26methods%3Dpersonal_sign"
 
         let actual = LogSanitizer.sanitize(input, policy: .production)
-        #expect(actual == input)
+        #expect(actual == expected)
     }
 
     @Test
