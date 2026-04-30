@@ -13,6 +13,7 @@ struct DynamicAddressesManagerProvider {
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
     let blockchainSettingsUpdater: BlockchainSettingsUpdater
+    let userTokensManager: UserTokensManager
 
     func makeDynamicAddressesManager(
         tokenItem: TokenItem,
@@ -37,7 +38,8 @@ struct DynamicAddressesManagerProvider {
             tokenItem: tokenItem,
             xpubAddressesWalletManagerProvider: xpubAddressesWalletManagerProvider,
             xpubKeyGenerator: generator,
-            blockchainSettingsUpdater: blockchainSettingsUpdater
+            blockchainSettingsUpdater: blockchainSettingsUpdater,
+            userTokensManager: userTokensManager
         )
     }
 }
