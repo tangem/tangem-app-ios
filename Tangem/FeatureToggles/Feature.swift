@@ -28,6 +28,7 @@ enum Feature: String, Hashable, CaseIterable {
     case newPromotionBanners
     case swapPipelineV2
     case onrampNativePayment
+    case sendBalanceSendSplitRows
     case swapStoriesV2
 
     var name: String {
@@ -49,6 +50,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .newPromotionBanners: return "New Promotion Banners"
+        case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .swapStoriesV2: return "Swap Stories V2"
@@ -76,6 +78,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .unspecified
         case .onrampNativePayment: return .unspecified
+        case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .unspecified
         }
     }
