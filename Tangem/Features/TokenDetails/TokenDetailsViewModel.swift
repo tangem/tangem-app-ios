@@ -306,7 +306,7 @@ private extension TokenDetailsViewModel {
             .full
         }
 
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .balance: balanceState.rawValue,
