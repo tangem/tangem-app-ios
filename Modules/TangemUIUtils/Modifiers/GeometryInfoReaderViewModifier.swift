@@ -11,10 +11,23 @@ import SwiftUI
 // MARK: - Convenience extensions
 
 public extension View {
-    /// Closure-based helper. Use optional `keyPath` parameter if you aren't interested
-    /// in the whole `GeometryInfo` but rather a single property of it.
+    /// Closure-based helper that observes the whole `GeometryInfo`.
+    func readGeometry(
+        inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
+        throttleInterval: GeometryInfo.ThrottleInterval = .zero,
+        onChange: @escaping (_ value: GeometryInfo) -> Void
+    ) -> some View {
+        readGeometry(
+            \.self,
+            inCoordinateSpace: coordinateSpace,
+            throttleInterval: throttleInterval,
+            onChange: onChange
+        )
+    }
+
+    /// Closure-based helper. Pass a `keyPath` to observe a single property of `GeometryInfo`.
     func readGeometry<T>(
-        _ keyPath: KeyPath<GeometryInfo, T> = \.self,
+        _ keyPath: KeyPath<GeometryInfo, T>,
         inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
         throttleInterval: GeometryInfo.ThrottleInterval = .zero,
         onChange: @escaping (_ value: T) -> Void
@@ -29,8 +42,21 @@ public extension View {
         )
     }
 
-    /// Binding-based helper. Use optional `keyPath` parameter if you aren't interested
-    /// in the whole `GeometryInfo` but rather a single property of it.
+    /// Binding-based helper that observes the whole `GeometryInfo`.
+    func readGeometry(
+        inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
+        throttleInterval: GeometryInfo.ThrottleInterval = .zero,
+        bindTo value: Binding<GeometryInfo>
+    ) -> some View {
+        readGeometry(
+            \.self,
+            inCoordinateSpace: coordinateSpace,
+            throttleInterval: throttleInterval,
+            bindTo: value
+        )
+    }
+
+    /// Binding-based helper. Pass a `keyPath` to observe a single property of `GeometryInfo`.
     ///
     /// ```swift
     /// struct SomeView: View {
@@ -45,7 +71,7 @@ public extension View {
     /// }
     /// ```
     func readGeometry<T>(
-        _ keyPath: KeyPath<GeometryInfo, T> = \.self,
+        _ keyPath: KeyPath<GeometryInfo, T>,
         inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
         throttleInterval: GeometryInfo.ThrottleInterval = .zero,
         bindTo value: Binding<T>

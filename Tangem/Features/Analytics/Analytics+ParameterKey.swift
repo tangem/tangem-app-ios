@@ -25,6 +25,7 @@ extension Analytics {
         case currency = "Currency Type" // fiat
         case success = "Success"
         case token = "Token"
+        case dynamicAddress = "Dynamic Address"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
         case tokenFound = "Token Found"

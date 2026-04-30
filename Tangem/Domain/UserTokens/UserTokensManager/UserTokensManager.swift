@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-protocol UserTokensManager: UserTokensReordering {
+protocol UserTokensManager: UserTokensReordering, DisposableEntity {
     var userTokens: [TokenItem] { get }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { get }
