@@ -46,6 +46,7 @@ struct TangemPayPopupView: View {
 
                 VStack(spacing: 8) {
                     MainButton(settings: viewModel.primaryButton)
+                        .accessibilityIdentifier(viewModel.primaryButtonAccessibilityIdentifier)
 
                     if let secondarySettings = viewModel.secondaryButton {
                         MainButton(settings: secondarySettings)
