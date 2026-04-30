@@ -11,14 +11,27 @@ import Combine
 import CombineExt
 
 protocol UTXOXpubNetworkAddressInfoProvider: UTXONetworkAddressInfoProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, Error>
-    func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], Error>
+    func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubAddressesInfo, Error>
+    func getUnspentOutputs(xpub: UTXOXpubScriptType) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], Error>
 }
 
 // MARK: - Convenience
 
 extension UTXOXpubNetworkAddressInfoProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubNetworkProviderUpdatingResponse, Error> {
+    /// Convenient method for multi-xpub wallet
+    func getInfo(xpubs: [UTXOXpubScriptType]) -> AnyPublisher<[UTXOXpubNetworkProviderUpdatingResponse], Error> {
+        if xpubs.isEmpty {
+            return .anyFail(error: BlockchainSdkError.addressesIsEmpty)
+        }
+
+        let publishers: [AnyPublisher<UTXOXpubNetworkProviderUpdatingResponse, Error>] = xpubs.map { xpub in
+            getInfo(xpub: xpub)
+        }
+
+        return Publishers.MergeMany(publishers).collect().eraseToAnyPublisher()
+    }
+
+    func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubNetworkProviderUpdatingResponse, Error> {
         Publishers
             .CombineLatest(getInfo(xpub: xpub), getUnspentOutputs(xpub: xpub))
             .withWeakCaptureOf(self)
