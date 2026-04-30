@@ -22,6 +22,9 @@ final class WalletConnectQRScanViewModel: ObservableObject {
 
     @Published private(set) var state: WalletConnectQRScanViewState
 
+    // [REDACTED_TODO_COMMENT]
+    private var qrCodeNotYetProcessed = true
+
     init(
         state: WalletConnectQRScanViewState,
         cameraAccessProvider: some WalletConnectCameraAccessProvider,
@@ -90,8 +93,14 @@ extension WalletConnectQRScanViewModel {
     }
 
     private func handleQRCodeParsed(_ rawQRCode: String) {
+        guard qrCodeNotYetProcessed else {
+            return
+        }
+
         do {
             let qrURI = try uriParser.parse(uriString: rawQRCode)
+
+            qrCodeNotYetProcessed = false
             coordinator?.dismiss(with: .fromQRCode(qrURI))
         } catch {
             feedbackGenerator.errorNotificationOccurred()
