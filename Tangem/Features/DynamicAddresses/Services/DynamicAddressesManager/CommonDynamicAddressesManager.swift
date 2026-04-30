@@ -14,6 +14,7 @@ final class CommonDynamicAddressesManager {
     private let xpubAddressesWalletManagerProvider: XPUBAddressesWalletManagerProvider
     private let xpubKeyGenerator: XPUBKeyGenerator
     private let blockchainSettingsUpdater: BlockchainSettingsUpdater
+    private let userTokensManager: UserTokensManager
 
     private let _state: CurrentValueSubject<DynamicAddressesState, Never>
 
@@ -21,12 +22,14 @@ final class CommonDynamicAddressesManager {
         tokenItem: TokenItem,
         xpubAddressesWalletManagerProvider: XPUBAddressesWalletManagerProvider,
         xpubKeyGenerator: XPUBKeyGenerator,
-        blockchainSettingsUpdater: BlockchainSettingsUpdater
+        blockchainSettingsUpdater: BlockchainSettingsUpdater,
+        userTokensManager: UserTokensManager
     ) {
         self.tokenItem = tokenItem
         self.xpubAddressesWalletManagerProvider = xpubAddressesWalletManagerProvider
         self.xpubKeyGenerator = xpubKeyGenerator
         self.blockchainSettingsUpdater = blockchainSettingsUpdater
+        self.userTokensManager = userTokensManager
 
         let isEnabled = tokenItem.blockchainNetwork.settings == .dynamicAddresses
         _state = .init(isEnabled ? .enabled : .disabled)
@@ -45,6 +48,14 @@ extension CommonDynamicAddressesManager: DynamicAddressesManager {
     }
 
     var enablingRequirements: DynamicAddressesEnablingRequirements? {
+        let canEnable = DynamicAddressesCustomDerivationChecker.canEnableDynamicAddresses(
+            for: tokenItem,
+            existingTokens: userTokensManager.userTokens
+        )
+        if !canEnable {
+            return .customTokensRemoveIsNeeded
+        }
+
         if xpubKeyGenerator.derivationIsNeeded() {
             return .xpubDerivationIsNeeded
         }
