@@ -178,9 +178,8 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openDynamicAddressesUnavailableSheet() {
-        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
-
+    func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType) {
+        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: messageType, coordinator: self)
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
