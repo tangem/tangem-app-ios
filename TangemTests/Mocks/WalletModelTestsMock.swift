@@ -108,7 +108,6 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - ReceiveAddressTypesProvider
 
-    var receiveAddressTypes: [ReceiveAddressType] { [] }
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { .just(output: []) }
 
     // MARK: - WalletModelResolvable
@@ -146,8 +145,8 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var addresses: [String] { [defaultAddressString] }
-    var defaultAddressString: String { "mock" }
+    var addresses: [Address] { [defaultAddress] }
+    var defaultAddress: Address { PlainAddress(value: "mock", type: .default) }
 
     var isMainToken: Bool { true }
     var tokenItem: TokenItem { _tokenItem }
@@ -207,9 +206,7 @@ final class WalletModelTestsMock: WalletModel {
 
     var description: String { "WalletModelTestsMock" }
 
-    func displayAddress(for index: Int) -> String { "" }
-    func shareAddressString(for index: Int) -> String { "" }
-    func exploreURL(for index: Int, token: Token?) -> URL? { nil }
+    func exploreURL(for address: String, token: Token?) -> URL? { nil }
     func exploreTransactionURL(for hash: String) -> URL? { nil }
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
