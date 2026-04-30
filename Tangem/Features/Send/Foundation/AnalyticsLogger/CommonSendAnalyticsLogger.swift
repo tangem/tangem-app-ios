@@ -19,6 +19,7 @@ class CommonSendAnalyticsLogger {
 
     private let sendType: SendType
     private let coordinatorSource: SendCoordinator.Source
+    private let analyticsLogger: AnalyticsLogging
     private var destinationAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var sourceTokenItem: TokenItem? {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
@@ -48,9 +49,14 @@ class CommonSendAnalyticsLogger {
         coordinatorSource == .qrScan ? .qr : .manually
     }
 
-    init(sendType: SendType, coordinatorSource: SendCoordinator.Source = .main) {
+    init(
+        sendType: SendType,
+        coordinatorSource: SendCoordinator.Source = .main,
+        analyticsLogger: AnalyticsLogging = CommonAnalyticsLogger()
+    ) {
         self.sendType = sendType
         self.coordinatorSource = coordinatorSource
+        self.analyticsLogger = analyticsLogger
     }
 
     private var rateTypeAnalyticsValue: String? {
@@ -80,7 +86,7 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logDestinationStepOpened() {
-        Analytics.log(
+        analyticsLogger.log(
             .sendAddressScreenOpened,
             params: [.source: sourceFlow],
             analyticsSystems: .all
@@ -88,11 +94,11 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logDestinationStepReopened() {
-        Analytics.log(.sendScreenReopened, params: [.method: .address])
+        analyticsLogger.log(.sendScreenReopened, params: [.method: .address])
     }
 
     func logQRScannerOpened() {
-        Analytics.log(.sendButtonQRCode)
+        analyticsLogger.log(.sendButtonQRCode)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
@@ -105,7 +111,7 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
         default: .sendAddressEntered
         }
 
-        Analytics.log(
+        analyticsLogger.log(
             event,
             params: [
                 .method: parameterValue,
@@ -124,7 +130,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
             return
         }
 
-        Analytics.log(
+        analyticsLogger.log(
             event: .sendCustomFeeClicked,
             params: [.token: tokenItem.currencySymbol, .blockchain: tokenItem.blockchain.displayName]
         )
@@ -135,7 +141,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
             return
         }
 
-        Analytics.log(
+        analyticsLogger.log(
             event: .sendFeeSummaryScreenOpened,
             params: [
                 .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
@@ -151,7 +157,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
 
         let availableFeeParam = availableTokenFees.map { SendAnalyticsHelper.makeAnalyticsTokenName(from: $0.tokenItem) }.joined(separator: ", ")
 
-        Analytics.log(
+        analyticsLogger.log(
             event: .sendFeeTokenScreenOpened,
             params: [.availableFee: availableFeeParam, .blockchain: tokenItem.blockchain.displayName]
         )
@@ -164,7 +170,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
 
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
-            Analytics.log(
+            analyticsLogger.log(
                 event: .sendFeeScreenOpened,
                 params: [
                     .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
@@ -172,16 +178,16 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
                 ]
             )
         case .nonFungible:
-            Analytics.log(.nftCommissionScreenOpened)
+            analyticsLogger.log(.nftCommissionScreenOpened)
         }
     }
 
     func logFeeStepReopened() {
         switch sourceTokenItem?.token?.metadata.kind {
         case .nonFungible:
-            Analytics.log(.nftCommissionScreenOpened)
+            analyticsLogger.log(.nftCommissionScreenOpened)
         case .fungible, .none:
-            Analytics.log(.sendScreenReopened, params: [.source: .fee])
+            analyticsLogger.log(.sendScreenReopened, params: [.source: .fee])
         }
     }
 
@@ -194,7 +200,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
         let blockchainParam = tokenFee.tokenItem.blockchain.displayName
 
         if case .nonFungible = tokenItem.token?.metadata.kind {
-            Analytics.log(
+            analyticsLogger.log(
                 event: .nftFeeSelected,
                 params: [.feeType: feeTypeParam.rawValue, .blockchain: blockchainParam, .source: sourceFlow.rawValue]
             )
@@ -207,13 +213,13 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
                 .blockchain: blockchainParam,
             ]
 
-            Analytics.log(event: .sendFeeSelected, params: params)
+            analyticsLogger.log(event: .sendFeeSelected, params: params)
         }
     }
 
     func logFeeSelected(_ feeOption: FeeOption) {
         if feeOption == .custom {
-            Analytics.log(.sendCustomFeeClicked)
+            analyticsLogger.log(.sendCustomFeeClicked)
             return
         }
 
@@ -233,7 +239,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
         var params: [Analytics.ParameterKey: String] = [.feeType: feeType.rawValue]
         params[.source] = source?.rawValue
 
-        Analytics.log(event: event, params: params)
+        analyticsLogger.log(event: event, params: params)
     }
 
     func logSendNoticeTransactionDelaysArePossible() {
@@ -241,7 +247,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
             return
         }
 
-        Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
+        analyticsLogger.log(event: .sendNoticeTransactionDelaysArePossible, params: [
             .token: feeTokenItem.currencySymbol,
         ])
     }
@@ -255,7 +261,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
             return
         }
 
-        Analytics.log(event: .sendMaxAmountTapped, params: [
+        analyticsLogger.log(event: .sendMaxAmountTapped, params: [
             .source: sourceFlow.rawValue,
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
@@ -267,7 +273,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
             return
         }
 
-        Analytics.log(event: .sendButtonConvertToken, params: [
+        analyticsLogger.log(event: .sendButtonConvertToken, params: [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
         ])
@@ -278,7 +284,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
         case .send where isSwap:
             logSendWithSwapAmountScreenOpened(rateType: nil)
         default:
-            Analytics.log(
+            analyticsLogger.log(
                 .sendAmountScreenOpened,
                 params: [.source: sourceFlow, .type: entryTypeParameterValue],
                 analyticsSystems: .all
@@ -291,7 +297,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
         case .send where isSwap:
             logSendWithSwapAmountScreenOpened(rateType: nil)
         default:
-            Analytics.log(.sendScreenReopened, params: [.source: .amount])
+            analyticsLogger.log(.sendScreenReopened, params: [.source: .amount])
         }
     }
 
@@ -303,7 +309,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.sendToken] = sourceTokenItem.currencySymbol
                 params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
+            analyticsLogger.log(event: .sendSwapErrorInsufficientBalance, params: params)
         default:
             break
         }
@@ -317,7 +323,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.sendToken] = sourceTokenItem.currencySymbol
                 params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorMinAmount, params: params)
+            analyticsLogger.log(event: .sendSwapErrorMinAmount, params: params)
         default:
             break
         }
@@ -331,7 +337,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.sendToken] = sourceTokenItem.currencySymbol
                 params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorMaxAmount, params: params)
+            analyticsLogger.log(event: .sendSwapErrorMaxAmount, params: params)
         default:
             break
         }
@@ -352,7 +358,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.receiveToken] = receive.tokenItem.currencySymbol
                 params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorExpressQuote, params: params)
+            analyticsLogger.log(event: .sendSwapErrorExpressQuote, params: params)
         default:
             break
         }
@@ -383,7 +389,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 analyticsParameters[.rateType] = rateType
             }
 
-            Analytics.log(event: .sendSendWithSwapAmountScreenOpened, params: analyticsParameters, analyticsSystems: .all)
+            analyticsLogger.log(event: .sendSendWithSwapAmountScreenOpened, params: analyticsParameters, analyticsSystems: .all)
         default:
             break
         }
@@ -394,7 +400,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider) {
-        Analytics.log(event: .sendProviderChosen, params: [.provider: provider.name])
+        analyticsLogger.log(event: .sendProviderChosen, params: [.provider: provider.name])
     }
 }
 
@@ -402,18 +408,18 @@ extension CommonSendAnalyticsLogger: SendSwapProvidersAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
     func logSearchClicked() {
-        Analytics.log(.sendTokenSearchedClicked)
+        analyticsLogger.log(.sendTokenSearchedClicked)
     }
 
     func logTokenSearched(coin: CoinModel, searchText: String?) {
-        Analytics.log(event: .sendTokenSearched, params: [
+        analyticsLogger.log(event: .sendTokenSearched, params: [
             .tokenChosen: Analytics.ParameterValue.affirmativeOrNegative(for: searchText != nil).rawValue,
             .token: coin.symbol,
         ])
     }
 
     func logTokenChosen(token: TokenItem) {
-        Analytics.log(event: .sendTokenChosen, params: [
+        analyticsLogger.log(event: .sendTokenChosen, params: [
             .token: token.currencySymbol,
             .blockchain: token.blockchain.displayName,
         ])
@@ -434,7 +440,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
             analyticsParameters[.provider] = provider.provider.name
         }
 
-        Analytics.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
+        analyticsLogger.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
     }
 }
 
@@ -467,7 +473,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 analyticsParameters[.rateType] = rateType
             }
 
-            Analytics.log(event: .sendSendWithSwapConfirmScreenOpened, params: analyticsParameters, analyticsSystems: .all)
+            analyticsLogger.log(event: .sendSendWithSwapConfirmScreenOpened, params: analyticsParameters, analyticsSystems: .all)
 
         case .send:
             var params: [Analytics.ParameterKey: String] = [
@@ -484,7 +490,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFeeTokenItem)
             }
 
-            Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
+            analyticsLogger.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
 
         case .nft:
             var params: [Analytics.ParameterKey: String] = [:]
@@ -493,7 +499,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 params[.blockchain] = tokenItem.blockchain.displayName
             }
 
-            Analytics.log(event: .nftConfirmScreenOpened, params: params)
+            analyticsLogger.log(event: .nftConfirmScreenOpened, params: params)
 
         default:
             break
@@ -502,7 +508,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
 
     func logUserDidTapOnValidator() {}
     func logUserDidTapOnProvider() {
-        Analytics.log(.sendProviderClicked)
+        analyticsLogger.log(.sendProviderClicked)
     }
 
     func logTapAmountFraction(_ fraction: SwapAmountFraction) {
@@ -537,7 +543,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
         }
 
         let event: Analytics.Event = isRevoke ? .swapPermissionUpdateScreenOpened : .swapPermissionScreenOpened
-        Analytics.log(event: event, params: params)
+        analyticsLogger.log(event: event, params: params)
     }
 
     func logSwapButtonPermissionApprove(policy: ApprovePolicy) {
@@ -564,7 +570,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
         case .unlimited: Analytics.ParameterValue.unlimitedApprove.rawValue
         }
 
-        Analytics.log(event: .swapButtonPermissionApprove, params: analyticsParameters)
+        analyticsLogger.log(event: .swapButtonPermissionApprove, params: analyticsParameters)
     }
 
     func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
@@ -577,7 +583,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
         case .unlimited: .unlimitedApprove
         }
 
-        Analytics.log(event: .transactionSent, params: [
+        analyticsLogger.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
             .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
@@ -607,7 +613,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
 
-        Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
+        analyticsLogger.log(event: .swapButtonSwap, params: analyticsParameters)
     }
 
     func logSwapPreselectedTokenChanged(
@@ -643,7 +649,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
+        analyticsLogger.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
     }
 }
 
@@ -662,11 +668,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     func logShareButton() {
-        Analytics.log(.sendButtonShare)
+        analyticsLogger.log(.sendButtonShare)
     }
 
     func logExploreButton() {
-        Analytics.log(.sendButtonExplore)
+        analyticsLogger.log(.sendButtonExplore)
     }
 
     private func logSendFinishScreenOpened(destinationDidResolved: Bool) {
@@ -704,7 +710,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         // Merge account analytics (source + destination)
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
-        Analytics.log(
+        analyticsLogger.log(
             event: event,
             params: analyticsParameters,
             analyticsSystems: .all
@@ -749,7 +755,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         // Merge account analytics (source + destination)
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
-        Analytics.log(
+        analyticsLogger.log(
             event: event,
             params: analyticsParameters,
             analyticsSystems: .all
@@ -761,11 +767,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
     func logRequestSupport() {
-        Analytics.log(.requestSupport, params: [.source: .send])
+        analyticsLogger.log(.requestSupport, params: [.source: .send])
     }
 
     func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {
-        Analytics.log(.sendButtonClose, params: [
+        analyticsLogger.log(.sendButtonClose, params: [
             .source: stepType.analyticsSourceParameterValue,
             .fromSummary: .affirmativeOrNegative(for: stepType.isSummary),
             .valid: .affirmativeOrNegative(for: isAvailableToAction),
@@ -787,7 +793,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
             params[.blockchain] = tokenItem.blockchain.displayName
         }
 
-        Analytics.log(event: .sendScreenOpened, params: params, analyticsSystems: .all)
+        analyticsLogger.log(event: .sendScreenOpened, params: params, analyticsSystems: .all)
     }
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
@@ -824,7 +830,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
             // Merge account analytics (source + destination)
             analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
-            Analytics.log(
+            analyticsLogger.log(
                 event: .sendButtonSendWithSwap,
                 params: analyticsParameters,
                 analyticsSystems: .all
@@ -843,7 +849,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
-        Analytics.log(event: .sendErrorTransactionRejected, params: [
+        analyticsLogger.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
             .errorDescription: error.localizedDescription,
@@ -890,12 +896,12 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: params, analyticsSystems: .all)
+        analyticsLogger.log(event: .transactionSent, params: params, analyticsSystems: .all)
 
         switch amount?.type {
         case .none: break
-        case .typical: Analytics.log(.sendSelectedCurrency, params: [.type: .token])
-        case .alternative: Analytics.log(.sendSelectedCurrency, params: [.type: .selectedCurrencyApp])
+        case .typical: analyticsLogger.log(.sendSelectedCurrency, params: [.type: .token])
+        case .alternative: analyticsLogger.log(.sendSelectedCurrency, params: [.type: .selectedCurrencyApp])
         }
     }
 }
