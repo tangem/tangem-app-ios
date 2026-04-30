@@ -14,8 +14,6 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
@@ -27,12 +25,15 @@ struct OnrampOfferView: View {
             bottomView
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
-        .environment(\.colorScheme, viewModel.isNativePayment ? invertedColorScheme : colorScheme)
+        .environment(\.colorScheme, resolvedColorScheme)
         .opacity(viewModel.isAvailable ? 1 : 0.6)
     }
 
-    private var invertedColorScheme: ColorScheme {
-        colorScheme == .light ? .dark : .light
+    /// Read synchronously to avoid an `@Environment(\.colorScheme)` subscription that leaks inside floating sheets.
+    private var resolvedColorScheme: ColorScheme {
+        let current: ColorScheme = UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        guard viewModel.isNativePayment else { return current }
+        return current == .light ? .dark : .light
     }
 
     private var topView: some View {

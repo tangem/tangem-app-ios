@@ -815,10 +815,12 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
-                walletModel: walletModel,
+            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+                origin: .tokenDetails(.init(walletModel: walletModel)),
                 userWalletInfo: userWalletModel.userWalletInfo
-            )
+            ) else {
+                return
+            }
             tokenRouter.openSwap(parameters: parameters)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
@@ -831,7 +833,6 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
     func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
-        let event: Analytics.Event
 
         var analyticsParams: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol.uppercased(),
@@ -841,15 +842,13 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         switch action {
         case .marketsDetails:
             analyticsParams[.source] = Analytics.ParameterValue.longTap.rawValue
-            event = .marketsChartScreenOpened
+            Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
         case .copyAddress:
             analyticsParams[.source] = Analytics.ParameterValue.main.rawValue
-            event = .buttonCopyAddress
+            Analytics.log(event: .buttonCopyAddress, params: analyticsParams, analyticsSystems: .all)
         default:
             return
         }
-
-        Analytics.log(event: event, params: analyticsParams)
     }
 }
 
@@ -861,7 +860,8 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }

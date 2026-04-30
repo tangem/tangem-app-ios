@@ -164,6 +164,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
                 return .available
             }
             return .hidden
+        case .walletAssetsDiscovery:
+            return .available
         }
     }
 

@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemMacro
 
-public typealias BaseWalletManagerObject = BaseWalletManagerUpdater & WalletProvider & WalletReplaceable & WalletManagerUpdater & WalletManagerStateProvider & WalletTokensProvider
+public typealias BaseWalletManagerObject = BaseWalletManagerUpdater & WalletProvider & WalletManagerUpdater & WalletManagerStateProvider & WalletTokensProvider
 
 // MARK: - WalletProvider
 
@@ -21,12 +21,6 @@ public protocol WalletProvider: AnyObject {
 
 extension WalletProvider {
     var defaultSourceAddress: String { wallet.address }
-}
-
-// MARK: - WalletReplaceable
-
-public protocol WalletReplaceable: AnyObject {
-    func update(wallet: Wallet) throws
 }
 
 // MARK: - WalletManagerUpdater

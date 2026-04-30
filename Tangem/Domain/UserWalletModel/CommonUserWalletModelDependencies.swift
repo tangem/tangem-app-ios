@@ -164,6 +164,7 @@ private extension CommonUserWalletModelDependencies {
             tokenItemsRepository: tokenItemsRepository,
             defaultAccountFactory: defaultAccountFactory,
             networkService: networkService,
+            walletLifecycleObserver: InjectedValues[\.walletLifecycleObserver],
             auxiliaryDataStorage: auxiliaryDataStorage,
             persistentStorage: persistentStorage,
             storageController: persistentStorage,
@@ -195,7 +196,7 @@ private extension CommonUserWalletModelDependencies {
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
-            keysProvider: keysRepository,
+            keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor
         )
 

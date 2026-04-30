@@ -49,8 +49,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/pin"
         case .cancelKYC:
             "customer/pay-enabled"
-        case .updateCardDisplayName:
+        case .updateCardDisplayName, .setCardLimit:
             "customer/card"
+        case .getFee(let type):
+            "fees/\(type.rawValue)"
+        case .reissueCard:
+            "customer/card/reissue"
         }
     }
 
@@ -61,7 +65,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .getBalance,
              .getTransactionHistory,
-             .getPin:
+             .getPin,
+             .getFee:
             .get
 
         case .placeOrder,
@@ -69,11 +74,13 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .freeze,
              .unfreeze,
              .getWithdrawSignableData,
-             .sendWithdrawTransaction:
+             .sendWithdrawTransaction,
+             .reissueCard:
             .post
 
         case .cancelKYC,
-             .updateCardDisplayName:
+             .updateCardDisplayName,
+             .setCardLimit:
             .patch
 
         case .setPin:
@@ -87,7 +94,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .getBalance,
-             .getPin:
+             .getPin,
+             .getFee:
             return .requestPlain
 
         case .cancelKYC:
@@ -128,6 +136,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .updateCardDisplayName(let displayName):
             let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
+
+        case .reissueCard(let cardId):
+            let requestData = TangemPayReissueCardRequest(cardId: cardId)
+            return .requestJSONEncodable(requestData)
+
+        case .setCardLimit(let amount):
+            let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
+            return .requestCustomJSONEncodable(requestData, encoder: encoder)
         }
     }
 
@@ -165,7 +181,10 @@ extension CustomerInfoManagementAPITarget {
         case placeOrder(customerWalletAddress: String)
         case getOrder(orderId: String)
 
+        case getFee(type: TangemPayFeeType)
+        case reissueCard(cardId: String)
         case updateCardDisplayName(displayName: String)
+        case setCardLimit(amount: Int)
     }
 }
 
