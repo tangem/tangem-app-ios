@@ -25,9 +25,11 @@ private extension RuleTestCases.Preserved {
         "__PRESERVE_RULE_WC_TYPE_\(index)"
     }
 
-    static let walletConnectURIRaw: Substring = #"WalletConnectURI(topic:"#
+    static let walletConnectURIPrefix: Substring = #"WalletConnectURI(topic:"#
         + #" dd6bfc7a0fdce707e76bbc0894f0fa9c0a569aaefabcd17ff8775891e2ecd579","#
-        + #" version: "2", symKey: "e8cc7d1090c94f658fcf879836c73fcfc3237cb1725daeadb832fcc5af415a78","#
+        + #" version: "2", symKey: "#
+
+    static let walletConnectURISuffix: Substring = #""e8cc7d1090c94f658fcf879836c73fcfc3237cb1725daeadb832fcc5af415a78","#
         + #" relay: WalletConnectUtils.RelayProtocolOptions(protocol: "irn", data: nil),"#
         + #" methods: nil, expiryTimestamp: 1777471044)"#
 
@@ -53,9 +55,9 @@ private extension RuleTestCases.Preserved {
         + #" expiryTimestamp: Optional(1777471801))"#
 
     static let walletConnectURI = PreserveLogTestCase(
-        originalLog: "Trying to pair client: \(walletConnectURIRaw). Good luck",
-        preservedLog: "Trying to pair client: \(placeholder()). Good luck",
-        capturedValues: [walletConnectURIRaw]
+        originalLog: "Trying to pair client: \(walletConnectURIPrefix + walletConnectURISuffix). Good luck",
+        preservedLog: "Trying to pair client: \(placeholder() + walletConnectURISuffix). Good luck",
+        capturedValues: [walletConnectURIPrefix]
     )
 
     static let session = PreserveLogTestCase(
