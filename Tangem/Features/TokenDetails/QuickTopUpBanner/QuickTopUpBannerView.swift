@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct QuickTopUpBannerView: View {
     @ObservedObject var viewModel: QuickTopUpBannerViewModel
@@ -16,7 +17,7 @@ struct QuickTopUpBannerView: View {
     var body: some View {
         if viewModel.isVisible {
             VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
-                Label("Quick top up", systemImage: "bolt.fill")
+                Label(Localization.quickTopUpTitle, systemImage: "bolt.fill")
                     .style(Fonts.Bold.headline, color: Color.Tangem.Text.Neutral.primary)
 
                 HStack(spacing: SizeUnit.x2.value) {

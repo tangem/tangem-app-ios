@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemUI
 import TangemExpress
+import TangemLocalization
 
 final class QuickTopUpBannerViewModel: ObservableObject {
     @Injected(\.onrampRepository) private var onrampRepository: OnrampRepository
@@ -48,21 +49,15 @@ final class QuickTopUpBannerViewModel: ObservableObject {
     private func bind() {
         let currencyInfoPublisher = onrampRepository.preferencePublisher
             .map { preference -> CurrencyInfo? in
-                guard let country = preference.country else {
-                    // No saved country — show with default dollar sign
-                    return CurrencyInfo(sign: "$")
-                }
-
-                guard country.onrampAvailable else {
+                guard let country = preference.country, country.onrampAvailable else {
                     return nil
                 }
 
-                let code = (preference.currency ?? country.currency).identity.code.uppercased()
-                switch code {
-                case "USD": return CurrencyInfo(sign: "$")
-                case "EUR": return CurrencyInfo(sign: "€")
-                default: return nil
+                let currencyCode = (preference.currency ?? country.currency).identity.code
+                guard let sign = Locale.current.localizedCurrencySymbol(forCurrencyCode: currencyCode) else {
+                    return nil
                 }
+                return CurrencyInfo(sign: sign)
             }
 
         let isZeroBalancePublisher = walletModel.availableBalanceProvider.balanceTypePublisher
@@ -94,7 +89,7 @@ final class QuickTopUpBannerViewModel: ObservableObject {
             Chip(id: "50", title: "\(sign)50"),
             Chip(id: "200", title: "\(sign)200"),
             Chip(id: "700", title: "\(sign)700"),
-            Chip(id: "other", title: "Other"),
+            Chip(id: "other", title: Localization.quickTopUpChipOther),
         ]
     }
 }

@@ -632,6 +632,12 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                     model.redirectDataDidLoad(data: data, provider: provider)
                     result.fail()
                 }
+            } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
+                result.fail(error)
+                let kycURL = error.value?.kycUrl.flatMap(URL.init(string:))
+                await runOnMain {
+                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: kycURL)
+                }
             } catch {
                 // PassKit must always hear back; surface the failure before letting `mainTask`
                 // handle alert presentation / CancellationError swallowing.
