@@ -77,8 +77,8 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .ethereum:
             return [
-                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(keysConfig.nowNodesApiKey)")!),
-                .init(url: URL(string: "https://goerli.infura.io/v3/\(keysConfig.infuraProjectId)")!),
+                .init(url: URL(string: "https://ethereum-sepolia.gateway.tatum.io")!),
+                .init(url: URL(string: "https://ethereum-sepolia-rpc.publicnode.com")!),
                 // hoodi testnet for testing eth p2p staking
                 // .init(url: URL(string: "https://rpc.ankr.com/eth_hoodi/b09d0172ff2d4932a4477e354716658dea9f4786b91436ae7eee879663b85073")!),
             ]
