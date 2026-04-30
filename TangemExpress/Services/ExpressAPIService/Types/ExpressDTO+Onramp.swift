@@ -84,6 +84,8 @@ extension ExpressDTO {
                 let maxFromAmount: String?
                 let minToAmount: String?
                 let maxToAmount: String?
+                let nativePaymentAvailable: Bool?
+                let quoteId: String?
             }
         }
 
@@ -132,6 +134,86 @@ extension ExpressDTO {
                 let externalTxId: String?
                 let externalTxUrl: String?
                 let widgetUrl: URL
+            }
+        }
+
+        // MARK: - NativePaymentData
+
+        enum NativePaymentData {
+            enum PaymentType: String, Encodable {
+                case apple
+            }
+
+            enum TxType: String, Decodable {
+                case nativePayment
+                case widget
+            }
+
+            struct PaymentData: Encodable {
+                let type: PaymentType
+                let paymentToken: String
+                let quoteId: String
+                let userData: UserData
+            }
+
+            struct UserData: Encodable {
+                let email: String?
+                let firstName: String?
+                let lastName: String?
+                let billingAddress: BillingAddress?
+            }
+
+            struct BillingAddress: Encodable {
+                let street: String?
+                let city: String?
+                let subAdministrativeArea: String?
+                let state: String?
+                let postalCode: String?
+                let country: String?
+                let isoCountryCode: String?
+            }
+
+            struct Request: Encodable {
+                let fromCurrencyCode: String
+                let toContractAddress: String
+                let toNetwork: String
+                let paymentMethod: String
+                let countryCode: String
+                let fromAmount: String
+                let fromPrecision: Int
+                let toDecimals: Int
+                let providerId: String
+                let toAddress: String
+                let toExtraId: String?
+                let redirectUrl: String
+                let language: String?
+                let theme: String?
+                let requestId: String
+                let paymentData: PaymentData?
+            }
+
+            struct Response: Decodable {
+                let txId: String
+                let txType: TxType?
+                let dataJson: String
+                let signature: String
+
+                init(from decoder: Decoder) throws {
+                    let container = try decoder.container(keyedBy: CodingKeys.self)
+                    txId = try container.decode(String.self, forKey: .txId)
+                    dataJson = try container.decode(String.self, forKey: .dataJson)
+                    signature = try container.decode(String.self, forKey: .signature)
+                    // Tolerate nil and unknown raw values — fall through to .widget in the mapper.
+                    let raw = try container.decodeIfPresent(String.self, forKey: .txType)
+                    txType = raw.flatMap(TxType.init(rawValue:))
+                }
+
+                private enum CodingKeys: String, CodingKey {
+                    case txId
+                    case txType
+                    case dataJson
+                    case signature
+                }
             }
         }
 
