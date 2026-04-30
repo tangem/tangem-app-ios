@@ -40,6 +40,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    private(set) lazy var balanceViewModel = TokenDetailsBalanceViewModel(
+        tokenItem: walletModel.tokenItem,
+        dataProvider: self,
+        reloadBalance: {
+            Task { @MainActor [weak self] in
+                await self?.onPullToRefresh()
+            }
+        }
+    )
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
@@ -561,6 +571,19 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
                 return true
             }
         }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TokenDetailsBalanceDataProvider
+
+extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
+    var stakingBalanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
+        walletModel.stakingBalanceProvider.balanceTypePublisher
+            .eraseToAnyPublisher()
+    }
+
+    var isTokenCustom: Bool {
+        walletModel.isCustom
     }
 }
 
