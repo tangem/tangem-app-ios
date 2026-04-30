@@ -62,9 +62,11 @@ extension StakingAction.ActionType {
         case .pending(.withdraw): .withdraw
         case .pending(.restakeRewards): .restakeRewards
         case .pending(.voteLocked): .voteLocked
+        case .pending(.vote): .vote
         case .pending(.unlockLocked): .unlockLocked
         case .pending(.restake): .restake
         case .pending(.claimUnstaked): .claimUnstaked
+        case .pending(.rebond): .rebond
         }
     }
 }
