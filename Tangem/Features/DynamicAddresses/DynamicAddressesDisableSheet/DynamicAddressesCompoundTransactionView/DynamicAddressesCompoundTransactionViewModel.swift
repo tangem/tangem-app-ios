@@ -7,10 +7,11 @@
 //
 
 import Combine
-import TangemFoundation
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
+import TangemAssets
+import TangemLocalization
 
 final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
@@ -20,20 +21,28 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading: Bool = false
     @Published private(set) var isLoading: Bool = false
-    @Published private(set) var mainButtonIcon: MainButton.Icon?
+    @Published private(set) var mainButtonIcon: MainButton.Icon? = .trailing(Assets.tangemIcon)
 
     private let transferModel: TransferModel
     private let notificationManager: SendNotificationManager
+    private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
+    private let analyticsLogger: DynamicAddressesAnalyticsLogger
     private let sendAlertBuilder: SendAlertBuilder = CommonSendAlertBuilder()
     private let onFinish: () -> Void
+
+    private var sendingTask: Task<Void, Never>?
 
     init(
         transferModel: TransferModel,
         notificationManager: SendNotificationManager,
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger,
         onFinish: @escaping () -> Void
     ) {
         self.transferModel = transferModel
         self.notificationManager = notificationManager
+        self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
+        self.analyticsLogger = analyticsLogger
         self.onFinish = onFinish
 
         feeCompactViewModel = FeeCompactViewModel(showsLeadingIcon: false)
@@ -44,20 +53,33 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     }
 
     func confirm() {
-        Task {
-            do {
-                _ = try await transferModel.performAction()
-                // [REDACTED_TODO_COMMENT]
-                await runOnMain { onFinish() }
-            } catch is CancellationError {
-                // Do nothing
-            } catch let error as TransactionDispatcherResult.Error {
-                await runOnMain { proceed(error: error) }
-            } catch {
-                AppLogger.error(error: error)
-                await runOnMain { [alertPresenter] in
-                    alertPresenter.present(alert: error.alertBinder)
-                }
+        analyticsLogger.logButtonDisableDynamicAddresses()
+
+        sendingTask?.cancel()
+        sendingTask = Task { [weak self] in
+            await self?.disableDynamicAddresses()
+        }
+    }
+
+    private func disableDynamicAddresses() async {
+        do {
+            _ = try await transferModel.performAction()
+            try Task.checkCancellation()
+
+            try await walletModelDynamicAddressesProvider.disableDynamicAddresses()
+            try Task.checkCancellation()
+
+            analyticsLogger.logDynamicAddressesDisabled()
+
+            await runOnMain { onFinish() }
+        } catch is CancellationError {
+            // Do nothing
+        } catch let error as TransactionDispatcherResult.Error {
+            await runOnMain { proceed(error: error) }
+        } catch {
+            AppLogger.error(error: error)
+            await runOnMain { [alertPresenter] in
+                alertPresenter.present(alert: error.alertBinder)
             }
         }
     }
@@ -88,6 +110,9 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     private func bind() {
         notificationManager.notificationPublisher
             .receiveOnMain()
+            .handleEvents(receiveOutput: { [weak self] notifications in
+                self?.logNotEnoughFeeNotice(notifications: notifications)
+            })
             .assign(to: &$notificationInputs)
 
         transferModel.isNotificationButtonIsLoading
@@ -97,5 +122,25 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
         transferModel.actionInProcessing
             .receiveOnMain()
             .assign(to: &$isLoading)
+
+        transferModel.sourceTokenPublisher
+            .compactMap { $0.value }
+            .map { $0.tangemIconProvider.getMainButtonIcon() }
+            .receiveOnMain()
+            .assign(to: &$mainButtonIcon)
+    }
+
+    private func logNotEnoughFeeNotice(notifications: [NotificationViewInput]) {
+        let hasInsufficientFeeNotification = notifications.contains { input in
+            switch input.settings.event {
+            case SendNotificationEvent.validationErrorEvent(.insufficientBalanceForFee(_)):
+                return true
+            default:
+                return false
+            }
+        }
+
+        guard hasInsufficientFeeNotification else { return }
+        analyticsLogger.logTokenNoticeNotEnoughFee()
     }
 }

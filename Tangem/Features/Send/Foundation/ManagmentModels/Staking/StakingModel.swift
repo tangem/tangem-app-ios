@@ -92,6 +92,11 @@ private extension StakingModel {
 
         estimatedFeeTask?.cancel()
 
+        guard sendSourceToken.canCoverStakingFee else {
+            update(state: .networkError(StakingPreflightError.insufficientFundsForFee))
+            return
+        }
+
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
@@ -534,6 +539,7 @@ extension StakingModel: NotificationTapDelegate {
         let viewModel = BlockchainAccountInitializationViewModel(
             accountInitializationService: accountInitializationService,
             transactionDispatcher: transactionDispatcher,
+            tangemIconProvider: sendSourceToken.tangemIconProvider,
             tokenItem: tokenItem,
             fee: initializationFee,
             feeTokenItem: feeTokenItem,

@@ -144,7 +144,7 @@ extension ExpressDTO {
                 case apple
             }
 
-            enum TxType: String {
+            enum TxType: String, Decodable {
                 case nativePayment
                 case widget
             }
@@ -194,9 +194,26 @@ extension ExpressDTO {
 
             struct Response: Decodable {
                 let txId: String
-                let txType: String?
+                let txType: TxType?
                 let dataJson: String
                 let signature: String
+
+                init(from decoder: Decoder) throws {
+                    let container = try decoder.container(keyedBy: CodingKeys.self)
+                    txId = try container.decode(String.self, forKey: .txId)
+                    dataJson = try container.decode(String.self, forKey: .dataJson)
+                    signature = try container.decode(String.self, forKey: .signature)
+                    // Tolerate nil and unknown raw values — fall through to .widget in the mapper.
+                    let raw = try container.decodeIfPresent(String.self, forKey: .txType)
+                    txType = raw.flatMap(TxType.init(rawValue:))
+                }
+
+                private enum CodingKeys: String, CodingKey {
+                    case txId
+                    case txType
+                    case dataJson
+                    case signature
+                }
             }
         }
 

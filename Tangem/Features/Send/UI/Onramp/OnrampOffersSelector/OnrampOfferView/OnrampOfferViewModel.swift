@@ -7,11 +7,12 @@
 //
 
 import Combine
+import TangemMacro
 import PassKit
-import TangemExpress
-import TangemAssets
-import TangemFoundation
 import SwiftUI
+import TangemAssets
+import TangemExpress
+import TangemFoundation
 
 struct OnrampOfferViewModel: Hashable, Identifiable {
     var id: Int { hashValue }
@@ -21,7 +22,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let provider: Provider
     let isAvailable: Bool
 
-    var isNativePayment: Bool { buyAction.isNativePayment }
+    var isNativePayment: Bool { buyAction.isNativeApplePay }
 
     @IgnoredEquatable
     var buyAction: BuyAction
@@ -60,16 +61,12 @@ extension OnrampOfferViewModel {
         let timeFormatted: String
     }
 
+    @CaseFlagable
     enum BuyAction {
         case button(() -> Void)
         case nativeApplePay(
             request: PKPaymentRequest,
             onPhaseChange: (PayWithApplePayButtonPaymentAuthorizationPhase) -> Void
         )
-
-        var isNativePayment: Bool {
-            if case .nativeApplePay = self { return true }
-            return false
-        }
     }
 }

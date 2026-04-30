@@ -122,6 +122,9 @@
 "balance_hidden_do_not_show_button" = "今後表示しない";
 "balance_hidden_got_it_button" = "わかりました";
 "balance_hidden_title" = "残高は非表示";
+"banner.swap.firsttime.button" = "スワップを開始";
+"banner.swap.firsttime.subtitletitle" = "数タップで1つの資産を別の資産に交換できます";
+"banner.swap.firsttime.title" = "はじめてのスワップ";
 "biometry_touch_id_reason" = "タッチIDは、アプリにカードまたはリングを保存するために使用されます";
 "bitcoin_promo_activation_error_title" = "アクティベーションエラー";
 "bitcoin_promo_activation_error" = "プロモーションコードの処理中にエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -163,6 +166,7 @@
 "common_account" = "アカウント";
 "common_accounts" = "アカウント";
 "common_activate" = "有効化";
+"common_add_funds" = "資金を追加";
 "common_add_to_portfolio" = "ポートフォリオに追加";
 "common_add_token" = "トークンを追加";
 "common_add_tokens" = "トークンの追加";
@@ -211,11 +215,13 @@
 "common_custom" = "設定";
 "common_disable" = "無効にする";
 "common_disabled" = "無効";
+"common_disabling" = "無効化中";
 "common_disconnect" = "切断";
 "common_done" = "完了";
 "common_edit" = "編集";
 "common_enable" = "有効にする";
 "common_enabled" = "有効";
+"common_enabling" = "有効化中";
 "common_error" = "エラー";
 "common_estimated_fee" = "入金時のネットワーク手数料";
 "common_exchange" = "スワップ";
@@ -248,6 +254,7 @@
 "common_locked_wallets" = "ロックされたウォレット";
 "common_locked" = "ロックされています";
 "common_main_network" = "メインネットワーク";
+"common_more" = "さらに";
 "common_network_fee_title" = "ネットワーク手数料";
 "common_network_fee_warning_content" = "送金額は、選択された手数料レベルをカバーするため、%1$@ (%2$@) 減額されます。";
 "common_news" = "ニュース";
@@ -285,6 +292,7 @@
 "common_seed_phrase" = "シードフレーズ";
 "common_select_action" = "アクションを選択";
 "common_sell" = "売る";
+"common_send_colon" = "送金：";
 "common_send_tx_error" = "取引の送信に失敗しました";
 "common_send" = "送る";
 "common_server_unavailable" = "サーバーが利用できません。しばらくしてからもう一度お試しください。";
@@ -399,6 +407,9 @@
 "dynamic_addresses_error_has_custom_token_title" = "動的アドレスは利用できません";
 "dynamic_addresses_error_service_unavailable_description" = "現在、プロバイダーに接続できません。しばらくしてからもう一度お試しください。";
 "dynamic_addresses_error_service_unavailable_title" = "サービスを利用できません。しばらくしてからもう一度お試しください。";
+"dynamic_addresses_notification_funds_found_description" = "追加のアドレスに資金が見つかりました。アクセスするには、動的アドレスを有効にしてください。";
+"dynamic_addresses_notification_funds_found_title" = "追加のアドレスで資金が見つかりました";
+"dynamic_addresses_receive_badge" = "動的アドレス";
 "dynamic_addresses" = "動的アドレス";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "絞り込みを解除";
@@ -624,6 +635,7 @@
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "このアセットはこのウォレットでは使用できません。";
 "markets_add_token" = "追加";
 "markets_available networks" = "利用可能なネットワーク";
+"markets_common_market_price" = "市場価格";
 "markets_common_my_portfolio" = "私のポートフォリオ";
 "markets_common_title" = "マーケット";
 "markets_earn_common_title" = "ステーキング・利息モード";
@@ -636,6 +648,7 @@
 "markets_loading_no_data_title" = "データなし";
 "markets_portfolio_block_add_token_title" = "**ポートフォリオに追加して**、この資産の買付・交換・受け取りを始めましょう";
 "markets_portfolio_block_subtitle" = "ポートフォリオ内";
+"markets_portfolio_block_title" = "ポートフォリオ";
 "markets_pulse_common_title" = "マーケット動向";
 "markets_search_clear_all_hints" = "すべてクリア";
 "markets_search_header_title" = "トークンを探す";
@@ -659,6 +672,7 @@
 "markets_sort_by_top_gainers_title" = "値上がり";
 "markets_sort_by_top_losers_title" = "値下がり";
 "markets_sort_by_trending_title" = "トレンド";
+"markets_token_add_subtitle" = "別のネットワークまたはアカウント";
 "markets_token_added" = "トークンを追加しました";
 "markets_token_details_about_token_title" = "%@について";
 "markets_token_details_blockchain_site" = "ウェブサイト";
@@ -809,6 +823,7 @@
 "onboarding_activation_error_message" = "操作を繰り返してください。カードは工場出荷時の設定にリセットされます。";
 "onboarding_activation_error_title" = "アクティベーションに失敗しました";
 "onboarding_add_tokens" = "トークンを追加する";
+"onboarding_address_sync_title" = "ウォレットを同期してください";
 "onboarding_alert_message_not_max_backup_cards_added" = "バックアップ用のカードまたはリングを1つ追加しました。バックアップが完了すると、これ以上デバイスを追加することはできません。追加のカードまたはリングをお持ちの場合は、今のうちに追加してください。続行しますか？";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ では、システムの制限により、Tangemウォレットのバックアップを作成できません。この操作を実行するには、別のデバイスを使用してください。その他の機能はすべて安定して動作します。";
 "onboarding_backup_exit_warning" = "バックアップは一部完了しており、現在は中断できません。";
@@ -835,7 +850,9 @@
 "onboarding_getting_started" = "スタート";
 "onboarding_linking_error_card_with_wallets" = "追加しようとしているカードには、すでに別のウォレットが作成されています。このウォレットに資金がある場合は、それを引き出してからこのカードをリセットし、バックアップとして追加してください。";
 "onboarding_navbar_save_wallet" = "ウォレットを保存する";
+"onboarding_navbar_title_biometrics" = "生体認証を使用する";
 "onboarding_navbar_title_creating_backup" = "バックアップの作成";
+"onboarding_navbar_title_last_step" = "最終ステップ";
 "onboarding_navbar_upgrade_wallet_biometrics" = "生体認証";
 "onboarding_seed_button_read_more" = "シードフレーズについてもっと読む";
 "onboarding_seed_generate_title" = "あなたのシードフレーズ";
@@ -942,6 +959,9 @@
 "qr_scanner_error_unsupported_network_title" = "対応しているトークンが見つかりません";
 "qr_scanner_warning_unknown_parameters_message" = "このQRコードには認識できないパラメータが含まれています：%@。続行すると、一部の支払い情報が失われる可能性があります。";
 "qr_scanner_warning_unknown_parameters_title" = "不明なパラメータ";
+"quick_action_buy_description" = "クレジットカードまたは銀行口座";
+"quick_action_receive_description" = "アドレスまたはQRコードを共有してください";
+"quick_action_swap_description" = "ポートフォリオ間で";
 "receive_bottom_sheet_no_memo_required_message" = "メモ不要";
 "receive_bottom_sheet_warning_message_compact" = "%2$@ネットワーク上の%1$@";
 "receive_bottom_sheet_warning_message_description" = "他の暗号資産を送信すると、取り返しのつかない損失が発生します。";
@@ -1272,26 +1292,27 @@
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
+"swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "他のものをお探しですか？\n検索してみるか、別の暗号資産をチェックしてみましょう！";
 "swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
 "swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
 "swap_story_fifth_subtitle" = "24時間体制のサポートであらゆる問題に対応します。";
 "swap_story_fifth_title" = "いつもここに";
-"swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers \nNo moving funds to exchanges";
+"swap_story_first_subtitle_v2" = "Tangem内で暗号資産を直接交換\n追加の送金は不要\n取引所に資産を移す必要なし";
 "swap_story_first_subtitle" = "複数の信頼できるプロバイダーが一箇所に集結。ウォレット内で様々な暗号資産を簡単に交換できます。";
-"swap_story_first_title_v2" = "Swap Inside Your Wallet";
+"swap_story_first_title_v2" = "ウォレット内でスワップ";
 "swap_story_first_title" = "ぜひスワップしてください";
-"swap_story_forth_subtitle_v2" = "Swaps are executed through trusted providers. Your keys remain in your Tangem wallet at all times.  Clear. Transparent. Self-custodial.";
+"swap_story_forth_subtitle_v2" = "スワップは信頼できるプロバイダーを通じて実行されます。秘密鍵は常にTangemウォレット内に保持されます。シンプル。透明。自己管理。";
 "swap_story_forth_subtitle" = "失敗も死角もありません。取引は常に保護されます。";
-"swap_story_forth_title_v2" = "You Stay in Control";
+"swap_story_forth_title_v2" = "主導権はあなたの手にあります";
 "swap_story_forth_title" = "難攻不落の防御";
-"swap_story_second_subtitle_v2" = "Tangem compares multiple providers, both DEX and CEX. The best rate is selected automatically. Prefer another provider? You can choose it manually.";
+"swap_story_second_subtitle_v2" = "TangemはDEXとCEXを含む複数のプロバイダーを比較し、最良レートを自動で選択します。別のプロバイダーを希望する場合は、手動で選択できます。";
 "swap_story_second_subtitle" = "幅広いネットワークの中から、常に最適なプロバイダーと料金レートを選択します";
-"swap_story_second_title_v2" = "Best Available Rate";
+"swap_story_second_title_v2" = "利用可能なベストレート";
 "swap_story_second_title" = "破格のレート";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "主要ネットワークと数千種類のトークンに対応 ステーブルコイン同士のスワップは手数料0%%";
 "swap_story_third_subtitle" = "手間がかからず直感的に操作でき、数回タップするだけでトークンを交換できます。";
-"swap_story_third_title_v2" = "90+ Blockchains \n16,000+ Assets";
+"swap_story_third_title_v2" = "90以上のブロックチェーン\n16,000種類以上の暗号資産";
 "swap_story_third_title" = "とにかく便利";
 "swap_via_provider" = "プロバイダー経由のスワップ";
 "swap_your_assets_title" = "資産";
@@ -1303,6 +1324,8 @@
 "swapping_approve_information_text" = "すべての分散型取引所は、スマートコントラクトがあなたの許可なくウォレットにアクセスするのを防ぐために承認を必要とします。設計上、スマートコントラクトは承認なしでトークンにアクセスできません。トークンを「ロック解除」することで、あなたは1-inchのスマートコントラクトがトークンを使うことを承認します。ネットワークのマイナーは、このアクションをブロックチェーンに記録するためのガス料金（あなたが支払う）を受け取ります。承認後、トークンを交換することができます。";
 "swapping_approve_information_title" = "承認";
 "swapping_fee_estimation_error_text" = "手数料見積りエラーです。サポートにフィードバックをお送りください。";
+"swapping_from_account_title" = "You send from";
+"swapping_from_title_v2" = "You send";
 "swapping_from_title" = "スワップする";
 "swapping_high_price_impact_description" = "選択したトークンをこの量を交換すると、価格に大きな影響が生じ、結果が減少します。";
 "swapping_high_price_impact_text" = "流動性が低いため、受取額が大幅に少なくなる可能性があります。金額を減らすか、別のプロバイダーをお試しください。";
@@ -1313,6 +1336,7 @@
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_swap_action_in_progress" = "スワップ中…";
 "swapping_swap_action" = "スワップ";
+"swapping_to_account_title" = "You receive to";
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
@@ -1353,6 +1377,8 @@
 "tangem_pay_unfreeze_card_failed" = "カードの凍結解除に失敗しました。しばらくしてからもう一度お試しください。";
 "tangem_pay_unfreeze_card_success" = "カードの凍結が解除されました";
 "tangem_pay_withdrawal" = "出金";
+"tangempay_account_deactivated_message_subtitle" = "規制上の要件により無効化されましたが、出金は引き続き可能です。";
+"tangempay_account_deactivated_message_title" = "カードが無効化されました";
 "tangempay_account_unable_to_use_rooted" = "Root化された端末では使用できません";
 "tangempay_available_balance" = "利用可能残高";
 "tangempay_cancel_kyc" = "メイン画面からKYCを非表示にする";
@@ -1363,7 +1389,7 @@
 "tangempay_card_details_card_number" = "カード番号";
 "tangempay_card_details_change_pin_success_description" = "カードは支払いの準備が整いました。";
 "tangempay_card_details_change_pin_success_title" = "PINコードを作成しました";
-"tangempay_card_details_change_pin" = "PINを変更する";
+"tangempay_card_details_change_pin" = "PINコード";
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "データの読み込みに失敗しました。しばらくしてからもう一度お試しください。";
 "tangempay_card_details_expiry" = "有効期限";
@@ -1389,6 +1415,7 @@
 "tangempay_card_details_receive_description" = "アドレスを共有するか、QRコードを表示してください。";
 "tangempay_card_details_receive_error_description" = "技術的な問題が検出されました。しばらくしてからもう一度お試しいただくか、サポートにお問い合わせください。";
 "tangempay_card_details_receive_error_title" = "現在、受け取りは利用できません";
+"tangempay_card_details_reissue_card" = "カードを交換する";
 "tangempay_card_details_rename_card_invalid_description" = "英字と数字のみ使用できます";
 "tangempay_card_details_rename_card_invalid_title" = "無効な文字が含まれています";
 "tangempay_card_details_reveal_text" = "表示";
@@ -1403,6 +1430,8 @@
 "tangempay_card_details_withdraw_in_progress_description" = "現在の処理が完了するまでは、スワップや新しい出金を開始することはできません。";
 "tangempay_card_details_withdraw_in_progress_title" = "出金処理中です";
 "tangempay_card_details_withdraw" = "出金";
+"tangempay_card_limit_setup_amount_subtitle" = "%@以上の金額を設定してください";
+"tangempay_card_limit_setup_error_message" = "限度額を設定できませんでした。もう一度お試しください";
 "tangempay_card_page_daily_limit_change" = "変更";
 "tangempay_card_page_daily_limit_current_limit" = "現在の利用限度額";
 "tangempay_card_page_daily_limit_error_description" = "1日の利用限度額を読み込めませんでした。もう一度お試しください。";
@@ -1457,10 +1486,21 @@
 "tangempay_payment_account_sync_needed" = "支払アカウントが同期されていません";
 "tangempay_payment_account" = "支払いアカウント";
 "tangempay_pin_validation_error_message" = "無効な暗証番号：連続や繰り返しを避けてください";
+"tangempay_reissue_card_confirm" = "カードを交換";
+"tangempay_reissue_card_description" = "これにより、新しいカード情報が発行されます。現在のカード情報は使えなくなります。この操作は元に戻せません。";
+"tangempay_reissue_card_fee_label" = "交換手数料";
+"tangempay_reissue_card_fee_unreachable_error_title" = "交換手数料の情報にアクセスできません";
+"tangempay_reissue_card_in_progress_description" = "通常は5分以内に完了します。まれに最大48時間かかる場合があります。";
+"tangempay_reissue_card_in_progress" = "デジタルカードを交換しています";
+"tangempay_reissue_card_insufficient_funds_subtitle" = "発行手数料を支払うため、決済口座にUSDCを入金してください";
+"tangempay_reissue_card_insufficient_funds_title" = "手数料を支払えません";
+"tangempay_reissue_card_insufficient_funds" = "カード交換に必要な残高が不足しています";
+"tangempay_reissue_card_title" = "カードを交換しますか？";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
 "tangempay_set_pin_code" = "\nPINコードの設定";
+"tangempay_status_deactivated" = "カード無効化済み";
 "tangempay_sync_needed_restore_access" = "セッションを更新";
 "tangempay_sync_needed" = "セッションの有効期限が切れました";
 "tangempay_tangem_visa_card" = "日常の支払いにUSDCを利用";
@@ -1551,7 +1591,7 @@
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
 "update_approval_permission_fee_note" = "以前の承認は取り消され、新しい承認が発行されます。これらの各操作には、ネットワークによるトークン承認手数料がかかります。履歴には、取り消しの証拠として金額0の取引が表示されます。";
-"update_approval_permission_subtitle" = "取引金額が、以前に許可された承認額を超えています。\n続行するには、承認内容を更新してください。";
+"update_approval_permission_subtitle" = "取引金額が、以前に許可された承認額を超えています。\n続行するには、承認内容を更新してください";
 "update_approval_permission_title" = "承認を更新";
 "upgrade_to_hardware_wallet_button_title" = "ハードウェアウォレットにアップグレード";
 "user_push_notification_agreement_argument_one_subtitle" = "取引・スワップ・重要な更新に関するリアルタイム通知。";
@@ -1938,6 +1978,7 @@
 "yield_module_approve_sheet_fee_note" = "手数料が差し引かれ、暗号資産が補充されます。";
 "yield_module_approve_sheet_subtitle" = "利息を継続的に生み出すには承認が必要です。";
 "yield_module_approve_sheet_title" = "承認を確定する";
+"yield_module_average_apy" = "平均APY %1$@%%";
 "yield_module_balance_info_sheet_subtitle" = "あなたの資金は現在Aaveプロトコルに預けられていますが、いつでも自由に管理できます。";
 "yield_module_balance_info_sheet_title" = "%@はAaveに供給されています";
 "yield_module_chart_loading_error" = "チャートを読み込めません・・";
@@ -2010,6 +2051,7 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "利息は自動的に発生します";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "利息モード";
 "yield_module_token_details_earn_notification_processing" = "利息モードの有効化";
+"yield_module_token_details_earn_notification_subtitle" = "利息モード - %1$@%% APY";
 "yield_module_token_details_earn_notification_title" = "利息モード";
 "yield_module_transaction_deploy_contract" = "利息モードコントラクトのデプロイ";
 "yield_module_transaction_enter_subtitle" = "%1$@がAaveに供給されました";

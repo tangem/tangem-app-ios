@@ -15,7 +15,7 @@ import TangemLocalization
 import TangemFoundation
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
-    private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
+    typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
     // MARK: - Injected & Published Properties
 
@@ -41,10 +41,16 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         return dateString.capitalized(with: headerDateFormatter.locale)
     }
 
+    var isRedesign: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
+
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
+
+    let tokenSearchViewModel: MarketsTokenSearchViewModel
 
     private weak var coordinator: MarketsMainRoutable?
 
@@ -55,8 +61,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let earnDataProvider = CommonMarketsWidgetEarnService()
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
-
-    let tokenSearchViewModel: TokenSearchViewModel
 
     private var bag = Set<AnyCancellable>()
 
@@ -80,7 +84,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     init(
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
-        tokenSearchStorage: some TokenSearchStorage,
         coordinator: MarketsMainRoutable
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
@@ -88,14 +91,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         let headerViewModel = MainBottomSheetHeaderViewModel()
         self.headerViewModel = headerViewModel
-
-        tokenSearchViewModel = TokenSearchViewModel(
-            headerViewModel: headerViewModel,
-            storage: tokenSearchStorage,
-            chartsHistoryProvider: chartsHistoryProvider,
-            filterProvider: filterProvider,
-            coordinator: coordinator
-        )
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
@@ -106,12 +101,18 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             coordinator: coordinator
         )
 
+        tokenSearchViewModel = MarketsTokenSearchViewModel(
+            headerViewModel: headerViewModel,
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            coordinator: coordinator
+        )
+
         // Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
         super.init(overlayContentProgressInitialValue: 0.0)
 
         headerViewModel.delegate = self
 
-        if FeatureProvider.isAvailable(.redesign) {
+        if isRedesign {
             bindToTokenSearch()
         } else {
             searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
@@ -165,15 +166,13 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
-    private func bindToTokenSearch() {
-        // `tokenSearchViewModel.$isSearching` is already delivered on the main queue by its
-        // own pipeline (`receiveOnMain()` before `assign(to: &$isSearching)`), so no extra
-        // hop is needed here.
-        tokenSearchViewModel.$isSearching
+    func bindToTokenSearch() {
+        tokenSearchViewModel.$state
+            .map { $0 != .idle }
             .assign(to: &$isSearching)
     }
 
-    private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
+    func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
         publisher
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)

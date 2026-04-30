@@ -14,8 +14,6 @@ import TangemLocalization
 import TangemFoundation
 
 final class OnrampSummaryViewModel: ObservableObject, Identifiable {
-    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
-
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -27,6 +25,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
+    private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
 
     private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
@@ -38,13 +37,15 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
-        analyticsLogger: SendOnrampOffersAnalyticsLogger
+        analyticsLogger: SendOnrampOffersAnalyticsLogger,
+        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.analyticsLogger = analyticsLogger
+        self.buyActionBuilder = buyActionBuilder
 
         bind()
     }
@@ -109,10 +110,16 @@ private extension OnrampSummaryViewModel {
 
     func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
-        let buyAction = makeBuyAction(provider: provider) { [weak self] in
-            self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
-            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-        }
+        let buyAction = buyActionBuilder.make(
+            provider: provider,
+            onWillBuy: { [weak self] in
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+                self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
+            },
+            onWidgetBuy: { [weak self] in
+                self?.interactor.userDidRequestOnramp(provider: provider)
+            }
+        )
 
         return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
@@ -121,35 +128,22 @@ private extension OnrampSummaryViewModel {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
-        let buyAction = makeBuyAction(provider: provider) { [weak self] in
-            switch title {
-            case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
-            case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
-            case .text, .bestRate: break
-            }
-            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-        }
-
-        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
-    }
-
-    func makeBuyAction(
-        provider: OnrampProvider,
-        additionalAnalytics: @escaping () -> Void
-    ) -> OnrampOfferViewModel.BuyAction {
-        OnrampApplePayUtils.makeBuyAction(
+        let buyAction = buyActionBuilder.make(
             provider: provider,
-            currencyCode: interactor.currencyCode,
-            countryCode: Locale.current.region?.identifier ?? "US",
-            isApplePayAllowed: geoEligibilityService.isApplePayAllowed,
-            additionalAnalytics: additionalAnalytics,
-            onAuthorize: { [weak self] provider, applePayResult, resultHandler in
-                self?.interactor.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult, resultHandler: resultHandler)
+            onWillBuy: { [weak self] in
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+                switch title {
+                case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
+                case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
+                case .text, .bestRate: break
+                }
             },
-            onFallbackBuy: { [weak self] in
+            onWidgetBuy: { [weak self] in
                 self?.interactor.userDidRequestOnramp(provider: provider)
             }
         )
+
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
 }
 

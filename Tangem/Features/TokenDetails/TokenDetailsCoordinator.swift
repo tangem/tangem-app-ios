@@ -167,19 +167,33 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesEnterView() {
-        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    func openDynamicAddressesEnterView(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    ) {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            analyticsLogger: analyticsLogger,
+            coordinator: self
+        )
     }
 
-    func openDynamicAddressesUnavailableSheet() {
-        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
+    func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType) {
+        let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: messageType, coordinator: self)
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openDynamicAddressesDisableSheet() {
+    func openDynamicAddressesDisableSheet(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    ) {
         let viewModel = DynamicAddressesDisableSheetViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+            analyticsLogger: analyticsLogger,
             coordinator: self
         )
         Task { @MainActor in
@@ -305,7 +319,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)

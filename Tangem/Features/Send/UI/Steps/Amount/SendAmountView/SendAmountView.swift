@@ -66,6 +66,7 @@ struct SendAmountView: View {
             if let header = viewModel.tokenHeader {
                 SendTokenHeaderView(header: header)
                     .frame(minHeight: Constants.headerMinHeight)
+                    .infinityFrame(axis: .horizontal)
             }
 
             sourceAmountInputView

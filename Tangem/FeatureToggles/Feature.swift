@@ -28,6 +28,7 @@ enum Feature: String, Hashable, CaseIterable {
     case newPromotionBanners
     case swapPipelineV2
     case onrampNativePayment
+    case swapStoriesV2
 
     var name: String {
         switch self {
@@ -50,6 +51,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .newPromotionBanners: return "New Promotion Banners"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
+        case .swapStoriesV2: return "Swap Stories V2"
         }
     }
 
@@ -65,7 +67,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainQRScan: return .version("5.36")
         case .customerIO: return .version("5.35")
         case .surveySparrow: return .unspecified
-        case .mobileWalletTokenAutoSync: return .unspecified
+        case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .unspecified
         case .solanaScaledUIEnabled: return .unspecified
@@ -74,6 +76,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .unspecified
         case .onrampNativePayment: return .unspecified
+        case .swapStoriesV2: return .unspecified
         }
     }
 }
