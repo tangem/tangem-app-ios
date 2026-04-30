@@ -104,6 +104,18 @@ extension Analytics {
         case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
         case stakingClicked = "[Token] Staking Clicked"
 
+        // MARK: - Dynamic Addresses
+
+        case dynamicAddressesScreenOpened = "[Token] Dynamic Addresses Screen Opened"
+        case buttonEnableDynamicAddresses = "[Token] Button - Enable Dynamic Addresses"
+        case dynamicAddressesEnabled = "[Token] Dynamic Addresses Enabled"
+        case buttonDisableDynamicAddresses = "[Token] Button - Disable Dynamic Addresses"
+        case dynamicAddressesDisabled = "[Token] Dynamic Addresses Disabled"
+        case dynamicAddressesNoticeUnavailable = "[Token] Notice - Dynamic Addresses Unavailable"
+        case dynamicAddressesErrorUnavailable = "[Token] Error - Dynamic Addresses Unavailable"
+        // [REDACTED_TODO_COMMENT]
+        case dynamicAddressesNoticeFundsFound = "[Token] Notice - Additional Addresses Found"
+
         // MARK: - Main screen
 
         case mainScreenOpened = "[Main Screen] Screen opened"
@@ -695,6 +707,14 @@ extension Analytics {
         case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
         case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
 
+        case visaReplaceCardClicked = "[Visa Screen] Visa Replace Card Clicked"
+        case visaReplaceCardConfirmationPopupOpened = "[Visa Screen] Visa Replace Card Confirmation Popup Opened"
+        case visaReplaceCardConfirmed = "[Visa Screen] Visa Replace Card Confirmed"
+
+        case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
+        case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
+        case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"
@@ -754,5 +774,12 @@ extension Analytics {
         case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
         case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
         case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
+
+        // MARK: - Initial Token Sync
+
+        case initialTokenSyncStarted = "[Token Sync] Sync Started"
+        case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
+        case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
+        case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
     }
 }

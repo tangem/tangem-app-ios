@@ -84,15 +84,11 @@ final class QRScanViewModel: ObservableObject, Identifiable {
 
     private func requestCameraAccess() {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-            guard let self else { return }
-
-            if granted {
-                DispatchQueue.main.async {
-                    self.hasCameraAccess = true
-                }
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.presentAccessDeniedAlert()
+            DispatchQueue.main.async {
+                if granted {
+                    self?.hasCameraAccess = true
+                } else {
+                    self?.presentAccessDeniedAlert()
                 }
             }
         }
