@@ -135,6 +135,14 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
     func openFinishStep() {
         performFinish()
     }
+
+    func openOnrampKYCVerification(provider: OnrampProvider, kycURL: URL?) {
+        router?.openOnrampKYCVerification(
+            providerName: provider.provider.name,
+            providerImageURL: provider.provider.imageURL,
+            kycURL: kycURL
+        )
+    }
 }
 
 // MARK: - OnrampSummaryRoutable

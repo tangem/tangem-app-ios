@@ -34,6 +34,7 @@ public extension ExpressAPIError {
         let decimals: Int?
         let fromAmount: String?
         let fromAmountProvider: String?
+        public let kycUrl: String?
 
         public var roundUpAmount: Decimal? {
             guard let fromAmountProvider, let decimals else {
@@ -93,6 +94,9 @@ public extension ExpressAPIError {
         case networkNotFound = 2330
 
         case exchangeTransactionNotFoundError = 2500
+
+        // [REDACTED_TODO_COMMENT]
+        case onrampKYCRequired = 2600
 
         public var errorDescription: String? {
             rawValue.description

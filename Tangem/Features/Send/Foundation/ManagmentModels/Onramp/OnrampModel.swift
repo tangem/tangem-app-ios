@@ -587,6 +587,13 @@ extension OnrampModel: OnrampSummaryOutput {
                 }
             } catch is CancellationError {
                 resultHandler(.init(status: .failure, errors: [CancellationError()]))
+            } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
+                resultHandler(.init(status: .failure, errors: [error]))
+                let kycURL = error.value?.kycUrl.flatMap(URL.init(string:))
+
+                await runOnMain {
+                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: kycURL)
+                }
             } catch {
                 resultHandler(.init(status: .failure, errors: [error]))
 
