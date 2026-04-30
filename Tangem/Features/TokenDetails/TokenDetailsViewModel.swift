@@ -244,30 +244,45 @@ extension TokenDetailsViewModel {
         }
     }
 
-    func openDynamicAddressesManagement(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+    func openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
         let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
-        if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
-            let transferableToken = CommonSendTransferableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel
-            )
-            .makeTransferableToken(supportingFeeOptions: .compound)
+        let transferableToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        )
+        .makeTransferableToken(supportingFeeOptions: .compound)
 
-            let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
-                transferableToken: transferableToken
-            )
+        let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
+            transferableToken: transferableToken
+        )
 
-            coordinator?.openDynamicAddressesDisableSheet(
-                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
-                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
-                analyticsLogger: analyticsLogger
-            )
-        } else {
+        coordinator?.openDynamicAddressesDisableSheet(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+            analyticsLogger: analyticsLogger
+        )
+    }
+
+    func openDynamicAddressesEnableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        switch walletModelDynamicAddressesProvider.dynamicAddressesEnablingRequirements {
+        case .customTokensRemoveIsNeeded:
+            coordinator?.openDynamicAddressesUnavailableSheet(messageType: .hasCustomToken)
+        default:
+            // Other enabling requirements will handle in `DynamicAddressesEnterView`
+            let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
                 analyticsLogger: analyticsLogger
             )
+        }
+    }
+
+    func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
+            openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
+        } else {
+            openDynamicAddressesEnableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
         }
     }
 
@@ -336,7 +351,9 @@ private extension TokenDetailsViewModel {
 
         if let walletModelDynamicAddressesProvider, hasFeature, isDynamicAddressesSupported {
             items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
-                self?.openDynamicAddressesManagement(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
+                self?.openDynamicAddressesManagementView(
+                    walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                )
             })
         }
 
