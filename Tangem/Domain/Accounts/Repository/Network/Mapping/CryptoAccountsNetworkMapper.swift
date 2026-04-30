@@ -314,7 +314,11 @@ final class CryptoAccountsNetworkMapper {
         // Mapping must fail here if the derivation path does exist but invalid
         let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
         let settings: BlockchainSettings? = token.dynamicAddressesEnabled == true ? .dynamicAddresses : nil
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath, settings: settings)
+        let blockchainNetwork = StoredCryptoAccount.Token.StoredBlockchainNetwork(
+            blockchain: blockchain,
+            derivationPath: derivationPath,
+            settings: settings
+        )
 
         return .known(blockchainNetwork: blockchainNetwork)
     }
