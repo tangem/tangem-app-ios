@@ -21,6 +21,8 @@ extension LogSanitizerPolicy {
     /// Production sanitization policy used for persisted logs.
     static let production = LogSanitizerPolicy(
         preserveRules: [
+            .walletConnectTypes,
+            .walletConnectDeeplink,
             .objectAddress,
             .iso8601Timestamp,
             .swapPayload,
