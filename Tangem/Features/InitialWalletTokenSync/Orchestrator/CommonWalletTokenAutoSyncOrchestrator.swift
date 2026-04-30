@@ -19,6 +19,7 @@ final class CommonWalletTokenAutoSyncOrchestrator {
     private let persister: WalletTokenAutoSyncPersister
     private let relayerFactory: (Blockchain) -> (any WalletTokenAutoSyncRelayer)?
     private let userWalletRepository: UserWalletRepository
+    private let apiListProvider: APIListProvider
     private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
 
     private let walletDidCreateSubject = PassthroughSubject<UserWalletId, Never>()
@@ -30,6 +31,7 @@ final class CommonWalletTokenAutoSyncOrchestrator {
         persister: WalletTokenAutoSyncPersister,
         relayerFactory: @escaping (Blockchain) -> (any WalletTokenAutoSyncRelayer)?,
         userWalletRepository: UserWalletRepository,
+        apiListProvider: APIListProvider,
         analyticsProvider: WalletTokenAutoSyncAnalyticsProvider
     ) {
         self.syncStateActor = syncStateActor
@@ -37,6 +39,7 @@ final class CommonWalletTokenAutoSyncOrchestrator {
         self.persister = persister
         self.relayerFactory = relayerFactory
         self.userWalletRepository = userWalletRepository
+        self.apiListProvider = apiListProvider
         self.analyticsProvider = analyticsProvider
 
         bindDeletedWalletsPipeline()
@@ -92,12 +95,19 @@ private extension CommonWalletTokenAutoSyncOrchestrator {
         .compactMap { service, userWalletId -> UserWalletModel? in
             service.userWalletRepository.models.first(where: { $0.userWalletId == userWalletId })
         }
-        .flatMapLatest { userWalletModel -> AnyPublisher<UserWalletModel, Never> in
-            userWalletModel.accountModelsManager.cryptoAccountModelsPublisher
+        .withWeakCaptureOf(self)
+        .flatMapLatest { service, userWalletModel -> AnyPublisher<UserWalletModel, Never> in
+            let cryptoAccountModelsReady = userWalletModel.accountModelsManager.cryptoAccountModelsPublisher
                 .filter { cryptoAccountModels in
                     cryptoAccountModels.contains(where: { $0.isMainAccount })
                 }
                 .prefix(1)
+
+            let apiListReady = service.apiListProvider.apiListPublisher
+                .filter { !$0.isEmpty }
+                .prefix(1)
+
+            return Publishers.CombineLatest(cryptoAccountModelsReady, apiListReady)
                 .mapToValue(userWalletModel)
                 .eraseToAnyPublisher()
         }
