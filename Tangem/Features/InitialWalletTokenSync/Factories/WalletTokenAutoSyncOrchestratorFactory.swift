@@ -36,6 +36,7 @@ struct WalletTokenAutoSyncOrchestratorFactory {
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
             ),
             userWalletRepository: InjectedValues[\.userWalletRepository],
+            apiListProvider: InjectedValues[\.apiListProvider],
             analyticsProvider: analyticsProvider
         )
     }
@@ -45,20 +46,25 @@ struct WalletTokenAutoSyncOrchestratorFactory {
         coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider,
         tokenBalanceClient: MoralisTokenBalanceClient
     ) -> (Blockchain) -> (any WalletTokenAutoSyncRelayer)? {
-        { blockchain in
+        // Cached per-type relayers shared across all supported blockchains
+        // to avoid allocating a fresh instance for every network on each sync run.
+        let moralisRelayer: any WalletTokenAutoSyncRelayer = makeMoralisRelayer(
+            tokenBalanceClient: tokenBalanceClient,
+            coinsCatalogProvider: coinsCatalogProvider
+        )
+        let configurationRelayer: any WalletTokenAutoSyncRelayer = makeConfigurationRelayer(
+            configurationProvider: configurationProvider,
+            coinsCatalogProvider: coinsCatalogProvider
+        )
+
+        return { blockchain in
             // Use Moralis first to obtain blockchain balances
             if MoralisSupportedBlockchains.all.contains(blockchain) {
-                return makeMoralisRelayer(
-                    tokenBalanceClient: tokenBalanceClient,
-                    coinsCatalogProvider: coinsCatalogProvider
-                )
+                return moralisRelayer
             }
 
             if configurationProvider.canHandle(blockchain) {
-                return makeConfigurationRelayer(
-                    configurationProvider: configurationProvider,
-                    coinsCatalogProvider: coinsCatalogProvider
-                )
+                return configurationRelayer
             }
 
             return nil
