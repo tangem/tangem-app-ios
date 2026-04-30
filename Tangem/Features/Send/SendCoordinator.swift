@@ -353,6 +353,32 @@ extension SendCoordinator: OnrampRoutable {
 
         dismissOnrampRedirecting()
     }
+
+    func openOnrampKYCVerification(providerName: String, providerImageURL: URL?, kycURL: URL?) {
+        let viewModel = OnrampKYCVerificationSheetViewModel(
+            providerName: providerName,
+            providerImageURL: providerImageURL,
+            kycURL: kycURL,
+            onVerify: { [weak self] url in
+                guard let self, let url else { return }
+                Task { @MainActor in
+                    self.floatingSheetPresenter.pauseSheetsDisplaying()
+                    self.safariHandle = self.safariManager.openURL(
+                        url,
+                        configuration: .init(),
+                        onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                        onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
+                    )
+                }
+            },
+            onChooseAnother: {}
+        )
+
+        Task { @MainActor in
+            UIApplication.shared.endEditing()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - ApproveRoutable
