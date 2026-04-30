@@ -192,7 +192,7 @@ private class Ed25519DummyTransactionSigner: TransactionSigner {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension PolkadotWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension PolkadotWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -203,9 +203,10 @@ extension PolkadotWalletManager: StakeKitTransactionSender, StakeKitTransactionS
         try PolkadotStakeKitTransactionHelper(transactionBuilder: txBuilder)
             .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
     }
+}
 
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
-        try await networkService.submitExtrinsic(data: rawTransaction)
-            .mapSendError(tx: rawTransaction.hexString).async()
+extension PolkadotWalletManager: StakeKitTransactionDataBroadcaster {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
+        try await networkService.submitExtrinsic(data: rawTransaction).async()
     }
 }
