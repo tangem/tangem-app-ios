@@ -20,15 +20,18 @@ class CommonOnrampRedirectingInteractor {
     private weak var output: OnrampRedirectingOutput?
 
     private let onrampManager: OnrampManager
+    private let redirectSettingsBuilder: OnrampRedirectSettingsBuilder
 
     init(
         input: OnrampRedirectingInput,
         output: OnrampRedirectingOutput,
-        onrampManager: OnrampManager
+        onrampManager: OnrampManager,
+        redirectSettingsBuilder: OnrampRedirectSettingsBuilder
     ) {
         self.input = input
         self.output = output
         self.onrampManager = onrampManager
+        self.redirectSettingsBuilder = redirectSettingsBuilder
     }
 }
 
@@ -44,19 +47,9 @@ extension CommonOnrampRedirectingInteractor: OnrampRedirectingInteractor {
             throw CommonError.noData
         }
 
-        let appLanguageCode = Locale.appLanguageCode
-        var redirectURL = URL(string: Constants.redirectURL)!
-        redirectURL.appendPathComponent(provider.provider.id)
-
-        let redirectSettings = OnrampRedirectSettings(redirectURL: redirectURL.absoluteString, theme: theme, language: appLanguageCode)
+        let redirectSettings = redirectSettingsBuilder.make(provider: provider, theme: theme)
         let redirectData = try await onrampManager.loadRedirectData(provider: provider, redirectSettings: redirectSettings)
 
         output?.redirectDataDidLoad(data: redirectData)
-    }
-}
-
-extension CommonOnrampRedirectingInteractor {
-    enum Constants {
-        static let redirectURL = "\(IncomingActionConstants.tangemDomain)/onramp"
     }
 }
