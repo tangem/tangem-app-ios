@@ -354,10 +354,9 @@ extension SendCoordinator: OnrampRoutable {
         dismissOnrampRedirecting()
     }
 
-    func openOnrampKYCVerification(providerName: String, providerImageURL: URL?, kycURL: URL?) {
+    func openOnrampKYCVerification(providerName: String, kycURL: URL?, onChooseAnother: @escaping () -> Void) {
         let viewModel = OnrampKYCVerificationSheetViewModel(
             providerName: providerName,
-            providerImageURL: providerImageURL,
             kycURL: kycURL,
             onVerify: { [weak self] url in
                 guard let self, let url else { return }
@@ -371,7 +370,7 @@ extension SendCoordinator: OnrampRoutable {
                     )
                 }
             },
-            onChooseAnother: {}
+            onChooseAnother: onChooseAnother
         )
 
         Task { @MainActor in
