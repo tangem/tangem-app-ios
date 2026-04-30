@@ -122,9 +122,6 @@
 "balance_hidden_do_not_show_button" = "Больше не показывать";
 "balance_hidden_got_it_button" = "Понятно";
 "balance_hidden_title" = "Балансы скрыты";
-"banner.swap.firsttime.button" = "Начать обмен";
-"banner.swap.firsttime.subtitletitle" = "Превратите один актив в другой всего за несколько касаний";
-"banner.swap.firsttime.title" = "Совершите первый обмен";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт и колец в приложении";
 "bitcoin_promo_activation_error_title" = "Ошибка активации";
 "bitcoin_promo_activation_error" = "При обработке промокода произошла ошибка. Пожалуйста, попробуйте позже.";
@@ -410,6 +407,7 @@
 "dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
 "dynamic_addresses_notification_funds_found_title" = "Обнаружены средства на связанных адресах";
 "dynamic_addresses_receive_badge" = "Динамический адресс";
+"dynamic_addresses_unavailability_reason_pending_transaction_send" = "Dynamic addresses management will be available once the pending transaction(s) in network %@ is complete";
 "dynamic_addresses" = "Динамические адреса";
 "earn_best_opportunities" = "Лучшие возможности";
 "earn_clear_filter" = "Очистить фильтр";
@@ -906,6 +904,12 @@
 "onramp_error_transaction_already_processed" = "Эта транзакция уже была обработана. Дополнительных действий не требуется.";
 "onramp_fetching_best_rates" = "Получение лучших курсов...";
 "onramp_instant_status" = "Моментально";
+"onramp_kyc_verification_bullet_free" = "Verification is free and usually takes 1-2 minutes";
+"onramp_kyc_verification_bullet_privacy" = "Tangem won't have access to your identity information, you share data directly with regulated provider";
+"onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
+"onramp_kyc_verification_choose_another" = "Choose another method";
+"onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
+"onramp_kyc_verification_title" = "Identity verification required by payment provider";
 "onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "Пользуясь сервисом покупки, вы соглашаетесь с %1$@ и %2$@";
 "onramp_max_amount_restriction" = "Сумма покупки не может быть больше, чем %@";
