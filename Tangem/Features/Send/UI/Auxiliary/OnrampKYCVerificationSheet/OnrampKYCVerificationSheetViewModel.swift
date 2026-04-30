@@ -14,7 +14,6 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let providerName: String
-    let providerImageURL: URL?
 
     private let kycURL: URL?
     private let onVerify: (URL?) -> Void
@@ -22,13 +21,11 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
 
     init(
         providerName: String,
-        providerImageURL: URL?,
         kycURL: URL?,
         onVerify: @escaping (URL?) -> Void,
         onChooseAnother: @escaping () -> Void
     ) {
         self.providerName = providerName
-        self.providerImageURL = providerImageURL
         self.kycURL = kycURL
         self.onVerify = onVerify
         self.onChooseAnother = onChooseAnother

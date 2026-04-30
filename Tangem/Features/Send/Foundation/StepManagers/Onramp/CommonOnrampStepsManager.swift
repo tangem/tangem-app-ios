@@ -139,8 +139,10 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
     func openOnrampKYCVerification(provider: OnrampProvider, kycURL: URL?) {
         router?.openOnrampKYCVerification(
             providerName: provider.provider.name,
-            providerImageURL: provider.provider.imageURL,
-            kycURL: kycURL
+            kycURL: kycURL,
+            onChooseAnother: { [weak self] in
+                self?.openOnrampAllOffers()
+            }
         )
     }
 }
