@@ -611,7 +611,8 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                         return storedToken
                     }
 
-                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: blockchainNetwork))
+                    let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(blockchainNetwork)
+                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: storedBlockchainNetwork))
                 }
                 updatedAccount = cryptoAccount.withTokens(updatedTokens)
             }

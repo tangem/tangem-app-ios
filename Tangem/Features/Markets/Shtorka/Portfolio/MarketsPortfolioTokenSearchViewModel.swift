@@ -50,7 +50,8 @@ final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
     private var isSingleWalletWithSingleAccount: Bool {
         guard
             userWalletRepository.models.count == 1,
-            let userWalletModel = userWalletRepository.models.first
+            let userWalletModel = userWalletRepository.models.first,
+            !userWalletModel.isUserWalletLocked
         else {
             return false
         }
@@ -61,13 +62,13 @@ final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
     private let collapsedItemsCount: Int = 3
 
     private let walletModels: [any WalletModel]
-    private let onSingleToken: () -> Void
-    private let onMultipleToken: () -> Void
+    private let onSingleToken: (any WalletModel) -> Void
+    private let onMultipleToken: ([any WalletModel]) -> Void
 
     init(
         walletModels: [any WalletModel],
-        onSingleToken: @escaping () -> Void,
-        onMultipleToken: @escaping () -> Void
+        onSingleToken: @escaping (any WalletModel) -> Void,
+        onMultipleToken: @escaping ([any WalletModel]) -> Void
     ) {
         self.walletModels = walletModels
         self.onSingleToken = onSingleToken
@@ -209,7 +210,9 @@ private extension MarketsPortfolioTokenSearchViewModel {
                 ratePublisher: walletModel.ratePublisher,
                 fiatTotalTokenBalancePublisher: fiatBalancePublisher,
                 cryptoTotalTokenBalancePublisher: cryptoBalancePublisher,
-                onTapAction: onSingleToken
+                onTapAction: { [weak self] in
+                    self?.onSingleToken(walletModel)
+                }
             )
 
             return Item(
@@ -230,7 +233,9 @@ private extension MarketsPortfolioTokenSearchViewModel {
                 ),
                 fiatTotalTokenBalancePublishers: fiatBalancePublishers,
                 cryptoTotalTokenBalancePublishers: cryptoBalancePublishers,
-                onTapAction: onMultipleToken
+                onTapAction: { [weak self] in
+                    self?.onMultipleToken(walletModels)
+                }
             )
 
             return Item(

@@ -16,6 +16,8 @@ enum IncomingActionConstants {
     static let newsPath = "/news"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
+    static let onrampPath = "/onramp"
+    static let onrampRedirectURL = "\(tangemDomain)\(onrampPath)"
     static let externalRedirectURL = "\(tangemDomain)/redirect"
     static let universalLinkRedirectURL = "\(universalLinkScheme)redirect"
     static let externalSuccessURL = "\(tangemDomain)/success"
@@ -44,6 +46,7 @@ enum IncomingActionConstants {
     enum DeeplinkDestination: String, CaseIterable {
         case token
         case staking
+        case yield
         case referral
         case markets
         case tokenChart = "token_chart"
