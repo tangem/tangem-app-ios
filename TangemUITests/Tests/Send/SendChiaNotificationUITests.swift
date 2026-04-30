@@ -9,7 +9,7 @@
 import Foundation
 
 final class SendChiaNotificationUITests: BaseTestCase {
-    private let coin = "Chia Network"
+    private let coin = "Chia"
     private let destinationAddress = "xch1dz2vua2qvxpx6fufd98rxxv2n8j9t3au733xlht3fga4gk8ks5mqq5tzsz"
     private let amount = "0.85"
 

@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemMacro
 
+@CaseFlagable
 enum AccountModel {
     case standard(CryptoAccounts)
 
