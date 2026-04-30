@@ -11,7 +11,7 @@ import TangemVisa
 import TangemFoundation
 import TangemPay
 
-struct TangemPayTokenBalanceProvider {
+final class TangemPayTokenBalanceProvider {
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
@@ -19,6 +19,8 @@ struct TangemPayTokenBalanceProvider {
 
     private let walletModelId: WalletModelId
     private let balanceFormatter: BalanceFormatter
+
+    private var statePublisherSubscription: AnyCancellable?
 
     init(
         tokenItem: TokenItem,
@@ -33,6 +35,8 @@ struct TangemPayTokenBalanceProvider {
 
         walletModelId = .init(tokenItem: tokenItem)
         balanceFormatter = .init()
+
+        bind(to: balanceSubject)
     }
 }
 
@@ -45,7 +49,10 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         balanceSubject
-            .map { mapToTokenBalanceType(balance: $0) }
+            .withWeakCaptureOf(self)
+            .map { provider, balance in
+                provider.mapToTokenBalanceType(balance: balance)
+            }
             .eraseToAnyPublisher()
     }
 
@@ -55,7 +62,10 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         balanceTypePublisher
-            .map { mapToFormattedTokenBalanceType(type: $0) }
+            .withWeakCaptureOf(self)
+            .map { provider, balanceType in
+                provider.mapToFormattedTokenBalanceType(type: balanceType)
+            }
             .eraseToAnyPublisher()
     }
 }
@@ -63,6 +73,25 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 private extension TangemPayTokenBalanceProvider {
+    func bind(to balanceSubject: some Subject<LoadingResult<TangemPayBalance, Error>?, Never>) {
+        statePublisherSubscription = balanceSubject
+            .compactMap { [keyPath] state -> Decimal? in
+                switch state {
+                case .success(let balance):
+                    return balance[keyPath: keyPath]
+                case .none,
+                     .loading,
+                     .failure:
+                    return nil
+                }
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { provider, balance in
+                provider.storeBalance(balance: balance)
+            }
+    }
+
     func storeBalance(balance: Decimal) {
         let balance = CachedBalance(balance: balance, date: .now)
         tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .available)
@@ -84,14 +113,14 @@ private extension TangemPayTokenBalanceProvider {
             return .failure(cachedBalance())
         case .success(let balance):
             let targetBalance = balance[keyPath: keyPath]
-            storeBalance(balance: targetBalance)
             return .loaded(targetBalance)
         }
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
+        let currencyCode = tokenItem.currencySymbol
         let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
+            balanceFormatter.formatCryptoBalance(value, currencyCode: currencyCode)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)

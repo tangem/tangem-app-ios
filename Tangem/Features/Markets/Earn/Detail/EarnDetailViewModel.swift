@@ -18,9 +18,10 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
 
     // MARK: - Published Properties
 
-    @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
+    @Published private(set) var mostlyUsedViewModels: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
     @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
     @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
+    let presentSource: MarketsNavigationBackButton.PresentSource
 
     // MARK: - Private Properties
 
@@ -41,18 +42,18 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     init(
         dataProvider: EarnDataProvider,
         filterProvider: EarnDataFilterProvider,
-        mostlyUsedTokens: [EarnTokenModel],
         coordinator: EarnDetailRoutable? = nil,
-        analyticsProvider: EarnAnalyticsProvider
+        analyticsProvider: EarnAnalyticsProvider,
+        presentSource: MarketsNavigationBackButton.PresentSource = .navigation
     ) {
         self.dataProvider = dataProvider
         self.filterProvider = filterProvider
         self.coordinator = coordinator
         self.analyticsProvider = analyticsProvider
+        self.presentSource = presentSource
 
         super.init(overlayContentProgressInitialValue: 1.0)
 
-        setupMostlyUsedViewModels(from: mostlyUsedTokens)
         bind()
 
         fetch(with: filterProvider.currentFilter)
@@ -91,11 +92,11 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     // MARK: - Private Implementation
 
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
-        mostlyUsedViewModels = tokens.map { token in
+        mostlyUsedViewModels = .success(tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
                 self?.handleTokenTap(token, source: .mostlyUsed)
             }
-        }
+        })
     }
 
     private func handleTokenTap(_ token: EarnTokenModel, source: EarnOpportunitySource) {
@@ -109,6 +110,14 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     }
 
     private func bind() {
+        dataProvider.mostlyUsedEventPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                viewModel.handleMostlyUsedStateEvent(event)
+            }
+            .store(in: &bag)
+
         filterProvider.filterPublisher
             .dropFirst()
             .receiveOnMain()
@@ -134,6 +143,17 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             .store(in: &bag)
     }
 
+    private func handleMostlyUsedStateEvent(_ event: EarnDataMostlyUsedEvent) {
+        switch event {
+        case .loading:
+            mostlyUsedViewModels = .loading
+        case .failed(let error):
+            mostlyUsedViewModels = .failure(error)
+        case .loaded(let items):
+            setupMostlyUsedViewModels(from: items)
+        }
+    }
+
     private func fetch(with filter: EarnDataFilter) {
         dataProvider.fetch(with: filter)
     }
@@ -153,7 +173,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         }
     }
 
-    private func handleDataProviderEvent(_ event: EarnDataProvider.Event) {
+    private func handleDataProviderEvent(_ event: EarnDataEvent) {
         switch event {
         case .loading:
             if tokenViewModels.isEmpty {
