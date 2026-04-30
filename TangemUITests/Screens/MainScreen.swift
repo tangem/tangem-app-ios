@@ -24,6 +24,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
     private lazy var walletLockedNotification = button(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -451,6 +452,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()
             return DetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openTangemPay() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay from main screen") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayMainScreen(app)
         }
     }
 
