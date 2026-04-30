@@ -40,6 +40,9 @@ final class TangemPayManager: TangemPayAccountModel {
         userWalletId.stringValue
     }
 
+    @Injected(\.tangemPayAssembly)
+    private var tangemPayAssembly: TangemPayAssembly
+
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let availabilityService: TangemPayAvailabilityService
@@ -155,7 +158,7 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .loading
         }
 
-        guard let (customerWalletAddress, _) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+        guard let (customerWalletAddress, _) = tangemPayAssembly.customerWalletAddressAndSavedTokensResolver.resolve(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
         ) else {

@@ -84,7 +84,7 @@ final class SendViaSwapUITests: BaseTestCase {
     }
 
     /// [REDACTED_INFO] Send-via-Swap: network fee tier change (Market↔Fast) is not applied on Summary
-    func skipped_testSendViaSwapFlowWithTokenSearchAndDataChanges() {
+    func testSendViaSwapFlowWithTokenSearchAndDataChanges() {
         setAllureId(3968)
 
         let bitcoinBalanceScenario = ScenarioConfig(
