@@ -88,6 +88,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         Analytics.log(event: .onrampBuyScreenOpened, params: [
             .source: source.analytics.rawValue,
             .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
         ], analyticsSystems: .all)
     }
 
