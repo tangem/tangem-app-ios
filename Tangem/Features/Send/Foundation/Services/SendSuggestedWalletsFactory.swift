@@ -18,7 +18,7 @@ struct SendSuggestedWalletsFactory {
     func makeSuggestedWallets(walletModel: any WalletModel) -> [SendDestinationSuggestedWallet] {
         makeSuggestedWallets(
             targetNetworkId: walletModel.tokenItem.blockchain.networkId,
-            ignoredAddresses: walletModel.addresses.toSet(),
+            ignoredAddresses: walletModel.addressesString.toSet(),
             referenceTokenItem: walletModel.tokenItem
         )
     }
