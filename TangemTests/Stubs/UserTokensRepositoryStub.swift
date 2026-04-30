@@ -57,7 +57,8 @@ final class UserTokensRepositoryStub: UserTokensRepository {
                         return storedToken
                     }
 
-                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: blockchainNetwork))
+                    let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(blockchainNetwork)
+                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: storedBlockchainNetwork))
                 }
                 cryptoAccountSubject.send(
                     currentAccount.withTokens(updatedTokens)

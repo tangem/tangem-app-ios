@@ -79,7 +79,7 @@ extension BlockchainNetwork {
     }
 }
 
-enum BlockchainSettings: Codable {
+enum BlockchainSettings: Codable, Hashable {
     /// Dynamic (xpub-derived) receive addresses are enabled for this UTXO network.
     /// When set, `BlockchainNetwork.derivationPaths()` expands to the xpub parent/child
     /// pair and the wallet manager is routed through the XPUB factories.
