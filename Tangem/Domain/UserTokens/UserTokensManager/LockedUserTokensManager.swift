@@ -73,13 +73,15 @@ extension LockedUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncin
 extension LockedUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
-    var groupingOption: UserTokensReorderingOptions.Grouping { .none }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting { .dragAndDrop }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 
     var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension LockedUserTokensManager: DisposableEntity {
+    func dispose() {}
 }
