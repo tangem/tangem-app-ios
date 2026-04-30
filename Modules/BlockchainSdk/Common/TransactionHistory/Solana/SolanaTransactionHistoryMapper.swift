@@ -130,7 +130,13 @@ private extension SolanaTransactionHistoryMapper {
                 return .transfer
             case .stakeOperation(let stakingType, let target, _):
                 return .staking(type: stakingType, target: target)
-            case .tokenOperation, .otherOperation:
+            case .tokenOperation:
+                if case .token = amountType {
+                    return .transfer
+                }
+
+                return .contractMethodName(name: Constants.operationType)
+            case .otherOperation:
                 return .contractMethodName(name: Constants.operationType)
             }
         }()
@@ -268,12 +274,15 @@ private extension SolanaTransactionHistoryMapper {
         walletAddress: String,
         mint: String
     ) -> Decimal {
+        let accountKeys = transaction.transaction.message.accountKeys
         let preBalances = aggregateTokenBalances(
             transaction.meta?.preTokenBalances ?? [],
+            accountKeys: accountKeys,
             walletAddress: walletAddress
         )
         let postBalances = aggregateTokenBalances(
             transaction.meta?.postTokenBalances ?? [],
+            accountKeys: accountKeys,
             walletAddress: walletAddress
         )
 
@@ -282,12 +291,12 @@ private extension SolanaTransactionHistoryMapper {
 
     func aggregateTokenBalances(
         _ balances: [SolanaTransactionHistoryDTO.TransactionDetails.Meta.TokenBalance],
+        accountKeys: [SolanaTransactionHistoryDTO.AccountKey],
         walletAddress: String
     ) -> [String: Decimal] {
         balances.reduce(into: [:]) { partialResult, balance in
             guard
-                let owner = balance.owner,
-                owner == walletAddress,
+                tokenBalance(balance, belongsTo: walletAddress, accountKeys: accountKeys),
                 let mint = balance.mint
             else {
                 return
@@ -300,6 +309,25 @@ private extension SolanaTransactionHistoryMapper {
 
             partialResult[mint, default: 0] += amount
         }
+    }
+
+    func tokenBalance(
+        _ balance: SolanaTransactionHistoryDTO.TransactionDetails.Meta.TokenBalance,
+        belongsTo walletAddress: String,
+        accountKeys: [SolanaTransactionHistoryDTO.AccountKey]
+    ) -> Bool {
+        if balance.owner == walletAddress {
+            return true
+        }
+
+        guard
+            let accountIndex = balance.accountIndex,
+            accountKeys.indices.contains(accountIndex)
+        else {
+            return false
+        }
+
+        return accountKeys[accountIndex].pubkey == walletAddress
     }
 
     func tokenAmount(
