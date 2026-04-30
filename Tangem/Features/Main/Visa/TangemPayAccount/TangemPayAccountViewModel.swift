@@ -57,7 +57,7 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayIssuingYourCardPopup()
         case .failedToIssueCard:
             router?.openTangemPayFailedToIssueCardPopup()
-        case .tangemPayAccount(let tangemPayAccount):
+        case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
         }
     }
@@ -111,6 +111,13 @@ private extension TangemPayAccountViewModel {
                         }
                     }
                     .eraseToAnyPublisher()
+                case .cardDeactivated(let tangemPayAccount):
+                    tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+                        .map { balanceType in
+                            let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
+                            return .cardDeactivated(balance: balance)
+                        }
+                        .eraseToAnyPublisher()
                 }
             }
             .handleEvents(receiveOutput: { [userWalletId] state in
@@ -157,6 +164,12 @@ private extension TangemPayAccountViewModel {
                 trailing: .balance(cachedBalanceState())
             )
 
+        case .cardDeactivated:
+            CachedDisplayData(
+                subtitle: Localization.tangempayStatusDeactivated,
+                trailing: .balance(cachedBalanceState())
+            )
+
         case .none:
             nil
         }
@@ -186,6 +199,7 @@ extension TangemPayAccountViewModel {
         case issuingYourCard
         case failedToIssueCard
         case normal(card: CardInfo, balance: LoadableBalanceView.State)
+        case cardDeactivated(balance: LoadableBalanceView.State)
         case replacingCard(balance: LoadableBalanceView.State)
         case syncNeeded
         case unavailable(cached: CachedDisplayData? = nil)
@@ -201,6 +215,8 @@ extension TangemPayAccountViewModel {
                 Localization.tangempayFailedToIssueCard
             case .normal(let card, _):
                 "*" + card.cardNumberEnd
+            case .cardDeactivated:
+                Localization.tangempayStatusDeactivated
             case .replacingCard:
                 Localization.tangempayReissueCardInProgress
             case .syncNeeded:
@@ -218,7 +234,7 @@ extension TangemPayAccountViewModel {
 
         var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .replacingCard:
+            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard:
                 true
             case .syncNeeded, .unavailable, .rootedDevice:
                 false
