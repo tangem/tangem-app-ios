@@ -209,6 +209,10 @@ extension BitcoinWalletManager: TransactionSender {
 // MARK: - XPUBAddressesWalletManagerProvider
 
 extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
+    var hasPendingUnspentOutputs: Bool {
+        !unspentOutputManager.pendingOutputs().isEmpty
+    }
+
     func compoundTransactionIfNeeded() -> (amount: Amount, destination: String)? {
         let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         guard balance > 0 else {
@@ -266,6 +270,23 @@ extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
         )
         let factory = WalletFactory(blockchain: wallet.blockchain)
         return try factory.makeWallet(publicKey: publicKey)
+    }
+}
+
+// MARK: - XPUBAddressesBalancesChecker
+
+extension BitcoinWalletManager: XPUBAddressesBalancesChecker {
+    func checkOtherAddressesBalances(xpubKey: Wallet.PublicKey.XPUBKey) async throws -> XPUBAddressesBalancesReport {
+        let xpub = try XPUBUtils.generateXPUB(key: xpubKey, isTestnet: wallet.blockchain.isTestnet)
+        let info: UTXOXpubAddressesInfo = try await networkService.getInfo(xpub: xpub).async()
+
+        let walletAddresses = wallet.addresses.uniqueProperties(\.value).toSet()
+
+        let otherAddressesBalances: [String: Decimal] = info.addresses
+            .filter { !walletAddresses.contains($0.usedAddress.address) && $0.balance > 0 }
+            .reduce(into: [:]) { $0[$1.usedAddress.address] = $1.balance }
+
+        return XPUBAddressesBalancesReport(otherAddressesBalances: otherAddressesBalances)
     }
 }
 

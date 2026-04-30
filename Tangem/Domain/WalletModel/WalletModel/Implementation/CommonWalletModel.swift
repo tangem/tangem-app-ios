@@ -790,6 +790,12 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         dynamicAddressesManager?.disablingRequirements
     }
 
+    @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool {
+        await dynamicAddressesManager?.hasDynamicAddressesBalancesFlag() ?? false
+    }
+
+    @MainActor
     func enableDynamicAddresses() async throws {
         guard let dynamicAddressesManager else {
             throw DynamicAddressesManagerError.dynamicAddressesNotSupported
@@ -801,6 +807,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         await update(silent: false, features: .full)
     }
 
+    @MainActor
     func disableDynamicAddresses() async throws {
         guard let dynamicAddressesManager else {
             throw DynamicAddressesManagerError.dynamicAddressesNotSupported
