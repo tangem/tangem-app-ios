@@ -36,6 +36,7 @@ struct WalletTokenAutoSyncOrchestratorFactory {
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
             ),
             userWalletRepository: InjectedValues[\.userWalletRepository],
+            apiListProvider: InjectedValues[\.apiListProvider],
             analyticsProvider: analyticsProvider
         )
     }
