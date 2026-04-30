@@ -32,8 +32,7 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 infoProvider: provider,
                 contextActionsProvider: self,
                 contextActionsDelegate: self,
-                tokenTapped: modelTapped(with:),
-                yieldApyTapped: { _ in }
+                tokenTapped: modelTapped(with:)
             )
         }
     }

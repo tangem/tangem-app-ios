@@ -37,7 +37,7 @@ struct CurrencySelectView: View {
         case .success(let currencies):
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: .zero) {
-                    GroupedSection(currencies) { currency in
+                    GroupedSection(currencies, isLazy: true) { currency in
                         currencyView(currency)
                     }
                     .innerContentPadding(14)
