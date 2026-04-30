@@ -200,6 +200,7 @@ struct ChooseTokenPillView: View {
             HStack(spacing: 6) {
                 Text(Localization.commonChooseToken)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .lineLimit(1)
 
                 Assets.chevronDown24.image
                     .resizable()
@@ -212,6 +213,7 @@ struct ChooseTokenPillView: View {
             .padding(.trailing, 12)
             .background(Colors.Button.secondary)
             .cornerRadiusContinuous(24)
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 }
