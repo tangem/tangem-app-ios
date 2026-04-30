@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
@@ -146,7 +147,8 @@ struct TangemPayMainView: View {
             LoadableBalanceView(
                 state: viewModel.balance,
                 style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
+                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
             )
 
             cardIconRow
@@ -182,6 +184,7 @@ struct TangemPayMainView: View {
             Button(action: viewModel.openCardManagement) {
                 TangemPaySmallCardView(cardNumberEnd: viewModel.cardNumberEnd)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
 
             Button(action: viewModel.openFakedoorSheet) {
                 Image(systemName: "plus")
