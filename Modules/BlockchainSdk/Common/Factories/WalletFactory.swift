@@ -32,6 +32,7 @@ struct WalletFactory {
                 seedKey: publicKey.seedKey,
                 xpubKey: xpubKey,
                 addressProvider: addressService,
+                supportedAddressTypes: AddressTypesConfig().types(for: blockchain),
                 defaultAddress: defaultAddress,
             )
         default:
