@@ -39,4 +39,11 @@ public struct StakingBlockchainParams {
         default: .zero
         }
     }
+
+    public var supportsZeroBalanceOperations: Bool {
+        switch blockchain {
+        case .solana: false
+        default: true
+        }
+    }
 }

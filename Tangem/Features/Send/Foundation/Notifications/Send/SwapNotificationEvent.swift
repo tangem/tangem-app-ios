@@ -23,11 +23,11 @@ enum SwapNotificationEvent: Hashable {
     )
     case hasPendingTransaction(symbol: String)
     case hasPendingApproveTransaction
-    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconAsset: ImageType)
+    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconAsset: ImageType, analyticsParams: [Analytics.ParameterKey: String])
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case noDestinationTokens(tokenName: String)
-    case unsupportedPair
+    case unsupportedPair(analyticsParams: [Analytics.ParameterKey: String])
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
 
@@ -61,7 +61,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressActiveTransactionTitle)
         case .hasPendingApproveTransaction:
             return .string(Localization.warningExpressApprovalInProgressTitle)
-        case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
+        case .notEnoughFeeForTokenTx(let mainTokenName, _, _, _):
             return .string(Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName))
         case .tooSmallAmountToSwap(let minimumAmountText):
             return .string(Localization.warningExpressTooMinimalAmountTitle(minimumAmountText))
@@ -108,7 +108,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressActiveTransactionMessage(symbol)
         case .hasPendingApproveTransaction:
             return Localization.warningExpressApprovalInProgressMessage
-        case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
+        case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .tooSmallAmountToSwap, .tooBigAmountToSwap:
             return Localization.warningExpressWrongAmountDescription
@@ -197,7 +197,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
             return .init(iconType: .progressView)
-        case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset):
+        case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset, _):
             return .init(iconType: .image(blockchainIconAsset))
         case .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
@@ -250,7 +250,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _):
+        case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _, _):
             return .init(.openFeeCurrency(currencySymbol: mainTokenSymbol))
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
@@ -307,6 +307,10 @@ extension SwapNotificationEvent {
             .swapNoticeHighPriceImpact
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             .swapNoticeTradeTooLarge
+        case .notEnoughFeeForTokenTx:
+            .swapNoticeNotEnoughFee
+        case .unsupportedPair:
+            .swapNoticeUnavailableToSwapPair
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -322,6 +326,10 @@ extension SwapNotificationEvent {
         case .permissionNeeded(_, _, let params):
             params
         case .highPriceImpactWarning(_, let params):
+            params
+        case .unsupportedPair(let params):
+            params
+        case .notEnoughFeeForTokenTx(_, _, _, let params):
             params
         default:
             [:]

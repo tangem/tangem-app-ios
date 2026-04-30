@@ -29,7 +29,7 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
-    @Published var mainTokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var mainTokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var portfolioTokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
@@ -207,6 +207,22 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
         self.marketsSearchCoordinator = marketsSearchCoordinator
     }
+
+    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainTokenDetailsCoordinator = nil
+        }
+
+        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
+
+        mainTokenDetailsCoordinator = coordinator
+    }
 }
 
 // MARK: - EarnAddTokenRoutable, AddTokenFlowRoutable
@@ -234,22 +250,6 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()
             )
-    }
-
-    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.mainTokenDetailsCoordinator = nil
-        }
-
-        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
-            dismissAction: dismissAction
-        ) else {
-            return
-        }
-
-        mainTokenDetailsCoordinator = coordinator
     }
 }
 
