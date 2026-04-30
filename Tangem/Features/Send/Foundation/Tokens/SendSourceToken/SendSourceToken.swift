@@ -16,7 +16,6 @@ protocol SendSourceToken: SendReceiveToken {
     var id: WalletModelId { get }
     var header: TokenHeader { get }
     var feeTokenItem: TokenItem { get }
-    var isFixedFee: Bool { get }
     var isCustom: Bool { get }
     var defaultAddressString: String { get }
 
@@ -29,6 +28,7 @@ protocol SendSourceToken: SendReceiveToken {
     // Common providers
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+    var tangemIconProvider: any TangemIconProvider { get }
 }
 
 extension SendSourceToken {

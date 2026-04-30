@@ -92,10 +92,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.publicKey
     }
 
-    var shouldShowFeeSelector: Bool {
-        mainTokenWalletModel.shouldShowFeeSelector
-    }
-
     var isCustom: Bool {
         // By definition, NFT assets can't be added by user
         false
@@ -124,6 +120,8 @@ extension NFTSendWalletModelProxy: WalletModel {
     var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
+
+    var features: [WalletModelFeature] { [] }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         // No additional features for NFT

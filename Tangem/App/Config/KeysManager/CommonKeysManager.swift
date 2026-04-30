@@ -80,7 +80,12 @@ extension CommonKeysManager: KeysManager {
     }
 
     var amplitudeApiKey: String {
-        keys.amplitudeApiKey
+        switch AppEnvironment.current {
+        case .production:
+            return keys.amplitudeApiKey
+        default:
+            return keys.amplitudeApiKeyDev
+        }
     }
 
     var appsFlyerConfig: AppsFlyerConfig {
@@ -180,6 +185,7 @@ extension CommonKeysManager {
         let customerIO: CustomerIOKeys
         let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
+        let amplitudeApiKeyDev: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
         let quiknodeApiKey: String

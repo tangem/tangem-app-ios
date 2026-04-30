@@ -75,13 +75,44 @@ public struct InfoChipsRowView: View {
         ) { chip in
             InfoChipView(item: chip, style: style)
         } limitViewGenerator: { count in
-            Text("+\(count)")
-                .style(style.titleFont, color: style.titleColor)
-                .padding(.horizontal, style.horizontalPadding)
-                .padding(.vertical, style.verticalPadding)
-                .background(style.backgroundColor)
-                .cornerRadiusContinuous(style.cornerRadius)
+            if style == .redesign {
+                InfoChipsOverflowView(style: style)
+            } else {
+                Text("+\(count)")
+                    .style(style.titleFont, color: style.titleColor)
+                    .padding(.horizontal, style.horizontalPadding)
+                    .padding(.vertical, style.verticalPadding)
+                    .background(style.backgroundColor)
+                    .cornerRadiusContinuous(style.cornerRadius)
+            }
         }
+    }
+}
+
+/// Overflow indicator for a redesign-style chips row — the "…" pill shown when
+/// not all chips fit on a single line. Matches the pill geometry of a regular
+/// `InfoChipView`: icon sits inside a contentHeight-tall slot, wrapped with the
+/// same rounded background / padding used by text chips.
+private struct InfoChipsOverflowView: View {
+    let style: InfoChipView.Style
+
+    @ScaledMetric(relativeTo: .caption) private var iconWidth: CGFloat = .unit(.x5)
+    @ScaledMetric(relativeTo: .caption) private var iconHeight: CGFloat = .unit(.x4)
+
+    var body: some View {
+        Assets.horizontalDots.image
+            .renderingMode(.template)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundStyle(Color.Tangem.Markers.iconGray)
+            .frame(width: iconWidth, height: iconHeight)
+            .frame(height: style.contentHeight)
+            .defaultRoundedBackground(
+                with: style.backgroundColor,
+                verticalPadding: style.verticalPadding,
+                horizontalPadding: style.horizontalPadding,
+                cornerRadius: style.cornerRadius
+            )
     }
 }
 
