@@ -12,7 +12,7 @@ import SwiftUI
 /// on the active animation direction and progress.
 struct CardsInfoPagerContentSwitchingAnimationModifier: AnimatableModifier {
     enum PreferenceKey: SwiftUI.PreferenceKey {
-        static var defaultValue: Int { .zero }
+        static var defaultValue: Int { 0 }
 
         static func reduce(value: inout Int, nextValue: () -> Int) {
             value = nextValue()

@@ -36,6 +36,7 @@ struct MarketTokenRowView: View {
             }
             .padding(.horizontal, horizontalPadding)
             .padding(.vertical, verticalPadding)
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(

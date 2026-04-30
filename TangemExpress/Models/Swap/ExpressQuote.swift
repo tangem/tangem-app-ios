@@ -13,6 +13,7 @@ public struct ExpressQuote: Hashable {
     public let expectAmount: Decimal
     public let allowanceContract: String?
     public let quoteId: String?
+    public let txType: ExpressTransactionType?
 
     public var rate: Decimal {
         if !fromAmount.isZero {

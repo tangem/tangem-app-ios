@@ -21,14 +21,6 @@ struct OrganizeTokensView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    // MARK: - Coordinate spaces
-
-    /// Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
-    private let scrollViewFrameCoordinateSpaceName = UUID()
-
-    /// Semantically, this is the same as `UIScrollView.contentLayoutGuide` from UIKit
-    private let scrollViewContentCoordinateSpaceName = UUID()
-
     // MARK: - Content insets and overlay views
 
     @StateObject private var scrollState = OrganizeTokensScrollState(bottomInset: Constants.headerAdditionalBottomInset)
@@ -38,9 +30,6 @@ struct OrganizeTokensView: View {
 
     @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Replace with native `.safeAreaInset()` ([REDACTED_INFO])")
     @State private var scrollViewBottomContentInset: CGFloat = 0.0
-
-    @State private var scrollViewTopContentInsetSpacerIdentifier: UUID
-    @State private var scrollViewBottomContentInsetSpacerIdentifier: UUID
 
     // MARK: - Drag and drop support
 
@@ -118,27 +107,27 @@ struct OrganizeTokensView: View {
                         LazyVStack(spacing: 0.0) {
                             Spacer(minLength: scrollViewTopContentInset)
                                 .fixedSize()
-                                .id(scrollViewTopContentInsetSpacerIdentifier)
+                                .id(Identifiers.ScrollView.topContentInsetSpacer)
 
                             tokenListContent
                         }
                         .animation(.spring(), value: viewModel.sections)
                         .padding(.horizontal, Constants.contentHorizontalInset)
-                        .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
+                        .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
                         .readGeometry(
                             \.frame.maxY,
                             inCoordinateSpace: .global,
                             bindTo: scrollState.tokenListContentFrameMaxYSubject.asWriteOnlyBinding(.zero)
                         )
                         .readContentOffset(
-                            inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                            inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.frame),
                             bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
                         )
                         .overlay(makeDragAndDropGestureOverlayView())
 
                         Spacer(minLength: scrollViewBottomContentInset)
                             .fixedSize()
-                            .id(scrollViewBottomContentInsetSpacerIdentifier)
+                            .id(Identifiers.ScrollView.bottomContentInsetSpacer)
                     }
                 }
                 .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
@@ -165,7 +154,7 @@ struct OrganizeTokensView: View {
                 alignment: .top
             )
         }
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.ScrollView.frame)
         .onReceive(scrollState.contentOffsetSubject) { newValue in
             dragAndDropController.contentOffsetSubject.send(newValue)
             updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
@@ -222,7 +211,7 @@ struct OrganizeTokensView: View {
                                     .accessibilityHidden(isDragged)
                                     .readGeometry(
                                         \.frame,
-                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                        inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.content)
                                     ) { frame in
                                         if !isDragged {
                                             dragAndDropController.saveFrame(frame, forItemAt: indexPath)
@@ -250,7 +239,7 @@ struct OrganizeTokensView: View {
                                 .accessibilityHidden(isDragged)
                                 .readGeometry(
                                     \.frame,
-                                    inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                    inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.content)
                                 ) { frame in
                                     if !isDragged {
                                         dragAndDropController.saveFrame(frame, forItemAt: indexPath)
@@ -313,18 +302,12 @@ struct OrganizeTokensView: View {
         viewModel: OrganizeTokensViewModel
     ) {
         self.viewModel = viewModel
-        // Explicit @State/ @StateObject initialization is used here because we have a classic chicken-egg problem:
-        // 'Cannot use instance member within property initializer; property initializers run before 'self' is available'
-        let topContentInsetIdentifier = UUID()
-        let bottomContentInsetIdentifier = UUID()
-        _scrollViewTopContentInsetSpacerIdentifier = .init(initialValue: topContentInsetIdentifier)
-        _scrollViewBottomContentInsetSpacerIdentifier = .init(initialValue: bottomContentInsetIdentifier)
         _dragAndDropController = .init(
             wrappedValue: OrganizeTokensDragAndDropController(
                 autoScrollFrequency: Constants.autoScrollFrequency,
                 destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio,
-                topEdgeAdditionalAutoScrollTargets: [topContentInsetIdentifier],
-                bottomEdgeAdditionalAutoScrollTargets: [bottomContentInsetIdentifier]
+                topEdgeAdditionalAutoScrollTargets: [Identifiers.ScrollView.topContentInsetSpacer],
+                bottomEdgeAdditionalAutoScrollTargets: [Identifiers.ScrollView.bottomContentInsetSpacer]
             )
         )
     }
@@ -683,5 +666,23 @@ private extension OrganizeTokensView {
         static let draggableViewCornerRadius = 7.0
         static let autoScrollFrequency = 0.2
         static let autoScrollTriggerHeightDiff = 10.0
+    }
+
+    enum Identifiers {
+        enum ScrollView {
+            private static let prefix = "OrganizeTokensView.Identifiers.ScrollView."
+
+            static let topContentInsetSpacer = prefix + "topContentInsetSpacer"
+            static let bottomContentInsetSpacer = prefix + "bottomContentInsetSpacer"
+        }
+    }
+
+    enum CoordinateSpaceName {
+        enum ScrollView {
+            private static let prefix = "OrganizeTokensView.CoordinateSpaceName.ScrollView."
+
+            static let content = prefix + "content"
+            static let frame = prefix + "frame"
+        }
     }
 }

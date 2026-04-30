@@ -41,12 +41,42 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerInfo.id
     }
 
+    var cardDisplayNamePublisher: AnyPublisher<String, Never> {
+        customerInfoSubject
+            .map(\.productInstance.displayName)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var cardLimit: Int {
+        customerInfoSubject.value.productInstance.actualCardLimit.amount
+    }
+
+    var adminCardLimit: Int {
+        customerInfoSubject.value.productInstance.adminCardLimit.amount
+    }
+
+    var cardLimitPublisher: AnyPublisher<Int, Never> {
+        customerInfoSubject
+            .map(\.productInstance.actualCardLimit.amount)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var syncNeededSignalPublisher: AnyPublisher<Void, Never> {
         syncNeededSignalSubject.eraseToAnyPublisher()
     }
 
     var unavailableSignalPublisher: AnyPublisher<Void, Never> {
         unavailableSignalSubject.eraseToAnyPublisher()
+    }
+
+    var isReissuingCardPublisher: AnyPublisher<Bool, Never> {
+        isReissuingCardSubject.eraseToAnyPublisher()
+    }
+
+    var isReissuingCard: Bool {
+        isReissuingCardSubject.value
     }
 
     // MARK: - Withdraw
@@ -80,6 +110,7 @@ final class TangemPayAccount {
 
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
+    private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
 
     init(
         userWalletId: UserWalletId,
@@ -179,6 +210,35 @@ final class TangemPayAccount {
         }
     }
 
+    func startReissueOrderTracking(orderId: String) {
+        isReissuingCardSubject.send(true)
+        startReissueOrderStatusPolling(orderId: orderId)
+    }
+
+    private func startReissueOrderStatusPolling(orderId: String) {
+        orderStatusPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.reissueOrderPollInterval,
+            onCompleted: { [weak self] in
+                runTask {
+                    await self?.handleReissueCompleted()
+                }
+            },
+            onCanceled: { [weak self] in
+                self?.isReissuingCardSubject.send(false)
+            },
+            onFailed: { [weak self] error in
+                VisaLogger.error("Failed to poll reissue order status", error: error)
+                self?.isReissuingCardSubject.send(false)
+            }
+        )
+    }
+
+    private func handleReissueCompleted() async {
+        await loadCustomerInfo()
+        isReissuingCardSubject.send(false)
+    }
+
     private func startFreezeUnfreezeOrderStatusPolling(orderId: String) {
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
@@ -225,5 +285,6 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
 private extension TangemPayAccount {
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
+        static let reissueOrderPollInterval: TimeInterval = 5
     }
 }

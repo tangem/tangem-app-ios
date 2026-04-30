@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Regex
 
 extension String {
     var dropTrailingPeriod: SubSequence { hasSuffix(".") ? dropLast(1) : self[...] }
@@ -53,9 +52,38 @@ extension String {
     /// Non-word characters (anything other than letters, numbers, and underscore)
     /// are replaced with underscores. Leading and trailing underscores are trimmed.
     func toUnderscoreCase() -> String {
-        let replacingPattern: StaticString = "[^\\w]+"
-        let wordSeparator = "_"
-        let trimmingCharacterSet = CharacterSet(charactersIn: wordSeparator)
-        return replacingAll(matching: replacingPattern, with: wordSeparator).trimmingCharacters(in: trimmingCharacterSet)
+        var modifiedString = self
+        let range = NSRange(location: 0, length: modifiedString.utf16.count)
+        let matches = Self.regex.matches(in: modifiedString, range: range)
+
+        for match in matches.reversed() {
+            let replacement = Self.regex.replacementString(
+                for: match,
+                in: modifiedString,
+                offset: 0,
+                template: Self.wordSeparator
+            )
+
+            guard let replacementRange = Range(match.range, in: modifiedString) else {
+                continue
+            }
+
+            modifiedString.replaceSubrange(replacementRange, with: replacement)
+        }
+
+        return modifiedString
+            .trimmingCharacters(in: Self.trimmingCharacterSet)
     }
+}
+
+// MARK: - Private implementation
+
+private extension String {
+    static let wordSeparator = "_"
+    static let trimmingCharacterSet = CharacterSet(charactersIn: wordSeparator)
+    static let regex = NSRegularExpression(replacingPattern)
+
+    /// The `\w` meta character matches word characters.
+    /// A word character is a character a-z, A-Z, 0-9, including _ (underscore).
+    private static let replacingPattern = #"[^\w]+"#
 }

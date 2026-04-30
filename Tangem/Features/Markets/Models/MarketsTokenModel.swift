@@ -10,7 +10,7 @@ import Foundation
 import TangemStaking
 import TangemFoundation
 
-struct MarketsTokenModel: Identifiable, Decodable, Equatable {
+struct MarketsTokenModel: Identifiable, Codable, Hashable {
     let id: String
     let name: String
     let symbol: String
@@ -23,7 +23,7 @@ struct MarketsTokenModel: Identifiable, Decodable, Equatable {
     let stakingOpportunities: [StakingOpportunity]?
     let networks: [NetworkModel]?
 
-    struct StakingOpportunity: Decodable, Equatable {
+    struct StakingOpportunity: Codable, Hashable {
         let id: UInt64
         let apy: String
         let networkId: String

@@ -17,7 +17,7 @@ import SwiftUI
 
 struct Wallet1Config {
     let card: CardDTO
-    private let isDemo: Bool
+    let isDemo: Bool
 
     init(card: CardDTO, isDemo: Bool) {
         self.card = card
@@ -295,18 +295,12 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .tangemPay:
             return card.settings.isHDWalletAllowed ? .available : .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        if isDemo {
-            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
-        }
-
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {

@@ -202,6 +202,21 @@ enum CardMock: String, CaseIterable {
         }
     }
 
+    func cobrandMock(batchId: String, cardsCount: Int) throws -> Card {
+        var jsonString = try String(contentsOf: url, encoding: .utf8)
+
+        let batchIdPattern = #"("batchId"\s*:\s*")([^"]*)"#
+        jsonString = jsonString.replacingOccurrences(of: batchIdPattern, with: "$1\(batchId)", options: .regularExpression)
+
+        let backupCardsCount = max(cardsCount - 1, 0)
+        let cardsCountPattern = #"("cardsCount"\s*:\s*)\d+"#
+        jsonString = jsonString.replacingOccurrences(of: cardsCountPattern, with: "$1\(backupCardsCount)", options: .regularExpression)
+
+        let decoder = JSONDecoder.tangemSdkDecoder
+        decoder.keyDecodingStrategy = .useDefaultKeys
+        return try decoder.decode(Card.self, from: jsonString.data(using: .utf8)!)
+    }
+
     private func url(fileName: String) -> URL {
         Bundle.main.url(forResource: fileName, withExtension: "json")!
     }
