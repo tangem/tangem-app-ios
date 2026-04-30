@@ -32,7 +32,9 @@ public struct QRScannerView: UIViewRepresentable {
         QRScannerUIView(delegate: context.coordinator)
     }
 
-    public func updateUIView(_ uiView: QRScannerUIView, context: Context) {}
+    public func updateUIView(_ uiView: QRScannerUIView, context: Context) {
+        uiView.restartSessionIfNeeded()
+    }
 
     public func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -93,8 +95,11 @@ public final class QRScannerUIView: UIView {
     }
 
     private lazy var captureSession = AVCaptureSession()
+    private let sessionQueue = DispatchQueue(label: "com.tangem.qrscanner.session")
     private let feedbackGenerator: UINotificationFeedbackGenerator
     private weak var delegate: (any Delegate)?
+    private var isSessionConfigured = false
+    private var isSessionStarting = false
 
     init(delegate: some Delegate) {
         self.delegate = delegate
@@ -119,6 +124,24 @@ public final class QRScannerUIView: UIView {
 
     override public var layer: AVCaptureVideoPreviewLayer {
         return super.layer as! AVCaptureVideoPreviewLayer
+    }
+
+    func restartSessionIfNeeded() {
+        guard isSessionConfigured, !captureSession.isRunning, !isSessionStarting else {
+            return
+        }
+
+        if let output = captureSession.outputs.first as? AVCaptureMetadataOutput {
+            output.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+        }
+
+        isSessionStarting = true
+        sessionQueue.async { [weak self] in
+            self?.captureSession.startRunning()
+            DispatchQueue.main.async {
+                self?.isSessionStarting = false
+            }
+        }
     }
 
     private func startSession() {
@@ -154,8 +177,9 @@ public final class QRScannerUIView: UIView {
 
         layer.session = captureSession
         layer.videoGravity = .resizeAspectFill
+        isSessionConfigured = true
 
-        DispatchQueue.global(qos: .userInitiated).async {
+        sessionQueue.async {
             self.captureSession.startRunning()
         }
     }
@@ -186,7 +210,9 @@ extension QRScannerUIView: AVCaptureMetadataOutputObjectsDelegate {
             return
         }
 
-        captureSession.stopRunning()
         scanningSucceeded(with: qrCode)
+        sessionQueue.async { [weak self] in
+            self?.captureSession.stopRunning()
+        }
     }
 }

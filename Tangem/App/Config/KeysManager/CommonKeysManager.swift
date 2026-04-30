@@ -27,6 +27,10 @@ extension CommonKeysManager: KeysManager {
         keys.customerIO
     }
 
+    var surveySparrow: SurveySparrowKeys {
+        keys.surveySparrow
+    }
+
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
@@ -76,7 +80,12 @@ extension CommonKeysManager: KeysManager {
     }
 
     var amplitudeApiKey: String {
-        keys.amplitudeApiKey
+        switch AppEnvironment.current {
+        case .production:
+            return keys.amplitudeApiKey
+        default:
+            return keys.amplitudeApiKeyDev
+        }
     }
 
     var appsFlyerConfig: AppsFlyerConfig {
@@ -174,7 +183,9 @@ extension CommonKeysManager {
         let chiaTangemApiKey: String
         let appsFlyer: AppsFlyerConfig
         let customerIO: CustomerIOKeys
+        let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
+        let amplitudeApiKeyDev: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
         let quiknodeApiKey: String

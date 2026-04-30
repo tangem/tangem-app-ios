@@ -101,12 +101,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
-            coordinator: coordinator,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: coordinator
         )
 
         if isMultiWalletPage {
@@ -116,7 +113,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let bannerNotificationManager: BannerNotificationManager? = {
-                guard model.config.hasFeature(.multiCurrency) else {
+                guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                      model.config.hasFeature(.multiCurrency) else {
                     return nil
                 }
 
@@ -127,15 +125,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let promotionNotificationsViewModel: PromotionNotificationsViewModel? = {
-                guard model.config.hasFeature(.multiCurrency) else {
-                    return nil
-                }
-
-                let manager = CommonPromotionNotificationsManager(placement: .main)
-                return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
-            }()
-
+            let promotionNotificationsManager = CommonPromotionNotificationsManager(
+                userWalletId: model.userWalletId,
+                placement: .main
+            )
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -152,7 +145,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
-                promotionNotificationsViewModel: promotionNotificationsViewModel,
+                promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
@@ -188,6 +181,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
+        let promotionNotificationsManager = CommonPromotionNotificationsManager(
+            userWalletId: model.userWalletId,
+            placement: .main
+        )
+
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
@@ -206,6 +204,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletModel: model,
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
+            promotionNotificationsManager: promotionNotificationsManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
@@ -296,7 +295,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeMultiWalletMainContentViewSectionsProvider(
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
-        return AccountsAwareMultiWalletMainContentViewSectionsProvider(
+        return CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
             manageTokensActionFactory: { [weak coordinator] account in
                 { coordinator?.openManageTokens(for: account, in: userWalletModel) }

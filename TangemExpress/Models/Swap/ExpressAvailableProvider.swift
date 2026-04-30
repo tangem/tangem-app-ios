@@ -12,13 +12,15 @@ import TangemFoundation
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
     public let manager: ExpressProviderManager
+    public let supportedRateTypes: Set<ExpressProviderRateType>
     public var isBest: Bool { _isBest.read() }
 
     private let _isBest: ThreadSafeContainer<Bool>
 
-    init(provider: ExpressProvider, manager: ExpressProviderManager, isBest: Bool) {
+    init(provider: ExpressProvider, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>, isBest: Bool) {
         self.provider = provider
         self.manager = manager
+        self.supportedRateTypes = supportedRateTypes
 
         _isBest = .init(isBest)
     }
@@ -41,13 +43,13 @@ public class ExpressAvailableProvider {
         }
 
         switch getState() {
-        case .permissionRequired(let state):
+        case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
             return .high(rate: state.quote.rate)
-        case .preview(let state):
+        case .cexPreview(let state):
             return .high(rate: state.quote.rate)
-        case .ready(let state):
+        case .dexPreview(let state):
             return .high(rate: state.quote.rate)
-        case .restriction(.tooSmallAmount(let amount), _):
+        case .restriction(.tooSmallAmount(let amount, _), _):
             // HACK: We need to use a negative value here because
             // sorting by priority works from higher to lower.
             return .medium(minimumAmount: -amount)
@@ -100,6 +102,14 @@ public extension [ExpressAvailableProvider] {
         }
     }
 
+    func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
+        guard let rateType else {
+            return self
+        }
+
+        return filter { $0.supportedRateTypes.contains(rateType) }
+    }
+
     func showableProviders() -> [ExpressAvailableProvider] {
         filter { provider in
             let isAvailableToShow = !provider.getState().isError
@@ -107,13 +117,14 @@ public extension [ExpressAvailableProvider] {
         }
     }
 
-    func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
+    func showableProviders(selectedProviderId: String?, rateType: ExpressProviderRateType? = nil) -> [ExpressAvailableProvider] {
         filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
             let isAvailableToShow = !provider.getState().isError
+            let isSupportedRateType = rateType.map { provider.supportedRateTypes.contains($0) } ?? true
 
-            return isSelected || isAvailableToShow
+            return (isSelected || isAvailableToShow) && isSupportedRateType
         }
     }
 }

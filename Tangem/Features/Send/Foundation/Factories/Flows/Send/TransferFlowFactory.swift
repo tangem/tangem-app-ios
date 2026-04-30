@@ -12,7 +12,7 @@ class TransferNFTFlowFactory: SendFlowBaseDependenciesFactory {
     let transferableToken: SendTransferableToken
     let nftAssetStepBuilder: NFTAssetStepBuilder
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .nft)
     lazy var sendModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
         predefinedValues: .init(
@@ -116,7 +116,7 @@ extension TransferNFTFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: transferableToken.tangemIconProvider
         )
     }
 }
@@ -128,8 +128,7 @@ extension TransferNFTFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendModel,
             output: sendModel,
-            receiveTokenInput: .none,
-            destinationAccountOutput: sendModel
+            receiveTokenInput: .none
         )
     }
 

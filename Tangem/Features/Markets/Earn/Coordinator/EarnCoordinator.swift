@@ -15,6 +15,16 @@ final class EarnCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
     let routeOnEarnTokenResolvedAction: (EarnTokenResolution, EarnOpportunitySource) -> Void
 
+    var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
+
+    // MARK: - Dependencies
+
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
+    // MARK: - Data
+
+    private let earnDataProvider: EarnDataProvider = CommonEarnDataService()
+
     // MARK: - Root ViewModels
 
     @Published var rootViewModel: EarnDetailViewModel?
@@ -44,16 +54,25 @@ final class EarnCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         Task { @MainActor in
-            let earnDataProvider = EarnDataProvider()
-
             rootViewModel = EarnDetailViewModel(
                 dataProvider: earnDataProvider,
                 filterProvider: filterProvider,
-                mostlyUsedTokens: options.mostlyUsedTokens,
                 coordinator: self,
-                analyticsProvider: analyticsProvider
+                analyticsProvider: analyticsProvider,
+                presentSource: options.presentSource
             )
+
+            if let mostlyUsedTokens = options.mostlyUsedTokens {
+                earnDataProvider.applyMostlyUsedTokens(mostlyUsedTokens)
+            } else {
+                earnDataProvider.refreshMostlyUsedTokens()
+            }
+
             analyticsProvider.logPageOpened()
+
+            if let deeplinkFilter = options.deeplinkFilter {
+                filterProvider.apply(deeplinkFilter: deeplinkFilter)
+            }
         }
     }
 }
@@ -62,7 +81,19 @@ final class EarnCoordinator: CoordinatorObject {
 
 extension EarnCoordinator {
     struct Options {
-        let mostlyUsedTokens: [EarnTokenModel]
+        let mostlyUsedTokens: [EarnTokenModel]?
+        let deeplinkFilter: EarnDataFilter?
+        let presentSource: MarketsNavigationBackButton.PresentSource
+
+        init(
+            mostlyUsedTokens: [EarnTokenModel]?,
+            deeplinkFilter: EarnDataFilter? = nil,
+            presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+        ) {
+            self.mostlyUsedTokens = mostlyUsedTokens
+            self.deeplinkFilter = deeplinkFilter
+            self.presentSource = presentSource
+        }
     }
 }
 
@@ -79,22 +110,50 @@ extension EarnCoordinator: EarnDetailRoutable {
     }
 
     func openNetworksFilter() {
-        networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
-            filterProvider: filterProvider,
-            analyticsProvider: analyticsProvider,
-            onDismiss: { [weak self] in
-                self?.networkFilterBottomSheetViewModel = nil
-            }
-        )
+        if isRedesignEnabled {
+            let viewModel = EarnNetworkFilterBottomSheetViewModel(
+                filterProvider: filterProvider,
+                analyticsProvider: analyticsProvider,
+                onDismiss: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                    }
+                }
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        } else {
+            networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
+                filterProvider: filterProvider,
+                analyticsProvider: analyticsProvider,
+                onDismiss: { [weak self] in
+                    self?.networkFilterBottomSheetViewModel = nil
+                }
+            )
+        }
     }
 
     func openTypesFilter() {
-        typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
-            filterProvider: filterProvider,
-            analyticsProvider: analyticsProvider,
-            onDismiss: { [weak self] in
-                self?.typeFilterBottomSheetViewModel = nil
-            }
-        )
+        if isRedesignEnabled {
+            let viewModel = EarnTypeFilterBottomSheetViewModel(
+                filterProvider: filterProvider,
+                analyticsProvider: analyticsProvider,
+                onDismiss: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                    }
+                }
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        } else {
+            typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
+                filterProvider: filterProvider,
+                analyticsProvider: analyticsProvider,
+                onDismiss: { [weak self] in
+                    self?.typeFilterBottomSheetViewModel = nil
+                }
+            )
+        }
     }
 }

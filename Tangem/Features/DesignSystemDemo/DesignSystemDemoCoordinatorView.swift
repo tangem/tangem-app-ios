@@ -46,6 +46,15 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.typographyDemoViewModel) {
                 TypographyDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemTabsDemoViewModel) {
+                TangemTabsDemo(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemSearchFieldDemoViewModel) {
+                TangemSearchFieldDemo(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
+                TangemDropDownDemoView(viewModel: $0)
+            }
     }
 
     private var sheets: some View {
@@ -74,12 +83,24 @@ struct DesignSystemDemoView: View {
                 viewModel.openTangemSegmentedPickerDemo()
             }
 
+            MainButton(title: "TangemTabs") {
+                viewModel.openTangemTabsDemo()
+            }
+
+            MainButton(title: "TangemSearchField") {
+                viewModel.openTangemSearchFieldDemo()
+            }
+
             MainButton(title: "MainActionButton") {
                 viewModel.openTangemMainActionButtonDemo()
             }
 
             MainButton(title: "NotificationBanner") {
                 viewModel.openNotificationBannerDemo()
+            }
+
+            MainButton(title: "TangemDropDown") {
+                viewModel.openTangemDropDownDemo()
             }
 
             MainButton(title: "Typography") {

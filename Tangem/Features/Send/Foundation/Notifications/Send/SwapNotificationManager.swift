@@ -25,6 +25,8 @@ protocol SwapNotificationManager: NotificationManager {
 final class CommonSwapNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
+    private let balanceFormatter = BalanceFormatter()
+
     private weak var delegate: NotificationTapDelegate?
     private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
@@ -154,12 +156,13 @@ private extension CommonSwapNotificationManager {
         case .requiredRefresh:
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case .restriction(.tooSmallAmountForSwapping(let minAmount), _):
-            let sourceTokenItemSymbol = source.tokenItem.currencySymbol
-            return [.tooSmallAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")]
+        case .restriction(.tooSmallAmountForSwapping(let minAmount, let currencySymbol), _):
+            let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: currencySymbol)
+            return [.tooSmallAmountToSwap(minimumAmountText: formatted)]
 
-        case .restriction(.tooBigAmountForSwapping(let maxAmount), _):
-            return [.tooBigAmountToSwap(maximumAmountText: "\(maxAmount) \(sourceTokenItemSymbol)")]
+        case .restriction(.tooBigAmountForSwapping(let maxAmount, let currencySymbol), _):
+            let formatted = balanceFormatter.formatCryptoBalance(maxAmount, currencyCode: currencySymbol)
+            return [.tooBigAmountToSwap(maximumAmountText: formatted)]
 
         case .restriction(.hasPendingTransaction, _):
             return [.hasPendingTransaction(symbol: sourceTokenItemSymbol)]
@@ -207,13 +210,21 @@ private extension CommonSwapNotificationManager {
         case .previewCEX(let previewCEX):
             var events: [SwapNotificationEvent] = []
 
+            if let hpi = previewCEX.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
+            }
+
             if previewCEX.subtractFee.subtractFee > 0 {
                 let feeTokenItem = previewCEX.subtractFee.feeTokenItem
                 let feeFiatValue = BalanceConverter().convertToFiat(previewCEX.subtractFee.subtractFee, currencyId: feeTokenItem.currencyId ?? "")
 
-                let formatter = BalanceFormatter()
-                let cryptoAmountFormatted = formatter.formatCryptoBalance(previewCEX.subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
-                let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
+                let cryptoAmountFormatted = balanceFormatter.formatCryptoBalance(previewCEX.subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
+                let fiatAmountFormatted = balanceFormatter.formatFiatBalance(feeFiatValue)
 
                 let event = SwapNotificationEvent.feeWillBeSubtractFromSendingAmount(
                     cryptoAmountFormatted: cryptoAmountFormatted,
@@ -232,9 +243,31 @@ private extension CommonSwapNotificationManager {
 
             return events
 
-        case .readyToSwap:
-            return []
+        case .readyToSwap(let readyState):
+            var events: [SwapNotificationEvent] = []
+
+            if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
+            }
+
+            return events
         }
+    }
+
+    private func hpiAnalyticsParams(
+        base analyticsParams: [Analytics.ParameterKey: String],
+        source: any SendSourceToken,
+        receive: any SendReceiveToken
+    ) -> [Analytics.ParameterKey: String] {
+        var params = analyticsParams
+        params[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        return params
     }
 
     func mapValidationError(source: any SendSourceToken, validationError: ValidationError) -> SwapNotificationEvent? {

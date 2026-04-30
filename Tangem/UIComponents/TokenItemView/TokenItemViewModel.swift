@@ -8,7 +8,7 @@
 
 import Combine
 import TangemLocalization
-import SwiftUI
+import struct SwiftUI.Color
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
@@ -27,11 +27,11 @@ protocol TokenItemContextActionDelegate: AnyObject {
 final class TokenItemViewModel: ObservableObject, Identifiable {
     let id: WalletModelId
 
-    @Published var balanceCrypto: LoadableBalanceView.State
-    @Published var balanceFiat: LoadableBalanceView.State
-    @Published var priceChangeState: PriceChangeView.State = .loading
-    @Published var tokenPrice: LoadableTextView.State = .loading
-    @Published var contextActionSections: [TokenContextActionsSection] = []
+    @Published private(set) var balanceCrypto: LoadableBalanceView.State
+    @Published private(set) var balanceFiat: LoadableBalanceView.State
+    @Published private(set) var priceChangeState: PriceChangeView.State = .loading
+    @Published private(set) var tokenPrice: LoadableTextView.State = .loading
+    @Published private(set) var contextActionSections: [TokenContextActionsSection] = []
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
@@ -61,36 +61,26 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         return nil
     }
 
-    var yieldApyTapAction: (() -> Void)? {
-        guard let action = yieldApyTapped else { return nil }
-        return { [weak self] in
-            guard let self else { return }
-            action(tokenItem)
-        }
-    }
-
     private let tokenIcon: TokenIconInfo
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
     private var bag = Set<AnyCancellable>()
 
-    private weak var infoProvider: TokenItemInfoProvider?
+    private let infoProvider: any TokenItemInfoProvider
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
     private let tokenTapped: (WalletModelId) -> Void
-    private let yieldApyTapped: ((TokenItem) -> Void)?
 
     init(
         id: WalletModelId,
         tokenItem: TokenItem,
         tokenIcon: TokenIconInfo,
-        infoProvider: TokenItemInfoProvider,
+        infoProvider: some TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId) -> Void,
-        yieldApyTapped: ((TokenItem) -> Void)?
+        tokenTapped: @escaping (WalletModelId) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -99,7 +89,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
-        self.yieldApyTapped = yieldApyTapped
 
         loadableTokenBalanceViewStateBuilder = .init()
         balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)
@@ -119,14 +108,15 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider?.balancePublisher
+        infoProvider
+            .balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupView(type)
             })
             .store(in: &bag)
 
-        infoProvider?
+        infoProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -134,7 +124,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider?
+        infoProvider
             .fiatBalanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -142,7 +132,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider?
+        infoProvider
             .quotePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -150,7 +140,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider?.actionsUpdatePublisher
+        infoProvider
+            .actionsUpdatePublisher
             .receive(on: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .map { $0.0.contextActionsProvider?.buildContextActions(for: $0.0) }
@@ -160,12 +151,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        infoProvider?.leadingBadgePublisher
+        infoProvider
+            .leadingBadgePublisher
             .receiveOnMain()
             .assign(to: \.leadingBadge, on: self, ownership: .weak)
             .store(in: &bag)
 
-        infoProvider?.trailingBadgePublisher
+        infoProvider
+            .trailingBadgePublisher
             .receiveOnMain()
             .assign(to: \.trailingBadge, on: self, ownership: .weak)
             .store(in: &bag)
@@ -181,10 +174,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func setupBalance(_ type: FormattedTokenBalanceType) {
+        AppLogger.debug("\(name) crypto balance updated to \(type.description)")
         balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: type)
     }
 
     private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
+        AppLogger.debug("\(name) fiat balance updated to \(type.description)")
         balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: type, icon: .leading)
     }
 

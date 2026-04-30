@@ -9,15 +9,15 @@
 import Foundation
 
 struct FeeAnalyticsParameterBuilder {
-    private let isFixedFee: Bool
+    private let supportFeeSelection: Bool
 
-    init(isFixedFee: Bool) {
-        self.isFixedFee = isFixedFee
+    init(supportFeeSelection: Bool) {
+        self.supportFeeSelection = supportFeeSelection
     }
 
     func analyticsParameter(selectedFee: FeeOption?) -> Analytics.ParameterValue {
-        if isFixedFee {
-            return .transactionFeeFixed
+        if !supportFeeSelection {
+            return .fixed
         }
 
         guard let selectedFee else {

@@ -31,7 +31,9 @@ private extension EmailDataCollector {
     func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
         var dataToFormat: [EmailCollectedData] = []
 
-        let receiveAddressTypes = walletModel.receiveAddressTypes
+        // Drop `.domain(...)` entries: their offsets don't map to `wallet.addresses`,
+        // and `displayAddress(for:)`/`exploreURL(for:)` would crash on out-of-bounds index.
+        let receiveAddressTypes = walletModel.receiveAddressTypes.filter { $0.key == .address }
         if receiveAddressTypes.count > 1 {
             var explorerLinks = "Multiple explorers links: "
             var addresses = "Multiple addresses: "
@@ -366,8 +368,14 @@ struct VisaDisputeTransactionDataCollector: EmailDataCollector {
 struct TangemPaySupportDataCollector: EmailDataCollector {
     enum Source {
         case transactionDetails(TangemPayTransactionRecord)
+        case transactionDetailsPush(TangemPayPushPayload, PushTransactionType)
         case failedToIssueCardSheet
         case permanentBanner
+
+        enum PushTransactionType {
+            case transaction
+            case receiveWithdraw
+        }
     }
 
     let source: Source
@@ -394,6 +402,13 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
                 issueType = "Receive/Withdraw"
                 encodable = value
             }
+
+        case .transactionDetailsPush(let payload, let pushTransactionType):
+            issueType = switch pushTransactionType {
+            case .transaction: "Transaction"
+            case .receiveWithdraw: "Receive/Withdraw"
+            }
+            encodable = payload
 
         case .failedToIssueCardSheet:
             issueType = "Card issuing"

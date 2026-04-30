@@ -113,13 +113,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
                 NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    AccountsAwareOrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-            }
-            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
                     OrganizeTokensView(viewModel: viewModel)
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
@@ -149,9 +142,6 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: AccountSelectorViewModel.self) {
                 AccountSelectorView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
@@ -163,6 +153,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
+                TangemPayTransactionDetailsView(viewModel: $0)
             }
 
         NavHolder()
@@ -205,7 +198,7 @@ struct MainCoordinatorView: CoordinatorView {
 private extension View {
     @ViewBuilder
     func injectNavigationAssertionDelegate() -> some View {
-        if AppEnvironment.current.isAlphaOrBetaOrDebug {
+        if AppEnvironment.current.isInternalOrDebug {
             modifier(NavigationControllerDelegateViewModifier())
         } else {
             self
