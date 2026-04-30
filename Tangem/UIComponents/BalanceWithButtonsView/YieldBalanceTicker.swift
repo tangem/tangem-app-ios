@@ -63,11 +63,17 @@ final class YieldBalanceTicker {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(tokenItem: TokenItem, initialCryptoBalance: Decimal, apy: Decimal) {
+    init(
+        tokenItem: TokenItem,
+        initialCryptoBalance: Decimal?,
+        apy: Decimal?
+    ) {
         self.tokenItem = tokenItem
         self.initialCryptoBalance = initialCryptoBalance
 
-        updateCurrentBalance(initialCryptoBalance, apy: apy)
+        if let initialCryptoBalance, let apy {
+            updateCurrentBalance(initialCryptoBalance, apy: apy)
+        }
 
         bind()
     }
