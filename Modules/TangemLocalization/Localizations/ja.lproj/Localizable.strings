@@ -122,9 +122,6 @@
 "balance_hidden_do_not_show_button" = "今後表示しない";
 "balance_hidden_got_it_button" = "わかりました";
 "balance_hidden_title" = "残高は非表示";
-"banner.swap.firsttime.button" = "スワップを開始";
-"banner.swap.firsttime.subtitletitle" = "数タップで1つの資産を別の資産に交換できます";
-"banner.swap.firsttime.title" = "はじめてのスワップ";
 "biometry_touch_id_reason" = "タッチIDは、アプリにカードまたはリングを保存するために使用されます";
 "bitcoin_promo_activation_error_title" = "アクティベーションエラー";
 "bitcoin_promo_activation_error" = "プロモーションコードの処理中にエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -410,6 +407,7 @@
 "dynamic_addresses_notification_funds_found_description" = "追加のアドレスに資金が見つかりました。アクセスするには、動的アドレスを有効にしてください。";
 "dynamic_addresses_notification_funds_found_title" = "追加のアドレスで資金が見つかりました";
 "dynamic_addresses_receive_badge" = "動的アドレス";
+"dynamic_addresses_unavailability_reason_pending_transaction_send" = "Dynamic addresses management will be available once the pending transaction(s) in network %@ is complete";
 "dynamic_addresses" = "動的アドレス";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "絞り込みを解除";
@@ -906,6 +904,12 @@
 "onramp_error_transaction_already_processed" = "この取引はすでに処理されています。これ以上の対応は必要ありません。";
 "onramp_fetching_best_rates" = "最良のレートを取得しています...";
 "onramp_instant_status" = "即時";
+"onramp_kyc_verification_bullet_free" = "Verification is free and usually takes 1-2 minutes";
+"onramp_kyc_verification_bullet_privacy" = "Tangem won't have access to your identity information, you share data directly with regulated provider";
+"onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
+"onramp_kyc_verification_choose_another" = "Choose another method";
+"onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
+"onramp_kyc_verification_title" = "Identity verification required by payment provider";
 "onramp_legal_text" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_legal" = "オンランプ機能を使用することにより、プロバイダの%1$@および%2$@に同意するものとします";
 "onramp_max_amount_restriction" = "買付金額は%@以下にしてください";
