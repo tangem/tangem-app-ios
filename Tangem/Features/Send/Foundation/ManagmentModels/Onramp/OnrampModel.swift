@@ -558,8 +558,7 @@ extension OnrampModel: OnrampSummaryOutput {
     ) {
         _selectedOnrampProvider.send(.success(provider))
 
-        task?.cancel()
-        task = runTask(in: self) { model in
+        mainTask { model in
             do {
                 let appLanguageCode = Locale.appLanguageCode
                 var redirectURL = URL(string: "\(IncomingActionConstants.tangemDomain)/onramp")!
@@ -585,21 +584,16 @@ extension OnrampModel: OnrampSummaryOutput {
                     resultHandler(.init(status: .failure, errors: []))
                     model.redirectDataDidLoad(data: data)
                 }
-            } catch is CancellationError {
-                resultHandler(.init(status: .failure, errors: [CancellationError()]))
             } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
                 resultHandler(.init(status: .failure, errors: [error]))
-                let kycURL = error.value?.kycUrl.flatMap(URL.init(string:))
-
                 await runOnMain {
-                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: kycURL)
+                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch {
+                // PassKit must always hear back; surface the failure before letting `mainTask`
+                // handle alert presentation / CancellationError swallowing.
                 resultHandler(.init(status: .failure, errors: [error]))
-
-                await runOnMain {
-                    model.alertPresenter?.showAlert(error.alertBinder)
-                }
+                throw error
             }
         }
     }
@@ -634,9 +628,8 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 }
             } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
                 result.fail(error)
-                let kycURL = error.value?.kycUrl.flatMap(URL.init(string:))
                 await runOnMain {
-                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: kycURL)
+                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch {
                 // PassKit must always hear back; surface the failure before letting `mainTask`
