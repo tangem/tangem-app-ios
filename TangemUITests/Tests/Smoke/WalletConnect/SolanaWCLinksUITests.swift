@@ -26,7 +26,6 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
         CreateWalletSelectorScreen(app)
-            .acceptToSIfNeeded()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
         app.terminate()
