@@ -53,7 +53,10 @@ class FakeWalletManager: WalletManager {
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
-            .makeWalletModelsFactory(blockchainSettingsUpdater: FakeBlockchainSettingsUpdater())
+            .makeWalletModelsFactory(
+                blockchainSettingsUpdater: FakeBlockchainSettingsUpdater(),
+                userTokensManager: UserTokensManagerMock()
+            )
 
         walletModels = walletModelsFactory.makeWalletModels(
             for: types,
