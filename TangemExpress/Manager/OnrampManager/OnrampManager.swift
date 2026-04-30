@@ -19,6 +19,9 @@ public protocol OnrampManager: Actor {
 
     /// Load the data to perform the onramp action
     func loadRedirectData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings) async throws -> OnrampRedirectData
+
+    /// Load the data to perform the native payment (Apple Pay)
+    func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult
 }
 
 // MARK: - OnrampUpdatingAmount
@@ -43,12 +46,14 @@ public enum OnrampManagerError: LocalizedError {
     case noProviderForPaymentMethod
     case providersIsEmpty
     case suggestedProviderNotFound
+    case quoteIdNotFound
 
     public var errorDescription: String? {
         switch self {
         case .noProviderForPaymentMethod: "No provider for payment method"
         case .providersIsEmpty: "Providers is empty"
         case .suggestedProviderNotFound: "Suggested provider not found"
+        case .quoteIdNotFound: "Quote ID not found for native payment"
         }
     }
 }
