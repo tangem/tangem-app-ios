@@ -448,6 +448,31 @@ extension TokenActionAvailabilityProvider {
     }
 }
 
+// MARK: - Dynamic Addresses Management
+
+extension TokenActionAvailabilityProvider {
+    enum DynamicAddressesActionAvailabilityStatus {
+        case available
+        case hasPendingTransaction(blockchainDisplayName: String)
+    }
+
+    var isDynamicAddressesActionAvailable: Bool {
+        if case .available = dynamicAddressesAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
+        if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
+            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        }
+
+        return .available
+    }
+}
+
 // MARK: Stake
 
 extension TokenActionAvailabilityProvider {
