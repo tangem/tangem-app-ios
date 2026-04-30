@@ -153,6 +153,7 @@ extension CommonServicesManager: ServicesManager {
         SettingsMigrator.migrateIfNeeded()
 
         TangemLoggerConfigurator().initialize()
+        TangemPayMocksConfigurator().initialize()
 
         recordStartAppUsageDate()
         let initialLaunches = recordAppLaunch()
