@@ -10,23 +10,11 @@ import TangemStaking
 import TangemExpress
 import BlockchainSdk
 
-protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
-    SendBaseViewAnalyticsLogger,
-    SendAmountAnalyticsLogger,
+protocol SendAnalyticsLogger: SwapSendAnalyticsLogger,
+    SendManagementModelAnalyticsLogger,
     SendReceiveTokensListAnalyticsLogger,
-    SendDestinationAnalyticsLogger,
-    SendFeeAnalyticsLogger,
-    FeeSelectorAnalytics,
-    SendSwapProvidersAnalyticsLogger,
-    SendSummaryAnalyticsLogger,
-    SendFinishAnalyticsLogger,
-    SendApproveAnalyticsLogger,
-    SwapManagementModelAnalyticsLogger {
+    SendDestinationAnalyticsLogger {
     func setup(sendDestinationInput: any SendDestinationInput)
-    func setup(sendFeeInput: any SendFeeInput)
-    func setup(sendSourceTokenInput: any SendSourceTokenInput)
-    func setup(sendReceiveTokenInput: any SendReceiveTokenInput)
-    func setup(sendSwapProvidersInput: any SendSwapProvidersInput)
 }
 
 protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
@@ -40,6 +28,21 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
     func logNoticeNotEnoughFee()
+}
+
+protocol SwapSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
+    SendAmountAnalyticsLogger,
+    SendFeeAnalyticsLogger,
+    FeeSelectorAnalytics,
+    SendSwapProvidersAnalyticsLogger,
+    SendSummaryAnalyticsLogger,
+    SendFinishAnalyticsLogger,
+    SendApproveAnalyticsLogger,
+    SwapManagementModelAnalyticsLogger {
+    func setup(sendFeeInput: any SendFeeInput)
+    func setup(sendSourceTokenInput: any SendSourceTokenInput)
+    func setup(sendReceiveTokenInput: any SendReceiveTokenInput)
+    func setup(sendSwapProvidersInput: any SendSwapProvidersInput)
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,

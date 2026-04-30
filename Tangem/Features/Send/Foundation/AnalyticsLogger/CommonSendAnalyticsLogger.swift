@@ -37,7 +37,6 @@ class CommonSendAnalyticsLogger {
         switch sendType {
         case .send where isSwap: .sendAndSwap
         case .sell, .nft, .send: .send
-        case .swap: .swap
         }
     }
 
@@ -487,16 +486,6 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
 
             Analytics.log(event: .sendConfirmScreenOpened, params: params, analyticsSystems: .all)
 
-        case .swap:
-            var params: [Analytics.ParameterKey: String] = [:]
-
-            if let tokenItem = sourceTokenItem ?? sendReceiveTokenInput?.receiveToken.value?.tokenItem {
-                params[.token] = tokenItem.currencySymbol
-                params[.blockchain] = tokenItem.blockchain.displayName
-            }
-
-            Analytics.log(event: .swapScreenOpenedSwap, params: params)
-
         case .nft:
             var params: [Analytics.ParameterKey: String] = [:]
 
@@ -667,8 +656,6 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             logSendFinishScreenOpened(
                 destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false
             )
-        case .some where sendType == .swap:
-            logSwapFinishScreenOpened()
         case .some:
             logSendWithSwapFinishScreenOpened()
         }
@@ -726,10 +713,6 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
 
     private func logSendWithSwapFinishScreenOpened() {
         logFinishScreenWithSwapParameters(event: .sendSendWithSwapInProgressScreenOpened)
-    }
-
-    private func logSwapFinishScreenOpened() {
-        logFinishScreenWithSwapParameters(event: .swapSwapInProgressScreenOpened)
     }
 
     private func logFinishScreenWithSwapParameters(event: Analytics.Event) {
@@ -948,14 +931,12 @@ extension CommonSendAnalyticsLogger {
         case send
         case sell
         case nft
-        case swap
 
         var analytics: Analytics.ParameterValue {
             switch self {
             case .send: .send
             case .sell: .sell
             case .nft: .nft
-            case .swap: .swap
             }
         }
     }

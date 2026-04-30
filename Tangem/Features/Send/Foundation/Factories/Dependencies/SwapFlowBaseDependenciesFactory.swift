@@ -18,7 +18,7 @@ extension SwapFlowBaseDependenciesFactory {
     func makeSwapModel(
         sourceToken: SendSwapableToken?,
         receiveToken: SendReceiveToken?,
-        analyticsLogger: any SendAnalyticsLogger,
+        analyticsLogger: any SwapSendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
         shouldStartInitialLoading: Bool,
