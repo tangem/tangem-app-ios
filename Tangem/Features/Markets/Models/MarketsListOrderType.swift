@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemMacro
+import TangemUI
 
 @CaseFlagable
 enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConvertible, Identifiable {
@@ -34,5 +35,13 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
         case .gainers: return Localization.marketsSortByTopGainersTitle
         case .losers: return Localization.marketsSortByTopLosersTitle
         }
+    }
+}
+
+// MARK: - TangemDropDownTextProvider
+
+extension MarketsListOrderType: TangemDropDownTextProvider {
+    public var text: String {
+        description
     }
 }
