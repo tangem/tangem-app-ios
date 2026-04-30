@@ -26,7 +26,11 @@ struct TokenDetailsView: View {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
-                BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
+                if FeatureProvider.isAvailable(.redesign) {
+                    TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                } else {
+                    BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
+                }
 
                 ForEach(viewModel.bannerNotificationInputs) { input in
                     NotificationView(input: input)
