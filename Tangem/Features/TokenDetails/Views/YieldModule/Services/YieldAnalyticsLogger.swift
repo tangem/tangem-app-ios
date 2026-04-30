@@ -57,10 +57,18 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     // MARK: - Earning analytics
 
     func logTransactionSent(with result: TransactionDispatcherResult) {
+        let feeTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+
         Analytics.log(
             event: .transactionSent,
             params: [
                 .source: Analytics.ParameterValue.yieldModuleSourceInfo.rawValue,
+                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+                .blockchain: tokenItem.blockchain.displayName,
+                .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+                .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: feeTokenItem),
+                .memo: Analytics.ParameterValue.null.rawValue,
+                .walletForm: result.signerType,
                 .selectedHost: result.currentHost,
             ],
             analyticsSystems: .all,
