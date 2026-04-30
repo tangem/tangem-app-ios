@@ -118,6 +118,9 @@ private extension StakingModel {
                 sendSourceToken.tokenFeeProvidersManager.update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
                 sendSourceToken.tokenFeeProvidersManager.updateFees()
                 let stakingFee = try await estimateFee(amount: amount, target: target)
+                if let state = validate(amount: .zero, fee: stakingFee) {
+                    return state
+                }
                 return .readyToApprove(approveData: approveData, stakingFee: stakingFee)
 
             case .revokeAndPermissionRequired:
