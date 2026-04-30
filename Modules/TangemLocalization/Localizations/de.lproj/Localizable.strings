@@ -122,9 +122,6 @@
 "balance_hidden_do_not_show_button" = "Nicht mehr anzeigen";
 "balance_hidden_got_it_button" = "Verstanden";
 "balance_hidden_title" = "Guthaben sind ausgeblendet";
-"banner.swap.firsttime.button" = "Swap starten";
-"banner.swap.firsttime.subtitletitle" = "Tauschen Sie ein Asset gegen ein anderes – in wenigen Schritten";
-"banner.swap.firsttime.title" = "Führen Sie Ihren ersten Swap durch";
 "biometry_touch_id_reason" = "Touch ID wird zum Speichern deiner Karten oder Ringe in der App verwendet";
 "bitcoin_promo_activation_error_title" = "Fehler bei der Aktivierung";
 "bitcoin_promo_activation_error" = "Bei der Bearbeitung Deines Aktionscodes ist ein Fehler aufgetreten. Bitte versuche es später noch einmal.";
@@ -410,6 +407,7 @@
 "dynamic_addresses_notification_funds_found_description" = "Funds were found on additional addresses. Enable Dynamic Addresses to access them.";
 "dynamic_addresses_notification_funds_found_title" = "Funds found on additional addresses";
 "dynamic_addresses_receive_badge" = "Dynamic address";
+"dynamic_addresses_unavailability_reason_pending_transaction_send" = "Dynamic addresses management will be available once the pending transaction(s) in network %@ is complete";
 "dynamic_addresses" = "Dynamische Adressen";
 "earn_best_opportunities" = "Beste Gelegenheiten";
 "earn_clear_filter" = "Filter löschen";
@@ -906,6 +904,12 @@
 "onramp_error_transaction_already_processed" = "Diese Transaktion wurde bereits verarbeitet. Es sind keine weiteren Maßnahmen erforderlich.";
 "onramp_fetching_best_rates" = "Die besten Preise erzielen...";
 "onramp_instant_status" = "Sofort";
+"onramp_kyc_verification_bullet_free" = "Verification is free and usually takes 1-2 minutes";
+"onramp_kyc_verification_bullet_privacy" = "Tangem won't have access to your identity information, you share data directly with regulated provider";
+"onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
+"onramp_kyc_verification_choose_another" = "Choose another method";
+"onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
+"onramp_kyc_verification_title" = "Identity verification required by payment provider";
 "onramp_legal_text" = "Der Service wird von einem externen Anbieter bereitgestellt. \n Tangem übernimmt keine Verantwortung.";
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
