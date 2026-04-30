@@ -34,9 +34,10 @@ class CommonSendAnalyticsLogger {
     }
 
     private var sourceFlow: Analytics.ParameterValue {
-        switch sendReceiveTokenInput?.receiveToken.value {
-        case .none: .send
-        case .some: .sendAndSwap
+        switch sendType {
+        case .send where isSwap: .sendAndSwap
+        case .sell, .nft, .send: .send
+        case .swap: .swap
         }
     }
 
@@ -192,19 +193,18 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
 
         let feeTypeParam = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: tokenFee.option)
         let blockchainParam = tokenFee.tokenItem.blockchain.displayName
-        let sourceParam = sourceFlow
 
         if case .nonFungible = tokenItem.token?.metadata.kind {
             Analytics.log(
                 event: .nftFeeSelected,
-                params: [.feeType: feeTypeParam.rawValue, .blockchain: blockchainParam, .source: sourceParam.rawValue]
+                params: [.feeType: feeTypeParam.rawValue, .blockchain: blockchainParam, .source: sourceFlow.rawValue]
             )
         } else {
             let feeTokenParam = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
             let params: [Analytics.ParameterKey: String] = [
                 .feeToken: feeTokenParam,
                 .feeType: feeTypeParam.rawValue,
-                .source: sourceParam.rawValue,
+                .source: sourceFlow.rawValue,
                 .blockchain: blockchainParam,
             ]
 
@@ -638,9 +638,8 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             return
         }
 
-        let source: Analytics.ParameterValue = sendType == .swap ? .swap : .sendAndSwap
         var analyticsParameters: [Analytics.ParameterKey: String] = [
-            .source: source.rawValue,
+            .source: sourceFlow.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: sourceTokenItem),
             .blockchain: sourceTokenItem.blockchain.displayName,
             .walletForm: result.signerType,
@@ -665,7 +664,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     func logFinishStepOpened() {
         switch sendReceiveTokenInput?.receiveToken.value {
         case .none:
-            logSendFinishScreenOpened(destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false)
+            logSendFinishScreenOpened(
+                destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false
+            )
         case .some where sendType == .swap:
             logSwapFinishScreenOpened()
         case .some:
@@ -948,7 +949,6 @@ extension CommonSendAnalyticsLogger {
         case sell
         case nft
         case swap
-        case sendAndSwap
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -956,7 +956,6 @@ extension CommonSendAnalyticsLogger {
             case .sell: .sell
             case .nft: .nft
             case .swap: .swap
-            case .sendAndSwap: .sendAndSwap
             }
         }
     }
