@@ -33,7 +33,7 @@ extension Analytics {
 
         var cardWasScannedParameterValue: Analytics.ParameterValue {
             switch self {
-            case .welcome:
+            case .welcome, .createWallet, .createWalletIntro:
                 return .introduction
             case .auth:
                 return .signIn
@@ -41,10 +41,6 @@ extension Analytics {
                 return .main
             case .settings:
                 return .settings
-            case .createWallet:
-                return .createWallet
-            case .createWalletIntro:
-                return .createWalletIntro
             case .upgrade:
                 return .upgrade
             }

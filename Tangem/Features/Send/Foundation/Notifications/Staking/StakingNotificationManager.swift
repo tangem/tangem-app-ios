@@ -121,9 +121,9 @@ private extension CommonStakingNotificationManager {
                 analyticsLogger.logNoticeNotEnoughFee()
             }
             show(error: .validationErrorEvent(validationErrorEvent))
-        case .networkError:
+        case .networkError(let error):
             hideApproveInProgressNotification()
-            show(error: .networkUnreachable)
+            showNetworkError(error, supportsReduceAmount: true)
         }
     }
 
@@ -166,8 +166,8 @@ private extension CommonStakingNotificationManager {
             }
 
             show(error: .validationErrorEvent(validationErrorEvent))
-        case (.networkError, _):
-            show(error: .networkUnreachable)
+        case (.networkError(let error), _):
+            showNetworkError(error)
         }
     }
 
@@ -190,8 +190,8 @@ private extension CommonStakingNotificationManager {
             }
 
             hideErrorNotifications()
-        case .networkError:
-            show(error: .networkUnreachable)
+        case .networkError(let error):
+            showNetworkError(error)
         case .validationError(let validationError, _):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
@@ -212,6 +212,30 @@ private extension CommonStakingNotificationManager {
 }
 
 private extension CommonStakingNotificationManager {
+    func showNetworkError(_ error: Error, supportsReduceAmount: Bool = false) {
+        switch error {
+        case StakeKitHTTPError.insufficientGasReserve
+            where supportsReduceAmount && tokenItem == feeTokenItem:
+            analyticsLogger.logNoticeNotEnoughFee()
+            show(error: .insufficientFundsForFeeReduceAmount(
+                feeAmountTypeName: feeTokenItem.currencySymbol
+            ))
+
+        case StakeKitHTTPError.insufficientGasReserve,
+             StakingPreflightError.insufficientFundsForFee:
+            analyticsLogger.logNoticeNotEnoughFee()
+            show(error: .insufficientFundsForFee(
+                transactionAmountTypeName: tokenItem.currencySymbol,
+                networkName: tokenItem.blockchain.displayName,
+                feeAmountTypeName: feeTokenItem.currencySymbol,
+                feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol
+            ))
+
+        default:
+            show(error: .networkUnreachable)
+        }
+    }
+
     func showCommonUnstakingNotifications(
         for yield: StakingYieldInfo,
         action: StakingAction,
@@ -294,7 +318,10 @@ private extension CommonStakingNotificationManager {
     func hideErrorNotifications() {
         notificationInputsSubject.value.removeAll { input in
             switch input.settings.event {
-            case StakingNotificationEvent.validationErrorEvent, StakingNotificationEvent.networkUnreachable:
+            case StakingNotificationEvent.validationErrorEvent,
+                 StakingNotificationEvent.networkUnreachable,
+                 StakingNotificationEvent.insufficientFundsForFee,
+                 StakingNotificationEvent.insufficientFundsForFeeReduceAmount:
                 return true
             default:
                 return false

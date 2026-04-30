@@ -11,9 +11,64 @@ import Foundation
 public struct StakeKitAPIError: Decodable, LocalizedError {
     public let code: String?
     public let message: String?
+    public let details: Details?
     let level: String?
 
     public var errorDescription: String? { message }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        message = try? container.decodeIfPresent(String.self, forKey: .message)
+        details = try? container.decodeIfPresent(Details.self, forKey: .details)
+        level = try? container.decodeIfPresent(String.self, forKey: .level)
+
+        if let stringCode = try? container.decodeIfPresent(String.self, forKey: .code) {
+            code = stringCode
+        } else if let intCode = try? container.decodeIfPresent(Int.self, forKey: .code) {
+            code = String(intCode)
+        } else {
+            code = nil
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case code
+        case message
+        case details
+        case level
+    }
+
+    public struct Details: Decodable {
+        public let code: Code?
+        public let reason: String?
+        public let gasTokenSymbol: String?
+        public let shortfallAmount: String?
+        public let availableAmount: String?
+        public let requiredAmount: String?
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            code = try? container.decodeIfPresent(Code.self, forKey: .code)
+            reason = try? container.decodeIfPresent(String.self, forKey: .reason)
+            gasTokenSymbol = try? container.decodeIfPresent(String.self, forKey: .gasTokenSymbol)
+            shortfallAmount = try? container.decodeIfPresent(String.self, forKey: .shortfallAmount)
+            availableAmount = try? container.decodeIfPresent(String.self, forKey: .availableAmount)
+            requiredAmount = try? container.decodeIfPresent(String.self, forKey: .requiredAmount)
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case code
+            case reason
+            case gasTokenSymbol
+            case shortfallAmount
+            case availableAmount
+            case requiredAmount
+        }
+
+        public enum Code: String, Decodable {
+            case insufficientGasReserve = "INSUFFICIENT_GAS_RESERVE"
+        }
+    }
 }
 
 enum StakeKitDTO {
