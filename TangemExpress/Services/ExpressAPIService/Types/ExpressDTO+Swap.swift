@@ -93,6 +93,7 @@ extension ExpressDTO {
                 let allowanceContract: String?
                 let quoteId: String?
                 let expiredAt: Date?
+                let txType: String?
             }
         }
 

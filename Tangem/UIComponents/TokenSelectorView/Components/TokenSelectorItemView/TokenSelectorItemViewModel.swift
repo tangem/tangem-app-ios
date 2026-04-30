@@ -69,9 +69,25 @@ private extension TokenSelectorItem.AvailabilityType {
 
 extension TokenSelectorItemViewModel {
     enum DisabledReason {
-        case unavailableForSwap
+        case unavailableForSwap(SwapUnavailabilityReason)
         case unavailableForOnramp
         case unavailableForSell
         case unavailableForSend
+    }
+
+    enum SwapUnavailabilityReason {
+        case noAddress
+        case swapState(TokenActionAvailabilityProvider.SwapActionAvailabilityStatus)
+    }
+}
+
+extension TokenSelectorItemViewModel.DisabledReason {
+    var disablesTap: Bool {
+        switch self {
+        case .unavailableForSwap(.noAddress): true
+        case .unavailableForSwap(.swapState(.customToken)): true
+        case .unavailableForSwap(.swapState): false
+        case .unavailableForOnramp, .unavailableForSell, .unavailableForSend: true
+        }
     }
 }

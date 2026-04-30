@@ -29,8 +29,6 @@ final class FeedbackUITests: BaseTestCase {
     func testRequestSupportFromDetails_SupportEmailOpened() throws {
         setAllureId(3960)
 
-        try XCTSkipIf(true, "Testcase is waiting for QA review dut to business logic change.")
-
         launchApp()
 
         CreateWalletSelectorScreen(app)
