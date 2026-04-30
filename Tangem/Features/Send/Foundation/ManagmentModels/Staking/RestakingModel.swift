@@ -109,6 +109,11 @@ private extension RestakingModel {
 
         estimatedFeeTask?.cancel()
 
+        guard sendSourceToken.canCoverStakingFee else {
+            update(state: .networkError(StakingPreflightError.insufficientFundsForFee))
+            return
+        }
+
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
