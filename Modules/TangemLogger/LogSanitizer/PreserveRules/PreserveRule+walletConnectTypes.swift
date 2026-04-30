@@ -28,16 +28,12 @@ private extension PreserveRule {
         }
     }
 
+    /// [REDACTED_USERNAME], symKey is consider sensitive, so we only preserve first first part of the type.
     static let walletConnectURI = Regex {
         "WalletConnectURI("
         property("topic")
         property("version")
-        property("symKey")
-        property("relay", nextPropertyName: "methods")
-        property("methods")
-        "expiryTimestamp: "
-        OneOrMore(.digit)
-        ")"
+        "symKey: "
     }
 
     static let session = Regex {
