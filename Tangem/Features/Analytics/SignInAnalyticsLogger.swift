@@ -43,6 +43,7 @@ struct SignInAnalyticsLogger {
                 .signInType: signInType.rawValue,
                 .walletsCount: String(walletsCount),
                 .walletType: walletType.rawValue,
+                .walletHasBackup: Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue,
             ],
             contextParams: .custom(userWalletModel.analyticsContextData)
         )
