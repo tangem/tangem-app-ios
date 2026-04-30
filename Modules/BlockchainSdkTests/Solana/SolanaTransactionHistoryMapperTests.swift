@@ -164,10 +164,111 @@ struct SolanaTransactionHistoryMapperTests {
         )
 
         #expect(records.count == 1)
-        #expect(records[0].type == .contractMethodName(name: "operation"))
+        #expect(records[0].type == .transfer)
         #expect(records[0].isOutgoing)
         #expect(records[0].source == .single(.init(address: tokenSourceAddress, amount: 50)))
         #expect(records[0].destination == .single(.init(address: .user(tokenDestinationAddress), amount: 50)))
+    }
+
+    @Test
+    func mapTokenOperationTransactionByTokenAccountAddress() throws {
+        let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
+        let token = Token(
+            name: "Test token",
+            symbol: "TT",
+            contractAddress: mintAddress,
+            decimalCount: 6
+        )
+
+        let details = try decode(
+            SolanaTransactionHistoryDTO.TransactionDetails.self,
+            from: """
+            {
+              "blockTime": 1777466796,
+              "meta": {
+                "err": null,
+                "fee": 205000,
+                "innerInstructions": [],
+                "postBalances": [54662769, 2039280, 2039280, 496904984350, 1, 5677904863],
+                "preBalances": [54867769, 2039280, 2039280, 496904984350, 1, 5677904863],
+                "postTokenBalances": [
+                  {
+                    "accountIndex": 1,
+                    "mint": "\(mintAddress)",
+                    "owner": "\(walletAddress)",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "uiTokenAmount": { "amount": "0", "decimals": 6, "uiAmountString": "0" }
+                  },
+                  {
+                    "accountIndex": 2,
+                    "mint": "\(mintAddress)",
+                    "owner": "\(destinationAddress)",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "uiTokenAmount": { "amount": "333054", "decimals": 6, "uiAmountString": "0.333054" }
+                  }
+                ],
+                "preTokenBalances": [
+                  {
+                    "accountIndex": 1,
+                    "mint": "\(mintAddress)",
+                    "owner": "\(walletAddress)",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "uiTokenAmount": { "amount": "333054", "decimals": 6, "uiAmountString": "0.333054" }
+                  },
+                  {
+                    "accountIndex": 2,
+                    "mint": "\(mintAddress)",
+                    "owner": "\(destinationAddress)",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "uiTokenAmount": { "amount": "0", "decimals": 6, "uiAmountString": "0" }
+                  }
+                ],
+                "rewards": []
+              },
+              "transaction": {
+                "message": {
+                  "accountKeys": [
+                    { "pubkey": "\(walletAddress)", "signer": true },
+                    { "pubkey": "\(tokenSourceAddress)", "signer": false },
+                    { "pubkey": "\(tokenDestinationAddress)", "signer": false },
+                    { "pubkey": "\(mintAddress)", "signer": false },
+                    { "pubkey": "ComputeBudget111111111111111111111111111111", "signer": false },
+                    { "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "signer": false }
+                  ],
+                  "instructions": [
+                    {
+                      "parsed": {
+                        "info": {
+                          "authority": "\(walletAddress)",
+                          "destination": "\(tokenDestinationAddress)",
+                          "mint": "\(mintAddress)",
+                          "source": "\(tokenSourceAddress)",
+                          "tokenAmount": { "amount": "333054", "decimals": 6, "uiAmountString": "0.333054" }
+                        },
+                        "type": "transferChecked"
+                      },
+                      "program": "spl-token",
+                      "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    }
+                  ]
+                },
+                "signatures": ["hash_token_account"]
+              }
+            }
+            """
+        )
+
+        let records = try mapper.mapToTransactionRecords(
+            [details],
+            walletAddress: tokenSourceAddress,
+            amountType: .token(value: token)
+        )
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .transfer)
+        #expect(records[0].isOutgoing)
+        #expect(records[0].source == .single(.init(address: tokenSourceAddress, amount: 0.333054)))
+        #expect(records[0].destination == .single(.init(address: .user(tokenDestinationAddress), amount: 0.333054)))
     }
 
     @Test
