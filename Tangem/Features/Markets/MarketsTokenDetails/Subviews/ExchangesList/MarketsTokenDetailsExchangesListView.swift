@@ -23,9 +23,10 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
-    private var defaultBackgroundColor: Color { Colors.Background.primary }
+    private var defaultBackgroundColor: Color {
+        FeatureProvider.isAvailable(.redesign) ? .Tangem.Surface.level2 : Colors.Background.primary
+    }
 
-    private let scrollViewFrameCoordinateSpaceName = UUID()
     private let scrollViewContentTopInset = 14.0
     private let navigationBarTitle = Localization.marketsTokenDetailsExchangesTitle
 
@@ -53,7 +54,24 @@ struct MarketsTokenDetailsExchangesListView: View {
                 .opacity(viewModel.overlayContentHidingProgress)
 
             VStack(spacing: 0) {
-                if viewModel.isMarketsSheetStyle {
+                if FeatureProvider.isAvailable(.redesign) {
+                    NavigationHeader(
+                        leadingContent: {
+                            TangemButton(
+                                content: .icon(Assets.Glyphs.chevron20LeftButtonNew),
+                                action: viewModel.onBackButtonAction
+                            )
+                            .setStyleType(.secondary)
+                            .setCornerStyle(.rounded)
+                            .setSize(.x11)
+                        },
+                        principalContent: {
+                            Text(navigationBarTitle)
+                                .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+                        },
+                        trailingContent: { EmptyView() }
+                    )
+                } else if viewModel.isMarketsSheetStyle {
                     MarketsNavigationBar(
                         title: navigationBarTitle,
                         onBackButtonAction: viewModel.onBackButtonAction
@@ -81,7 +99,39 @@ struct MarketsTokenDetailsExchangesListView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    @ViewBuilder
     private var header: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignedHeader
+        } else {
+            legacyHeader
+        }
+    }
+
+    private var redesignedHeader: some View {
+        HStack(spacing: .zero) {
+            redesignedHeaderText(Localization.marketsTokenDetailsExchange)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListTitle)
+
+            Spacer()
+
+            HStack(spacing: .unit(.x3)) {
+                redesignedHeaderText(Localization.marketsTokenDetailsVolume)
+
+                redesignedHeaderText(Localization.marketsSelectorInterval24hTitle)
+            }
+        }
+        .padding(.horizontal, .unit(.x7))
+        .padding(.top, .unit(.x3))
+        .padding(.bottom, .unit(.x2))
+    }
+
+    private func redesignedHeaderText(_ text: String) -> some View {
+        Text(text)
+            .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
+    }
+
+    private var legacyHeader: some View {
         HStack {
             Text(Localization.marketsTokenDetailsExchange)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -108,9 +158,36 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     @ViewBuilder
     private var listContent: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignedListContent
+                .padding(.horizontal, .unit(.x4))
+        } else {
+            legacyListContent
+        }
+    }
+
+    @ViewBuilder
+    private var redesignedListContent: some View {
         switch viewModel.exchangesList {
         case .loading, .success:
-            scrollContent
+            redesignedScrollContent
+
+        case .failure:
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: viewModel.reloadExchangesList
+            )
+            .infinityFrame()
+            .padding(.top, headerHeight)
+        }
+    }
+
+    @ViewBuilder
+    private var legacyListContent: some View {
+        switch viewModel.exchangesList {
+        case .loading, .success:
+            legacyScrollContent
+
         case .failure:
             UnableToLoadDataView(
                 isButtonBusy: false,
@@ -124,7 +201,39 @@ struct MarketsTokenDetailsExchangesListView: View {
         }
     }
 
-    private var scrollContent: some View {
+    private var redesignedScrollContent: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: .unit(.x3)) {
+                Color.clear
+                    .frame(height: headerHeight)
+
+                LazyVStack(spacing: 0) {
+                    switch viewModel.exchangesList {
+                    case .loading:
+                        ForEach(0 ... max(viewModel.numberOfExchangesListedOn - 1, 0), id: \.self) { _ in
+                            TangemTwoLineRowSkeletonView()
+                        }
+
+                    case .success(let itemsList):
+                        ForEach(itemsList) { item in
+                            MarketsTokenDetailsExchangeItemViewRedesign(info: item)
+                        }
+
+                    case .failure:
+                        EmptyView()
+                    }
+                }
+                .roundedBackground(with: .Tangem.Surface.level3, padding: 0, radius: .unit(.x5))
+            }
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
+                isListContentObscured = contentOffset.y > scrollViewContentTopInset
+            }
+            .id(viewModel.exchangesList.value)
+        }
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
+    }
+
+    private var legacyScrollContent: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 0) {
                 Color.clear
@@ -143,12 +252,12 @@ struct MarketsTokenDetailsExchangesListView: View {
                     EmptyView()
                 }
             }
-            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
             }
             .id(viewModel.exchangesList.value)
         }
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
     }
 
     private var exchangeListAnimationValue: Int {
@@ -158,8 +267,16 @@ struct MarketsTokenDetailsExchangesListView: View {
         case .failure(let error):
             error.localizedDescription.hashValue
         case .loading:
-            .zero
+            0
         }
+    }
+}
+
+extension MarketsTokenDetailsExchangesListView {
+    private enum CoordinateSpaceName {
+        private static let prefix = "MarketsTokenDetailsExchangesListView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 

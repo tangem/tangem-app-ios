@@ -176,7 +176,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     ) {
         closeScanner()
 
-        let walletsProvider = CommonTokenSelectorWalletsProvider(accountModelFilter: \.isStandard)
+        let walletsProvider: TokenSelectorWalletsProvider = .standardAccountsOnly()
         let selectorViewModel = TokenSelectorViewModel(
             walletsProvider: walletsProvider,
             availabilityProvider: MainQRScanTokenSelectorAvailabilityProvider(filter: filter)

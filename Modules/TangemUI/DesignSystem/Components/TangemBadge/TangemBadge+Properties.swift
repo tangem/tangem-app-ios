@@ -71,6 +71,7 @@ public extension TangemBadge {
     enum BadgeColor: Equatable, Sendable {
         case blue
         case red
+        case yellow
         case gray
     }
 

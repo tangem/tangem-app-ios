@@ -21,11 +21,15 @@ final class NewsListViewModel: MarketsBaseViewModel {
     @Published var selectedCategoryId: Int?
     @Published private(set) var loadingState: LoadingState = .idle
 
+    let presentSource: MarketsNavigationBackButton.PresentSource
+
     // MARK: - Private Properties
 
     private let dataProvider: NewsDataProvider
     private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private weak var coordinator: NewsListRoutable?
+
+    private var incomingCategoryId: Int?
 
     private var bag = Set<AnyCancellable>()
 
@@ -33,10 +37,14 @@ final class NewsListViewModel: MarketsBaseViewModel {
 
     init(
         dataProvider: NewsDataProvider,
-        coordinator: NewsListRoutable? = nil
+        coordinator: NewsListRoutable? = nil,
+        incomingCategoryId: Int? = nil,
+        presentSource: MarketsNavigationBackButton.PresentSource = .navigation
     ) {
         self.dataProvider = dataProvider
         self.coordinator = coordinator
+        self.incomingCategoryId = incomingCategoryId
+        self.presentSource = presentSource
 
         // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
         // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
@@ -49,12 +57,28 @@ final class NewsListViewModel: MarketsBaseViewModel {
     // MARK: - Private Methods
 
     private func bind() {
+        $selectedCategoryId
+            .dropFirst()
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, categoryId in
+                viewModel.onCategorySelected(categoryId)
+            }
+            .store(in: &bag)
+
         dataProvider
             .categoriesPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, categories in
                 viewModel.categories = categories
+
+                if let incomingCategoryId = viewModel.incomingCategoryId,
+                   let category = categories.first(where: { $0.id == incomingCategoryId }) {
+                    viewModel.incomingCategoryId = nil
+                    viewModel.selectedCategoryId = category.id
+                }
             }
             .store(in: &bag)
 
@@ -64,16 +88,6 @@ final class NewsListViewModel: MarketsBaseViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 viewModel.handleEvent(event)
-            }
-            .store(in: &bag)
-
-        $selectedCategoryId
-            .dropFirst()
-            .removeDuplicates()
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, categoryId in
-                viewModel.onCategorySelected(categoryId)
             }
             .store(in: &bag)
 
@@ -148,7 +162,7 @@ extension NewsListViewModel {
         switch viewAction {
         case .onFirstAppear:
             dataProvider.fetchCategories()
-            dataProvider.fetch(categoryIds: nil)
+            dataProvider.fetch(categoryIds: selectedCategoryId.map { [$0] })
         case .onAppear:
             // No action required on subsequent appears
             break

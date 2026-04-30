@@ -29,6 +29,10 @@ final class MarketsSearchCoordinator: CoordinatorObject {
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
 
+    // MARK: - Private
+
+    private(set) var leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton = .back
+
     // MARK: - Init
 
     required init(
@@ -40,8 +44,11 @@ final class MarketsSearchCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        leadingButton = options.leadingButton
+
         let marketsViewModel = MarketsSearchViewModel(
             initialOrderType: options.initialOrderType,
+            initialIntervalType: options.initialIntervalType,
             quotesRepositoryUpdateHelper: options.quotesRepositoryUpdateHelper,
             coordinator: self
         )
@@ -53,7 +60,11 @@ final class MarketsSearchCoordinator: CoordinatorObject {
 extension MarketsSearchCoordinator {
     struct Options {
         let initialOrderType: MarketsListOrderType?
+        let initialIntervalType: MarketsPriceIntervalType?
         let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
+        /// Style of the leading button in the navigation bar: `.back` for in-app navigation
+        /// (e.g. "See All" from the Markets bottom sheet), `.close` for modal deeplink entry.
+        let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
     }
 }
 

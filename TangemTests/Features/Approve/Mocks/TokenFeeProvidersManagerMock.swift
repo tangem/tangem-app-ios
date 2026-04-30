@@ -5,6 +5,7 @@
 //  Created for Approve flow unit tests.
 //
 
+import Foundation
 import Combine
 import BlockchainSdk
 import TangemExpress
