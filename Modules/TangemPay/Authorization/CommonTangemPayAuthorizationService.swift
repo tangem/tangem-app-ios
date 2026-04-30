@@ -48,7 +48,10 @@ final class CommonTangemPayAuthorizationService {
         }
 
         if tokens.accessTokenExpired {
-            let newTokens = try await refreshTokens(refreshToken: tokens.refreshToken)
+            var newTokens = try await refreshTokens(refreshToken: tokens.refreshToken)
+            if newTokens.accessTokenExpired {
+                newTokens = try await refreshTokens(refreshToken: newTokens.refreshToken)
+            }
             try? saveTokens(tokens: newTokens)
         }
     }
