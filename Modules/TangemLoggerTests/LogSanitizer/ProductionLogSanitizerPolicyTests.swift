@@ -50,6 +50,22 @@ struct ProductionLogSanitizerPolicyTests {
     }
 
     @Test
+    func shouldPreserveWalletConnectDeeplink() {
+        let input = #"Received deeplink: tangem://wc?uri=wc%3Aa4f57e0493f84cfc7168a91579a18c5d9587dd1dd2d40efbe1cd916570399710%402%3Frelay-protocol%3Dirn%26symKey%3D57285434b30502b8991753225668f667e7c529926f007cec30652861ac11d8a4%26expiryTimestamp%3D1750166958"#
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == input)
+    }
+
+    @Test
+    func shouldPreserveWalletConnectProposalContainingISO8601Timestamp() {
+        let input = #"Session proposal: Proposal(id: "id", pairingTopic: "pairingTopic", proposer: WalletConnectPairing.AppMetadata(name: "App", description: "Description", url: "https://react-app.walletconnect.com", icons: [], redirect: nil), requiredNamespaces: [:], optionalNamespaces: nil, sessionProperties: nil, scopedProperties: nil, requests: Optional(WalletConnectSign.ProposalRequests(authentication: Optional([WalletConnectSign.AuthPayload(domain: "react-app.walletconnect.com", aud: "https://react-app.walletconnect.com", version: "1", nonce: "1", chains: ["eip155:1"], type: "caip122", iat: "2026-04-29T13:52:24.409Z", nbf: nil, exp: nil, statement: nil, requestId: nil, resources: nil, signatureTypes: nil)]))), proposal: WalletConnectSign.SessionProposal(relays: [WalletConnectUtils.RelayProtocolOptions(protocol: "irn", data: nil)], proposer: WalletConnectSign.Participant(publicKey: "publicKey", metadata: WalletConnectPairing.AppMetadata(name: "App", description: "Description", url: "https://react-app.walletconnect.com", icons: [], redirect: nil)), requiredNamespaces: [:], optionalNamespaces: nil, sessionProperties: nil, scopedProperties: nil, expiryTimestamp: Optional(1777471744), requests: nil))"#
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == input)
+    }
+
+    @Test
     func shouldRedactSensitiveValuesWithoutAffectingPreservedValues() {
         let input = #"response: <NSHTTPURLResponse: 0x106f3a120>; timestamp="2026-12-24T00:00:00.000Z"; "#
             + #"headers: ["api-key": "secret123", "access-token": "abc/def=="]"#
