@@ -121,6 +121,12 @@ extension UserWalletConfig {
     var hasDefaultToken: Bool {
         defaultBlockchains.first?.isToken ?? false
     }
+
+    var walletHasBackup: Bool {
+        productType == .mobileWallet
+            ? !hasFeature(.mnemonicBackup)
+            : !hasFeature(.backup)
+    }
 }
 
 struct TOU {
