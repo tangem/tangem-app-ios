@@ -53,7 +53,7 @@ public enum EthereumUtils {
         } else if decimal == .greatestFiniteMagnitude {
             return BigUInt(2).power(256) - 1
         } else {
-            return BigUInt(decimal.rounded().uint64Value)
+            return parseToBigUInt(NSDecimalNumber(decimal: decimal.rounded()).stringValue, decimals: 0) ?? .zero
         }
     }
 
