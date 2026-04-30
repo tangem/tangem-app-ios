@@ -28,7 +28,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
         app.swipeDown()
 
         MainScreen(app)
-            .organizeTokens()
+            .waitForTotalBalanceShimmerToComplete()
         app.terminate()
 
         safariHelper.safari.launch()

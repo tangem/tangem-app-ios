@@ -539,6 +539,7 @@ extension StakingModel: NotificationTapDelegate {
         let viewModel = BlockchainAccountInitializationViewModel(
             accountInitializationService: accountInitializationService,
             transactionDispatcher: transactionDispatcher,
+            tangemIconProvider: sendSourceToken.tangemIconProvider,
             tokenItem: tokenItem,
             fee: initializationFee,
             feeTokenItem: feeTokenItem,
