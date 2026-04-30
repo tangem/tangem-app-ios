@@ -12,10 +12,13 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
     func openTangemBadgeDemo()
     func openTangemCalloutDemo()
+    func openTangemTabsDemo()
     func openTangemMainActionButtonDemo()
     func openTangemSegmentedPickerDemo()
+    func openTangemSearchFieldDemo()
     func openNotificationBannerDemo()
     func openTypographyDemo()
+    func openTangemDropDownDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -26,10 +29,13 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
+    @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
     @Published var tangemMainActionButtonDemoViewModel: TangemMainActionButtonDemoViewModel?
     @Published var tangemSegmentedPickerDemoViewModel: TangemSegmentedPickerDemoModel?
     @Published var notificationBannerDemoViewModel: NotificationBannerDemoViewModel?
     @Published var typographyDemoViewModel: TypographyDemoViewModel?
+    @Published var tangemSearchFieldDemoViewModel: TangemSearchFieldDemoViewModel?
+    @Published var tangemDropDownDemoViewModel: TangemDropDownDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -71,6 +77,18 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemSegmentedPickerDemo() {
         tangemSegmentedPickerDemoViewModel = .init()
+    }
+
+    func openTangemTabsDemo() {
+        tangemTabsDemoViewModel = .init()
+    }
+
+    func openTangemSearchFieldDemo() {
+        tangemSearchFieldDemoViewModel = .init()
+    }
+
+    func openTangemDropDownDemo() {
+        tangemDropDownDemoViewModel = .init()
     }
 }
 

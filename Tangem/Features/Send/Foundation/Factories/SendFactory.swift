@@ -18,7 +18,8 @@ struct SendFactory {
         case .send(let sourceToken, let parameters):
             return SendWithSwapFlowFactory(
                 sourceToken: sourceToken,
-                predefinedSendParameters: parameters
+                predefinedSendParameters: parameters,
+                coordinatorSource: options.source
             )
 
         case .swap(.from(let sourceToken, let receiveToken)):
@@ -26,6 +27,9 @@ struct SendFactory {
 
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
+
+        case .swap(.pair(let source, let destination)):
+            return SwapFlowFactory(sourceToken: source, receiveToken: destination)
 
         case .nft(let transferableToken, let parameters):
             return TransferNFTFlowFactory(

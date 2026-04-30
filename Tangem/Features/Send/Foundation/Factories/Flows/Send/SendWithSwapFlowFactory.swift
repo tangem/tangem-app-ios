@@ -14,10 +14,11 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 
     let sourceToken: SendWithSwapToken
     private let predefinedSendParameters: PredefinedSendParameters?
+    private let coordinatorSource: SendCoordinator.Source
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send, coordinatorSource: coordinatorSource)
 
     lazy var sendNotificationManager = makeSendNotificationManager()
     lazy var swapNotificationManager = makeSwapNotificationManager()
@@ -33,15 +34,15 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         predefinedValues: predefinedTransferValues
     )
-    private let isFixedRateMode = FeatureProvider.isAvailable(.expressFixedRates)
-
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        shouldStartInitialLoading: false,
-        isFixedRatesEnabled: isFixedRateMode
+        pairUpdateHandler: SendWithSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager
+        ),
+        shouldStartInitialLoading: false
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
@@ -51,9 +52,10 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer
     )
 
-    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil) {
+    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil, coordinatorSource: SendCoordinator.Source = .main) {
         self.sourceToken = sourceToken
         self.predefinedSendParameters = predefinedSendParameters
+        self.coordinatorSource = coordinatorSource
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 
@@ -234,7 +236,7 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: sourceToken.tangemIconProvider
         )
     }
 }
@@ -262,7 +264,8 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            isFixedRateMode: isFixedRateMode
+            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil,
+            currentRateTypePublisher: sendWithSwapModel.currentRateTypePublisher
         )
     }
 }
@@ -274,8 +277,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendWithSwapModel,
             output: sendWithSwapModel,
-            receiveTokenInput: sendWithSwapModel,
-            destinationAccountOutput: sendWithSwapModel
+            receiveTokenInput: sendWithSwapModel
         )
     }
 
@@ -313,7 +315,7 @@ extension SendWithSwapFlowFactory: SendFeeStepBuildable {
 
 extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {

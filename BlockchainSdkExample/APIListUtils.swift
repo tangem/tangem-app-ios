@@ -8,93 +8,57 @@
 
 import Foundation
 import BlockchainSdk
-import TangemNetworkUtils
 
 struct ConfigUtils {
     private let providersFileName = "providers_order"
     private let configFileName = "config_dev"
 
     func parseProvidersJson() -> APIList {
-        do {
-            let apiListDTO = try readBundleFile(with: providersFileName, type: APIListDTO.self)
-            return convertToSDKModels(apiListDTO)
-        } catch {
-            return [:]
-        }
+        let apiListDTO = readBundleFile(with: providersFileName, type: APIListDTO.self)
+        return convertToSDKModels(apiListDTO)
     }
 
     func parseKeysJson() -> BlockchainSdkKeysConfig {
-        do {
-            let keys = try readBundleFile(with: configFileName, type: Keys.self)
-            var credentials: [BlockchainSdkKeysConfig.GetBlockCredentials.Credential] = []
+        let keys = readBundleFile(with: configFileName, type: Keys.self)
+        var credentials: [BlockchainSdkKeysConfig.GetBlockCredentials.Credential] = []
 
-            Blockchain.allMainnetCases.forEach { blockchain in
-                if let accessTokens = keys.getBlockAccessTokens[blockchain.codingKey] {
-                    BlockchainSdkKeysConfig.GetBlockCredentials.TypeValue.allCases.forEach { type in
-                        if let token = accessTokens[type.rawValue] {
-                            credentials.append(.init(blockchain: blockchain, type: type, key: token))
-                        }
+        Blockchain.allMainnetCases.forEach { blockchain in
+            if let accessTokens = keys.getBlockAccessTokens[blockchain.codingKey] {
+                BlockchainSdkKeysConfig.GetBlockCredentials.TypeValue.allCases.forEach { type in
+                    if let token = accessTokens[type.rawValue] {
+                        credentials.append(.init(blockchain: blockchain, type: type, key: token))
                     }
                 }
             }
-            return BlockchainSdkKeysConfig(
-                blockchairApiKeys: keys.blockchairApiKeys,
-                blockcypherTokens: keys.blockcypherTokens,
-                alchemyApiKey: keys.alchemyApiKey,
-                infuraProjectId: keys.infuraProjectId,
-                nowNodesApiKey: keys.nowNodesApiKey,
-                getBlockCredentials: .init(credentials: credentials),
-                kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
-                tronGridApiKey: keys.tronGridApiKey,
-                hederaArkhiaApiKey: keys.hederaArkhiaKey,
-                etherscanApiKey: keys.etherscanApiKey,
-                koinosProApiKey: keys.koinosProApiKey,
-                tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
-                fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
-                chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
-                quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
-                quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
-                quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
-                bittensorDwellirKey: keys.bittensorDwellirKey,
-                dwellirApiKey: keys.dwellirApiKey,
-                bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
-                tangemAlephiumApiKey: keys.alephiumTangemApiKey,
-                blinkApiKey: keys.blinkApiKey,
-                tatumApiKey: keys.tatumApiKey,
-                yieldModuleApiKey: keys.yieldModuleApiKey,
-                gaslessTxApiKey: keys.gaslessTxApiKey
-            )
-        } catch {
-            return .init(
-                blockchairApiKeys: [],
-                blockcypherTokens: [],
-                alchemyApiKey: "",
-                infuraProjectId: "",
-                nowNodesApiKey: "",
-                getBlockCredentials: .init(credentials: []),
-                kaspaSecondaryApiUrl: nil,
-                tronGridApiKey: "",
-                hederaArkhiaApiKey: "",
-                etherscanApiKey: "",
-                koinosProApiKey: "",
-                tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-                fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-                chiaTangemApiKeys: .init(mainnetApiKey: ""),
-                quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
-                quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
-                quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
-                bittensorDwellirKey: "",
-                dwellirApiKey: "",
-                bittensorOnfinalityKey: "",
-                tangemAlephiumApiKey: "",
-                blinkApiKey: "",
-                tatumApiKey: "",
-                yieldModuleApiKey: "",
-                gaslessTxApiKey: "",
-            )
         }
+        return BlockchainSdkKeysConfig(
+            blockchairApiKeys: keys.blockchairApiKeys,
+            blockcypherTokens: keys.blockcypherTokens,
+            alchemyApiKey: keys.alchemyApiKey,
+            infuraProjectId: keys.infuraProjectId,
+            nowNodesApiKey: keys.nowNodesApiKey,
+            getBlockCredentials: .init(credentials: credentials),
+            kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
+            tronGridApiKey: keys.tronGridApiKey,
+            hederaArkhiaApiKey: keys.hederaArkhiaKey,
+            etherscanApiKey: keys.etherscanApiKey,
+            koinosProApiKey: keys.koinosProApiKey,
+            tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
+            fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
+            chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
+            quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
+            quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
+            quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
+            bittensorDwellirKey: keys.bittensorDwellirKey,
+            dwellirApiKey: keys.dwellirApiKey,
+            bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
+            tangemAlephiumApiKey: keys.alephiumTangemApiKey,
+            blinkApiKey: keys.blinkApiKey,
+            tatumApiKey: keys.tatumApiKey,
+            yieldModuleApiKey: keys.yieldModuleApiKey,
+            gaslessTxApiKey: keys.gaslessTxApiKey
+        )
     }
 
     private func convertToSDKModels(_ listDTO: APIListDTO) -> APIList {
@@ -122,12 +86,16 @@ struct ConfigUtils {
         }
     }
 
-    private func readBundleFile<T: Decodable>(with name: String, type: T.Type) throws -> T {
+    private func readBundleFile<T: Decodable>(with name: String, type: T.Type) -> T {
         guard let path = Bundle.main.url(forResource: name, withExtension: "json") else {
-            throw NSError(domain: "Failed to find json file with name: \"\(name)\"", code: -9999, userInfo: nil)
+            fatalError("\(name).json - invalid path. Check if file exists and has 'json' extension.")
         }
 
-        return try JSONDecoder().decode(type, from: Data(contentsOf: path))
+        do {
+            return try JSONDecoder().decode(type, from: Data(contentsOf: path))
+        } catch {
+            fatalError("\(name).json file corrupted or has invalid format.")
+        }
     }
 
     private func mapToNetworkProviderType(name: String?) -> NetworkProviderType? {

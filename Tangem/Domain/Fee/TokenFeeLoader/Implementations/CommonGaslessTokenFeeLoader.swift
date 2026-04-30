@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemExpress
 import BlockchainSdk
 
@@ -22,8 +23,6 @@ struct CommonGaslessTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { false }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
@@ -42,15 +41,19 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
         let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
 
-        let fee = try await gaslessTransactionFeeProvider.getGaslessFee(
-            feeToken: params.feeToken,
-            amount: amount,
-            destination: destination,
-            feeRecipientAddress: params.feeRecipientAddress,
-            nativeToFeeTokenRate: params.nativeToFeeTokenRate
-        )
+        do {
+            let fee = try await gaslessTransactionFeeProvider.getGaslessFee(
+                feeToken: params.feeToken,
+                amount: amount,
+                destination: destination,
+                feeRecipientAddress: params.feeRecipientAddress,
+                nativeToFeeTokenRate: params.nativeToFeeTokenRate
+            )
 
-        return [fee]
+            return [fee]
+        } catch let error where error.isEVMExecutionReverted {
+            throw TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: EthereumFeeParametersConstants.gaslessMinTokenAmountDecimal)
+        }
     }
 }
 
@@ -73,26 +76,17 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
 
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
+        let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
+            feeToken: params.feeToken,
+            destination: destination,
+            value: amount.encodedForSend,
+            data: txData,
+            otherNativeFee: otherNativeFee,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
 
-        do {
-            let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
-                feeToken: params.feeToken,
-                destination: destination,
-                value: amount.encodedForSend,
-                data: txData,
-                otherNativeFee: otherNativeFee,
-                feeRecipientAddress: params.feeRecipientAddress,
-                nativeToFeeTokenRate: params.nativeToFeeTokenRate
-            )
-
-            return [fee]
-        } catch let error where error.isEVMExecutionReverted {
-            guard let decimalMinAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount.decimal else {
-                throw TokenFeeLoaderError.executionReverted
-            }
-
-            throw TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: decimalMinAmount)
-        }
+        return [fee]
     }
 }
 

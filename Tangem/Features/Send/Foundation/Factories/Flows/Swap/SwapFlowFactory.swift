@@ -23,6 +23,10 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         receiveToken: receiveToken,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
+        pairUpdateHandler: RegularSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager,
+            expressPairsRepository: expressDependenciesFactory.expressPairsRepository
+        ),
         shouldStartInitialLoading: true
     )
     lazy var notificationManager = makeSwapNotificationManager()
@@ -165,7 +169,8 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     var amountDependencies: SwapAmountStepBuilder.Dependencies {
         SwapAmountStepBuilder.Dependencies(
             sendAmountValidator: CommonSwapAmountValidator(),
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            isFixedRateMode: false
         )
     }
 }
@@ -214,7 +219,8 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
             input: swapModel,
             output: swapModel,
             sourceTokenInput: swapModel,
-            receiveTokenInput: swapModel
+            receiveTokenInput: swapModel,
+            receiveTokenAmountInput: swapModel
         )
     }
 

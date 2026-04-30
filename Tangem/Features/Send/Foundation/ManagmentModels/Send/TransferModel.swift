@@ -41,12 +41,10 @@ final class TransferModel {
     private let userWalletId: UserWalletId
     private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let analyticsLogger: SendAnalyticsLogger
+    private let analyticsLogger: SendManagementModelAnalyticsLogger
     private let sendAlertBuilder: SendAlertBuilder
 
     private let balanceConverter = BalanceConverter()
-
-    private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -56,7 +54,7 @@ final class TransferModel {
         userToken: SendTransferableToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        analyticsLogger: SendAnalyticsLogger,
+        analyticsLogger: SendManagementModelAnalyticsLogger,
         sendAlertBuilder: SendAlertBuilder,
         predefinedValues: PredefinedValues
     ) {
@@ -83,6 +81,8 @@ final class TransferModel {
 
 private extension TransferModel {
     private func bind() {
+        setupCustomFeeProvidersIfNeeded()
+
         Publishers
             .CombineLatest4(
                 _amount.compactMap { $0?.crypto },
@@ -117,6 +117,12 @@ private extension TransferModel {
             .withWeakCaptureOf(self)
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
+    }
+
+    func setupCustomFeeProvidersIfNeeded() {
+        _sourceToken.tokenFeeProvidersManager.tokenFeeProviders
+            .compactMap { ($0 as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider as? SendCustomFeeService }
+            .forEach { $0.setup(input: self) }
     }
 
     private func makeTransaction(
@@ -343,6 +349,10 @@ extension TransferModel: SendFeeInput {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
     }
 
+    var supportFeeSelection: Bool {
+        _sourceToken.tokenFeeProvidersManager.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         _sourceToken.tokenFeeProvidersManager.supportFeeSelectionPublisher
     }
@@ -397,10 +407,6 @@ extension TransferModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension TransferModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        // No-op: swap functionality not supported
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
@@ -531,17 +537,6 @@ extension TransferModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - SendDestinationAccountOutput
-
-extension TransferModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        destinationAccountAnalyticsProvider = analyticsProvider
-        analyticsLogger.setDestinationAnalyticsProvider(analyticsProvider)
-    }
-}
-
 // MARK: - FeeSelectorInteractor
 
 extension TransferModel: TokenFeeProvidersManagerProviding {
@@ -560,6 +555,22 @@ extension TransferModel: FeeSelectorOutput {
     func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
         _sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
         _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+    }
+}
+
+// MARK: - CustomFeeServiceInput
+
+extension TransferModel: CustomFeeServiceInput {
+    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
+        _amount
+            .compactMap { $0?.crypto }
+            .eraseToAnyPublisher()
+    }
+
+    var destinationAddressPublisher: AnyPublisher<String, Never> {
+        _destination
+            .compactMap { $0?.value.transactionAddress }
+            .eraseToAnyPublisher()
     }
 }
 

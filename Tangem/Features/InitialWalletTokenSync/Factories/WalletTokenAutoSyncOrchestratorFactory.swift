@@ -2,6 +2,7 @@
 //  WalletTokenAutoSyncOrchestratorFactory.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -9,57 +10,82 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-final class WalletTokenAutoSyncOrchestratorFactory {
+struct WalletTokenAutoSyncOrchestratorFactory {
     private let sharedSyncStateActor = WalletTokenAutoSyncStateActor()
-    private let addressResolver = WalletAddressResolver()
+
     private let coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider = CommonInitialWalletTokenSyncCoinsCatalogProvider(
         tangemApiService: InjectedValues[\.tangemApiService]
     )
+
+    private let configurationProvider: InitialWalletTokenSyncConfigurationProvider = CommonInitialWalletTokenSyncConfigurationProvider(
+        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory,
+        isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
+    )
+
+    private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
+    private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider = CommonWalletTokenAutoSyncAnalyticsService()
 
     func makeOrchestrator() -> CommonWalletTokenAutoSyncOrchestrator {
         CommonWalletTokenAutoSyncOrchestrator(
             syncStateActor: sharedSyncStateActor,
             progressService: InjectedValues[\.walletTokenSyncProgressService],
+            persister: persister,
             relayerFactory: makeRelayerFactory(
-                addressResolver: addressResolver,
+                configurationProvider: configurationProvider,
                 coinsCatalogProvider: coinsCatalogProvider,
                 tokenBalanceClient: InjectedValues[\.moralisTokenBalanceClient]
-            )
+            ),
+            userWalletRepository: InjectedValues[\.userWalletRepository],
+            apiListProvider: InjectedValues[\.apiListProvider],
+            analyticsProvider: analyticsProvider
         )
     }
 
     private func makeRelayerFactory(
-        addressResolver: WalletAddressResolver,
+        configurationProvider: InitialWalletTokenSyncConfigurationProvider,
         coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider,
         tokenBalanceClient: MoralisTokenBalanceClient
     ) -> (Blockchain) -> (any WalletTokenAutoSyncRelayer)? {
-        { [weak self] blockchain in
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_TODO_COMMENT]
+        // Cached per-type relayers shared across all supported blockchains
+        // to avoid allocating a fresh instance for every network on each sync run.
+        let moralisRelayer: any WalletTokenAutoSyncRelayer = makeMoralisRelayer(
+            tokenBalanceClient: tokenBalanceClient,
+            coinsCatalogProvider: coinsCatalogProvider
+        )
+        let configurationRelayer: any WalletTokenAutoSyncRelayer = makeConfigurationRelayer(
+            configurationProvider: configurationProvider,
+            coinsCatalogProvider: coinsCatalogProvider
+        )
 
-            guard let self else {
-                return nil
+        return { blockchain in
+            // Use Moralis first to obtain blockchain balances
+            if MoralisSupportedBlockchains.all.contains(blockchain) {
+                return moralisRelayer
             }
 
-            if MoralisSupportedBlockchains.all.contains(blockchain) {
-                return makeMoralisRelayer(
-                    addressResolver: addressResolver,
-                    tokenBalanceClient: tokenBalanceClient,
-                    coinsCatalogProvider: coinsCatalogProvider
-                )
+            if configurationProvider.canHandle(blockchain) {
+                return configurationRelayer
             }
 
             return nil
         }
     }
 
+    private func makeConfigurationRelayer(
+        configurationProvider: InitialWalletTokenSyncConfigurationProvider,
+        coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider
+    ) -> WalletTokenAutoSyncRelayer {
+        ConfigurationWalletTokenAutoSyncRelayer(
+            configurationProvider: configurationProvider,
+            coinsCatalogProvider: coinsCatalogProvider
+        )
+    }
+
     private func makeMoralisRelayer(
-        addressResolver: WalletAddressResolver,
         tokenBalanceClient: MoralisTokenBalanceClient,
         coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider
     ) -> WalletTokenAutoSyncRelayer {
         MoralisWalletTokenAutoSyncRelayer(
-            addressResolver: addressResolver,
             tokenBalanceClient: tokenBalanceClient,
             coinsCatalogProvider: coinsCatalogProvider
         )

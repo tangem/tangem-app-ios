@@ -19,7 +19,8 @@ struct MarketsSearchCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.rootViewModel {
                 MarketsSearchView(
                     viewModel: viewModel,
-                    onBackButtonAction: coordinator.dismiss
+                    leadingButton: coordinator.leadingButton,
+                    onLeadingButtonAction: coordinator.dismiss
                 )
                 .navigationLinks(links)
             }
@@ -37,9 +38,6 @@ struct MarketsSearchCoordinatorView: CoordinatorView {
                 backgroundColor: Colors.Background.tertiary
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
-            }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
             }
     }
 

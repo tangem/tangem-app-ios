@@ -54,12 +54,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
             tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
-            coordinator: self,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: self
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
@@ -71,7 +68,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let bannerNotificationManager: BannerNotificationManager? = {
-            guard options.userWalletInfo.config.hasFeature(.multiCurrency) else {
+            guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                  options.userWalletInfo.config.hasFeature(.multiCurrency) else {
                 return nil
             }
 
@@ -169,12 +167,36 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
-    func openDynamicAddressesEnterView() {
-        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(coordinator: self)
+    func openDynamicAddressesEnterView(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    ) {
+        dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            analyticsLogger: analyticsLogger,
+            coordinator: self
+        )
     }
 
     func openDynamicAddressesUnavailableSheet() {
         let viewModel = DynamicAddressesUnavailableSheetViewModel(messageType: .unavailable, coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openDynamicAddressesDisableSheet(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    ) {
+        let viewModel = DynamicAddressesDisableSheetViewModel(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+            analyticsLogger: analyticsLogger,
+            coordinator: self
+        )
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -197,6 +219,16 @@ extension TokenDetailsCoordinator: DynamicAddressesEnterRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
     func closeDynamicAddressesUnavailableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - DynamicAddressesDisableSheetRoutable
+
+extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
+    func closeDynamicAddressesDisableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -247,9 +279,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel,
-            // [REDACTED_TODO_COMMENT]
-            isYieldModuleActive: false
+            addressTypesProvider: walletModel
         )
 
         let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
@@ -284,19 +314,13 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSwap(input: SendInput) {
-        let sourceToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
+    func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(type: .swap(.from(sourceToken)), source: .tokenDetails)
+        let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)

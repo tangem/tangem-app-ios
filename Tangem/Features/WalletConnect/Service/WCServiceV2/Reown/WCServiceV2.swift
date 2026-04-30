@@ -104,23 +104,20 @@ private extension WCServiceV2 {
         for target in targets {
             guard
                 let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == target.walletId }),
-                !userWalletModel.isUserWalletLocked
+                !userWalletModel.isUserWalletLocked,
+                let accountId = target.accountId
             else {
                 balancesCancellables[target.key]?.cancel()
                 balancesCancellables[target.key] = nil
                 balancesWalletModelIds[target.key] = nil
+                assert(target.accountId != nil, "Balance subscription target has nil accountId. This should not happen for v2 sessions. Target: \(target)")
                 continue
             }
 
-            let walletModel: (any WalletModel)?
-            if let accountId = target.accountId {
-                walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
-                    with: target.blockchain.networkId,
-                    accountId: accountId
-                )
-            } else {
-                walletModel = userWalletModel.wcWalletModelProvider.getModel(with: target.blockchain.networkId)
-            }
+            let walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
+                with: target.blockchain.networkId,
+                accountId: accountId
+            )
 
             guard let walletModel else {
                 balancesCancellables[target.key]?.cancel()
@@ -307,7 +304,10 @@ private extension WCServiceV2 {
                         let handleTransactionData = WCHandleTransactionData(
                             from: transactionDTO,
                             validatedRequest: validatedRequest,
-                            respond: walletKitClient.respond
+                            respond: walletKitClient.respond,
+                            clearDuplicateFilter: { [weak self] in
+                                await self?.duplicateRequestFilter.removeFootprint(for: request)
+                            }
                         )
 
                         self.transactionRequestSubject.send(.success(handleTransactionData))
@@ -542,8 +542,8 @@ private extension WCServiceV2 {
             return
         }
 
-        walletModelsCancellables[userWalletId] = AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: userWalletModel)
+        walletModelsCancellables[userWalletId] = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { walletModels in
                 WalletModelsUpdate(
                     blockchains: walletModels.compactMap { walletModel -> Blockchain? in

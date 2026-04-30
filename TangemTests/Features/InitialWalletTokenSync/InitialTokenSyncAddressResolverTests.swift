@@ -23,17 +23,24 @@ class InitialTokenSyncAddressResolverTests {
         return try await MobileWalletInitializer().initializeWallet(mnemonic: mnemonic, passphrase: nil)
     }
 
+    private let walletAddressResolver = WalletAddressResolver()
+
     @Test
-    func resolvesAddressesForMoralisSupportedBlockchains() async throws {
+    func resolvesAddressesForInitialTokenSyncBlockchainsInV3Config() async throws {
         let info = try await walletInfo()
         defer { try? CommonMobileWalletSdk().delete(walletIDs: [userWalletId]) }
-        let keys = info.keys
-        let moralisBlockchains = SupportedBlockchains(version: .v2).blockchains()
-            .intersection(MoralisSupportedBlockchains.all)
-        let result = InitialWalletTokenSyncAddressResolver()
-            .resolve(keyInfos: keys, supportedBlockchains: moralisBlockchains)
 
-        let expectedNetworkIds = Set(moralisBlockchains.map { $0.networkId })
+        let config = MobileUserWalletConfig(mobileWalletInfo: info)
+        let derivationStyle = try #require(config.derivationStyle)
+        let keys = info.keys
+
+        let supportedBlockchains = config.supportedBlockchains.filter(isInitialTokenSyncSupported)
+        let result = try supportedBlockchains.map { blockchain -> NetworkAddressPair in
+            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: derivationStyle))
+            return try walletAddressResolver.resolveAddress(for: blockchainNetwork, keyInfos: keys)
+        }
+
+        let expectedNetworkIds = Set(supportedBlockchains.map { $0.networkId })
         let resolvedNetworkIds = Set(result.map { $0.blockchainNetwork.blockchain.networkId })
         let missing = expectedNetworkIds.subtracting(resolvedNetworkIds)
 
@@ -51,5 +58,31 @@ class InitialTokenSyncAddressResolverTests {
         let data = try Data(contentsOf: URL(fileURLWithPath: path))
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: String])
         return try #require(json[blockchain.networkId])
+    }
+
+    /// Mirrors relayer selection logic from `WalletTokenAutoSyncOrchestratorFactory.makeRelayerFactory`.
+    private func isInitialTokenSyncSupported(_ blockchain: Blockchain) -> Bool {
+        if isConfigurationRelayerSupported(blockchain) {
+            return true
+        }
+
+        if isMoralisRelayerSupported(blockchain) {
+            return true
+        }
+
+        return false
+    }
+
+    private func isConfigurationRelayerSupported(_ blockchain: Blockchain) -> Bool {
+        switch blockchain {
+        case .solana, .xrp, .tron:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isMoralisRelayerSupported(_ blockchain: Blockchain) -> Bool {
+        MoralisSupportedBlockchains.all.contains(blockchain)
     }
 }

@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
@@ -20,40 +21,6 @@ final class WalletConnectSolanaSignTransactionHandler {
     private let transaction: String
     private let request: AnyCodable
     private let encoder = JSONEncoder()
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
-        signer: TangemSigner,
-        hardwareLimitationsUtil: HardwareLimitationsUtil,
-        walletNetworkServiceFactory: WalletNetworkServiceFactory,
-        walletModelProvider: WalletConnectWalletModelProvider,
-        analyticsProvider: WalletConnectServiceAnalyticsProvider
-    ) throws {
-        let parameters = try request.get(WalletConnectSolanaSignTransactionDTO.Response.self)
-
-        do {
-            guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
-            }
-
-            self.walletModel = walletModel
-            transaction = parameters.transaction
-        } catch let error as WalletConnectTransactionRequestProcessingError {
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw error
-        } catch {
-            let stringRepresentation = request.stringRepresentation
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
-        }
-
-        self.signer = signer
-        self.hardwareLimitationsUtil = hardwareLimitationsUtil
-        self.walletNetworkServiceFactory = walletNetworkServiceFactory
-        self.analyticsProvider = analyticsProvider
-        self.request = request
-    }
 
     init(
         request: AnyCodable,

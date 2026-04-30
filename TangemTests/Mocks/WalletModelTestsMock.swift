@@ -17,17 +17,48 @@ final class WalletModelTestsMock: WalletModel {
     private let _fiatBalance: Decimal
     private let _priceChange24h: Decimal?
     private let _fiatBalanceProvider: TokenBalanceProvider
+    private let _tokenItem: TokenItem
+    private let _id: WalletModelId
+    private let _isEmpty: Bool
+    private let _fiatAvailableBalance: Decimal
+    private let _account: (any CryptoAccountModel)?
 
     init(fiatBalance: Decimal, priceChange24h: Decimal?) {
         _fiatBalance = fiatBalance
         _priceChange24h = priceChange24h
         _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
+        _tokenItem = .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
+        _id = WalletModelId(tokenItem: .blockchain(.init(.alephium(testnet: false), derivationPath: nil)))
+        _isEmpty = false
+        _fiatAvailableBalance = 0
+        _account = nil
     }
 
     init(fiatBalanceProvider: TokenBalanceProvider, priceChange24h: Decimal?) {
         _fiatBalance = 0
         _priceChange24h = priceChange24h
         _fiatBalanceProvider = fiatBalanceProvider
+        _tokenItem = .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
+        _id = WalletModelId(tokenItem: .blockchain(.init(.alephium(testnet: false), derivationPath: nil)))
+        _isEmpty = false
+        _fiatAvailableBalance = 0
+        _account = nil
+    }
+
+    init(
+        tokenItem: TokenItem,
+        isEmpty: Bool,
+        fiatBalance: Decimal = 0,
+        account: (any CryptoAccountModel)? = nil
+    ) {
+        _tokenItem = tokenItem
+        _id = WalletModelId(tokenItem: tokenItem)
+        _isEmpty = isEmpty
+        _fiatBalance = fiatBalance
+        _priceChange24h = nil
+        _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
+        _fiatAvailableBalance = fiatBalance
+        _account = account
     }
 
     var quote: TokenQuote? {
@@ -35,6 +66,7 @@ final class WalletModelTestsMock: WalletModel {
         return TokenQuote(
             currencyId: "mock",
             price: 1,
+            priceUsd: nil,
             priceChange24h: priceChange24h,
             priceChange7d: nil,
             priceChange30d: nil,
@@ -110,9 +142,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModel Protocol Stubs
 
-    var id: WalletModelId {
-        WalletModelId(tokenItem: .blockchain(.init(.alephium(testnet: false), derivationPath: nil)))
-    }
+    var id: WalletModelId { _id }
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
@@ -120,12 +150,11 @@ final class WalletModelTestsMock: WalletModel {
     var defaultAddressString: String { "mock" }
 
     var isMainToken: Bool { true }
-    var tokenItem: TokenItem { .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)) }
+    var tokenItem: TokenItem { _tokenItem }
     var feeTokenItem: TokenItem { tokenItem }
     var canUseQuotes: Bool { true }
-    var isEmpty: Bool { false }
+    var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
-    var shouldShowFeeSelector: Bool { false }
     var isCustom: Bool { false }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
@@ -133,17 +162,18 @@ final class WalletModelTestsMock: WalletModel {
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
+    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
     var p2pTransactionSender: (any P2PTransactionSender)? { nil }
-    var account: (any CryptoAccountModel)? { nil }
+    var account: (any CryptoAccountModel)? { _account }
     var yieldModuleManager: YieldModuleManager? { nil }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: _fiatAvailableBalance) }
     var fiatStakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }

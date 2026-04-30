@@ -16,14 +16,14 @@ import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
     /// Using a static set ensures the event is only logged once per app session per token.
     private static var loggedNewsCarouselScrolledTokenIds: Set<String> = []
 
-    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var isLoading = true
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
@@ -45,7 +45,6 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
-    @Published private(set) var accountsAwarePortfolioViewModel: MarketsAccountsAwarePortfolioContainerViewModel?
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -70,17 +69,21 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private var loadedNewsIds: [Int] = []
 
-    var isAvailableNews: Bool {
-        !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
-    }
+    var isAvailableNews: Bool { !tokenNewsItems.isEmpty }
 
     var price: String? { priceInfo?.price }
+
+    var attributedPrice: AttributedString? {
+        price.map { priceHelper.makeAttributedPrice(price: $0) }
+    }
 
     var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
-    var descriptionCanBeShowed: Bool { !ukGeoDefiner.isUK }
+    var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
+
+    var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -106,6 +109,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     var tokenName: String
+    var tokenSymbol: String
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -168,6 +172,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
+        tokenSymbol = tokenInfo.symbol
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -236,11 +241,28 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
         Analytics.log(event: .marketsChartButtonReadMore, params: [.token: tokenInfo.symbol.uppercased()])
 
-        fullDescriptionBottomSheetInfo = .init(
-            title: Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name),
-            description: fullDescription,
-            showCloseButton: true
-        )
+        let title = Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name)
+
+        if isRedesignEnabled {
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                coordinator?.openFullDescriptionDialogue(
+                    title: title,
+                    description: fullDescription,
+                    onGenerateAITapAction: { [weak self] in
+                        guard let self else { return }
+                        let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
+                        coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
+                    }
+                )
+            }
+        } else {
+            fullDescriptionBottomSheetInfo = .init(
+                title: title,
+                description: fullDescription,
+                showCloseButton: true
+            )
+        }
     }
 
     func onBackButtonTap() {
@@ -361,6 +383,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if tokenName.isEmpty {
             tokenName = model.name
+            tokenSymbol = model.symbol
         }
 
         state = .loaded(model: model)
@@ -401,7 +424,7 @@ private extension MarketsTokenDetailsViewModel {
             }
             .map(\.1)
             .withPrevious()
-            .map(ForegroundBlinkAnimationModifier.Change.calculateChange(from:to:))
+            .map(ForegroundBlinkAnimationChange.calculateChange(from:to:))
             .assign(to: \.priceChangeAnimation, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -539,7 +562,7 @@ private extension MarketsTokenDetailsViewModel {
             )
         }
 
-        if let securityScore = model.securityScore, !ukGeoDefiner.isUK {
+        if let securityScore = model.securityScore, !geoEligibilityService.isUK {
             securityScoreViewModel = .init(
                 securityScoreValue: securityScore.securityScore,
                 providers: securityScore.providers,
@@ -557,7 +580,7 @@ private extension MarketsTokenDetailsViewModel {
             return
         }
 
-        accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
+        portfolioViewModel = MarketsPortfolioContainerViewModel(
             inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
             walletDataProvider: walletDataProvider,
             coordinator: coordinator,
@@ -588,7 +611,7 @@ private extension MarketsTokenDetailsViewModel {
             tokenInsights = insights
         }
 
-        guard let insights, !ukGeoDefiner.isUK else {
+        guard let insights, !geoEligibilityService.isUK else {
             insightsViewModel = nil
             return
         }
@@ -606,7 +629,6 @@ private extension MarketsTokenDetailsViewModel {
 
     private func updatePortfolio(networks: [NetworkModel]) {
         portfolioViewModel?.update(networks: networks)
-        accountsAwarePortfolioViewModel?.update(networks: networks)
     }
 }
 
@@ -622,10 +644,16 @@ extension MarketsTokenDetailsViewModel: CustomStringConvertible {
 
 extension MarketsTokenDetailsViewModel: MarketsTokenDetailsBottomSheetRouter {
     func openInfoBottomSheet(title: String, message: String) {
-        descriptionBottomSheetInfo = .init(
-            title: title,
-            description: message
-        )
+        if isRedesignEnabled {
+            Task { @MainActor in
+                coordinator?.openInfoDialogue(title: title, message: message)
+            }
+        } else {
+            descriptionBottomSheetInfo = .init(
+                title: title,
+                description: message
+            )
+        }
     }
 }
 
