@@ -15,4 +15,5 @@ protocol OnrampModelRoutable: AnyObject {
     func openOnrampRedirecting()
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)
     func openFinishStep()
+    func openOnrampKYCVerification(provider: OnrampProvider, kycURL: URL?)
 }

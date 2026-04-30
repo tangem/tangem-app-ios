@@ -34,6 +34,10 @@ extension FloatingSheetRegistry {
             OnrampOffersSelectorView(viewModel: viewModel)
         }
 
+        register(OnrampKYCVerificationSheetViewModel.self) { viewModel in
+            OnrampKYCVerificationSheetView(viewModel: viewModel)
+        }
+
         register(BlockchainAccountInitializationViewModel.self) { viewModel in
             BlockchainAccountInitializationView(viewModel: viewModel)
         }

@@ -906,6 +906,14 @@
 "onramp_error_transaction_already_processed" = "This transaction has already been processed. No further action is required.";
 "onramp_fetching_best_rates" = "Fetching best rates...";
 "onramp_instant_status" = "Instant";
+"onramp_kyc_verification_bullet_free" = "Verification is free and usually takes 1-2 minutes";
+"onramp_kyc_verification_bullet_privacy" = "Tangem won't have access to your identity information, you share data directly with regulated provider";
+"onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
+"onramp_kyc_verification_choose_another" = "Choose another method";
+"onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
+"onramp_kyc_verification_title" = "Identity verification required by payment provider";
+"onramp_kyc_verification_verify_button" = "Verify";
+"onramp_kyc_verification_whats_important" = "What's important";
 "onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
