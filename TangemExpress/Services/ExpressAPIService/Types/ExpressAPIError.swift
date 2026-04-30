@@ -34,7 +34,8 @@ public extension ExpressAPIError {
         let decimals: Int?
         let fromAmount: String?
         let fromAmountProvider: String?
-        public let kycUrl: String?
+        // [REDACTED_TODO_COMMENT]
+//        public let kycUrl: String?
 
         public var roundUpAmount: Decimal? {
             guard let fromAmountProvider, let decimals else {
