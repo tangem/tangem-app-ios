@@ -79,6 +79,7 @@ extension OnrampFlowBaseDependenciesFactory {
             onrampRepository: onrampRepository,
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
+            redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             predefinedValues: predefinedValues
         )
     }
