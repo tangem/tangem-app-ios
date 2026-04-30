@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemLocalization
 
 final class MainBottomSheetHeaderViewModel: ObservableObject {
     var enteredSearchInputPublisher: AnyPublisher<SearchInput, Never> {
@@ -16,6 +17,8 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
 
     @Published var enteredSearchText = ""
     @Published var inputShouldBecomeFocused = false
+
+    let searchPlaceholder = Localization.marketsSearchTitlePlaceholder
 
     private let searchInputSubject = CurrentValueSubject<SearchInput, Never>(.textInput(""))
     private var shouldSkipNextTextInput = false
@@ -39,6 +42,10 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         inputShouldBecomeFocused = true
     }
 
+    func focusSearchBarAction() {
+        inputShouldBecomeFocused = true
+    }
+
     func clearSearchBarAction() {
         if enteredSearchText.isEmpty {
             return
@@ -56,6 +63,14 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         inputShouldBecomeFocused = false
     }
 
+    func focusChangedAction(_ focused: Bool) {
+        syncWithInput(focused: focused)
+    }
+
+    func lostInputFocus() {
+        inputShouldBecomeFocused = false
+    }
+
     private func bind() {
         inputSubscription = $enteredSearchText
             .removeDuplicates()
@@ -70,6 +85,12 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
             }
             .map { SearchInput.textInput($1) }
             .assign(to: \.value, on: searchInputSubject, ownership: .weak)
+    }
+
+    private func syncWithInput(focused: Bool) {
+        if inputShouldBecomeFocused != focused {
+            inputShouldBecomeFocused = focused
+        }
     }
 }
 
