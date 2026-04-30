@@ -68,6 +68,7 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
         return TangemBadge(text: info.trustScore.title, size: .x4)
             .color(color)
             .type(.tinted)
+            .shape(.rounded)
     }
 }
 

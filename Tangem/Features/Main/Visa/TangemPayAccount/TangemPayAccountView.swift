@@ -81,7 +81,7 @@ struct TangemPayAccountView: View {
         case .unavailable(let cached):
             cachedTrailingContent(cached?.trailing)
 
-        case .normal(_, let balance):
+        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
             balanceTrailingContent(balance: balance)
 
         case .skeleton:

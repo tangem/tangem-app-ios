@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissOptions?>
@@ -34,6 +35,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
+    @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
@@ -49,7 +51,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
-        rootViewModel = .init(
+        rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
             coordinator: self
@@ -71,7 +73,7 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
-    func openSwap(swapParameters: PredefinedSwapParameters) {
+    func openSwap(parameters: PredefinedSwapParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] options in
             self?.sendCoordinator = nil
 
@@ -88,7 +90,7 @@ extension TangemPayMainCoordinator {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(type: .swap(swapParameters), source: .main))
+        coordinator.start(with: .init(type: .swap(parameters), source: .main))
         sendCoordinator = coordinator
     }
 }
@@ -136,7 +138,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
                 Task { @MainActor in
                     self?.floatingSheetPresenter.removeActiveSheet()
                     try? await Task.sleep(for: .seconds(0.2))
-                    self?.openSwap(swapParameters: input)
+                    self?.openSwap(parameters: input)
                 }
             }
 
@@ -274,7 +276,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
 
             // Give some time to hide sheet with animation
             try? await Task.sleep(for: .seconds(0.2))
-            openSwap(swapParameters: input)
+            openSwap(parameters: input)
         }
     }
 
@@ -375,5 +377,65 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openChangeDailyLimit(tangemPayAccount: TangemPayAccount) {
+        tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
+    }
+
+    func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
+        Task { @MainActor in
+            do {
+                let feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                let balance = try await tangemPayAccount.customerService.getBalance()
+
+                let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
+                let isInsufficientFunds = balance.fiat.availableBalance < feeResponse.amount
+
+                let viewModel = TangemPayReissueSheetViewModel(
+                    userWalletId: userWalletId,
+                    tangemPayAccount: tangemPayAccount,
+                    feeText: feeText,
+                    isInsufficientFunds: isInsufficientFunds,
+                    coordinator: self
+                )
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            } catch {
+                VisaLogger.error("Failed to load reissue fee", error: error)
+            }
+        }
+    }
+
+    private static func formatFee(amount: Decimal, currency: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currency
+        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
+    }
+}
+
+// MARK: - TangemPayReissueSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayReissueSheetRoutable {
+    func closeReissueSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openAddFundsFromReissueSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.addFunds()
+        }
+    }
+}
+
+// MARK: - TangemPayDailyLimitRoutable
+
+extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
+    func closeTangemPayDailyLimit() {
+        tangemPayDailyLimitViewModel = nil
     }
 }

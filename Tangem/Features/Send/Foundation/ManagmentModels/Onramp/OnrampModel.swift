@@ -40,6 +40,7 @@ class OnrampModel {
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
     private let analyticsLogger: OnrampSendAnalyticsLogger
+    private let redirectSettingsBuilder: OnrampRedirectSettingsBuilder
 
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
@@ -56,6 +57,7 @@ class OnrampModel {
         onrampRepository: OnrampRepository,
         analyticsLogger: OnrampSendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
+        redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
         predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
@@ -66,6 +68,7 @@ class OnrampModel {
         self.onrampRepository = onrampRepository
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
+        self.redirectSettingsBuilder = redirectSettingsBuilder
 
         _amount = .init(predefinedValues.amount)
         _currency = .init(
@@ -386,7 +389,10 @@ private extension OnrampModel {
             assertionFailure("selectedOnrampProvider is unexpectedly nil")
             return
         }
+        nativePaymentDataDidLoad(data: data, provider: provider)
+    }
 
+    func nativePaymentDataDidLoad(data: OnrampNativePaymentData, provider: OnrampProvider) {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
@@ -494,7 +500,10 @@ extension OnrampModel: OnrampRedirectingOutput {
             assertionFailure("selectedOnrampProvider is unexpectedly nil")
             return
         }
+        redirectDataDidLoad(data: data, provider: provider)
+    }
 
+    func redirectDataDidLoad(data: OnrampRedirectData, provider: OnrampProvider) {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
@@ -584,6 +593,43 @@ extension OnrampModel: OnrampSummaryOutput {
                 await runOnMain {
                     model.alertPresenter?.showAlert(error.alertBinder)
                 }
+            }
+        }
+    }
+}
+
+// MARK: - ApplePayButtonPaymentAuthorizationHandler
+
+extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
+    func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
+        let provider = result.provider
+        _selectedOnrampProvider.send(.success(provider))
+
+        mainTask { model in
+            do {
+                let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
+
+                let onrampResult = try await model.onrampManager.loadNativePaymentData(
+                    provider: provider,
+                    redirectSettings: redirectSettings,
+                    applePayResult: result.applePayResult
+                )
+
+                try Task.checkCancellation()
+
+                switch onrampResult {
+                case .nativePayment(let data):
+                    result.succeed()
+                    model.nativePaymentDataDidLoad(data: data, provider: provider)
+                case .widget(let data):
+                    model.redirectDataDidLoad(data: data, provider: provider)
+                    result.fail()
+                }
+            } catch {
+                // PassKit must always hear back; surface the failure before letting `mainTask`
+                // handle alert presentation / CancellationError swallowing.
+                result.fail(error)
+                throw error
             }
         }
     }

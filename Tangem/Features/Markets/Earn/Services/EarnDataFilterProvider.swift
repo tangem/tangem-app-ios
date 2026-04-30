@@ -102,6 +102,44 @@ final class EarnDataFilterProvider {
 
     // MARK: - Public Methods
 
+    func apply(deeplinkFilter: EarnDataFilter) {
+        Just(deeplinkFilter)
+            .combineLatest(
+                statePublisher
+                    .filter {
+                        switch $0 {
+                        case .loaded, .emptyAvailableNetworks:
+                            return true
+                        case .idle, .loading:
+                            return false
+                        }
+                    }
+                    .first()
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { provider, args in
+                let (filter, _) = args
+                provider.applyResolvedDeeplinkFilter(filter)
+            }
+            .store(in: &bag)
+    }
+
+    private func applyResolvedDeeplinkFilter(_ filter: EarnDataFilter) {
+        Task { @MainActor [weak self] in
+            self?.didSelectFilterType(filter.type)
+
+            guard let networkIds = filter.networkIds,
+                  let networkId = networkIds.first,
+                  let networkInfo = self?._availableNetworks.first(where: { $0.networkId == networkId })
+            else {
+                return
+            }
+
+            self?.didSelectNetworkFilter(.specific(networkInfo: networkInfo))
+        }
+    }
+
     func didSelectFilterType(_ type: EarnFilterType) {
         _filterTypeValue.send(type)
 

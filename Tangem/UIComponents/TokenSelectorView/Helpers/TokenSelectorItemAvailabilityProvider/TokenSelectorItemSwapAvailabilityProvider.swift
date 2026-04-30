@@ -77,8 +77,13 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
             walletModel: walletModel
         )
 
-        guard case .available = availabilityProvider.swapAvailability else {
-            return .unavailable(reason: .unavailableForSwap)
+        guard availabilityProvider.isTokenInteractionAvailable() else {
+            return .unavailable(reason: .unavailableForSwap(.noAddress))
+        }
+
+        let swapState = availabilityProvider.swapAvailability
+        guard case .available = swapState else {
+            return .unavailable(reason: .unavailableForSwap(.swapState(swapState)))
         }
 
         return .available

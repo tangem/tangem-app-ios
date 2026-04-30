@@ -180,6 +180,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .tangemPay:
             return .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 

@@ -2,39 +2,41 @@
 //  WalletTokenAutoSyncStateActor.swift
 //  Tangem
 //
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemFoundation
 
 actor WalletTokenAutoSyncStateActor {
-    private var syncTasks: [String: Task<Void, Never>] = [:]
+    private var runningTasks: [UserWalletId: Task<Void, Never>] = [:]
 
-    func executeIfPossible(
+    func startIfPossible(
         userWalletId: UserWalletId,
         priority: TaskPriority = .utility,
         operation: @escaping @Sendable () async -> Void
     ) throws {
-        let key = userWalletId.stringValue
-
-        guard syncTasks[key] == nil else {
+        if runningTasks[userWalletId] != nil {
             throw WalletTokenAutoSyncError.syncAlreadyInProgress
         }
 
-        syncTasks[key] = Task(priority: priority) { [weak self] in
+        let syncTask = Task(priority: priority) { [weak self] in
             await operation()
-            await self?.unregister(userWalletId: userWalletId)
+            await self?.removeTask(userWalletId: userWalletId)
         }
-    }
 
-    func unregister(userWalletId: UserWalletId) {
-        syncTasks.removeValue(forKey: userWalletId.stringValue)
+        runningTasks[userWalletId] = syncTask
     }
 
     func cancelAndUnregister(userWalletId: UserWalletId) {
-        let key = userWalletId.stringValue
-        syncTasks[key]?.cancel()
-        syncTasks.removeValue(forKey: key)
+        runningTasks[userWalletId]?.cancel()
+        removeTask(userWalletId: userWalletId)
+    }
+}
+
+private extension WalletTokenAutoSyncStateActor {
+    func removeTask(userWalletId: UserWalletId) {
+        runningTasks.removeValue(forKey: userWalletId)
     }
 }
