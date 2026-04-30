@@ -173,8 +173,10 @@ struct WCTransactionSimulationDisplayService {
         if isEditable {
             rightContent = .empty
         } else {
+            let tokenName = asset.name ?? asset.symbol ?? asset.assetType
+            let formattedAmount = formatNonEditableApprovalAmount(asset: asset, tokenName: tokenName)
             rightContent = .tokenInfo(
-                formattedAmount: "Unlimited \(asset.name ?? asset.symbol ?? asset.assetType)",
+                formattedAmount: formattedAmount,
                 iconURL: asset.logoURL,
                 asset: asset
             )
@@ -201,7 +203,7 @@ struct WCTransactionSimulationDisplayService {
         originalTransaction: WCSendableTransaction?
     ) -> String {
         if approvalInfo.isUnlimited {
-            return "Unlimited \(asset.symbol ?? asset.name ?? "")"
+            return "\(Localization.wcCommonUnlimited) \(asset.symbol ?? asset.name ?? "")"
         } else {
             let contractAddress = originalTransaction?.to ?? ""
 
@@ -220,6 +222,24 @@ struct WCTransactionSimulationDisplayService {
             let formatted = converter.formatBigUIntForDisplay(approvalInfo.amount)
             return formatted
         }
+    }
+
+    func formatNonEditableApprovalAmount(asset: BlockaidChainScanResult.Asset, tokenName: String) -> String {
+        guard let rawAmount = asset.amount, rawAmount > 0 else {
+            return "\(Localization.wcCommonUnlimited) \(tokenName)"
+        }
+
+        let decimals = asset.decimals ?? 0
+        let divisor = pow(Decimal(10), decimals)
+        let humanReadableAmount = rawAmount / divisor
+
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = min(decimals, 8)
+
+        let formatted = formatter.string(from: humanReadableAmount as NSNumber) ?? "\(humanReadableAmount)"
+        return "\(formatted) \(asset.symbol ?? tokenName)"
     }
 
     private func formatAssetAmount(_ asset: BlockaidChainScanResult.Asset) -> String {

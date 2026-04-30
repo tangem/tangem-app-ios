@@ -15,14 +15,16 @@ final class CardsInfoPagerPreviewProvider: ObservableObject {
     @Published var pages: [CardInfoPagePreviewViewModel] = []
     @Published var isHorizontalScrollDisabled = false
 
-    lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(refreshable: {
+    lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
+        guard let self else { return }
+
         AppLogger.info("\(self) Starting pull to refresh at \(CACurrentMediaTime())")
         await runOnMain { self.isHorizontalScrollDisabled = true }
         try? await Task.sleep(nanoseconds: 5 * NSEC_PER_SEC)
 
         AppLogger.info("\(self) Finishing pull to refresh at \(CACurrentMediaTime())")
         await runOnMain { self.isHorizontalScrollDisabled = false }
-    })
+    }
 
     private lazy var headerPreviewProvider = FakeCardHeaderPreviewProvider()
 
