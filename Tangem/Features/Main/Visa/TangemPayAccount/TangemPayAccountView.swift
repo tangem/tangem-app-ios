@@ -12,6 +12,7 @@ import TangemUI
 import TangemLocalization
 import TangemVisa
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
@@ -28,6 +29,7 @@ struct TangemPayAccountView: View {
             .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
             .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTile)
     }
 
     @ViewBuilder

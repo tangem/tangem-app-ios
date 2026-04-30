@@ -34,6 +34,7 @@ class BaseTestCase: XCTestCase {
         tangemApiType: TangemAPI? = nil,
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
+        visaApiType: VisaAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
@@ -51,6 +52,10 @@ class BaseTestCase: XCTestCase {
 
         arguments.append(contentsOf: [
             "-stake_kit_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue,
+        ])
+
+        arguments.append(contentsOf: [
+            "-visa_api_type", visaApiType?.rawValue ?? VisaAPI.prod.rawValue,
         ])
 
         if skipToS {
