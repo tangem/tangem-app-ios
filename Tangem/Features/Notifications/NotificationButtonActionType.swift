@@ -41,6 +41,7 @@ enum NotificationButtonActionType: Identifiable {
     case retryKaspaTokenTransaction(icon: MainButton.Icon?)
     case stake
     case openCloreMigration
+    case openDynamicAddressesEnter
     /// Rate the app
     case openFeedbackMail
     /// Rate the app.
@@ -78,6 +79,7 @@ enum NotificationButtonActionType: Identifiable {
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
         case .stake: "stake".hashValue
         case .openCloreMigration: "openCloreMigration".hashValue
+        case .openDynamicAddressesEnter: "openDynamicAddressesEnter".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
@@ -153,6 +155,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.givePermissionTitle
         case .openCloreMigration:
             return Localization.warningCloreMigrationButton
+        case .openDynamicAddressesEnter:
+            return Localization.commonLearnMore
         case .openManageTokensAfterWalletSuccessImport:
             return Localization.mainManageTokens
         }
@@ -192,6 +196,7 @@ enum NotificationButtonActionType: Identifiable {
              .activate,
              .givePermission,
              .openCloreMigration,
+             .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport:
             return nil
         }
@@ -227,6 +232,7 @@ enum NotificationButtonActionType: Identifiable {
              .postponePushPermissionRequest,
              .givePermission,
              .openCloreMigration,
+             .openDynamicAddressesEnter,
              .closeMobileUpgrade,
              .openManageTokensAfterWalletSuccessImport:
             return .secondary
