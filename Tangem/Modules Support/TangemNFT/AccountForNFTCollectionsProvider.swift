@@ -46,7 +46,7 @@ final class AccountForNFTCollectionsProvider {
             let walletModels = account.walletModelsManager.walletModels
 
             for walletModel in walletModels {
-                for address in walletModel.addresses {
+                for address in walletModel.addressesString {
                     map[address] = account
                 }
             }

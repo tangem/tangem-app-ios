@@ -262,9 +262,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [String] { wallet.addresses.map { $0.value } }
+    var addresses: [Address] { wallet.addresses.filter { !$0.type.isUsed } }
 
-    var defaultAddressString: String { wallet.defaultAddress.value }
+    var defaultAddress: Address { wallet.defaultAddress }
 
     var isMainToken: Bool {
         switch amountType {
@@ -479,20 +479,12 @@ extension CommonWalletModel: WalletModelBalancesProvider {
 // MARK: - Helpers
 
 extension CommonWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        wallet.addresses[index].value
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        wallet.getShareString(for: wallet.addresses[index].value)
-    }
-
-    func exploreURL(for index: Int, token: Token? = nil) -> URL? {
+    func exploreURL(for address: String, token: Token? = nil) -> URL? {
         if isDemo {
             return nil
         }
 
-        return wallet.getExploreURL(for: wallet.addresses[index].value, token: token)
+        return wallet.getExploreURL(for: address, token: token)
     }
 
     func exploreTransactionURL(for hash: String) -> URL? {
@@ -914,10 +906,6 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
-    var receiveAddressTypes: [ReceiveAddressType] {
-        _receiveAddressService.addressTypes
-    }
-
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         statePublisher
             .withWeakCaptureOf(self)
