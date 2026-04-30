@@ -16,6 +16,8 @@ enum IncomingActionConstants {
     static let newsPath = "/news"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
+    static let onrampPath = "/onramp"
+    static let onrampRedirectURL = "\(tangemDomain)\(onrampPath)"
     static let externalRedirectURL = "\(tangemDomain)/redirect"
     static let universalLinkRedirectURL = "\(universalLinkScheme)redirect"
     static let externalSuccessURL = "\(tangemDomain)/success"
