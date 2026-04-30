@@ -737,7 +737,23 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         ])
     }
 
-    func logSendBaseViewOpened() {}
+    func logSendBaseViewOpened() {
+        guard case .send = sendType else {
+            return
+        }
+
+        var params: [Analytics.ParameterKey: String] = [
+            .source: sourceFlow.rawValue,
+            .type: entryTypeParameterValue.rawValue,
+        ]
+
+        if let tokenItem = sourceTokenItem {
+            params[.token] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem)
+            params[.blockchain] = tokenItem.blockchain.displayName
+        }
+
+        Analytics.log(event: .sendScreenOpened, params: params, analyticsSystems: .all)
+    }
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
         switch (sourceFlow, flow, type) {
