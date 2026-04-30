@@ -125,6 +125,13 @@
           "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
           "childNumber": 0,
           "parentFingerprint": "00000000"
+        },
+        "m/44'/195'/1'/0/0": {
+          "depth": 0,
+          "publicKey": "0258E17255D57F242873FFAED35F8122F01AB6BE48360137F3B435CD6C9F20249C",
+          "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
         }
       },
       "chainCode": "AFDD6D9AA67FBDCCC95DE65223171E01CBF6590DD06EEF9F69BEDE1CCBEE8A16",
