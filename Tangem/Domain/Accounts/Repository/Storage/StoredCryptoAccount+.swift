@@ -87,7 +87,7 @@ extension StoredCryptoAccount.Token {
 
 extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
     /// `known` means that the blockchain network is known and supported by current client version.
-    var knownValue: BlockchainNetwork? {
+    var knownValue: StoredCryptoAccount.Token.StoredBlockchainNetwork? {
         switch self {
         case .known(let blockchainNetwork):
             return blockchainNetwork

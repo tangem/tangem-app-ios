@@ -33,6 +33,7 @@ struct PersistentStorageAppScanTaskHelper {
             .getList()
             .flatMap(\.tokens)
             .compactMap(\.blockchainNetwork.knownValue)
+            .map(StoredEntryConverter.convertToBlockchainNetwork)
 
         let persistentBlockchainNetworks = persistentBlockchains
             .compactMap(\.blockchainNetwork)
