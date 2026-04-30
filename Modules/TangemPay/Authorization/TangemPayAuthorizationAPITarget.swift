@@ -41,6 +41,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
     var task: Moya.Task {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
+        jsonEncoder.outputFormatting = .sortedKeys
         let encodable: Encodable
         switch target {
         case .getChallenge(let request):
