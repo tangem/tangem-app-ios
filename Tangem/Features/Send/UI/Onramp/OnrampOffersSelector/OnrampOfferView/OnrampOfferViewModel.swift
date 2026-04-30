@@ -7,8 +7,11 @@
 //
 
 import Combine
-import TangemExpress
+import TangemMacro
+import PassKit
+import SwiftUI
 import TangemAssets
+import TangemExpress
 import TangemFoundation
 
 struct OnrampOfferViewModel: Hashable, Identifiable {
@@ -19,21 +22,23 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let provider: Provider
     let isAvailable: Bool
 
+    var isNativePayment: Bool { buyAction.isNativeApplePay }
+
     @IgnoredEquatable
-    var buyButtonAction: () -> Void
+    var buyAction: BuyAction
 
     init(
         title: Title,
         amount: Amount,
         provider: Provider,
         isAvailable: Bool,
-        buyButtonAction: @escaping () -> Void
+        buyAction: BuyAction
     ) {
         self.title = title
         self.amount = amount
         self.provider = provider
         self.isAvailable = isAvailable
-        self.buyButtonAction = buyButtonAction
+        self.buyAction = buyAction
     }
 }
 
@@ -54,5 +59,14 @@ extension OnrampOfferViewModel {
         let name: String
         let paymentType: OnrampPaymentMethod
         let timeFormatted: String
+    }
+
+    @CaseFlagable
+    enum BuyAction {
+        case button(() -> Void)
+        case nativeApplePay(
+            request: PKPaymentRequest,
+            onPhaseChange: (PayWithApplePayButtonPaymentAuthorizationPhase) -> Void
+        )
     }
 }
