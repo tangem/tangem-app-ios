@@ -14,6 +14,7 @@ import TangemVisa
 import TangemFoundation
 import TangemLocalization
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 final class TangemPayCardManagementViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
@@ -34,13 +35,13 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        cardDetailsRepository: TangemPayCardDetailsRepository,
         coordinator: TangemPayCardManagementRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.cardDetailsRepository = cardDetailsRepository
         self.coordinator = coordinator
-
-        cardDetailsRepository = .init(tangemPayAccount: tangemPayAccount)
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
             userWalletId: userWalletInfo.id,
@@ -136,6 +137,7 @@ private extension TangemPayCardManagementViewModel {
     func updateCardSettingsRows(freezingState: TangemPayFreezingState) {
         let changePinRow = DefaultRowViewModel(
             title: Localization.tangempayCardDetailsChangePin,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.changePinRow,
             action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
                 self?.onPin()
             }
@@ -145,8 +147,13 @@ private extension TangemPayCardManagementViewModel {
             ? Localization.tangempayCardDetailsUnfreezeCard
             : Localization.tangempayCardDetailsFreezeCard
 
+        let freezeRowIdentifier = freezingState.isFrozen
+            ? TangemPayAccessibilityIdentifiers.freezeCardRowStateFrozen
+            : TangemPayAccessibilityIdentifiers.freezeCardRowStateActive
+
         let freezeRow = DefaultRowViewModel(
             title: freezeTitle,
+            accessibilityIdentifier: freezeRowIdentifier,
             action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
                 guard let self else { return }
                 if freezingState.isFrozen {
