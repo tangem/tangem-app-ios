@@ -67,7 +67,12 @@ final class AccountArchiveUITests: BaseTestCase {
         ]
         launchApp(tangemApiType: .mock, scenarios: scenarios)
 
-        navigateToWalletSettings()
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .expandAccount(account2Name)
+            .verifyTokenVisible("Tron")
+            .openDetails()
+            .openWalletSettings(for: walletName)
             .selectAccount(account2Name)
             .verifyArchiveButtonVisible()
             .tapArchiveButton()
