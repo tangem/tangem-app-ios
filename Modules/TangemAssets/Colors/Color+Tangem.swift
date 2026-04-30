@@ -77,6 +77,7 @@ public extension Color.Tangem.Graphic {
         public static let accent: Color = Primitives.Blue.azure
         public static let warning: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
         public static let attention: Color = .dynamic(light: Primitives.Yellow.tangerine, dark: Primitives.Yellow.mustard)
+        public static let positive: Color = Primitives.Green.eucalyptus
     }
 }
 
@@ -86,7 +87,7 @@ public extension Color.Tangem.Button {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
     static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
-    static let backgroundPrimaryInverted: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
+    static let backgroundPrimaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundAccent: Color = Primitives.Blue.azure
     static let backgroundPositive: Color = Primitives.Green.eucalyptus
     static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
@@ -136,7 +137,7 @@ public extension Color.Tangem.Border {
 // MARK: - Field
 
 public extension Color.Tangem.Field {
-    static let backgroundDefault: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+    static let backgroundDefault: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundFocused: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textPlaceholder: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
     static let textDefault: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
@@ -206,6 +207,11 @@ public extension Color.Tangem.Markers {
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundTintedGreen: Color = .dynamic(light: Primitives.Green.eucalyptus.opacity(0.1), dark: Primitives.Green.emerald.opacity(0.1))
+    static let textYellow: Color = Primitives.Yellow.tangerine
+    static let iconYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundSolidYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
+    static let borderTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
 }
 
 // MARK: - Visa
@@ -364,6 +370,19 @@ public extension Color.Tangem.Market {
     static let iconTop1: Color = Primitives.Gold.gold
     static let iconTop2: Color = Primitives.Cobalt.cobalt
     static let iconTop3: Color = Primitives.Coral.coral
+
+    static let backgroundTop1: Color = .dynamic(
+        light: Primitives.Gold.gold.opacity(0.5),
+        dark: Primitives.Gold.gold.opacity(0.3)
+    )
+    static let backgroundTop2: Color = .dynamic(
+        light: Primitives.Cobalt.cobalt.opacity(0.5),
+        dark: Primitives.Cobalt.cobalt.opacity(0.3)
+    )
+    static let backgroundTop3: Color = .dynamic(
+        light: Primitives.Coral.coral.opacity(0.5),
+        dark: Primitives.Coral.coral.opacity(0.3)
+    )
 }
 
 // MARK: - Init with hex-value

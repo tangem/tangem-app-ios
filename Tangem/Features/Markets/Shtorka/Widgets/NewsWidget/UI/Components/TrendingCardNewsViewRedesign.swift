@@ -17,21 +17,15 @@ struct TrendingCardNewsViewRedesign: View {
     let itemState: LoadingResult<TrendingCardNewsItem, Never>
 
     var body: some View {
-        Button(action: {
-            if let item = itemState.value {
-                item.onTap(item.id)
+        if itemState.isLoading {
+            TrendingCardNewsSkeletonView()
+                .allowsHitTesting(false)
+        } else if let item = itemState.value {
+            Button(action: { item.onTap(item.id) }) {
+                contentView(for: item)
             }
-        }) {
-            Group {
-                if let item = itemState.value {
-                    contentView(for: item)
-                } else {
-                    contentView(for: .placeholder)
-                }
-            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
-        .allowsHitTesting(!itemState.isLoading)
     }
 
     private func contentView(for item: TrendingCardNewsItem) -> some View {
@@ -41,65 +35,39 @@ struct TrendingCardNewsViewRedesign: View {
                 Text(Localization.feedTrendingNow)
                     .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
             }
-            .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
 
             FixedSpacer(height: .unit(.x2))
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
 
             FixedSpacer(height: .unit(.x4))
 
             Text(item.timeAgo)
                 .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
 
             FixedSpacer(height: 18.0)
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
-                .skeletonable(isShown: itemState.isLoading, radius: Layout.skeletonCornerRadius)
         }
-        .infinityFrame(axis: .horizontal, alignment: .center)
         .padding(.all, .unit(.x4))
+        .infinityFrame(axis: .horizontal, alignment: .topLeading)
+        .frame(minHeight: Layout.cardMinHeight)
         .background {
             Assets.Markets
                 .trendingNewsBackground
                 .image
                 .resizable()
-                .scaledToFit()
                 .allowsHitTesting(false)
         }
         .cornerRadiusContinuous(.unit(.x5))
-        .opacity(opacity(for: item))
-        .padding(.horizontal, .unit(.x4))
-    }
-
-    private func opacity(for item: TrendingCardNewsItem) -> Double {
-        (item.isRead && !itemState.isLoading) ? 0.6 : 1.0
+        .opacity(item.isRead ? 0.6 : 1.0)
     }
 }
 
 private extension TrendingCardNewsViewRedesign {
     enum Layout {
-        static let skeletonCornerRadius: CGFloat = .unit(.x4)
+        static let cardMinHeight: CGFloat = 180
     }
-}
-
-// MARK: - TrendingCardNewsItem Placeholder
-
-private extension TrendingCardNewsItem {
-    static let placeholder: TrendingCardNewsItem = .init(
-        id: UUID().uuidString,
-        title: "-------------------------",
-        rating: "-----",
-        timeAgo: "-----",
-        tags: [
-            .init(title: "--------"),
-            .init(title: "----------"),
-        ],
-        isRead: false,
-        onTap: { _ in }
-    )
 }

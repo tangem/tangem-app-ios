@@ -21,8 +21,6 @@ struct TokenDetailsView: View {
         headerTopPadding: Constants.headerTopPadding
     )
 
-    private let coordinateSpaceName = UUID()
-
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
@@ -80,7 +78,7 @@ struct TokenDetailsView: View {
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
+                inCoordinateSpace: .named(CoordinateSpaceName.scrollView),
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
@@ -91,7 +89,7 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 TokenIcon(
@@ -118,19 +116,11 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        if viewModel.hasDotsMenu {
+        if !viewModel.dotsMenuItems.isEmpty {
             Menu {
-                if viewModel.canGenerateXPUB {
-                    Button(Localization.tokenDetailsGenerateXpub, action: viewModel.generateXPUBButtonAction)
-                }
-
-                if viewModel.canManageDynamicAddresses {
-                    Button(Localization.dynamicAddresses, action: viewModel.openDynamicAddressesManagement)
-                }
-
-                if viewModel.canHideToken {
-                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
+                ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
+                    Button(item.type.title, role: item.type.role, action: item.action)
+                        .accessibilityIdentifier(item.type.accessibilityIdentifier)
                 }
             } label: {
                 NavbarDotsImage()
@@ -160,16 +150,29 @@ private extension TokenDetailsView {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
     }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "TokenDetailsView.CoordinateSpaceName."
+
+        static let scrollView = prefix + "scrollView"
+    }
 }
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
-    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? CommonWalletModel.mockETH
+    let cryptoAccountModel = userWalletModel
+        .accountModelsManager
+        .cryptoAccountModels[0]
+
+    let walletModel = cryptoAccountModel
+        .walletModelsManager
+        .walletModels
+        .first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
-        walletModelsManager: userWalletModel.walletModelsManager,
+        walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
     let apiProviderFactory = ExpressAPIProviderFactory()
@@ -201,21 +204,18 @@ private extension TokenDetailsView {
         placement: .tokenDetails(walletModel.tokenItem),
     )
 
-    let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
     TokenDetailsView(viewModel: .init(
         userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
         bannerNotificationManager: bannerNotificationManager,
-        userTokensManager: userWalletModel.userTokensManager,
+        userTokensManager: cryptoAccountModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
         tokenRouter: SingleTokenRouter(
             userWalletInfo: userWalletModel.userWalletInfo,
-            coordinator: coordinator,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: coordinator
         ),
         pendingTransactionDetails: nil
     ))

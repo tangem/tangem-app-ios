@@ -11,13 +11,11 @@ import Combine
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
-    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-
     var userTokens: [TokenItem] { [] }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
-    var derivationManager: DerivationManager? { nil }
+    var derivationManager: (DerivationManager & DerivationStatusProvider)? { nil }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
@@ -75,13 +73,15 @@ extension UserTokensManagerMock: UserTokensPushNotificationsRemoteStatusSyncing 
 extension UserTokensManagerMock: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
-    var groupingOption: UserTokensReorderingOptions.Grouping { .none }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting { .dragAndDrop }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 
     var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension UserTokensManagerMock: DisposableEntity {
+    func dispose() {}
 }

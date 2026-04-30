@@ -47,8 +47,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -144,7 +142,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     @MainActor
-    final func onPullToRefresh() async {
+    func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
@@ -572,7 +570,16 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openSwap(walletModel: walletModel)
+        let helper = SwapPredefinedParametersHelper()
+
+        guard let parameters = helper.makeParameters(
+            origin: .tokenDetails(.init(walletModel: walletModel)),
+            userWalletInfo: userWalletInfo
+        ) else {
+            return
+        }
+
+        tokenRouter.openSwap(parameters: parameters)
     }
 
     final func openStaking() {

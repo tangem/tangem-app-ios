@@ -6,7 +6,9 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct TransactionHistoryMapper {
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
@@ -258,7 +260,7 @@ private extension TransactionHistoryMapper {
         case "yieldSend": return .yieldSend
         case "yieldDeploy": return .yieldDeploy
         case "yieldInit": return .yieldInit
-        case "gaslessTransaction": return mapGaslessTransaction(contractMethodName: contractMethodName, transactionRecord: transactionRecord)
+        case "gaslessTransaction": return mapGaslessTransaction(contractMethodName: "gaslessTransaction", transactionRecord: transactionRecord)
         case .none: return .unknownOperation
         case .some(let name): return .operation(name: name.capitalizingFirstLetter())
         }
@@ -307,42 +309,42 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    /// There are three kinds of transactions with the `gaslessTransaction` method ID:
-    /// 1) Incoming — when we receive a token that was sent as a `Gasless Transaction`. We treat it as `gaslessTransfer`,
-    ///    which is ultimately displayed as a generic `Operation`.
-    /// 2) Outgoing — when a token is used to pay the `Gasless Transaction` fee. We classify it as `gaslessTransactionFee`,
-    ///    which has its own dedicated title in the UI.
-    /// 3) Outgoing — when we send a token via a `Gasless Transaction`. We treat it as `gaslessTransfer`,
-    ///    which is ultimately displayed as a generic `Operation`.
-    func mapGaslessTransaction(contractMethodName: String?, transactionRecord: TransactionRecord) -> TransactionViewModel.TransactionType {
+    func mapGaslessTransaction(contractMethodName: String, transactionRecord: TransactionRecord) -> TransactionViewModel.TransactionType {
         guard contractMethodName == "gaslessTransaction" else {
             assertionFailure("mapGaslessTransaction called with non-gasless transaction method")
             return .unknownOperation
         }
 
-        guard let feeRecipient = gaslessTransactionsNetworkManager.cachedFeeRecipientAddress,
-              let transfers = transactionRecord.tokenTransfers,
-              transfers.contains(where: { $0.destination.caseInsensitiveCompare(feeRecipient) == .orderedSame })
-        else {
-            return .gaslessTransfer
+        guard let feeRecipient = gaslessTransactionsNetworkManager.cachedFeeRecipientAddress else {
+            return .operation(name: contractMethodName)
         }
 
-        return .gaslessTransactionFee
+        if transactionRecord.isOutgoing, transactionRecord.hasDestination(address: feeRecipient) {
+            return .gaslessTransactionFee
+        }
+
+        return .transfer
     }
 
-    /// Ensures transactions with the "gaslessTransaction" method ID display meaningful
-    /// `from` and `to` addresses in the transaction history.
     func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {
         guard case .contractMethodIdentifier(let id) = record.type,
               let name = smartContractMethodMapper.getName(for: id),
-              name == "gaslessTransaction",
-              let tokenTransfer = record.tokenTransfers?.first
+              name == "gaslessTransaction"
         else {
             return nil
         }
 
-        let destination = record.isOutgoing ? tokenTransfer.destination : tokenTransfer.source
-        return .user(destination)
+        // Gasless transactions are only supported on EVM chains, which always have a single destination/source
+        switch (record.isOutgoing, record.destination, record.source) {
+        case (true, .single(let destination), _):
+            return .user(destination.address.string)
+
+        case (false, _, .single(let source)):
+            return .user(source.address)
+
+        default:
+            return nil
+        }
     }
 }
 

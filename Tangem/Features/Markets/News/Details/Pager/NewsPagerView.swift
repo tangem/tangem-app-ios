@@ -42,7 +42,7 @@ struct NewsPagerView: View {
                 .opacity(viewModel.overlayContentHidingProgress)
             }
         }
-        .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
@@ -71,8 +71,8 @@ struct NewsPagerView: View {
                 Spacer()
                 LinearGradient(
                     colors: [
-                        Color.Tangem.Surface.level3.opacity(0),
-                        Color.Tangem.Surface.level3,
+                        Color.Tangem.Surface.level2.opacity(0),
+                        Color.Tangem.Surface.level2,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -95,20 +95,12 @@ struct NewsPagerView: View {
     private var navigationBar: some View {
         NavigationBar(
             title: "",
-            settings: .init(backgroundColor: Color.Tangem.Surface.level3),
+            settings: .init(backgroundColor: Color.Tangem.Surface.level2),
             leftButtons: {
-                if viewModel.isDeeplinkMode {
-                    CloseTextButton(action: { viewModel.handleViewAction(.back) })
-                        .padding(.leading, 16)
-                } else {
-                    BackButton(
-                        height: 44.0,
-                        isVisible: true,
-                        isEnabled: true,
-                        hPadding: 10.0,
-                        action: { viewModel.handleViewAction(.back) }
-                    )
-                }
+                MarketsNavigationBackButton(
+                    presentSource: viewModel.isDeeplinkMode ? .deeplink : .navigation,
+                    action: { viewModel.handleViewAction(.back) }
+                )
             },
             rightButtons: {
                 Button(action: { viewModel.handleViewAction(.share) }) {
@@ -176,7 +168,7 @@ private struct NewsPageContentView: View {
             )
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.Tangem.Surface.level3)
+            .background(Color.Tangem.Surface.level2)
             .hidden(!isError)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -227,7 +219,7 @@ private struct NewsPageContentView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(Color.Tangem.Surface.level4)
+            .background(Color.Tangem.Surface.level3)
             .cornerRadius(20)
         }
         .buttonStyle(.plain)

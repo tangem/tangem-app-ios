@@ -15,12 +15,14 @@ struct SwapTokenSelectorViewModelBuilder {
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         marketsTokenAdditionRouter: SwapMarketsTokenAdditionRoutable
     ) -> SwapTokenSelectorViewModel {
-        SwapTokenSelectorViewModel(
+        let tokenSelectorViewModel = TokenSelectorViewModel.common(
+            availabilityProvider: .swap(),
+            initialSelectedItem: direction.tokenItem
+        )
+
+        return SwapTokenSelectorViewModel(
             swapDirection: direction,
-            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
-                walletsProvider: .common(),
-                availabilityProvider: .swap()
-            ),
+            tokenSelectorViewModel: tokenSelectorViewModel,
             marketsTokensViewModel: marketsTokensViewModel,
             output: output,
             tokenSelectorCoordinator: router,

@@ -18,6 +18,7 @@ final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
     private let defaultAccountFactory: DefaultAccountFactory
     private let networkService: CryptoAccountsNetworkService & WalletsNetworkService
+    private let walletLifecycleObserver: WalletLifecycleObserver
     fileprivate let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
     fileprivate let persistentStorage: CryptoAccountsPersistentStorage
     private let storageController: CryptoAccountsPersistentStorageController
@@ -55,6 +56,7 @@ final class CommonCryptoAccountsRepository {
         tokenItemsRepository: TokenItemsRepository,
         defaultAccountFactory: DefaultAccountFactory,
         networkService: CryptoAccountsNetworkService & WalletsNetworkService,
+        walletLifecycleObserver: WalletLifecycleObserver,
         auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage,
         persistentStorage: CryptoAccountsPersistentStorage,
         storageController: CryptoAccountsPersistentStorageController,
@@ -65,6 +67,7 @@ final class CommonCryptoAccountsRepository {
         self.tokenItemsRepository = tokenItemsRepository
         self.defaultAccountFactory = defaultAccountFactory
         self.networkService = networkService
+        self.walletLifecycleObserver = walletLifecycleObserver
         self.auxiliaryDataStorage = auxiliaryDataStorage
         self.persistentStorage = persistentStorage
         self.storageController = storageController
@@ -113,6 +116,8 @@ final class CommonCryptoAccountsRepository {
         )
 
         try await walletCreationHelper.createWallet()
+
+        walletLifecycleObserver.walletDidCreate(with: userWalletInfo.id)
     }
 
     private func addDefaultAccount(isWalletAlreadyCreated: Bool, legacyInfo: RemoteCryptoAccountsInfo?) async throws {
@@ -600,6 +605,15 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                 updatedAccount = cryptoAccount
                     .with(sorting: request.sorting, grouping: request.grouping)
                     .withTokens(request.tokens)
+            case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
+                let updatedTokens = cryptoAccount.tokens.map { storedToken in
+                    guard storedToken == tokenItem.toStoredToken() else {
+                        return storedToken
+                    }
+
+                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: blockchainNetwork))
+                }
+                updatedAccount = cryptoAccount.withTokens(updatedTokens)
             }
 
             innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
@@ -622,7 +636,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         line: UInt = #line
     ) -> StoredCryptoAccount {
         guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
-            #if ALPHA || BETA || DEBUG
+            #if ALPHA || BETA || INTERNAL || DEBUG
             preconditionFailure(
                 "No crypto account found for derivation index '\(derivationIndex)' in crypto accounts: '\(cryptoAccounts)'",
                 file: file,
@@ -630,7 +644,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             )
             #else
             return .dummy(withDerivationIndex: derivationIndex)
-            #endif // ALPHA || BETA || DEBUG
+            #endif // ALPHA || BETA || INTERNAL || DEBUG
         }
 
         return cryptoAccount

@@ -30,6 +30,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var mainTokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var portfolioTokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
     @Published var newsPagerViewModel: NewsPagerViewModel?
@@ -60,21 +61,12 @@ class MarketsCoordinator: CoordinatorObject {
     func start(with options: MarketsCoordinator.Options) {
         let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
-        if FeatureProvider.isAvailable(.marketsAndNews) {
-            let viewModel = MarketsMainViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
+        let viewModel = MarketsMainViewModel(
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            coordinator: self
+        )
 
-            marketsMainViewModel = viewModel
-        } else {
-            let viewModel = MarketsViewModel(
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-                coordinator: self
-            )
-
-            marketsViewModel = viewModel
-        }
+        marketsMainViewModel = viewModel
     }
 }
 
@@ -167,7 +159,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
 
         Task { @MainActor in
-            let viewModel = AccountsAwareAddTokenFlowViewModel(
+            let viewModel = AddTokenFlowViewModel(
                 userWalletModels: userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -187,7 +179,10 @@ extension MarketsCoordinator: MarketsMainRoutable {
             }
         )
 
-        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
+        coordinator.start(with: .init(
+            mostlyUsedTokens: mostlyUsedTokens,
+            presentSource: .navigation
+        ))
 
         earnListCoordinator = coordinator
     }
@@ -204,7 +199,9 @@ extension MarketsCoordinator: MarketsMainRoutable {
         marketsSearchCoordinator.start(
             with: .init(
                 initialOrderType: orderType,
-                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+                initialIntervalType: nil,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                leadingButton: .back
             )
         )
 
@@ -212,7 +209,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
     }
 }
 
-// MARK: - EarnAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+// MARK: - EarnAddTokenRoutable, AddTokenFlowRoutable
 
 extension MarketsCoordinator: EarnAddTokenRoutable {
     func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
@@ -281,6 +278,73 @@ extension MarketsCoordinator: NewsDetailsRoutable {
         )
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         newsPagerTokenDetailsCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenSearchRoutable
+
+extension MarketsCoordinator: MarketsTokenSearchRoutable {
+    func openPortfolioTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    ) {
+        openTokenDetails(
+            userWalletModel: userWalletModel,
+            accountModel: accountModel,
+            walletModel: walletModel
+        )
+    }
+
+    func openPortfolioTokenList(
+        walletModels: [any WalletModel],
+        onSelect: @escaping (any WalletModel) -> Void
+    ) {
+        floatingSheetPresenter.enqueue(
+            sheet: MarketsPortfolioTokenListViewModel(
+                walletModels: walletModels,
+                onSelect: onSelect,
+                coordinator: self
+            )
+        )
+    }
+}
+
+// MARK: - MarketsPortfolioTokenListRoutable
+
+extension MarketsCoordinator: MarketsPortfolioTokenListRoutable {
+    func closePortfolioTokenList() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - Navigation
+
+private extension MarketsCoordinator {
+    func openTokenDetails(
+        userWalletModel: UserWalletModel,
+        accountModel: any CryptoAccountModel,
+        walletModel: any WalletModel
+    ) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.portfolioTokenDetailsCoordinator = nil
+        }
+
+        let popToRootAction: Action<PopToRootOptions> = { _ in }
+
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: accountModel.walletModelsManager,
+                userTokensManager: accountModel.userTokensManager,
+                walletModel: walletModel
+            )
+        )
+
+        portfolioTokenDetailsCoordinator = coordinator
     }
 }
 

@@ -18,10 +18,21 @@ struct NewsWidgetViewRedesign: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
+                .disableAnimations()
 
             content
+                .id(contentStateID)
+                .transition(.opacity)
         }
-        .infinityFrame(axis: .horizontal)
+        .animation(.easeInOut(duration: 0.3), value: contentStateID)
+    }
+
+    private var contentStateID: Int {
+        switch viewModel.resultState {
+        case .loading: return 0
+        case .success: return 1
+        case .failure: return 2
+        }
     }
 
     // MARK: - Private Properties
@@ -36,16 +47,15 @@ struct NewsWidgetViewRedesign: View {
         )
     }
 
+    @ViewBuilder
     private var content: some View {
-        VStack(spacing: Layout.spacingBetweenSections) {
-            switch viewModel.resultState {
-            case .success(let state):
-                makeSuccessContent(for: state)
-            case .failure:
-                makeErrorContent()
-            case .loading:
-                makeLoadingContent()
-            }
+        switch viewModel.resultState {
+        case .success(let state):
+            makeSuccessContent(for: state)
+        case .failure:
+            makeErrorContent()
+        case .loading:
+            makeLoadingContent()
         }
     }
 
@@ -55,6 +65,8 @@ struct NewsWidgetViewRedesign: View {
                 TrendingCardNewsViewRedesign(itemState: .success(trendingCardNewsItem))
             }
 
+            // Negative padding bleeds the carousel past the 16pt horizontal padding
+            // that MarketsMainView applies to the entire widget container.
             CarouselNewsView(
                 itemsState: .success(state.carouselNewsItems),
                 onAllNewsTap: viewModel.handleCarouselAllNewsTap,
@@ -62,27 +74,31 @@ struct NewsWidgetViewRedesign: View {
                     viewModel.handleCarouselItemAppear(at: index)
                 }
             )
+            .padding(.horizontal, -SizeUnit.x4.value)
         }
     }
 
     func makeErrorContent() -> some View {
-        MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+        TangemUnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: viewModel.tryLoadAgain
+        )
+        .padding(.vertical, 58)
+        .infinityFrame(axis: .horizontal, alignment: .center)
     }
 
     func makeLoadingContent() -> some View {
         VStack(spacing: Layout.spacingBetweenSections) {
-            TrendingCardNewsViewRedesign(itemState: .loading)
+            TrendingCardNewsSkeletonView()
 
-            CarouselNewsView(
-                itemsState: .loading,
-                onAllNewsTap: viewModel.handleAllNewsTap
-            )
+            MarketsCarouselNewsSkeletonView()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 private extension NewsWidgetViewRedesign {
     enum Layout {
-        static let spacingBetweenSections: CGFloat = 12
+        static let spacingBetweenSections: CGFloat = .unit(.x3)
     }
 }

@@ -13,7 +13,7 @@ enum IncomingActionConstants {
     static let appTangemHost = "app.tangem.com"
     static let appTangemDomain = "https://app.tangem.com"
     static let tangemDomain = "https://tangem.com"
-    static let newsPath = "/news/"
+    static let newsPath = "/news"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
     static let externalRedirectURL = "\(tangemDomain)/redirect"
@@ -32,17 +32,23 @@ enum IncomingActionConstants {
         static let transactionId = "transaction_id"
         static let entry = "entry"
         static let id = "id"
+        static let categoryId = "category_id"
         static let promoCode = "promo_code"
         static let refcode = "ref"
         static let campaign = "campaign"
+        static let order = "order"
+        static let interval = "interval"
+        static let earnType = "earn_type"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
         case token
         case staking
+        case yield
         case referral
         case markets
         case tokenChart = "token_chart"
+        case tokenExchanges = "token_exchanges"
         case buy
         case swap
         case sell
@@ -51,6 +57,10 @@ enum IncomingActionConstants {
         case promo
         case payApp = "pay-app"
         case news
+        /// Universal link to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
+        /// Not resolvable from a `tangem://` host — produced only by `NewsIncomingLinkParser`.
+        case newsArticle = "news-article"
+        case earn
     }
 
     enum DeeplinkType: String {

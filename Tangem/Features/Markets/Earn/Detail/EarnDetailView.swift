@@ -24,7 +24,7 @@ struct EarnDetailView: View {
             contentView
                 .opacity(viewModel.overlayContentHidingProgress)
         }
-        .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .background(Colors.Background.tertiary.ignoresSafeArea())
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
@@ -34,13 +34,10 @@ struct EarnDetailView: View {
     private var header: some View {
         NavigationBar(
             title: Localization.earnTitle,
-            settings: .init(backgroundColor: Color.Tangem.Surface.level3),
+            settings: .init(backgroundColor: Colors.Background.tertiary),
             leftButtons: {
-                BackButton(
-                    height: 44.0,
-                    isVisible: true,
-                    isEnabled: true,
-                    hPadding: 10.0,
+                MarketsNavigationBackButton(
+                    presentSource: viewModel.presentSource,
                     action: { viewModel.handleViewAction(.back) }
                 )
             }

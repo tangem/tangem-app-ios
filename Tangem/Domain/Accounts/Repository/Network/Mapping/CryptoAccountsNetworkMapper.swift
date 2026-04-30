@@ -89,6 +89,7 @@ final class CryptoAccountsNetworkMapper {
                 let name = mapTokenName(token: storedToken)
                 let derivationPath = mapTokenDerivationPath(token: storedToken)
                 let addresses = storedToken.walletModelId.flatMap { walletModelAddresses?[$0] }
+                let dynamicAddressesEnabled = mapDynamicAddressesEnabled(token: storedToken)
 
                 return AccountsDTO.Request.Token(
                     id: tokenIdentifier,
@@ -99,7 +100,8 @@ final class CryptoAccountsNetworkMapper {
                     decimals: storedToken.decimalCount,
                     derivationPath: derivationPath,
                     contractAddress: storedToken.contractAddress,
-                    addresses: addresses
+                    addresses: addresses,
+                    dynamicAddressesEnabled: dynamicAddressesEnabled
                 )
             }
     }
@@ -153,9 +155,18 @@ final class CryptoAccountsNetworkMapper {
         }
     }
 
+    private func mapDynamicAddressesEnabled(token: StoredCryptoAccount.Token) -> Bool? {
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork) where blockchainNetwork.blockchain.isDynamicAddressesSupported:
+            return blockchainNetwork.settings == .dynamicAddresses
+        case .known, .unknown:
+            return nil
+        }
+    }
+
     private func mapGroupType(
-        groupingOption: StoredUserTokenList.Grouping?
-    ) -> AccountsDTO.Request.GroupType {
+        groupingOption: StoredCryptoAccount.Grouping?
+    ) -> AccountsDTO.GroupType {
         guard let groupingOption else {
             AccountsLogger.warning("Mapping absent grouping option to a default 'none' group type")
             return .none
@@ -170,8 +181,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortType(
-        sortingOption: StoredUserTokenList.Sorting?
-    ) -> AccountsDTO.Request.SortType {
+        sortingOption: StoredCryptoAccount.Sorting?
+    ) -> AccountsDTO.SortType {
         guard let sortingOption else {
             AccountsLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
             return .manual
@@ -302,14 +313,15 @@ final class CryptoAccountsNetworkMapper {
 
         // Mapping must fail here if the derivation path does exist but invalid
         let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        let settings: BlockchainSettings? = token.dynamicAddressesEnabled == true ? .dynamicAddresses : nil
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath, settings: settings)
 
         return .known(blockchainNetwork: blockchainNetwork)
     }
 
     private func mapGroupingOption(
-        groupType: UserTokenList.GroupType?
-    ) -> StoredUserTokenList.Grouping {
+        groupType: AccountsDTO.GroupType?
+    ) -> StoredCryptoAccount.Grouping {
         guard let groupType else {
             // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
             return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
@@ -324,8 +336,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortingOption(
-        sortType: UserTokenList.SortType?
-    ) -> StoredUserTokenList.Sorting {
+        sortType: AccountsDTO.SortType?
+    ) -> StoredCryptoAccount.Sorting {
         guard let sortType else {
             // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
             return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
@@ -347,7 +359,7 @@ final class CryptoAccountsNetworkMapper {
             let rawName = archivedAccountDTO.icon
             let rawColor = archivedAccountDTO.iconColor
 
-            guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
+            guard let icon = AccountModel.CompositeIcon(rawName: rawName, rawColor: rawColor) else {
                 AccountsLogger.warning(
                     String(
                         format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",

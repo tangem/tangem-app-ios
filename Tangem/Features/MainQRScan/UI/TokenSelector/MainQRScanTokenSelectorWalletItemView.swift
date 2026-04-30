@@ -11,9 +11,9 @@ import TangemAssets
 import TangemUI
 
 struct MainQRScanTokenSelectorWalletItemView: View {
-    @ObservedObject var viewModel: AccountsAwareTokenSelectorWalletItemViewModel
+    @ObservedObject var viewModel: TokenSelectorWalletItemViewModel
     let isAccountsMode: Bool
-    let accountsModeSingleWalletHeader: AccountsAwareTokenSelectorAccountViewModel.HeaderType?
+    let accountsModeSingleWalletHeader: TokenSelectorAccountViewModel.HeaderType?
 
     @ViewBuilder
     var body: some View {
@@ -34,7 +34,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                 MainQRScanTokenSelectorAccountSectionView(viewModel: accountViewModel)
             }
 
-        case .accounts(_, let accounts):
+        case .accounts(let accounts):
             let compatibleAccounts = accounts.filter(\.hasCompatibleItems)
 
             ForEach(Array(compatibleAccounts.enumerated()), id: \.element.id) { index, account in
@@ -56,10 +56,10 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                 )
             }
 
-        case .accounts(let walletName, let accounts):
+        case .accounts(let accounts):
             let compatibleAccounts = accounts.filter(\.hasCompatibleItems)
             accountsModeWalletContent(
-                walletName: walletName,
+                walletName: viewModel.walletName,
                 accounts: compatibleAccounts,
                 accountHeaderOverride: nil
             )
@@ -69,8 +69,8 @@ struct MainQRScanTokenSelectorWalletItemView: View {
     @ViewBuilder
     private func accountsModeWalletContent(
         walletName: String,
-        accounts: [AccountsAwareTokenSelectorAccountViewModel],
-        accountHeaderOverride: AccountsAwareTokenSelectorAccountViewModel.HeaderType?
+        accounts: [TokenSelectorAccountViewModel],
+        accountHeaderOverride: TokenSelectorAccountViewModel.HeaderType?
     ) -> some View {
         if !accounts.isEmpty {
             LazyVStack(spacing: 0.0) {

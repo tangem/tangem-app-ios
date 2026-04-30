@@ -36,28 +36,14 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        switch options {
-        case .default(let options):
-            viewState = .tokenList(
-                ActionButtonsBuyViewModel(
-                    tokenSelectorViewModel: makeTokenSelectorViewModel(
-                        expressTokensListAdapter: options.expressTokensListAdapter,
-                        tokenSorter: options.tokenSorter
-                    ),
-                    coordinator: self,
-                    userWalletModel: options.userWalletModel
-                )
+        let tokenSelectorViewModel = makeTokenSelectorViewModel()
+        viewState = .newTokenList(
+            ActionButtonsBuyViewModel(
+                userWalletModels: options.userWalletModels,
+                tokenSelectorViewModel: tokenSelectorViewModel,
+                coordinator: self
             )
-        case .new(let options):
-            let tokenSelectorViewModel = makeAccountsAwareTokenSelectorViewModel()
-            viewState = .newTokenList(
-                AccountsAwareActionButtonsBuyViewModel(
-                    userWalletModels: options.userWalletModels,
-                    tokenSelectorViewModel: tokenSelectorViewModel,
-                    coordinator: self
-                )
-            )
-        }
+        )
     }
 }
 
@@ -99,7 +85,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
                 coordinator: self
             )
 
-            let viewModel = AccountsAwareAddTokenFlowViewModel(
+            let viewModel = AddTokenFlowViewModel(
                 userWalletModels: userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -110,9 +96,9 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
     }
 }
 
-// MARK: - HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable
+// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable
 
-extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AccountsAwareAddTokenFlowRoutable {
+extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable {
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -139,29 +125,16 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AccountsAwareA
 // MARK: - Options
 
 extension ActionButtonsBuyCoordinator {
-    enum Options {
-        case `default`(options: DefaultActionButtonBuyCoordinatorOptions)
-        case new(options: AccountsAwareActionButtonBuyCoordinatorOptions)
-
-        struct DefaultActionButtonBuyCoordinatorOptions {
-            let userWalletModel: UserWalletModel
-            let expressTokensListAdapter: ExpressTokensListAdapter
-            let tokenSorter: TokenAvailabilitySorter
-        }
-
-        struct AccountsAwareActionButtonBuyCoordinatorOptions {
-            let userWalletModels: [UserWalletModel]
-        }
+    struct Options {
+        let userWalletModels: [UserWalletModel]
     }
 
     enum RootViewState: Equatable {
-        case tokenList(ActionButtonsBuyViewModel)
-        case newTokenList(AccountsAwareActionButtonsBuyViewModel)
+        case newTokenList(ActionButtonsBuyViewModel)
         case onramp(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.tokenList, .tokenList): true
             case (.newTokenList, .newTokenList): true
             case (.onramp, .onramp): true
             default: false
@@ -173,20 +146,8 @@ extension ActionButtonsBuyCoordinator {
 // MARK: - Factory method
 
 private extension ActionButtonsBuyCoordinator {
-    func makeTokenSelectorViewModel(expressTokensListAdapter: some ExpressTokensListAdapter, tokenSorter: TokenAvailabilitySorter) -> ActionButtonsTokenSelectorViewModel {
-        TokenSelectorViewModel(
-            tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
-            strings: BuyTokenSelectorStrings(),
-            expressTokensListAdapter: expressTokensListAdapter,
-            tokenSorter: tokenSorter
-        )
-    }
-
-    func makeAccountsAwareTokenSelectorViewModel() -> AccountsAwareTokenSelectorViewModel {
-        AccountsAwareTokenSelectorViewModel(
-            walletsProvider: .common(),
-            availabilityProvider: .buy()
-        )
+    func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
+        .common(availabilityProvider: .buy())
     }
 }
 
