@@ -19,9 +19,13 @@ final class TangemPayMainViewModel: ObservableObject {
         guard let self else { return }
 
         async let balanceUpdate: Void = tangemPayAccount.loadBalance()
-        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
 
-        _ = await (balanceUpdate, transactionsUpdate)
+        if !isDeactivated {
+            async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
+            _ = await (balanceUpdate, transactionsUpdate)
+        } else {
+            await balanceUpdate
+        }
     }
 
     @Published private(set) var balance: LoadableBalanceView.State
@@ -31,17 +35,23 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var shouldDisplayReplacingCardBanner: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+
+    let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
+
+    var isDeactivated: Bool {
+        tangemPayAccount.isDeactivated
+    }
 
     var cardNumberEnd: String {
         cardDetailsRepository.lastFourDigits
     }
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayMainRoutable?
-
-    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
@@ -53,13 +63,17 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        cardDetailsRepository: TangemPayCardDetailsRepository,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.cardDetailsRepository = cardDetailsRepository
         self.coordinator = coordinator
 
-        cardDetailsRepository = .init(tangemPayAccount: tangemPayAccount)
+        cardDeactivatedNotificationInput = tangemPayAccount.isDeactivated
+            ? NotificationsFactory().buildNotificationInput(for: TangemPayCardDeactivatedNotificationEvent())
+            : nil
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
 
@@ -76,10 +90,14 @@ final class TangemPayMainViewModel: ObservableObject {
         .makePendingExpressTransactionsManager()
 
         bind()
-        reloadHistory()
+        if !isDeactivated {
+            reloadHistory()
+        }
     }
 
     func reloadHistory() {
+        guard !isDeactivated else { return }
+
         runTask { [self] in
             await transactionHistoryService.reloadHistory()
         }
@@ -87,11 +105,12 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @MainActor
     func fetchNextTransactionHistoryPage() -> FetchMore? {
-        transactionHistoryService.fetchNextTransactionHistoryPage()
+        guard !isDeactivated else { return nil }
+        return transactionHistoryService.fetchNextTransactionHistoryPage()
     }
 
     func addFunds() {
-        Analytics.log(.visaScreenButtonVisaAddFunds, contextParams: .userWallet(userWalletInfo.id))
+        Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in

@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
@@ -37,19 +38,25 @@ struct TangemPayMainView: View {
                     }
                 }
 
+                if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
+                    NotificationView(input: cardDeactivatedNotificationInput)
+                }
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
-                TransactionsListView(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    exploreConfirmationDialog: nil,
-                    exploreTransactionAction: viewModel.openTransactionDetails,
-                    reloadButtonAction: viewModel.reloadHistory,
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
+                if !viewModel.isDeactivated {
+                    TransactionsListView(
+                        state: viewModel.tangemPayTransactionHistoryState,
+                        exploreAction: nil,
+                        exploreConfirmationDialog: nil,
+                        exploreTransactionAction: viewModel.openTransactionDetails,
+                        reloadButtonAction: viewModel.reloadHistory,
+                        isReloadButtonBusy: false,
+                        fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                    )
+                }
 
                 Spacer()
             }
@@ -140,7 +147,8 @@ struct TangemPayMainView: View {
             LoadableBalanceView(
                 state: viewModel.balance,
                 style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
+                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
             )
 
             cardIconRow
@@ -176,6 +184,7 @@ struct TangemPayMainView: View {
             Button(action: viewModel.openCardManagement) {
                 TangemPaySmallCardView(cardNumberEnd: viewModel.cardNumberEnd)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
 
             Button(action: viewModel.openFakedoorSheet) {
                 Image(systemName: "plus")

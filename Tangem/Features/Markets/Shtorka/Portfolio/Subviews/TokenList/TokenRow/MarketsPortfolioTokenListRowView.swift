@@ -23,6 +23,7 @@ struct MarketsPortfolioTokenListRowView: View {
 
     var body: some View {
         content
+            .contentShape(.rect)
             .environment(\.isShimmerActive, true)
     }
 }

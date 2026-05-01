@@ -407,6 +407,7 @@
 "dynamic_addresses_notification_funds_found_description" = "追加のアドレスに資金が見つかりました。アクセスするには、動的アドレスを有効にしてください。";
 "dynamic_addresses_notification_funds_found_title" = "追加のアドレスで資金が見つかりました";
 "dynamic_addresses_receive_badge" = "動的アドレス";
+"dynamic_addresses_unavailability_reason_pending_transaction_send" = "Dynamic addresses management will be available once the pending transaction(s) in network %@ is complete";
 "dynamic_addresses" = "動的アドレス";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "絞り込みを解除";
@@ -903,6 +904,12 @@
 "onramp_error_transaction_already_processed" = "この取引はすでに処理されています。これ以上の対応は必要ありません。";
 "onramp_fetching_best_rates" = "最良のレートを取得しています...";
 "onramp_instant_status" = "即時";
+"onramp_kyc_verification_bullet_free" = "Verification is free and usually takes 1-2 minutes";
+"onramp_kyc_verification_bullet_privacy" = "Tangem won't have access to your identity information, you share data directly with regulated provider";
+"onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
+"onramp_kyc_verification_choose_another" = "Choose another method";
+"onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
+"onramp_kyc_verification_title" = "Identity verification required by payment provider";
 "onramp_legal_text" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_legal" = "オンランプ機能を使用することにより、プロバイダの%1$@および%2$@に同意するものとします";
 "onramp_max_amount_restriction" = "買付金額は%@以下にしてください";
@@ -1289,6 +1296,7 @@
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
+"swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "他のものをお探しですか？\n検索してみるか、別の暗号資産をチェックしてみましょう！";
 "swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
 "swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
@@ -1320,6 +1328,8 @@
 "swapping_approve_information_text" = "すべての分散型取引所は、スマートコントラクトがあなたの許可なくウォレットにアクセスするのを防ぐために承認を必要とします。設計上、スマートコントラクトは承認なしでトークンにアクセスできません。トークンを「ロック解除」することで、あなたは1-inchのスマートコントラクトがトークンを使うことを承認します。ネットワークのマイナーは、このアクションをブロックチェーンに記録するためのガス料金（あなたが支払う）を受け取ります。承認後、トークンを交換することができます。";
 "swapping_approve_information_title" = "承認";
 "swapping_fee_estimation_error_text" = "手数料見積りエラーです。サポートにフィードバックをお送りください。";
+"swapping_from_account_title" = "You send from";
+"swapping_from_title_v2" = "You send";
 "swapping_from_title" = "スワップする";
 "swapping_high_price_impact_description" = "選択したトークンをこの量を交換すると、価格に大きな影響が生じ、結果が減少します。";
 "swapping_high_price_impact_text" = "流動性が低いため、受取額が大幅に少なくなる可能性があります。金額を減らすか、別のプロバイダーをお試しください。";
@@ -1330,6 +1340,7 @@
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_swap_action_in_progress" = "スワップ中…";
 "swapping_swap_action" = "スワップ";
+"swapping_to_account_title" = "You receive to";
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
@@ -1424,7 +1435,7 @@
 "tangempay_card_details_withdraw_in_progress_title" = "出金処理中です";
 "tangempay_card_details_withdraw" = "出金";
 "tangempay_card_limit_setup_amount_subtitle" = "%@以上の金額を設定してください";
-"tangempay_card_limit_setup_error_message" = "限度額を設定できませんでした。もう一度お試しください。";
+"tangempay_card_limit_setup_error_message" = "限度額を設定できませんでした。もう一度お試しください";
 "tangempay_card_page_daily_limit_change" = "変更";
 "tangempay_card_page_daily_limit_current_limit" = "現在の利用限度額";
 "tangempay_card_page_daily_limit_error_description" = "1日の利用限度額を読み込めませんでした。もう一度お試しください。";
