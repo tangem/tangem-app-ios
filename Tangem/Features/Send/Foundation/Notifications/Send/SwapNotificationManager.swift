@@ -110,8 +110,14 @@ private extension CommonSwapNotificationManager {
         case (_, _, .error):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success, .success, .loaded) where state.providers.available.isEmpty:
-            return [.unsupportedPair]
+        case (.success(let source), .success(let receive), .loaded) where state.providers.available.isEmpty:
+            let analyticsParams: [Analytics.ParameterKey: String] = [
+                .sendToken: source.tokenItem.currencySymbol,
+                .sendBlockchain: source.tokenItem.blockchain.displayName,
+                .receiveToken: receive.tokenItem.currencySymbol,
+                .receiveBlockchain: receive.tokenItem.blockchain.displayName,
+            ]
+            return [.unsupportedPair(analyticsParams: analyticsParams)]
 
         case (.success(let source), .success(let receive), .loaded(let loadedPhase)):
             return mapLoadedPhaseEvents(
@@ -191,11 +197,17 @@ private extension CommonSwapNotificationManager {
         case .restriction(.notEnoughAmountForFee, _), .restriction(.notEnoughAmountForTxValue, _):
             let feeBlockchain = source.tokenItem.blockchain
 
+            let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
+                .token: source.tokenItem.currencySymbol,
+                .blockchain: source.tokenItem.blockchain.displayName,
+            ]
+
             return [
                 .notEnoughFeeForTokenTx(
                     mainTokenName: feeBlockchain.displayName,
                     mainTokenSymbol: feeBlockchain.currencySymbol,
-                    blockchainIconAsset: NetworkImageProvider().provide(by: feeBlockchain, filled: true)
+                    blockchainIconAsset: NetworkImageProvider().provide(by: feeBlockchain, filled: true),
+                    analyticsParams: noticeAnalyticsParams
                 ),
             ]
 

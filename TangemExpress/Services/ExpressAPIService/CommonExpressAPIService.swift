@@ -95,6 +95,10 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .onrampData(request: request))
     }
 
+    func onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request) async throws -> ExpressDTO.Onramp.NativePaymentData.Response {
+        try await _request(target: .onrampNativePaymentData(request: request))
+    }
+
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response {
         try await _request(target: .onrampStatus(request: request))
     }

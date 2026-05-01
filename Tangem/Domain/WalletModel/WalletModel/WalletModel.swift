@@ -23,8 +23,8 @@ protocol WalletModel:
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
-    var addresses: [String] { get }
-    var defaultAddressString: String { get }
+    var addresses: [Address] { get }
+    var defaultAddress: Address { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
@@ -68,8 +68,12 @@ extension WalletModel {
         Just(false).eraseToAnyPublisher()
     }
 
-    func exploreURL(for index: Int) -> URL? {
-        return exploreURL(for: index, token: nil)
+    var addressesString: [String] { addresses.map(\.value) }
+
+    var defaultAddressString: String { defaultAddress.value }
+
+    func exploreURL(for address: String) -> URL? {
+        return exploreURL(for: address, token: nil)
     }
 
     var walletConnectAddress: String {
@@ -140,6 +144,9 @@ protocol WalletModelDynamicAddressesProvider {
     var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? { get }
 
     @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool
+
+    @MainActor
     func enableDynamicAddresses() async throws
 
     @MainActor
@@ -149,9 +156,7 @@ protocol WalletModelDynamicAddressesProvider {
 // MARK: - Helpers
 
 protocol WalletModelHelpers {
-    func displayAddress(for index: Int) -> String
-    func shareAddressString(for index: Int) -> String
-    func exploreURL(for index: Int, token: Token?) -> URL?
+    func exploreURL(for address: String, token: Token?) -> URL?
     func exploreTransactionURL(for hash: String) -> URL?
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error>
 }

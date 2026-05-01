@@ -34,7 +34,7 @@ struct TokenActionAvailabilityProvider {
     /// Check if we have an address to interact with
     private func hasAddressToInteract() -> Bool {
         let addresses = walletModel.addresses
-        let hasAtLeastOneAddress = addresses.contains { !$0.isEmpty }
+        let hasAtLeastOneAddress = addresses.contains { !$0.value.isEmpty }
         return hasAtLeastOneAddress
     }
 
@@ -442,6 +442,31 @@ extension TokenActionAvailabilityProvider {
     var receiveAvailability: ReceiveActionAvailabilityStatus {
         if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
             return .assetRequirement
+        }
+
+        return .available
+    }
+}
+
+// MARK: - Dynamic Addresses Management
+
+extension TokenActionAvailabilityProvider {
+    enum DynamicAddressesActionAvailabilityStatus {
+        case available
+        case hasPendingTransaction(blockchainDisplayName: String)
+    }
+
+    var isDynamicAddressesActionAvailable: Bool {
+        if case .available = dynamicAddressesAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
+        if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
+            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         }
 
         return .available
