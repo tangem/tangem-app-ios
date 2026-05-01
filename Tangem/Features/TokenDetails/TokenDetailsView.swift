@@ -26,7 +26,11 @@ struct TokenDetailsView: View {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
-                BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
+                if FeatureProvider.isAvailable(.redesign) {
+                    TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                } else {
+                    BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
+                }
 
                 ForEach(viewModel.bannerNotificationInputs) { input in
                     NotificationView(input: input)
@@ -86,8 +90,13 @@ struct TokenDetailsView: View {
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: scrollOffsetHandler.onViewAppear)
+        .onAppear {
+            viewModel.onAppear()
+            scrollOffsetHandler.onViewAppear()
+        }
+        .onFirstAppear {
+            viewModel.onFirstAppear()
+        }
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .toolbar(content: {

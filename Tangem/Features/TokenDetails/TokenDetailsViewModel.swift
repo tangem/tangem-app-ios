@@ -40,6 +40,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    private(set) lazy var balanceViewModel = TokenDetailsBalanceViewModel(
+        tokenItem: walletModel.tokenItem,
+        dataProvider: self,
+        reloadBalance: {
+            Task { @MainActor [weak self] in
+                await self?.onPullToRefresh()
+            }
+        }
+    )
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
@@ -101,32 +111,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
-        case .empty:
-            .empty
-        case .loading:
-            .loading
-        case .failure:
-            .error
-        case .loaded(let amount) where amount == .zero:
-            .empty
-        case .loaded:
-            .full
-        }
+        logScreenOpenedAnalytics()
+    }
 
-        var params: [Analytics.ParameterKey: String] = [
-            .token: walletModel.tokenItem.currencySymbol,
-            .blockchain: walletModel.tokenItem.blockchain.displayName,
-            .balance: balanceState.rawValue,
-        ]
-
-        if walletModel.tokenItem.blockchain.isDynamicAddressesSupported {
-            let isEnabled = walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled()
-            params[.dynamicAddress] = Analytics.ParameterValue.boolState(for: isEnabled).rawValue
-        }
-
-        Analytics.log(event: .detailsScreenOpened, params: params)
-
+    func onFirstAppear() {
         walletModel.yieldModuleManager?.sendActivationState()
     }
 
@@ -143,6 +131,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openExchange()
         case .openCloreMigration:
             openCloreMigration()
+        case .openDynamicAddressesEnter:
+            if let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider {
+                openDynamicAddressesManagementView(
+                    walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                )
+            }
         case .generateAddresses,
              .backupCard,
              .refresh,
@@ -179,10 +173,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     override func copyDefaultAddress() {
         super.copyDefaultAddress()
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: walletModel.tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.token.rawValue,
-        ])
+        Analytics.log(
+            event: .buttonCopyAddress,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.token.rawValue,
+            ],
+            analyticsSystems: .all
+        )
         Toast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
@@ -223,41 +221,72 @@ extension TokenDetailsViewModel {
         runTask { [weak self] in
             do {
                 let xpub = try await xpubGenerator.generateXPUB()
-                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-                AppPresenter.shared.show(viewController)
+                await runOnMain {
+                    MainActor.assumeIsolated {
+                        let viewController = UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+                        AppPresenter.shared.show(viewController)
+                    }
+                }
             } catch {
                 let sdkError = error.toTangemSdkError()
                 if !sdkError.isUserCancelled {
-                    self?.alert = error.alertBinder
+                    await runOnMain {
+                        self?.alert = error.alertBinder
+                    }
                 }
             }
         }
     }
 
-    func openDynamicAddressesManagement(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+    func openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
         let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
-        if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
-            let transferableToken = CommonSendTransferableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel
-            )
-            .makeTransferableToken(supportingFeeOptions: .compound)
+        let transferableToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        )
+        .makeTransferableToken(supportingFeeOptions: .compound)
 
-            let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
-                transferableToken: transferableToken
-            )
+        let compoundFlowBaseDependenciesFactory = CommonDynamicAddressesCompoundFlowBaseDependenciesFactory(
+            transferableToken: transferableToken
+        )
 
-            coordinator?.openDynamicAddressesDisableSheet(
-                walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
-                compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
-                analyticsLogger: analyticsLogger
-            )
-        } else {
+        coordinator?.openDynamicAddressesDisableSheet(
+            walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            compoundFlowBaseDependenciesFactory: compoundFlowBaseDependenciesFactory,
+            analyticsLogger: analyticsLogger
+        )
+    }
+
+    func openDynamicAddressesEnableView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        switch walletModelDynamicAddressesProvider.dynamicAddressesEnablingRequirements {
+        case .customTokensRemoveIsNeeded:
+            coordinator?.openDynamicAddressesUnavailableSheet(messageType: .hasCustomToken)
+        default:
+            // Other enabling requirements will handle in `DynamicAddressesEnterView`
+            let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
                 analyticsLogger: analyticsLogger
             )
+        }
+    }
+
+    func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.dynamicAddressesAvailability) {
+            alert = unavailableAlert
+            return
+        }
+
+        if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
+            openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
+        } else {
+            openDynamicAddressesEnableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
         }
     }
 
@@ -301,6 +330,38 @@ extension TokenDetailsViewModel {
     }
 }
 
+// MARK: - Analytics
+
+private extension TokenDetailsViewModel {
+    func logScreenOpenedAnalytics() {
+        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
+        case .empty:
+            .empty
+        case .loading:
+            .loading
+        case .failure:
+            .error
+        case .loaded(let amount) where amount == .zero:
+            .empty
+        case .loaded:
+            .full
+        }
+
+        var params: [Analytics.ParameterKey: String] = [
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
+            .balance: balanceState.rawValue,
+        ]
+
+        if walletModel.tokenItem.blockchain.isDynamicAddressesSupported {
+            let isEnabled = walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled()
+            params[.dynamicAddress] = Analytics.ParameterValue.boolState(for: isEnabled).rawValue
+        }
+
+        Analytics.log(event: .detailsScreenOpened, params: params)
+    }
+}
+
 // MARK: - Setup functions
 
 private extension TokenDetailsViewModel {
@@ -326,7 +387,9 @@ private extension TokenDetailsViewModel {
 
         if let walletModelDynamicAddressesProvider, hasFeature, isDynamicAddressesSupported {
             items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
-                self?.openDynamicAddressesManagement(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
+                self?.openDynamicAddressesManagementView(
+                    walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                )
             })
         }
 
@@ -561,6 +624,19 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
                 return true
             }
         }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TokenDetailsBalanceDataProvider
+
+extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
+    var stakingBalanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
+        walletModel.stakingBalanceProvider.balanceTypePublisher
+            .eraseToAnyPublisher()
+    }
+
+    var isTokenCustom: Bool {
+        walletModel.isCustom
     }
 }
 

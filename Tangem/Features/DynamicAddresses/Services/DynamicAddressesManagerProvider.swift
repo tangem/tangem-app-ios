@@ -13,6 +13,7 @@ struct DynamicAddressesManagerProvider {
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
     let blockchainSettingsUpdater: BlockchainSettingsUpdater
+    let userTokensManager: UserTokensManager
 
     func makeDynamicAddressesManager(
         tokenItem: TokenItem,
@@ -27,6 +28,11 @@ struct DynamicAddressesManagerProvider {
             return nil
         }
 
+        guard let xpubAddressesBalancesChecker = walletManager as? XPUBAddressesBalancesChecker else {
+            assertionFailure("WalletManager does not conform to XPUBAddressesBalancesChecker for blockchain: \(tokenItem.blockchain)")
+            return nil
+        }
+
         let generator = CommonXPUBKeyGenerator(
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
@@ -36,8 +42,10 @@ struct DynamicAddressesManagerProvider {
         return CommonDynamicAddressesManager(
             tokenItem: tokenItem,
             xpubAddressesWalletManagerProvider: xpubAddressesWalletManagerProvider,
+            xpubAddressesBalancesChecker: xpubAddressesBalancesChecker,
             xpubKeyGenerator: generator,
-            blockchainSettingsUpdater: blockchainSettingsUpdater
+            blockchainSettingsUpdater: blockchainSettingsUpdater,
+            userTokensManager: userTokensManager
         )
     }
 }

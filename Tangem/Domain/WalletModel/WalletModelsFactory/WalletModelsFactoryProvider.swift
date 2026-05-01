@@ -14,11 +14,15 @@ struct WalletModelsFactoryProvider {
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
 
-    func makeWalletModelsFactory(blockchainSettingsUpdater: BlockchainSettingsUpdater) -> any WalletModelsFactory {
+    func makeWalletModelsFactory(
+        blockchainSettingsUpdater: BlockchainSettingsUpdater,
+        userTokensManager: UserTokensManager
+    ) -> any WalletModelsFactory {
         let dynamicAddressesManagerProvider = DynamicAddressesManagerProvider(
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
-            blockchainSettingsUpdater: blockchainSettingsUpdater
+            blockchainSettingsUpdater: blockchainSettingsUpdater,
+            userTokensManager: userTokensManager
         )
 
         let featuresManagerProvider = WalletModelFeaturesManagerProvider(
