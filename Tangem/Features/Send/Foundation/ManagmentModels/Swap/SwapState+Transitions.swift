@@ -18,18 +18,32 @@ import TangemFoundation
 extension SwapState {
     // MARK: - User input
 
-    /// User typed a source amount (or cleared it). Direction becomes `.source`.
-    /// When amount is `nil`, the complementary amount is also cleared.
-    mutating func userTypedSourceAmount(_ amount: SendAmount?) {
+    /// Anchor on the source direction with the given amount (or clear).
+    /// Called both when the user types a source amount and when the user taps
+    /// the compact source field to switch direction with the existing value.
+    /// On direction flip (was `.receive`), promote the previous receive amount
+    /// into `complementaryAmount` so it carries the correct token's units —
+    /// otherwise the stale complementary belongs to the wrong side and would
+    /// be reinterpreted as the new direction's complement, causing a brief
+    /// flash of the wrong amount before the next quote completes. Token-change
+    /// flows that promote `complementaryAmount` into `userAmount` also depend
+    /// on this invariant.
+    mutating func setSourceDirection(amount: SendAmount?) {
+        if case .receive(let oldReceive) = userAmount {
+            complementaryAmount = oldReceive
+        }
         userAmount = amount.map { .source($0) }
         if amount == nil {
             complementaryAmount = nil
         }
     }
 
-    /// User typed a receive amount (or cleared it). Direction becomes `.receive`.
-    /// When amount is `nil`, the complementary amount is also cleared.
-    mutating func userTypedReceiveAmount(_ amount: SendAmount?) {
+    /// Anchor on the receive direction with the given amount (or clear).
+    /// See `setSourceDirection` for the direction-flip rationale.
+    mutating func setReceiveDirection(amount: SendAmount?) {
+        if case .source(let oldSource) = userAmount {
+            complementaryAmount = oldSource
+        }
         userAmount = amount.map { .receive($0) }
         if amount == nil {
             complementaryAmount = nil
@@ -42,16 +56,21 @@ extension SwapState {
         sourceToken = .success(wallet)
     }
 
-    /// Apply a receive-token selection. If the token actually changed, the
-    /// receive-side amount is cleared; if the user had typed a receive amount,
-    /// that direction is dropped so the next quote can re-anchor.
+    /// Apply a receive-token selection. On token change, wipe stale receive-side
+    /// amount state so the publisher doesn't emit a `.success` carrying the old
+    /// token's value during the loading window — that would cause the view's
+    /// `pendingReverseRecalculation` to fire `interactor.update(receiveAmount:)`
+    /// with the wrong value and cancel the in-flight pair-change task.
+    /// When `userAmount` was `.receive`, promote `complementaryAmount` (the
+    /// source value, in source token's units) into `userAmount = .source(...)`
+    /// so the receive-token-changed handler still has a sourceAmount to work with.
     mutating func setReceiveToken(_ wallet: SendReceiveToken) {
         let tokenChanged = receiveToken.value?.tokenItem.id != wallet.tokenItem.id
         if tokenChanged {
-            complementaryAmount = nil
-            if case .receive = userAmount {
-                userAmount = nil
+            if case .receive = userAmount, let source = complementaryAmount {
+                userAmount = .source(source)
             }
+            complementaryAmount = nil
         }
         receiveToken = .success(wallet)
     }
