@@ -401,15 +401,16 @@ private extension SendAmountViewModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             interactor.receivedTokenPublisher,
             interactor.receivedTokenAmountPublisher,
-            $providerRateTypes
+            $providerRateTypes,
+            isReceiveAmountApproximatePublisher.removeDuplicates()
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { viewModel, args in
-            let (token, amount, _) = args
+            let (token, amount, _, _) = args
             viewModel.updateDestinationToken(destinationToken: token.value, amount: amount)
         }
         .store(in: &bag)
@@ -603,6 +604,23 @@ extension SendAmountViewModel {
                 isFirstSelection: isFirstSelection,
                 amount: amount
             )
+            // For *token swaps* (was OLD token, now NEW token), the CombineLatest3
+            // source publishers all derive from SwapModel `_state` but propagate as
+            // separate emissions. The token emission arrives first, so this fire
+            // carries the NEW token paired with the AMOUNT publisher's previous
+            // (stale) value belonging to the OLD token. Skip amount processing
+            // here — the amount publisher emits a fresh value next.
+            //
+            // For *first selection* (no previous token) the cached amount already
+            // belongs to the new token: either it was `.failure`/`.loading` while
+            // no token was selected, or — in the rateTypes-transition rebuild path
+            // (`(false → true)` resets `currentDestinationToken` to nil) — the
+            // cached `.success(...)` already carries the new token's value because
+            // setLoaded fired before the rateTypes change reached the view.
+            // Falling through ensures that value reaches the field.
+            if !isFirstSelection {
+                return
+            }
         }
 
         updateEditableDestinationAmount(field: field, token: token, amount: amount)
@@ -715,7 +733,7 @@ extension SendAmountViewModel {
         let field = AmountInputFieldModel(
             tokenItem: destinationToken.tokenItem,
             fiatItem: destinationToken.fiatItem,
-            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+            possibleToConvertToFiat: destinationToken.possibleToConvertToFiat
         )
         field.cryptoIconURL = tokenIconInfo.imageURL
 

@@ -160,7 +160,7 @@ extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
-        _state.mutate { $0.userTypedSourceAmount(sourceAmount) }
+        _state.mutate { $0.setSourceDirection(amount: sourceAmount) }
 
         refreshQuotesForAmount(debounce: sourceAmount != nil) { [weak self] handler in
             guard self != nil else { return nil }
@@ -171,7 +171,7 @@ extension SwapModel {
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
 
-        _state.mutate { $0.userTypedReceiveAmount(receiveAmount) }
+        _state.mutate { $0.setReceiveDirection(amount: receiveAmount) }
 
         refreshQuotesForAmount(debounce: receiveAmount != nil) { [weak self] handler in
             guard self != nil else { return nil }
@@ -198,13 +198,35 @@ extension SwapModel {
 
         _state.mutate { $0.setReceiveToken(wallet) }
 
-        refreshQuotesForCurrentPair { handler, pair, source, destination, sourceAmount in
-            try await handler.receiveTokenChanged(
+        // Pair update + mode decision. Fixed-rate mode populates TO with a local
+        // recalc; float-rate mode resolves via a server-quoted `.from()` refresh.
+        // FROM recalc in fixed-rate mode rides the existing TO-amount-changed
+        // pipeline — driven by the view's `pendingReverseRecalculation`, which
+        // calls `interactor.update(receiveAmount:)` once the publisher emits
+        // `.success(localReceive)` after this task finalizes.
+        updateTask(loadingType: .rates) { [weak self] expressManager in
+            guard let self else {
+                return try await expressManager.update(pair: .none)
+            }
+
+            let state = _state.value
+            guard let source = state.sourceToken.value,
+                  let destination = state.receiveToken.value else {
+                ExpressLogger.info("Source / Receive not found")
+                return try await expressManager.update(pair: .none)
+            }
+
+            let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+            let result = try await eventHandler.receiveTokenChanged(
                 pair: pair,
                 source: source,
                 destination: destination,
-                sourceAmount: sourceAmount
+                sourceAmount: state.effectiveSourceAmount?.crypto
             )
+            if let amountUpdate = result.amountUpdate {
+                applyAmountUpdate(amountUpdate)
+            }
+            return result.expressResult
         }
     }
 

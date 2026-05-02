@@ -201,13 +201,19 @@ class CommonSendAmountInteractor {
             return .just(output: true)
         }
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
-            receiveTokenAmountInput.receiveAmountPublisher
-        ).map { token, amount in
+            receiveTokenAmountInput.receiveAmountPublisher,
+            receiveTokenAmountInput.exchangeRestrictionPublisher
+        )
+        .map { token, amount, restriction in
+            // Any active exchange restriction (requiredRefresh, tooSmall/tooBig,
+            // balanceExceeded) invalidates the amount even if a stale `.success`
+            // is still being emitted from a previous good quote.
+            guard restriction == nil else { return false }
             switch (token.value, amount) {
-            case (.none, _), (.some, .success): true
-            case (.some, .loading), (.some, .failure): false
+            case (.none, _), (.some, .success): return true
+            case (.some, .loading), (.some, .failure): return false
             }
         }
         .eraseToAnyPublisher()

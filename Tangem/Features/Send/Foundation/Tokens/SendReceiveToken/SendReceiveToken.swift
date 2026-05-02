@@ -40,3 +40,12 @@ extension SendReceiveToken where Self: SendSourceToken {
         SendReceiveTokenDestination(destination: .plain(defaultAddressString), destinationTag: nil)
     }
 }
+
+// MARK: - Fiat conversion availability
+
+extension SendReceiveToken {
+    var possibleToConvertToFiat: Bool {
+        guard let currencyId = tokenItem.currencyId else { return false }
+        return BalanceConverter().hasRate(currencyId: currencyId)
+    }
+}

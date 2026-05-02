@@ -30,13 +30,60 @@ final class SendWithSwapEventHandler: SwapEventHandler {
         try await fullRefresh(pair: pair, source: source, destination: destination, sourceAmount: sourceAmount)
     }
 
+    /// Receive-token change: pair update + mode decision. Populates TO with the
+    /// locally-recalculated value in fixed-rate mode; falls back to a server-quoted
+    /// `.from()` refresh in float-rate mode. FROM recalc in fixed-rate mode is the
+    /// caller's responsibility — `SwapModel.update(receive:)` chains
+    /// `receiveAmountChanged` after this returns.
     func receiveTokenChanged(
         pair: ExpressManagerSwappingPair,
         source: SendSwapableToken,
         destination: SendReceiveToken,
         sourceAmount: Decimal?
     ) async throws -> SwapEventResult {
-        try await fullRefresh(pair: pair, source: source, destination: destination, sourceAmount: sourceAmount)
+        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+
+        guard let sourceAmount else {
+            return SwapEventResult(expressResult: pairResult, amountUpdate: .clearComplementary)
+        }
+
+        let sourceCurrencyId = source.tokenItem.currencyId
+        let receiveCurrencyId = destination.tokenItem.currencyId
+        let hasFixedRate = pairResult.providers.contains { $0.supportedRateTypes.contains(.fixed) }
+
+        if hasFixedRate,
+           let initialReceive = computeLocalReceiveAmount(
+               sourceAmount: sourceAmount,
+               sourceCurrencyId: sourceCurrencyId,
+               receiveTokenItem: destination.tokenItem
+           ) {
+            return SwapEventResult(
+                expressResult: pairResult,
+                amountUpdate: .anchorOnReceive(
+                    source: sourceAmount,
+                    receive: initialReceive,
+                    sourceCurrencyId: sourceCurrencyId,
+                    receiveCurrencyId: receiveCurrencyId
+                )
+            )
+        }
+
+        let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(
+            amountType: .from(sourceAmount),
+            by: .pairChange
+        )
+
+        let amountUpdate: SwapEventResult.AmountUpdate = quoteResult.selected?
+            .getState().quote.map { quote in
+                .anchorOnSource(
+                    source: sourceAmount,
+                    receive: quote.expectAmount,
+                    sourceCurrencyId: sourceCurrencyId,
+                    receiveCurrencyId: receiveCurrencyId
+                )
+            } ?? .clearComplementary
+
+        return SwapEventResult(expressResult: quoteResult, amountUpdate: amountUpdate)
     }
 
     // MARK: - Amount changes (re-quote only)
@@ -107,7 +154,7 @@ final class SendWithSwapEventHandler: SwapEventHandler {
            let initialReceiveAmount = computeLocalReceiveAmount(
                sourceAmount: sourceAmount,
                sourceCurrencyId: sourceCurrencyId,
-               receiveCurrencyId: receiveCurrencyId
+               receiveTokenItem: destination.tokenItem
            ) {
             let anchoredResult: ExpressManagerUpdatingResult = try await expressManager.update(
                 amountType: .to(initialReceiveAmount),
@@ -150,13 +197,14 @@ final class SendWithSwapEventHandler: SwapEventHandler {
     private func computeLocalReceiveAmount(
         sourceAmount: Decimal,
         sourceCurrencyId: String?,
-        receiveCurrencyId: String?
+        receiveTokenItem: TokenItem
     ) -> Decimal? {
         guard let sourceCurrencyId,
-              let receiveCurrencyId,
+              let receiveCurrencyId = receiveTokenItem.currencyId,
               let sourceFiat = balanceConverter.convertToFiat(sourceAmount, currencyId: sourceCurrencyId),
               let receive = balanceConverter.convertToCryptoFrom(fiatValue: sourceFiat, currencyId: receiveCurrencyId)
         else { return nil }
-        return receive
+        // Express API rejects amounts with more fraction digits than the token supports.
+        return receive.rounded(scale: receiveTokenItem.decimalCount, roundingMode: .down)
     }
 }

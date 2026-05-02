@@ -64,6 +64,12 @@ struct BalanceConverter {
         return fiatValue
     }
 
+    /// Whether the quotes repository currently has a fiat rate for the given currency.
+    /// Used by UI to decide whether a fiat-mode toggle should be shown.
+    func hasRate(currencyId: String) -> Bool {
+        quotesRepository.quotes[currencyId]?.price != nil
+    }
+
     /// Converts a crypto amount to USD using the `priceUsd` field from quotes.
     func convertToUsd(_ value: Decimal, currencyId: String) -> Decimal? {
         guard let priceUsd = quotesRepository.quotes[currencyId]?.priceUsd else {
