@@ -15,8 +15,8 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
     static func make(
         hotToken: HotCryptoToken,
         coordinator: HotCryptoAddTokenRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration {
-        AccountsAwareAddTokenFlowConfiguration(
+    ) -> AddTokenFlowConfiguration {
+        AddTokenFlowConfiguration(
             getAvailableTokenItems: { _ in
                 // HotTokens always have single network
                 // Additionally, availability to add hot token is controlled by parent.
@@ -76,7 +76,7 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
     static func makeAccountFilter(
         hotToken: HotCryptoToken
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         guard let tokenItem = hotToken.tokenItem else {
             return { _ in false }
         }
@@ -89,7 +89,7 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
     static func makeAccountAvailabilityProvider(
         hotToken: HotCryptoToken
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> AccountAvailability)? {
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> AccountAvailability)? {
         guard let tokenItem = hotToken.tokenItem else {
             return { _ in .unavailable(reason: nil) }
         }

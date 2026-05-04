@@ -8,7 +8,7 @@
 
 import Foundation
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
 struct StoredUserTokenList: Codable, Equatable {
     enum Grouping: Codable, Equatable {
         case none
@@ -36,24 +36,12 @@ struct StoredUserTokenList: Codable, Equatable {
 
 // MARK: - Convenience extensions
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
 extension StoredUserTokenList {
     static var empty: Self { Self(entries: [], grouping: .none, sorting: .manual) }
 }
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
 extension StoredUserTokenList.Entry {
     var isToken: Bool { contractAddress != nil }
-
-    var isCustom: Bool { id == nil }
-
-    var walletModelId: WalletModelId {
-        let converter = StorageEntryConverter()
-
-        if let token = converter.convertToToken(self) {
-            return WalletModelId(tokenItem: .token(token, blockchainNetwork))
-        }
-
-        return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
-    }
 }

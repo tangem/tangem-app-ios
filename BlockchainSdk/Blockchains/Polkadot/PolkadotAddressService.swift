@@ -25,7 +25,7 @@ extension PolkadotAddressService: AddressProvider {
         try publicKey.blockchainKey.validateAsEdKey()
         let address = PolkadotAddress(publicKey: publicKey.blockchainKey, network: network).string
 
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: address, type: addressType)
     }
 }
 

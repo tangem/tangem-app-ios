@@ -17,13 +17,15 @@ extension TokenItem {
                 // Fixed constant value for the main token contract address
                 contractAddress: ExpressConstants.coinContractAddress,
                 network: networkId,
-                decimalCount: decimalCount
+                decimalCount: decimalCount,
+                symbol: currencySymbol
             )
         case .token(let token, _):
             return ExpressWalletCurrency(
                 contractAddress: token.contractAddress,
                 network: networkId,
-                decimalCount: decimalCount
+                decimalCount: decimalCount,
+                symbol: currencySymbol
             )
         }
     }
@@ -33,7 +35,8 @@ extension TokenItem {
             // Fixed constant value for the main token contract address
             contractAddress: ExpressConstants.coinContractAddress,
             network: networkId,
-            decimalCount: decimalCount
+            decimalCount: decimalCount,
+            symbol: blockchain.currencySymbol
         )
     }
 }

@@ -11,13 +11,20 @@ import BlockchainSdk
 import TangemLocalization
 
 enum MarketsAddTokenFlowConfigurationFactory {
+    struct InputData {
+        let coinId: String
+        let coinName: String
+        let coinSymbol: String
+        let networks: [NetworkModel]
+    }
+
     static func make(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration {
+        inputData: InputData,
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration {
         let analyticsLogger = MarketsAddTokenFlowAnalyticsLogger(coinSymbol: inputData.coinSymbol)
 
-        return AccountsAwareAddTokenFlowConfiguration(
+        return AddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 makeTokenItems(
                     inputData: inputData,
@@ -51,11 +58,11 @@ enum MarketsAddTokenFlowConfigurationFactory {
 private extension MarketsAddTokenFlowConfigurationFactory {
     static func makeGetTokenConfiguration(
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration {
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration.GetTokenConfiguration {
         let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
-        return AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+        return AddTokenFlowConfiguration.GetTokenConfiguration(
             isBuyAvailable: { tokenItem, accountSelectorCell in
                 let config = accountSelectorCell.userWalletModel.config
                 guard config.isFeatureVisible(.exchange) else { return false }
@@ -105,7 +112,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: (MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable)?
+        coordinator: (MarketsPortfolioContainerRoutable & AddTokenFlowRoutable)?
     ) {
         guard let coordinator else { return }
 
@@ -166,8 +173,8 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeAccountFilter(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+        inputData: InputData
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         { context in
             let networkIds = inputData.networks.map(\.networkId)
             let cryptoAccount = context.account
@@ -198,7 +205,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeTokenItems(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        inputData: InputData,
         supportedBlockchains: Set<Blockchain>,
         cryptoAccount: any CryptoAccountModel
     ) -> [TokenItem] {

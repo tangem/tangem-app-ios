@@ -27,11 +27,13 @@ class CommonPendingOnrampTransactionsManager {
         },
         shouldStopPolling: { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) },
         hasChanges: { $0.transactionRecord.transactionStatus != $1.transactionRecord.transactionStatus },
-        pollingInterval: Constants.statusUpdateTimeout
+        pollingInterval: Constants.statusUpdateTimeout,
+        maxConcurrentRequests: 3
     )
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
 
+    private let terminalTransactions = ThreadSafeContainer<[PendingOnrampTransaction]>([])
     private var pollingInitiatingTask: Task<Void, Never>?
     private var pollingResultTask: Task<Void, Never>?
 
@@ -97,36 +99,43 @@ class CommonPendingOnrampTransactionsManager {
             }
             .withPrevious()
 
-        runTask(in: self) { manager in
+        pollingInitiatingTask = runTask { [weak self] in
             let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values
 
             for await previousAndCurrentRequests in previousAndCurrentRequestsSequence {
+                guard let self else { return }
+
                 let previous = previousAndCurrentRequests.previous
                 let current = previousAndCurrentRequests.current
 
-                let shouldForceReload = previous?.count ?? 0 != current.count
-                await manager.pollingService.startPolling(requests: current, force: shouldForceReload)
+                let nonTerminal = current.filter { !$0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
+                let terminal = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
+                terminalTransactions.mutate { $0 = terminal }
 
-                // If polling requests is empty, it means that
-                // `manager.filterRelatedTokenTransactions(list: txRecords)`
-                // has filtered out records, so we should send an empty array
-                // Otherwise, filtered out transactions will stay on screen
-                if current.isEmpty {
-                    manager.pendingTransactionsSubject.send([])
+                let shouldForceReload = previous?.count ?? 0 != current.count
+                await pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
+
+                // If there are no transactions to poll, send terminal-only or empty
+                if nonTerminal.isEmpty {
+                    pendingTransactionsSubject.send(terminal)
                 }
             }
         }
 
-        runTask(in: self) { manager in
-            let stream = await manager.pollingService.resultStream
+        pollingResultTask = runTask { [weak self] in
+            guard let pollingService = self?.pollingService else { return }
+            let stream = await pollingService.resultStream
             for await responses in stream {
-                let transactions = responses.map(\.data).sorted(by: \.transactionRecord.date)
+                guard let self else { return }
+
+                let polledTransactions = responses.map(\.data)
+                let allTransactions = (polledTransactions + terminalTransactions.read()).sorted(by: \.transactionRecord.date)
                 let transactionsToUpdateInRepository = responses.compactMap { response in
                     response.hasChanges ? response.data.transactionRecord : nil
                 }
 
-                manager.pendingTransactionsSubject.send(transactions)
-                manager.onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
+                pendingTransactionsSubject.send(allTransactions)
+                onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
             }
         }
     }

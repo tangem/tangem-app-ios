@@ -121,7 +121,7 @@ private struct CryptoAccountsGlobalStateProviderKey: InjectionKey {
 
 // MARK: - Convenience extensions
 
-@available(iOS, deprecated: 100000.0, message: "Temporary entity for troubleshooting, will be deleted ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "Temporary entity for troubleshooting, will be removed in future ([REDACTED_INFO])")
 private extension CommonCryptoAccountsGlobalStateProvider {
     /// We don't want to add `CustomStringConvertible` conformance to the `UserWalletId` type, as this could break
     /// some code that already depends on the default `description` implementation for this type.

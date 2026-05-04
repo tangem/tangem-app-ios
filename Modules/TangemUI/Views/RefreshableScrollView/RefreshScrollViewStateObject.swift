@@ -109,6 +109,12 @@ private extension RefreshScrollViewStateObject {
 
     @MainActor
     func stopRefreshing() {
+        if settings.shouldForceRefreshing {
+            state = .idle
+            unsetRefreshingPadding()
+            return
+        }
+
         // Decide according on the current content offset
         switch contentOffset.y.rounded() {
         // Still dragging. The `refreshingPadding` will be update after dragging is end
@@ -228,19 +234,22 @@ public extension RefreshScrollViewStateObject {
         public let startRefreshingDelay: TimeInterval
         public let stopRefreshingDelay: TimeInterval
         public let refreshTaskTimeout: TimeInterval?
+        public let shouldForceRefreshing: Bool
 
         public init(
             refreshAreaHeight: CGFloat = 75,
             thresholdMultiplier: CGFloat = 2,
             startRefreshingDelay: TimeInterval = 0.1,
             stopRefreshingDelay: TimeInterval = 1,
-            refreshTaskTimeout: TimeInterval? = nil
+            refreshTaskTimeout: TimeInterval? = nil,
+            shouldForceRefreshing: Bool = false
         ) {
             self.refreshAreaHeight = refreshAreaHeight
             self.thresholdMultiplier = thresholdMultiplier
             self.startRefreshingDelay = startRefreshingDelay
             self.stopRefreshingDelay = stopRefreshingDelay
             self.refreshTaskTimeout = refreshTaskTimeout
+            self.shouldForceRefreshing = shouldForceRefreshing
         }
 
         public var threshold: CGFloat { refreshAreaHeight * thresholdMultiplier }

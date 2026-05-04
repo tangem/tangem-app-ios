@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "D4E5F6A7-B890-1234-DEFA-567890BCDEF1",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "codeCoverageTargets" : [
+      {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "B68E1F642CBC44050043E598",
+        "name" : "BlockchainSdk"
+      }
+    ]
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "B68E1F6B2CBC44060043E598",
+        "name" : "BlockchainSdkTests"
+      }
+    }
+  ],
+  "version" : 1
+}

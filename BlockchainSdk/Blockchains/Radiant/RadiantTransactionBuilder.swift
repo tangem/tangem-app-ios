@@ -61,7 +61,7 @@ class RadiantTransactionBuilder {
 
     func estimateFee(amount: Amount, destination: String, feeRate: Int) async throws -> Int {
         let amount = amount.asSmallest().value.intValue()
-        let preImage = try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
+        let preImage = try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination, opReturn: nil)
         return preImage.fee
     }
 

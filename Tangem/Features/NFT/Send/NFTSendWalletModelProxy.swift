@@ -57,16 +57,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
-    var addresses: [Address] {
+    var addresses: [String] {
         mainTokenWalletModel.addresses
     }
 
-    var defaultAddress: Address {
-        mainTokenWalletModel.defaultAddress
-    }
-
-    var addressNames: [String] {
-        mainTokenWalletModel.addressNames
+    var defaultAddressString: String {
+        mainTokenWalletModel.defaultAddressString
     }
 
     var isMainToken: Bool {
@@ -377,6 +373,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
         lhs.id == rhs.id
+    }
+
+    var receiveAddressTypes: [ReceiveAddressType] {
+        mainTokenWalletModel.receiveAddressTypes
     }
 
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
