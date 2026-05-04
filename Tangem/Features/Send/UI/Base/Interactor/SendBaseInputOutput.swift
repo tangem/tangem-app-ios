@@ -17,10 +17,8 @@ protocol SendBaseInput: AnyObject {
 protocol SendBaseOutput: AnyObject {
     func actualizeInformation()
     func performAction() async throws -> TransactionDispatcherResult
-    func stopSwapProvidersAutoUpdateTimer()
 }
 
 extension SendBaseOutput {
     func actualizeInformation() {}
-    func stopSwapProvidersAutoUpdateTimer() {}
 }

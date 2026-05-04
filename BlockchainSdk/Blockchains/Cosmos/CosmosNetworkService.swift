@@ -85,6 +85,24 @@ class CosmosNetworkService: MultiNetworkProvider {
         }
     }
 
+    func nativeBalance(for address: String) -> AnyPublisher<Decimal, Error> {
+        providerPublisher {
+            $0.balances(address: address)
+                .tryMap { [weak self] balanceInfo -> Decimal in
+                    guard let self else {
+                        throw BlockchainSdkError.empty
+                    }
+
+                    return try parseBalance(
+                        balanceInfo,
+                        denomination: cosmosChain.smallestDenomination,
+                        decimalValue: cosmosChain.blockchain.decimalValue
+                    )
+                }
+                .eraseToAnyPublisher()
+        }
+    }
+
     func estimateGas(for transaction: Data) -> AnyPublisher<UInt64, Error> {
         providerPublisher {
             $0.simulate(data: transaction)

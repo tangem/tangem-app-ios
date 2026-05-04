@@ -57,7 +57,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
-    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
+    var canManageDynamicAddresses: Bool {
+        FeatureProvider.isAvailable(.dynamicAddresses) && walletModel.tokenItem.blockchain.isUTXO
+    }
+
+    var hasDotsMenu: Bool { canHideToken || canGenerateXPUB || canManageDynamicAddresses }
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
@@ -105,27 +109,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
-        case .empty:
-            .empty
-        case .loading:
-            .loading
-        case .failure:
-            .error
-        case .loaded(let amount) where amount == .zero:
-            .empty
-        case .loaded:
-            .full
-        }
+        logScreenOpenedAnalytics()
+    }
 
-        let params: [Analytics.ParameterKey: String] = [
-            .token: walletModel.tokenItem.currencySymbol,
-            .blockchain: walletModel.tokenItem.blockchain.displayName,
-            .balance: balanceState.rawValue,
-        ]
-
-        Analytics.log(event: .detailsScreenOpened, params: params)
-
+    func onFirstAppear() {
         walletModel.yieldModuleManager?.sendActivationState()
     }
 
@@ -153,15 +140,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .retryKaspaTokenTransaction,
              .leaveAmount,
              .openLink,
+             .openDeeplink,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
              .support,
              .openCurrency,
-             .seedSupportNo,
-             .seedSupportYes,
-             .seedSupport2No,
-             .seedSupport2Yes,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -169,7 +153,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openManageTokensAfterWalletSuccessImport:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -230,15 +215,25 @@ extension TokenDetailsViewModel {
         runTask { [weak self] in
             do {
                 let xpub = try await xpubGenerator.generateXPUB()
-                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-                AppPresenter.shared.show(viewController)
+                await runOnMain {
+                    MainActor.assumeIsolated {
+                        let viewController = UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+                        AppPresenter.shared.show(viewController)
+                    }
+                }
             } catch {
                 let sdkError = error.toTangemSdkError()
                 if !sdkError.isUserCancelled {
-                    self?.alert = error.alertBinder
+                    await runOnMain {
+                        self?.alert = error.alertBinder
+                    }
                 }
             }
         }
+    }
+
+    func openDynamicAddressesManagement() {
+        coordinator?.openDynamicAddressesEnterView()
     }
 
     private func showUnableToHideAlert() {
@@ -278,6 +273,33 @@ extension TokenDetailsViewModel {
 
         userTokensManager.remove(walletModel.tokenItem)
         coordinator?.dismiss()
+    }
+}
+
+// MARK: - Analytics
+
+private extension TokenDetailsViewModel {
+    func logScreenOpenedAnalytics() {
+        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
+        case .empty:
+            .empty
+        case .loading:
+            .loading
+        case .failure:
+            .error
+        case .loaded(let amount) where amount == .zero:
+            .empty
+        case .loaded:
+            .full
+        }
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
+            .balance: balanceState.rawValue,
+        ]
+
+        Analytics.log(event: .detailsScreenOpened, params: params)
     }
 }
 

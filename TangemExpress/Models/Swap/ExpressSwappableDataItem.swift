@@ -13,6 +13,7 @@ public struct ExpressSwappableDataItem {
     public let source: SourceWalletInfo
     public let destination: DestinationWalletInfo
     public let amountType: ExpressAmountType
+    public let rateType: ExpressProviderRateType
     public let providerInfo: ProviderInfo
     public let operationType: ExpressOperationType
     public let quoteId: String?
@@ -21,6 +22,7 @@ public struct ExpressSwappableDataItem {
         source: SourceWalletInfo,
         destination: DestinationWalletInfo,
         amountType: ExpressAmountType,
+        rateType: ExpressProviderRateType,
         providerInfo: ProviderInfo,
         operationType: ExpressOperationType,
         quoteId: String? = nil
@@ -28,6 +30,7 @@ public struct ExpressSwappableDataItem {
         self.source = source
         self.destination = destination
         self.amountType = amountType
+        self.rateType = rateType
         self.providerInfo = providerInfo
         self.operationType = operationType
         self.quoteId = quoteId

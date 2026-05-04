@@ -9,8 +9,8 @@
 import Foundation
 
 public enum ExpressRestriction {
-    case tooSmallAmount(_ minAmount: Decimal)
-    case tooBigAmount(_ maxAmount: Decimal)
+    case tooSmallAmount(_ minAmount: Decimal, currencySymbol: String)
+    case tooBigAmount(_ maxAmount: Decimal, currencySymbol: String)
     case approveTransactionInProgress(spender: String)
     case insufficientBalance(_ requiredAmount: Decimal)
     case feeCurrencyHasZeroBalance(isFeeCurrency: Bool)

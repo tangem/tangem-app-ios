@@ -15,6 +15,7 @@ public extension Font {
         public enum Caption11 {}
         public enum Caption12 {}
         public enum Caption13 {}
+        public enum Subheadline {}
         public enum Body14 {}
         public enum Body15 {}
         public enum Body16 {}
@@ -48,6 +49,13 @@ public extension Font.Tangem.Caption13 {
     static let semibold: Font = .footnote.weight(.semibold)
 }
 
+// MARK: - Subheadline
+
+public extension Font.Tangem.Subheadline {
+    static let regular: Font = .subheadline.weight(.regular)
+    static let medium: Font = .subheadline.weight(.medium)
+}
+
 // MARK: - Body14
 
 public extension Font.Tangem.Body14 {
@@ -66,6 +74,7 @@ public extension Font.Tangem.Body15 {
 public extension Font.Tangem.Body16 {
     static let regular: Font = .callout.weight(.regular)
     static let semibold: Font = .callout.weight(.semibold)
+    static let medium: Font = .callout.weight(.medium)
 }
 
 // MARK: - Heading17
@@ -106,5 +115,6 @@ public extension Font.Tangem.Heading34 {
 // MARK: - Custom
 
 public extension Font.Tangem.Custom {
+    static let titleRegular40: Font = .system(size: 40, weight: .semibold, design: .default)
     static let titleRegular44: Font = .system(size: 44, weight: .semibold, design: .default)
 }

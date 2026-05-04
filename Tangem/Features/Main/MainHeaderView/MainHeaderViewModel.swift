@@ -21,7 +21,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var walletThumbnailType: ThumbnailWalletViewType?
     @Published var isLoadingSubtitle: Bool = true
-    @Published private(set) var tokenSyncProgress: Int?
+    @Published private(set) var subtitleViewState: MainHeaderSubtitleViewState = .text
 
     var subtitleContainsSensitiveInfo: Bool {
         subtitleProviderSubject.value.containsSensitiveInfo
@@ -118,10 +118,12 @@ final class MainHeaderViewModel: ObservableObject {
         Task { @MainActor in
             if let walletTokenSyncProgressPublisher = await walletTokenSyncProgressProvider.progressPublisher(for: userWalletId) {
                 walletTokenSyncProgressPublisher
-                    .map { percent in (1 ..< 100).contains(percent) ? percent : nil }
+                    .map { percent in
+                        (1 ..< 100).contains(percent) ? .progress(value: percent) : .text
+                    }
                     .removeDuplicates()
                     .receiveOnMain()
-                    .assign(to: \.tokenSyncProgress, on: self, ownership: .weak)
+                    .assign(to: \.subtitleViewState, on: self, ownership: .weak)
                     .store(in: &bag)
             }
         }

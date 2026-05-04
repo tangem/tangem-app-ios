@@ -25,6 +25,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private weak var input: SendSwapProvidersInput?
     private weak var output: SendSwapProvidersOutput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
     private let tokenItem: TokenItem
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -37,6 +38,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         input: SendSwapProvidersInput,
         output: SendSwapProvidersOutput,
         receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         tokenItem: TokenItem,
         expressProviderFormatter: ExpressProviderFormatter,
         priceChangeFormatter: PriceChangeFormatter,
@@ -45,6 +47,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         self.input = input
         self.output = output
         self.receiveTokenInput = receiveTokenInput
+        self.receiveTokenAmountInput = receiveTokenAmountInput
         self.tokenItem = tokenItem
         self.expressProviderFormatter = expressProviderFormatter
         self.priceChangeFormatter = priceChangeFormatter
@@ -71,12 +74,20 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 
 private extension SendSwapProvidersSelectorViewModel {
     func bind(input: SendSwapProvidersInput) {
-        Publishers.CombineLatest(
+        let highPriceImpactPublisher = receiveTokenAmountInput?.highPriceImpactPublisher ?? Just(nil).eraseToAnyPublisher()
+
+        Publishers.CombineLatest4(
             input.selectedExpressProviderPublisher.map { $0?.value },
-            input.expressProvidersPublisher
+            input.expressProvidersPublisher,
+            highPriceImpactPublisher,
+            input.currentRateTypePublisher
         )
         .withWeakCaptureOf(self)
-        .map { $0.prepareProviderRows(selectedProvider: $1.0, providers: $1.1) }
+        .map { viewModel, values in
+            let (selectedProvider, providers, highPriceImpactValue, currentRateType) = values
+            let hasWarning = highPriceImpactValue.map { !$0.level.isNegligible } ?? false
+            return viewModel.prepareProviderRows(selectedProvider: selectedProvider, providers: providers, currentRateType: currentRateType, hasHighPriceImpactWarning: hasWarning)
+        }
         .receiveOnMain()
         .assign(to: &$providerViewModels)
 
@@ -88,16 +99,16 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$ukNotificationInput)
     }
 
-    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider]) -> [SendSwapProvidersSelectorProviderViewData] {
+    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], currentRateType: ExpressProviderRateType?, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
-            .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
             .sortedByPriorityAndQuotes()
-            .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0) }
+            .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
 
         return viewModels
     }
 
-    func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider) -> SendSwapProvidersSelectorProviderViewData {
+    func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool) -> SendSwapProvidersSelectorProviderViewData {
         let senderCurrencyCode = tokenItem.currencySymbol
         let destinationCurrencyCode = receiveTokenInput?.receiveToken.value?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
@@ -112,7 +123,7 @@ private extension SendSwapProvidersSelectorViewModel {
             )
         )
 
-        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: availableProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: availableProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)
         let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
         case .none: .none
         case .fcaWarning: .fcaWarning
@@ -130,6 +141,7 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
+            isDisabled: state.quote == nil,
             badge: badge,
             subtitles: subtitles
         )

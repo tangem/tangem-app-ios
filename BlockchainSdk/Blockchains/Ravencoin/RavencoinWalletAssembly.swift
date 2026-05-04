@@ -39,6 +39,11 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
             blockchainName: Blockchain.ravencoin(testnet: false).displayName
         )
 
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

@@ -2,26 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>auth_wallet_hardware_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li картка</string>
-        <key>few</key>
-        <string>%li картки</string>
-        <key>many</key>
-        <string>%li карток</string>
-        <key>other</key>
-        <string>%li картки</string>
-      </dict>
-    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -42,26 +22,6 @@
         <string>%li пристроїв</string>
       </dict>
     </dict>
-    <key>card_label_token_count</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li токен</string>
-        <key>few</key>
-        <string>%li токени</string>
-        <key>many</key>
-        <string>%li токенів</string>
-        <key>other</key>
-        <string>%li токени</string>
-      </dict>
-    </dict>
     <key>common_days_no_param</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -80,6 +40,62 @@
         <string>днів</string>
         <key>other</key>
         <string>днів</string>
+      </dict>
+    </dict>
+    <key>common_days_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li day ago</string>
+        <key>other</key>
+        <string>%li days ago</string>
+      </dict>
+    </dict>
+    <key>common_hours_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li годину тому</string>
+        <key>few</key>
+        <string>%li години тому</string>
+        <key>many</key>
+        <string>%li годин тому</string>
+        <key>other</key>
+        <string>%li годин тому</string>
+      </dict>
+    </dict>
+    <key>common_minutes_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li хвилину тому</string>
+        <key>few</key>
+        <string>%li хвилини тому</string>
+        <key>many</key>
+        <string>%li хвилин тому</string>
+        <key>other</key>
+        <string>%li хвилин тому</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -275,6 +291,22 @@
         <string>%li NFT</string>
         <key>other</key>
         <string>%li NFT</string>
+      </dict>
+    </dict>
+    <key>onboarding_address_sync_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <key>other</key>
+        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>

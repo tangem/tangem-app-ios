@@ -118,7 +118,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             ForEach(indexed: data.indexed()) { index, element in
                 let pagePosition = CGFloat(index) * pageWidth
                 let distance = abs(scrollOffset - pagePosition)
-                let stationaryOpacity = max(0, 1 - distance / pageWidth)
+                let stationaryOpacity = pageWidth > 0 ? max(0, 1 - distance / pageWidth) : (index == 0 ? 1 : 0)
 
                 headerFactory(element)
                     .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)

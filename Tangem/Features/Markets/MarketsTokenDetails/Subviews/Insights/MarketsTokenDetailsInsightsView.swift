@@ -68,7 +68,6 @@ struct MarketsTokenDetailsInsightsView: View {
                 marketPriceIntervalType: $viewModel.selectedInterval,
                 options: viewModel.availableIntervals,
                 shouldStretchToFill: false,
-                isDisabled: false,
                 style: .init(textVerticalPadding: 2),
                 titleFactory: { $0.tokenDetailsNameLocalized }
             )

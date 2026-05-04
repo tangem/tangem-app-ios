@@ -18,6 +18,7 @@ class EthereumNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
 
     let blockchainName: String
+    let terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes = .failure
 
     private let decimals: Int
     private let abiEncoder: ABIEncoder

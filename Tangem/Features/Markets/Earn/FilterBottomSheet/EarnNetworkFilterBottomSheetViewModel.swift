@@ -11,9 +11,10 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemLocalization
+import protocol TangemUI.FloatingSheetContentViewModel
 
 @MainActor
-final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable {
+final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     // MARK: - ViewState
 
     @Published var currentSelection: EarnNetworkFilterType
@@ -95,6 +96,16 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         }
     }
 
+    // MARK: - Internal Methods
+
+    func onCloseTap() {
+        dismiss()
+    }
+
+    func onCancelTap() {
+        dismiss()
+    }
+
     // MARK: - Private Methods
 
     private func selectAndDismiss(network: EarnNetworkFilterType) {
@@ -105,7 +116,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
             networkId: networkId
         )
         filterProvider.didSelectNetworkFilter(network)
-        dismissAction?()
+        dismiss()
     }
 
     private func analyticsNetworkFilterParams(for network: EarnNetworkFilterType) -> (String, String) {
@@ -117,5 +128,9 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         case .specific(let networkInfo):
             return ("Specific", networkInfo.networkId)
         }
+    }
+
+    func dismiss() {
+        dismissAction?()
     }
 }

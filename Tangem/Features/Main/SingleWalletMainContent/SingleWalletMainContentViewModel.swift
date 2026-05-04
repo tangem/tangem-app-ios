@@ -18,6 +18,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationBannerItems: [NotificationBannerItem] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
+    @Published var promotionNotificationsViewModel: PromotionNotificationsViewModel
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
@@ -35,6 +36,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
+    private let promotionNotificationsManager: PromotionNotificationsManager
     private let rateAppController: RateAppInteractionController
     private let contextActionTokenRouter: SingleTokenRoutable
 
@@ -48,6 +50,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletModel: UserWalletModel,
         walletModel: any WalletModel,
         userWalletNotificationManager: NotificationManager,
+        promotionNotificationsManager: PromotionNotificationsManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
@@ -57,6 +60,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         accountModel: (any CryptoAccountModel)?
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.promotionNotificationsManager = promotionNotificationsManager
         self.rateAppController = rateAppController
         contextActionTokenRouter = tokenRouter
         self.delegate = delegate
@@ -67,6 +71,10 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
                 tokenRouter: tokenRouter
             )
         }
+
+        promotionNotificationsViewModel = PromotionNotificationsViewModel(
+            promotionNotificationsManager: promotionNotificationsManager
+        )
 
         super.init(
             userWalletInfo: userWalletModel.userWalletInfo,
@@ -118,7 +126,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
             ActionButtonsViewModel(
                 coordinator: $0,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                 userWalletModel: userWalletModel
             )
         }
@@ -143,11 +150,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenCardVariant = .token(tokenItemViewModel)
         }
 
-        redesignState = RedesignState(
-            actionButtonsViewModel: actionButtonsVM,
-            tokenCardVariant: tokenCardVariant,
-            tokenItemInfoProvider: infoProvider
-        )
+        redesignState = RedesignState(actionButtonsViewModel: actionButtonsVM, tokenCardVariant: tokenCardVariant)
     }
 
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
@@ -166,6 +169,13 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             analyticsSystems: .all
         )
         delegate?.displayAddressCopiedToast()
+    }
+
+    @MainActor
+    override func onPullToRefresh() async {
+        async let mainRefresh: Void = super.onPullToRefresh()
+        async let promotionsRefresh: Void = promotionNotificationsManager.loadPromotions()
+        _ = await (mainRefresh, promotionsRefresh)
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -279,9 +289,6 @@ extension SingleWalletMainContentViewModel {
     struct RedesignState {
         let actionButtonsViewModel: ActionButtonsViewModel?
         let tokenCardVariant: TokenCardVariant
-
-        /// Retained because `TokenItemViewModel.infoProvider` is weak
-        let tokenItemInfoProvider: DefaultTokenItemInfoProvider
 
         enum TokenCardVariant {
             /// Plain token row (no account header)

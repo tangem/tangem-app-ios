@@ -12,14 +12,14 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapTokenSelectorOutput: AnyObject {
-    func swapTokenSelectorDidRequestUpdate(sender item: AccountsAwareTokenSelectorItem)
-    func swapTokenSelectorDidRequestUpdate(destination item: AccountsAwareTokenSelectorItem)
+    func swapTokenSelectorDidRequestUpdate(sender item: TokenSelectorItem)
+    func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem)
 }
 
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
-    let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let tokenSelectorViewModel: TokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     // MARK: - Dependencies
@@ -41,7 +41,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     init(
         swapDirection: SwapDirection,
-        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        tokenSelectorViewModel: TokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
         output: SwapTokenSelectorOutput?,
         tokenSelectorCoordinator: SwapTokenSelectorRoutable,
@@ -86,15 +86,15 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func selectNewToken(_ item: AccountsAwareTokenSelectorItem) {
+    func selectNewToken(_ item: TokenSelectorItem) {
         selectToken(item)
     }
 }
 
-// MARK: - AccountsAwareTokenSelectorViewModelOutput
+// MARK: - TokenSelectorViewModelOutput
 
-extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput {
-    func userDidSelect(item: AccountsAwareTokenSelectorItem) {
+extension SwapTokenSelectorViewModel: TokenSelectorViewModelOutput {
+    func userDidSelect(item: TokenSelectorItem) {
         logPortfolioTokenSelected(item: item)
         selectToken(item)
     }
@@ -103,7 +103,7 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
 // MARK: - Private
 
 private extension SwapTokenSelectorViewModel {
-    func logPortfolioTokenSelected(item: AccountsAwareTokenSelectorItem) {
+    func logPortfolioTokenSelected(item: TokenSelectorItem) {
         let analyticsLogger = SwapSelectTokenAnalyticsLogger(
             source: .portfolio,
             userHasSearchedDuringThisSession: false
@@ -111,7 +111,7 @@ private extension SwapTokenSelectorViewModel {
         analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 
-    func selectToken(_ item: AccountsAwareTokenSelectorItem) {
+    func selectToken(_ item: TokenSelectorItem) {
         switch swapDirection {
         case .fromSource:
             output?.swapTokenSelectorDidRequestUpdate(destination: item)
@@ -120,7 +120,12 @@ private extension SwapTokenSelectorViewModel {
         }
 
         selectedTokenItem = item.tokenItem
-        tokenSelectorCoordinator?.closeSwapTokenSelector()
+
+        // Defer dismissal to the next run loop iteration to avoid
+        // destroying the sheet while SwiftUI's AttributeGraph is mid-update
+        Task { @MainActor in
+            tokenSelectorCoordinator?.closeSwapTokenSelector()
+        }
     }
 }
 
@@ -148,7 +153,7 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
 }
 
 extension SwapTokenSelectorViewModel {
-    typealias SwapDirection = AccountsAwareTokenSelectorItemSwapAvailabilityProvider.SwapDirection
+    typealias SwapDirection = TokenSelectorItemSwapAvailabilityProvider.SwapDirection
 }
 
 extension SwapTokenSelectorViewModel.SwapDirection {

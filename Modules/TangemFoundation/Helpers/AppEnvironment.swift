@@ -39,7 +39,9 @@ public extension AppEnvironment {
 
     var isUITest: Bool {
         #if DEBUG
+        // Maestro passes launch arguments via UserDefaults, not ProcessInfo environment
         return ProcessInfo.processInfo.environment["UITEST"] == "1"
+            || UserDefaults.standard.string(forKey: "UITEST") == "1"
         #else
         return false
         #endif
