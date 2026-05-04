@@ -45,7 +45,7 @@ struct NFTCollectionsAccountsGrouped: View {
                 accountData: AccountWithCollectionViewModels.AccountData(
                     id: "ID",
                     name: "Portfolio",
-                    iconData: AccountIconView.ViewData(
+                    iconData: .composite(
                         backgroundColor: .red,
                         nameMode: .letter("P")
                     )

@@ -28,7 +28,7 @@ extension EVMAddressService: AddressProvider {
             throw EVMAddressServiceError.failedToGetChecksumAddress
         }
 
-        return PlainAddress(value: checksumAddress, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: checksumAddress, type: addressType)
     }
 }
 

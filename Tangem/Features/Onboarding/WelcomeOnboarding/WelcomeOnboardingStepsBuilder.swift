@@ -20,10 +20,6 @@ struct WelcomeOnboardingStepsBuilder {
     func buildSteps() -> [WelcomeOnboardingStep] {
         var steps = [WelcomeOnboardingStep]()
 
-        if !AppSettings.shared.termsOfServicesAccepted.contains(AppConstants.tosURL.absoluteString) {
-            steps.append(.tos)
-        }
-
         if isPushNotificationsAvailable {
             steps.append(.pushNotifications)
         }

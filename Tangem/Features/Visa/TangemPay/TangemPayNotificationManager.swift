@@ -102,6 +102,7 @@ private extension TangemPayLocalState {
              .issuingCard,
              .failedToIssueCard,
              .tangemPayAccount,
+             .cardDeactivated,
              .syncNeeded,
              .syncInProgress:
             nil
